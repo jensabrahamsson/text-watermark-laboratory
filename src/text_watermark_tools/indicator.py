@@ -1,0 +1,442 @@
+"""Single-text key-free indicator: frozen count tables, no twin at inference.
+
+Fit on marked vs unmarked token counts. Persist. Load. Score one file.
+Not detector_mean. Not Claude. Not Anthropic.
+"""
+
+from __future__ import annotations
+
+import json
+from collections import Counter
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Sequence
+
+from text_watermark_tools.blind import (
+    DEFAULT_ALPHA,
+    DEFAULT_CONTEXT_LEN,
+    BlindModel,
+    NextTokenTable,
+    Twin,
+    fit_blind,
+    likelihood_ratio,
+    load_twins,
+    pair_marked_wins,
+)
+from text_watermark_tools.score import load_tokenizer
+
+INDICATOR_INSTANCE = "key-free-counts"
+TABLES_NAME = "tables.json"
+CAVEAT = (
+    "Not detector_mean. Not Claude. Not Anthropic. "
+    "≈0 is not “human” and not “Claude has no mark”."
+)
+
+
+@dataclass
+class IndicatorMeta:
+    model_name: str
+    pair_dir: str
+    n_train_prompts: int
+
+
+def _twin_file(stem: str, kind: str, sample: int) -> str:
+    if sample <= 1:
+        return f"{stem}-marked.txt" if kind == "marked" else f"{stem}-unmarked-gen.txt"
+    if kind == "marked":
+        return f"{stem}-marked-{sample}.txt"
+    return f"{stem}-unmarked-gen-{sample}.txt"
+
+
+@dataclass
+class IndicatorHoldout:
+    stems: list[str]
+    marked_lrs: list[float]
+    unmarked_lrs: list[float]
+    used_keys: bool
+    used_hash_iv: bool
+    used_g_values: bool
+    context_len: int
+    model_name: str
+    samples: list[int] | None = None
+    mode: str = "hold"
+    margin: float = 0.0
+
+    def _samples(self) -> list[int]:
+        if self.samples is None:
+            return [1] * len(self.stems)
+        return self.samples
+
+    @property
+    def n_prompts(self) -> int:
+        return len(set(self.stems))
+
+    @property
+    def n_files(self) -> int:
+        return 2 * len(self.stems)
+
+    @property
+    def n_marked_above_unmarked(self) -> int:
+        return sum(
+            pair_marked_wins(m, u, margin=self.margin)
+            for m, u in zip(self.marked_lrs, self.unmarked_lrs, strict=True)
+        )
+
+    @property
+    def n_marked_positive(self) -> int:
+        # Soft bar: lr > -margin. margin=0 is the old lr>0 count.
+        return sum(m > -self.margin for m in self.marked_lrs)
+
+    @property
+    def n_unmarked_nonpositive(self) -> int:
+        return sum(u <= self.margin for u in self.unmarked_lrs)
+
+    @property
+    def n_prompts_marked_above(self) -> int:
+        """Mean LR per prompt, then marked (+margin) ≥ unmarked. Same grain as blind."""
+        buckets: dict[str, list[tuple[float, float]]] = {}
+        for stem, m, u in zip(self.stems, self.marked_lrs, self.unmarked_lrs, strict=True):
+            buckets.setdefault(stem, []).append((m, u))
+        n = 0
+        for pairs in buckets.values():
+            marked_mean = sum(m for m, _ in pairs) / len(pairs)
+            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
+            if pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
+                n += 1
+        return n
+
+
+def _dump_table(table: NextTokenTable) -> dict:
+    counts = []
+    for ctx in sorted(table.counts, key=lambda c: (len(c), c)):
+        nxt = table.counts[ctx]
+        counts.append(
+            {
+                "ctx": [int(x) for x in ctx],
+                "next": {str(int(k)): int(v) for k, v in sorted(nxt.items())},
+            }
+        )
+    return {
+        "context_len": table.context_len,
+        "n_tokens": table.n_tokens,
+        "unigram": {str(int(k)): int(v) for k, v in sorted(table.unigram.items())},
+        "counts": counts,
+    }
+
+
+def _load_table(raw: dict) -> NextTokenTable:
+    table = NextTokenTable(context_len=int(raw["context_len"]))
+    table.n_tokens = int(raw["n_tokens"])
+    table.unigram = Counter({int(k): int(v) for k, v in raw["unigram"].items()})
+    for row in raw["counts"]:
+        ctx = tuple(int(x) for x in row["ctx"])
+        table.counts[ctx] = Counter(
+            {int(k): int(v) for k, v in row["next"].items()}
+        )
+    return table
+
+
+def fit_indicator(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    alpha: float = DEFAULT_ALPHA,
+    backoff: bool = False,
+) -> BlindModel:
+    if not twins:
+        raise ValueError("need at least one twin prompt to fit the indicator")
+    return fit_blind(
+        [ids for t in twins for ids in t.marked_seqs()],
+        [ids for t in twins for ids in t.unmarked_seqs()],
+        context_len=context_len,
+        alpha=alpha,
+        backoff=backoff,
+    )
+
+
+def persist_indicator(
+    model: BlindModel,
+    out_dir: Path,
+    *,
+    model_name: str = "gpt2",
+    pair_dir: str = "",
+    n_train_prompts: int = 0,
+) -> Path:
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("refusing to persist an indicator that used keys")
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "kind": "key-free-indicator",
+        "instance": INDICATOR_INSTANCE,
+        "model_name": model_name,
+        "pair_dir": pair_dir,
+        "n_train_prompts": n_train_prompts,
+        "context_len": model.context_len,
+        "alpha": model.alpha,
+        "backoff": model.backoff,
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "vocab": sorted(int(t) for t in model.vocab),
+        "marked": _dump_table(model.marked),
+        "unmarked": _dump_table(model.unmarked),
+        "caveat": CAVEAT,
+    }
+    path = out_dir / TABLES_NAME
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / TABLES_NAME
+    raw = json.loads(path.read_text())
+    if raw.get("kind") != "key-free-indicator":
+        raise ValueError(f"not a key-free indicator table: {path}")
+    if raw.get("used_keys") or raw.get("used_hash_iv") or raw.get("used_g_values"):
+        raise RuntimeError("indicator file claims it used keys / hash_iv / g")
+    model = BlindModel(
+        marked=_load_table(raw["marked"]),
+        unmarked=_load_table(raw["unmarked"]),
+        context_len=int(raw["context_len"]),
+        alpha=float(raw["alpha"]),
+        vocab=set(int(t) for t in raw["vocab"]),
+        backoff=bool(raw.get("backoff", False)),
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+    meta = IndicatorMeta(
+        model_name=str(raw.get("model_name") or "gpt2"),
+        pair_dir=str(raw.get("pair_dir") or ""),
+        n_train_prompts=int(raw.get("n_train_prompts") or 0),
+    )
+    return model, meta
+
+
+def score_text(text: str, model: BlindModel, *, tokenizer) -> float:
+    """Key-free LR of one string. No twin. Positive ⇒ more like the marked pile."""
+    ids = tokenizer(text)["input_ids"]
+    return likelihood_ratio(ids, model)
+
+
+def format_indicator(
+    label: str,
+    lr: float,
+    *,
+    n_tokens: int,
+    used_keys: bool,
+) -> str:
+    return (
+        f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
+        f"instance={INDICATOR_INSTANCE} used_keys={used_keys} "
+        f"not_detector_mean=true {CAVEAT}"
+    )
+
+
+def holdout_single_text(
+    twins: Sequence[Twin],
+    hold_stems: Sequence[str],
+    *,
+    context_len: int = 4,
+    alpha: float = DEFAULT_ALPHA,
+    backoff: bool = False,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    hold = set(hold_stems)
+    if len(hold) < 2:
+        raise ValueError("hold-out needs at least two prompt stems")
+    train = [t for t in twins if t.stem not in hold]
+    held = [t for t in twins if t.stem in hold]
+    if len(held) != len(hold):
+        missing = hold - {t.stem for t in held}
+        raise FileNotFoundError(f"hold-out stems not in corpus: {sorted(missing)}")
+    if not train:
+        raise ValueError("hold-out left no training prompts")
+    model = fit_indicator(
+        train, context_len=context_len, alpha=alpha, backoff=backoff
+    )
+    tok = load_tokenizer(model_name)
+    marked_lrs: list[float] = []
+    unmarked_lrs: list[float] = []
+    stems: list[str] = []
+    for t in held:
+        # Score the primary files only, one string at a time.
+        marked_lrs.append(score_text(t.marked_text, model, tokenizer=tok))
+        unmarked_lrs.append(score_text(t.unmarked_text, model, tokenizer=tok))
+        stems.append(t.stem)
+    return IndicatorHoldout(
+        stems=stems,
+        marked_lrs=marked_lrs,
+        unmarked_lrs=unmarked_lrs,
+        used_keys=model.used_keys,
+        used_hash_iv=model.used_hash_iv,
+        used_g_values=model.used_g_values,
+        context_len=context_len,
+        model_name=model_name,
+        samples=[1] * len(stems),
+        mode="hold",
+        margin=margin,
+    )
+
+
+def rotate_holdout(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    alpha: float = DEFAULT_ALPHA,
+    backoff: bool = False,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    """Leave one prompt out: fit the rest, score each held file alone.
+
+    Extra samples of the held prompt are scored as their own files. They
+    never enter the fit. That is the single-text product question.
+    """
+    if len(twins) < 3:
+        raise ValueError("rotate hold-out needs at least three prompts")
+    stems: list[str] = []
+    samples: list[int] = []
+    marked_lrs: list[float] = []
+    unmarked_lrs: list[float] = []
+    used_keys = used_hash = used_g = False
+    for held in twins:
+        train = [t for t in twins if t.stem != held.stem]
+        model = fit_indicator(
+            train, context_len=context_len, alpha=alpha, backoff=backoff
+        )
+        used_keys = used_keys or model.used_keys
+        used_hash = used_hash or model.used_hash_iv
+        used_g = used_g or model.used_g_values
+        marked_seqs = held.marked_seqs()
+        unmarked_seqs = held.unmarked_seqs()
+        n = min(len(marked_seqs), len(unmarked_seqs))
+        for i in range(n):
+            marked_lrs.append(likelihood_ratio(marked_seqs[i], model))
+            unmarked_lrs.append(likelihood_ratio(unmarked_seqs[i], model))
+            stems.append(held.stem)
+            samples.append(i + 1)
+    return IndicatorHoldout(
+        stems=stems,
+        marked_lrs=marked_lrs,
+        unmarked_lrs=unmarked_lrs,
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+        context_len=context_len,
+        model_name=model_name,
+        samples=samples,
+        mode="rotate",
+        margin=margin,
+    )
+
+
+def print_holdout(ev: IndicatorHoldout) -> str:
+    lines = [
+        (
+            f"indicate holdout mode={ev.mode} n_prompts={ev.n_prompts} "
+            f"n_files={ev.n_files} "
+            f"marked_above_unmarked={ev.n_marked_above_unmarked} "
+            f"prompts_marked_above={ev.n_prompts_marked_above} "
+            f"marked_lr_positive={ev.n_marked_positive} "
+            f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
+            f"margin={ev.margin:g} context_len={ev.context_len} "
+            f"used_keys={ev.used_keys} hash_iv={ev.used_hash_iv} "
+            f"g_values={ev.used_g_values} instance={INDICATOR_INSTANCE}"
+        ),
+        CAVEAT,
+    ]
+    for stem, sample, m, u in zip(
+        ev.stems, ev._samples(), ev.marked_lrs, ev.unmarked_lrs, strict=True
+    ):
+        flag = (
+            "marked_higher"
+            if pair_marked_wins(m, u, margin=ev.margin)
+            else "unmarked_higher"
+        )
+        marked_name = _twin_file(stem, "marked", sample)
+        unmarked_name = _twin_file(stem, "unmarked", sample)
+        lines.append(f"{marked_name}: lr={m:.6f} instance={INDICATOR_INSTANCE}")
+        lines.append(f"{unmarked_name}: lr={u:.6f} instance={INDICATOR_INSTANCE}")
+        lines.append(f"{stem}#{sample}: {flag}")
+    return "\n".join(lines)
+
+
+def holdout_from_json(path: Path, *, margin: float | None = None) -> IndicatorHoldout:
+    """Reload a persist_holdout table. Optional new margin, same LRs."""
+    raw = json.loads(Path(path).read_text())
+    stems: list[str] = []
+    samples: list[int] = []
+    marked_lrs: list[float] = []
+    unmarked_lrs: list[float] = []
+    pending: dict[tuple[str, int], dict[str, float]] = {}
+    for row in raw["files"]:
+        key = (str(row["stem"]), int(row["sample"]))
+        bucket = pending.setdefault(key, {})
+        if "unmarked" in row["file"]:
+            bucket["u"] = float(row["lr"])
+        else:
+            bucket["m"] = float(row["lr"])
+    for stem, sample in sorted(pending, key=lambda k: (k[0], k[1])):
+        bucket = pending[(stem, sample)]
+        stems.append(stem)
+        samples.append(sample)
+        marked_lrs.append(bucket["m"])
+        unmarked_lrs.append(bucket["u"])
+    applied = float(raw.get("margin", 0.0) if margin is None else margin)
+    return IndicatorHoldout(
+        stems=stems,
+        marked_lrs=marked_lrs,
+        unmarked_lrs=unmarked_lrs,
+        used_keys=bool(raw.get("used_keys", False)),
+        used_hash_iv=bool(raw.get("used_hash_iv", False)),
+        used_g_values=bool(raw.get("used_g_values", False)),
+        context_len=int(raw.get("context_len", 4)),
+        model_name=str(raw.get("model_name") or "gpt2"),
+        samples=samples,
+        mode=str(raw.get("mode") or "hold"),
+        margin=applied,
+    )
+
+
+def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    table = {
+        "mode": ev.mode,
+        "n_prompts": ev.n_prompts,
+        "n_files": ev.n_files,
+        "n_marked_above_unmarked": ev.n_marked_above_unmarked,
+        "n_prompts_marked_above": ev.n_prompts_marked_above,
+        "n_marked_lr_positive": ev.n_marked_positive,
+        "n_unmarked_lr_nonpositive": ev.n_unmarked_nonpositive,
+        "margin": ev.margin,
+        "used_keys": ev.used_keys,
+        "used_hash_iv": ev.used_hash_iv,
+        "used_g_values": ev.used_g_values,
+        "context_len": ev.context_len,
+        "model_name": ev.model_name,
+        "instance": INDICATOR_INSTANCE,
+        "caveat": CAVEAT,
+        "files": [],
+    }
+    for stem, sample, m, u in zip(
+        ev.stems, ev._samples(), ev.marked_lrs, ev.unmarked_lrs, strict=True
+    ):
+        table["files"].append(
+            {"file": _twin_file(stem, "marked", sample), "lr": m, "stem": stem, "sample": sample}
+        )
+        table["files"].append(
+            {
+                "file": _twin_file(stem, "unmarked", sample),
+                "lr": u,
+                "stem": stem,
+                "sample": sample,
+            }
+        )
+    (out_dir / "holdout.json").write_text(json.dumps(table, indent=2) + "\n")
+    (out_dir / "holdout.md").write_text(print_holdout(ev) + "\n")

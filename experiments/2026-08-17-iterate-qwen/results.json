@@ -1,0 +1,30 @@
+{
+  "operator": "qwen",
+  "model": "qwen-plus",
+  "via": "paraphrase",
+  "instance": "public-deepmind-30",
+  "ngram_len": 5,
+  "mean_tol": 0.03,
+  "min_unmasked_ngrams": 80,
+  "max_passes": 3,
+  "stopped_at_chance": true,
+  "note": "Stop condition is official detector_mean near 0.50 on the public DeepMind 30-key instance. Not a vendor-oracle. Not a remover.",
+  "passes": [
+    {
+      "n": 0,
+      "mean": 0.6232240200042725,
+      "weighted_mean": 0.6419788002967834,
+      "n_tokens": 126,
+      "n_unmasked_ngrams": 122,
+      "at_chance": false
+    },
+    {
+      "n": 1,
+      "mean": 0.5088889002799988,
+      "weighted_mean": 0.5052055716514587,
+      "n_tokens": 124,
+      "n_unmasked_ngrams": 120,
+      "at_chance": true
+    }
+  ]
+}

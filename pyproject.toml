@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "text-watermark-tools"
+version = "0.1.0"
+description = "SynthID-Text scoring (DeepMind public 30-key instance) and key-free twin tests."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "numpy>=1.26",
+  "torch",
+  "transformers==4.57.6",
+  "immutabledict",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+jax-cpu = ["jax", "flax", "jaxtyping", "optax"]
+
+[project.scripts]
+text-watermark-tools = "text_watermark_tools.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
