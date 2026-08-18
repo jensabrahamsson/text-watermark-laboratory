@@ -1,43 +1,54 @@
 # Claude and text marking
 
-What follows is what Anthropic has written, plus launch dates. It is not a measurement of their mark. Our `score` uses DeepMind’s public keys. That is the **wrong instance** for Claude.
+Anthropic has announced text marking based on "a version of" DeepMind's SynthID-Text approach.
 
-## Anthropic (Aug 2026)
+For this laboratory, the interesting question is not whether DeepMind's **public** keys score Claude text. They are a different watermark instance. The interesting question is whether a real production mark with unavailable keys can be detected statistically from paired data.
 
-- Method: “a version of” DeepMind SynthID-Text 2024. Nothing is inserted into the string. The mark sits in the word choices.
-- Day-one: models launched **2 August 2026 or later**, everywhere they list (API, Claude, Claude Code, cloud partners), worldwide.
-- Older models: retrofit “in progress”. They update the Help Center when there is news.
-- Detector: promised, **not released** (no public Messages endpoint as of mid-August 2026).
-- C2PA on image files is a different mark (file metadata), not text.
+## What Anthropic has announced
 
-Sources: [Help Center](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content), [news post](https://www.anthropic.com/news/claude-text-watermark).
+As of August 2026, Anthropic says:
 
-## Launch dates (before the cutoff)
+- the text mark is based on "a version of" SynthID-Text;
+- models launched on or after **2 August 2026** are marked from day one in the surfaces they list;
+- retrofit of older models is in progress;
+- a detector is planned but is not yet publicly available;
+- the mark is expressed through generated word/token choices rather than hidden characters.
 
-| Model | Launched |
+Sources:
+
+- [Anthropic Help Center](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content)
+- [Anthropic announcement](https://www.anthropic.com/news/claude-text-watermark)
+
+## Relevant launch dates
+
+| Model | Launch |
 |---|---|
 | Fable 5 | 9 Jun 2026 |
 | Sonnet 5 | **30 Jun 2026** |
 | Opus 5 | 24 Jul 2026 |
 
-Sonnet 5 is therefore **not** a day-one marked model. Whether a retrofit has already landed on it is unpublished. We do not have their detector, so we cannot check.
+Those releases predate the 2 August day-one policy. Their eventual retrofit status therefore has to be established separately rather than inferred from model name alone.
 
-## What they say happens to text
+## What the public DeepMind scorer tells us
 
-| Situation | What they describe |
-|---|---|
-| Claude writes everything (including translation) | Full — every word is Claude’s choice |
-| Light proofread / grammar only | Almost none; can miss even *their* detector |
-| Full rewrite | Their mark can sit in the new words |
-| Short / fact-heavy / exact code | Weak or none |
-| A human edits further | Their signal thins |
+Almost nothing about Claude's own mark.
 
-They say a hit on *their* detector (when it exists) means “Claude was involved”, not “Claude is the original author”.
+A Claude output near 0.50 under `public-deepmind-30` means it does not align with **that public key set**. It is not evidence that Claude contains no watermark.
 
-## Our lamp against Claude
+We have used Claude as a rewriter of text carrying our known public-instance mark. That measures how rewriting affects **our** mark, which is a valid and separate experiment.
 
-DeepMind’s public 30 keys ≠ Claude’s keys. 0.50 on Sonnet 5 output means **our** 5-grams are gone. It does not mean Claude is unmarked.
+## The real Claude experiment
 
-We have used Claude as a rewriter to measure *our* mark ([experiments/2026-08-15-gpt2-sonnet5/](../experiments/2026-08-15-gpt2-sonnet5/)). Not as an oracle for theirs.
+The key-free indicator gives us a more interesting route.
 
-The control pile for a later same-prompt comparison: [paired-corpus.md](paired-corpus.md), `experiments/claude-premark-2026-08/`.
+We already have a pre-mark/control corpus in:
+
+```text
+experiments/claude-premark-2026-08/
+```
+
+Once a comparable marked condition is available, the same prompt strings can be rerun. We can then fit the statistical shift between the two conditions without access to Anthropic's detector keys.
+
+That is the experiment described in [paired-corpus.md](paired-corpus.md).
+
+The goal is not to claim an Anthropic-equivalent detector. The goal is to test whether the key-free signal observed in the controlled DeepMind experiment transfers to a production watermark whose keys are actually unavailable.

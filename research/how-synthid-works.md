@@ -1,53 +1,96 @@
 # How SynthID-Text works
 
-Source: the `synthid-text` checkout (Nature reference) plus Nature SI. Not Claude production, not the Gemini app.
+This note describes the public `google-deepmind/synthid-text` reference implementation used by the laboratory.
 
-## The mark is not in the string
+## The watermark is a sampling bias
 
-No hidden characters, no metadata. The mark is *which tokens the sampler chose*. A keyed tournament replaces ordinary randomness. Detection asks whether the chosen tokens match binary g-values more often than 1/2.
+SynthID-Text does not insert hidden Unicode, metadata, or a literal tag into the output.
 
-## Hash → g
+The watermark is encoded in **which tokens the sampler chooses**.
 
-Default in the mixin (`DEFAULT_WATERMARKING_CONFIG`):
+During generation, a keyed function assigns binary g-values to candidate tokens in context. The sampler slightly favours candidates whose g-values align with the watermark. Detection later asks whether the observed token sequence contains more of that keyed structure than chance predicts.
 
-- `ngram_len = 5` (context \(H=4\))
-- 30 public keys: `654, 400, 836, …, 960`
-- `context_history_size = 1024`
+That is why the mark can survive as a statistical property of ordinary-looking text.
 
-`hash_iv = SHA-256(all key bytes)` as the start. Then LCG (`accumulate_hash`, multiplier `6364136223846793005`, increment `1`) over n-gram tokens and the layer key. Twelve extra mixes. \(g = (\mathrm{hash} \gg 30) \bmod 2\).
+## Public reference configuration
 
-README: the LCG has **no** crypto guarantee. The keys in the reference are public. `hash_iv` depends on the **whole** key vector — you cannot test one key at a time with the right start value.
+The default reference setup used here has:
 
-Docstring vs code: `get_gvals` talks about “the lowest three bits”. The implementation is 12× LCG then `(>> 30) % 2`. Trust the code.
+```text
+ngram_len = 5
+context length H = 4
+30 public keys
+context_history_size = 1024
+```
+
+The initial `hash_iv` is SHA-256 over the complete key vector. The implementation then applies the LCG in `accumulate_hash` over context tokens and the layer key.
+
+The actual `get_gvals` implementation performs 12 LCG mixes followed by:
+
+```python
+(hash >> 30) % 2
+```
+
+The docstring's description of "the lowest three bits" does not match the code.
 
 ## Sampling
 
-Only top-k is reweighted. Temp first, then the tournament. Two leaves, one layer:
+Only the top-k candidate set is reweighted.
 
-\[
-p \leftarrow p\,(1 + g - g_{\mathrm{mass}})
-\]
+At a high level:
 
-Repeated context hash ⇒ no extra mark. The first \(H\) tokens are not scored.
+```text
+language-model probabilities
+        ↓
+temperature
+        ↓
+keyed tournament / g-values
+        ↓
+slightly reweighted probabilities
+        ↓
+sample next token
+```
 
-Low temperature ⇒ mass on 1–2 tokens ⇒ weaker mark. High temp (mixin max **1.0**) ⇒ more surface.
+Repeated context hashes are masked so they do not add repeated watermark evidence. The first `H` tokens cannot form a complete scored context.
+
+Low temperature concentrates probability on very few candidates and gives the watermark less freedom to steer token choice. Higher temperature gives the tournament more surface to work with.
 
 ## Detection
 
-All three drop the EOS suffix and already-seen contexts.
+The public implementation contains three related scoring approaches:
 
-| Scorer | What | Training |
+| Scorer | Idea | Training |
 |---|---|---|
-| Mean | average of unmasked \(g\) | no |
-| Weighted mean | weights `linspace(10, 1)` across depth | no |
-| Bayesian | \(P(w\mid g)\), \(P(g\mid\neg w)=1/2\) | yes, **per key** |
+| Mean | average unmasked g-value | none |
+| Weighted mean | depth-weighted g-value average | none |
+| Bayesian | model `P(w | g)` | per-key training |
 
-Unmarked: \(\mathbb{E}[g]=1/2\). One layer, \(N=2\), uniform LM: \(\mathbb{E}[g\mid\mathrm{wm}] \approx 0.5 + 0.25(1-1/|V|)\). More layers add less extra bias (collision entropy).
+For unmarked text:
 
-The README points at `train_detector_bayesian.py`. That file **does not exist**. Use `detector_bayesian.train` / `train_best_detector_given_g_values`.
+\[
+E[g] = 1/2
+\]
 
-## Claude vs this code
+With the correct watermark instance, generation biases the observed g-values upward.
 
-Anthropic: “a version of” the 2024 method. Unpublished: keys, \(H\), depth, hash, tokenizer, thresholds. Day-one from **2 Aug 2026**. Sonnet 5 / Opus 5 / Fable 5 are older; retrofit “in progress”. No public detector.
+This is why a sufficiently long marked sample scores well above 0.50 under the matching keys, while an unrelated key set converges toward 0.50.
 
-This repo’s detector on Claude text is the **wrong instance**, even if the family matches.
+## Why the key-free indicator is possible
+
+The official detector projects the text through the keyed g-value function.
+
+Our key-free experiments deliberately throw that projection away and ask a different question:
+
+> Does watermark-biased sampling alter observable token/context frequencies enough to distinguish marked from unmarked generations statistically?
+
+The experiments say yes under the tested matched/repeated conditions.
+
+That does **not** imply that we have reconstructed the keys. See [invertibility.md](invertibility.md).
+
+## Production systems
+
+A production implementation can change the keys, tokenizer, context length, hashing, depth, and detector calibration while still belonging to the same general watermarking family.
+
+So the public DeepMind scorer is a reference implementation, not a universal detector.
+
+This distinction is what motivates the paired key-free experiments.

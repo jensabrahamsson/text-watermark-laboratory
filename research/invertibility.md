@@ -1,51 +1,57 @@
-# Can you work backwards?
+# Why the key-free indicator is not key recovery
 
-Short: **not from a text.** Not the keys, not the SHA-256 IV, not the official green/red partition.
+The laboratory can infer **watermark-like statistical structure without the keys**. That should not be confused with recovering the keys themselves.
 
-## What recovering a key would mean
+## What the official detector needs
 
-`detector_mean` needs the same keys and the same n-gram window as at generation. Without that there are no g-values to invert. The theory models the hash as a PRF and does not claim that \(k\) sits in the string.
-
-## Where the bias lives
-
-More text makes a biased coin clearer **if you know which side is heads**. The key *is* that definition.
-
-Raw text / unigrams are deliberately almost unbiased (that is why quality holds). The projection
+DeepMind's `detector_mean` evaluates g-values generated from:
 
 ```text
-tokens → [IV from ALL keys] → n-gram hash → layer key → 1 bit
+tokens
+  → IV derived from the complete key vector
+  → context hash
+  → layer key
+  → binary g-value
 ```
 
-gives \(\mathbb{E}[g]\approx 0.53\text{–}0.62\) with the right key and \(0.50\) with the wrong key. More text + wrong key gives a *more confident* 0.50.
+To reproduce the official detector, you need the same watermark configuration used during generation.
 
-`hash_iv` is SHA-256 of the **entire** key list. Wrong IV ⇒ other bits. Searching one key with the right start requires that you already have all the keys.
+The finished text does not contain the key vector or SHA-256 IV as an embedded field.
 
-## What does not work (static text)
+## More text does not reveal a wrong key
 
-No reviewed source shows:
+There is a useful analogy with a biased coin.
 
-- algebraic inversion of `accumulate_hash`
-- a SHA-256 preimage of `hash_iv`
-- recovery of secret keys from tokens alone
+If you know which outcome the watermark calls "1", more observations make the bias clearer. The key defines that mapping.
 
-Neither the IV nor the keys are written into the token stream.
+With the wrong mapping, more text does not gradually reveal the right one. It instead gives a more stable estimate near chance.
 
-The LCG has no crypto guarantee. That is not the same as “so we can solve \(k\) from an essay”. Production hashes (Gemini app, Claude) can also be a different function. Hugging Face’s processor starts from ones + a sampling table and says explicitly that that hash differs from the Gemini app.
+That is exactly what makes the public reference scorer specific to its own instance.
 
-## What published methods do instead
+## What our key-free method does instead
 
-They **query a marked generator many times** and estimate context-dependent rules. That does not give this repo’s `detector_mean` and not the integers in `keys`. Published notes (ETH blog, layer-count papers) report that kind of estimate. They are not Claude figures and not a method we ship.
+We do **not** try to invert the hash or solve for the public key integers.
 
-Putting a fake mark on human text is a different goal and is out of scope.
+We learn observable distributional differences from paired data:
 
-## Claude text specifically
+```text
+same prompt
+  ├── watermark off → unmarked distribution
+  └── watermark on  → marked distribution
+```
 
-A paste gives the wrong tokenizer, unknown hash, unknown \(H\), unknown IV, and the text may not even be marked (Sonnet 5 is before the 2 Aug cutoff). A key that happens to give mean > 0.5 on *your* pasted text is almost certainly a false hit.
+From those samples we estimate token/context tendencies and calculate a likelihood ratio for held-out text.
 
-“Improve T” isolates Claude’s *choices*, but those choices are almost only style. \(\varepsilon\) in g-space drowns in the model prior. Low temp on T makes the mark *weaker*.
+This is a surrogate for **presence**, not a reconstruction of the official detector.
 
-## What we *can* compute
+## Static text vs generator access
 
-The reference keys are public. Then there is nothing to invert — we score. We did that on 2026-08-15. See [experiments/2026-08-15-gpt2-sonnet5/](../experiments/2026-08-15-gpt2-sonnet5/).
+A single static paragraph gives far less information than repeated access to a marked generator.
 
-When we *pretend* the keys are unknown, we do not invert them either. We generate the same prompt with the mixin on and off, and fit token counts. That run: [key-free-twins.md](key-free-twins.md). `detector_mean` 12/12; key-free `blind` 8/12.
+Published attacks on statistical watermarks typically exploit many generated samples to estimate context-dependent preferences. That is a different problem from algebraically recovering the secret state from one string.
+
+The experiments in this repository stay on the inference side: can enough paired observations reveal a usable statistical signature?
+
+Current answer: **yes, at matched/repeated prompt grain; much less reliably for one isolated file.**
+
+See [key-free-twins.md](key-free-twins.md).

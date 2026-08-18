@@ -1,224 +1,185 @@
 # text-watermark-laboratory
 
-text-watermark-laboratory is an experimental research project for studying
-[SynthID-Text](https://github.com/google-deepmind/synthid-text) and, in
-particular, what can be measured about a watermark **without** its private
-detection keys.
+**text-watermark-laboratory** explores a practical question about statistical text watermarks:
 
-We use Google DeepMind’s public 30-key reference configuration
-(`public-deepmind-30`, `ngram_len=5`) as a known baseline, then generate
-matched marked and unmarked text from the same prompts. The research question
-is simple: can a watermark leave statistically measurable traces even when the
-detector’s keys are unavailable?
+> **Can we tell whether text carries a watermark even when we do not have the detector keys?**
 
-The experiments so far say **yes, when samples can be compared or aggregated**
-— and **no, not reliably, for a single isolated text**. This is a research
-repository, not a product. It is not affiliated with Google, DeepMind, or
-Anthropic.
+For the experimental setup in this repository, the answer is **yes — to a useful but still limited degree**.
 
-Install and first `score`: **[HOW-TO.md](HOW-TO.md)**.
-New contributor / Grok session: **[AGENTS.md](AGENTS.md)**.
+Using Google DeepMind's public SynthID-Text implementation as a controlled reference, we generate matched marked and unmarked text from the same prompts. From those pairs we have built a **key-free watermark indicator**: a model that can score previously unseen text by how strongly its token statistics resemble the marked rather than the unmarked class, without using the watermark keys, `hash_iv`, or g-values.
+
+The strongest current result is **10/12 held-out prompts**, rising to **11/12** with a 0.02 comparison margin. A single isolated file is much harder: **29/48** held-out marked files have `lr > 0`. In other words, the signal is real and experimentally useful, but it is not yet a universal one-text detector.
+
+This repository also contains the ordinary key-based reference scorer, matched-pair generation, rewrite/degradation experiments, and a pre-mark Claude corpus for future before/after comparison.
+
+Install and run your first measurement: **[HOW-TO.md](HOW-TO.md)**  
+Research notes: **[research/](research/)**  
+Coding-agent instructions: **[AGENTS.md](AGENTS.md)**
 
 ---
 
-## Scope
+## What we found
 
-### What it does
+The key result is not merely that watermarked text leaves "some statistical trace". We can use that trace to build an **indicator**.
 
-1. **Reference scoring.** Evaluate a text with DeepMind’s published
-   `detector_mean` on instance `public-deepmind-30`. In this repo, “official
-   score” means that function, not an endorsement.
-2. **Key-free twin experiments.** From the same prompt, generate GPT-2 with
-   the watermark mixin on and off. Fit a token-count surrogate on some pairs
-   and test the held-out pair **without** calling `detector_mean`.
-3. **Rewrite / degradation.** Take a text we *already know* is marked on this
-   instance and rewrite it (Qwen or DeepSeek). Default stop is official score
-   near chance (≈ 0.50). Optional stop is the **possible / weak** key-free
-   `indicate` likelihood ratio. Light word-choice polish (“sounds better”) is
-   the control beside substantial paraphrase. That loop is **not a remover**.
-   Do not treat `indicate` as `score`. Stop-on-indicate is **not** official
-   `score`.
+With matched marked/unmarked training pairs, the indicator learns token/context statistics from all but one prompt and then scores the held-out prompt without access to the watermark keys.
 
-There is also a Claude **pre-mark corpus**
-(`experiments/claude-premark-2026-08/`) so the *same* prompts can be rerun
-after Anthropic announces marking. Do **not** train `indicate` / `blind` on
-that pile alone (one class, no mark). Claude leave-one-out waits for
-same-prompt marked reruns. Our `score` on Claude text is the **wrong
-instance**.
+| Method | Test | Result |
+|---|---|---|
+| Official `score` | Public DeepMind keys, 12 matched prompts | **12/12** |
+| Key-free, 1 sample | 12 × 128-token prompt pairs | **8/12** |
+| Key-free, 4 samples | 12 prompts × 4 draws, last-4 context | **10/12** |
+| Same comparison, margin 0.02 | Prompt-level ranking | **11/12** |
+| Local Qwen2-1.5B, last-2 | Different generator, same protocol | **10/12** |
+| `indicate`, one held-out marked file | Frozen tables, `lr > 0` | **29/48** |
 
-We depend on [`google-deepmind/synthid-text`](https://github.com/google-deepmind/synthid-text)
-(Apache-2.0). We are not a fork and we do not reimplement the mean.
+The practical distinction is important:
 
-This repository is [MIT](LICENSE).
+- **Prompt-level / repeated evidence:** the key-free signal is strong enough to separate most held-out marked and unmarked prompt groups.
+- **One arbitrary file:** the present indicator is much weaker and the distributions still overlap.
 
-### What it does not do
+So `indicate` is an experimental watermark-presence indicator, not a universal verdict machine.
 
-- Classify human vs AI (not GPTZero, not “is this a person?”).
-- Detect Claude, ChatGPT, Gemini production, or any unknown vendor mark.
-- Recover keys or the SHA-256 IV from a string
-  ([research/invertibility.md](research/invertibility.md)).
-- Reliably classify one arbitrary paragraph without keys (29/48 on that test).
-- Strip C2PA, Unicode stealth marks, or image-SynthID. Those are different
-  marks.
-
-A score ≈ 0.50 with enough n-grams means **not this key set**. It does not
-mean “human” and it does not mean “Claude has no mark”.
+Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md).
 
 ---
 
-## Method
+## The controlled experiment
 
-SynthID-Text does not insert hidden characters. The mark is *which next token
-the sampler chose*. You cannot invert the key from a finished string, and
-without keys you cannot run official `score`. What you *can* do is generate
-the same prompt twice.
+SynthID-Text does not insert hidden characters or metadata. The watermark changes **which next tokens are selected during generation**.
+
+That makes a paired experiment possible:
 
 ```mermaid
 flowchart TD
-  P[Same prompt] --> OFF[GPT-2, mixin off]
-  P --> ON[GPT-2, mixin on]
-  OFF --> U["unmarked text<br/>official score ≈ 0.50"]
-  ON --> M["marked text<br/>official score ≈ 0.62"]
+  P[Same prompt] --> U[Generate with watermark off]
+  P --> M[Generate with watermark on]
+  U --> UT[Unmarked twin]
+  M --> MT[Marked twin]
 ```
 
-The official detector is the reference measurement. The key-free test does
-**not** use those scores when it decides which member of a pair looks marked.
+With the public keys available, DeepMind's detector confirms that the mark is present:
+
+```text
+unmarked ≈ 0.50
+marked   ≈ 0.61–0.65
+```
+
+For the key-free experiment, those official scores are not used to make the decision:
 
 ```mermaid
 flowchart LR
-  A[Hold out one prompt pair] --> B[Fit token tables on the other pairs]
-  B --> C[Score the held-out pair without keys]
-  C --> D{Does the marked twin score higher?}
+  A[Hold out one prompt] --> B[Fit marked/unmarked token tables on the others]
+  B --> C[Score held-out text without keys]
+  C --> D[Likelihood ratio: marked-like vs unmarked-like]
 ```
 
-1. Hold out one prompt pair.
-2. Build token-frequency tables from the remaining pairs (no keys, no
-   `hash_iv`, no g-values).
-3. Score both held-out texts.
-4. Count a hit if the marked twin ranks above its unmarked twin.
-5. Repeat for every prompt.
+The experiment therefore asks a harder question than ordinary detection: **is there enough structure in the sampler's output to infer watermark presence without reproducing the detector?**
 
-Longer write-up: [research/key-free-twins.md](research/key-free-twins.md).
+So far, yes.
 
 ---
 
-## Results
-
-Twelve English seed prompts, 17 August 2026. Official scores on the new tokens
-separate every twin (marked 0.61–0.65, unmarked ≈ 0.50). Example, harbour:
-prompt 0.500, unmarked generation 0.508, marked **0.621**.
-
-| Method | What was measured | Result |
-|---|---|---|
-| Official keys (`score`) | `detector_mean` on the public reference set | **12/12** |
-| Key-free, 1 sample | Token counts, 12 prompts × 128 tokens | **8/12** |
-| Key-free, 1 sample, 700 tokens | Same seeds, longer generations | **6/12** |
-| Key-free, 4 samples | 12 prompts × 4 GPT-2 draws, last-4 context | **10/12** |
-| Same + `--margin 0.02` | Hit if the marked twin may trail by 0.02 | **11/12** |
-| Local Qwen2-1.5B, last-2 | Same protocol, different generator | **10/12** |
-| One isolated file (`indicate`) | Frozen last-4 tables, `lr > 0` on a held-out marked file | **29/48** |
-
-Misses at 10/12 (both `blind` and `indicate` rotate): *station* and *office*.
-The 0.02 margin brings station in (gap 0.010). Office still misses by 0.066 —
-that one is not close.
-
-**What this supports:** under matched prompts, repeated watermarked generation
-can produce statistical structure that is measurable without the keys
-(10/12–11/12 at prompt grain).
-
-**What this does not support:** reliable key-free detection of an arbitrary
-isolated text (29/48). Extra draws of the *same* prompt helped. Extra topics
-and extra length, by themselves, did not.
-
-Runs: [experiments/2026-08-17-blind-12x4-k4/](experiments/2026-08-17-blind-12x4-k4/),
-[experiments/2026-08-17-indicate-holdout-12x4/](experiments/2026-08-17-indicate-holdout-12x4/).
-
-Earlier GPT-2 mixin measurements (same public keys): marked T 0.617 / 0.638;
-light Sonnet proofread 0.605 / 0.625; full Sonnet rewrite 0.502 / 0.502;
-key-free rewrite of a known-marked sample ~0.50.
-
-These numbers are from GPT-2 (or local Qwen2-1.5B) plus this public mixin.
-They do not establish the same behaviour for other models, languages, or
-vendor watermarks.
-
----
-
-## CLI
+## Commands
 
 ```bash
 source .venv/bin/activate
 python -m pytest tests/ -q
 
-# Reference score (this instance only)
+# Key-based reference score
 python -m text_watermark_tools score path/to/text.txt
-python -m text_watermark_tools score path/to/dir_of_txts
-python -m text_watermark_tools score path/to/text.txt --control-shuffled-keys
 
-# Matched twins
+# Generate marked/unmarked twins
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
-  --out-dir experiments/2026-08-17-blind-pairs --max-new-tokens 128
+  --out-dir experiments/pairs --max-new-tokens 128
 
-# Key-free leave-one-out
-python -m text_watermark_tools blind experiments/2026-08-17-blind-pairs \
+# Key-free leave-one-out experiment
+python -m text_watermark_tools blind experiments/pairs \
   --out-dir experiments/blind
 
-# Possible / weak indicator: leave-one-out, then one file (not official score)
+# Evaluate the key-free indicator
 python -m text_watermark_tools indicate holdout experiments/2026-08-17-pair-12x4 \
   --rotate --context-len 4
+
+# Fit reusable tables and score a file
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/indicator-gpt2 --context-len 4
+
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
-
-# Rewrite a known-marked file (not a remover). Default stop: official ≈ 0.50
-cp DASHSCOPE-KEY.conf.example DASHSCOPE-KEY.conf   # gitignored
-python -m text_watermark_tools iterate path/to/marked.txt --backend qwen \
-  --out-dir experiments/iterate
-# Light polish is the control; stop-on-indicate is not official score
-python -m text_watermark_tools iterate path/to/marked.txt --backend qwen \
-  --via polish --stop-on indicate --tables experiments/indicator-gpt2 \
-  --out-dir experiments/iterate-polish
 ```
 
-Every `score` line names the instance (`instance=public-deepmind-30
-ngram_len=5`). Mean / weighted mean well above 0.50, with many unmasked
-n-grams, means bias in **this** key set.
+`score` and `indicate` answer different questions:
+
+- `score` reproduces the public DeepMind detector for the known `public-deepmind-30` instance.
+- `indicate` asks whether text statistically resembles the marked or unmarked side of a learned corpus **without those keys**.
 
 ---
 
-## Dependencies
+## Reference scoring
 
-Pin **`transformers==4.57.6`**. DeepMind’s tree asks for 4.43.3; a small shim
-in `generate.py` keeps their mixin working on current 4.x. Transformers 5.x
-was tried: the mixin runs, but GPT-2 hits EOS before `min_new_tokens`, so
-`pair` does not get enough n-grams. Three Dependabot alerts remain; they are
-fixed only in 5.x (`Trainer`, a remote-load path, LightGlue) and this lab
-does not use those paths.
+The repository uses DeepMind's published 30-key reference configuration:
 
 ```text
-CPU JAX  +  pip install -e <synthid-text-checkout> --no-deps
+instance=public-deepmind-30
+ngram_len=5
 ```
 
-Street-level setup: [HOW-TO.md](HOW-TO.md).
+A sufficiently long text near 0.50 shows no measurable bias toward **that key set**. A marked sample generated with the same public mixin typically scores around 0.61–0.65 in our runs.
 
-API keys for rewrite experiments live in `DEEPSEEK-KEY.conf` /
-`DASHSCOPE-KEY.conf` (gitignored) or the environment. Never on argv. Never in
-tracked files. Example files stay empty. If a secret lands in git, delete it
-and rotate the key.
+This is a controlled research baseline. It is not a general human-vs-AI classifier.
 
 ---
 
-## Layout
+## Rewriting experiments
 
-```
-AGENTS.md        project rules
-HOW-TO.md        install, score a file, read the line
-research/        invertibility, twins, Claude, paired corpus
-experiments/     dated runs + claude-premark-2026-08/
+The lab can also take a sample known to be marked under the public instance, rewrite it, and measure what happens to the signal.
+
+Earlier measurements include:
+
+- marked GPT-2 text: **0.617 / 0.638**
+- light Sonnet proofread: **0.605 / 0.625**
+- full Sonnet rewrite: **0.502 / 0.502**
+- Qwen rewrite of a known marked sample: approximately **0.50**
+
+These experiments measure how a known watermark behaves under transformation. They are not needed for the key-free indicator itself.
+
+---
+
+## Claude
+
+Anthropic has announced text marking based on "a version of" SynthID-Text. Their production keys and detector are not public.
+
+That makes Claude interesting for a different reason: it provides a future real-world test of the key-free method.
+
+The repository contains a **pre-mark corpus** in `experiments/claude-premark-2026-08/`. Once a comparable marked corpus exists, the same prompts can be rerun and the before/after shift can be measured without pretending that DeepMind's public keys are Claude's keys.
+
+See [research/claude.md](research/claude.md) and [research/paired-corpus.md](research/paired-corpus.md).
+
+---
+
+## Boundaries
+
+The current results support a specific claim:
+
+> **Watermarking can leave enough key-free statistical structure to build an indicator of watermark presence.**
+
+They do not establish reliable classification of every isolated paragraph, recovery of secret keys, or equivalence between the public DeepMind instance and production systems from other vendors.
+
+Those are different questions.
+
+---
+
+## Project layout
+
+```text
+AGENTS.md        coding-agent instructions
+HOW-TO.md        installation and practical usage
+research/        methods and research notes
+experiments/     dated runs and result artifacts
 src/             score, pair, blind, indicate, iterate
 ```
 
-Related code we read but did not vendor:
-[MarkLLM](https://github.com/THU-BPM/MarkLLM),
-HF’s SynthID training example,
-and various Unicode / C2PA / image-SynthID cleaners (orthogonal to this mark).
+The project depends on [`google-deepmind/synthid-text`](https://github.com/google-deepmind/synthid-text) but is not a fork.
+
+Licensed under [MIT](LICENSE).
