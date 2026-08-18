@@ -15,10 +15,13 @@ from text_watermark_tools.iterate import (
     DASHSCOPE_KEY_FILE,
     DEEPSEEK_KEY_FILE,
     DEFAULT_BASE_URL,
+    DEFAULT_INDICATE_THRESHOLD,
     DEFAULT_MAX_PASSES,
     DEFAULT_MEAN_TOL,
     DEFAULT_MIN_NGRAMS,
     DEFAULT_MODEL,
+    STOP_CHANCE,
+    STOP_INDICATE,
     OperatorError,
     chat_complete,
     dashscope_api_key,
@@ -118,6 +121,13 @@ def cmd_score(args: argparse.Namespace) -> int:
 
 
 def cmd_iterate(args: argparse.Namespace) -> int:
+    if args.stop_on == STOP_INDICATE and not args.tables:
+        print(
+            "iterate --stop-on indicate needs --tables DIR "
+            "(frozen indicate tables; not official score)",
+            file=sys.stderr,
+        )
+        return 2
     text = _read_input(args.path)
     extra: dict | None = None
     if args.backend == "deepseek":
@@ -168,6 +178,19 @@ def cmd_iterate(args: argparse.Namespace) -> int:
         )
 
     model_name = model
+    indicate_fn = None
+    if args.tables:
+        ind_model, ind_meta = load_indicator(Path(args.tables))
+        if ind_model.used_keys or ind_model.used_hash_iv or ind_model.used_g_values:
+            print(
+                "loaded indicator used keys / hash_iv / g-values",
+                file=sys.stderr,
+            )
+            return 1
+        tok = load_tokenizer(ind_meta.model_name)
+        indicate_fn = lambda current, _m=ind_model, _t=tok: score_text(
+            current, _m, tokenizer=_t
+        )
 
     try:
         run = run_iterate(
@@ -179,6 +202,9 @@ def cmd_iterate(args: argparse.Namespace) -> int:
             max_passes=args.max_passes,
             mean_tol=args.mean_tol,
             min_unmasked_ngrams=args.min_unmasked_ngrams,
+            indicate=indicate_fn,
+            indicate_threshold=args.indicate_threshold,
+            stop_on=args.stop_on,
         )
     except OperatorError as exc:
         print(f"iterate failed: {exc}", file=sys.stderr)
@@ -187,7 +213,7 @@ def cmd_iterate(args: argparse.Namespace) -> int:
     if args.out_dir:
         persist_iterate_run(run, Path(args.out_dir))
         print(f"wrote {args.out_dir}")
-    return 0 if run.stopped_at_chance else 3
+    return 0 if run.met_stop else 3
 
 
 def cmd_blind(args: argparse.Namespace) -> int:
@@ -507,7 +533,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_ih = ind.add_parser(
         "holdout",
-        help="Fit on all but --hold stems; score each held-out file alone",
+        help=(
+            "Leave-one-out / hold stems: train count tables on the other "
+            "twins, score each held-out file alone (not the Claude pre-mark pile)"
+        ),
     )
     p_ih.add_argument("pair_dir")
     p_ih.add_argument(
@@ -519,7 +548,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_ih.add_argument(
         "--rotate",
         action="store_true",
-        help="Leave one prompt out: fit the rest, score that prompt's two files alone",
+        help=(
+            "Leave-one-out: fit tables on all twin prompts except one, "
+            "score that held-out prompt's files alone (rotate over every stem)"
+        ),
     )
     p_ih.add_argument("--model", default="gpt2")
     p_ih.add_argument("--context-len", type=int, default=4)
@@ -540,8 +572,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_it = sub.add_parser(
         "iterate",
         help=(
-            "Rewrite with DeepSeek V4 or Qwen and official-score until this "
-            "instance is near 0.50 (not a remover, not Claude)"
+            "Rewrite a known-marked file; official-score every pass "
+            "(not a remover, not Claude). Optional stop on the possible "
+            "key-free indicate LR; light polish is the control"
+        ),
+        description=(
+            "Rewrite a known-marked file and official-score every pass. "
+            "Not a remover. Not Claude. Default stop is official chance. "
+            "Light polish (--via polish) is the control. "
+            "--stop-on indicate is not official score."
         ),
     )
     p_it.add_argument("path", help="Marked text file, or omit for stdin", nargs="?")
@@ -563,9 +602,37 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_it.add_argument(
         "--via",
-        choices=("paraphrase", "zh"),
+        choices=("paraphrase", "zh", "polish"),
         default="paraphrase",
-        help="paraphrase in-language, or English→Chinese→English",
+        help=(
+            "paraphrase = substantial token-level rewrite (default); "
+            "polish = light word-choice so it sounds better (control); "
+            "zh = English→Chinese→English"
+        ),
+    )
+    p_it.add_argument(
+        "--stop-on",
+        choices=(STOP_CHANCE, STOP_INDICATE),
+        default=STOP_CHANCE,
+        help=(
+            "chance = official mean/weighted mean near 0.50 (default); "
+            "indicate = key-free single-file LR at or below --indicate-threshold "
+            "(not official score; needs --tables)"
+        ),
+    )
+    p_it.add_argument(
+        "--tables",
+        default="",
+        help="Frozen indicate tables (required for --stop-on indicate)",
+    )
+    p_it.add_argument(
+        "--indicate-threshold",
+        type=float,
+        default=DEFAULT_INDICATE_THRESHOLD,
+        help=(
+            "With --stop-on indicate, stop when lr <= this value "
+            f"(default {DEFAULT_INDICATE_THRESHOLD})"
+        ),
     )
     p_it.add_argument("--max-passes", type=int, default=DEFAULT_MAX_PASSES)
     p_it.add_argument("--mean-tol", type=float, default=DEFAULT_MEAN_TOL)

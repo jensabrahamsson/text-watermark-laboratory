@@ -393,11 +393,17 @@ another model or vendor.
 
 ## 8. Key-free experimental scoring with `indicate`
 
-`indicate` is fundamentally different from `score`.
+`indicate` is a **possible / weak indicator**. It is fundamentally different
+from `score`. Do not treat `indicate` as `score`.
 
 `score` uses the public DeepMind reference keys. `indicate` does not. It
 compares token statistics with reference tables built from paired GPT-2
 generations produced with and without the watermark mixin.
+
+The test of that indicator is **leave-one-out**: train count tables on all
+twin prompts except one (`indicate holdout --rotate`) and score the held-out
+text alone. Do not train on the Claude pre-mark pile alone. Claude
+leave-one-out waits for same-prompt marked reruns.
 
 ```bash
 python -m text_watermark_tools indicate score path/to/T.txt \
@@ -438,13 +444,17 @@ simply to score a text.
 |---|---|
 | `pair` | Generate matched GPT-2 outputs from the same prompt, mixin on and off |
 | `blind` | Key-free leave-one-prompt-out evaluation on the paired samples |
-| `indicate fit` / `holdout` | Build or evaluate the statistical token-count tables |
-| `iterate` | Rewrite a known-marked sample and measure the resulting official score |
+| `indicate fit` / `holdout` | Build or leave-one-out evaluate the possible / weak token-count indicator (twins only; not the Claude pre-mark pile) |
+| `iterate` | Rewrite a known-marked sample; official-score every pass. `--via polish` is the light-edit control. `--stop-on indicate` is not official `score`. Not a remover |
 | `experiment` | Older generate → rewrite → reference-score workflow |
 | `scripts/collect_claude_premark.py` | Historical Claude research corpus |
 
-`iterate` is an experimental measurement workflow. It is not a
-general-purpose watermark-removal utility.
+`iterate` is an experimental measurement workflow. It is **not a remover**.
+`--via polish` asks only for small lexical edits so the text “sounds better”
+(the control). Default `--via paraphrase` is the substantial rewrite.
+`--stop-on indicate` stops when the key-free single-file LR is at or below
+`--indicate-threshold`; official mean and weighted mean are still recorded
+every pass. That stop is **not** official `score`.
 
 Some research commands use external APIs. Store credentials in the local
 configuration files `DASHSCOPE-KEY.conf` and `DEEPSEEK-KEY.conf` (example

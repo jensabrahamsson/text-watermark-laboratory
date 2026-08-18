@@ -1,16 +1,21 @@
 """Iterate-until-chance uses the official scorer; rewrite is injected."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.iterate import (
     DASHSCOPE_KEY_FILE,
     DEEPSEEK_KEY_FILE,
+    POLISH_PROMPT,
+    PARAPHRASE_PROMPT,
+    STOP_INDICATE,
     OperatorError,
     at_chance,
     chat_complete,
     dashscope_api_key,
     deepseek_api_key,
     persist_iterate_run,
+    polish_prompt,
     print_iterate_run,
     read_key_conf,
     rewrite_once,
@@ -62,6 +67,27 @@ def test_rewrite_once_paraphrase_and_zh_roundtrip() -> None:
     assert out == "The harbour at dusk."
     assert any("Simplified Chinese" in p for p in seen)
     assert any("to English" in p for p in seen)
+
+
+def test_rewrite_once_polish_sends_light_sounds_better_instruction() -> None:
+    seen: list[str] = []
+
+    def chat(prompt: str) -> str:
+        seen.append(prompt)
+        return "A lightly edited harbour paragraph."
+
+    out = rewrite_once("hello harbour", via="polish", chat=chat)
+    assert out == "A lightly edited harbour paragraph."
+    sent = seen[0]
+    assert "sounds better" in sent
+    assert "small lexical edits" in sent
+    assert "facts, numbers, names" in sent
+    assert "substantially different wording" not in sent
+    assert "hello harbour" in sent
+    assert polish_prompt("hello harbour") == sent
+    assert "substantially different wording" in PARAPHRASE_PROMPT
+    assert "sounds better" in POLISH_PROMPT
+    assert POLISH_PROMPT != PARAPHRASE_PROMPT
 
 
 def test_chat_complete_refuses_non_http() -> None:
@@ -125,3 +151,76 @@ def test_iterate_stops_at_max_passes() -> None:
     assert len(run.passes) == 3  # source + 2
     assert run.stopped_at_chance is False
     assert run.final.score.mean > 0.55
+
+
+def test_iterate_stops_when_injected_indicator_crosses_threshold(
+    tmp_path: Path,
+) -> None:
+    marked = (LAB / "t_high_temp.txt").read_text()
+    lrs = iter([0.08, -0.01])
+    n_rewrite = 0
+
+    def indicate(_text: str) -> float:
+        return next(lrs)
+
+    def rewrite(text: str) -> str:
+        nonlocal n_rewrite
+        n_rewrite += 1
+        return text
+
+    run = run_iterate(
+        marked,
+        rewrite=rewrite,
+        operator="fixture",
+        model="identity",
+        via="polish",
+        max_passes=4,
+        indicate=indicate,
+        indicate_threshold=0.0,
+        stop_on=STOP_INDICATE,
+    )
+    assert n_rewrite == 1
+    assert len(run.passes) == 2
+    assert run.stopped_on_indicate
+    assert run.stopped_at_chance is False
+    assert run.met_stop
+    assert run.source.lr == 0.08
+    assert run.final.lr == -0.01
+    assert run.final.indicate_dark is True
+    assert run.source.score.mean > 0.55
+    assert run.final.score.mean > 0.55
+    assert run.source.score.weighted_mean > 0.55
+    assert run.final.score.weighted_mean > 0.55
+    report = print_iterate_run(run)
+    assert "stopped_on_indicate=True" in report
+    assert "source_lr=0.080000" in report
+    assert "not_official_score=true" in report
+    persist_iterate_run(run, tmp_path)
+    data = json.loads((tmp_path / "results.json").read_text())
+    assert data["stop_on"] == "indicate"
+    assert data["stopped_on_indicate"] is True
+    assert data["stopped_at_chance"] is False
+    assert data["passes"][0]["mean"] == run.source.score.mean
+    assert data["passes"][0]["weighted_mean"] == run.source.score.weighted_mean
+    assert data["passes"][1]["mean"] == run.final.score.mean
+    assert data["passes"][1]["weighted_mean"] == run.final.score.weighted_mean
+    assert data["passes"][1]["lr"] == -0.01
+    assert "Not a remover" in data["note"]
+    md = (tmp_path / "results.md").read_text()
+    assert "Not a remover" in md
+    assert "not official" in md.lower()
+
+
+def test_iterate_indicate_stop_requires_indicate_fn() -> None:
+    try:
+        run_iterate(
+            "x",
+            rewrite=lambda t: t,
+            operator="x",
+            model="x",
+            stop_on=STOP_INDICATE,
+        )
+    except ValueError as exc:
+        assert "indicate" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")

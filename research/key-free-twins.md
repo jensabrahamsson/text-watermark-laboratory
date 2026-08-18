@@ -109,7 +109,8 @@ Per-prompt (context_len=1): [`experiments/2026-08-17-blind/results.md`](../exper
 ## What those numbers mean
 
 - The **twins work**. With the public keys the two piles do not overlap.
-- Without the key, **8/12 is an indication the idea is promising**. Eight held-out prompts lean the right way; four miss. Last-4 on 12×4 is **10/12**. `indicate` on one new file is weaker (29/48 marked files have `lr>0`). Not a lamp you point at one new paragraph.
+- Without the key, **8/12 is an indication the idea is promising**. Eight held-out prompts lean the right way; four miss. Last-4 on 12×4 is **10/12**. `indicate` is a **possible / weak indicator**. Leave-one-out (`indicate holdout --rotate`) is the test: train on all twin prompts except one, score that held-out text alone. One new file is weaker (29/48 marked files have `lr>0`). Not a lamp you point at one new paragraph. Do not treat `indicate` as official `score`.
+- Light word-choice polish (“sounds better”) is the **control** on `iterate --via polish`. Substantial paraphrase is the default. `iterate --stop-on indicate` can stop when the single-file LR goes dark; official mean / weighted mean are still recorded. That loop is **not a remover**. Indicator-dark is not “this instance went to 0.50”.
 - The tournament lives in keyed 5-grams. Last-1 counts are a blunt instrument. More pairs and longer generations come next.
 - This is still the right *question* when the key is unknown: not “is this AI?”, but “does this text look like the marked twin pile?”
 
@@ -119,4 +120,4 @@ Known-mark v2 ([`experiments/2026-08-15-known-mark-v2/`](../experiments/2026-08-
 
 Same protocol, different ground truth. Save `(prompt, output)` now ([`paired-corpus.md`](paired-corpus.md), `experiments/claude-premark-2026-08/`). After they *say* the mark is on, rerun the same prompts. Fit the shift. Our `score` on Claude text is the **wrong instance** even then.
 
-Do not train that classifier on the pre-mark pile alone. There is no unmarked/marked twin yet.
+Do not train that classifier on the pre-mark pile alone. There is no unmarked/marked twin yet. Claude leave-one-out waits for same-prompt marked reruns.

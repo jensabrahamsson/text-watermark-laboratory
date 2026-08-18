@@ -32,13 +32,18 @@ New contributor / Grok session: **[AGENTS.md](AGENTS.md)**.
    the watermark mixin on and off. Fit a token-count surrogate on some pairs
    and test the held-out pair **without** calling `detector_mean`.
 3. **Rewrite / degradation.** Take a text we *already know* is marked on this
-   instance and rewrite it (Qwen or DeepSeek) until the official score sits
-   near chance (≈ 0.50). That is a measurement, not a product that certifies
-   anyone else’s detector will fail.
+   instance and rewrite it (Qwen or DeepSeek). Default stop is official score
+   near chance (≈ 0.50). Optional stop is the **possible / weak** key-free
+   `indicate` likelihood ratio. Light word-choice polish (“sounds better”) is
+   the control beside substantial paraphrase. That loop is **not a remover**.
+   Do not treat `indicate` as `score`. Stop-on-indicate is **not** official
+   `score`.
 
 There is also a Claude **pre-mark corpus**
 (`experiments/claude-premark-2026-08/`) so the *same* prompts can be rerun
-after Anthropic announces marking. Our `score` on Claude text is the **wrong
+after Anthropic announces marking. Do **not** train `indicate` / `blind` on
+that pile alone (one class, no mark). Claude leave-one-out waits for
+same-prompt marked reruns. Our `score` on Claude text is the **wrong
 instance**.
 
 We depend on [`google-deepmind/synthid-text`](https://github.com/google-deepmind/synthid-text)
@@ -157,16 +162,22 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
 python -m text_watermark_tools blind experiments/2026-08-17-blind-pairs \
   --out-dir experiments/blind
 
-# One file against frozen tables (weak tilt, not the official score)
+# Possible / weak indicator: leave-one-out, then one file (not official score)
+python -m text_watermark_tools indicate holdout experiments/2026-08-17-pair-12x4 \
+  --rotate --context-len 4
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/indicator-gpt2 --context-len 4
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
 
-# Rewrite a known-marked file until this instance is near 0.50
+# Rewrite a known-marked file (not a remover). Default stop: official ≈ 0.50
 cp DASHSCOPE-KEY.conf.example DASHSCOPE-KEY.conf   # gitignored
 python -m text_watermark_tools iterate path/to/marked.txt --backend qwen \
   --out-dir experiments/iterate
+# Light polish is the control; stop-on-indicate is not official score
+python -m text_watermark_tools iterate path/to/marked.txt --backend qwen \
+  --via polish --stop-on indicate --tables experiments/indicator-gpt2 \
+  --out-dir experiments/iterate-polish
 ```
 
 Every `score` line names the instance (`instance=public-deepmind-30

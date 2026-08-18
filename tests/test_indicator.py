@@ -20,6 +20,19 @@ from text_watermark_tools.blind import load_twins
 from text_watermark_tools.score import load_tokenizer
 
 PAIR = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-17-pair"
+PREMARK = (
+    Path(__file__).resolve().parents[1] / "experiments" / "claude-premark-2026-08"
+)
+
+
+def test_load_twins_does_not_treat_claude_premark_as_pairs() -> None:
+    try:
+        load_twins(PREMARK)
+    except FileNotFoundError as exc:
+        msg = str(exc).lower()
+        assert "twin" in msg or "marked" in msg
+    else:
+        raise AssertionError("pre-mark pile must not load as marked/unmarked twins")
 
 
 def test_persist_load_same_lr_on_lab_twin(tmp_path: Path) -> None:

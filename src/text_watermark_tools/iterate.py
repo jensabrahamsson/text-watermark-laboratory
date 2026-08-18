@@ -1,7 +1,8 @@
-"""Rewrite with a non-origin model; official-score until this instance is near 0.50.
+"""Rewrite a known-marked file; official-score every pass.
 
-Not a remover. Not a Claude check. The stop condition is our public DeepMind
-30-key mean / weighted mean sitting at chance.
+Not a remover. Not a Claude check. Default stop is official mean / weighted
+mean near 0.50 on public-deepmind-30. Optional stop is the key-free
+single-file indicator (indicate LR). Stop-on-indicate is not official score.
 """
 
 from __future__ import annotations
@@ -26,6 +27,9 @@ DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MEAN_TOL = 0.03
 DEFAULT_MIN_NGRAMS = 80
 DEFAULT_MAX_PASSES = 4
+DEFAULT_INDICATE_THRESHOLD = 0.0
+STOP_CHANCE = "chance"
+STOP_INDICATE = "indicate"
 
 PARAPHRASE_PROMPT = (
     "Rewrite the following text so that it uses substantially different wording "
@@ -34,6 +38,13 @@ PARAPHRASE_PROMPT = (
     "function words where meaning allows. Preserve all facts, numbers, names, "
     "and technical identifiers. Do not add or remove claims. Output only the "
     "rewritten text.\n\n---\n{TEXT}"
+)
+POLISH_PROMPT = (
+    "Lightly correct the word choice in the following text so that it sounds "
+    "better. Make only small lexical edits. Do not reorder clauses, do not "
+    "change sentence boundaries, and do not paraphrase. Preserve all facts, "
+    "numbers, names, and technical identifiers. Do not add or remove claims. "
+    "Output only the lightly edited text.\n\n---\n{TEXT}"
 )
 ZH_OUT_PROMPT = (
     "Translate the following text to Simplified Chinese. "
@@ -66,6 +77,10 @@ def at_chance(
 
 def paraphrase_prompt(text: str) -> str:
     return PARAPHRASE_PROMPT.format(TEXT=text)
+
+
+def polish_prompt(text: str) -> str:
+    return POLISH_PROMPT.format(TEXT=text)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -186,6 +201,8 @@ def rewrite_once(
 ) -> str:
     if via == "paraphrase":
         return chat(paraphrase_prompt(text))
+    if via == "polish":
+        return chat(polish_prompt(text))
     if via == "zh":
         zh = chat(ZH_OUT_PROMPT.format(TEXT=text))
         return chat(ZH_BACK_PROMPT.format(TEXT=zh))
@@ -198,6 +215,8 @@ class IteratePass:
     text: str
     score: OfficialScore
     at_chance: bool
+    lr: Optional[float] = None
+    indicate_dark: Optional[bool] = None
 
 
 @dataclass
@@ -210,6 +229,9 @@ class IterateRun:
     max_passes: int
     stopped_at_chance: bool
     passes: list[IteratePass] = field(default_factory=list)
+    stop_on: str = STOP_CHANCE
+    indicate_threshold: float = DEFAULT_INDICATE_THRESHOLD
+    stopped_on_indicate: bool = False
 
     @property
     def source(self) -> IteratePass:
@@ -218,6 +240,50 @@ class IterateRun:
     @property
     def final(self) -> IteratePass:
         return self.passes[-1]
+
+    @property
+    def met_stop(self) -> bool:
+        if self.stop_on == STOP_INDICATE:
+            return self.stopped_on_indicate
+        return self.stopped_at_chance
+
+
+def _make_pass(
+    n: int,
+    text: str,
+    score: OfficialScore,
+    *,
+    mean_tol: float,
+    min_unmasked_ngrams: int,
+    indicate: Optional[Callable[[str], float]],
+    indicate_threshold: float,
+) -> IteratePass:
+    lr = indicate(text) if indicate is not None else None
+    dark = None if lr is None else lr <= indicate_threshold
+    return IteratePass(
+        n=n,
+        text=text,
+        score=score,
+        at_chance=at_chance(
+            score,
+            mean_tol=mean_tol,
+            min_unmasked_ngrams=min_unmasked_ngrams,
+        ),
+        lr=lr,
+        indicate_dark=dark,
+    )
+
+
+def _stop_now(run: IterateRun, step: IteratePass) -> bool:
+    if run.stop_on == STOP_INDICATE:
+        if step.indicate_dark:
+            run.stopped_on_indicate = True
+            return True
+        return False
+    if step.at_chance:
+        run.stopped_at_chance = True
+        return True
+    return False
 
 
 def run_iterate(
@@ -230,11 +296,20 @@ def run_iterate(
     max_passes: int = DEFAULT_MAX_PASSES,
     mean_tol: float = DEFAULT_MEAN_TOL,
     min_unmasked_ngrams: int = DEFAULT_MIN_NGRAMS,
+    indicate: Optional[Callable[[str], float]] = None,
+    indicate_threshold: float = DEFAULT_INDICATE_THRESHOLD,
+    stop_on: str = STOP_CHANCE,
 ) -> IterateRun:
-    """Score, rewrite, score again until chance or max_passes.
+    """Official-score every pass; rewrite until the chosen stop or max_passes.
 
-    `rewrite` is injected so tests drive the real scorer without a network.
+    `rewrite` (and optional `indicate`) are injected so tests drive the real
+    loop without a network. Official mean / weighted mean are always stored.
+    `stop_on=indicate` is not official score.
     """
+    if stop_on not in (STOP_CHANCE, STOP_INDICATE):
+        raise ValueError(f"unknown stop_on: {stop_on}")
+    if stop_on == STOP_INDICATE and indicate is None:
+        raise ValueError("stop_on=indicate needs an indicate function")
     run = IterateRun(
         operator=operator,
         model=model,
@@ -243,38 +318,39 @@ def run_iterate(
         min_unmasked_ngrams=min_unmasked_ngrams,
         max_passes=max_passes,
         stopped_at_chance=False,
+        stop_on=stop_on,
+        indicate_threshold=indicate_threshold,
+        stopped_on_indicate=False,
     )
     current = text
-    source_score = official_score_text(current)
-    run.passes.append(
-        IteratePass(
-            n=0,
-            text=current,
-            score=source_score,
-            at_chance=at_chance(
-                source_score,
-                mean_tol=mean_tol,
-                min_unmasked_ngrams=min_unmasked_ngrams,
-            ),
-        )
+    source_pass = _make_pass(
+        0,
+        current,
+        official_score_text(current),
+        mean_tol=mean_tol,
+        min_unmasked_ngrams=min_unmasked_ngrams,
+        indicate=indicate,
+        indicate_threshold=indicate_threshold,
     )
-    if run.passes[0].at_chance:
-        run.stopped_at_chance = True
+    run.passes.append(source_pass)
+    if _stop_now(run, source_pass):
         return run
 
     for n in range(1, max_passes + 1):
         current = rewrite(current)
         if not current.strip():
             raise OperatorError("rewrite produced empty text")
-        score = official_score_text(current)
-        done = at_chance(
-            score, mean_tol=mean_tol, min_unmasked_ngrams=min_unmasked_ngrams
+        step = _make_pass(
+            n,
+            current,
+            official_score_text(current),
+            mean_tol=mean_tol,
+            min_unmasked_ngrams=min_unmasked_ngrams,
+            indicate=indicate,
+            indicate_threshold=indicate_threshold,
         )
-        run.passes.append(
-            IteratePass(n=n, text=current, score=score, at_chance=done)
-        )
-        if done:
-            run.stopped_at_chance = True
+        run.passes.append(step)
+        if _stop_now(run, step):
             break
     return run
 
@@ -283,7 +359,9 @@ def print_iterate_run(run: IterateRun) -> str:
     lines = [
         (
             f"operator={run.operator} model={run.model} via={run.via} "
+            f"stop_on={run.stop_on} "
             f"stopped_at_chance={run.stopped_at_chance} "
+            f"stopped_on_indicate={run.stopped_on_indicate} "
             f"passes={len(run.passes) - 1}/{run.max_passes} "
             f"instance=public-deepmind-30"
         )
@@ -292,6 +370,12 @@ def print_iterate_run(run: IterateRun) -> str:
         label = "source" if p.n == 0 else f"pass-{p.n}"
         lines.append(format_score(label, p.score))
         lines.append(f"{label}_at_chance={p.at_chance}")
+        if p.lr is not None:
+            lines.append(
+                f"{label}_lr={p.lr:.6f} {label}_indicate_dark={p.indicate_dark} "
+                f"indicate_threshold={run.indicate_threshold} "
+                f"not_official_score=true"
+            )
     return "\n".join(lines)
 
 
@@ -313,10 +397,15 @@ def persist_iterate_run(run: IterateRun, out_dir: Path) -> None:
         "mean_tol": run.mean_tol,
         "min_unmasked_ngrams": run.min_unmasked_ngrams,
         "max_passes": run.max_passes,
+        "stop_on": run.stop_on,
+        "indicate_threshold": run.indicate_threshold,
         "stopped_at_chance": run.stopped_at_chance,
+        "stopped_on_indicate": run.stopped_on_indicate,
         "note": (
-            "Stop condition is official detector_mean near 0.50 on the public "
-            "DeepMind 30-key instance. Not a vendor-oracle. Not a remover."
+            "Official detector_mean is recorded every pass. Default stop is "
+            "that mean near 0.50 on the public DeepMind 30-key instance. "
+            "Stop-on-indicate is the key-free single-file LR, not official "
+            "score. Not a vendor-oracle. Not a remover."
         ),
         "passes": [
             {
@@ -326,27 +415,35 @@ def persist_iterate_run(run: IterateRun, out_dir: Path) -> None:
                 "n_tokens": p.score.n_tokens,
                 "n_unmasked_ngrams": p.score.n_unmasked_ngrams,
                 "at_chance": p.at_chance,
+                "lr": p.lr,
+                "indicate_dark": p.indicate_dark,
             }
             for p in run.passes
         ],
     }
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     md = [
-        "# Iterate until this instance is at chance",
+        "# Iterate rewrite measurement",
         "",
         f"Operator: `{run.operator}` / `{run.model}` / via `{run.via}`.",
+        f"Stop on: `{run.stop_on}`.",
         f"Stopped at chance: **{run.stopped_at_chance}**.",
+        f"Stopped on indicate: **{run.stopped_on_indicate}**.",
         "",
-        "Not a remover. Not Claude. Only whether *our* public key set went dark.",
+        "Not a remover. Not Claude. Official mean is this public key set. "
+        "Stop-on-indicate is not official `score`. Light polish is the control.",
         "",
-        "| Pass | Mean | Weighted | Tokens | Unmasked n-grams | At chance |",
-        "|---|---|---|---|---|---|",
+        "| Pass | Mean | Weighted | Tokens | Unmasked n-grams | At chance | LR | Indicate dark |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for p in run.passes:
         name = "source" if p.n == 0 else str(p.n)
+        lr = "" if p.lr is None else f"{p.lr:.6f}"
+        dark = "" if p.indicate_dark is None else str(p.indicate_dark)
         md.append(
             f"| {name} | {p.score.mean:.6f} | {p.score.weighted_mean:.6f} | "
-            f"{p.score.n_tokens} | {p.score.n_unmasked_ngrams} | {p.at_chance} |"
+            f"{p.score.n_tokens} | {p.score.n_unmasked_ngrams} | {p.at_chance} | "
+            f"{lr} | {dark} |"
         )
     md.append("")
     (out_dir / "results.md").write_text("\n".join(md) + "\n")

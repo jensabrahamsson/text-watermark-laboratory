@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from text_watermark_tools.cli import main
+from text_watermark_tools.cli import build_parser, main
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB = ROOT / "experiments" / "2026-08-15-gpt2-sonnet5"
@@ -85,6 +85,54 @@ def test_cli_iterate_without_deepseek_key_exits_2(
     err = capsys.readouterr().err
     assert "DEEPSEEK_API_KEY" in err
     assert "DEEPSEEK-KEY.conf" in err
+
+
+def test_cli_iterate_help_mentions_polish_and_indicate_stop(capsys) -> None:
+    try:
+        build_parser().parse_args(["iterate", "--help"])
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("expected --help SystemExit")
+    out = capsys.readouterr().out
+    flat = " ".join(out.split())
+    assert "polish" in out
+    assert "sounds better" in flat
+    assert "--stop-on" in out
+    assert "indicate" in out
+    assert "not official score" in flat
+    assert "not a remover" in flat.lower()
+
+
+def test_cli_indicate_holdout_help_mentions_leave_one_out(capsys) -> None:
+    try:
+        build_parser().parse_args(["indicate", "holdout", "--help"])
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("expected --help SystemExit")
+    out = capsys.readouterr().out
+    assert "leave-one-out" in out.lower()
+    assert "--rotate" in out
+
+
+def test_cli_iterate_indicate_stop_without_tables_exits_2(
+    tmp_path, capsys, monkeypatch
+) -> None:
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.setenv("TEXT_WATERMARK_KEY_DIR", str(tmp_path))
+    rc = main(
+        [
+            "iterate",
+            str(LAB / "t_high_temp.txt"),
+            "--stop-on",
+            "indicate",
+        ]
+    )
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert "--tables" in err
+    assert "not official score" in err
 
 
 def test_cli_iterate_qwen_without_key_exits_2(tmp_path, capsys, monkeypatch) -> None:
