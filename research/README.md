@@ -6,6 +6,7 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 
 | File | Focus |
 |---|---|
+| [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; current best 10/12–11/12 at prompt grain |
 | [how-synthid-works.md](how-synthid-works.md) | How the public SynthID-Text reference implementation hashes, samples, and scores |
 | [invertibility.md](invertibility.md) | Why the key-free result is not key recovery |

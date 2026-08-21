@@ -20,9 +20,16 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeout
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "experiments" / "claude-premark-2026-08"
+DEFAULT_OUT = ROOT / "experiments" / "claude-premark-2026-08"
+OUT = DEFAULT_OUT
 PROFILE = ROOT / ".browser-profile"
 MANIFEST = OUT / "manifest.jsonl"
+FILE_SUFFIX = "sonnet5-premark"
+ASSUMED_WATERMARK: bool | str = False
+REASON = (
+    "Sonnet 5 launched 2026-06-30; day-one marking is "
+    "models from 2026-08-02; retrofit unpublished"
+)
 MIN_CHARS = 800
 CHAT_ONLY = (
     " Write the full text in the chat only. "
@@ -381,20 +388,35 @@ def collect(
     print("done", taken, "in", OUT)
 
 
+def configure_out(
+    out_dir: Path,
+    *,
+    suffix: str = "sonnet5-premark",
+    assumed_watermark: bool | str = False,
+    reason: str | None = None,
+) -> None:
+    """Point this process at a corpus directory. Does not change PROMPTS."""
+    global OUT, MANIFEST, JS_DIR, FILE_SUFFIX, ASSUMED_WATERMARK, REASON
+    OUT = Path(out_dir)
+    MANIFEST = OUT / "manifest.jsonl"
+    JS_DIR = OUT / ".js"
+    FILE_SUFFIX = suffix
+    ASSUMED_WATERMARK = assumed_watermark
+    if reason:
+        REASON = reason
+
+
 def _save_premark(prompt: str, text: str) -> Path:
     sid = _next_id()
-    path = OUT / f"{sid}-sonnet5-premark.txt"
+    path = OUT / f"{sid}-{FILE_SUFFIX}.txt"
     path.write_text(text.strip() + "\n")
     _append_manifest(
         {
             "id": sid,
             "file": path.name,
             "collected_at": datetime.now(timezone.utc).isoformat(),
-            "assumed_watermark": False,
-            "reason": (
-                "Sonnet 5 launched 2026-06-30; day-one marking is "
-                "models from 2026-08-02; retrofit unpublished"
-            ),
+            "assumed_watermark": ASSUMED_WATERMARK,
+            "reason": REASON,
             "surface": "claude.ai",
             "model_claimed": "sonnet-5-or-ui-default",
             "via": "applescript-or-cdp",
@@ -692,8 +714,60 @@ def main() -> None:
         action="store_true",
         help="With --via cdp: launch a separate real-Chrome profile",
     )
+    ap.add_argument(
+        "--out-dir",
+        default="",
+        help="Corpus directory (default: experiments/claude-premark-2026-08)",
+    )
+    ap.add_argument(
+        "--suffix",
+        default="sonnet5-premark",
+        help="Filename stem after the id (default sonnet5-premark)",
+    )
+    ap.add_argument(
+        "--assumed-watermark",
+        choices=("true", "false", "rumored"),
+        default="false",
+        help="Manifest assumed_watermark. rumored = unconfirmed live mark",
+    )
+    ap.add_argument(
+        "--reason",
+        default="",
+        help="Manifest reason string. Default depends on --assumed-watermark",
+    )
+    ap.add_argument(
+        "--no-seed",
+        action="store_true",
+        help="Do not copy the 2026-08-15 T′ files into this directory",
+    )
     args = ap.parse_args()
-    seed_existing()
+    assumed: bool | str
+    if args.assumed_watermark == "true":
+        assumed = True
+    elif args.assumed_watermark == "rumored":
+        assumed = "rumored"
+    else:
+        assumed = False
+    default_reason = REASON
+    if assumed == "rumored":
+        default_reason = (
+            "Rumored live on claude.ai 2026-08-19; Anthropic announcement "
+            "not independently verified in this run. Same PROMPTS as "
+            "experiments/claude-premark-2026-08/"
+        )
+    elif assumed is True:
+        default_reason = (
+            "Collected after announced marking. Same PROMPTS as "
+            "experiments/claude-premark-2026-08/"
+        )
+    configure_out(
+        Path(args.out_dir) if args.out_dir else DEFAULT_OUT,
+        suffix=args.suffix,
+        assumed_watermark=assumed,
+        reason=args.reason or default_reason,
+    )
+    if not args.no_seed and OUT.resolve() == DEFAULT_OUT.resolve():
+        seed_existing()
     if args.seed_only:
         return
     if args.via == "applescript":

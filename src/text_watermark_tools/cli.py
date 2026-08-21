@@ -58,6 +58,7 @@ from text_watermark_tools.pair import (
     print_pair_run,
     run_pairs,
 )
+from text_watermark_tools.resample import run_resample
 from text_watermark_tools.score import (
     CONTROL_INSTANCE,
     PUBLIC_INSTANCE,
@@ -214,6 +215,40 @@ def cmd_iterate(args: argparse.Namespace) -> int:
         persist_iterate_run(run, Path(args.out_dir))
         print(f"wrote {args.out_dir}")
     return 0 if run.met_stop else 3
+
+
+def cmd_resample(args: argparse.Namespace) -> int:
+    from text_watermark_tools.resample import PREMARK_DIR, LOGBOOK_PATH, EXPERIMENTS
+
+    try:
+        report = run_resample(
+            skip_collect=bool(args.skip_collect),
+            new_dir=Path(args.new_dir) if args.new_dir else None,
+            previous_dir=Path(args.previous_dir) if args.previous_dir else None,
+            premark_dir=Path(args.premark_dir) if args.premark_dir else PREMARK_DIR,
+            logbook=Path(args.logbook) if args.logbook else LOGBOOK_PATH,
+            experiments=EXPERIMENTS,
+            date=args.date or None,
+            pause_s=int(args.pause),
+        )
+    except FileNotFoundError as exc:
+        print(f"resample failed: {exc}", file=sys.stderr)
+        return 2
+    except RuntimeError as exc:
+        print(f"resample failed: {exc}", file=sys.stderr)
+        return 1
+    print(
+        f"resample date={report.date} n_collected={report.n_collected} "
+        f"collected={report.collected} new_dir={report.new_dir} "
+        f"logbook={report.logbook_path} used_keys=False"
+    )
+    for c in report.contrasts:
+        print(
+            f"contrast={c.name} n_pairs={c.n_pairs} "
+            f"last-1={c.last1_wins}/{c.n_pairs} last-4={c.last4_wins}/{c.n_pairs} "
+            f"used_keys={c.used_keys}"
+        )
+    return 0
 
 
 def cmd_blind(args: argparse.Namespace) -> int:
@@ -649,6 +684,47 @@ def build_parser() -> argparse.ArgumentParser:
         help="If set, write source.txt, pass-N.txt, final.txt, results",
     )
     p_it.set_defaults(func=cmd_iterate)
+
+    p_rs = sub.add_parser(
+        "resample",
+        help=(
+            "Collect the same Claude PROMPTS into a new dated dir, "
+            "last-1/last-4 vs pre-mark and the previous sample, append LOGBOOK "
+            "(Wed/Fri/Sun 04:00 schedule; not a detector)"
+        ),
+    )
+    p_rs.add_argument(
+        "--skip-collect",
+        action="store_true",
+        help="Analyze an existing corpus; do not scrape claude.ai",
+    )
+    p_rs.add_argument(
+        "--new-dir",
+        default="",
+        help="Existing or target sample directory",
+    )
+    p_rs.add_argument(
+        "--previous-dir",
+        default="",
+        help="Previous sample to contrast (default: latest other sample/mark dir)",
+    )
+    p_rs.add_argument(
+        "--premark-dir",
+        default="",
+        help="Pre-mark control (default: experiments/claude-premark-2026-08)",
+    )
+    p_rs.add_argument(
+        "--logbook",
+        default="",
+        help="Logbook path (default: research/LOGBOOK.md)",
+    )
+    p_rs.add_argument(
+        "--date",
+        default="",
+        help="Calendar day YYYY-MM-DD (default: today)",
+    )
+    p_rs.add_argument("--pause", type=int, default=25)
+    p_rs.set_defaults(func=cmd_resample)
     return parser
 
 

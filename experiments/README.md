@@ -27,6 +27,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-15-gpt2-sonnet5/` | Known public mark before/after Sonnet edits | marked 0.617/0.638; proofread 0.605/0.625; rewrite 0.502/0.502 |
 | `2026-08-15-known-mark-v2/` | Key-free rewrite surrogate, then official measurement | ~0.62 → ~0.50 |
 | `claude-premark-2026-08/` | Control corpus collected before announced marking condition | 40 A/B texts plus auxiliary files |
+| `claude-mark-2026-08-19/` | Same prompts on claude.ai after a rumored live mark | **37/40**; usage limit; `assumed_watermark=rumored` |
+| `2026-08-19-claude-rumor-twins/` | Premark vs 19a, 37 prompts | last-1 **28/37**; last-4 **24/37** |
+| `claude-sample-2026-08-19b/` | Same-day second pass | **40/40** |
+| `2026-08-19-claude-sameday-twins/` | 19a vs 19b | last-1 **19/38**; last-4 **19/38** |
 | `2026-08-17-grok-prompts/` | Seed prompts | reference input |
 | `2026-08-17-blind-pairs/` | 12 GPT-2 marked/unmarked prompt pairs | official detector: **12/12** |
 | `2026-08-17-blind/` | First key-free leave-one-out run | **8/12** |

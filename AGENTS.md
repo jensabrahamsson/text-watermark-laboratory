@@ -57,6 +57,7 @@ python -m text_watermark_tools pair DIR --out-dir experiments/pair
 python -m text_watermark_tools blind experiments/pair --out-dir experiments/blind
 python -m text_watermark_tools indicate score FILE.txt --tables experiments/indicator-gpt2
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
+python -m text_watermark_tools resample --skip-collect --new-dir experiments/claude-sample-YYYY-MM-DD
 ```
 
 ## Current benchmark
@@ -93,3 +94,9 @@ Keep the distinction clean:
 - public DeepMind instance → `score`
 - learned key-free statistical signal → `blind` / `indicate`
 - Claude pre-mark corpus → control data for a future before/after experiment
+
+After every Claude resample or measurement, append a dated entry to
+[research/LOGBOOK.md](research/LOGBOOK.md). Resample the same `PROMPTS`
+often while the voice or mark may be moving. Host schedule: Wednesday,
+Friday, Sunday at 04:00 (`scripts/install_claude_resample_schedule.sh`).
+Cancel with `uninstall`. Do not use a 7-day Grok interval loop for this.
