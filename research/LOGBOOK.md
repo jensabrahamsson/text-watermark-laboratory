@@ -147,3 +147,20 @@ Last-1 ahead of last-4 is the style-shift order. Last-4 ahead of last-1 is the p
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-21-resample-work`.
 
 ---
+
+## 2026-08-22 Xenova tokenizer check
+
+Same twins as 21 Aug, retokenized with `Xenova/claude-tokenizer` (Claude 1/2-era
+65k BPE from Anthropic’s old SDK, **not** Claude 3+/5). `used_keys=false`.
+Not their detector.
+
+| Contrast | GPT-2 last-1 | GPT-2 last-4 | Xenova last-1 | Xenova last-4 |
+|---|---|---|---|---|
+| 15 Aug vs 21 | 33/40 | 34/40 | 35/40 | 35/40 |
+| 19b vs 21 | 31/40 | 35/40 | 30/40 | 32/40 |
+| 19a vs 19b (same day) | 19/38 | 19/38 | 21/38 | 20/38 |
+
+Same-day stays near chance. Between-day ranking is not a GPT-2 artifact.
+Xenova is still the wrong generation of tokenizer. Do not call this a watermark.
+
+---
