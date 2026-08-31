@@ -51,6 +51,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-nested-36-to-12x4/` | Same split, nested Youden / FPR10 | hashpool **33/48** + **34/48**; hitmass **10/12** |
 | `2026-08-31-transfer-nested-12x4-to-36/` | Reverse split, nested thresholds | freqhits **23/24** + **23/24** |
 | `2026-08-31-transfer-shuffle-36-to-12x4/` | 50% train-label shuffle | isolated 19–20/48; not a detector |
+| `2026-08-31-probe-surface-12x4/` | UTF-8 surface + logit on 12×4 LOO | surface **10/12** AUC 0.602 |
+| `2026-08-31-transfer-surface-36-to-12x4/` | OOD surface/logit nested | surface 9/12; nested hashpool still 33/48 vs 34/48 |
+| `2026-08-31-probe-surface-qwen/` | Qwen byte hashpool LOO | surface **9/12** AUC 0.674 |
+| `2026-08-31-transfer-gpt2-to-qwen/` | Same-topic GPT-2 → Qwen | hits **11/12** paired; isolated 1/12 |
+| `2026-08-31-transfer-36-to-qwen/` | New GPT-2 topics → Qwen | chance |
 | `2026-08-31-stack-12x4/` | LOO LDA of hits+hashpool file scores | **11/12**, AUC 0.732, unmarked ≤0 **44/48** |
 
 ## What changed across the runs

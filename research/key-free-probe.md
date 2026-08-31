@@ -154,9 +154,22 @@ are noise (hitmass 11/12 there is **not** a detection result). Frozen shuffle
 tables are omitted so they cannot be used as a detector.
 
 `surface` is a UTF-8 byte hashpool of the raw string: same laboratory mixer,
-no tokenizer, so a GPT-2 fit can score Qwen text. `logit` is ridge logistic
-on z-scored file scores (hits / hashpool / surface / hitmass) with nested
-Youden on the log-odds. Neither reconstructs keys.
+no tokenizer, so a GPT-2 fit can score Qwen text. On 12×4 GPT-2 leave-one-out
+it is **10/12**, AUC 0.602, isolated 12/48 (conservative). On 24 new topics
+→ 12×4 it is **9/12**, AUC 0.648; nested Youden 15/48 vs 40/48 does **not**
+beat token hashpool (33/48 vs 34/48). On Qwen 12×1 leave-one-out, surface is
+**9/12** (AUC 0.674) versus Qwen-tokenizer hashpool **10/12**.
+
+`logit` is ridge logistic on z-scored file scores (hits / hashpool / surface /
+hitmass) with nested Youden on the log-odds. On 12×4 LOO it is a specificity
+knob (23/48 marked, 41/48 unmarked, AUC 0.735), not a 12/12 ensemble.
+
+**Same-topic GPT-2 tables → Qwen text.** Train 12×4 GPT-2, score Qwen 12×1
+with overlap kept. Hits through GPT-2 BPE of the Qwen string ranks **11/12**
+(AUC 0.740) but isolated `lr > 0` is **1/12**: the LR scale shifts. Token
+hashpool does not transfer (7/12, AUC 0.521). Mean-gap permutation on n=12
+files is noisy (p ≈ 0.39); quote the paired 11/12, not a detector. Different
+topics *and* Qwen is chance (hits 6/12, hashpool AUC 0.500).
 
 A leave-one-prompt LDA **stack** of hits+hashpool on the original 12×4 LOO
 scores is **11/12**, AUC 0.732, isolated 23/48 with unmarked ≤0 **44/48**.
@@ -183,7 +196,9 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 
 **A 50% train-label shuffle collapses isolated sign at 0 to chance** (19–20/48) and drops AUC from ~0.77 to ~0.61–0.64. Residual ranking is expected: half the training labels remain correct.
 
-**Surface (UTF-8 byte) hashpool is the tokenizer-agnostic reader.** It does not use GPT-2 or Qwen token ids, so a fit on one generator can score the other generator's text. `logit` combines file scores with nested-calibrated log-odds. Results for both are recorded with the transfer runs.
+**Surface (UTF-8 byte) hashpool is a tokenizer-agnostic reader, not the best isolated-file rule.** In-domain: GPT-2 10/12 (AUC 0.602), Qwen 9/12 (AUC 0.674). OOD GPT-2 topics: 9/12 (AUC 0.648). Nested Youden 15/48 vs 40/48 loses to nested token hashpool 33/48 vs 34/48.
+
+**Same-topic GPT-2 hits can rank Qwen twins 11/12 through a probe tokenizer.** Isolated sign at 0 fails (1/12). Token hashpool does not transfer (AUC 0.521). New topics plus Qwen is chance. Paired ranking is not a single-file detector.
 
 **A hits+hashpool LDA stack is a specificity knob, not a 12/12 detector.** On 12×4 LOO it keeps 11/12 and AUC 0.732 while unmarked ≤0 rises to 44/48.
 
@@ -221,8 +236,11 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --method hashpool --out-dir experiments/indicator-gpt2-hashpool
 
-python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-36 \
-  --method surface --out-dir experiments/indicator-gpt2-surface
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --test-dir experiments/2026-08-17-pair-qwen \
+  --overlap keep \
+  --methods hits,hashpool,surface,logit \
+  --out-dir experiments/2026-08-31-transfer-gpt2-to-qwen
 
 python -m text_watermark_tools indicate score FILE.txt \
   --tables experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool

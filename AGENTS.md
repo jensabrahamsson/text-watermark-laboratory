@@ -76,6 +76,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
 | Key-free hits, other topics → 12×4 | isolated **39/48**, AUC **0.769** |
 | Nested hashpool Youden, 36→12×4 | **33/48** marked / **34/48** unmarked |
+| UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
+| Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |
 | Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse | **23/24** and **23/24** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |

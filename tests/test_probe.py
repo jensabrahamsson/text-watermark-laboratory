@@ -420,3 +420,73 @@ def test_shuffle_transfer_does_not_persist_tables(tmp_path) -> None:
     assert not (tmp_path / "tables-hashpool").exists()
     assert not (tmp_path / "tables-counts").exists()
     assert (tmp_path / "results.json").is_file()
+
+
+def test_surface_12x4_loo_is_ten_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-surface-12x4"
+        / "surface"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.instance == "key-free-surface"
+    assert ev.n_prompts_marked_above == 10
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.55
+    assert stats.permutation_p < 0.05
+
+
+def test_gpt2_to_qwen_same_topic_hits_ranks_eleven_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-gpt2-to-qwen"
+        / "hits"
+        / "holdout.json"
+    )
+    hashed = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-gpt2-to-qwen"
+        / "hashpool"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 11
+    assert ev.n_marked_positive == 1
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.70
+    # Token hashpool does not follow the probe-BPE hits ranking across generators.
+    assert hashed.n_prompts_marked_above == 7
+    hash_stats = binary_eval(hashed.marked_lrs, hashed.unmarked_lrs, n_perm=200, seed=0)
+    assert hash_stats.auc < 0.60
+
+
+def test_new_topics_gpt2_to_qwen_is_chance() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36-to-qwen"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 6
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc < 0.60
+
+
+def test_qwen_in_domain_surface_is_nine_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-surface-qwen"
+        / "surface"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 9
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.60

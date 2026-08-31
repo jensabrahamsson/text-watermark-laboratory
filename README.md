@@ -46,6 +46,9 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free hashpool, Qwen 12×1 | Different generator, last-4 hashpool | **10/12**, isolated **11/12** |
 | Key-free hits, other topics → 12×4 | Train 24 new stems, score 12×4 files | isolated **39/48**, AUC **0.769** |
 | Nested hashpool Youden, same split | Train-only threshold, frozen on 12×4 | **33/48** marked, **34/48** unmarked |
+| UTF-8 surface, 12×4 leave-one-out | Byte hashpool, no tokenizer | **10/12**, AUC **0.602** |
+| Same-topic GPT-2 hits → Qwen 12×1 | Probe-tokenizer paired ranking | **11/12** (isolated `lr>0` **1/12**) |
+| New topics GPT-2 → Qwen | Hits / hashpool / surface | chance |
 | Key-free hits, 12×4 → 24 new topics | Train 12×4, score stems 13–36 | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse split | Train-only threshold, frozen on 24 stems | **23/24** and **23/24** |
 | 50% train-label shuffle, 36→12×4 | Negative control, isolated sign at 0 | hits **19/48**, hashpool **20/48** |
