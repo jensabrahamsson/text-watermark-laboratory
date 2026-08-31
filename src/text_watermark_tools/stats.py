@@ -371,6 +371,99 @@ def score_ridge_logodds(x, weights, intercept, mean, std) -> float:
     return float(vec @ weights + intercept)
 
 
+@dataclass(frozen=True)
+class CoverageGate:
+    """Treat lr==0 as abstain (no shared last-k, or no observed next token).
+
+    Hits/poshits can still assign a non-zero LR to an *unseen* next token
+    after a shared context (Laplace occupancy). tokhits skips those. Zeros
+    are not counted as sign errors.
+    """
+
+    n_marked: int
+    n_unmarked: int
+    n_marked_zero: int
+    n_unmarked_zero: int
+    n_marked_decided: int
+    n_unmarked_decided: int
+    decided_tp: int
+    decided_fn: int
+    decided_fp: int
+    decided_tn: int
+    precision: float
+    decided_accuracy: float
+    recall_including_zeros: float
+
+
+def coverage_gate(
+    marked: Sequence[float],
+    unmarked: Sequence[float],
+    *,
+    eps: float = 1e-15,
+) -> CoverageGate:
+    def is_zero(x: float) -> bool:
+        return abs(float(x)) <= eps
+
+    marked_l = [float(x) for x in marked]
+    unmarked_l = [float(x) for x in unmarked]
+    mz = sum(1 for x in marked_l if is_zero(x))
+    uz = sum(1 for x in unmarked_l if is_zero(x))
+    m_dec = [x for x in marked_l if not is_zero(x)]
+    u_dec = [x for x in unmarked_l if not is_zero(x)]
+    tp = sum(1 for x in m_dec if x > 0)
+    fn = sum(1 for x in m_dec if x <= 0)
+    fp = sum(1 for x in u_dec if x > 0)
+    tn = sum(1 for x in u_dec if x <= 0)
+    decided = tp + fn + fp + tn
+    prec = (tp / (tp + fp)) if (tp + fp) else float("nan")
+    acc = ((tp + tn) / decided) if decided else float("nan")
+    rec = (tp / len(marked_l)) if marked_l else float("nan")
+    return CoverageGate(
+        n_marked=len(marked_l),
+        n_unmarked=len(unmarked_l),
+        n_marked_zero=mz,
+        n_unmarked_zero=uz,
+        n_marked_decided=len(m_dec),
+        n_unmarked_decided=len(u_dec),
+        decided_tp=tp,
+        decided_fn=fn,
+        decided_fp=fp,
+        decided_tn=tn,
+        precision=prec,
+        decided_accuracy=acc,
+        recall_including_zeros=rec,
+    )
+
+
+def coverage_gate_to_dict(ev: CoverageGate) -> dict:
+    return {
+        "n_marked": ev.n_marked,
+        "n_unmarked": ev.n_unmarked,
+        "n_marked_zero": ev.n_marked_zero,
+        "n_unmarked_zero": ev.n_unmarked_zero,
+        "n_marked_decided": ev.n_marked_decided,
+        "n_unmarked_decided": ev.n_unmarked_decided,
+        "decided_tp": ev.decided_tp,
+        "decided_fn": ev.decided_fn,
+        "decided_fp": ev.decided_fp,
+        "decided_tn": ev.decided_tn,
+        "precision": ev.precision,
+        "decided_accuracy": ev.decided_accuracy,
+        "recall_including_zeros": ev.recall_including_zeros,
+    }
+
+
+def format_coverage_gate(ev: CoverageGate, *, label: str = "") -> str:
+    prefix = f"{label} " if label else ""
+    return (
+        f"{prefix}zeros={ev.n_marked_zero}/{ev.n_marked} vs "
+        f"{ev.n_unmarked_zero}/{ev.n_unmarked} "
+        f"decided_tp={ev.decided_tp} fn={ev.decided_fn} "
+        f"fp={ev.decided_fp} tn={ev.decided_tn} "
+        f"precision={ev.precision:.3f} decided_acc={ev.decided_accuracy:.3f}"
+    )
+
+
 def binary_eval_to_dict(ev: BinaryEval) -> dict:
     return {
         "n_positive": ev.n_positive,

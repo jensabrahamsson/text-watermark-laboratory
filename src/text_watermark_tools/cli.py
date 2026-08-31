@@ -1163,8 +1163,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit, poshits, poshitmass, "
-            "pospool, first"
+            "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
+            "poshitmass, pospool, first, tokhits"
         ),
     )
     p_probe.add_argument(

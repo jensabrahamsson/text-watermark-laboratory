@@ -61,6 +61,7 @@ class ScoreSpec:
     kind: str = "hard"
     min_count: int = 0
     require_both: bool = True
+    require_token: bool = False
     shrinkage_tau: float = 0.0
     mix_orders: tuple[int, ...] = ()
     instance: str = "key-free-counts"
@@ -74,6 +75,12 @@ COUNT_SPECS: dict[str, ScoreSpec] = {
     "backoff": ScoreSpec(kind="backoff", instance="key-free-backoff"),
     "interpolate": ScoreSpec(kind="interpolate", instance="key-free-interpolate"),
     "hits": ScoreSpec(kind="gated", min_count=1, instance="key-free-hits"),
+    "tokhits": ScoreSpec(
+        kind="gated",
+        min_count=1,
+        require_token=True,
+        instance="key-free-tokhits",
+    ),
     "freqhits": ScoreSpec(kind="gated", min_count=4, instance="key-free-freqhits"),
     "hitmass": ScoreSpec(kind="hitmass", min_count=1, instance="key-free-hitmass"),
     "gated": ScoreSpec(kind="gated", min_count=2, instance="key-free-gated"),
@@ -103,6 +110,13 @@ def _count(table: NextTokenTable, ctx: tuple[int, ...]) -> int:
     if not bucket:
         return 0
     return int(sum(bucket.values()))
+
+
+def _tok_count(table: NextTokenTable, ctx: tuple[int, ...], tok: int) -> int:
+    bucket = table.counts.get(ctx)
+    if not bucket:
+        return 0
+    return int(bucket.get(int(tok), 0))
 
 
 def _vocab_size(model: BlindModel) -> int:
@@ -255,6 +269,13 @@ def score_sequence_detail(
         if spec.min_count > 0:
             support = min(n_m, n_u) if spec.require_both else max(n_m, n_u)
             if support < spec.min_count:
+                continue
+        if spec.require_token:
+            if (
+                _tok_count(model.marked, ctx, t)
+                + _tok_count(model.unmarked, ctx, t)
+                < 1
+            ):
                 continue
         log_m = _log_p_mode(
             model.marked, ctx, t, model=model, kind=kind, order=order

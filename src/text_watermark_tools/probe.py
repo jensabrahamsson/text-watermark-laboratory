@@ -23,9 +23,12 @@ from text_watermark_tools.indicator import (
 from text_watermark_tools.stats import (
     binary_eval,
     binary_eval_to_dict,
+    coverage_gate,
+    coverage_gate_to_dict,
     counts_at_threshold,
     fit_ridge_logodds,
     format_binary_eval,
+    format_coverage_gate,
     nested_stem_eval_to_dict,
     nested_threshold_by_stem,
     score_ridge_logodds,
@@ -67,11 +70,18 @@ DEFAULT_COVERAGE_WINDOWS: tuple[tuple[int, int], ...] = (
     (64, 128),
 )
 POSHITS_SPEC = ScoreSpec(kind="gated", min_count=1, instance="key-free-poshits")
+POSTOKHITS_SPEC = ScoreSpec(
+    kind="gated",
+    min_count=1,
+    require_token=True,
+    instance="key-free-postokhits",
+)
 POSHITMASS_SPEC = ScoreSpec(
     kind="hitmass", min_count=1, instance="key-free-poshitmass"
 )
 POS_SPECS: dict[str, ScoreSpec] = {
     "poshits": POSHITS_SPEC,
+    "postokhits": POSTOKHITS_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
 
@@ -1515,7 +1525,7 @@ def run_probe(
     requested = (
         list(methods)
         if methods is not None
-        else [k for k in COUNT_SPECS if k != "first"]
+        else [k for k in COUNT_SPECS if k not in ("first", "tokhits")]
     )
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
@@ -1717,6 +1727,21 @@ def print_probe(run: ProbeRun) -> str:
         )
     lines.append("")
     lines.append(
+        "| method | marked zeros | unmarked zeros | decided tp/fn | "
+        "decided fp/tn | precision |"
+    )
+    lines.append("|---|---|---|---|---|---|")
+    for m in run.methods:
+        g = coverage_gate(m.holdout.marked_lrs, m.holdout.unmarked_lrs)
+        prec = f"{g.precision:.3f}" if g.precision == g.precision else "nan"
+        lines.append(
+            f"| {m.name} | {g.n_marked_zero}/{g.n_marked} | "
+            f"{g.n_unmarked_zero}/{g.n_unmarked} | "
+            f"{g.decided_tp}/{g.decided_fn} | {g.decided_fp}/{g.decided_tn} | "
+            f"{prec} |"
+        )
+    lines.append("")
+    lines.append(
         "| method | nested-youden-by-stem marked>t | unmarked<=t | "
         "mean t | sens | spec |"
     )
@@ -1809,6 +1834,9 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
             "used_g_values": m.holdout.used_g_values,
             "binary": binary_eval_to_dict(m.binary),
             "nested_stem": nested_stem_gates(m.holdout),
+            "coverage_gate": coverage_gate_to_dict(
+                coverage_gate(m.holdout.marked_lrs, m.holdout.unmarked_lrs)
+            ),
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
@@ -2082,28 +2110,19 @@ def run_transfer(
             "text",
         )
 
-    if "poshits" in extras:
+    for name in pos_names:
+        if name == "pospool":
+            continue
+        spec = POS_SPECS[name]
         assert pos_model is not None
-        scorers["poshits"] = (
+        scorers[name] = (
             (
-                lambda ids, prefix=(), m=pos_model: score_sequence(
-                    ids, m, POSHITS_SPEC, prefix=prefix
+                lambda ids, prefix=(), m=pos_model, s=spec: score_sequence(
+                    ids, m, s, prefix=prefix
                 )
             ),
-            "key-free-poshits",
-            "poshits",
-            "ids",
-        )
-    if "poshitmass" in extras:
-        assert pos_model is not None
-        scorers["poshitmass"] = (
-            (
-                lambda ids, prefix=(), m=pos_model: score_sequence(
-                    ids, m, POSHITMASS_SPEC, prefix=prefix
-                )
-            ),
-            "key-free-poshitmass",
-            "poshitmass",
+            spec.instance,
+            name,
             "ids",
         )
     if "pospool" in extras:
@@ -2408,6 +2427,29 @@ def print_transfer(run: TransferRun) -> str:
         )
     lines.append("")
     lines.append(
+        "| method | marked zeros | unmarked zeros | decided tp/fn | "
+        "decided fp/tn | precision |"
+    )
+    lines.append("|---|---|---|---|---|---|")
+    for m in run.methods:
+        g = coverage_gate(m.holdout.marked_lrs, m.holdout.unmarked_lrs)
+        prec = f"{g.precision:.3f}" if g.precision == g.precision else "nan"
+        lines.append(
+            f"| {m.name} | {g.n_marked_zero}/{g.n_marked} | "
+            f"{g.n_unmarked_zero}/{g.n_unmarked} | "
+            f"{g.decided_tp}/{g.decided_fn} | {g.decided_fp}/{g.decided_tn} | "
+            f"{prec} |"
+        )
+    lines.append("")
+    lines.append(
+        "Zeros are lr==0: no shared last-k, or (tokhits/postokhits) no "
+        "observed next token under that context. They are abstentions, not "
+        "sign errors. poshits can still score an *unseen* next token after "
+        "a shared context via Laplace; that occupancy artifact is not a "
+        "token preference."
+    )
+    lines.append("")
+    lines.append(
         "| method | source | t | test marked>t | test unmarked≤t "
         "| sens | spec |"
     )
@@ -2456,6 +2498,12 @@ def print_transfer(run: TransferRun) -> str:
     lines.append("")
     for m in run.methods:
         lines.append(format_binary_eval(m.binary, label=m.name))
+        lines.append(
+            format_coverage_gate(
+                coverage_gate(m.holdout.marked_lrs, m.holdout.unmarked_lrs),
+                label=m.name,
+            )
+        )
         lines.append(
             f"{m.name} prompts_marked_above={m.n_prompt_wins}/{m.n_prompts} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
@@ -2510,6 +2558,9 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
             "binary": binary_eval_to_dict(m.binary),
+            "coverage_gate": coverage_gate_to_dict(
+                coverage_gate(m.holdout.marked_lrs, m.holdout.unmarked_lrs)
+            ),
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
