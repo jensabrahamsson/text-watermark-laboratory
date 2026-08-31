@@ -75,7 +75,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
 | Key-free hits, other topics → 12×4 | isolated **39/48**, AUC **0.769** |
+| Nested hashpool Youden, 36→12×4 | **33/48** marked / **34/48** unmarked |
 | Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |
+| Nested freqhits Youden, reverse | **23/24** and **23/24** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
@@ -91,9 +93,9 @@ See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-f
 | `blind.py` | Key-free leave-one-out comparison |
 | `indicator.py` | Frozen count tables and single-file LR |
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
-| `transfer.py` | Interpolated, gated, mix, and hash-pool scorers |
+| `transfer.py` | Interpolated, gated, hash-pool, and UTF-8 surface scorers |
 | `pivot.py` | Unmarked-LM choice geometry and argmax snap |
-| `probe.py` | Compare scorers; transfer across corpora; optional pivot and scrub |
+| `probe.py` | Compare scorers; transfer; nested thresholds; shuffle control; scrub |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |
 

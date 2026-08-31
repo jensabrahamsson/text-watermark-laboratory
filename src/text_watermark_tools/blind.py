@@ -52,12 +52,20 @@ class Twin:
     unmarked_ids: list[int]
     extra_marked_ids: list[list[int]] = field(default_factory=list)
     extra_unmarked_ids: list[list[int]] = field(default_factory=list)
+    extra_marked_text: list[str] = field(default_factory=list)
+    extra_unmarked_text: list[str] = field(default_factory=list)
 
     def marked_seqs(self) -> list[list[int]]:
         return [self.marked_ids, *self.extra_marked_ids]
 
     def unmarked_seqs(self) -> list[list[int]]:
         return [self.unmarked_ids, *self.extra_unmarked_ids]
+
+    def marked_texts(self) -> list[str]:
+        return [self.marked_text, *self.extra_marked_text]
+
+    def unmarked_texts(self) -> list[str]:
+        return [self.unmarked_text, *self.extra_unmarked_text]
 
 
 @dataclass
@@ -231,11 +239,17 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
         unmarked_text = unmarked_path.read_text()
         extra_m: list[list[int]] = []
         extra_u: list[list[int]] = []
+        extra_m_text: list[str] = []
+        extra_u_text: list[str] = []
         for idx in sorted(k for k in files if k != 1):
-            extra_m.append(tok(files[idx].read_text())["input_ids"])
+            mtxt = files[idx].read_text()
+            extra_m_text.append(mtxt)
+            extra_m.append(tok(mtxt)["input_ids"])
             extra_u_path = pair_dir / f"{stem}-unmarked-gen-{idx}.txt"
             if extra_u_path.is_file():
-                extra_u.append(tok(extra_u_path.read_text())["input_ids"])
+                utxt = extra_u_path.read_text()
+                extra_u_text.append(utxt)
+                extra_u.append(tok(utxt)["input_ids"])
         twins.append(
             Twin(
                 stem=stem,
@@ -245,6 +259,8 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
                 unmarked_ids=tok(unmarked_text)["input_ids"],
                 extra_marked_ids=extra_m,
                 extra_unmarked_ids=extra_u,
+                extra_marked_text=extra_m_text,
+                extra_unmarked_text=extra_u_text,
             )
         )
     if not twins:

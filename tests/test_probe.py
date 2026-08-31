@@ -227,7 +227,7 @@ def test_shuffle_twin_sides_is_a_per_stem_coin_flip() -> None:
     swapped = sum(
         a.marked_ids == b.unmarked_ids for a, b in zip(twins, shuffled, strict=True)
     )
-    assert 0 < swapped < len(twins)
+    assert swapped == len(twins) // 2
     assert all(t.stem == s.stem for t, s in zip(twins, shuffled, strict=True))
 
 
@@ -307,3 +307,116 @@ def test_ood_hashpool_tables_score_one_file_without_keys() -> None:
     assert meta.instance == "key-free-hashpool"
     assert meta.score_kind == "hashpool"
     assert isinstance(lr, float)
+
+
+def test_nested_36_to_12x4_hashpool_youden_is_balanced() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-transfer-nested-36-to-12x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is False
+    row = next(
+        r
+        for r in raw["thresholds"]
+        if r["name"] == "hashpool" and r["source"] == "nested-youden"
+    )
+    assert row["n_marked_above"] == 33
+    assert row["n_unmarked_at_most"] == 34
+    hitmass = next(m for m in raw["methods"] if m["name"] == "hitmass")
+    assert hitmass["n_prompt_wins"] == 10
+
+
+def test_nested_12x4_to_36_freqhits_is_twenty_three_of_twenty_four() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-transfer-nested-12x4-to-36"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is False
+    row = next(
+        r
+        for r in raw["thresholds"]
+        if r["name"] == "freqhits" and r["source"] == "nested-youden"
+    )
+    assert row["n_marked_above"] == 23
+    assert row["n_unmarked_at_most"] == 23
+
+
+def test_shuffle_36_to_12x4_isolated_falls_toward_chance() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-shuffle-36-to-12x4"
+    )
+    raw = json.loads((root / "results.json").read_text())
+    assert raw["used_keys"] is False
+    assert raw["shuffle_seed"] == 0
+    assert not (root / "tables-hashpool").exists()
+    hits = next(m for m in raw["methods"] if m["name"] == "hits")
+    hashed = next(m for m in raw["methods"] if m["name"] == "hashpool")
+    assert hits["binary"]["n_positive_above_zero"] == 19
+    assert hashed["binary"]["n_positive_above_zero"] == 20
+    assert hits["binary"]["auc"] < 0.65
+    assert hashed["n_prompt_wins"] == 9
+
+
+def test_run_transfer_surface_and_logit_on_lab_pairs_is_key_free() -> None:
+    twins = load_twins(PAIR)
+    run = run_transfer(
+        twins[:2],
+        twins[2:],
+        train_dir=str(PAIR),
+        test_dir=str(PAIR),
+        context_len=2,
+        methods=("hits", "hashpool", "surface", "logit"),
+        overlap_mode="keep",
+        n_hashes=4,
+        n_buckets=16,
+        nested=False,
+        surface_context_len=4,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hits", "hashpool", "surface", "logit"]
+    assert run.used_keys is False
+    surf = next(m for m in run.methods if m.name == "surface")
+    assert surf.holdout.instance == "key-free-surface"
+    logit = next(m for m in run.methods if m.name == "logit")
+    assert logit.holdout.instance == "key-free-logit"
+
+
+def test_shuffle_transfer_does_not_persist_tables(tmp_path) -> None:
+    twins = load_twins(PAIR)
+    run = run_transfer(
+        twins[:2],
+        twins[2:],
+        train_dir=str(PAIR),
+        test_dir=str(PAIR),
+        context_len=2,
+        methods=("hits", "hashpool"),
+        overlap_mode="keep",
+        n_hashes=4,
+        n_buckets=16,
+        nested=False,
+        shuffle_labels=True,
+        shuffle_seed=0,
+    )
+    from text_watermark_tools.probe import persist_transfer
+
+    persist_transfer(run, tmp_path)
+    assert run.shuffle_seed == 0
+    assert not (tmp_path / "tables-hashpool").exists()
+    assert not (tmp_path / "tables-counts").exists()
+    assert (tmp_path / "results.json").is_file()

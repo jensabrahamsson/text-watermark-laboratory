@@ -246,11 +246,23 @@ python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2-hashpool
 ```
 
-Count tables also accept `--score-mode hits` (shared 4-grams only). Out-of-family
-hashpool tables from training on 24 other topics are in
-`experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool/`.
+Count tables also accept `--score-mode hits` (shared 4-grams only). Nested
+out-of-family hashpool tables, with a train-only `decision_threshold`, are in
+`experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool/`.
 
-That is a genuine indicator signal, but its calibration depends on the training corpus. Leave-one-of-12-out hard last-4 still overlaps at threshold 0 (**29/48**). Hits trained on other topics marks **39/48** of those same 12×4 files. Do not turn the sign of one LR into a universal yes/no claim.
+UTF-8 surface tables need no tokenizer:
+
+```bash
+python -m text_watermark_tools indicate fit \
+  experiments/2026-08-17-pair-36 \
+  --method surface \
+  --out-dir experiments/indicator-gpt2-surface
+
+python -m text_watermark_tools indicate score path/to/text.txt \
+  --tables experiments/indicator-gpt2-surface
+```
+
+That is a genuine indicator signal, but its calibration depends on the training corpus. Leave-one-of-12-out hard last-4 still overlaps at threshold 0 (**29/48**). Hits trained on other topics marks **39/48** of those same 12×4 files. Nested hashpool Youden on that split is **33/48** marked and **34/48** unmarked. Do not turn the sign of one LR into a universal yes/no claim.
 
 The strongest *prompt-group* evidence currently comes from matched/repeated prompts, where the original hard indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin. `hits` and `hashpool` reach **11/12** with no margin. `indicate holdout --score-mode hashpool` leave-one-outs the hash buckets.
 
@@ -270,9 +282,9 @@ python -m text_watermark_tools probe \
   --out-dir experiments/probe
 ```
 
-`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer).
+`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, `surface`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer). `--shuffle-labels` is a negative control. Nested Youden / 10% FPR thresholds come from leave-one-prompt-out on the training stems only.
 
-These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769). Witten–Bell interpolation did not help on 12×4. See [research/key-free-probe.md](research/key-free-probe.md).
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. `surface` hashes UTF-8 bytes of the raw string. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769); nested hashpool Youden is **33/48** vs **34/48**. Witten–Bell interpolation did not help on 12×4. See [research/key-free-probe.md](research/key-free-probe.md).
 
 ## Key-free argmax snap (`scrub`)
 

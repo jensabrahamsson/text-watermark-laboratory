@@ -18,6 +18,8 @@ and change only how a finished string is read:
 * hashpool — feature-hash the context into shared buckets
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
+* surface — the same hashpool, but on UTF-8 bytes of the raw string
+  (no tokenizer; the reader that can cross generators)
 
 Hash pooling is the one extra fit. It is a stealing-style regulariser:
 contexts that collide in a random hash share a next-token table, so
@@ -283,13 +285,14 @@ class HashPoolModel:
     n_unmarked: int
     alpha: float
     vocab: set[int] = field(default_factory=set)
+    alphabet: str = "tokens"
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
 
     @property
     def instance(self) -> str:
-        return "key-free-hashpool"
+        return "key-free-surface" if self.alphabet == "bytes" else "key-free-hashpool"
 
 
 def _add_hash_seq(
@@ -324,6 +327,7 @@ def fit_hashpool(
     n_buckets: int = 256,
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
+    alphabet: str = "tokens",
 ) -> HashPoolModel:
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -350,6 +354,8 @@ def fit_hashpool(
             n_buckets=n_buckets,
         )
     vocab = set(marked_uni) | set(unmarked_uni)
+    if alphabet == "bytes":
+        vocab = set(range(256)) | vocab
     return HashPoolModel(
         n_hashes=n_hashes,
         n_buckets=n_buckets,
@@ -363,6 +369,7 @@ def fit_hashpool(
         n_unmarked=n_u,
         alpha=alpha,
         vocab=vocab,
+        alphabet=alphabet,
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
@@ -387,6 +394,42 @@ def fit_hashpool_twins(
         alpha=alpha,
         seed=seed,
     )
+
+
+def text_to_bytes(text: str) -> list[int]:
+    """UTF-8 bytes as integer 'tokens'. Not a tokenizer and not SynthID."""
+    return list(text.encode("utf-8"))
+
+
+DEFAULT_SURFACE_CONTEXT = 8
+
+
+def fit_surface_twins(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = DEFAULT_SURFACE_CONTEXT,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 20260831,
+) -> HashPoolModel:
+    """Hash-pool last-k bytes of the raw string. Tokenizer-agnostic."""
+    return fit_hashpool(
+        [text_to_bytes(s) for t in twins for s in t.marked_texts()],
+        [text_to_bytes(s) for t in twins for s in t.unmarked_texts()],
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        alpha=alpha,
+        seed=seed,
+        alphabet="bytes",
+    )
+
+
+def score_surface(text: str, model: HashPoolModel) -> float:
+    if model.alphabet != "bytes":
+        raise ValueError("score_surface needs a byte hashpool (alphabet='bytes')")
+    return score_hashpool(text_to_bytes(text), model)
 
 
 def _dirichlet_logp(
@@ -592,7 +635,9 @@ def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
 
 
 HASHPOOL_KIND = "key-free-hashpool"
+SURFACE_KIND = "key-free-surface"
 HASHPOOL_TABLES = "tables.json"
+POOL_KINDS = (HASHPOOL_KIND, SURFACE_KIND)
 
 
 def _dump_hash_layers(layers: list[dict[int, Counter]]) -> list:
@@ -637,8 +682,10 @@ def persist_hashpool(
         raise RuntimeError("refusing to persist a hashpool that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    kind = SURFACE_KIND if model.alphabet == "bytes" else HASHPOOL_KIND
     payload = {
-        "kind": HASHPOOL_KIND,
+        "kind": kind,
+        "alphabet": model.alphabet,
         "instance": model.instance,
         "model_name": model_name,
         "pair_dir": pair_dir,
@@ -665,6 +712,7 @@ def persist_hashpool(
         "caveat": (
             "Not detector_mean. Not Claude. Not Anthropic. "
             "Random context hash, not the secret SynthID hash. "
+            "alphabet=bytes is UTF-8 surface pooling, not a tokenizer. "
             "A stored decision_threshold is a frozen operating point, "
             "not a universal detector."
         ),
@@ -678,10 +726,12 @@ def persist_hashpool(
 
 
 def hashpool_from_payload(raw: dict) -> HashPoolModel:
-    if raw.get("kind") != HASHPOOL_KIND:
+    kind = str(raw.get("kind") or "")
+    if kind not in POOL_KINDS:
         raise ValueError("not a key-free hashpool table")
     if raw.get("used_keys") or raw.get("used_hash_iv") or raw.get("used_g_values"):
         raise RuntimeError("hashpool file claims it used keys / hash_iv / g")
+    alphabet = str(raw.get("alphabet") or ("bytes" if kind == SURFACE_KIND else "tokens"))
     return HashPoolModel(
         n_hashes=int(raw["n_hashes"]),
         n_buckets=int(raw["n_buckets"]),
@@ -699,6 +749,7 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         n_unmarked=int(raw["n_unmarked"]),
         alpha=float(raw["alpha"]),
         vocab=set(int(t) for t in raw["vocab"]),
+        alphabet=alphabet,
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
@@ -710,7 +761,7 @@ def load_hashpool(tables_dir: Path) -> HashPoolModel:
     if path.is_dir():
         path = path / HASHPOOL_TABLES
     raw = json.loads(path.read_text())
-    if raw.get("kind") != HASHPOOL_KIND:
+    if raw.get("kind") not in POOL_KINDS:
         raise ValueError(f"not a key-free hashpool table: {path}")
     return hashpool_from_payload(raw)
 

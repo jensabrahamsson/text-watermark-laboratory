@@ -156,3 +156,61 @@ def test_hashmix_separates_synthetic_tokens() -> None:
     assert score_hashmix([0, 1, 0, 1, 0, 1], model) > score_hashmix(
         [0, 2, 0, 2, 0, 2], model
     )
+
+
+def test_surface_hashpool_is_tokenizer_free_and_key_free() -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.transfer import (
+        fit_surface_twins,
+        load_hashpool,
+        persist_hashpool,
+        score_surface,
+        text_to_bytes,
+    )
+
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="aaa aaa aaa aaa aaa",
+            unmarked_text="zzz zzz zzz zzz zzz",
+            marked_ids=[1],
+            unmarked_ids=[2],
+        )
+    ]
+    model = fit_surface_twins(twins, context_len=2, n_hashes=4, n_buckets=16)
+    assert model.used_keys is False
+    assert model.alphabet == "bytes"
+    assert model.instance == "key-free-surface"
+    assert score_surface("aaa aaa", model) > score_surface("zzz zzz", model)
+    assert text_to_bytes("ab") == [97, 98]
+
+
+def test_surface_persist_load_same_lr(tmp_path) -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.transfer import (
+        SURFACE_KIND,
+        fit_surface_twins,
+        load_hashpool,
+        persist_hashpool,
+        score_surface,
+    )
+
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="hello hello hello hello",
+            unmarked_text="world world world world",
+            marked_ids=[1],
+            unmarked_ids=[2],
+        )
+    ]
+    model = fit_surface_twins(twins, context_len=3, n_hashes=4, n_buckets=16, seed=3)
+    persist_hashpool(model, tmp_path, model_name="none", n_train_prompts=1)
+    loaded = load_hashpool(tmp_path)
+    assert loaded.alphabet == "bytes"
+    assert loaded.instance == "key-free-surface"
+    text = "hello hello"
+    assert score_surface(text, loaded) == score_surface(text, model)
+    raw = (tmp_path / "tables.json").read_text()
+    assert SURFACE_KIND in raw
+    assert '"used_keys": false' in raw

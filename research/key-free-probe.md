@@ -116,26 +116,74 @@ Hits on new topics is an almost-perfect *ranking* of marked vs unmarked files
 yes/no: ten unmarked twins are also positive. Hashpool/hybrid keep higher
 specificity at threshold 0.
 
+Nested Youden / 10% FPR from leave-one-prompt-out on the *training* stems,
+then frozen on the test files, is the honest isolated-file gate. In-sample
+Youden on files that entered the fit is optimistic (hard collapsed to
+always-marked). JSON: [../experiments/2026-08-31-transfer-nested-36-to-12x4/](../experiments/2026-08-31-transfer-nested-36-to-12x4/)
+and [../experiments/2026-08-31-transfer-nested-12x4-to-36/](../experiments/2026-08-31-transfer-nested-12x4-to-36/).
+
+Train 24 new stems, test 12×4 files, nested operating points:
+
+| Method | Nested t | Test marked>t | Test unmarked≤t | sens | spec |
+|---|---|---|---|---|---|
+| hits Youden / FPR10 | 0.368 | 22/48 | 40/48 | 0.46 | 0.83 |
+| **hashpool Youden** | **0.005** | **33/48** | **34/48** | **0.69** | **0.71** |
+| hashpool FPR10 | 0.016 | 26/48 | 41/48 | 0.54 | 0.85 |
+| hitmass Youden | 0.013 | 17/48 | 44/48 | 0.35 | 0.92 |
+
+Coverage-weighted hits (`hitmass`) recovers the OOD prompt grain that plain
+hits lost (8/12 → **10/12**) without hurting file AUC (0.771).
+
+Train 12×4, test stems 13–36, nested:
+
+| Method | Nested t | Test marked>t | Test unmarked≤t | sens | spec |
+|---|---|---|---|---|---|
+| hits FPR10 | 0.505 | 20/24 | 24/24 | 0.83 | 1.00 |
+| **freqhits Youden / FPR10** | **0.522** | **23/24** | **23/24** | **0.96** | **0.96** |
+
+Four draws per training prompt give shared 4-grams enough support that a
+count ≥ 4 gate plus a nested threshold is an almost balanced isolated-file
+rule on *new* GPT-2 topics. It is still not a universal detector.
+
+A 50% train-label shuffle on the 36→12×4 split
+([../experiments/2026-08-31-transfer-shuffle-36-to-12x4/](../experiments/2026-08-31-transfer-shuffle-36-to-12x4/))
+drops isolated sign at 0 to chance (hits 19/48, hashpool 20/48). File AUC
+falls from ~0.77 to ~0.61–0.64. Residual ranking is not zero: half the
+training labels are still correct. Prompt-grain wins on n=12 under shuffle
+are noise (hitmass 11/12 there is **not** a detection result). Frozen shuffle
+tables are omitted so they cannot be used as a detector.
+
+`surface` is a UTF-8 byte hashpool of the raw string: same laboratory mixer,
+no tokenizer, so a GPT-2 fit can score Qwen text. `logit` is ridge logistic
+on z-scored file scores (hits / hashpool / surface / hitmass) with nested
+Youden on the log-odds. Neither reconstructs keys.
+
 A leave-one-prompt LDA **stack** of hits+hashpool on the original 12×4 LOO
 scores is **11/12**, AUC 0.732, isolated 23/48 with unmarked ≤0 **44/48**.
 It trades recall for specificity. Complementary probe misses are not a 12/12
 ensemble.
 
-`indicate fit --method hashpool` writes frozen buckets. `indicate score`
-reads them. The 36→12×4 hashpool tables live at
-`experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool/`.
+`indicate fit --method hashpool` writes frozen buckets. `indicate fit
+--method surface` writes byte buckets and `indicate score` reads them
+without a tokenizer. Nested 36→12×4 hashpool tables with
+`decision_threshold` ≈ 0.005 live at
+`experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool/`.
 
 ## How to read this
 
 **Coverage gating was the missing ablation on 12×4 and 36-topic GPT-2.** Scoring *only* 4-grams seen on both training sides raises 12×4 AUC from 0.626 to 0.737 (11/12) and 36-topic ranking from 20/36 to 30–31/36 (AUC 0.89). The unigram fallback in `hard` was adding topic noise. The old “more topics do not help” lesson was a scorer artifact.
 
-**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986**). Leave-one-of-12-out hard last-4 remains 29/48.
+**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Nested hashpool Youden on that split is the honest yes/no: **33/48** marked and **34/48** unmarked. Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986**); nested `freqhits` is **23/24** and **23/24**. Leave-one-of-12-out hard last-4 remains 29/48.
 
 **Hash pooling is the method that generalizes across generators.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750), and 11/12 prompt grain when those hash buckets are trained on other GPT-2 topics. Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
 
 **Shorter-context interpolation is corpus-dependent.** On 12×4 it hurt (7/12). On 36 topics it helped (29/36). Do not treat Witten–Bell as a default win.
 
 **Choice geometry is real but weaker.** Unmarked-LM rank/LDA separates above chance on 12×4 (perm p 0.016–0.045) and stays key-free. It does not beat `hits` or `hashpool` there.
+
+**A 50% train-label shuffle collapses isolated sign at 0 to chance** (19–20/48) and drops AUC from ~0.77 to ~0.61–0.64. Residual ranking is expected: half the training labels remain correct.
+
+**Surface (UTF-8 byte) hashpool is the tokenizer-agnostic reader.** It does not use GPT-2 or Qwen token ids, so a fit on one generator can score the other generator's text. `logit` combines file scores with nested-calibrated log-odds. Results for both are recorded with the transfer runs.
 
 **A hits+hashpool LDA stack is a specificity knob, not a 12/12 detector.** On 12×4 LOO it keeps 11/12 and AUC 0.732 while unmarked ≤0 rises to 44/48.
 
@@ -164,11 +212,20 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
   --overlap drop-from-train \
   --out-dir experiments/2026-08-31-transfer-36-to-12x4
 
+python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --overlap drop-from-train \
+  --shuffle-labels --skip-nested \
+  --out-dir experiments/transfer-shuffle
+
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --method hashpool --out-dir experiments/indicator-gpt2-hashpool
 
+python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-36 \
+  --method surface --out-dir experiments/indicator-gpt2-surface
+
 python -m text_watermark_tools indicate score FILE.txt \
-  --tables experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool
+  --tables experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool
 
 python -m text_watermark_tools scrub \
   experiments/2026-08-17-pair-12x4 \

@@ -19,7 +19,10 @@ Current results:
 | Key-free hashpool, 36 GPT-2 topics | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
 | Key-free hits, train 24 other topics → 12×4 files | isolated **39/48**, AUC **0.769** |
+| Nested hashpool Youden on that split | **33/48** marked, **34/48** unmarked |
 | Key-free hits, train 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** (unmarked ≤0 only 14/24) |
+| Nested freqhits Youden on the reverse split | **23/24** and **23/24** |
+| 50% train-label shuffle, isolated sign | hits **19/48**, hashpool **20/48** |
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 

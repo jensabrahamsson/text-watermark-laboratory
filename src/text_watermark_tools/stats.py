@@ -214,6 +214,63 @@ def format_binary_eval(ev: BinaryEval, *, label: str = "") -> str:
     )
 
 
+def fit_ridge_logodds(
+    X_pos,
+    X_neg,
+    *,
+    ridge: float = 1.0,
+    max_iter: int = 40,
+):
+    """Ridge logistic log-odds for marked (+) vs unmarked (−).
+
+    Returns (weights, intercept, mean, std) so a later vector `x` scores as
+    `((x - mean) / std) · weights + intercept`. Threshold 0 is a 50% logit.
+    Z-scoring uses the pooled train rows. Still no keys / hash_iv / g-values.
+    """
+    import numpy as np
+
+    pos = np.asarray(X_pos, dtype=np.float64)
+    neg = np.asarray(X_neg, dtype=np.float64)
+    if pos.ndim != 2 or neg.ndim != 2 or pos.shape[1] != neg.shape[1]:
+        raise ValueError("fit_ridge_logodds needs 2-d arrays with the same width")
+    if len(pos) < 1 or len(neg) < 1:
+        raise ValueError("fit_ridge_logodds needs both classes")
+    X = np.vstack([pos, neg])
+    y = np.concatenate(
+        [np.ones(len(pos), dtype=np.float64), np.zeros(len(neg), dtype=np.float64)]
+    )
+    mu = X.mean(axis=0)
+    sd = X.std(axis=0)
+    sd = np.where(sd < 1e-12, 1.0, sd)
+    Z = (X - mu) / sd
+    n, d = Z.shape
+    Zb = np.column_stack([Z, np.ones(n)])
+    w = np.zeros(d + 1, dtype=np.float64)
+    penalty = ridge * np.eye(d + 1)
+    penalty[-1, -1] = 0.0
+    for _ in range(max_iter):
+        logits = np.clip(Zb @ w, -40.0, 40.0)
+        p = 1.0 / (1.0 + np.exp(-logits))
+        weight = np.clip(p * (1.0 - p), 1e-6, None)
+        hessian = Zb.T @ (weight[:, None] * Zb) + penalty
+        grad = Zb.T @ (y - p) - penalty @ w
+        try:
+            step = np.linalg.solve(hessian, grad)
+        except np.linalg.LinAlgError:
+            step = np.linalg.lstsq(hessian, grad, rcond=None)[0]
+        w = w + step
+        if float(np.max(np.abs(step))) < 1e-8:
+            break
+    return w[:-1], float(w[-1]), mu, sd
+
+
+def score_ridge_logodds(x, weights, intercept, mean, std) -> float:
+    import numpy as np
+
+    vec = (np.asarray(x, dtype=np.float64) - mean) / std
+    return float(vec @ weights + intercept)
+
+
 def binary_eval_to_dict(ev: BinaryEval) -> dict:
     return {
         "n_positive": ev.n_positive,

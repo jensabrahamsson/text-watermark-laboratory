@@ -4,8 +4,10 @@ from text_watermark_tools.stats import (
     binary_eval,
     binomial_sf,
     counts_at_threshold,
+    fit_ridge_logodds,
     permutation_mean_diff_p,
     roc_auc,
+    score_ridge_logodds,
     threshold_at_fpr,
     youden_threshold,
 )
@@ -75,6 +77,14 @@ def test_threshold_at_fpr_ten_percent_on_ten_unmarked() -> None:
     fp = sum(1 for s in neg if s > t)
     assert fp <= 1
     assert t >= 0.7
+
+
+def test_ridge_logodds_separates_two_features() -> None:
+    pos = [[2.0, 1.0], [1.8, 1.2], [2.2, 0.9], [1.9, 1.1]]
+    neg = [[0.0, 0.0], [0.2, -0.1], [-0.1, 0.1], [0.1, 0.0]]
+    w, b, mu, sd = fit_ridge_logodds(pos, neg, ridge=1.0)
+    assert score_ridge_logodds(pos[0], w, b, mu, sd) > 0.0
+    assert score_ridge_logodds(neg[0], w, b, mu, sd) < 0.0
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

@@ -166,6 +166,43 @@ def test_cli_indicate_fit_score_hashpool_is_key_free(tmp_path, capsys) -> None:
     assert "lr=" + f"{lr:.6f}" in line
 
 
+def test_cli_indicate_fit_score_surface_needs_no_tokenizer(tmp_path, capsys) -> None:
+    tables = tmp_path / "surface"
+    rc = main(
+        [
+            "indicate",
+            "fit",
+            str(PAIR),
+            "--out-dir",
+            str(tables),
+            "--method",
+            "surface",
+            "--surface-context-len",
+            "4",
+            "--n-hashes",
+            "4",
+            "--n-buckets",
+            "32",
+        ]
+    )
+    assert rc == 0
+    fit_out = capsys.readouterr().out
+    assert "instance=key-free-surface" in fit_out
+    assert "alphabet=bytes" in fit_out
+    held = PAIR / "03-library-marked.txt"
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    line = capsys.readouterr().out.splitlines()[0]
+    assert "instance=key-free-surface" in line
+    assert "score_kind=surface" in line
+    assert "used_keys=False" in line
+    lr, meta, used = score_text_from_tables(held.read_text(), tables)
+    assert used is False
+    assert meta.instance == "key-free-surface"
+    assert meta.score_kind == "surface"
+    assert "lr=" + f"{lr:.6f}" in line
+
+
 def test_cli_indicate_rotate_scores_each_prompt_file_alone(capsys) -> None:
     rc = main(
         [

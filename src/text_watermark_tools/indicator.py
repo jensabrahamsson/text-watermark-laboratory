@@ -28,9 +28,11 @@ from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     HASHPOOL_KIND,
+    SURFACE_KIND,
     peek_tables_kind,
     score_hashpool,
     score_sequence,
+    score_surface,
 )
 
 INDICATOR_INSTANCE = "key-free-counts"
@@ -252,7 +254,12 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
     raw = json.loads(path.read_text())
     kind = str(raw.get("kind") or "")
     instance = str(raw.get("instance") or INDICATOR_INSTANCE)
-    score_kind = "hashpool" if kind == HASHPOOL_KIND else "hard"
+    if kind == HASHPOOL_KIND:
+        score_kind = "hashpool"
+    elif kind == SURFACE_KIND:
+        score_kind = "surface"
+    else:
+        score_kind = "hard"
     threshold = raw.get("decision_threshold")
     return IndicatorMeta(
         model_name=str(raw.get("model_name") or "gpt2"),
@@ -276,16 +283,30 @@ def score_text_from_tables(
     text: str,
     tables_dir: Path,
     *,
-    tokenizer,
+    tokenizer=None,
     score_mode: str = "auto",
 ) -> tuple[float, IndicatorMeta, bool]:
-    """Score one string from frozen count or hashpool tables.
+    """Score one string from frozen count, hashpool, or surface tables.
 
-    Returns (lr, meta, used_keys). Hashpool tables ignore count score modes.
+    Returns (lr, meta, used_keys). Hashpool/surface tables ignore count modes.
+    Surface tables do not need a tokenizer.
     """
     path = Path(tables_dir)
     kind = peek_tables_kind(path)
     mode = (score_mode or "auto").strip().lower()
+    if kind == SURFACE_KIND:
+        if mode not in ("auto", "surface", ""):
+            raise ValueError(
+                f"tables are surface; --score-mode {score_mode} does not apply"
+            )
+        from text_watermark_tools.transfer import load_hashpool
+
+        model = load_hashpool(path)
+        lr = score_surface(text, model)
+        meta = load_tables_meta(path)
+        meta.score_kind = "surface"
+        meta.instance = model.instance
+        return lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
         if mode not in ("auto", "hashpool", ""):
             raise ValueError(
@@ -293,6 +314,8 @@ def score_text_from_tables(
             )
         from text_watermark_tools.transfer import load_hashpool
 
+        if tokenizer is None:
+            raise ValueError("hashpool tables need a tokenizer")
         model = load_hashpool(path)
         ids = tokenizer(text)["input_ids"]
         lr = score_hashpool(ids, model)
@@ -302,6 +325,8 @@ def score_text_from_tables(
         return lr, meta, bool(model.used_keys)
     if kind != "key-free-indicator":
         raise ValueError(f"unknown indicator tables kind {kind!r} in {path}")
+    if tokenizer is None:
+        raise ValueError("count tables need a tokenizer")
     model, meta = load_indicator(path)
     ids = tokenizer(text)["input_ids"]
     if mode in ("auto", "hard", ""):

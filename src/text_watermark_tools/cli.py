@@ -341,9 +341,44 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         )
         print(CAVEAT)
         return 0
+    if method == "surface":
+        from text_watermark_tools.transfer import (
+            DEFAULT_SURFACE_CONTEXT,
+            fit_surface_twins,
+            persist_hashpool,
+        )
+
+        model = fit_surface_twins(
+            twins,
+            context_len=int(
+                getattr(args, "surface_context_len", DEFAULT_SURFACE_CONTEXT)
+                or DEFAULT_SURFACE_CONTEXT
+            ),
+            n_hashes=int(getattr(args, "n_hashes", 8)),
+            n_buckets=int(getattr(args, "n_buckets", 256)),
+            alpha=args.alpha,
+        )
+        if model.used_keys or model.used_hash_iv or model.used_g_values:
+            print("surface fit consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        path = persist_hashpool(
+            model,
+            Path(args.out_dir),
+            model_name=args.model,
+            pair_dir=str(args.pair_dir),
+            n_train_prompts=len(twins),
+        )
+        print(
+            f"wrote {path} instance={model.instance} "
+            f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
+            f"context_len={model.context_len} alphabet={model.alphabet} "
+            f"n_hashes={model.n_hashes} n_buckets={model.n_buckets}"
+        )
+        print(CAVEAT)
+        return 0
     if method not in ("counts", "hard"):
         print(
-            f"unknown --method {method}; choose counts or hashpool",
+            f"unknown --method {method}; choose counts, hashpool, or surface",
             file=sys.stderr,
         )
         return 2
@@ -373,11 +408,16 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
 
 
 def cmd_indicate_score(args: argparse.Namespace) -> int:
+    from text_watermark_tools.transfer import SURFACE_KIND, peek_tables_kind
+
     tables = Path(args.tables)
     meta = load_tables_meta(tables)
-    name = args.model or meta.model_name
-    tok = load_tokenizer(name)
+    kind = peek_tables_kind(tables)
     text = _read_input(args.path)
+    tok = None
+    if kind != SURFACE_KIND:
+        name = args.model or meta.model_name
+        tok = load_tokenizer(name)
     try:
         lr, meta, used_keys = score_text_from_tables(
             text,
@@ -391,7 +431,11 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
     if used_keys:
         print("loaded indicator used keys / hash_iv / g-values", file=sys.stderr)
         return 1
-    n_tokens = len(tok(text)["input_ids"])
+    if kind == SURFACE_KIND:
+        n_tokens = len(text.encode("utf-8"))
+    else:
+        assert tok is not None
+        n_tokens = len(tok(text)["input_ids"])
     label = args.path or "stdin"
     threshold = getattr(args, "threshold", None)
     if threshold is None:
@@ -423,6 +467,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
         "hashmix": "rotate_hashmix",
+        "surface": "rotate_surface",
     }
     if score_kind in extra_rotate:
         if not args.rotate:
@@ -441,6 +486,10 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             model_name=args.model,
             margin=float(args.margin),
         )
+        if score_kind == "surface":
+            kwargs["context_len"] = int(
+                getattr(args, "surface_context_len", 8) or 8
+            )
         if score_kind != "hard":
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
             kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
@@ -451,7 +500,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashvote, hybrid, or one of {sorted(COUNT_SPECS)}",
+                f"choose hard, hashpool, hashvote, hybrid, surface, or one of {sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
             return 2
@@ -548,6 +597,9 @@ def cmd_probe(args: argparse.Namespace) -> int:
             nested=not bool(getattr(args, "skip_nested", False)),
             shuffle_labels=bool(getattr(args, "shuffle_labels", False)),
             shuffle_seed=int(getattr(args, "shuffle_seed", 0)),
+            surface_context_len=int(
+                getattr(args, "surface_context_len", 8) or 8
+            ),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -567,6 +619,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
         with_pivot=bool(args.pivot),
         n_hashes=int(args.n_hashes),
         n_buckets=int(args.n_buckets),
+        surface_context_len=int(getattr(args, "surface_context_len", 8) or 8),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -785,11 +838,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument(
         "--method",
         default="counts",
-        choices=("counts", "hashpool"),
-        help="counts = exact n-gram tables (default); hashpool = random context buckets",
+        choices=("counts", "hashpool", "surface"),
+        help=(
+            "counts = exact n-gram tables (default); "
+            "hashpool = random token-context buckets; "
+            "surface = UTF-8 byte hashpool, no tokenizer"
+        ),
     )
     p_fit.add_argument("--n-hashes", type=int, default=8)
     p_fit.add_argument("--n-buckets", type=int, default=256)
+    p_fit.add_argument(
+        "--surface-context-len",
+        type=int,
+        default=8,
+        help="Byte context length for --method surface (default 8)",
+    )
     p_fit.set_defaults(func=cmd_indicate_fit)
 
     p_is = ind.add_parser(
@@ -868,11 +931,17 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, gated, shrinkage, mix, hashpool, hashvote, "
-            "hybrid. Hashpool modes need --rotate. Still key-free."
+            "hybrid, surface. Hashpool/surface modes need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument("--n-hashes", type=int, default=8)
     p_ih.add_argument("--n-buckets", type=int, default=256)
+    p_ih.add_argument(
+        "--surface-context-len",
+        type=int,
+        default=8,
+        help="Byte context length for --score-mode surface",
+    )
     p_ih.add_argument("--out-dir", default="")
     p_ih.set_defaults(func=cmd_indicate_holdout)
 
@@ -893,7 +962,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_probe.add_argument(
         "--methods",
         default="",
-        help="Comma-separated count methods (default: all COUNT_SPECS)",
+        help=(
+            "Comma-separated methods: count specs plus hashpool, hashvote, "
+            "hybrid, hashmix, surface, stack, logit"
+        ),
     )
     p_probe.add_argument(
         "--skip-hashpool",
@@ -907,6 +979,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_probe.add_argument("--n-hashes", type=int, default=8)
     p_probe.add_argument("--n-buckets", type=int, default=256)
+    p_probe.add_argument(
+        "--surface-context-len",
+        type=int,
+        default=8,
+        help="Byte context length for the surface hashpool (default 8)",
+    )
     p_probe.add_argument(
         "--test-dir",
         default="",

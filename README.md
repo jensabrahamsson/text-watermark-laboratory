@@ -32,7 +32,7 @@ A different reader of the same tables — score only 4-grams seen on both traini
 
 **Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Hard last-4 marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003). Binomial P(≥29 | n=48, p=0.5) = 0.097, so that sign is not a 5% test. Ranking of the same LRs is (AUC 0.626, permutation p = 0.0075). Hashpool’s isolated sign is **35/48** (p ≈ 0.001), with unmarked specificity still 29/48.
 
-When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986**). That ranking is not a calibrated detector: ten unmarked twins are also positive at threshold 0. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
+When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986**). That ranking is not a calibrated detector: ten unmarked twins are also positive at threshold 0. Nested Youden fitted only on the training stems, then frozen on the test files, is the honest isolated-file gate: OOD hashpool is **33/48** marked and **34/48** unmarked (sens 0.69 / spec 0.71); reverse `freqhits` is **23/24** and **23/24**. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
 
 | Method | What is being asked | Result |
 |---|---|---|
@@ -45,7 +45,10 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free hashpool, 36 topics | Same method, one draw per prompt | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | Different generator, last-4 hashpool | **10/12**, isolated **11/12** |
 | Key-free hits, other topics → 12×4 | Train 24 new stems, score 12×4 files | isolated **39/48**, AUC **0.769** |
+| Nested hashpool Youden, same split | Train-only threshold, frozen on 12×4 | **33/48** marked, **34/48** unmarked |
 | Key-free hits, 12×4 → 24 new topics | Train 12×4, score stems 13–36 | **24/24** ranking, AUC **0.986** |
+| Nested freqhits Youden, reverse split | Train-only threshold, frozen on 24 stems | **23/24** and **23/24** |
+| 50% train-label shuffle, 36→12×4 | Negative control, isolated sign at 0 | hits **19/48**, hashpool **20/48** |
 | Local Qwen2-1.5B, last-2 | Twin ranking, published count tables | **10/12** |
 | `indicate` hard, one marked file | Isolated `lr > 0`, leave-one-of-12-out | **29/48** |
 | `indicate` hard, one unmarked file | Isolated `lr ≤ 0` | **23/48** |

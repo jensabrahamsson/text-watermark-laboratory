@@ -181,4 +181,6 @@ Train 24 other 36-topic stems, score 12×4: hits isolated **39/48** (AUC **0.769
 
 JSON: `experiments/2026-08-31-transfer-36-to-12x4/`, `experiments/2026-08-31-transfer-12x4-to-36/`, `experiments/2026-08-31-stack-12x4/`.
 
+Nested train-only thresholds on the same splits: OOD hashpool Youden **33/48** marked / **34/48** unmarked; reverse `freqhits` **23/24** and **23/24**. `hitmass` recovers OOD prompt grain **10/12**. A 50% train-label shuffle drops isolated sign to 19–20/48. `surface` is a UTF-8 byte hashpool (no tokenizer). `logit` is nested-calibrated ridge logistic on the file scores. JSON: `experiments/2026-08-31-transfer-nested-36-to-12x4/`, `experiments/2026-08-31-transfer-nested-12x4-to-36/`, `experiments/2026-08-31-transfer-shuffle-36-to-12x4/`.
+
 ---

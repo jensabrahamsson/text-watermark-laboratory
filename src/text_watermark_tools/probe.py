@@ -24,23 +24,35 @@ from text_watermark_tools.stats import (
     binary_eval,
     binary_eval_to_dict,
     counts_at_threshold,
+    fit_ridge_logodds,
     format_binary_eval,
+    score_ridge_logodds,
     threshold_at_fpr,
 )
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
+    DEFAULT_SURFACE_CONTEXT,
     fit_count_model,
     fit_hashmix_twins,
     fit_hashpool_twins,
+    fit_surface_twins,
     persist_hashpool,
     score_hashmix,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
     score_sequence,
+    score_surface,
 )
 
-ScoreFn = Callable[[Sequence[int]], float]
+ScoreFn = Callable[[Sequence[int] | str], float]
+LOGIT_FEATURE_ORDER: tuple[str, ...] = ("hits", "hashpool", "surface", "hitmass")
+
+
+def _twin_sides(twin: Twin, seq_mode: str) -> tuple[list, list]:
+    if seq_mode == "text":
+        return twin.marked_texts(), twin.unmarked_texts()
+    return twin.marked_seqs(), twin.unmarked_seqs()
 
 
 def _empty_holdout_parts() -> dict:
@@ -93,6 +105,7 @@ def rotate_custom(
     instance: str,
     score_kind: str,
     margin: float = 0.0,
+    seq_mode: str = "ids",
 ) -> IndicatorHoldout:
     if len(twins) < 3:
         raise ValueError("rotate probe needs at least three prompts")
@@ -104,8 +117,7 @@ def rotate_custom(
         used_keys = used_keys or k
         used_hash = used_hash or h
         used_g = used_g or g
-        marked_seqs = held.marked_seqs()
-        unmarked_seqs = held.unmarked_seqs()
+        marked_seqs, unmarked_seqs = _twin_sides(held, seq_mode)
         n = min(len(marked_seqs), len(unmarked_seqs))
         for i in range(n):
             _append_pair(
@@ -322,6 +334,41 @@ def rotate_hashmix(
     )
 
 
+def rotate_surface(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = DEFAULT_SURFACE_CONTEXT,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    def make(train: Sequence[Twin]):
+        model = fit_surface_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        return (
+            lambda text, m=model: score_surface(text, m),
+            model.used_keys,
+            model.used_hash_iv,
+            model.used_g_values,
+        )
+
+    return rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-surface",
+        score_kind="surface",
+        margin=margin,
+        seq_mode="text",
+    )
+
+
 def swap_twin_sides(twin: Twin) -> Twin:
     return Twin(
         stem=twin.stem,
@@ -331,17 +378,22 @@ def swap_twin_sides(twin: Twin) -> Twin:
         unmarked_ids=list(twin.marked_ids),
         extra_marked_ids=[list(x) for x in twin.extra_unmarked_ids],
         extra_unmarked_ids=[list(x) for x in twin.extra_marked_ids],
+        extra_marked_text=list(twin.extra_unmarked_text),
+        extra_unmarked_text=list(twin.extra_marked_text),
     )
 
 
 def shuffle_twin_sides(twins: Sequence[Twin], *, seed: int = 0) -> list[Twin]:
-    """Per-stem coin-flip swap of marked/unmarked. A negative control."""
+    """Swap marked/unmarked on a seeded half of the stems. A negative control."""
     import random
 
     rng = random.Random(seed)
+    order = list(range(len(twins)))
+    rng.shuffle(order)
+    swap = set(order[: len(twins) // 2])
     out: list[Twin] = []
-    for twin in twins:
-        if rng.random() < 0.5:
+    for i, twin in enumerate(twins):
+        if i in swap:
             out.append(swap_twin_sides(twin))
         else:
             out.append(twin)
@@ -432,6 +484,145 @@ def rotate_score_stack(
     )
 
 
+def _holdouts_as_series(
+    holdouts: Sequence[IndicatorHoldout],
+) -> list[list[tuple[str, int, float, float]]]:
+    series = [_aligned_rows(ev) for ev in holdouts]
+    n = len(series[0])
+    if n == 0 or any(len(s) != n for s in series):
+        raise ValueError("stacked holdouts have different lengths")
+    keys = [(row[0], row[1]) for row in series[0]]
+    for other in series[1:]:
+        if [(row[0], row[1]) for row in other] != keys:
+            raise ValueError("stacked holdouts are not aligned")
+    return series
+
+
+def rotate_score_logit(
+    holdouts: Sequence[IndicatorHoldout],
+    *,
+    model_name: str = "gpt2",
+    score_kind: str = "logit",
+    instance: str = "key-free-logit",
+    ridge: float = 1.0,
+) -> IndicatorHoldout:
+    """Leave-one-prompt-out ridge logistic on already-computed file scores.
+
+    Features are z-scored on the training prompts of each fold. Threshold 0
+    is a 50% log-odds. Still no keys / hash_iv / g-values.
+    """
+    if len(holdouts) < 2:
+        raise ValueError("logit stack needs at least two methods")
+    series = _holdouts_as_series(holdouts)
+    import numpy as np
+
+    stems_unique: list[str] = []
+    seen: set[str] = set()
+    for stem, _sample, _m, _u in series[0]:
+        if stem not in seen:
+            seen.add(stem)
+            stems_unique.append(stem)
+    parts = _empty_holdout_parts()
+    for held in stems_unique:
+        train_m: list[list[float]] = []
+        train_u: list[list[float]] = []
+        held_idx: list[int] = []
+        for i, (stem, _sample, _m, _u) in enumerate(series[0]):
+            vec_m = [s[i][2] for s in series]
+            vec_u = [s[i][3] for s in series]
+            if stem == held:
+                held_idx.append(i)
+            else:
+                train_m.append(vec_m)
+                train_u.append(vec_u)
+        if len(train_m) < 2 or not held_idx:
+            continue
+        weights, intercept, mu, sd = fit_ridge_logodds(
+            np.asarray(train_m, dtype=np.float64),
+            np.asarray(train_u, dtype=np.float64),
+            ridge=ridge,
+        )
+        for i in held_idx:
+            stem, sample, _m, _u = series[0][i]
+            vm = [s[i][2] for s in series]
+            vu = [s[i][3] for s in series]
+            _append_pair(
+                parts,
+                stem,
+                sample,
+                score_ridge_logodds(vm, weights, intercept, mu, sd),
+                score_ridge_logodds(vu, weights, intercept, mu, sd),
+            )
+    used_keys = any(ev.used_keys for ev in holdouts)
+    used_hash = any(ev.used_hash_iv for ev in holdouts)
+    used_g = any(ev.used_g_values for ev in holdouts)
+    return _holdout_from_parts(
+        parts,
+        context_len=0,
+        model_name=model_name,
+        instance=instance,
+        score_kind=score_kind,
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+        mode="rotate",
+    )
+
+
+def combine_holdouts_logit(
+    train_holdouts: Sequence[IndicatorHoldout],
+    test_holdouts: Sequence[IndicatorHoldout],
+    *,
+    model_name: str = "gpt2",
+    ridge: float = 1.0,
+) -> tuple[IndicatorHoldout, IndicatorHoldout]:
+    """Fit ridge logistic on train file scores; apply to train and test."""
+    if len(train_holdouts) < 2 or len(train_holdouts) != len(test_holdouts):
+        raise ValueError("logit combine needs matching train/test holdout lists")
+    import numpy as np
+
+    tr = _holdouts_as_series(train_holdouts)
+    te = _holdouts_as_series(test_holdouts)
+    train_m = np.asarray([[s[i][2] for s in tr] for i in range(len(tr[0]))], dtype=np.float64)
+    train_u = np.asarray([[s[i][3] for s in tr] for i in range(len(tr[0]))], dtype=np.float64)
+    weights, intercept, mu, sd = fit_ridge_logodds(train_m, train_u, ridge=ridge)
+    flags = dict(
+        context_len=0,
+        model_name=model_name,
+        instance="key-free-logit",
+        score_kind="logit",
+        used_keys=any(ev.used_keys for ev in train_holdouts),
+        used_hash_iv=any(ev.used_hash_iv for ev in train_holdouts),
+        used_g_values=any(ev.used_g_values for ev in train_holdouts),
+    )
+    train_parts = _empty_holdout_parts()
+    test_parts = _empty_holdout_parts()
+    for i, (stem, sample, _m, _u) in enumerate(tr[0]):
+        vm = [s[i][2] for s in tr]
+        vu = [s[i][3] for s in tr]
+        _append_pair(
+            train_parts,
+            stem,
+            sample,
+            score_ridge_logodds(vm, weights, intercept, mu, sd),
+            score_ridge_logodds(vu, weights, intercept, mu, sd),
+        )
+    for i, (stem, sample, _m, _u) in enumerate(te[0]):
+        vm = [s[i][2] for s in te]
+        vu = [s[i][3] for s in te]
+        _append_pair(
+            test_parts,
+            stem,
+            sample,
+            score_ridge_logodds(vm, weights, intercept, mu, sd),
+            score_ridge_logodds(vu, weights, intercept, mu, sd),
+        )
+    return (
+        _holdout_from_parts(train_parts, mode="train", **flags),
+        _holdout_from_parts(test_parts, mode="transfer", **flags),
+    )
+
+
 def apply_overlap(
     train: Sequence[Twin],
     test: Sequence[Twin],
@@ -471,11 +662,11 @@ def score_twins(
     used_hash_iv: bool = False,
     used_g_values: bool = False,
     mode: str = "transfer",
+    seq_mode: str = "ids",
 ) -> IndicatorHoldout:
     parts = _empty_holdout_parts()
     for twin in twins:
-        marked_seqs = twin.marked_seqs()
-        unmarked_seqs = twin.unmarked_seqs()
+        marked_seqs, unmarked_seqs = _twin_sides(twin, seq_mode)
         n = min(len(marked_seqs), len(unmarked_seqs))
         for i in range(n):
             _append_pair(
@@ -647,8 +838,10 @@ class TransferRun:
     used_g_values: bool = False
     count_model: object | None = None
     hash_model: object | None = None
+    surface_model: object | None = None
     nested: bool = False
     shuffle_seed: int | None = None
+    surface_context_len: int = DEFAULT_SURFACE_CONTEXT
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -679,6 +872,7 @@ def run_probe(
     with_pivot: bool = False,
     n_hashes: int = 8,
     n_buckets: int = 256,
+    surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
     lm=None,
 ) -> ProbeRun:
     requested = list(methods) if methods is not None else list(COUNT_SPECS)
@@ -737,6 +931,15 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashmix", mix))
+    if "surface" in extras:
+        surf = rotate_surface(
+            twins,
+            context_len=surface_context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("surface", surf))
     if with_pivot:
         pivots = rotate_pivot(twins, model_name=model_name, lm=lm)
         for name, ev in pivots.items():
@@ -751,6 +954,11 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("stack", stacked))
+    logit_feats = [by_name[n] for n in LOGIT_FEATURE_ORDER if n in by_name]
+    want_logit = len(logit_feats) >= 2 and (methods is None or "logit" in extras)
+    if want_logit:
+        logit = rotate_score_logit(logit_feats, model_name=model_name)
+        run.methods.append(summarize_holdout("logit", logit))
     run.used_keys = any(m.holdout.used_keys for m in run.methods)
     run.used_hash_iv = any(m.holdout.used_hash_iv for m in run.methods)
     run.used_g_values = any(m.holdout.used_g_values for m in run.methods)
@@ -836,6 +1044,8 @@ TRANSFER_DEFAULTS: tuple[str, ...] = (
     "hashmix",
     "hybrid",
     "stack",
+    "surface",
+    "logit",
 )
 
 
@@ -880,6 +1090,7 @@ def run_transfer(
     nested: bool = True,
     shuffle_labels: bool = False,
     shuffle_seed: int = 0,
+    surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -894,12 +1105,19 @@ def run_transfer(
     names = list(methods or TRANSFER_DEFAULTS)
     count_names = [n for n in names if n in COUNT_SPECS]
     extras = [n for n in names if n not in COUNT_SPECS]
+    if "logit" in extras:
+        logit_ready = [n for n in LOGIT_FEATURE_ORDER if n in names]
+        if len(logit_ready) < 2:
+            raise ValueError(
+                "logit needs at least two of hits, hashpool, surface, hitmass"
+            )
     need_counts = bool(count_names) or any(
         n in extras for n in ("hybrid", "stack")
     )
     need_hash = any(
         n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix")
     )
+    need_surface = "surface" in extras
     count_model = (
         fit_count_model(train, context_len=context_len) if need_counts else None
     )
@@ -924,17 +1142,27 @@ def run_transfer(
         if "hashmix" in extras
         else None
     )
+    surface_model = (
+        fit_surface_twins(
+            train,
+            context_len=surface_context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        if need_surface
+        else None
+    )
     used_keys = False
     used_hash = False
     used_g = False
-    for model in (count_model, hash_model, mix_model):
+    for model in (count_model, hash_model, mix_model, surface_model):
         if model is None:
             continue
         used_keys = used_keys or model.used_keys
         used_hash = used_hash or model.used_hash_iv
         used_g = used_g or model.used_g_values
 
-    scorers: dict[str, tuple[ScoreFn, str, str]] = {}
+    scorers: dict[str, tuple[ScoreFn, str, str, str]] = {}
     for name in count_names:
         spec = COUNT_SPECS[name]
         assert count_model is not None
@@ -942,6 +1170,7 @@ def run_transfer(
             (lambda ids, m=count_model, s=spec: score_sequence(ids, m, s)),
             spec.instance,
             name,
+            "ids",
         )
     if "hashpool" in extras:
         assert hash_model is not None
@@ -949,6 +1178,7 @@ def run_transfer(
             (lambda ids, m=hash_model: score_hashpool(ids, m)),
             "key-free-hashpool",
             "hashpool",
+            "ids",
         )
     if "hashvote" in extras:
         assert hash_model is not None
@@ -956,6 +1186,7 @@ def run_transfer(
             (lambda ids, m=hash_model: score_hashpool_vote(ids, m)),
             "key-free-hashvote",
             "hashvote",
+            "ids",
         )
     if "hybrid" in extras:
         assert count_model is not None and hash_model is not None
@@ -963,6 +1194,7 @@ def run_transfer(
             (lambda ids, c=count_model, h=hash_model: score_hybrid(ids, c, h)),
             "key-free-hybrid",
             "hybrid",
+            "ids",
         )
     if "hashmix" in extras:
         assert mix_model is not None
@@ -970,6 +1202,15 @@ def run_transfer(
             (lambda ids, m=mix_model: score_hashmix(ids, m)),
             "key-free-hashmix",
             "hashmix",
+            "ids",
+        )
+    if "surface" in extras:
+        assert surface_model is not None
+        scorers["surface"] = (
+            (lambda text, m=surface_model: score_surface(text, m)),
+            "key-free-surface",
+            "surface",
+            "text",
         )
 
     note = (
@@ -999,17 +1240,19 @@ def run_transfer(
         used_g_values=used_g,
         count_model=count_model,
         hash_model=hash_model,
+        surface_model=surface_model,
         nested=bool(nested and len(train) >= 3),
         shuffle_seed=shuffle_seed if shuffle_labels else None,
+        surface_context_len=surface_context_len,
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
     test_holdouts: dict[str, IndicatorHoldout] = {}
-    for name, (scorer, instance, kind) in scorers.items():
+    for name, (scorer, instance, kind, seq_mode) in scorers.items():
         train_ev = score_twins(
             train,
             scorer,
-            context_len=context_len,
+            context_len=context_len if seq_mode == "ids" else surface_context_len,
             model_name=model_name,
             instance=instance,
             score_kind=kind,
@@ -1017,11 +1260,12 @@ def run_transfer(
             used_hash_iv=used_hash,
             used_g_values=used_g,
             mode="train",
+            seq_mode=seq_mode,
         )
         test_ev = score_twins(
             test,
             scorer,
-            context_len=context_len,
+            context_len=context_len if seq_mode == "ids" else surface_context_len,
             model_name=model_name,
             instance=instance,
             score_kind=kind,
@@ -1029,6 +1273,7 @@ def run_transfer(
             used_hash_iv=used_hash,
             used_g_values=used_g,
             mode="transfer",
+            seq_mode=seq_mode,
         )
         train_holdouts[name] = train_ev
         test_holdouts[name] = test_ev
@@ -1112,6 +1357,25 @@ def run_transfer(
         )
         test_holdouts["stack"] = stack_ev
 
+    logit_names = [n for n in LOGIT_FEATURE_ORDER if n in test_holdouts]
+    if "logit" in extras and len(logit_names) >= 2:
+        train_logit, test_logit = combine_holdouts_logit(
+            [train_holdouts[n] for n in logit_names],
+            [test_holdouts[n] for n in logit_names],
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("logit", test_logit))
+        train_bin = binary_eval(train_logit.marked_lrs, train_logit.unmarked_lrs)
+        _append_threshold(
+            run,
+            name="logit",
+            source="in-sample-youden",
+            threshold=train_bin.youden_threshold,
+            test_ev=test_logit,
+        )
+        test_holdouts["logit"] = test_logit
+        train_holdouts["logit"] = train_logit
+
     if run.nested:
         nested_holdouts: dict[str, IndicatorHoldout] = {}
         if count_names:
@@ -1130,6 +1394,14 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "surface" in extras:
+            nested_holdouts["surface"] = rotate_surface(
+                train,
+                context_len=surface_context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if (
             "stack" in extras
             and "hits" in nested_holdouts
@@ -1137,6 +1409,12 @@ def run_transfer(
         ):
             nested_holdouts["stack"] = rotate_score_stack(
                 [nested_holdouts["hits"], nested_holdouts["hashpool"]],
+                model_name=model_name,
+            )
+        nested_logit_names = [n for n in LOGIT_FEATURE_ORDER if n in nested_holdouts]
+        if "logit" in extras and len(nested_logit_names) >= 2:
+            nested_holdouts["logit"] = rotate_score_logit(
+                [nested_holdouts[n] for n in nested_logit_names],
                 model_name=model_name,
             )
         for name, loo_ev in nested_holdouts.items():
@@ -1232,6 +1510,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "used_g_values": run.used_g_values,
         "nested": run.nested,
         "shuffle_seed": run.shuffle_seed,
+        "surface_context_len": run.surface_context_len,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1258,7 +1537,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
-    if run.hash_model is not None:
+    persist_tables = run.shuffle_seed is None
+    if persist_tables and run.hash_model is not None:
         nested_t = _t("hashpool", "nested-youden")
         in_t = _t("hashpool", "in-sample-youden")
         persist_hashpool(
@@ -1272,7 +1552,23 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 "nested-youden" if nested_t is not None else "in-sample-youden"
             ),
         )
-    if run.count_model is not None:
+    if persist_tables and run.surface_model is not None:
+        nested_t = _t("surface", "nested-youden")
+        in_t = _t("surface", "in-sample-youden")
+        persist_hashpool(
+            run.surface_model,
+            out_dir / "tables-surface",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-surface"
+                if nested_t is not None
+                else "in-sample-youden-surface"
+            ),
+        )
+    if persist_tables and run.count_model is not None:
         nested_t = _t("hits", "nested-youden")
         in_t = _t("hits", "in-sample-youden")
         persist_indicator(
