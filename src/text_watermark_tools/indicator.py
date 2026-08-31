@@ -49,6 +49,8 @@ class IndicatorMeta:
     kind: str = "key-free-indicator"
     instance: str = INDICATOR_INSTANCE
     score_kind: str = "hard"
+    decision_threshold: float | None = None
+    decision_source: str = ""
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -174,6 +176,8 @@ def persist_indicator(
     model_name: str = "gpt2",
     pair_dir: str = "",
     n_train_prompts: int = 0,
+    decision_threshold: float | None = None,
+    decision_source: str = "",
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist an indicator that used keys")
@@ -196,6 +200,9 @@ def persist_indicator(
         "unmarked": _dump_table(model.unmarked),
         "caveat": CAVEAT,
     }
+    if decision_threshold is not None:
+        payload["decision_threshold"] = float(decision_threshold)
+        payload["decision_source"] = str(decision_source or "unspecified")
     path = out_dir / TABLES_NAME
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     return path
@@ -228,6 +235,12 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         kind=str(raw.get("kind") or "key-free-indicator"),
         instance=str(raw.get("instance") or INDICATOR_INSTANCE),
         score_kind="hard",
+        decision_threshold=(
+            float(raw["decision_threshold"])
+            if raw.get("decision_threshold") is not None
+            else None
+        ),
+        decision_source=str(raw.get("decision_source") or ""),
     )
     return model, meta
 
@@ -240,6 +253,7 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
     kind = str(raw.get("kind") or "")
     instance = str(raw.get("instance") or INDICATOR_INSTANCE)
     score_kind = "hashpool" if kind == HASHPOOL_KIND else "hard"
+    threshold = raw.get("decision_threshold")
     return IndicatorMeta(
         model_name=str(raw.get("model_name") or "gpt2"),
         pair_dir=str(raw.get("pair_dir") or ""),
@@ -247,6 +261,8 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
         kind=kind,
         instance=instance,
         score_kind=score_kind,
+        decision_threshold=float(threshold) if threshold is not None else None,
+        decision_source=str(raw.get("decision_source") or ""),
     )
 
 
@@ -313,11 +329,21 @@ def format_indicator(
     used_keys: bool,
     instance: str = INDICATOR_INSTANCE,
     score_kind: str = "hard",
+    threshold: float | None = None,
+    decision_source: str = "",
 ) -> str:
+    extra = ""
+    if threshold is not None:
+        decision = "marked" if lr > threshold else "unmarked"
+        src = f" source={decision_source}" if decision_source else ""
+        extra = (
+            f" threshold={threshold:.6f} decision={decision}{src} "
+            f"not_a_universal_detector=true"
+        )
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
         f"instance={instance} score_kind={score_kind} used_keys={used_keys} "
-        f"not_detector_mean=true {CAVEAT}"
+        f"not_detector_mean=true{extra} {CAVEAT}"
     )
 
 

@@ -3,10 +3,12 @@
 from text_watermark_tools.blind import fit_blind, likelihood_ratio
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
+    fit_hashmix_twins,
     fit_hashpool,
     hash_context,
     load_hashpool,
     persist_hashpool,
+    score_hashmix,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
@@ -113,3 +115,44 @@ def test_shrinkage_scores_rare_and_common_contexts_without_keys() -> None:
     assert model.used_keys is False
     assert detail.n_used == 2
     assert detail.n_positions == 3
+
+
+def test_hitmass_is_hits_times_coverage() -> None:
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2]]
+    model = fit_blind(marked, unmarked, context_len=1, backoff=False)
+    unseen = score_sequence_detail([9, 1, 9, 1], model, COUNT_SPECS["hitmass"])
+    assert unseen.lr == 0.0
+    hits = score_sequence_detail([0, 1, 0, 1], model, COUNT_SPECS["hits"])
+    mass = score_sequence_detail([0, 1, 0, 1], model, COUNT_SPECS["hitmass"])
+    assert mass.n_used == hits.n_used
+    assert abs(mass.lr - hits.lr * (hits.n_used / hits.n_positions)) < 1e-12
+    assert model.used_keys is False
+
+
+def test_freqhits_skips_rare_shared_contexts() -> None:
+    marked = [[0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2]]
+    model = fit_blind(marked, unmarked, context_len=1, backoff=False)
+    detail = score_sequence_detail([0, 1, 0, 1], model, COUNT_SPECS["freqhits"])
+    assert detail.n_used == 0
+    assert detail.lr == 0.0
+
+
+def test_hashmix_separates_synthetic_tokens() -> None:
+    from text_watermark_tools.blind import Twin
+
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="m",
+            unmarked_text="u",
+            marked_ids=[0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            unmarked_ids=[0, 2, 0, 2, 0, 2, 0, 2, 0, 2],
+        )
+    ]
+    model = fit_hashmix_twins(twins, orders=(1, 2), n_hashes=4, n_buckets=8)
+    assert model.used_keys is False
+    assert score_hashmix([0, 1, 0, 1, 0, 1], model) > score_hashmix(
+        [0, 2, 0, 2, 0, 2], model
+    )

@@ -11,6 +11,8 @@ and change only how a finished string is read:
 * backoff — shrink the context instead of jumping to the unigram
 * interpolate — Witten–Bell mix of every stored order
 * gated / hits — skip positions whose exact context is too rare
+* freqhits — shared 4-grams with count ≥ 4 on both sides
+* hitmass — hits log-ratio × fraction of positions that hit
 * shrinkage — credibility-weight each token's log ratio
 * mix — average last-1 and last-k log ratios
 * hashpool — feature-hash the context into shared buckets
@@ -67,6 +69,8 @@ COUNT_SPECS: dict[str, ScoreSpec] = {
     "backoff": ScoreSpec(kind="backoff", instance="key-free-backoff"),
     "interpolate": ScoreSpec(kind="interpolate", instance="key-free-interpolate"),
     "hits": ScoreSpec(kind="gated", min_count=1, instance="key-free-hits"),
+    "freqhits": ScoreSpec(kind="gated", min_count=4, instance="key-free-freqhits"),
+    "hitmass": ScoreSpec(kind="hitmass", min_count=1, instance="key-free-hitmass"),
     "gated": ScoreSpec(kind="gated", min_count=2, instance="key-free-gated"),
     "shrinkage": ScoreSpec(
         kind="shrinkage", shrinkage_tau=2.0, instance="key-free-shrinkage"
@@ -160,6 +164,16 @@ def score_sequence_detail(
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("transfer scorer consulted keys / hash_iv / g-values")
     kind = spec.kind
+    if kind == "hitmass":
+        inner = score_sequence_detail(
+            ids,
+            model,
+            ScoreSpec(kind="gated", min_count=max(spec.min_count, 1), instance=spec.instance),
+        )
+        if inner.n_positions <= 0:
+            return inner
+        mass = inner.n_used / inner.n_positions
+        return ScoreDetail(inner.lr * mass, inner.n_used, inner.n_positions)
     if kind == "mix":
         orders = spec.mix_orders or (1, model.context_len)
         parts = [
@@ -520,6 +534,63 @@ def score_hybrid(
     ).lr
 
 
+@dataclass
+class HashMixModel:
+    orders: tuple[int, ...]
+    models: dict[int, HashPoolModel]
+    used_keys: bool = False
+    used_hash_iv: bool = False
+    used_g_values: bool = False
+
+    @property
+    def instance(self) -> str:
+        return "key-free-hashmix"
+
+
+def fit_hashmix_twins(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = (1, 2, 4),
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 20260831,
+) -> HashMixModel:
+    models: dict[int, HashPoolModel] = {}
+    used_keys = used_hash = used_g = False
+    for order in orders:
+        models[int(order)] = fit_hashpool_twins(
+            twins,
+            context_len=int(order),
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            alpha=alpha,
+            seed=seed + int(order),
+        )
+        m = models[int(order)]
+        used_keys = used_keys or m.used_keys
+        used_hash = used_hash or m.used_hash_iv
+        used_g = used_g or m.used_g_values
+    return HashMixModel(
+        orders=tuple(int(o) for o in orders),
+        models=models,
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+    )
+
+
+def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashmix consulted keys / hash_iv / g-values")
+    if not model.orders:
+        return 0.0
+    total = 0.0
+    for order in model.orders:
+        total += score_hashpool(ids, model.models[order])
+    return total / len(model.orders)
+
+
 HASHPOOL_KIND = "key-free-hashpool"
 HASHPOOL_TABLES = "tables.json"
 
@@ -559,6 +630,8 @@ def persist_hashpool(
     model_name: str = "gpt2",
     pair_dir: str = "",
     n_train_prompts: int = 0,
+    decision_threshold: float | None = None,
+    decision_source: str = "",
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist a hashpool that used keys")
@@ -591,9 +664,14 @@ def persist_hashpool(
         "unmarked": _dump_hash_layers(model.unmarked),
         "caveat": (
             "Not detector_mean. Not Claude. Not Anthropic. "
-            "Random context hash, not the secret SynthID hash."
+            "Random context hash, not the secret SynthID hash. "
+            "A stored decision_threshold is a frozen operating point, "
+            "not a universal detector."
         ),
     }
+    if decision_threshold is not None:
+        payload["decision_threshold"] = float(decision_threshold)
+        payload["decision_source"] = str(decision_source or "unspecified")
     path = out_dir / HASHPOOL_TABLES
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     return path

@@ -393,6 +393,11 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
         return 1
     n_tokens = len(tok(text)["input_ids"])
     label = args.path or "stdin"
+    threshold = getattr(args, "threshold", None)
+    if threshold is None:
+        threshold = meta.decision_threshold
+    else:
+        threshold = float(threshold)
     print(
         format_indicator(
             label,
@@ -401,6 +406,8 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
             used_keys=used_keys,
             instance=meta.instance,
             score_kind=meta.score_kind,
+            threshold=threshold,
+            decision_source=meta.decision_source if threshold is not None else "",
         )
     )
     return 0
@@ -415,6 +422,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashpool": "rotate_hashpool",
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
+        "hashmix": "rotate_hashmix",
     }
     if score_kind in extra_rotate:
         if not args.rotate:
@@ -537,6 +545,9 @@ def cmd_probe(args: argparse.Namespace) -> int:
             overlap_mode=str(getattr(args, "overlap", "drop-from-train")),
             n_hashes=int(args.n_hashes),
             n_buckets=int(args.n_buckets),
+            nested=not bool(getattr(args, "skip_nested", False)),
+            shuffle_labels=bool(getattr(args, "shuffle_labels", False)),
+            shuffle_seed=int(getattr(args, "shuffle_seed", 0)),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -805,6 +816,15 @@ def build_parser() -> argparse.ArgumentParser:
             "Hashpool tables ignore count modes."
         ),
     )
+    p_is.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help=(
+            "Optional decision threshold. If omitted, use decision_threshold "
+            "stored in tables.json when present. Not a universal detector."
+        ),
+    )
     p_is.set_defaults(func=cmd_indicate_score)
 
     p_ih = ind.add_parser(
@@ -904,6 +924,17 @@ def build_parser() -> argparse.ArgumentParser:
             "(default); drop-from-test keeps training"
         ),
     )
+    p_probe.add_argument(
+        "--skip-nested",
+        action="store_true",
+        help="Skip leave-one-prompt-out thresholds on the training stems",
+    )
+    p_probe.add_argument(
+        "--shuffle-labels",
+        action="store_true",
+        help="Negative control: shuffle train marked/unmarked labels per stem",
+    )
+    p_probe.add_argument("--shuffle-seed", type=int, default=0)
     p_probe.add_argument("--out-dir", default="")
     p_probe.set_defaults(func=cmd_probe)
 

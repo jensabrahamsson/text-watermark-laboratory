@@ -6,6 +6,7 @@ from text_watermark_tools.stats import (
     counts_at_threshold,
     permutation_mean_diff_p,
     roc_auc,
+    threshold_at_fpr,
     youden_threshold,
 )
 
@@ -66,6 +67,14 @@ def test_counts_at_threshold_matches_youden_zero() -> None:
     assert tn == 2
     assert abs(sens - 2 / 3) < 1e-12
     assert abs(spec - 2 / 3) < 1e-12
+
+
+def test_threshold_at_fpr_ten_percent_on_ten_unmarked() -> None:
+    neg = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    t = threshold_at_fpr(neg, fpr=0.10)
+    fp = sum(1 for s in neg if s > t)
+    assert fp <= 1
+    assert t >= 0.7
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

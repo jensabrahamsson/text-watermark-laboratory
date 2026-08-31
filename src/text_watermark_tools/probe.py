@@ -25,12 +25,15 @@ from text_watermark_tools.stats import (
     binary_eval_to_dict,
     counts_at_threshold,
     format_binary_eval,
+    threshold_at_fpr,
 )
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_count_model,
+    fit_hashmix_twins,
     fit_hashpool_twins,
     persist_hashpool,
+    score_hashmix,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
@@ -281,6 +284,68 @@ def rotate_hybrid(
         score_kind="hybrid",
         margin=margin,
     )
+
+
+def rotate_hashmix(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = (1, 2, 4),
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    def make(train: Sequence[Twin]):
+        model = fit_hashmix_twins(
+            train,
+            orders=orders,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        return (
+            lambda ids, m=model: score_hashmix(ids, m),
+            model.used_keys,
+            model.used_hash_iv,
+            model.used_g_values,
+        )
+
+    ctx = max(int(o) for o in orders) if orders else int(context_len)
+    return rotate_custom(
+        twins,
+        make,
+        context_len=ctx,
+        model_name=model_name,
+        instance="key-free-hashmix",
+        score_kind="hashmix",
+        margin=margin,
+    )
+
+
+def swap_twin_sides(twin: Twin) -> Twin:
+    return Twin(
+        stem=twin.stem,
+        marked_text=twin.unmarked_text,
+        unmarked_text=twin.marked_text,
+        marked_ids=list(twin.unmarked_ids),
+        unmarked_ids=list(twin.marked_ids),
+        extra_marked_ids=[list(x) for x in twin.extra_unmarked_ids],
+        extra_unmarked_ids=[list(x) for x in twin.extra_marked_ids],
+    )
+
+
+def shuffle_twin_sides(twins: Sequence[Twin], *, seed: int = 0) -> list[Twin]:
+    """Per-stem coin-flip swap of marked/unmarked. A negative control."""
+    import random
+
+    rng = random.Random(seed)
+    out: list[Twin] = []
+    for twin in twins:
+        if rng.random() < 0.5:
+            out.append(swap_twin_sides(twin))
+        else:
+            out.append(twin)
+    return out
 
 
 def _aligned_rows(ev: IndicatorHoldout) -> list[tuple[str, int, float, float]]:
@@ -562,6 +627,7 @@ class ThresholdRow:
     n_unmarked: int
     sensitivity: float
     specificity: float
+    source: str = "in-sample-youden"
 
 
 @dataclass
@@ -581,6 +647,8 @@ class TransferRun:
     used_g_values: bool = False
     count_model: object | None = None
     hash_model: object | None = None
+    nested: bool = False
+    shuffle_seed: int | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -661,6 +729,14 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hybrid", hyb))
+    if "hashmix" in extras:
+        mix = rotate_hashmix(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashmix", mix))
     if with_pivot:
         pivots = rotate_pivot(twins, model_name=model_name, lm=lm)
         for name, ev in pivots.items():
@@ -754,11 +830,39 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
 TRANSFER_DEFAULTS: tuple[str, ...] = (
     "hard",
     "hits",
+    "freqhits",
+    "hitmass",
     "hashpool",
-    "hashvote",
+    "hashmix",
     "hybrid",
     "stack",
 )
+
+
+def _append_threshold(
+    run: TransferRun,
+    *,
+    name: str,
+    source: str,
+    threshold: float,
+    test_ev: IndicatorHoldout,
+) -> None:
+    tp, tn, sens, spec = counts_at_threshold(
+        test_ev.marked_lrs, test_ev.unmarked_lrs, threshold
+    )
+    run.thresholds.append(
+        ThresholdRow(
+            name=name,
+            train_youden=threshold,
+            n_marked_above=tp,
+            n_unmarked_at_most=tn,
+            n_marked=len(test_ev.marked_lrs),
+            n_unmarked=len(test_ev.unmarked_lrs),
+            sensitivity=sens,
+            specificity=spec,
+            source=source,
+        )
+    )
 
 
 def run_transfer(
@@ -773,11 +877,16 @@ def run_transfer(
     overlap_mode: str = "drop-from-train",
     n_hashes: int = 8,
     n_buckets: int = 256,
+    nested: bool = True,
+    shuffle_labels: bool = False,
+    shuffle_seed: int = 0,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
         train_twins, test_twins, mode=overlap_mode
     )
+    if shuffle_labels:
+        train = shuffle_twin_sides(train, seed=shuffle_seed)
     if len(train) < 1:
         raise ValueError("transfer left no training prompts")
     if len(test) < 1:
@@ -789,7 +898,7 @@ def run_transfer(
         n in extras for n in ("hybrid", "stack")
     )
     need_hash = any(
-        n in extras for n in ("hashpool", "hashvote", "hybrid", "stack")
+        n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix")
     )
     count_model = (
         fit_count_model(train, context_len=context_len) if need_counts else None
@@ -801,20 +910,29 @@ def run_transfer(
             n_hashes=n_hashes,
             n_buckets=n_buckets,
         )
-        if need_hash
+        if need_hash and any(
+            n in extras for n in ("hashpool", "hashvote", "hybrid", "stack")
+        )
+        else None
+    )
+    mix_model = (
+        fit_hashmix_twins(
+            train,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        if "hashmix" in extras
         else None
     )
     used_keys = False
     used_hash = False
     used_g = False
-    if count_model is not None:
-        used_keys = used_keys or count_model.used_keys
-        used_hash = used_hash or count_model.used_hash_iv
-        used_g = used_g or count_model.used_g_values
-    if hash_model is not None:
-        used_keys = used_keys or hash_model.used_keys
-        used_hash = used_hash or hash_model.used_hash_iv
-        used_g = used_g or hash_model.used_g_values
+    for model in (count_model, hash_model, mix_model):
+        if model is None:
+            continue
+        used_keys = used_keys or model.used_keys
+        used_hash = used_hash or model.used_hash_iv
+        used_g = used_g or model.used_g_values
 
     scorers: dict[str, tuple[ScoreFn, str, str]] = {}
     for name in count_names:
@@ -846,6 +964,26 @@ def run_transfer(
             "key-free-hybrid",
             "hybrid",
         )
+    if "hashmix" in extras:
+        assert mix_model is not None
+        scorers["hashmix"] = (
+            (lambda ids, m=mix_model: score_hashmix(ids, m)),
+            "key-free-hashmix",
+            "hashmix",
+        )
+
+    note = (
+        "Train on one twin directory, score the other. Shared prompt stems "
+        "are dropped as overlap_mode says. In-sample Youden is optimistic. "
+        "nested-youden / nested-fpr10 come from leave-one-prompt-out on "
+        "training stems only, then frozen on the test files. "
+        "Not detector_mean. Not Claude. Not key recovery."
+    )
+    if shuffle_labels:
+        note = (
+            "NEGATIVE CONTROL: training marked/unmarked labels were shuffled "
+            "per stem. Test labels are real. AUC should collapse toward 0.5. "
+        ) + note
 
     run = TransferRun(
         train_dir=train_dir,
@@ -861,6 +999,9 @@ def run_transfer(
         used_g_values=used_g,
         count_model=count_model,
         hash_model=hash_model,
+        nested=bool(nested and len(train) >= 3),
+        shuffle_seed=shuffle_seed if shuffle_labels else None,
+        note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
     test_holdouts: dict[str, IndicatorHoldout] = {}
@@ -893,22 +1034,12 @@ def run_transfer(
         test_holdouts[name] = test_ev
         run.methods.append(summarize_holdout(name, test_ev))
         train_bin = binary_eval(train_ev.marked_lrs, train_ev.unmarked_lrs)
-        tp, tn, sens, spec = counts_at_threshold(
-            test_ev.marked_lrs,
-            test_ev.unmarked_lrs,
-            train_bin.youden_threshold,
-        )
-        run.thresholds.append(
-            ThresholdRow(
-                name=name,
-                train_youden=train_bin.youden_threshold,
-                n_marked_above=tp,
-                n_unmarked_at_most=tn,
-                n_marked=len(test_ev.marked_lrs),
-                n_unmarked=len(test_ev.unmarked_lrs),
-                sensitivity=sens,
-                specificity=spec,
-            )
+        _append_threshold(
+            run,
+            name=name,
+            source="in-sample-youden",
+            threshold=train_bin.youden_threshold,
+            test_ev=test_ev,
         )
 
     if "stack" in extras and "hits" in test_holdouts and "hashpool" in test_holdouts:
@@ -972,23 +1103,61 @@ def run_transfer(
         )
         run.methods.append(summarize_holdout("stack", stack_ev))
         train_bin = binary_eval(train_stack.marked_lrs, train_stack.unmarked_lrs)
-        tp, tn, sens, spec = counts_at_threshold(
-            stack_ev.marked_lrs,
-            stack_ev.unmarked_lrs,
-            train_bin.youden_threshold,
+        _append_threshold(
+            run,
+            name="stack",
+            source="in-sample-youden",
+            threshold=train_bin.youden_threshold,
+            test_ev=stack_ev,
         )
-        run.thresholds.append(
-            ThresholdRow(
-                name="stack",
-                train_youden=train_bin.youden_threshold,
-                n_marked_above=tp,
-                n_unmarked_at_most=tn,
-                n_marked=len(stack_ev.marked_lrs),
-                n_unmarked=len(stack_ev.unmarked_lrs),
-                sensitivity=sens,
-                specificity=spec,
+        test_holdouts["stack"] = stack_ev
+
+    if run.nested:
+        nested_holdouts: dict[str, IndicatorHoldout] = {}
+        if count_names:
+            loo_counts = rotate_count_methods(
+                train,
+                methods=count_names,
+                context_len=context_len,
+                model_name=model_name,
             )
-        )
+            nested_holdouts.update(loo_counts)
+        if "hashpool" in extras:
+            nested_holdouts["hashpool"] = rotate_hashpool(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if (
+            "stack" in extras
+            and "hits" in nested_holdouts
+            and "hashpool" in nested_holdouts
+        ):
+            nested_holdouts["stack"] = rotate_score_stack(
+                [nested_holdouts["hits"], nested_holdouts["hashpool"]],
+                model_name=model_name,
+            )
+        for name, loo_ev in nested_holdouts.items():
+            test_ev = test_holdouts.get(name)
+            if test_ev is None:
+                continue
+            loo_bin = binary_eval(loo_ev.marked_lrs, loo_ev.unmarked_lrs)
+            _append_threshold(
+                run,
+                name=name,
+                source="nested-youden",
+                threshold=loo_bin.youden_threshold,
+                test_ev=test_ev,
+            )
+            _append_threshold(
+                run,
+                name=name,
+                source="nested-fpr10",
+                threshold=threshold_at_fpr(loo_ev.unmarked_lrs, fpr=0.10),
+                test_ev=test_ev,
+            )
     return run
 
 
@@ -999,7 +1168,8 @@ def print_transfer(run: TransferRun) -> str:
             f"test={run.test_dir} n_train={run.n_train_prompts} "
             f"n_test={run.n_test_prompts} overlap_mode={run.overlap_mode} "
             f"dropped={len(run.dropped_stems)} context_len={run.context_len} "
-            f"model={run.model_name} used_keys={run.used_keys} "
+            f"model={run.model_name} nested={run.nested} "
+            f"shuffle_seed={run.shuffle_seed} used_keys={run.used_keys} "
             f"hash_iv={run.used_hash_iv} g_values={run.used_g_values}"
         ),
         run.note,
@@ -1021,13 +1191,13 @@ def print_transfer(run: TransferRun) -> str:
         )
     lines.append("")
     lines.append(
-        "| method | train Youden t | test marked>t | test unmarked≤t "
+        "| method | source | t | test marked>t | test unmarked≤t "
         "| sens | spec |"
     )
-    lines.append("|---|---|---|---|---|---|")
+    lines.append("|---|---|---|---|---|---|---|")
     for row in run.thresholds:
         lines.append(
-            f"| {row.name} | {row.train_youden:.4f} | "
+            f"| {row.name} | {row.source} | {row.train_youden:.4f} | "
             f"{row.n_marked_above}/{row.n_marked} | "
             f"{row.n_unmarked_at_most}/{row.n_unmarked} | "
             f"{row.sensitivity:.3f} | {row.specificity:.3f} |"
@@ -1060,11 +1230,19 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "used_keys": run.used_keys,
         "used_hash_iv": run.used_hash_iv,
         "used_g_values": run.used_g_values,
+        "nested": run.nested,
+        "shuffle_seed": run.shuffle_seed,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
         "thresholds": [row.__dict__ for row in run.thresholds],
     }
+    def _t(name: str, source: str) -> float | None:
+        for row in run.thresholds:
+            if row.name == name and row.source == source:
+                return row.train_youden
+        return None
+
     for m in run.methods:
         row = {
             "name": m.name,
@@ -1081,20 +1259,32 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
     if run.hash_model is not None:
+        nested_t = _t("hashpool", "nested-youden")
+        in_t = _t("hashpool", "in-sample-youden")
         persist_hashpool(
             run.hash_model,
             out_dir / "tables-hashpool",
             model_name=run.model_name,
             pair_dir=run.train_dir,
             n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden" if nested_t is not None else "in-sample-youden"
+            ),
         )
     if run.count_model is not None:
+        nested_t = _t("hits", "nested-youden")
+        in_t = _t("hits", "in-sample-youden")
         persist_indicator(
             run.count_model,
             out_dir / "tables-counts",
             model_name=run.model_name,
             pair_dir=run.train_dir,
             n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
+            ),
         )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(

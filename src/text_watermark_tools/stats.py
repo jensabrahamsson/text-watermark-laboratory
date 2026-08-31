@@ -142,6 +142,31 @@ def counts_at_threshold(
     return tp, tn, tp / len(pos), tn / len(neg)
 
 
+def threshold_at_fpr(
+    negative: Sequence[float],
+    *,
+    fpr: float = 0.10,
+) -> float:
+    """Lowest threshold whose false-positive rate on `negative` is ≤ fpr.
+
+    A score is called positive when it is strictly greater than the threshold.
+    If even t = max(negative) still exceeds `fpr` (ties at the top), return that
+    max. Empty input returns 0.
+    """
+    neg = list(negative)
+    if not neg:
+        return 0.0
+    target_fp = fpr * len(neg)
+    candidates = sorted({*neg, 0.0})
+    chosen = candidates[-1]
+    for t in candidates:
+        fp = sum(1 for s in neg if s > t)
+        if fp <= target_fp + 1e-12:
+            return t
+        chosen = t
+    return chosen
+
+
 def binary_eval(
     positive: Sequence[float],
     negative: Sequence[float],

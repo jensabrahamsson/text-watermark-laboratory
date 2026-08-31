@@ -11,6 +11,7 @@ from text_watermark_tools.probe import (
     rotate_score_stack,
     run_probe,
     run_transfer,
+    shuffle_twin_sides,
 )
 from text_watermark_tools.stats import binary_eval, binomial_sf
 
@@ -204,6 +205,7 @@ def test_run_transfer_on_lab_pairs_is_key_free() -> None:
         overlap_mode="keep",
         n_hashes=4,
         n_buckets=16,
+        nested=False,
     )
     names = [m.name for m in run.methods]
     assert names == ["hard", "hits", "hashpool", "hybrid", "stack"]
@@ -214,6 +216,19 @@ def test_run_transfer_on_lab_pairs_is_key_free() -> None:
     hp = next(m for m in run.methods if m.name == "hashpool")
     assert hp.holdout.mode == "transfer"
     assert hp.holdout.instance == "key-free-hashpool"
+    assert run.nested is False
+    assert all(row.source == "in-sample-youden" for row in run.thresholds)
+
+
+def test_shuffle_twin_sides_is_a_per_stem_coin_flip() -> None:
+    twins = load_twins(PAIR)
+    shuffled = shuffle_twin_sides(twins, seed=0)
+    assert len(shuffled) == len(twins)
+    swapped = sum(
+        a.marked_ids == b.unmarked_ids for a, b in zip(twins, shuffled, strict=True)
+    )
+    assert 0 < swapped < len(twins)
+    assert all(t.stem == s.stem for t, s in zip(twins, shuffled, strict=True))
 
 
 def test_stack_12x4_hits_and_hashpool_stays_key_free() -> None:
