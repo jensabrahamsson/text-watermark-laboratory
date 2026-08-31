@@ -331,10 +331,16 @@ detections while unmarked ≤0 rises from 76 to **97/144** (34/36, AUC
 vs 40/48) while dropping prompt grain to 10/12. On 12×4 leave-one-out
 it is a specificity knob (24/48 marked, 37/48 unmarked), not a better
 t=0 detector. Combining `--fit-prefix 16` with bucket 16 is a no-op:
-every token sits in bucket 0. JSON:
+every token sits in bucket 0. Bucket 4 on that same 16-token window is
+not: in-domain poshits then ranks **34/36** with file AUC **0.937**
+(unmarked ≤0 **114/144**), a small lift over unbucketed matched-prefix
+hits (0.929 / 112/144). Out of family it is **11/12**, AUC **0.820**,
+nested-by-stem **39/48** vs **38/48**. JSON:
 [../experiments/2026-08-31-probe-36x4-posbucket/](../experiments/2026-08-31-probe-36x4-posbucket/),
 [../experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/](../experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/),
-[../experiments/2026-08-31-probe-12x4-posbucket/](../experiments/2026-08-31-probe-12x4-posbucket/).
+[../experiments/2026-08-31-probe-12x4-posbucket/](../experiments/2026-08-31-probe-12x4-posbucket/),
+[../experiments/2026-08-31-probe-36x4-fitprefix16-pos4/](../experiments/2026-08-31-probe-36x4-fitprefix16-pos4/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/).
 
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 

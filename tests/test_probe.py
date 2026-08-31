@@ -997,6 +997,40 @@ def test_ood_poshits_and_fit_prefix_raise_file_auc() -> None:
     assert nested16.n_unmarked_at_most == 36
 
 
+def test_fit_prefix_poshits_bucket4_beats_unbucketed_matched_prefix() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    pos = holdout_from_json(
+        root / "2026-08-31-probe-36x4-fitprefix16-pos4" / "poshits" / "holdout.json"
+    )
+    hits = holdout_from_json(
+        root / "2026-08-31-probe-36x4-fitprefix16" / "hits" / "holdout.json"
+    )
+    ood = holdout_from_json(
+        root
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert pos.used_keys is False
+    assert ood.used_keys is False
+    assert pos.n_prompts_marked_above == 34
+    assert pos.n_marked_positive == 133
+    assert pos.n_unmarked_nonpositive == 114
+    pos_auc = binary_eval(pos.marked_lrs, pos.unmarked_lrs, n_perm=200, seed=0)
+    hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
+    assert pos_auc.auc > 0.93
+    assert pos_auc.auc > hits_auc.auc
+    assert ood.n_prompts_marked_above == 11
+    assert ood.n_unmarked_nonpositive == 33
+    ood_auc = binary_eval(ood.marked_lrs, ood.unmarked_lrs, n_perm=200, seed=0)
+    assert ood_auc.auc > 0.80
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested = nested_threshold_by_stem(ood.stems, ood.marked_lrs, ood.unmarked_lrs)
+    assert nested.n_marked_above == 39
+    assert nested.n_unmarked_at_most == 38
+
+
 def test_ood_window_16_32_hits_is_near_chance() -> None:
     root = (
         Path(__file__).resolve().parents[1]

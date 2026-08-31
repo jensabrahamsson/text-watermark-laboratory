@@ -78,6 +78,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-probe-12x4-posbucket/` | Position-bucketed last-4, 12×4 LOO | poshits 10/12; specificity knob 24/48 vs 37/48 |
 | `2026-08-31-transfer-36x4-to-12x4-fitprefix16/` | New-topic matched 16-token fit | hits **11/12** AUC **0.818**; nested-by-stem 39/48 vs 36/48 |
 | `2026-08-31-transfer-36x4-to-12x4-posbucket/` | New-topic poshits | **10/12** AUC **0.811**; nested-by-stem 37/48 vs 35/48 |
+| `2026-08-31-probe-36x4-fitprefix16-pos4/` | Matched 16-token poshits, bucket 4 | **34/36** AUC **0.937**; unmarked ≤0 **114/144** |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/` | New-topic matched 16-token poshits bucket 4 | **11/12** AUC **0.820**; nested-by-stem 39/48 vs 38/48 |
 
 ## What changed across the runs
 
@@ -98,6 +100,7 @@ The later runs clarified what strengthens it:
 - extra GPT-2 draws do not create a Qwen detector (36×4 → new Qwen hits 6/12);
 - matching the train window to those first 16 tokens lifts unmarked ≤0 to **112/144** in-domain and OOD file AUC to **0.818**;
 - position-bucketed last-4 keeps 134/144 marked at t=0 on 36×4 with unmarked ≤0 **97/144**, and raises OOD file AUC to **0.811**;
+- finer buckets (4) on that 16-token window reach in-domain poshits AUC **0.937** with unmarked ≤0 **114/144**;
 - shuffling half the training labels drops isolated sign at 0 to chance.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".

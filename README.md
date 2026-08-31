@@ -57,6 +57,7 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free poshits (bucket=16), 36×4 | Position-namespaced last-4 | **34/36**, AUC **0.925**; t=0 spec **97/144** (hits 76/144) |
 | Key-free hits, matched 16-token 24×4 → 12×4 | New-topic matched prefix | **11/12**, AUC **0.818**; nested-by-stem 39/48 vs 36/48 |
 | Key-free poshits, 24×4 → 12×4 | New-topic position-namespaced last-4 | **10/12**, AUC **0.811**; nested-by-stem 37/48 vs 35/48 |
+| Key-free poshits, matched 16-token bucket 4, 36×4 | Finer buckets on the opening | **34/36**, AUC **0.937**; unmarked ≤0 **114/144** |
 | Mixin last-5 vs last-4, 36×4 hits | `context_len=5` matches `ngram_len=5` | **35/36**, AUC **0.912** (does **not** beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | Byte hashpool, no tokenizer | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | Probe-tokenizer paired ranking | **11/12** (isolated `lr>0` **1/12**) |

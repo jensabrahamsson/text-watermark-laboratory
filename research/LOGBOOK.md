@@ -260,4 +260,10 @@ JSON: `experiments/2026-08-31-probe-36x4-fitprefix16/`,
 `experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/`,
 `experiments/2026-08-31-probe-12x4-posbucket/`.
 
+Bucket 4 on the same 16-token window (not bucket 16, which is a no-op
+there): in-domain poshits **34/36**, AUC **0.937**, unmarked ≤0
+**114/144**. New-topic **11/12**, AUC **0.820**, nested-by-stem **39/48**
+vs **38/48**. JSON: `experiments/2026-08-31-probe-36x4-fitprefix16-pos4/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/`.
+
 ---
