@@ -340,6 +340,11 @@ def score_text_from_tables(
         meta.score_kind = "poshits"
         meta.instance = "key-free-poshits"
         return lr, meta, bool(model.used_keys)
+    if mode == "poshitmass":
+        lr = score_sequence(ids, model, COUNT_SPECS["hitmass"])
+        meta.score_kind = "poshitmass"
+        meta.instance = "key-free-poshitmass"
+        return lr, meta, bool(model.used_keys)
     if mode in ("auto", "hard", ""):
         lr = likelihood_ratio(ids, model)
         meta.score_kind = "hard"
@@ -348,7 +353,7 @@ def score_text_from_tables(
         if mode not in COUNT_SPECS:
             raise ValueError(
                 f"unknown --score-mode {score_mode}; "
-                f"choose auto, hard, poshits, hashpool, or one of {sorted(COUNT_SPECS)}"
+                f"choose auto, hard, poshits, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
             )
         spec = COUNT_SPECS[mode]
         lr = score_sequence(ids, model, spec)

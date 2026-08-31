@@ -487,6 +487,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashmix": "rotate_hashmix",
         "surface": "rotate_surface",
         "poshits": "rotate_poshits",
+        "poshitmass": "rotate_poshitmass",
     }
     if score_kind in extra_rotate:
         if not args.rotate:
@@ -509,7 +510,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             kwargs["context_len"] = int(
                 getattr(args, "surface_context_len", 8) or 8
             )
-        if score_kind == "poshits":
+        if score_kind in ("poshits", "poshitmass"):
             kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16) or 16)
         elif score_kind != "hard":
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
@@ -521,7 +522,8 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashvote, hybrid, surface, poshits, or one of {sorted(COUNT_SPECS)}",
+                f"choose hard, hashpool, hashvote, hybrid, surface, poshits, "
+                f"poshitmass, or one of {sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
             return 2
@@ -602,6 +604,9 @@ def cmd_probe(args: argparse.Namespace) -> int:
     methods = None
     if args.methods:
         methods = [m.strip() for m in args.methods.split(",") if m.strip()]
+    with_coverage = bool(getattr(args, "coverage", False))
+    if with_coverage and methods is None:
+        methods = []
     if getattr(args, "test_dir", ""):
         test_twins = load_twins(
             Path(args.test_dir),
@@ -655,6 +660,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
         windows=_parse_windows_arg(getattr(args, "windows", "")),
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
         position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
+        with_coverage=with_coverage,
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -920,7 +926,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read count tables: auto (hashpool tables → hashpool, "
             "bucketed count tables → poshits, else hard), or "
-            "hard/hits/poshits/gated/unigram/… "
+            "hard/hits/poshits/poshitmass/gated/unigram/… "
             "Hashpool tables ignore count modes."
         ),
     )
@@ -976,15 +982,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, gated, shrinkage, mix, hashpool, hashvote, "
-            "hybrid, surface, poshits. Hashpool/surface/poshits modes need "
-            "--rotate. Still key-free."
+            "hybrid, surface, poshits, poshitmass. Hashpool/surface/poshits "
+            "modes need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument(
         "--pos-bucket",
         type=int,
         default=16,
-        help="Token-position bucket size for --score-mode poshits (default 16)",
+        help="Token-position bucket size for --score-mode poshits/poshitmass (default 16)",
     )
     p_ih.add_argument("--n-hashes", type=int, default=8)
     p_ih.add_argument("--n-buckets", type=int, default=256)
@@ -1016,7 +1022,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit, poshits, pospool"
+            "hybrid, hashmix, surface, stack, logit, poshits, poshitmass, pospool"
         ),
     )
     p_probe.add_argument(
@@ -1105,9 +1111,20 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=16,
         help=(
-            "Token-position bucket size for poshits/pospool. Prepends "
-            "i//N to the last-4 context so early 4-grams do not share "
-            "counts with the tail. Not a watermark key. Default 16."
+            "Token-position bucket size for poshits/poshitmass/pospool. "
+            "Prepends i//N to the last-4 context so early 4-grams do not "
+            "share counts with the tail. Not a watermark key. Default 16."
+        ),
+    )
+    p_probe.add_argument(
+        "--coverage",
+        action="store_true",
+        help=(
+            "Leave-one-prompt-out share of last-k contexts seen on both "
+            "training sides, by token index and window. Explains why the "
+            "key-free 4-gram reader is front-loaded. Unbucketed; uses full "
+            "sequences even with --fit-prefix. With no --methods, coverage "
+            "only (no scorers)."
         ),
     )
     p_probe.add_argument("--out-dir", default="")

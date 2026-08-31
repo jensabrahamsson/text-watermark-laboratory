@@ -66,7 +66,7 @@ def test_clip_prefix_and_poshits_on_lab_pairs_are_key_free(tmp_path) -> None:
         twins,
         pair_dir=str(PAIR),
         context_len=2,
-        methods=("hits", "poshits", "pospool"),
+        methods=("hits", "poshits", "poshitmass", "pospool"),
         fit_prefix=6,
         position_bucket=2,
         n_hashes=4,
@@ -75,29 +75,34 @@ def test_clip_prefix_and_poshits_on_lab_pairs_are_key_free(tmp_path) -> None:
     assert run.used_keys is False
     assert run.fit_prefix == 6
     names = {m.name for m in run.methods}
-    assert names == {"hits", "poshits", "pospool"}
+    assert names == {"hits", "poshits", "poshitmass", "pospool"}
     assert all(m.holdout.used_keys is False for m in run.methods)
     poshits = next(m for m in run.methods if m.name == "poshits")
     assert poshits.holdout.instance == "key-free-poshits"
+    poshitmass = next(m for m in run.methods if m.name == "poshitmass")
+    assert poshitmass.holdout.instance == "key-free-poshitmass"
     persist_probe(run, tmp_path)
     assert (tmp_path / "poshits" / "holdout.json").is_file()
+    assert (tmp_path / "poshitmass" / "holdout.json").is_file()
     assert (tmp_path / "pospool" / "holdout.json").is_file()
     from text_watermark_tools.probe import persist_transfer, run_transfer
 
     xfer = run_transfer(
-        twins[:2],
-        twins[2:],
+        twins,
+        twins[-1:],
         train_dir=str(PAIR),
         test_dir=str(PAIR),
         context_len=2,
-        methods=("poshits",),
+        methods=("poshits", "poshitmass"),
         overlap_mode="keep",
-        nested=False,
+        nested=True,
         position_bucket=2,
         n_hashes=4,
         n_buckets=16,
     )
     assert xfer.used_keys is False
+    nested_names = {r.name for r in xfer.thresholds if r.source == "nested-youden"}
+    assert nested_names == {"poshits", "poshitmass"}
     persist_transfer(xfer, tmp_path / "xfer")
     tables = tmp_path / "xfer" / "tables-poshits" / "tables.json"
     assert tables.is_file()
@@ -118,6 +123,15 @@ def test_clip_prefix_and_poshits_on_lab_pairs_are_key_free(tmp_path) -> None:
     assert used_keys is False
     assert scored.score_kind == "poshits"
     assert isinstance(lr, float)
+    mass_lr, mass_meta, mass_keys = score_text_from_tables(
+        twins[0].marked_text,
+        tmp_path / "xfer" / "tables-poshits",
+        tokenizer=tok,
+        score_mode="poshitmass",
+    )
+    assert mass_keys is False
+    assert mass_meta.score_kind == "poshitmass"
+    assert isinstance(mass_lr, float)
 
 
 def test_prefix_probe_on_lab_pairs_is_key_free(tmp_path) -> None:
@@ -1046,3 +1060,38 @@ def test_ood_window_16_32_hits_is_near_chance() -> None:
     mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
     assert early_auc.auc > 0.70
     assert mid_auc.auc < 0.60
+
+
+def test_hits_coverage_on_lab_pairs_is_front_loaded(tmp_path) -> None:
+    from text_watermark_tools.probe import persist_probe, rotate_hits_coverage
+
+    twins = load_twins(PAIR)
+    cov = rotate_hits_coverage(
+        twins,
+        context_len=2,
+        windows=((0, 16), (16, 32), (32, 64)),
+        max_index=64,
+    )
+    assert cov["used_keys"] is False
+    assert cov["used_hash_iv"] is False
+    assert cov["used_g_values"] is False
+    by_win = {(row["start"], row["end"]): row for row in cov["by_window"]}
+    early = by_win[(0, 16)]
+    mid = by_win[(16, 32)]
+    assert early["n"] > 0
+    assert mid["n"] > 0
+    assert early["shared_frac"] > mid["shared_frac"]
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=(),
+        with_coverage=True,
+        windows=((0, 16), (16, 32)),
+    )
+    assert run.methods == []
+    assert run.coverage is not None
+    assert run.coverage["used_keys"] is False
+    persist_probe(run, tmp_path)
+    assert (tmp_path / "coverage.json").is_file()
+    assert (tmp_path / "coverage.md").is_file()

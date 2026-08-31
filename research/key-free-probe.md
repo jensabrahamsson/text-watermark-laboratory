@@ -381,6 +381,20 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --methods hits,poshits,pospool --pos-bucket 16 \
   --out-dir experiments/2026-08-31-probe-36x4-posbucket
 
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --coverage --windows 0:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-08-31-probe-36x4-coverage
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4 \
+  --out-dir experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --overlap drop-from-train \
+  --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4 \
+  --out-dir experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-poshitmass
+
 python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
   --test-dir experiments/2026-08-17-pair-12x4 \
   --overlap drop-from-train \

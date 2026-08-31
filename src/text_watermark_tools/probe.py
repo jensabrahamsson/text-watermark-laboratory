@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Sequence
 
-from text_watermark_tools.blind import Twin, clip_twins_prefix
+from text_watermark_tools.blind import Twin, _scored_ctx, clip_twins_prefix
 from text_watermark_tools.indicator import (
     CAVEAT,
     IndicatorHoldout,
@@ -39,6 +39,7 @@ from text_watermark_tools.transfer import (
     fit_hashmix_twins,
     fit_hashpool_twins,
     fit_surface_twins,
+    _count,
     persist_hashpool,
     score_hashmix,
     score_hashpool,
@@ -49,9 +50,29 @@ from text_watermark_tools.transfer import (
 )
 
 ScoreFn = Callable[[Sequence[int] | str], float]
-LOGIT_FEATURE_ORDER: tuple[str, ...] = ("hits", "hashpool", "surface", "hitmass")
+LOGIT_FEATURE_ORDER: tuple[str, ...] = (
+    "hits",
+    "poshits",
+    "hashpool",
+    "surface",
+    "hitmass",
+    "poshitmass",
+)
 DEFAULT_POS_BUCKET = 16
+DEFAULT_COVERAGE_WINDOWS: tuple[tuple[int, int], ...] = (
+    (0, 16),
+    (16, 32),
+    (32, 64),
+    (64, 128),
+)
 POSHITS_SPEC = ScoreSpec(kind="gated", min_count=1, instance="key-free-poshits")
+POSHITMASS_SPEC = ScoreSpec(
+    kind="hitmass", min_count=1, instance="key-free-poshitmass"
+)
+POS_SPECS: dict[str, ScoreSpec] = {
+    "poshits": POSHITS_SPEC,
+    "poshitmass": POSHITMASS_SPEC,
+}
 
 
 def _twin_sides(twin: Twin, seq_mode: str) -> tuple[list, list]:
@@ -158,6 +179,147 @@ def _window_dir(start: int, end: int) -> str:
     return f"window-{start}-{end}"
 
 
+def _empty_cov_bin() -> dict[str, float]:
+    return {
+        "n": 0,
+        "shared": 0,
+        "marked_only": 0,
+        "unmarked_only": 0,
+        "unseen": 0,
+        "support_sum": 0,
+    }
+
+
+def _cov_observe(bin_: dict[str, float], n_m: int, n_u: int) -> None:
+    bin_["n"] += 1
+    if n_m >= 1 and n_u >= 1:
+        bin_["shared"] += 1
+        bin_["support_sum"] += min(n_m, n_u)
+    elif n_m >= 1:
+        bin_["marked_only"] += 1
+    elif n_u >= 1:
+        bin_["unmarked_only"] += 1
+    else:
+        bin_["unseen"] += 1
+
+
+def _cov_finalize(bin_: dict[str, float], *, start: int | None = None, end: int | None = None) -> dict:
+    n = int(bin_["n"])
+    shared = int(bin_["shared"])
+    row = {
+        "n": n,
+        "shared": shared,
+        "shared_frac": (shared / n) if n else 0.0,
+        "marked_only": int(bin_["marked_only"]),
+        "unmarked_only": int(bin_["unmarked_only"]),
+        "unseen": int(bin_["unseen"]),
+        "mean_shared_support": (
+            bin_["support_sum"] / shared if shared else 0.0
+        ),
+    }
+    if start is not None:
+        row["start"] = int(start)
+        row["end"] = int(end or start)
+    return row
+
+
+def rotate_hits_coverage(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = 0,
+    windows: Sequence[str | tuple[int, int]] = DEFAULT_COVERAGE_WINDOWS,
+    max_index: int = 128,
+) -> dict:
+    """Leave-one-out share of last-k contexts seen on both training sides.
+
+    Hits can only fire on shared contexts. This curve locates where those
+    contexts exist. It does not use keys, hash_iv, or g-values.
+    """
+    if len(twins) < 3:
+        raise ValueError("coverage rotate needs at least three prompts")
+    spans = _parse_windows(windows) or DEFAULT_COVERAGE_WINDOWS
+    by_index = [_empty_cov_bin() for _ in range(max_index)]
+    by_window = {win: _empty_cov_bin() for win in spans}
+    used_keys = False
+    n_files = 0
+    for held in twins:
+        train = [t for t in twins if t.stem != held.stem]
+        model = fit_count_model(
+            train, context_len=context_len, position_bucket=position_bucket
+        )
+        used_keys = used_keys or model.used_keys
+        seqs = [*held.marked_seqs(), *held.unmarked_seqs()]
+        n_files += min(len(held.marked_seqs()), len(held.unmarked_seqs())) * 2
+        for seq in seqs:
+            for i in range(1, len(seq)):
+                ctx = _scored_ctx(seq, i, context_len, position_bucket)
+                n_m = _count(model.marked, ctx)
+                n_u = _count(model.unmarked, ctx)
+                if i < max_index:
+                    _cov_observe(by_index[i], n_m, n_u)
+                for start, end in spans:
+                    if start <= i < end:
+                        _cov_observe(by_window[(start, end)], n_m, n_u)
+    if used_keys:
+        raise RuntimeError("coverage consulted keys")
+    return {
+        "context_len": int(context_len),
+        "position_bucket": int(position_bucket) if position_bucket else 0,
+        "n_prompts": len(twins),
+        "n_files": n_files,
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "note": (
+            "Leave-one-prompt-out share of last-k contexts seen on both "
+            "training sides. Hits can only score those positions. This is "
+            "why the key-free 4-gram reader is front-loaded. Not keys."
+        ),
+        "by_index": [
+            _cov_finalize(bin_, start=i, end=i + 1)
+            for i, bin_ in enumerate(by_index)
+            if bin_["n"]
+        ],
+        "by_window": [
+            _cov_finalize(by_window[win], start=win[0], end=win[1])
+            for win in spans
+        ],
+    }
+
+
+def print_coverage(cov: dict) -> str:
+    lines = [
+        (
+            f"coverage n_prompts={cov['n_prompts']} n_files={cov['n_files']} "
+            f"context_len={cov['context_len']} pos_bucket={cov['position_bucket']} "
+            f"used_keys={cov['used_keys']}"
+        ),
+        cov.get("note", ""),
+        "",
+        "| window | shared last-4 | n | mean support when shared |",
+        "|---|---|---|---|",
+    ]
+    for row in cov.get("by_window") or []:
+        lines.append(
+            f"| {row['start']}:{row['end']} | {row['shared_frac']:.3f} "
+            f"({row['shared']}/{row['n']}) | {row['n']} | "
+            f"{row['mean_shared_support']:.2f} |"
+        )
+    return "\n".join(lines)
+
+
+def persist_coverage(cov: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "coverage.json").write_text(json.dumps(cov, indent=2) + "\n")
+    (out_dir / "coverage.md").write_text(
+        "# Key-free last-4 coverage by position\n\n"
+        + print_coverage(cov)
+        + "\n"
+    )
+
+
 def rotate_custom(
     twins: Sequence[Twin],
     make_scorer: Callable[[Sequence[Twin]], tuple[ScoreFn, bool, bool, bool]],
@@ -262,11 +424,21 @@ def rotate_count_methods(
     prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+    extra_specs: dict[str, ScoreSpec] | None = None,
 ) -> dict[str, IndicatorHoldout]:
-    names = list(methods or COUNT_SPECS.keys())
-    unknown = [n for n in names if n not in COUNT_SPECS]
+    extra_specs = extra_specs or {}
+    names = list(COUNT_SPECS.keys()) if methods is None else list(methods)
+    for name in extra_specs:
+        if name not in names:
+            names.append(name)
+    unknown = [n for n in names if n not in COUNT_SPECS and n not in extra_specs]
     if unknown:
         raise ValueError(f"unknown count methods: {unknown}")
+
+    def _spec(name: str) -> ScoreSpec:
+        return extra_specs[name] if name in extra_specs else COUNT_SPECS[name]
+
     buckets = {name: _empty_holdout_parts() for name in names}
     used = {name: (False, False, False) for name in names}
     lenses = _parse_prefix_lens(prefix_lens)
@@ -279,13 +451,15 @@ def rotate_count_methods(
     }
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
-        model = fit_count_model(train, context_len=context_len)
+        model = fit_count_model(
+            train, context_len=context_len, position_bucket=position_bucket
+        )
         flags = (model.used_keys, model.used_hash_iv, model.used_g_values)
         marked_seqs = held.marked_seqs()
         unmarked_seqs = held.unmarked_seqs()
         n = min(len(marked_seqs), len(unmarked_seqs))
         for name in names:
-            spec = COUNT_SPECS[name]
+            spec = _spec(name)
             used[name] = tuple(a or b for a, b in zip(used[name], flags, strict=True))
             for i in range(n):
                 marked = marked_seqs[i]
@@ -315,7 +489,7 @@ def rotate_count_methods(
                     )
     out: dict[str, IndicatorHoldout] = {}
     for name in names:
-        spec = COUNT_SPECS[name]
+        spec = _spec(name)
         k, h, g = used[name]
         out[name] = _holdout_from_parts(
             buckets[name],
@@ -414,6 +588,39 @@ def rotate_hashpool(
     return ev
 
 
+def rotate_pos_methods(
+    twins: Sequence[Twin],
+    *,
+    methods: Sequence[str] = ("poshits",),
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> dict[str, IndicatorHoldout]:
+    extra = {}
+    for name in methods:
+        if name not in POS_SPECS:
+            raise ValueError(f"unknown position-bucketed method: {name}")
+        extra[name] = POS_SPECS[name]
+    return rotate_count_methods(
+        twins,
+        methods=(),
+        extra_specs=extra,
+        context_len=context_len,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+    )
+
+
 def rotate_poshits(
     twins: Sequence[Twin],
     *,
@@ -426,41 +633,44 @@ def rotate_poshits(
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
 ) -> IndicatorHoldout:
-    def make(train: Sequence[Twin]):
-        model = fit_count_model(
-            train,
-            context_len=context_len,
-            position_bucket=position_bucket,
-        )
-        return (
-            lambda ids, m=model: score_sequence(ids, m, POSHITS_SPEC),
-            model.used_keys,
-            model.used_hash_iv,
-            model.used_g_values,
-        )
-
-    one: dict[int, IndicatorHoldout] = {}
-    one_win: dict[tuple[int, int], IndicatorHoldout] = {}
-    ev = rotate_custom(
+    return rotate_pos_methods(
         twins,
-        make,
+        methods=("poshits",),
         context_len=context_len,
+        position_bucket=position_bucket,
         model_name=model_name,
-        instance="key-free-poshits",
-        score_kind="poshits",
         margin=margin,
         prefix_lens=prefix_lens,
-        prefix_out=one if prefix_lens else None,
+        prefix_out=prefix_out,
         windows=windows,
-        window_out=one_win if windows else None,
-    )
-    if prefix_out is not None:
-        for plen, hold in one.items():
-            prefix_out.setdefault(plen, {})["poshits"] = hold
-    if window_out is not None:
-        for win, hold in one_win.items():
-            window_out.setdefault(win, {})["poshits"] = hold
-    return ev
+        window_out=window_out,
+    )["poshits"]
+
+
+def rotate_poshitmass(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> IndicatorHoldout:
+    return rotate_pos_methods(
+        twins,
+        methods=("poshitmass",),
+        context_len=context_len,
+        position_bucket=position_bucket,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+    )["poshitmass"]
 
 
 def rotate_hashvote(
@@ -1107,11 +1317,14 @@ class ProbeRun:
     )
     fit_prefix: int | None = None
     position_bucket: int = 0
+    coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
         "AUC is single-file ranking; prompt wins are the 10/12 grain. "
         "nested-youden-by-stem is a threshold chosen on other prompt "
-        "families' already-held-out LRs, not a global peek at the same stem."
+        "families' already-held-out LRs, not a global peek at the same stem. "
+        "coverage.json is leave-one-out shared last-k fraction by position; "
+        "it explains a front-loaded reader, not a keyed detector."
     )
 
 
@@ -1235,11 +1448,14 @@ def run_probe(
     windows: Sequence[str | tuple[int, int]] = (),
     fit_prefix: int | None = None,
     position_bucket: int = DEFAULT_POS_BUCKET,
+    with_coverage: bool = False,
     lm=None,
 ) -> ProbeRun:
     requested = list(methods) if methods is not None else list(COUNT_SPECS)
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
+    pos_names = [m for m in requested if m in POS_SPECS]
+    raw_twins = twins
     if fit_prefix and fit_prefix > 0:
         twins = clip_twins_prefix(twins, int(fit_prefix))
     lenses = _parse_prefix_lens(prefix_lens)
@@ -1287,9 +1503,10 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashpool", hp))
-    if "poshits" in extras:
-        ph = rotate_poshits(
+    if pos_names:
+        counted_pos = rotate_pos_methods(
             twins,
+            methods=tuple(pos_names),
             context_len=context_len,
             position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
             model_name=model_name,
@@ -1298,7 +1515,8 @@ def run_probe(
             windows=spans,
             window_out=window_out if spans else None,
         )
-        run.methods.append(summarize_holdout("poshits", ph))
+        for name in pos_names:
+            run.methods.append(summarize_holdout(name, counted_pos[name]))
     if "pospool" in extras:
         pp = rotate_hashpool(
             twins,
@@ -1385,6 +1603,15 @@ def run_probe(
     run.used_g_values = any(m.holdout.used_g_values for m in run.methods)
     _store_prefixes(run.prefixes, prefix_out)
     _store_windows(run.window_results, window_out)
+    if with_coverage:
+        if len(raw_twins) < 3:
+            raise ValueError("coverage rotate needs at least three prompts")
+        run.coverage = rotate_hits_coverage(
+            raw_twins,
+            context_len=context_len,
+            position_bucket=0,
+            windows=spans or DEFAULT_COVERAGE_WINDOWS,
+        )
     return run
 
 
@@ -1463,6 +1690,9 @@ def print_probe(run: ProbeRun) -> str:
                     f"{gate['n_marked_above']}/{gate['n_marked']} | "
                     f"{gate['n_unmarked_at_most']}/{gate['n_unmarked']} |"
                 )
+    if run.coverage:
+        lines.append("")
+        lines.append(print_coverage(run.coverage))
     lines.append("")
     for m in run.methods:
         lines.append(format_binary_eval(m.binary, label=m.name))
@@ -1541,6 +1771,9 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
             persist_holdout(
                 m.holdout, out_dir / _window_dir(start, end) / m.name
             )
+    table["has_coverage"] = run.coverage is not None
+    if run.coverage is not None:
+        persist_coverage(run.coverage, out_dir)
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free probe\n\n" + print_probe(run) + "\n"
@@ -1628,7 +1861,8 @@ def run_transfer(
         logit_ready = [n for n in LOGIT_FEATURE_ORDER if n in names]
         if len(logit_ready) < 2:
             raise ValueError(
-                "logit needs at least two of hits, hashpool, surface, hitmass"
+                "logit needs at least two of hits, poshits, hashpool, "
+                "surface, hitmass, poshitmass"
             )
     need_counts = bool(count_names) or any(
         n in extras for n in ("hybrid", "stack")
@@ -1674,11 +1908,12 @@ def run_transfer(
     pos_bucket = (
         int(position_bucket) if position_bucket and position_bucket > 0 else 0
     )
+    pos_names = [n for n in extras if n in POS_SPECS]
     pos_model = (
         fit_count_model(
             train, context_len=context_len, position_bucket=pos_bucket or DEFAULT_POS_BUCKET
         )
-        if "poshits" in extras
+        if pos_names
         else None
     )
     pos_hash = (
@@ -1759,6 +1994,14 @@ def run_transfer(
             (lambda ids, m=pos_model: score_sequence(ids, m, POSHITS_SPEC)),
             "key-free-poshits",
             "poshits",
+            "ids",
+        )
+    if "poshitmass" in extras:
+        assert pos_model is not None
+        scorers["poshitmass"] = (
+            (lambda ids, m=pos_model: score_sequence(ids, m, POSHITMASS_SPEC)),
+            "key-free-poshitmass",
+            "poshitmass",
             "ids",
         )
     if "pospool" in extras:
@@ -1977,6 +2220,16 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if pos_names:
+            nested_holdouts.update(
+                rotate_pos_methods(
+                    train,
+                    methods=tuple(pos_names),
+                    context_len=context_len,
+                    position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+                    model_name=model_name,
+                )
+            )
         if (
             "stack" in extras
             and "hits" in nested_holdouts
@@ -2193,8 +2446,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             ),
         )
     if persist_tables and run.pos_model is not None:
-        nested_t = _t("poshits", "nested-youden")
-        in_t = _t("poshits", "in-sample-youden")
+        nested_t = _t("poshits", "nested-youden") or _t("poshitmass", "nested-youden")
+        in_t = _t("poshits", "in-sample-youden") or _t("poshitmass", "in-sample-youden")
         persist_indicator(
             run.pos_model,
             out_dir / "tables-poshits",

@@ -62,6 +62,8 @@ python -m text_watermark_tools probe PAIR --test-dir OTHER --out-dir experiments
 python -m text_watermark_tools probe PAIR --prefix-lens 16,32,64,96,128 --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods hits,hashpool
 python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-bucket 16
+python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
+python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
 python -m text_watermark_tools resample --skip-collect --new-dir experiments/claude-sample-YYYY-MM-DD
