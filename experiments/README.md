@@ -120,6 +120,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits/` | Occupancy vs observed next token | poshits **39/48**; postokhits **16/48** precision **1.000** |
 | `2026-08-31-probe-36x4-fitprefix4-postokhits/` | 36×4 LOO postokhits | 34/36, **122/144 vs 132/144** (9 of 131 TPs were occupancy) |
 | `2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits/` | postokhits vs control-shuffled-30 | control `lr>0` **0/48** |
+| `2026-08-31-prompts-long12/` | Twelve ~41–51 word new-topic pair seeds | not copies of the original 12; not Claude |
+| `2026-08-31-pair-long12x4/` | Those seeds × 4 draws × 128 tokens | official first-draw **12/12**; token 0 is only `"` / `The` |
+| `2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits/` | Medium new topics → 12×4 | postokhits **12/12**, isolated **19/48**, precision **1.000**; poshits 8/12 (The-Laplace flips) |
+| `2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits/` | 24 short + 12 medium → 12×4 | postokhits **12/12**, isolated **20/48**, precision **1.000**; nine zeros remain |
+| `2026-08-31-pair-24short-plus-long12/` | Hardlink train dir (README only in git) | rebuild from `pair-36x4` stems 13–36 + `pair-long12x4` |
 
 ## What changed across the runs
 
@@ -153,6 +158,7 @@ The later runs clarified what strengthens it:
 - shuffling half the training labels drops isolated sign at 0 to chance;
 - a public-trained 4-token poshits table is **instance-specific** on this mixin: `control-shuffled-30` openings get `lr>0` on **0/48** files, while public vs control ranks **12/12** (AUC **0.906**). Unbucketed hits on full files is not that check (29/48 control `lr>0`). Not key recovery.
 - **39/48 poshits is not 39 token preferences.** Shared `'The'` plus unequal occupancy gives every novel continuation the same δ = 0.330 (23 of 39 TPs and all 7 FPs). `postokhits` keeps observed next tokens only: **16/48**, precision 1.0 among decided, still **12/12**, and control stays **0/48**. In-domain, only 9 of 131 TPs were occupancy (122/144).
+- twelve medium-length new topics lift that observed-token isolated recall to **19/48** (20/48 with the short one-liners too); the nine After / Closing / Now / While zeros stay, and The-Laplace **flips sign** on the medium train (poshits 8/12). Do not sell 19/48 or 20/48 as beating 39/48.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
 

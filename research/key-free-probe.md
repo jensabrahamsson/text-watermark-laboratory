@@ -374,6 +374,19 @@ stays **0/48** `lr>0` under both readers. Details:
 [key-free-tokhits.md](key-free-tokhits.md). Do not sell 16/48 as beating
 39/48. Do not replace 10/12, 29/48, or 36/36.
 
+**Matched seed length does not cover those zeros.** Twelve new ~40-word
+scene topics (`experiments/2026-08-31-pair-long12x4/`, official lamp
+**12/12**) still open with only `"` and `The`. Train that pile, score
+original 12×4: `postokhits` **12/12**, isolated **19/48**, precision
+**1.000** among decided (all four *market* draws via `'The' → ' dog'`).
+Combined with the 24 short one-liners: **20/48**. The same nine zeros
+remain (night-bus `After`, all four library `Closing`, letter `Now` /
+`While`, garden `Now`). Library is a prompt echo of “Closing time is
+announced twice”, not a generic temporal class. On this medium-seed
+train, unseen-after-The Laplace **flips** (δ ≈ −0.365); poshits is then
+**8/12** with 20 marked wrong-sign files. 39/48 poshits is occupancy-
+specific. Do not sell 19/48 or 20/48 as beating 39/48.
+
 **Qwen's in-domain opening signal is generated token 0.** `--methods first`
 on a 4-token prefix ranks **12/12** (AUC **0.901**). Hits that skip
 token 0 is 7/12. Full-file Qwen hits stays **8/12**. GPT-2 tables still
@@ -501,6 +514,17 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
 Learned scorers: [key-free-learn.md](key-free-learn.md).
 
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260901 \
+  --out-dir experiments/2026-08-31-pair-long12x4
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-long12x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits \
+  --out-dir experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits
+```
 
 Instance contrast (public vs `control-shuffled-30`, not key recovery):
 [key-free-contrast.md](key-free-contrast.md).

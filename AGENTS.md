@@ -64,7 +64,7 @@ python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods hits,hashpoo
 python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-bucket 16
 python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1
-python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits
+python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
 python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil
@@ -107,6 +107,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | Key-free postokhits on that OOD gate | **12/12**, isolated **16/48**, decided precision **1.000** (The-Laplace TPs become zeros) |
 | Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** (9 of 131 poshits TPs were occupancy) |
+| Key-free postokhits, 12 medium scenes → 12×4 | **12/12**, isolated **19/48**, decided precision **1.000** |
+| Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
+| poshits on those medium-seed tables | 8/12; The-Laplace δ flips to ≈ −0.365 |
 | Key-free last-k coverage, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |

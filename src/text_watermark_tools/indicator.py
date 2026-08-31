@@ -377,6 +377,11 @@ def score_text_from_tables(
         meta.score_kind = "postokhits"
         meta.instance = "key-free-postokhits"
         return lr, meta, bool(model.used_keys)
+    if mode == "postokbackoff":
+        lr = score_sequence(ids, model, COUNT_SPECS["tokbackoff"])
+        meta.score_kind = "postokbackoff"
+        meta.instance = "key-free-postokbackoff"
+        return lr, meta, bool(model.used_keys)
     if mode in ("auto", "hard", ""):
         lr = likelihood_ratio(ids, model)
         meta.score_kind = "hard"
@@ -385,8 +390,8 @@ def score_text_from_tables(
         if mode not in COUNT_SPECS:
             raise ValueError(
                 f"unknown --score-mode {score_mode}; "
-                f"choose auto, hard, poshits, postokhits, poshitmass, "
-                f"hashpool, or one of {sorted(COUNT_SPECS)}"
+                f"choose auto, hard, poshits, postokhits, postokbackoff, "
+                f"poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
             )
         spec = COUNT_SPECS[mode]
         lr = score_sequence(ids, model, spec)

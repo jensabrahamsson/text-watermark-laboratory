@@ -12,6 +12,7 @@ and change only how a finished string is read:
 * interpolate — Witten–Bell mix of every stored order
 * gated / hits — skip positions whose exact context is too rare
 * tokhits — hits that also skip an unseen next token (no occupancy Laplace)
+* tokbackoff — tokhits that shrink last-k until an observed next token hits
 * freqhits — shared 4-grams with count ≥ 4 on both sides
 * hitmass — hits log-ratio × fraction of positions that hit
 * shrinkage — credibility-weight each token's log ratio
@@ -82,6 +83,12 @@ COUNT_SPECS: dict[str, ScoreSpec] = {
         require_token=True,
         instance="key-free-tokhits",
     ),
+    "tokbackoff": ScoreSpec(
+        kind="tokbackoff",
+        min_count=1,
+        require_token=True,
+        instance="key-free-tokbackoff",
+    ),
     "freqhits": ScoreSpec(kind="gated", min_count=4, instance="key-free-freqhits"),
     "hitmass": ScoreSpec(kind="hitmass", min_count=1, instance="key-free-hitmass"),
     "gated": ScoreSpec(kind="gated", min_count=2, instance="key-free-gated"),
@@ -118,6 +125,56 @@ def _tok_count(table: NextTokenTable, ctx: tuple[int, ...], tok: int) -> int:
     if not bucket:
         return 0
     return int(bucket.get(int(tok), 0))
+
+
+def _ctx_has_support(
+    model: BlindModel, ctx: tuple[int, ...], spec: ScoreSpec
+) -> bool:
+    n_m = _count(model.marked, ctx)
+    n_u = _count(model.unmarked, ctx)
+    if spec.min_count <= 0:
+        return True
+    support = min(n_m, n_u) if spec.require_both else max(n_m, n_u)
+    return support >= spec.min_count
+
+
+def _next_token_seen(model: BlindModel, ctx: tuple[int, ...], tok: int) -> bool:
+    return (
+        _tok_count(model.marked, ctx, tok) + _tok_count(model.unmarked, ctx, tok)
+        >= 1
+    )
+
+
+def _select_score_ctx(
+    ids: Sequence[int],
+    i: int,
+    tok: int,
+    model: BlindModel,
+    spec: ScoreSpec,
+    *,
+    prefix: Sequence[int] = (),
+    order: int | None = None,
+) -> tuple[int, ...] | None:
+    """Context used at position i, or None to abstain.
+
+    tokbackoff tries last-k, then last-(k-1), …, last-1, and keeps the
+    longest context that has both-side support and (if required) the
+    observed next token. It does not reconstruct keys.
+    """
+    if spec.kind == "tokbackoff":
+        orders = range(int(model.context_len), 0, -1)
+    else:
+        orders = (model.context_len if order is None else order,)
+    for length in orders:
+        ctx = _scored_ctx(
+            ids, i, int(length), model.position_bucket, prefix=prefix
+        )
+        if spec.min_count > 0 and not _ctx_has_support(model, ctx, spec):
+            continue
+        if spec.require_token and not _next_token_seen(model, ctx, tok):
+            continue
+        return ctx
+    return None
 
 
 def _vocab_size(model: BlindModel) -> int:
@@ -240,6 +297,7 @@ def score_sequence_detail(
     if kind == "hard-order":
         order = spec.mix_orders[0] if spec.mix_orders else model.context_len
         kind = "hard"
+    log_kind = "gated" if spec.kind == "tokbackoff" else kind
 
     score_first = bool(
         prefix
@@ -259,30 +317,18 @@ def score_sequence_detail(
             continue
         n_positions += 1
         t = int(tok)
-        full_ctx = _scored_ctx(
-            ids, i, model.context_len, model.position_bucket, prefix=prefix
+        ctx = _select_score_ctx(
+            ids, i, t, model, spec, prefix=prefix, order=order
         )
-        ctx = full_ctx if order is None else _scored_ctx(
-            ids, i, order, model.position_bucket, prefix=prefix
-        )
+        if ctx is None:
+            continue
         n_m = _count(model.marked, ctx)
         n_u = _count(model.unmarked, ctx)
-        if spec.min_count > 0:
-            support = min(n_m, n_u) if spec.require_both else max(n_m, n_u)
-            if support < spec.min_count:
-                continue
-        if spec.require_token:
-            if (
-                _tok_count(model.marked, ctx, t)
-                + _tok_count(model.unmarked, ctx, t)
-                < 1
-            ):
-                continue
         log_m = _log_p_mode(
-            model.marked, ctx, t, model=model, kind=kind, order=order
+            model.marked, ctx, t, model=model, kind=log_kind, order=order
         )
         log_u = _log_p_mode(
-            model.unmarked, ctx, t, model=model, kind=kind, order=order
+            model.unmarked, ctx, t, model=model, kind=log_kind, order=order
         )
         delta = log_m - log_u
         if spec.shrinkage_tau > 0.0:
@@ -324,8 +370,8 @@ def gated_hit_trace(
 ) -> list[HitAtom]:
     """Per-position hits atoms. tokhits drops rows with unseen_next."""
     spec = spec or ScoreSpec(kind="gated", min_count=1)
-    if spec.kind not in ("gated", "hitmass"):
-        raise ValueError("gated_hit_trace is for hits / tokhits tables")
+    if spec.kind not in ("gated", "hitmass", "tokbackoff"):
+        raise ValueError("gated_hit_trace is for hits / tokhits / tokbackoff tables")
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hit trace consulted keys / hash_iv / g-values")
     score_first = bool(
@@ -342,20 +388,14 @@ def gated_hit_trace(
         if spec.first_only and i > 0:
             continue
         t = int(tok)
-        ctx = _scored_ctx(
-            ids, i, model.context_len, model.position_bucket, prefix=prefix
-        )
+        ctx = _select_score_ctx(ids, i, t, model, spec, prefix=prefix)
+        if ctx is None:
+            continue
         n_m = _count(model.marked, ctx)
         n_u = _count(model.unmarked, ctx)
-        if spec.min_count > 0:
-            support = min(n_m, n_u) if spec.require_both else max(n_m, n_u)
-            if support < spec.min_count:
-                continue
         c_m = _tok_count(model.marked, ctx, t)
         c_u = _tok_count(model.unmarked, ctx, t)
         unseen = c_m + c_u < 1
-        if spec.require_token and unseen:
-            continue
         log_m = _log_p_mode(
             model.marked, ctx, t, model=model, kind="gated"
         )

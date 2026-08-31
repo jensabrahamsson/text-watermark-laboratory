@@ -258,7 +258,8 @@ def run_instance_contrast(
         raise ValueError(
             "unknown contrast methods: "
             + ", ".join(unknown)
-            + "; choose hits, tokhits, poshits, postokhits, hashpool, "
+            + "; choose hits, tokhits, tokbackoff, poshits, postokhits, "
+            "postokbackoff, hashpool, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
     if not scorers:

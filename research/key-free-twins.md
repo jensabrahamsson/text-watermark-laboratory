@@ -36,6 +36,8 @@ Current results:
 | Same reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | Key-free postokhits on that OOD gate | **12/12**, isolated **16/48**, decided precision **1.000** |
 | Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** |
+| Key-free postokhits, 12 medium scenes → 12×4 | **12/12**, isolated **19/48**, decided precision **1.000** |
+| Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |

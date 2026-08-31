@@ -376,7 +376,8 @@ class CoverageGate:
     """Treat lr==0 as abstain (no shared last-k, or no observed next token).
 
     Hits/poshits can still assign a non-zero LR to an *unseen* next token
-    after a shared context (Laplace occupancy). tokhits skips those. Zeros
+    after a shared context (Laplace occupancy). tokhits skips those.
+    tokbackoff shrinks last-k until an observed next token hits. Zeros
     are not counted as sign errors.
     """
 

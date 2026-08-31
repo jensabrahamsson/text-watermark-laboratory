@@ -76,12 +76,19 @@ POSTOKHITS_SPEC = ScoreSpec(
     require_token=True,
     instance="key-free-postokhits",
 )
+POSTOKBACKOFF_SPEC = ScoreSpec(
+    kind="tokbackoff",
+    min_count=1,
+    require_token=True,
+    instance="key-free-postokbackoff",
+)
 POSHITMASS_SPEC = ScoreSpec(
     kind="hitmass", min_count=1, instance="key-free-poshitmass"
 )
 POS_SPECS: dict[str, ScoreSpec] = {
     "poshits": POSHITS_SPEC,
     "postokhits": POSTOKHITS_SPEC,
+    "postokbackoff": POSTOKBACKOFF_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
 
@@ -730,6 +737,32 @@ def rotate_postokhits(
         windows=windows,
         window_out=window_out,
     )["postokhits"]
+
+
+def rotate_postokbackoff(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> IndicatorHoldout:
+    return rotate_pos_methods(
+        twins,
+        methods=("postokbackoff",),
+        context_len=context_len,
+        position_bucket=position_bucket,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+    )["postokbackoff"]
 
 
 def rotate_poshitmass(
@@ -1551,7 +1584,7 @@ def run_probe(
     requested = (
         list(methods)
         if methods is not None
-        else [k for k in COUNT_SPECS if k not in ("first", "tokhits")]
+        else [k for k in COUNT_SPECS if k not in ("first", "tokhits", "tokbackoff")]
     )
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
@@ -2468,11 +2501,13 @@ def print_transfer(run: TransferRun) -> str:
         )
     lines.append("")
     lines.append(
-        "Zeros are lr==0: no shared last-k, or (tokhits/postokhits) no "
-        "observed next token under that context. They are abstentions, not "
-        "sign errors. poshits can still score an *unseen* next token after "
-        "a shared context via Laplace; that occupancy artifact is not a "
-        "token preference."
+        "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
+        "tokbackoff/postokbackoff) no observed next token under that "
+        "context. They are abstentions, not sign errors. poshits can still "
+        "score an *unseen* next token after a shared context via Laplace; "
+        "that occupancy artifact is not a token preference. tokbackoff "
+        "shrinks last-k until an observed next token hits; it is not key "
+        "recovery."
     )
     lines.append("")
     lines.append(

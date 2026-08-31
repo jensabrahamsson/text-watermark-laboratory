@@ -74,9 +74,11 @@ openings actually seen in train: `'"' → 'This'` (δ 3.22) then
 `'"This' → ' is'` (δ 4.78), n=9; also `'Oh'`, `'Who'`, `'My'`.
 
 The nine marked zeros are openings with **no** overlapping context at
-indices 1–3: `After two and a`, `Closing is the` (all four library
-draws), `Now in the second`, `While working on the`,
-`Now a little after`. Zeros are abstentions, not sign errors.
+indices 1–3: `After two and a` (night-bus draw 3), `Closing is the`
+(all four library draws), `Now in the second` / `While working on the`
+(letter), `Now a little after` (garden). Library is a prompt echo of
+“Closing time is announced twice”, not a generic temporal class. Zeros
+are abstentions, not sign errors.
 
 Atom counts on this gate: **26** distinct (ctx, next) types; unseen-next
 mass **34**, seen-next mass **33**. JSON: `atoms.json` in the transfer
@@ -94,6 +96,49 @@ one-liners almost never open that way (on 36×4 marked files, generated
 token 0 is `"` 114 times and `The` 23 times). Covering those zeros needs
 train seeds whose continuations share those openings, not more short
 one-liners. That is still not a universal detector.
+
+## Medium-length new topics (12×4 long seeds)
+
+Twelve new ~41–51 word scene seeds, four 128-token draws, seed 20260901.
+Official lamp **12/12**. Generated token 0 is only `"` (26/48) and `The`
+(22/48). Still no After / Closing / Now / While.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260901 \
+  --out-dir experiments/2026-08-31-pair-long12x4
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-long12x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits \
+  --out-dir experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits
+```
+
+| Train | postokhits wins | File AUC | marked `lr>0` | decided tp/fp | precision |
+|---|---|---|---|---|---|
+| 24 short one-liners | **12/12** | 0.694 | **16/48** | 16/0 | **1.000** |
+| 12 medium scenes | **12/12** | 0.729 | **19/48** | 19/0 | **1.000** |
+| short + medium (36 stems) | **12/12** | 0.739 | **20/48** | 20/0 | **1.000** |
+
+The +3 files on medium-only are all four *market* draws: `'The' → ' dog'`
+is actually seen in canal-lock train. Combined train adds rain draw 2
+back (20/48). The same nine zeros remain.
+
+Library `Closing is the` continues the seed sentence “Closing time is
+announced twice”. Unrelated medium scenes never emit that opening.
+Covering those zeros needs train seeds whose *tails* produce the same
+first tokens, which is close to training on the same prompt family.
+
+On this medium-seed train, unseen-after-The Laplace **flips sign**
+(δ ≈ −0.365). poshits is then **8/12** with **20 marked wrong-sign**
+files. Those 20 become postokhits zeros. The 39/48 poshits number on the
+short-seed train is occupancy-specific: marked used `The` *less* there.
+Equalising seed length does not make occupancy a token preference, and
+it does not cover After / Closing / Now / While.
+
+JSON: `experiments/2026-08-31-pair-long12x4/`,
+`experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits/`,
+`experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits/`.
 
 ## Frozen result (24 other 36×4 stems → 12×4)
 
@@ -150,6 +195,7 @@ unmarked LRs).
 
 - Not a universal calibrated detector.
 - Not key recovery. Tokhits only gates Laplace on next-token occupancy.
-- Not a claim that 16/48 isolated-file is the headline. 39/48 remains
-  the poshits number; tokhits explains it.
+- Not a claim that 16/48 or 19/48 or 20/48 isolated-file is the headline.
+  39/48 remains the short-train poshits number; it flips when train
+  occupancy of `The` flips. tokhits explains it.
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

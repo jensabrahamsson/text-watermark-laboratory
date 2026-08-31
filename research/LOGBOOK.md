@@ -391,4 +391,24 @@ The 24 extra train seeds are 10–12 word one-liners; the 12×4 test seeds
 are 37–241 words. Observed-token transfer is mostly quote-dialogue.
 The nine zeros continue the longer seeds.
 
+## 2026-08-31 medium-length new-topic twins
+
+Twelve new ~41–51 word scene seeds × 4 draws × 128 tokens
+(`experiments/2026-08-31-prompts-long12/`, seed 20260901). Official
+first-draw lamp **12/12**. Generated token 0 is only `"` and `The`.
+
+Train those 12, score original 12×4 (`--fit-prefix 4 --pos-bucket 1`):
+postokhits **12/12**, isolated **19/48**, precision **1.000** among
+decided (19 TP, 0 FP). Combined with the 24 short one-liners:
+**20/48**. The same nine After / Closing / Now / While zeros remain.
+
+On this train, unseen-after-The Laplace **flips** (δ ≈ −0.365). poshits
+is 8/12 with 20 marked wrong-sign files. The 39/48 short-train poshits
+number is occupancy-specific. Do not replace 10/12, 29/48, 16/48, or
+39/48.
+
+JSON: `experiments/2026-08-31-pair-long12x4/`,
+`experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits/`,
+`experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits/`.
+
 ---

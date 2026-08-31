@@ -513,6 +513,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "surface": "rotate_surface",
         "poshits": "rotate_poshits",
         "postokhits": "rotate_postokhits",
+        "postokbackoff": "rotate_postokbackoff",
         "poshitmass": "rotate_poshitmass",
     }
     if score_kind in extra_rotate:
@@ -536,7 +537,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             kwargs["context_len"] = int(
                 getattr(args, "surface_context_len", 8) or 8
             )
-        if score_kind in ("poshits", "poshitmass", "postokhits"):
+        if score_kind in ("poshits", "poshitmass", "postokhits", "postokbackoff"):
             kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16) or 16)
         elif score_kind != "hard":
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
@@ -549,7 +550,8 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             print(
                 f"unknown --score-mode {score_kind}; "
                 f"choose hard, hashpool, hashvote, hybrid, surface, poshits, "
-                f"poshitmass, postokhits, or one of {sorted(COUNT_SPECS)}",
+                f"poshitmass, postokhits, postokbackoff, or one of "
+                f"{sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
             return 2
@@ -1068,9 +1070,11 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read count tables: auto (hashpool tables → hashpool, "
             "bucketed count tables → poshits, else hard), or "
-            "hard/hits/tokhits/poshits/postokhits/poshitmass/gated/unigram/… "
-            "Hashpool tables ignore count modes. tokhits skips Laplace "
-            "scores for a next token never seen under that context."
+            "hard/hits/tokhits/tokbackoff/poshits/postokhits/postokbackoff/"
+            "poshitmass/gated/unigram/… Hashpool tables ignore count modes. "
+            "tokhits skips Laplace scores for a next token never seen under "
+            "that context. tokbackoff shrinks last-k until an observed next "
+            "token hits."
         ),
     )
     p_is.add_argument(
@@ -1124,17 +1128,17 @@ def build_parser() -> argparse.ArgumentParser:
         default="hard",
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
-            "interpolate, hits, tokhits, gated, shrinkage, mix, hashpool, "
-            "hashvote, hybrid, surface, poshits, postokhits, poshitmass. "
-            "Hashpool/surface/poshits/postokhits modes need --rotate. "
-            "Still key-free."
+            "interpolate, hits, tokhits, tokbackoff, gated, shrinkage, mix, "
+            "hashpool, hashvote, hybrid, surface, poshits, postokhits, "
+            "postokbackoff, poshitmass. Hashpool/surface/poshits/postokhits/"
+            "postokbackoff modes need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument(
         "--pos-bucket",
         type=int,
         default=16,
-        help="Token-position bucket size for --score-mode poshits/postokhits/poshitmass (default 16)",
+        help="Token-position bucket size for --score-mode poshits/postokhits/postokbackoff/poshitmass (default 16)",
     )
     p_ih.add_argument("--n-hashes", type=int, default=8)
     p_ih.add_argument("--n-buckets", type=int, default=256)
@@ -1167,7 +1171,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
             "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
-            "poshitmass, pospool, first, tokhits"
+            "postokbackoff, poshitmass, pospool, first, tokhits, tokbackoff"
         ),
     )
     p_probe.add_argument(
@@ -1384,7 +1388,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_contrast.add_argument("--model", default="gpt2")
     p_contrast.add_argument("--context-len", type=int, default=4)
     p_contrast.add_argument("--methods", default="hits,poshits,hashpool",
-        help="Comma-separated: hits, tokhits, poshits, postokhits, hashpool",
+        help="Comma-separated: hits, tokhits, tokbackoff, poshits, postokhits, postokbackoff, hashpool",
     )
     p_contrast.add_argument("--fit-prefix", type=int, default=0)
     p_contrast.add_argument("--pos-bucket", type=int, default=1)

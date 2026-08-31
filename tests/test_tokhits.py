@@ -1,7 +1,11 @@
 """tokhits skips Laplace unseen-token scores after a shared context."""
 
 from text_watermark_tools.blind import Twin, clip_twins_prefix
-from text_watermark_tools.probe import POSHITS_SPEC, POSTOKHITS_SPEC
+from text_watermark_tools.probe import (
+    POSHITS_SPEC,
+    POSTOKBACKOFF_SPEC,
+    POSTOKHITS_SPEC,
+)
 from text_watermark_tools.stats import coverage_gate
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
@@ -57,6 +61,33 @@ def test_tokhits_skips_unseen_next_token_after_shared_the() -> None:
     assert all(a.delta > 0.0 for a in trace)
     skipped = gated_hit_trace(unseen, pos, POSTOKHITS_SPEC)
     assert skipped == []
+
+
+def test_tokbackoff_uses_shorter_context_when_full_ngram_unseen_token() -> None:
+    train = clip_twins_prefix(
+        [
+            _twin("t1", [10, 11, 12, 13], [10, 11, 12, 23]),
+            _twin("t2", [40, 41, 12, 99], [40, 41, 12, 51]),
+            _twin("t3", [30, 31, 32, 33], [30, 31, 32, 34]),
+            _twin("t4", [35, 36, 37, 38], [35, 36, 37, 39]),
+        ],
+        4,
+    )
+    pos = fit_count_model(train, context_len=4, position_bucket=1)
+    held = [90, 91, 12, 99]
+    postok = score_sequence_detail(held, pos, POSTOKHITS_SPEC)
+    backoff = score_sequence_detail(held, pos, COUNT_SPECS["tokbackoff"])
+    pos_back = score_sequence_detail(held, pos, POSTOKBACKOFF_SPEC)
+    assert postok.n_used == 0
+    assert postok.lr == 0.0
+    assert backoff.n_used > 0
+    assert backoff.lr > 0.0
+    assert pos_back.n_used > 0
+    assert pos_back.lr > 0.0
+    assert pos.used_keys is False
+    trace = gated_hit_trace(held, pos, POSTOKBACKOFF_SPEC)
+    assert trace
+    assert all(not a.unseen_next for a in trace)
 
 
 def test_coverage_gate_treats_zeros_as_abstain_not_sign_errors() -> None:
@@ -181,3 +212,111 @@ def test_the_laplace_atom_is_occupancy_not_token_preference() -> None:
     assert any(s.startswith("Cl") for s in openings)
     assert any(s.startswith("Now") for s in openings)
     assert any(s.startswith("While") for s in openings)
+
+
+def test_long12_pair_official_lamp_is_twelve_of_twelve() -> None:
+    import json
+    from pathlib import Path
+
+    payload = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-pair-long12x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert payload["instance"] == "public-deepmind-30"
+    rows = payload["rows"]
+    assert len(rows) == 12
+    assert all(
+        float(r["marked"]["mean"]) > float(r["unmarked_gen"]["mean"]) for r in rows
+    )
+    assert min(float(r["marked"]["mean"]) for r in rows) > 0.57
+    assert max(float(r["unmarked_gen"]["mean"]) for r in rows) < 0.52
+
+
+def test_medium_length_postokhits_ood_is_nineteen_with_perfect_precision() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits"
+    )
+    ev = holdout_from_json(root / "postokhits" / "holdout.json")
+    g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 19
+    assert ev.n_unmarked_nonpositive == 48
+    assert g.n_marked_zero == 29
+    assert g.decided_tp == 19
+    assert g.decided_fn == 0
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+    pos = holdout_from_json(root / "poshits" / "holdout.json")
+    pg = coverage_gate(pos.marked_lrs, pos.unmarked_lrs)
+    assert pos.n_prompts_marked_above == 8
+    assert pg.n_marked_zero == 9
+    assert pg.decided_fn == 20
+
+
+def test_combined_short_plus_medium_postokhits_is_twenty() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits"
+    )
+    ev = holdout_from_json(root / "postokhits" / "holdout.json")
+    g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 20
+    assert ev.n_unmarked_nonpositive == 48
+    assert g.n_marked_zero == 28
+    assert g.decided_tp == 20
+    assert g.decided_fn == 0
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+
+
+def test_medium_the_laplace_flips_sign_and_zeros_stay() -> None:
+    import json
+    from pathlib import Path
+
+    payload = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert payload["used_keys"] is False
+    the = [
+        a
+        for a in payload["atom_counts"]
+        if a["ctx"] == ["The"] and a["unseen_next"]
+    ]
+    assert the
+    assert all(a["delta"] < -0.3 for a in the)
+    assert all(abs(a["delta"] + 0.364898) < 1e-4 for a in the)
+    zeros = [
+        r
+        for r in payload["rows"]
+        if r["side"] == "marked" and abs(r["poshits_lr"]) <= 1e-15
+    ]
+    openings = ["".join(r["opening"]).strip() for r in zeros]
+    assert any(s.startswith("After") for s in openings)
+    assert any(s.startswith("Cl") for s in openings)
+    assert any(s.startswith("Now") for s in openings)
+    assert any(s.startswith("While") for s in openings)
+    stems = {r["stem"] for r in zeros}
+    assert stems == {"02-night-bus", "03-library", "08-letter", "11-garden"}
