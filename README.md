@@ -8,7 +8,9 @@ For the experimental setup in this repository, the answer is **yes — to a usef
 
 Using Google DeepMind's public SynthID-Text implementation as a controlled reference, we generate matched marked and unmarked text from the same prompts. From those pairs we have built a **key-free watermark indicator**: a model that can score previously unseen text by how strongly its token statistics resemble the marked rather than the unmarked class, without using the watermark keys, `hash_iv`, or g-values.
 
-The clean headline is **10/12 held-out prompt groups**: after training on the other eleven prompt families, the marked side of the twelfth ranks above its unmarked twin group. That is **relative discrimination**, not “here is one unknown file; marked yes/no?”. A 0.02 comparison margin lifts the same ranking to 11/12; that is a robustness check, not the main result. Single-file sign at threshold 0 is much weaker: **29/48** held-out marked files have `lr > 0` and **23/48** unmarked files have `lr ≤ 0` (about 60% sensitivity and 48% specificity). There is a measurable held-out signal. It is not a magic detector, and this lab did not invent key-free watermark detection.
+The clean headline for the original last-4 count tables is **10/12 held-out prompt groups**: after training on the other eleven prompt families, the marked side of the twelfth ranks above its unmarked twin group. That is **relative discrimination**, not “here is one unknown file; marked yes/no?”. A 0.02 comparison margin lifts *that same scorer* to 11/12; that is a robustness check, not the main result.
+
+Scoring only 4-grams seen on both training sides (`hits`) reaches **11/12** with no margin and file-level AUC **0.737**. Feature-hashing those contexts (`hashpool`) reaches **11/12** and **35/48** isolated marked files with `lr > 0` (binomial p ≈ 0.001). The original hard sign at 0 remains weak: **29/48**. There is a measurable held-out signal. It is not a magic detector, and this lab did not invent key-free watermark detection.
 
 This repository also contains the ordinary key-based reference scorer, matched-pair generation, rewrite/degradation experiments, and a pre-mark Claude corpus for future before/after comparison.
 
@@ -24,9 +26,11 @@ The key result is not merely that watermarked text leaves “some statistical tr
 
 That still leaves two different tasks.
 
-**Relative discrimination (the 10/12 number).** Leave one prompt family out. Fit marked and unmarked count tables on the rest. Score the held-out marked generations and the held-out unmarked generations. Count a hit if the marked group’s mean LR is higher than the unmarked group’s. Four draws and last-4 context: **10/12**. `--margin 0.02` lets the unmarked side win by up to 0.02 and still count as a marked win; that is how **11/12** appears. Quote **10/12**. Treat 11/12 as a tolerance note.
+**Relative discrimination (the 10/12 number).** Leave one prompt family out. Fit marked and unmarked count tables on the rest. Score the held-out marked generations and the held-out unmarked generations. Count a hit if the marked group’s mean LR is higher than the unmarked group’s. Four draws and last-4 context with the original hard scorer: **10/12**. `--margin 0.02` lets the unmarked side win by up to 0.02 and still count as a marked win; that is how one **11/12** appears. Quote **10/12** for that scorer. Treat the 0.02-margin 11/12 as a tolerance note.
 
-**Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003).
+A different reader of the same tables — score only 4-grams seen on both training sides (`hits`) — reaches **11/12** with no margin, file-level AUC **0.737**. Feature-hashing those 4-grams (`hashpool`) is also **11/12**. Those 11/12 figures are new methods, not the 0.02 fudge.
+
+**Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Hard last-4 marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003). Binomial P(≥29 | n=48, p=0.5) = 0.097, so that sign is not a 5% test. Ranking of the same LRs is (AUC 0.626, permutation p = 0.0075). Hashpool’s isolated sign is **35/48** (p ≈ 0.001), with unmarked specificity still 29/48.
 
 | Method | What is being asked | Result |
 |---|---|---|
@@ -34,9 +38,12 @@ That still leaves two different tasks.
 | Key-free, 1 sample | Twin ranking, 12 × 128 tokens | **8/12** |
 | Key-free, 4 samples, last-4 | Twin ranking of held-out prompt groups | **10/12** |
 | Same LRs, margin 0.02 | Same ranking, unmarked may lead by 0.02 | 11/12 (not the headline) |
+| Key-free `hits` (shared 4-grams only) | Same 12×4 twins, skip unseen contexts | **11/12**, AUC **0.737** |
+| Key-free hashpool | Feature-hashed last-4, no secret hash | **11/12**, isolated **35/48** |
 | Local Qwen2-1.5B, last-2 | Twin ranking, different generator | **10/12** |
-| `indicate`, one marked file | Isolated `lr > 0` | **29/48** |
-| `indicate`, one unmarked file | Isolated `lr ≤ 0` | **23/48** |
+| `indicate` hard, one marked file | Isolated `lr > 0` | **29/48** |
+| `indicate` hard, one unmarked file | Isolated `lr ≤ 0` | **23/48** |
+| Argmax snap, then official `score` | Key-free scrub of 48 marked files | **0.622 → 0.499** |
 
 So `indicate` is an experimental watermark-presence indicator. It is not a universal verdict machine, and 10/12 must not be read as single-text accuracy.
 
@@ -78,7 +85,7 @@ flowchart LR
 
 The experiment therefore asks a harder question than ordinary detection: **is there enough structure in the sampler's output to infer watermark presence without reproducing the detector?**
 
-For held-out *groups*, so far yes (10/12). For one file’s sign, not reliably.
+For held-out *groups*, yes (10/12 hard last-4; 11/12 with `hits` or `hashpool`). For one file’s hard sign at 0, not reliably (29/48). Hashpool’s isolated sign is stronger (35/48) but still not a universal detector.
 
 ---
 
@@ -172,7 +179,7 @@ This lab did **not** invent key-free watermark detection.
 
 What this repository adds is a small, fully checked-in instance of the second measurement on DeepMind’s **public** mixin: GPT-2 and Qwen twins, leave-one-out, a frozen indicator table, tests, and raw JSON. The interesting claim is narrow. The keyed tournament leaves a distributional footprint that a count-based LR can learn **without reconstructing the g-function**. Independent work landed in the same research question; treat this as an empirical notebook, not a priority claim.
 
-If the 10/12 ranking is a confound (topic reuse, tokenizer mismatch, prompt-family leakage), that is the thing to break. Extra draws of the *same* prompt helped last-4. Extra topics, by themselves, did not.
+If the 10/12 ranking is a confound (topic reuse, tokenizer mismatch, prompt-family leakage), that is the thing to break. Extra draws of the *same* prompt helped last-4. Extra topics, by themselves, did not. Coverage gating (`hits`) later showed that the transferable piece is shared 4-grams, not the unigram fallback.
 
 ## Boundaries
 

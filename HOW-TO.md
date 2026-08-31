@@ -22,7 +22,7 @@ It uses the published keys and DeepMind's detector.
 
 It does **not** use the watermark keys, `hash_iv`, or g-values.
 
-This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment it separates held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. On individual files the signal is substantially weaker: **29/48** held-out marked files have `lr > 0`.
+This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment the original last-4 count tables separate held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **11/12** with no margin (AUC **0.737**). Hash pooling reaches **11/12** and **35/48** isolated marked files with `lr > 0`. On the original hard scorer, individual files are weaker: **29/48** held-out marked files have `lr > 0`.
 
 Use `score` when you have the relevant public reference instance. Use `indicate` when you are exploring the key-free signal.
 
@@ -256,7 +256,7 @@ python -m text_watermark_tools probe \
 
 `--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, …).
 
-These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash.
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Witten–Bell interpolation did not help. See [research/key-free-probe.md](research/key-free-probe.md).
 
 ## Key-free argmax snap (`scrub`)
 
@@ -268,7 +268,7 @@ python -m text_watermark_tools scrub \
   --out-dir experiments/scrub
 ```
 
-This is not a fluent rewriter. It asks whether the public mark dies when tournament “upsets” are removed.
+This is not a fluent rewriter. It asks whether the public mark dies when tournament “upsets” are removed. On the 12×4 marked twins the official mean went **0.622 → 0.499**.
 
 ---
 

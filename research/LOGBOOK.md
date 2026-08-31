@@ -164,3 +164,15 @@ Same-day stays near chance. Between-day ranking is not a GPT-2 artifact.
 Xenova is still the wrong generation of tokenizer. Do not call this a watermark.
 
 ---
+
+## 2026-08-31 key-free probe and argmax snap
+
+Same 12×4 GPT-2 twins. No keys. `used_keys=false`.
+
+Coverage-gated last-4 (`hits`) **11/12**, file AUC **0.737**. Hashpool **11/12**, isolated marked `lr>0` **35/48** (binomial p≈0.001). Hard last-4 still **10/12** / **29/48**. Witten–Bell interpolate and backoff did **not** help (7/12, AUC≈0.52). Unmarked-LM pivot is above chance but weaker (LDA 10/12, AUC 0.599).
+
+Argmax snap on all 48 marked files: official mean **0.6216 → 0.4994**. Unmarked control stayed near half. Statistical scrub, not a fluent rewrite.
+
+Notes: [key-free-probe.md](key-free-probe.md). JSON: `experiments/2026-08-31-probe-12x4/`, `experiments/2026-08-31-scrub-12x4/`.
+
+---

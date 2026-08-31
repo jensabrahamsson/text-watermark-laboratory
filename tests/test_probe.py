@@ -72,6 +72,56 @@ def test_cli_probe_small_pair_dir_is_key_free(tmp_path, capsys) -> None:
     assert (out / "hard" / "holdout.json").is_file()
 
 
+def test_hashpool_12x4_isolated_sign_is_thirty_five_of_forty_eight() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-12x4"
+        / "hashpool"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 11
+    assert ev.n_marked_positive == 35
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.70
+    assert binomial_sf(35, 48, 0.5) < 0.01
+
+
+def test_hits_12x4_auc_beats_hard_counts() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-31-probe-12x4"
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    hard = holdout_from_json(root / "hard" / "holdout.json")
+    assert hits.n_prompts_marked_above == 11
+    assert hard.n_prompts_marked_above == 10
+    assert hits.used_keys is False
+    h = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
+    d = binary_eval(hard.marked_lrs, hard.unmarked_lrs, n_perm=200, seed=0)
+    assert h.auc > d.auc
+    assert h.auc > 0.72
+
+
+def test_scrub_12x4_official_mean_falls_to_chance() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-scrub-12x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys_for_snap"] is False
+    rows = raw["rows"]
+    assert len(rows) == 48
+    before = sum(r["mean_before"] for r in rows) / len(rows)
+    after = sum(r["mean_after"] for r in rows) / len(rows)
+    assert before > 0.60
+    assert abs(after - 0.5) < 0.02
+    assert all(r["used_keys_for_snap"] is False for r in rows)
+
+
 def test_run_probe_hashpool_on_lab_pairs() -> None:
     twins = load_twins(PAIR)
     run = run_probe(

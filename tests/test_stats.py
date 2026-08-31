@@ -19,7 +19,8 @@ def test_auc_is_half_on_identical_lists() -> None:
 
 
 def test_auc_handles_ties() -> None:
-    assert roc_auc([1.0, 0.0], [1.0, -1.0]) == 0.75
+    # 1 vs 1 (tie), 1 vs -1 (win), 0 vs 1 (loss), 0 vs -1 (win) → 2.5/4
+    assert roc_auc([1.0, 0.0], [1.0, -1.0]) == 0.625
 
 
 def test_binomial_ten_of_twelve_is_below_five_percent() -> None:

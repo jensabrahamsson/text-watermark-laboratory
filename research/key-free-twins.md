@@ -14,8 +14,12 @@ Current results:
 | Key-free, 12 prompts × 1 draw | **8/12** |
 | Key-free, 12 prompts × 4 draws, last-4 | **10/12** |
 | Same LRs with 0.02 comparison margin | **11/12** |
+| Key-free `hits` (shared 4-grams only) | **11/12**, AUC **0.737** |
+| Key-free hashpool | **11/12**, isolated **35/48** |
 | Qwen2-1.5B twins, last-2 | **10/12** |
-| Single held-out marked file, `lr > 0` | **29/48** |
+| Single held-out marked file, hard `lr > 0` | **29/48** |
+
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, and a key-free argmax snap, are in [key-free-probe.md](key-free-probe.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 
@@ -154,10 +158,11 @@ What works best today is:
 What remains difficult is one arbitrary isolated text with no matched context.
 
 `indicate holdout` now prints a single-file AUC and a permutation test on the
-same LRs. Further scorers (Witten–Bell interpolation, coverage gating, context
-hash pooling, unmarked-LM choice geometry) and a key-free argmax snap are
-documented in [key-free-probe.md](key-free-probe.md). They still do not use
-the detector keys.
+same LRs. Further scorers (coverage gating, hash pooling, unmarked-LM choice
+geometry) and a key-free argmax snap are measured in
+[key-free-probe.md](key-free-probe.md). `hits` reaches **11/12** and AUC
+**0.737**; hashpool reaches **11/12** and isolated **35/48**. They still do
+not use the detector keys.
 
 ## Why this matters for unknown production keys
 

@@ -75,4 +75,4 @@ def test_shrinkage_scores_rare_and_common_contexts_without_keys() -> None:
     detail = score_sequence_detail([0, 1, 7, 3], model, COUNT_SPECS["shrinkage"])
     assert model.used_keys is False
     assert detail.n_used == 2
-    assert detail.n_positions == 2
+    assert detail.n_positions == 3

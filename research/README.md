@@ -7,7 +7,7 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 | File | Focus |
 |---|---|
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
-| [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; current best 10/12–11/12 at prompt grain |
+| [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; original last-4 **10/12**; `hits` **11/12** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [how-synthid-works.md](how-synthid-works.md) | How the public SynthID-Text reference implementation hashes, samples, and scores |
 | [invertibility.md](invertibility.md) | Why the key-free result is not key recovery |

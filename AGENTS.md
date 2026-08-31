@@ -69,9 +69,12 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Official public-key detector | **12/12** |
 | Key-free 12 prompts × 4 draws, last-4 | **10/12** |
 | Same comparison with margin 0.02 | **11/12** |
-| Single held-out marked file, `lr > 0` | **29/48** |
+| Key-free hits (shared 4-grams only) | **11/12**, AUC **0.737** |
+| Key-free hashpool | **11/12**, isolated **35/48** |
+| Single held-out marked file, hard `lr > 0` | **29/48** |
+| Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md).
+See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
 
 ## Code map
 
