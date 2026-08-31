@@ -27,7 +27,10 @@ POSTOKHITS_SPEC = ScoreSpec(
 
 
 def decode_token(tokenizer, tok: int) -> str:
-    return tokenizer.decode([int(tok)])
+    n = int(tok)
+    if n < 0:
+        return "<first>"
+    return tokenizer.decode([n])
 
 
 def _pretty_ctx(

@@ -4,6 +4,7 @@ from text_watermark_tools.blind import Twin, clip_twins_prefix
 from text_watermark_tools.probe import (
     POSHITS_SPEC,
     POSTOKBACKOFF_SPEC,
+    POSTOKBACKOFF2_SPEC,
     POSTOKHITS_SPEC,
 )
 from text_watermark_tools.stats import coverage_gate
@@ -88,6 +89,36 @@ def test_tokbackoff_uses_shorter_context_when_full_ngram_unseen_token() -> None:
     trace = gated_hit_trace(held, pos, POSTOKBACKOFF_SPEC)
     assert trace
     assert all(not a.unseen_next for a in trace)
+
+
+def test_tokbackoff2_refuses_last1_when_last2_unseen() -> None:
+    train = clip_twins_prefix(
+        [
+            _twin("t1", [10, 11, 12, 13], [10, 11, 12, 23]),
+            _twin("t2", [40, 41, 12, 99], [40, 41, 12, 51]),
+            _twin("t3", [30, 31, 32, 33], [30, 31, 32, 34]),
+            _twin("t4", [35, 36, 37, 38], [35, 36, 37, 39]),
+        ],
+        4,
+    )
+    pos = fit_count_model(train, context_len=4, position_bucket=1)
+    last1_only = [90, 91, 12, 99]
+    b1 = score_sequence_detail(last1_only, pos, POSTOKBACKOFF_SPEC)
+    b2 = score_sequence_detail(last1_only, pos, POSTOKBACKOFF2_SPEC)
+    spec2 = COUNT_SPECS["tokbackoff2"]
+    assert spec2.min_order == 2
+    assert b1.n_used > 0
+    assert b2.n_used == 0
+    assert b2.lr == 0.0
+    last2 = [90, 41, 12, 99]
+    hit = score_sequence_detail(last2, pos, spec2)
+    assert hit.n_used > 0
+    assert hit.lr > 0.0
+    trace = gated_hit_trace(last2, pos, POSTOKBACKOFF2_SPEC)
+    assert trace
+    from text_watermark_tools.transfer import _naked_tokens
+
+    assert all(len(_naked_tokens(a.ctx, pos)) >= 2 for a in trace)
 
 
 def test_coverage_gate_treats_zeros_as_abstain_not_sign_errors() -> None:

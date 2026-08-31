@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; that 39/48 includes The-Laplace occupancy, and observed-token `postokhits` on the same gate is **16/48** with precision 1.0 among decided files; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**).
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; that 39/48 includes The-Laplace occupancy, and observed-token `postokhits` on the same gate is **16/48** with precision 1.0 among decided files; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Isolated observed-token recall equals train opening-atom overlap (`openings`): last-2+ `postokbackoff2` stays **13/48** while last-1 backoff carries 16→36. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**).
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -64,7 +64,8 @@ python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods hits,hashpoo
 python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-bucket 16
 python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1
-python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff
+python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff,postokbackoff2
+python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train OTHER --fit-prefix 4 --pos-bucket 1
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
 python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil
@@ -113,6 +114,12 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
 | Key-free postokhits, tail-matched → 12×4 | **12/12**, isolated **30/48**, decided precision **1.000** |
 | Key-free postokbackoff, short+medium+tails → 12×4 | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
+| Key-free postokbackoff2 on that combined train | **13/48** last-2+ core (same on 24 short stems) |
+| Opening-overlap bound, same twins | Isolated recall = train atom overlap; two short stems cover 13/48 |
+| Unbucketed tokbackoff on that combined train | **36/48** marked, **3** unmarked FP |
+| `--include-first` postokhits on that combined train | **43/48** marked, **10** unmarked FP (first-token unigram) |
+| Neighborhood paraphrases, 12 scenes × 4 | Official **12/12**; no Closing/Now/While/The ferry openings |
+| Same plus short+medium+tails → 12×4 | postokbackoff **42/48**, last-2+ **15/48**, precision **1.000** |
 | poshits on those medium-seed tables | 8/12; The-Laplace δ flips to ≈ −0.365 |
 | Key-free last-k coverage, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
@@ -159,6 +166,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
 | `contrast.py` | Key-free public vs control-shuffled-30 instance check |
 | `atoms.py` | Decode hits atoms (The-Laplace occupancy vs observed tokens) |
+| `openings.py` | Opening-overlap bound: isolated recall vs train atom coverage |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |
 

@@ -82,6 +82,13 @@ POSTOKBACKOFF_SPEC = ScoreSpec(
     require_token=True,
     instance="key-free-postokbackoff",
 )
+POSTOKBACKOFF2_SPEC = ScoreSpec(
+    kind="tokbackoff",
+    min_count=1,
+    require_token=True,
+    min_order=2,
+    instance="key-free-postokbackoff2",
+)
 POSHITMASS_SPEC = ScoreSpec(
     kind="hitmass", min_count=1, instance="key-free-poshitmass"
 )
@@ -89,6 +96,7 @@ POS_SPECS: dict[str, ScoreSpec] = {
     "poshits": POSHITS_SPEC,
     "postokhits": POSTOKHITS_SPEC,
     "postokbackoff": POSTOKBACKOFF_SPEC,
+    "postokbackoff2": POSTOKBACKOFF2_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
 
@@ -763,6 +771,32 @@ def rotate_postokbackoff(
         windows=windows,
         window_out=window_out,
     )["postokbackoff"]
+
+
+def rotate_postokbackoff2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> IndicatorHoldout:
+    return rotate_pos_methods(
+        twins,
+        methods=("postokbackoff2",),
+        context_len=context_len,
+        position_bucket=position_bucket,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+    )["postokbackoff2"]
 
 
 def rotate_poshitmass(
@@ -1584,7 +1618,7 @@ def run_probe(
     requested = (
         list(methods)
         if methods is not None
-        else [k for k in COUNT_SPECS if k not in ("first", "tokhits", "tokbackoff")]
+        else [k for k in COUNT_SPECS if k not in ("first", "tokhits", "tokbackoff", "tokbackoff2")]
     )
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
@@ -1646,7 +1680,7 @@ def run_probe(
             twins,
             methods=tuple(pos_names),
             context_len=context_len,
-            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            position_bucket=pos_bucket,
             model_name=model_name,
             prefix_lens=lenses,
             prefix_out=prefix_out if lenses else None,
@@ -1668,7 +1702,7 @@ def run_probe(
             prefix_out=prefix_out if lenses else None,
             windows=spans,
             window_out=window_out if spans else None,
-            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            position_bucket=pos_bucket,
             method_name="pospool",
         )
         run.methods.append(summarize_holdout("pospool", pp))
@@ -2086,7 +2120,7 @@ def run_transfer(
         fit_count_model(
             train,
             context_len=context_len,
-            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            position_bucket=pos_bucket,
             include_first=store_first,
             prompt_context=prompt_context,
         )
@@ -2101,7 +2135,7 @@ def run_transfer(
             context_len=context_len,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
-            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            position_bucket=pos_bucket,
         )
         if "pospool" in extras
         else None
@@ -2412,7 +2446,7 @@ def run_transfer(
                     train,
                     methods=tuple(pos_names),
                     context_len=context_len,
-                    position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+                    position_bucket=pos_bucket,
                     model_name=model_name,
                     include_first=include_first,
                     prompt_context=prompt_context,
@@ -2502,11 +2536,12 @@ def print_transfer(run: TransferRun) -> str:
     lines.append("")
     lines.append(
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
-        "tokbackoff/postokbackoff) no observed next token under that "
-        "context. They are abstentions, not sign errors. poshits can still "
-        "score an *unseen* next token after a shared context via Laplace; "
-        "that occupancy artifact is not a token preference. tokbackoff "
-        "shrinks last-k until an observed next token hits; it is not key "
+        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2) no observed "
+        "next token under that context. They are abstentions, not sign "
+        "errors. poshits can still score an *unseen* next token after a "
+        "shared context via Laplace; that occupancy artifact is not a "
+        "token preference. tokbackoff shrinks last-k until an observed "
+        "next token hits; tokbackoff2 stops at last-2. Neither is key "
         "recovery."
     )
     lines.append("")

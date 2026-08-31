@@ -218,6 +218,94 @@ JSON: `experiments/2026-08-31-pair-tails12x4/`,
 `experiments/2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff/`,
 `experiments/2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff/`.
 
+## Opening-overlap bound and last-2 floor
+
+Isolated observed-token recall **is** train opening-atom overlap:
+`lr == 0` iff `n_used == 0`. Exact 4-token copy of a marked train
+opening is a lower bound (it does not require both-side last-k support).
+`postokbackoff2` (`min_order=2`) refuses generic last-1 English.
+
+```bash
+python -m text_watermark_tools openings experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --methods postokhits,postokbackoff,postokbackoff2 \
+  --out-dir experiments/2026-08-31-openings-short-medium-tails
+```
+
+| Train | postokhits | postokbackoff | postokbackoff2 | last-1 later | decided fp |
+|---|---|---|---|---|---|
+| 24 short one-liners | **16/48** | **16/48** | **13/48** | 0 | 0 |
+| +12 medium scenes | **20/48** | **22/48** | **13/48** | 2 | 0 |
+| +12 tail-transplants | **30/48** | **36/48** | **13/48** | 6 | 0 |
+
+The last-2+ core is **13/48** on every train set. Adding medium and
+tail seeds does not grow it. The 16→36 lift is last-1: opening
+first-transitions at index 1 (`The` → ` dog`, `"` → `This`, `After` →
+` two`) plus six later last-1 files (library `' is' → ' the'`, harbour
+`' was' → ' in'`). Stem curve: two short stems already cover 13/48;
+tails (stems 49–60) carry 22→36.
+
+Unbucketed (`--pos-bucket 0`) tokbackoff still covers **36/48** but adds
+**3** unmarked FPs (precision 0.923). Position bucket 1 is the precision
+guard.
+
+`--include-first` on postokhits is a first-token unigram: **43/48**
+marked, **10** unmarked FP. Remaining zeros are all four `Closing is the`
+and `While working on the`. tokbackoff refuses empty last-k, so
+include-first does not change 36/48.
+
+The leftover twelve postokbackoff zeros are coverage holes, not sign
+errors: `The ferry was so/over/waiting`, `The printer worked`, one
+station non-quote, `Now in the second`, `While working on the`. `'Now'`
+at index 1 has both-side support (4/4) but never continues `' in'`
+(train saw `' a little after'`). That is still not a universal detector.
+
+Do **not** sell 13/48, 36/48, 42/48, or 43/48 as beating 39/48. Do not replace
+10/12, 29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-openings-short-medium-tails/`,
+`experiments/2026-08-31-openings-short-medium-tails-unbucketed/`,
+`experiments/2026-08-31-openings-short-medium-tails-includefirst/`.
+
+## Neighborhood paraphrases (not last-paragraph glue)
+
+Twelve new ~40–55 word scenes in the leftover-zero neighborhoods
+(letter, library closing, ferry/harbour, office, station). Official lamp
+**12/12**. Generated token 0 is `The` or quote-dialogue. **No Closing /
+Now / While / After / The ferry / The printer.**
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-31-prompts-family12 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260903 \
+  --out-dir experiments/2026-08-31-pair-family12x4
+
+python -m text_watermark_tools openings experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --extra-train experiments/2026-08-31-pair-family12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-openings-short-medium-tails-family
+```
+
+| Train | postokhits | postokbackoff | postokbackoff2 | exact 4-token |
+|---|---|---|---|---|
+| short+medium+tails | **30/48** | **36/48** | **13/48** | 19/48 |
+| +12 neighborhood | **38/48** | **42/48** | **15/48** | 19/48 |
+
+Precision **1.000**. The +6 postokbackoff files are ferry
+`was so/over/waiting` via last-1 `' was' → …`, not a copied 4-gram.
+Letter `Now in the second` / `While working on the`, library
+`Closing is the` (last-k), and `The printer worked` stay zeros.
+Neighborhood is not those openings. The last-2+ core barely moves
+(13→15). Still not a universal detector.
+
+JSON: `experiments/2026-08-31-pair-family12x4/`,
+`experiments/2026-08-31-openings-short-medium-tails-family/`.
+
 ## Frozen result (24 other 36×4 stems → 12×4)
 
 | Method | Prompt wins | File AUC | marked `lr>0` | unmarked `lr≤0` | zeros M/U | decided tp/fn | decided fp/tn | precision |
@@ -277,4 +365,7 @@ unmarked LRs).
   remains the short-train poshits number; it flips when train occupancy
   of `The` flips. tokhits explains it. tokbackoff and tail-matching raise
   observed-token recall; they do not make a universal detector.
+  `postokbackoff2` shows the last-2+ core is **13/48** on every train
+  set in that curve. Unbucketed last-1 and `--include-first` unigrams
+  raise recall only by spending precision.
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

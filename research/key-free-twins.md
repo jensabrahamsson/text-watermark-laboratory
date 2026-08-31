@@ -42,6 +42,12 @@ Current results:
 | Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
 | Key-free postokhits, tail-matched train → 12×4 | **12/12**, isolated **30/48**, decided precision **1.000** |
 | Key-free postokbackoff, short+medium+tails → 12×4 | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
+| Key-free postokbackoff2 on that combined train | **13/48** last-2+ core (unchanged from 24 short stems) |
+| Opening-overlap bound, same twins | Isolated recall = train atom overlap; two short stems already cover 13/48 |
+| Unbucketed tokbackoff on that combined train | **36/48** marked, **3** unmarked FP, precision 0.923 |
+| `--include-first` postokhits on that combined train | **43/48** marked, **10** unmarked FP (first-token unigram) |
+| Neighborhood paraphrases, 12 scenes × 4 | Official lamp **12/12**; no Closing/Now/While/The ferry openings |
+| Same plus short+medium+tails → 12×4 | postokbackoff **42/48**, last-2+ **15/48**, precision **1.000** |
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
@@ -71,7 +77,7 @@ Current results:
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 
-The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens is in [key-free-tokhits.md](key-free-tokhits.md).
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 

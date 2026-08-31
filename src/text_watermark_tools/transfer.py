@@ -13,6 +13,7 @@ and change only how a finished string is read:
 * gated / hits — skip positions whose exact context is too rare
 * tokhits — hits that also skip an unseen next token (no occupancy Laplace)
 * tokbackoff — tokhits that shrink last-k until an observed next token hits
+* tokbackoff2 — tokbackoff that will not shrink below last-2
 * freqhits — shared 4-grams with count ≥ 4 on both sides
 * hitmass — hits log-ratio × fraction of positions that hit
 * shrinkage — credibility-weight each token's log ratio
@@ -41,6 +42,7 @@ from typing import Iterable, Sequence
 
 from text_watermark_tools.blind import (
     DEFAULT_ALPHA,
+    FIRST_TOKEN_CTX,
     BlindModel,
     NextTokenTable,
     Twin,
@@ -69,6 +71,7 @@ class ScoreSpec:
     instance: str = "key-free-counts"
     include_first: bool = False
     first_only: bool = False
+    min_order: int = 1
 
 
 COUNT_SPECS: dict[str, ScoreSpec] = {
@@ -88,6 +91,13 @@ COUNT_SPECS: dict[str, ScoreSpec] = {
         min_count=1,
         require_token=True,
         instance="key-free-tokbackoff",
+    ),
+    "tokbackoff2": ScoreSpec(
+        kind="tokbackoff",
+        min_count=1,
+        require_token=True,
+        min_order=2,
+        instance="key-free-tokbackoff2",
     ),
     "freqhits": ScoreSpec(kind="gated", min_count=4, instance="key-free-freqhits"),
     "hitmass": ScoreSpec(kind="hitmass", min_count=1, instance="key-free-hitmass"),
@@ -145,6 +155,19 @@ def _next_token_seen(model: BlindModel, ctx: tuple[int, ...], tok: int) -> bool:
     )
 
 
+def _naked_tokens(ctx: tuple[int, ...], model: BlindModel) -> tuple[int, ...]:
+    """Last-k token ids with the position namespace stripped.
+
+    FIRST_TOKEN_CTX is the empty generated prefix, not a real token.
+    """
+    if not ctx:
+        return ()
+    tokens = ctx[1:] if model.position_bucket and model.position_bucket > 0 else ctx
+    if tokens == FIRST_TOKEN_CTX:
+        return ()
+    return tokens
+
+
 def _select_score_ctx(
     ids: Sequence[int],
     i: int,
@@ -157,18 +180,22 @@ def _select_score_ctx(
 ) -> tuple[int, ...] | None:
     """Context used at position i, or None to abstain.
 
-    tokbackoff tries last-k, then last-(k-1), …, last-1, and keeps the
-    longest context that has both-side support and (if required) the
-    observed next token. It does not reconstruct keys.
+    tokbackoff tries last-k, then last-(k-1), …, last-min_order, and keeps
+    the longest context that has both-side support and (if required) the
+    observed next token. min_order=2 refuses generic last-1 English.
+    It does not reconstruct keys.
     """
+    min_order = max(1, int(spec.min_order or 1))
     if spec.kind == "tokbackoff":
-        orders = range(int(model.context_len), 0, -1)
+        orders = range(int(model.context_len), min_order - 1, -1)
     else:
         orders = (model.context_len if order is None else order,)
     for length in orders:
         ctx = _scored_ctx(
             ids, i, int(length), model.position_bucket, prefix=prefix
         )
+        if spec.kind == "tokbackoff" and len(_naked_tokens(ctx, model)) < min_order:
+            continue
         if spec.min_count > 0 and not _ctx_has_support(model, ctx, spec):
             continue
         if spec.require_token and not _next_token_seen(model, ctx, tok):

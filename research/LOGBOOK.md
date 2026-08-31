@@ -446,4 +446,37 @@ JSON: `experiments/2026-08-31-pair-tails12x4/`,
 `experiments/2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff/`,
 `experiments/2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff/`.
 
+## 2026-08-31 opening-overlap bound and last-2 floor
+
+Isolated observed-token recall equals train opening-atom overlap.
+`postokbackoff2` (will not shrink below last-2) stays **13/48** on 24
+short, +medium, and +tails. Last-1 carries 16→36 (six later last-1:
+library `' is' → ' the'`, harbour `' was' → ' in'`). Unbucketed
+tokbackoff copies 36/48 with **3** unmarked FP. `--include-first`
+postokhits is a first-token unigram (**43/48**, 10 FP). Leftover
+postokbackoff zeros: ferry was so/over/waiting, printer worked, one
+station, `Now in the second`, `While working on the`. Not a universal
+detector. Do not sell 13/48, 36/48, or 43/48 as beating 39/48. Do not
+replace 10/12, 29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-openings-short-medium-tails/`,
+`experiments/2026-08-31-openings-short-medium-tails-unbucketed/`,
+`experiments/2026-08-31-openings-short-medium-tails-includefirst/`.
+
+## 2026-08-31 neighborhood paraphrases for leftover zeros
+
+Twelve new ~40–55 word scenes in the leftover-zero neighborhoods
+(`experiments/2026-08-31-prompts-family12/`, seed 20260903). Official
+lamp **12/12**. Token 0 is `The` or quote-dialogue. No Closing / Now /
+While / After / The ferry / The printer.
+
+Added to the opening-overlap curve: postokhits **38/48**, postokbackoff
+**42/48**, postokbackoff2 **15/48**, precision **1.000**. Exact 4-token
+stays 19/48. The +6 backoff files are ferry `was so/over/waiting` via
+last-1. Letter Now/While, printer, and station remain zeros. Neighborhood
+is not those openings. Do not sell 42/48 as beating 39/48.
+
+JSON: `experiments/2026-08-31-pair-family12x4/`,
+`experiments/2026-08-31-openings-short-medium-tails-family/`.
+
 ---

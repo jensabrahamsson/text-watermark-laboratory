@@ -270,6 +270,48 @@ def cmd_iterate(args: argparse.Namespace) -> int:
     return 0 if run.met_stop else 3
 
 
+def cmd_openings(args: argparse.Namespace) -> int:
+    from text_watermark_tools.openings import (
+        persist_openings,
+        print_openings,
+        run_openings,
+        load_group,
+    )
+    from text_watermark_tools.probe import apply_overlap
+    from text_watermark_tools.score import load_tokenizer as _tok
+
+    tok = _tok(getattr(args, "model", None))
+    test = load_twins(Path(args.test_dir), tokenizer=tok)
+    extra = list(getattr(args, "extra_train", None) or [])
+    all_dirs = [Path(args.pair_dir)] + [Path(p) for p in extra]
+    groups = []
+    for path in all_dirs:
+        group = load_group(path, tok)
+        kept, _, _ = apply_overlap(group.twins, test, mode="drop-from-train")
+        groups.append(type(group)(group.name, kept))
+    methods = [m.strip() for m in str(args.methods).split(",") if m.strip()]
+    payload = run_openings(
+        groups,
+        test,
+        methods=methods,
+        fit_prefix=int(getattr(args, "fit_prefix", 4) or 0) or 4,
+        position_bucket=int(getattr(args, "pos_bucket", 1)),
+        include_first=bool(getattr(args, "include_first", False)),
+        context_len=int(args.context_len),
+        model_name=args.model,
+        with_stem_curve=not bool(getattr(args, "skip_stem_curve", False)),
+        curve_method=str(getattr(args, "curve_method", "postokbackoff") or "postokbackoff"),
+    )
+    if payload["used_keys"] or payload["used_hash_iv"] or payload["used_g_values"]:
+        print("openings consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_openings(payload))
+    if args.out_dir:
+        persist_openings(payload, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_resample(args: argparse.Namespace) -> int:
     from text_watermark_tools.resample import PREMARK_DIR, LOGBOOK_PATH, EXPERIMENTS
 
@@ -514,6 +556,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "poshits": "rotate_poshits",
         "postokhits": "rotate_postokhits",
         "postokbackoff": "rotate_postokbackoff",
+        "postokbackoff2": "rotate_postokbackoff2",
         "poshitmass": "rotate_poshitmass",
     }
     if score_kind in extra_rotate:
@@ -537,8 +580,14 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             kwargs["context_len"] = int(
                 getattr(args, "surface_context_len", 8) or 8
             )
-        if score_kind in ("poshits", "poshitmass", "postokhits", "postokbackoff"):
-            kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16) or 16)
+        if score_kind in (
+            "poshits",
+            "poshitmass",
+            "postokhits",
+            "postokbackoff",
+            "postokbackoff2",
+        ):
+            kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16))
         elif score_kind != "hard":
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
             kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
@@ -550,7 +599,8 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             print(
                 f"unknown --score-mode {score_kind}; "
                 f"choose hard, hashpool, hashvote, hybrid, surface, poshits, "
-                f"poshitmass, postokhits, postokbackoff, or one of "
+                f"poshitmass, postokhits, postokbackoff, postokbackoff2, "
+                f"or one of "
                 f"{sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
@@ -662,7 +712,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
             prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
             windows=_parse_windows_arg(getattr(args, "windows", "")),
             fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
-            position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
+            position_bucket=int(getattr(args, "pos_bucket", 16)),
             include_first=bool(getattr(args, "include_first", False)),
             prompt_context=bool(getattr(args, "prompt_context", False)),
         )
@@ -689,7 +739,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
         prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
         windows=_parse_windows_arg(getattr(args, "windows", "")),
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
-        position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
+        position_bucket=int(getattr(args, "pos_bucket", 16)),
         with_coverage=with_coverage,
         include_first=bool(getattr(args, "include_first", False)),
         prompt_context=bool(getattr(args, "prompt_context", False)),
@@ -795,7 +845,7 @@ def cmd_contrast(args: argparse.Namespace) -> int:
         model_name=args.model,
         context_len=int(args.context_len),
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
-        position_bucket=int(getattr(args, "pos_bucket", 1) or 1),
+        position_bucket=int(getattr(args, "pos_bucket", 1)),
         methods=methods or ("hits", "poshits", "hashpool"),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
@@ -1070,11 +1120,12 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read count tables: auto (hashpool tables → hashpool, "
             "bucketed count tables → poshits, else hard), or "
-            "hard/hits/tokhits/tokbackoff/poshits/postokhits/postokbackoff/"
-            "poshitmass/gated/unigram/… Hashpool tables ignore count modes. "
-            "tokhits skips Laplace scores for a next token never seen under "
-            "that context. tokbackoff shrinks last-k until an observed next "
-            "token hits."
+            "hard/hits/tokhits/tokbackoff/tokbackoff2/poshits/postokhits/"
+            "postokbackoff/postokbackoff2/poshitmass/gated/unigram/… "
+            "Hashpool tables ignore count modes. tokhits skips Laplace "
+            "scores for a next token never seen under that context. "
+            "tokbackoff shrinks last-k until an observed next token hits. "
+            "tokbackoff2 stops at last-2."
         ),
     )
     p_is.add_argument(
@@ -1128,10 +1179,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="hard",
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
-            "interpolate, hits, tokhits, tokbackoff, gated, shrinkage, mix, "
-            "hashpool, hashvote, hybrid, surface, poshits, postokhits, "
-            "postokbackoff, poshitmass. Hashpool/surface/poshits/postokhits/"
-            "postokbackoff modes need --rotate. Still key-free."
+            "interpolate, hits, tokhits, tokbackoff, tokbackoff2, gated, "
+            "shrinkage, mix, hashpool, hashvote, hybrid, surface, poshits, "
+            "postokhits, postokbackoff, postokbackoff2, poshitmass. "
+            "Hashpool/surface/poshits/postokhits/postokbackoff/"
+            "postokbackoff2 modes need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument(
@@ -1171,7 +1223,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
             "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
-            "postokbackoff, poshitmass, pospool, first, tokhits, tokbackoff"
+            "postokbackoff, postokbackoff2, poshitmass, pospool, first, "
+            "tokhits, tokbackoff, tokbackoff2"
         ),
     )
     p_probe.add_argument(
@@ -1262,7 +1315,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Token-position bucket size for poshits/poshitmass/pospool. "
             "Prepends i//N to the last-4 context so early 4-grams do not "
-            "share counts with the tail. Not a watermark key. Default 16."
+            "share counts with the tail. 0 is unbucketed (same tables as "
+            "hits/tokhits). Not a watermark key. Default 16."
         ),
     )
     p_probe.add_argument(
@@ -1388,7 +1442,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_contrast.add_argument("--model", default="gpt2")
     p_contrast.add_argument("--context-len", type=int, default=4)
     p_contrast.add_argument("--methods", default="hits,poshits,hashpool",
-        help="Comma-separated: hits, tokhits, tokbackoff, poshits, postokhits, postokbackoff, hashpool",
+        help=(
+            "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
+            "poshits, postokhits, postokbackoff, postokbackoff2, hashpool"
+        ),
     )
     p_contrast.add_argument("--fit-prefix", type=int, default=0)
     p_contrast.add_argument("--pos-bucket", type=int, default=1)
@@ -1537,6 +1594,45 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_rs.add_argument("--pause", type=int, default=25)
     p_rs.set_defaults(func=cmd_resample)
+
+    p_open = sub.add_parser(
+        "openings",
+        help=(
+            "Opening-overlap bound: isolated observed-token recall vs train "
+            "opening coverage. Not detector_mean, not key recovery."
+        ),
+        description=(
+            "Fit observed-token tables on one or more twin directories and "
+            "report how many held-out files share an opening atom. Isolated "
+            "recall equals that overlap. Not a universal detector."
+        ),
+    )
+    p_open.add_argument("pair_dir", help="First train twin directory")
+    p_open.add_argument("--test-dir", required=True, help="Held-out twin directory")
+    p_open.add_argument(
+        "--extra-train",
+        action="append",
+        default=[],
+        help="Additional train twin directories, added in order to the coverage curve",
+    )
+    p_open.add_argument("--model", default="gpt2")
+    p_open.add_argument("--context-len", type=int, default=4)
+    p_open.add_argument("--fit-prefix", type=int, default=4)
+    p_open.add_argument("--pos-bucket", type=int, default=1)
+    p_open.add_argument("--include-first", action="store_true")
+    p_open.add_argument(
+        "--methods",
+        default="postokhits,postokbackoff,postokbackoff2",
+        help="Comma-separated observed-token readers",
+    )
+    p_open.add_argument(
+        "--curve-method",
+        default="postokbackoff",
+        help="Method for the per-stem coverage curve (default postokbackoff)",
+    )
+    p_open.add_argument("--skip-stem-curve", action="store_true")
+    p_open.add_argument("--out-dir", default="")
+    p_open.set_defaults(func=cmd_openings)
     return parser
 
 

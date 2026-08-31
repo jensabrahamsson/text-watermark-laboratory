@@ -20,7 +20,6 @@ from typing import Sequence
 from text_watermark_tools.blind import Twin, clip_twins_prefix, load_twins
 from text_watermark_tools.indicator import CAVEAT, IndicatorHoldout
 from text_watermark_tools.probe import (
-    DEFAULT_POS_BUCKET,
     POS_SPECS,
     TransferRun,
     _append_pair,
@@ -219,7 +218,7 @@ def run_instance_contrast(
         count_model = fit_count_model(train, context_len=context_len)
     if pos_names:
         pos_model = fit_count_model(
-            train, context_len=context_len, position_bucket=pos_bucket or DEFAULT_POS_BUCKET
+            train, context_len=context_len, position_bucket=pos_bucket
         )
     if "hashpool" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
@@ -258,8 +257,8 @@ def run_instance_contrast(
         raise ValueError(
             "unknown contrast methods: "
             + ", ".join(unknown)
-            + "; choose hits, tokhits, tokbackoff, poshits, postokhits, "
-            "postokbackoff, hashpool, "
+            + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
+            "postokhits, postokbackoff, postokbackoff2, hashpool, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
     if not scorers:
