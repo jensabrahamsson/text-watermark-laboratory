@@ -15,6 +15,7 @@ from text_watermark_tools.indicator import (
     persist_indicator,
     rotate_holdout,
     score_text,
+    score_text_from_tables,
 )
 from text_watermark_tools.blind import load_twins
 from text_watermark_tools.score import load_tokenizer
@@ -118,6 +119,51 @@ def test_cli_indicate_holdout_scores_each_file_alone(tmp_path, capsys) -> None:
     assert len(ev.marked_lrs) == 2
     assert len(ev.unmarked_lrs) == 2
     assert (out / "holdout.json").is_file()
+
+
+def test_cli_indicate_fit_score_hashpool_is_key_free(tmp_path, capsys) -> None:
+    tables = tmp_path / "hashpool"
+    rc = main(
+        [
+            "indicate",
+            "fit",
+            str(PAIR),
+            "--out-dir",
+            str(tables),
+            "--method",
+            "hashpool",
+            "--context-len",
+            "2",
+            "--n-hashes",
+            "4",
+            "--n-buckets",
+            "32",
+        ]
+    )
+    assert rc == 0
+    fit_out = capsys.readouterr().out
+    assert "instance=key-free-hashpool" in fit_out
+    assert "used_keys=False" in fit_out
+    held = PAIR / "03-library-marked.txt"
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    first = capsys.readouterr().out
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    second = capsys.readouterr().out
+    assert first == second
+    line = first.splitlines()[0]
+    assert "lr=" in line
+    assert "instance=key-free-hashpool" in line
+    assert "score_kind=hashpool" in line
+    assert "used_keys=False" in line
+    tok = load_tokenizer("gpt2")
+    lr, meta, used = score_text_from_tables(
+        held.read_text(), tables, tokenizer=tok, score_mode="auto"
+    )
+    assert used is False
+    assert meta.instance == "key-free-hashpool"
+    assert "lr=" + f"{lr:.6f}" in line
 
 
 def test_cli_indicate_rotate_scores_each_prompt_file_alone(capsys) -> None:

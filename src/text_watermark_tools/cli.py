@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -45,12 +46,12 @@ from text_watermark_tools.indicator import (
     fit_indicator,
     format_indicator,
     holdout_single_text,
-    load_indicator,
+    load_tables_meta,
     rotate_holdout,
     persist_holdout,
     persist_indicator,
     print_holdout,
-    score_text,
+    score_text_from_tables,
 )
 from text_watermark_tools.pair import (
     collect_prompts,
@@ -61,10 +62,13 @@ from text_watermark_tools.pair import (
 from text_watermark_tools.probe import (
     persist_probe,
     persist_scrub,
+    persist_transfer,
     print_probe,
     print_scrub,
+    print_transfer,
     run_probe,
     run_scrub_files,
+    run_transfer,
 )
 from text_watermark_tools.resample import run_resample
 from text_watermark_tools.score import (
@@ -189,17 +193,25 @@ def cmd_iterate(args: argparse.Namespace) -> int:
     model_name = model
     indicate_fn = None
     if args.tables:
-        ind_model, ind_meta = load_indicator(Path(args.tables))
-        if ind_model.used_keys or ind_model.used_hash_iv or ind_model.used_g_values:
+        tables = Path(args.tables)
+        raw_path = tables / "tables.json" if tables.is_dir() else tables
+        raw = json.loads(raw_path.read_text())
+        if raw.get("used_keys") or raw.get("used_hash_iv") or raw.get("used_g_values"):
             print(
                 "loaded indicator used keys / hash_iv / g-values",
                 file=sys.stderr,
             )
             return 1
+        ind_meta = load_tables_meta(tables)
         tok = load_tokenizer(ind_meta.model_name)
-        indicate_fn = lambda current, _m=ind_model, _t=tok: score_text(
-            current, _m, tokenizer=_t
-        )
+
+        def indicate_fn(current, _tables=tables, _t=tok):
+            lr, _meta, used = score_text_from_tables(
+                current, _tables, tokenizer=_t, score_mode="auto"
+            )
+            if used:
+                raise RuntimeError("loaded indicator used keys / hash_iv / g")
+            return lr
 
     try:
         run = run_iterate(
@@ -300,6 +312,41 @@ def cmd_pair(args: argparse.Namespace) -> int:
 
 def cmd_indicate_fit(args: argparse.Namespace) -> int:
     twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
+    method = str(getattr(args, "method", "counts") or "counts")
+    if method == "hashpool":
+        from text_watermark_tools.transfer import fit_hashpool_twins, persist_hashpool
+
+        model = fit_hashpool_twins(
+            twins,
+            context_len=args.context_len,
+            n_hashes=int(getattr(args, "n_hashes", 8)),
+            n_buckets=int(getattr(args, "n_buckets", 256)),
+            alpha=args.alpha,
+        )
+        if model.used_keys or model.used_hash_iv or model.used_g_values:
+            print("hashpool fit consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        path = persist_hashpool(
+            model,
+            Path(args.out_dir),
+            model_name=args.model,
+            pair_dir=str(args.pair_dir),
+            n_train_prompts=len(twins),
+        )
+        print(
+            f"wrote {path} instance={model.instance} "
+            f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
+            f"context_len={model.context_len} n_hashes={model.n_hashes} "
+            f"n_buckets={model.n_buckets}"
+        )
+        print(CAVEAT)
+        return 0
+    if method not in ("counts", "hard"):
+        print(
+            f"unknown --method {method}; choose counts or hashpool",
+            file=sys.stderr,
+        )
+        return 2
     model = fit_indicator(
         twins,
         context_len=args.context_len,
@@ -326,19 +373,34 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
 
 
 def cmd_indicate_score(args: argparse.Namespace) -> int:
-    model, meta = load_indicator(Path(args.tables))
-    if model.used_keys or model.used_hash_iv or model.used_g_values:
-        print("loaded indicator used keys / hash_iv / g-values", file=sys.stderr)
-        return 1
+    tables = Path(args.tables)
+    meta = load_tables_meta(tables)
     name = args.model or meta.model_name
     tok = load_tokenizer(name)
     text = _read_input(args.path)
-    lr = score_text(text, model, tokenizer=tok)
+    try:
+        lr, meta, used_keys = score_text_from_tables(
+            text,
+            tables,
+            tokenizer=tok,
+            score_mode=str(getattr(args, "score_mode", "auto") or "auto"),
+        )
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    if used_keys:
+        print("loaded indicator used keys / hash_iv / g-values", file=sys.stderr)
+        return 1
     n_tokens = len(tok(text)["input_ids"])
     label = args.path or "stdin"
     print(
         format_indicator(
-            label, lr, n_tokens=n_tokens, used_keys=model.used_keys
+            label,
+            lr,
+            n_tokens=n_tokens,
+            used_keys=used_keys,
+            instance=meta.instance,
+            score_kind=meta.score_kind,
         )
     )
     return 0
@@ -349,20 +411,74 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     score_kind = str(getattr(args, "score_mode", "hard") or "hard")
     score_fn = None
     instance = INDICATOR_INSTANCE
-    if score_kind != "hard":
+    extra_rotate = {
+        "hashpool": "rotate_hashpool",
+        "hashvote": "rotate_hashvote",
+        "hybrid": "rotate_hybrid",
+    }
+    if score_kind in extra_rotate:
+        if not args.rotate:
+            print(
+                f"--score-mode {score_kind} needs --rotate "
+                "(or use indicate fit --method hashpool and indicate score)",
+                file=sys.stderr,
+            )
+            return 2
+        from text_watermark_tools import probe as probe_mod
+
+        rotator = getattr(probe_mod, extra_rotate[score_kind])
+        kwargs = dict(
+            twins=twins,
+            context_len=args.context_len,
+            model_name=args.model,
+            margin=float(args.margin),
+        )
+        if score_kind != "hard":
+            kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
+            kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
+        ev = rotator(**kwargs)
+    elif score_kind != "hard":
         from text_watermark_tools.transfer import COUNT_SPECS, score_sequence
 
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard or one of {sorted(COUNT_SPECS)}",
+                f"choose hard, hashpool, hashvote, hybrid, or one of {sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
             return 2
         spec = COUNT_SPECS[score_kind]
         instance = spec.instance
         score_fn = lambda ids, model, s=spec: score_sequence(ids, model, s)
-    if args.rotate:
+        if args.rotate:
+            ev = rotate_holdout(
+                twins,
+                context_len=args.context_len,
+                alpha=args.alpha,
+                backoff=bool(args.backoff),
+                model_name=args.model,
+                margin=float(args.margin),
+                score_fn=score_fn,
+                instance=instance,
+                score_kind=score_kind,
+            )
+        else:
+            if not args.hold or len(args.hold) < 2:
+                print(
+                    "indicate holdout needs --hold STEM STEM or --rotate",
+                    file=sys.stderr,
+                )
+                return 2
+            ev = holdout_single_text(
+                twins,
+                args.hold,
+                context_len=args.context_len,
+                alpha=args.alpha,
+                backoff=bool(args.backoff),
+                model_name=args.model,
+                margin=float(args.margin),
+            )
+    elif args.rotate:
         ev = rotate_holdout(
             twins,
             context_len=args.context_len,
@@ -405,6 +521,31 @@ def cmd_probe(args: argparse.Namespace) -> int:
     methods = None
     if args.methods:
         methods = [m.strip() for m in args.methods.split(",") if m.strip()]
+    if getattr(args, "test_dir", ""):
+        test_twins = load_twins(
+            Path(args.test_dir),
+            tokenizer=load_tokenizer(getattr(args, "model", None)),
+        )
+        run = run_transfer(
+            twins,
+            test_twins,
+            train_dir=str(args.pair_dir),
+            test_dir=str(args.test_dir),
+            model_name=args.model,
+            context_len=args.context_len,
+            methods=methods,
+            overlap_mode=str(getattr(args, "overlap", "drop-from-train")),
+            n_hashes=int(args.n_hashes),
+            n_buckets=int(args.n_buckets),
+        )
+        if run.used_keys or run.used_hash_iv or run.used_g_values:
+            print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        print(print_transfer(run))
+        if args.out_dir:
+            persist_transfer(run, Path(args.out_dir))
+            print(f"wrote {args.out_dir}")
+        return 0
     run = run_probe(
         twins,
         pair_dir=str(args.pair_dir),
@@ -630,6 +771,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument("--context-len", type=int, default=4)
     p_fit.add_argument("--alpha", type=float, default=DEFAULT_ALPHA)
     p_fit.add_argument("--backoff", action="store_true")
+    p_fit.add_argument(
+        "--method",
+        default="counts",
+        choices=("counts", "hashpool"),
+        help="counts = exact n-gram tables (default); hashpool = random context buckets",
+    )
+    p_fit.add_argument("--n-hashes", type=int, default=8)
+    p_fit.add_argument("--n-buckets", type=int, default=256)
     p_fit.set_defaults(func=cmd_indicate_fit)
 
     p_is = ind.add_parser(
@@ -646,6 +795,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--model",
         default="",
         help="Tokenizer id (default: the id stored in tables.json)",
+    )
+    p_is.add_argument(
+        "--score-mode",
+        default="auto",
+        help=(
+            "How to read count tables: auto (hashpool tables → hashpool, "
+            "count tables → hard), or hard/hits/gated/unigram/… "
+            "Hashpool tables ignore count modes."
+        ),
     )
     p_is.set_defaults(func=cmd_indicate_score)
 
@@ -689,9 +847,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="hard",
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
-            "interpolate, hits, gated, shrinkage, mix. Still key-free."
+            "interpolate, hits, gated, shrinkage, mix, hashpool, hashvote, "
+            "hybrid. Hashpool modes need --rotate. Still key-free."
         ),
     )
+    p_ih.add_argument("--n-hashes", type=int, default=8)
+    p_ih.add_argument("--n-buckets", type=int, default=256)
     p_ih.add_argument("--out-dir", default="")
     p_ih.set_defaults(func=cmd_indicate_holdout)
 
@@ -726,6 +887,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_probe.add_argument("--n-hashes", type=int, default=8)
     p_probe.add_argument("--n-buckets", type=int, default=256)
+    p_probe.add_argument(
+        "--test-dir",
+        default="",
+        help=(
+            "If set, fit on pair_dir and score this second twin directory "
+            "(cross-corpus transfer; not leave-one-prompt-out)"
+        ),
+    )
+    p_probe.add_argument(
+        "--overlap",
+        default="drop-from-train",
+        choices=("drop-from-train", "drop-from-test", "keep"),
+        help=(
+            "Shared prompt stems: drop-from-train keeps the test set "
+            "(default); drop-from-test keeps training"
+        ),
+    )
     p_probe.add_argument("--out-dir", default="")
     p_probe.set_defaults(func=cmd_probe)
 

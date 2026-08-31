@@ -5,7 +5,12 @@ from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_hashpool,
     hash_context,
+    load_hashpool,
+    persist_hashpool,
     score_hashpool,
+    score_hashpool_vote,
+    score_hybrid,
+    score_hybrid_detail,
     score_sequence,
     score_sequence_detail,
     splitmix64,
@@ -54,18 +59,50 @@ def test_unigram_still_separates_synthetic_tokens() -> None:
     )
 
 
-def test_hashpool_separates_synthetic_alternating_tokens() -> None:
+def test_hashpool_persist_load_same_lr(tmp_path) -> None:
     marked = [[0, 1, 0, 1, 0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]
     model = fit_hashpool(
         marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
     )
-    assert model.used_keys is False
-    assert model.used_hash_iv is False
-    assert model.used_g_values is False
+    persist_hashpool(model, tmp_path, model_name="gpt2", n_train_prompts=1)
+    loaded = load_hashpool(tmp_path)
     held_m = [0, 1, 0, 1, 0, 1]
     held_u = [0, 2, 0, 2, 0, 2]
-    assert score_hashpool(held_m, model) > score_hashpool(held_u, model)
+    assert loaded.used_keys is False
+    assert loaded.instance == "key-free-hashpool"
+    assert score_hashpool(held_m, loaded) == score_hashpool(held_m, model)
+    assert score_hashpool(held_u, loaded) == score_hashpool(held_u, model)
+
+
+def test_hybrid_uses_exact_hits_then_falls_back_to_hashpool() -> None:
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2]]
+    counts = fit_blind(marked, unmarked, context_len=1, backoff=False)
+    hashed = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    unseen = [9, 1, 9, 1, 9, 1]
+    gated = score_sequence_detail(unseen, counts, COUNT_SPECS["hits"])
+    assert gated.n_used == 0
+    hybrid = score_hybrid_detail(unseen, counts, hashed)
+    assert hybrid.n_used == gated.n_positions
+    assert counts.used_keys is False
+    assert hashed.used_keys is False
+    seen_m = [0, 1, 0, 1]
+    seen_u = [0, 2, 0, 2]
+    assert score_hybrid(seen_m, counts, hashed) > score_hybrid(seen_u, counts, hashed)
+
+
+def test_hashvote_majority_is_key_free() -> None:
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]
+    model = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    assert score_hashpool_vote([0, 1, 0, 1, 0, 1], model) > 0.0
+    assert score_hashpool_vote([0, 2, 0, 2, 0, 2], model) < 0.0
+    assert model.used_keys is False
 
 
 def test_shrinkage_scores_rare_and_common_contexts_without_keys() -> None:

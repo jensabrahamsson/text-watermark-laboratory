@@ -3,6 +3,7 @@
 from text_watermark_tools.stats import (
     binary_eval,
     binomial_sf,
+    counts_at_threshold,
     permutation_mean_diff_p,
     roc_auc,
     youden_threshold,
@@ -55,6 +56,16 @@ def test_youden_picks_a_separating_threshold() -> None:
     assert sens == 1.0
     assert spec == 1.0
     assert t >= 0.5
+
+
+def test_counts_at_threshold_matches_youden_zero() -> None:
+    pos = [0.2, -0.1, 0.4]
+    neg = [0.3, -0.2, -0.5]
+    tp, tn, sens, spec = counts_at_threshold(pos, neg, 0.0)
+    assert tp == 2
+    assert tn == 2
+    assert abs(sens - 2 / 3) < 1e-12
+    assert abs(spec - 2 / 3) < 1e-12
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

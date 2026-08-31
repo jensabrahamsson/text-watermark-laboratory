@@ -127,6 +127,21 @@ def youden_threshold(
     return best_t, best_sens, best_spec, best_j
 
 
+def counts_at_threshold(
+    positive: Sequence[float],
+    negative: Sequence[float],
+    threshold: float,
+) -> tuple[int, int, float, float]:
+    """Return (n_pos > t, n_neg ≤ t, sensitivity, specificity)."""
+    pos = list(positive)
+    neg = list(negative)
+    if not pos or not neg:
+        return 0, 0, float("nan"), float("nan")
+    tp = sum(1 for s in pos if s > threshold)
+    tn = sum(1 for s in neg if s <= threshold)
+    return tp, tn, tp / len(pos), tn / len(neg)
+
+
 def binary_eval(
     positive: Sequence[float],
     negative: Sequence[float],

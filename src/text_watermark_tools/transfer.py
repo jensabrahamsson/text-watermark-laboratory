@@ -14,18 +14,23 @@ and change only how a finished string is read:
 * shrinkage — credibility-weight each token's log ratio
 * mix — average last-1 and last-k log ratios
 * hashpool — feature-hash the context into shared buckets
+* hashvote — majority sign of per-token hashpool ratios
+* hybrid — exact shared n-grams when both sides saw them, else hashpool
 
 Hash pooling is the one extra fit. It is a stealing-style regulariser:
 contexts that collide in a random hash share a next-token table, so
 held-out prompts can still be scored. It does not reconstruct the
-secret SynthID hash.
+secret SynthID hash. Frozen hashpool tables can be scored later with
+`indicate score` without a twin.
 """
 
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Iterable, Sequence
 
 from text_watermark_tools.blind import (
@@ -388,10 +393,34 @@ def _dirichlet_logp(
     return math.log((c + alpha) / (n + alpha * v))
 
 
+def hashpool_token_lr(model: HashPoolModel, ctx: tuple[int, ...], tok: int) -> float:
+    """Per-position hashpool log ratio. Not SynthID's secret hash."""
+    v = max(len(model.vocab), 2)
+    piece = 0.0
+    for h, seed in enumerate(model.seeds):
+        bucket = hash_context(ctx, seed) % model.n_buckets
+        piece += _dirichlet_logp(
+            model.marked[h].get(bucket),
+            tok,
+            fallback=model.marked_unigram,
+            n_fallback=model.n_marked,
+            alpha=model.alpha,
+            v=v,
+        )
+        piece -= _dirichlet_logp(
+            model.unmarked[h].get(bucket),
+            tok,
+            fallback=model.unmarked_unigram,
+            n_fallback=model.n_unmarked,
+            alpha=model.alpha,
+            v=v,
+        )
+    return piece / max(model.n_hashes, 1)
+
+
 def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashpool consulted keys / hash_iv / g-values")
-    v = max(len(model.vocab), 2)
     total = 0.0
     n_used = 0
     n_positions = 0
@@ -399,28 +428,8 @@ def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDeta
         if i == 0:
             continue
         n_positions += 1
-        t = int(tok)
         ctx = _ctx(ids, i, model.context_len)
-        piece = 0.0
-        for h, seed in enumerate(model.seeds):
-            bucket = hash_context(ctx, seed) % model.n_buckets
-            piece += _dirichlet_logp(
-                model.marked[h].get(bucket),
-                t,
-                fallback=model.marked_unigram,
-                n_fallback=model.n_marked,
-                alpha=model.alpha,
-                v=v,
-            )
-            piece -= _dirichlet_logp(
-                model.unmarked[h].get(bucket),
-                t,
-                fallback=model.unmarked_unigram,
-                n_fallback=model.n_unmarked,
-                alpha=model.alpha,
-                v=v,
-            )
-        total += piece / max(model.n_hashes, 1)
+        total += hashpool_token_lr(model, ctx, int(tok))
         n_used += 1
     if n_used == 0:
         return ScoreDetail(0.0, 0, n_positions)
@@ -429,6 +438,213 @@ def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDeta
 
 def score_hashpool(ids: Sequence[int], model: HashPoolModel) -> float:
     return score_hashpool_detail(ids, model).lr
+
+
+def score_hashpool_vote(ids: Sequence[int], model: HashPoolModel) -> float:
+    """Mean sign of per-token hashpool LRs. Threshold 0 is a majority vote."""
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashpool consulted keys / hash_iv / g-values")
+    signs: list[float] = []
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        ctx = _ctx(ids, i, model.context_len)
+        delta = hashpool_token_lr(model, ctx, int(tok))
+        if delta > 0.0:
+            signs.append(1.0)
+        elif delta < 0.0:
+            signs.append(-1.0)
+    if not signs:
+        return 0.0
+    return sum(signs) / len(signs)
+
+
+def score_hybrid_detail(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> ScoreDetail:
+    """Exact shared n-grams when both sides saw them; hashpool otherwise.
+
+    Still no keys / hash_iv / g-values. The hash is the laboratory mixer.
+    """
+    if (
+        count_model.used_keys
+        or count_model.used_hash_iv
+        or count_model.used_g_values
+        or hash_model.used_keys
+        or hash_model.used_hash_iv
+        or hash_model.used_g_values
+    ):
+        raise RuntimeError("hybrid consulted keys / hash_iv / g-values")
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        ctx = _ctx(ids, i, count_model.context_len)
+        n_m = _count(count_model.marked, ctx)
+        n_u = _count(count_model.unmarked, ctx)
+        if min(n_m, n_u) >= min_count:
+            log_m = _log_p_mode(
+                count_model.marked, ctx, t, model=count_model, kind="hard"
+            )
+            log_u = _log_p_mode(
+                count_model.unmarked, ctx, t, model=count_model, kind="hard"
+            )
+            delta = log_m - log_u
+        else:
+            hctx = _ctx(ids, i, hash_model.context_len)
+            delta = hashpool_token_lr(hash_model, hctx, t)
+        total += delta
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hybrid(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    return score_hybrid_detail(
+        ids, count_model, hash_model, min_count=min_count
+    ).lr
+
+
+HASHPOOL_KIND = "key-free-hashpool"
+HASHPOOL_TABLES = "tables.json"
+
+
+def _dump_hash_layers(layers: list[dict[int, Counter]]) -> list:
+    dumped = []
+    for layer in layers:
+        rows = []
+        for bucket in sorted(layer):
+            nxt = layer[bucket]
+            rows.append(
+                {
+                    "bucket": int(bucket),
+                    "next": {str(int(k)): int(v) for k, v in sorted(nxt.items())},
+                }
+            )
+        dumped.append(rows)
+    return dumped
+
+
+def _load_hash_layers(raw: list) -> list[dict[int, Counter]]:
+    layers: list[dict[int, Counter]] = []
+    for rows in raw:
+        layer: dict[int, Counter] = {}
+        for row in rows:
+            layer[int(row["bucket"])] = Counter(
+                {int(k): int(v) for k, v in row["next"].items()}
+            )
+        layers.append(layer)
+    return layers
+
+
+def persist_hashpool(
+    model: HashPoolModel,
+    out_dir: Path,
+    *,
+    model_name: str = "gpt2",
+    pair_dir: str = "",
+    n_train_prompts: int = 0,
+) -> Path:
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("refusing to persist a hashpool that used keys")
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "kind": HASHPOOL_KIND,
+        "instance": model.instance,
+        "model_name": model_name,
+        "pair_dir": pair_dir,
+        "n_train_prompts": n_train_prompts,
+        "context_len": model.context_len,
+        "n_hashes": model.n_hashes,
+        "n_buckets": model.n_buckets,
+        "seeds": [int(s) for s in model.seeds],
+        "alpha": model.alpha,
+        "n_marked": model.n_marked,
+        "n_unmarked": model.n_unmarked,
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "vocab": sorted(int(t) for t in model.vocab),
+        "marked_unigram": {
+            str(int(k)): int(v) for k, v in sorted(model.marked_unigram.items())
+        },
+        "unmarked_unigram": {
+            str(int(k)): int(v) for k, v in sorted(model.unmarked_unigram.items())
+        },
+        "marked": _dump_hash_layers(model.marked),
+        "unmarked": _dump_hash_layers(model.unmarked),
+        "caveat": (
+            "Not detector_mean. Not Claude. Not Anthropic. "
+            "Random context hash, not the secret SynthID hash."
+        ),
+    }
+    path = out_dir / HASHPOOL_TABLES
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def hashpool_from_payload(raw: dict) -> HashPoolModel:
+    if raw.get("kind") != HASHPOOL_KIND:
+        raise ValueError("not a key-free hashpool table")
+    if raw.get("used_keys") or raw.get("used_hash_iv") or raw.get("used_g_values"):
+        raise RuntimeError("hashpool file claims it used keys / hash_iv / g")
+    return HashPoolModel(
+        n_hashes=int(raw["n_hashes"]),
+        n_buckets=int(raw["n_buckets"]),
+        context_len=int(raw["context_len"]),
+        seeds=tuple(int(s) for s in raw["seeds"]),
+        marked=_load_hash_layers(raw["marked"]),
+        unmarked=_load_hash_layers(raw["unmarked"]),
+        marked_unigram=Counter(
+            {int(k): int(v) for k, v in raw["marked_unigram"].items()}
+        ),
+        unmarked_unigram=Counter(
+            {int(k): int(v) for k, v in raw["unmarked_unigram"].items()}
+        ),
+        n_marked=int(raw["n_marked"]),
+        n_unmarked=int(raw["n_unmarked"]),
+        alpha=float(raw["alpha"]),
+        vocab=set(int(t) for t in raw["vocab"]),
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+
+
+def load_hashpool(tables_dir: Path) -> HashPoolModel:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / HASHPOOL_TABLES
+    raw = json.loads(path.read_text())
+    if raw.get("kind") != HASHPOOL_KIND:
+        raise ValueError(f"not a key-free hashpool table: {path}")
+    return hashpool_from_payload(raw)
+
+
+def peek_tables_kind(tables_dir: Path) -> str:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / HASHPOOL_TABLES
+        if not path.is_file():
+            path = Path(tables_dir) / "tables.json"
+    raw = json.loads(path.read_text())
+    return str(raw.get("kind") or "")
 
 
 def fit_count_model(

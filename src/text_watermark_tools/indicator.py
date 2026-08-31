@@ -25,6 +25,13 @@ from text_watermark_tools.blind import (
 )
 from text_watermark_tools.score import load_tokenizer
 from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_binary_eval
+from text_watermark_tools.transfer import (
+    COUNT_SPECS,
+    HASHPOOL_KIND,
+    peek_tables_kind,
+    score_hashpool,
+    score_sequence,
+)
 
 INDICATOR_INSTANCE = "key-free-counts"
 TABLES_NAME = "tables.json"
@@ -39,6 +46,9 @@ class IndicatorMeta:
     model_name: str
     pair_dir: str
     n_train_prompts: int
+    kind: str = "key-free-indicator"
+    instance: str = INDICATOR_INSTANCE
+    score_kind: str = "hard"
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -215,8 +225,29 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         model_name=str(raw.get("model_name") or "gpt2"),
         pair_dir=str(raw.get("pair_dir") or ""),
         n_train_prompts=int(raw.get("n_train_prompts") or 0),
+        kind=str(raw.get("kind") or "key-free-indicator"),
+        instance=str(raw.get("instance") or INDICATOR_INSTANCE),
+        score_kind="hard",
     )
     return model, meta
+
+
+def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / TABLES_NAME
+    raw = json.loads(path.read_text())
+    kind = str(raw.get("kind") or "")
+    instance = str(raw.get("instance") or INDICATOR_INSTANCE)
+    score_kind = "hashpool" if kind == HASHPOOL_KIND else "hard"
+    return IndicatorMeta(
+        model_name=str(raw.get("model_name") or "gpt2"),
+        pair_dir=str(raw.get("pair_dir") or ""),
+        n_train_prompts=int(raw.get("n_train_prompts") or 0),
+        kind=kind,
+        instance=instance,
+        score_kind=score_kind,
+    )
 
 
 def score_text(text: str, model: BlindModel, *, tokenizer) -> float:
@@ -225,16 +256,67 @@ def score_text(text: str, model: BlindModel, *, tokenizer) -> float:
     return likelihood_ratio(ids, model)
 
 
+def score_text_from_tables(
+    text: str,
+    tables_dir: Path,
+    *,
+    tokenizer,
+    score_mode: str = "auto",
+) -> tuple[float, IndicatorMeta, bool]:
+    """Score one string from frozen count or hashpool tables.
+
+    Returns (lr, meta, used_keys). Hashpool tables ignore count score modes.
+    """
+    path = Path(tables_dir)
+    kind = peek_tables_kind(path)
+    mode = (score_mode or "auto").strip().lower()
+    if kind == HASHPOOL_KIND:
+        if mode not in ("auto", "hashpool", ""):
+            raise ValueError(
+                f"tables are hashpool; --score-mode {score_mode} does not apply"
+            )
+        from text_watermark_tools.transfer import load_hashpool
+
+        model = load_hashpool(path)
+        ids = tokenizer(text)["input_ids"]
+        lr = score_hashpool(ids, model)
+        meta = load_tables_meta(path)
+        meta.score_kind = "hashpool"
+        meta.instance = model.instance
+        return lr, meta, bool(model.used_keys)
+    if kind != "key-free-indicator":
+        raise ValueError(f"unknown indicator tables kind {kind!r} in {path}")
+    model, meta = load_indicator(path)
+    ids = tokenizer(text)["input_ids"]
+    if mode in ("auto", "hard", ""):
+        lr = likelihood_ratio(ids, model)
+        meta.score_kind = "hard"
+        meta.instance = INDICATOR_INSTANCE
+    else:
+        if mode not in COUNT_SPECS:
+            raise ValueError(
+                f"unknown --score-mode {score_mode}; "
+                f"choose auto, hard, hashpool, or one of {sorted(COUNT_SPECS)}"
+            )
+        spec = COUNT_SPECS[mode]
+        lr = score_sequence(ids, model, spec)
+        meta.score_kind = mode
+        meta.instance = spec.instance
+    return lr, meta, bool(model.used_keys)
+
+
 def format_indicator(
     label: str,
     lr: float,
     *,
     n_tokens: int,
     used_keys: bool,
+    instance: str = INDICATOR_INSTANCE,
+    score_kind: str = "hard",
 ) -> str:
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
-        f"instance={INDICATOR_INSTANCE} used_keys={used_keys} "
+        f"instance={instance} score_kind={score_kind} used_keys={used_keys} "
         f"not_detector_mean=true {CAVEAT}"
     )
 
