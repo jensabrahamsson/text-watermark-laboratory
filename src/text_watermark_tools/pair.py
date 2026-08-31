@@ -46,6 +46,9 @@ class PairRow:
     alt_score_matching: OfficialScore | None = None
     extra_marked: list[tuple[str, OfficialScore]] = field(default_factory=list)
     extra_unmarked: list[tuple[str, OfficialScore]] = field(default_factory=list)
+    extra_control: list[tuple[str, OfficialScore, OfficialScore]] = field(
+        default_factory=list
+    )
 
 
 @dataclass
@@ -208,12 +211,87 @@ def run_pairs(
     )
 
 
+def run_control_only(
+    prompts: list[tuple[str, str]],
+    *,
+    max_new_tokens: int = 128,
+    seed: int = 0,
+    n_samples: int = 1,
+    model_name: str | None = None,
+    tokenizer=None,
+) -> PairRun:
+    """Sample only control-shuffled-30 twins. Does not write *-marked.txt.
+
+    Official public scores on these files should sit near chance. Matching
+    control-key scores should sit with a known mark. blind ignores them.
+    """
+    if n_samples < 1:
+        raise ValueError("n_samples must be >= 1")
+    name = model_name or "gpt2"
+    tok = tokenizer or load_tokenizer(name)
+    device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
+    alt_key_list = control_keys()
+    alt_model = _load_marked_model(device, keys=alt_key_list, model_name=name)
+    rows: list[PairRow] = []
+    for offset, (stem, prompt) in enumerate(prompts):
+        text = prompt if prompt.endswith("\n") else prompt + "\n"
+        prompt_score = official_score_text(text, tokenizer=tok)
+        extra_control: list[tuple[str, OfficialScore, OfficialScore]] = []
+        first_text = ""
+        first_pub = None
+        first_match = None
+        for s_i in range(n_samples):
+            gen = generate_text(
+                text,
+                marked=True,
+                max_new_tokens=max_new_tokens,
+                seed=seed + n_samples * offset + s_i,
+                device=device,
+                tokenizer=tok,
+                model=alt_model,
+            )
+            pub = official_score_token_ids(gen.token_ids, tokenizer=tok)
+            match = official_score_token_ids(
+                gen.token_ids, tokenizer=tok, keys=alt_key_list
+            )
+            if s_i == 0:
+                first_text = gen.text
+                first_pub = pub
+                first_match = match
+            else:
+                extra_control.append((gen.text, pub, match))
+        rows.append(
+            PairRow(
+                stem=stem,
+                prompt=text,
+                prompt_score=prompt_score,
+                marked_text="",
+                marked_score=prompt_score,
+                unmarked_text="",
+                unmarked_score=prompt_score,
+                alt_text=first_text,
+                alt_score_public=first_pub,
+                alt_score_matching=first_match,
+                extra_control=extra_control,
+            )
+        )
+    return PairRun(
+        rows=rows,
+        max_new_tokens=max_new_tokens,
+        seed=seed,
+        alt_keys=alt_key_list,
+        model_name=name,
+    )
+
+
 def print_pair_run(run: PairRun) -> str:
     chunks: list[str] = []
     for row in run.rows:
         chunks.append(format_score(f"{row.stem}-prompt", row.prompt_score))
-        chunks.append(format_score(f"{row.stem}-unmarked-gen", row.unmarked_score))
-        chunks.append(format_score(f"{row.stem}-marked", row.marked_score))
+        if row.unmarked_text:
+            chunks.append(format_score(f"{row.stem}-unmarked-gen", row.unmarked_score))
+        if row.marked_text:
+            chunks.append(format_score(f"{row.stem}-marked", row.marked_score))
         if row.alt_score_public is not None and row.alt_score_matching is not None:
             chunks.append(
                 format_score(
@@ -229,6 +307,21 @@ def print_pair_run(run: PairRun) -> str:
                     instance=CONTROL_INSTANCE,
                 )
             )
+            for i, (_txt, pub, match) in enumerate(row.extra_control, start=2):
+                chunks.append(
+                    format_score(
+                        f"{row.stem}-control-gen-{i}",
+                        pub,
+                        instance=PUBLIC_INSTANCE,
+                    )
+                )
+                chunks.append(
+                    format_score(
+                        f"{row.stem}-control-gen-{i}",
+                        match,
+                        instance=CONTROL_INSTANCE,
+                    )
+                )
     return "\n".join(chunks)
 
 
@@ -242,6 +335,8 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
         "model_name": run.model_name,
         "ngram_len": 5,
         "also_control_keys": run.alt_keys is not None,
+        "control_only": bool(run.alt_keys is not None)
+        and all(not row.marked_text for row in run.rows),
         "note": (
             "Marked and unmarked-gen are newly sampled tokens from the prompt. "
             "The prompt string itself is not stamped. "
@@ -262,10 +357,12 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
     ]
     for row in run.rows:
         (out_dir / f"{row.stem}-prompt.txt").write_text(row.prompt.rstrip() + "\n")
-        (out_dir / f"{row.stem}-unmarked-gen.txt").write_text(
-            row.unmarked_text.strip() + "\n"
-        )
-        (out_dir / f"{row.stem}-marked.txt").write_text(row.marked_text.strip() + "\n")
+        if row.unmarked_text:
+            (out_dir / f"{row.stem}-unmarked-gen.txt").write_text(
+                row.unmarked_text.strip() + "\n"
+            )
+        if row.marked_text:
+            (out_dir / f"{row.stem}-marked.txt").write_text(row.marked_text.strip() + "\n")
         for i, (txt, _sc) in enumerate(row.extra_marked, start=2):
             (out_dir / f"{row.stem}-marked-{i}.txt").write_text(txt.strip() + "\n")
         for i, (txt, _sc) in enumerate(row.extra_unmarked, start=2):
@@ -292,30 +389,64 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
             rec["control_gen_matching"] = _score_to_dict(row.alt_score_matching)
             pub_s = f"{row.alt_score_public.mean:.6f}"
             match_s = f"{row.alt_score_matching.mean:.6f}"
+            for i, (txt, pub, match) in enumerate(row.extra_control, start=2):
+                (out_dir / f"{row.stem}-control-gen-{i}.txt").write_text(
+                    txt.strip() + "\n"
+                )
+                rec.setdefault("extra_control", []).append(
+                    {
+                        "sample": i,
+                        "public": _score_to_dict(pub),
+                        "matching": _score_to_dict(match),
+                    }
+                )
         table["rows"].append(rec)
+        um = f"{row.unmarked_score.mean:.6f}" if row.unmarked_text else ""
+        mk = f"{row.marked_score.mean:.6f}" if row.marked_text else ""
         md.append(
             f"| {row.stem} | {row.prompt_score.mean:.6f} | "
-            f"{row.unmarked_score.mean:.6f} | {row.marked_score.mean:.6f} | "
+            f"{um} | {mk} | "
             f"{pub_s} | {match_s} | "
-            f"{row.marked_score.n_unmasked_ngrams} |"
+            f"{(row.marked_score.n_unmasked_ngrams if row.marked_text else row.alt_score_matching.n_unmasked_ngrams) if row.alt_score_matching is not None else 0} |"
         )
     md.append("")
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text("\n".join(md) + "\n")
     extra = ""
-    if run.alt_keys is not None:
+    control_only = bool(run.alt_keys is not None) and all(
+        not row.marked_text for row in run.rows
+    )
+    if control_only:
         extra = (
-            "`*-control-gen.txt` is a third twin sampled with "
-            "`control-shuffled-30`. `blind` does not load those files.\n\n"
+            "`*-control-gen.txt` used `control-shuffled-30` at sampling. "
+            "There is no `*-marked.txt`. `blind` does not load these files. "
+            "Official public scores should sit near chance; matching control "
+            "keys should sit with a known mark.\n\n"
+        )
+        title = "# Control-shuffled-30 twins (not public DeepMind 30)"
+        body = (
+            "Each `*-prompt.txt` is the seed. `*-control-gen.txt` is **new** "
+            "text from GPT-2 + mixin with `control_keys()`. Not a public-key "
+            "marked file."
+        )
+    else:
+        if run.alt_keys is not None:
+            extra = (
+                "`*-control-gen.txt` is a third twin sampled with "
+                "`control-shuffled-30`. `blind` does not load those files.\n\n"
+            )
+        title = "# Same-prompt twins (public DeepMind 30)"
+        body = (
+            "Each `*-prompt.txt` is the seed. `*-marked.txt` is **new** "
+            "text from GPT-2 + mixin. `*-unmarked-gen.txt` is new text from "
+            "the same prompt without the mixin."
         )
     (out_dir / "README.md").write_text(
         "\n".join(
             [
-                "# Same-prompt twins (public DeepMind 30)",
+                title,
                 "",
-                "Each `*-prompt.txt` is the seed. `*-marked.txt` is **new** "
-                "text from GPT-2 + mixin. `*-unmarked-gen.txt` is new text from "
-                "the same prompt without the mixin.",
+                body,
                 "",
                 extra,
                 "Not a stamp on the same string. Not Claude. Not a remover.",

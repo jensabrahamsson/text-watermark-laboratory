@@ -69,6 +69,8 @@ python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits 
 python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil
 python -m text_watermark_tools learn PAIR --fit-prefix 4 --pos-bucket 1 --out-dir experiments/learn
 python -m text_watermark_tools learn PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --out-dir experiments/learn-xfer
+python -m text_watermark_tools pair DIR --control-only --n-samples 4 --out-dir experiments/pair-control
+python -m text_watermark_tools contrast TRAIN --test-dir TEST --control-dir CONTROL --fit-prefix 4 --pos-bucket 1 --out-dir experiments/contrast
 python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
@@ -140,6 +142,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `pivot.py` | Unmarked-LM choice geometry and argmax snap |
 | `probe.py` | Compare scorers; transfer; nested thresholds; shuffle control; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
+| `contrast.py` | Key-free public vs control-shuffled-30 instance check |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |
 

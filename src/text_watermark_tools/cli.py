@@ -58,7 +58,14 @@ from text_watermark_tools.pair import (
     collect_prompts,
     persist_pair_run,
     print_pair_run,
+    run_control_only,
     run_pairs,
+)
+from text_watermark_tools.contrast import (
+    load_control_draws,
+    persist_contrast,
+    print_contrast,
+    run_instance_contrast,
 )
 from text_watermark_tools.learn import (
     persist_learn,
@@ -321,14 +328,23 @@ def cmd_blind(args: argparse.Namespace) -> int:
 
 def cmd_pair(args: argparse.Namespace) -> int:
     prompts = collect_prompts(Path(args.path))
-    run = run_pairs(
-        prompts,
-        max_new_tokens=args.max_new_tokens,
-        seed=args.seed,
-        also_control_keys=bool(args.also_control_keys),
-        model_name=args.model,
-        n_samples=int(args.n_samples),
-    )
+    if bool(getattr(args, "control_only", False)):
+        run = run_control_only(
+            prompts,
+            max_new_tokens=args.max_new_tokens,
+            seed=args.seed,
+            n_samples=int(args.n_samples),
+            model_name=args.model,
+        )
+    else:
+        run = run_pairs(
+            prompts,
+            max_new_tokens=args.max_new_tokens,
+            seed=args.seed,
+            also_control_keys=bool(args.also_control_keys),
+            model_name=args.model,
+            n_samples=int(args.n_samples),
+        )
     print(print_pair_run(run))
     if args.out_dir:
         persist_pair_run(run, Path(args.out_dir))
@@ -754,6 +770,41 @@ def cmd_learn(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_contrast(args: argparse.Namespace) -> int:
+    tok = load_tokenizer(getattr(args, "model", None))
+    train = load_twins(Path(args.pair_dir), tokenizer=tok)
+    test = load_twins(Path(args.test_dir), tokenizer=tok)
+    control_dir = Path(getattr(args, "control_dir", "") or args.test_dir)
+    draws = load_control_draws(control_dir, tokenizer=tok)
+    if not draws:
+        print(f"no *-control-gen.txt in {control_dir}", file=sys.stderr)
+        return 2
+    methods = None
+    if args.methods:
+        methods = [m.strip() for m in args.methods.split(",") if m.strip()]
+    run = run_instance_contrast(
+        train,
+        test,
+        draws,
+        train_dir=str(args.pair_dir),
+        test_dir=str(args.test_dir),
+        control_dir=str(control_dir),
+        model_name=args.model,
+        context_len=int(args.context_len),
+        fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
+        position_bucket=int(getattr(args, "pos_bucket", 1) or 1),
+        methods=methods or ("hits", "poshits", "hashpool"),
+    )
+    if run.used_keys or run.used_hash_iv or run.used_g_values:
+        print("contrast consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_contrast(run))
+    if args.out_dir:
+        persist_contrast(run, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_scrub(args: argparse.Namespace) -> int:
     path = Path(args.path)
     if path.is_dir():
@@ -882,6 +933,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Also sample a third twin with control-shuffled-30 "
             "(written as *-control-gen.txt, not picked up by blind)"
+        ),
+    )
+    p_pair.add_argument(
+        "--control-only",
+        action="store_true",
+        help=(
+            "Sample only control-shuffled-30 twins (no *-marked.txt). "
+            "Use with --n-samples for a key-free instance contrast."
         ),
     )
     p_pair.add_argument(
@@ -1298,6 +1357,34 @@ def build_parser() -> argparse.ArgumentParser:
     p_learn.add_argument("--prompt-context", action="store_true")
     p_learn.add_argument("--out-dir", default="")
     p_learn.set_defaults(func=cmd_learn)
+
+    p_contrast = sub.add_parser(
+        "contrast",
+        help=(
+            "Key-free instance contrast: fit public marked/unmarked tables, "
+            "score control-shuffled-30 twins. Not key recovery."
+        ),
+        description=(
+            "Fit on public-key twins. Score a third pile sampled with "
+            "control-shuffled-30. If control looks unmarked, the key-free "
+            "reader is instance-specific without keys. If it looks marked, "
+            "the reader is detecting tournament sampling. Not Claude."
+        ),
+    )
+    p_contrast.add_argument("pair_dir", help="Public-key train twins")
+    p_contrast.add_argument("--test-dir", required=True, help="Public-key test twins")
+    p_contrast.add_argument(
+        "--control-dir",
+        default="",
+        help="Directory with *-control-gen.txt (default: --test-dir)",
+    )
+    p_contrast.add_argument("--model", default="gpt2")
+    p_contrast.add_argument("--context-len", type=int, default=4)
+    p_contrast.add_argument("--methods", default="hits,poshits,hashpool")
+    p_contrast.add_argument("--fit-prefix", type=int, default=0)
+    p_contrast.add_argument("--pos-bucket", type=int, default=1)
+    p_contrast.add_argument("--out-dir", default="")
+    p_contrast.set_defaults(func=cmd_contrast)
 
     p_scrub = sub.add_parser(
         "scrub",

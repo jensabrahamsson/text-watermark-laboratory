@@ -2,7 +2,14 @@
 
 from pathlib import Path
 
-from text_watermark_tools.pair import collect_prompts, persist_pair_run, run_pairs
+from text_watermark_tools.pair import (
+    PairRow,
+    PairRun,
+    collect_prompts,
+    persist_pair_run,
+    run_pairs,
+)
+from text_watermark_tools.score import OfficialScore
 
 PROMPT = "The harbour lights flickered over wet cobblestones. "
 
@@ -55,3 +62,38 @@ def test_pair_control_gen_is_other_instance_not_a_marked_file(tmp_path: Path) ->
     assert (tmp_path / "harbour-control-gen.txt").is_file()
     marked = sorted(p.name for p in tmp_path.glob("*-marked.txt"))
     assert marked == ["harbour-marked.txt"]
+
+
+def test_persist_control_only_writes_extra_draws_not_marked(tmp_path: Path) -> None:
+    dummy = OfficialScore(mean=0.50, weighted_mean=0.50, n_tokens=8, n_unmasked_ngrams=4)
+    match = OfficialScore(mean=0.62, weighted_mean=0.62, n_tokens=8, n_unmasked_ngrams=4)
+    run = PairRun(
+        rows=[
+            PairRow(
+                stem="harbour",
+                prompt="The harbour lights.\n",
+                prompt_score=dummy,
+                marked_text="",
+                marked_score=dummy,
+                unmarked_text="",
+                unmarked_score=dummy,
+                alt_text="control one",
+                alt_score_public=dummy,
+                alt_score_matching=match,
+                extra_control=[("control two", dummy, match)],
+            )
+        ],
+        max_new_tokens=8,
+        seed=0,
+        alt_keys=[1, 2, 3],
+    )
+    persist_pair_run(run, tmp_path)
+    assert (tmp_path / "harbour-control-gen.txt").is_file()
+    assert (tmp_path / "harbour-control-gen-2.txt").is_file()
+    assert not (tmp_path / "harbour-marked.txt").is_file()
+    assert not (tmp_path / "harbour-unmarked-gen.txt").is_file()
+    results = (tmp_path / "results.json").read_text()
+    assert '"control_only": true' in results
+    readme = (tmp_path / "README.md").read_text()
+    assert "Control-shuffled-30" in readme
+    assert "not public DeepMind 30" in readme

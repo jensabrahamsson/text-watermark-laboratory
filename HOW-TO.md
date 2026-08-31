@@ -261,6 +261,24 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
   --out-dir experiments/learn-36x4-to-12x4
 ```
 
+`contrast` asks whether that key-free reader is **instance-specific** (public
+DeepMind 30) or a generic tournament-sampling detector. Fit on public
+marked/unmarked twins. Score a third pile sampled with `control-shuffled-30`.
+Control files are `*-control-gen.txt`; `blind` ignores them. This does not
+recover keys.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \
+  --out-dir experiments/pair-controlkeys
+
+python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --control-dir experiments/pair-controlkeys \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/contrast-36x4-to-12x4
+```
+
 UTF-8 surface tables need no tokenizer:
 
 ```bash
