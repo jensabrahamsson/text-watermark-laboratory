@@ -35,6 +35,7 @@ from text_watermark_tools.iterate import (
 from text_watermark_tools.blind import (
     DEFAULT_ALPHA,
     DEFAULT_CONTEXT_LEN,
+    clip_twins,
     leave_one_prompt_out,
     load_twins,
     persist_blind_eval,
@@ -575,6 +576,9 @@ def cmd_probe(args: argparse.Namespace) -> int:
         Path(args.pair_dir),
         tokenizer=load_tokenizer(getattr(args, "model", None)),
     )
+    max_draws = int(getattr(args, "max_draws", 0) or 0)
+    if max_draws > 0:
+        twins = clip_twins(twins, max_draws)
     methods = None
     if args.methods:
         methods = [m.strip() for m in args.methods.split(",") if m.strip()]
@@ -583,6 +587,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
             Path(args.test_dir),
             tokenizer=load_tokenizer(getattr(args, "model", None)),
         )
+        if max_draws > 0:
+            test_twins = clip_twins(test_twins, max_draws)
         run = run_transfer(
             twins,
             test_twins,
@@ -620,6 +626,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
         n_hashes=int(args.n_hashes),
         n_buckets=int(args.n_buckets),
         surface_context_len=int(getattr(args, "surface_context_len", 8) or 8),
+        max_draws=max_draws if max_draws > 0 else None,
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1013,6 +1020,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Negative control: shuffle train marked/unmarked labels per stem",
     )
     p_probe.add_argument("--shuffle-seed", type=int, default=0)
+    p_probe.add_argument(
+        "--max-draws",
+        type=int,
+        default=0,
+        help=(
+            "If >0, keep only the first N marked/unmarked draws per stem "
+            "(draw-count ablation on a multi-draw pair directory)"
+        ),
+    )
     p_probe.add_argument("--out-dir", default="")
     p_probe.set_defaults(func=cmd_probe)
 

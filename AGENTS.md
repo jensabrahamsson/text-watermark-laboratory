@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12, or 11/12 with a 0.02 comparison margin) but is much weaker on a single isolated file (29/48 marked files with `lr > 0`).
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**) but must not be sold as a universal detector.
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -76,6 +76,10 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
 | Key-free hits, other topics → 12×4 | isolated **39/48**, AUC **0.769** |
 | Nested hashpool Youden, 36→12×4 | **33/48** marked / **34/48** unmarked |
+| Key-free hits, 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
+| Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
+| Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
+| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |
 | Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |

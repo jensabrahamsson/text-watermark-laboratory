@@ -127,6 +127,106 @@ def youden_threshold(
     return best_t, best_sens, best_spec, best_j
 
 
+@dataclass(frozen=True)
+class NestedStemEval:
+    n_marked_above: int
+    n_unmarked_at_most: int
+    n_marked: int
+    n_unmarked: int
+    sensitivity: float
+    specificity: float
+    mean_threshold: float
+    n_stems: int
+    source: str = "nested-youden-by-stem"
+
+
+def nested_threshold_by_stem(
+    stems: Sequence[str],
+    marked_lrs: Sequence[float],
+    unmarked_lrs: Sequence[float],
+    *,
+    fpr: float | None = None,
+) -> NestedStemEval:
+    """Leave-one-stem-out threshold on already-held-out file scores.
+
+    For each stem, choose Youden (or a target FPR) on the *other* stems,
+    then apply that threshold to this stem. Does not refit tables. Use this
+    on leave-one-prompt-out LRs so the operating point is not chosen on the
+    same prompt family being classified.
+    """
+    if len(stems) != len(marked_lrs) or len(stems) != len(unmarked_lrs):
+        raise ValueError("stems and LRs must be aligned")
+    by: dict[str, tuple[list[float], list[float]]] = {}
+    for stem, marked, unmarked in zip(stems, marked_lrs, unmarked_lrs, strict=True):
+        bucket = by.setdefault(stem, ([], []))
+        bucket[0].append(marked)
+        bucket[1].append(unmarked)
+    names = list(by)
+    source = (
+        "nested-fpr10-by-stem" if fpr is not None else "nested-youden-by-stem"
+    )
+    if len(names) < 2:
+        n_m = sum(len(v[0]) for v in by.values())
+        n_u = sum(len(v[1]) for v in by.values())
+        return NestedStemEval(
+            n_marked_above=0,
+            n_unmarked_at_most=0,
+            n_marked=n_m,
+            n_unmarked=n_u,
+            sensitivity=float("nan"),
+            specificity=float("nan"),
+            mean_threshold=0.0,
+            n_stems=len(names),
+            source=source,
+        )
+    tp = tn = n_m = n_u = 0
+    thresholds: list[float] = []
+    for hold in names:
+        pos: list[float] = []
+        neg: list[float] = []
+        for stem, (marked, unmarked) in by.items():
+            if stem == hold:
+                continue
+            pos.extend(marked)
+            neg.extend(unmarked)
+        if fpr is not None:
+            threshold = threshold_at_fpr(neg, fpr=fpr)
+        else:
+            threshold, _, _, _ = youden_threshold(pos, neg)
+        thresholds.append(threshold)
+        hold_m, hold_u = by[hold]
+        above, at_most, _, _ = counts_at_threshold(hold_m, hold_u, threshold)
+        tp += above
+        tn += at_most
+        n_m += len(hold_m)
+        n_u += len(hold_u)
+    return NestedStemEval(
+        n_marked_above=tp,
+        n_unmarked_at_most=tn,
+        n_marked=n_m,
+        n_unmarked=n_u,
+        sensitivity=(tp / n_m) if n_m else float("nan"),
+        specificity=(tn / n_u) if n_u else float("nan"),
+        mean_threshold=(sum(thresholds) / len(thresholds)) if thresholds else 0.0,
+        n_stems=len(names),
+        source=source,
+    )
+
+
+def nested_stem_eval_to_dict(ev: NestedStemEval) -> dict:
+    return {
+        "n_marked_above": ev.n_marked_above,
+        "n_unmarked_at_most": ev.n_unmarked_at_most,
+        "n_marked": ev.n_marked,
+        "n_unmarked": ev.n_unmarked,
+        "sensitivity": ev.sensitivity,
+        "specificity": ev.specificity,
+        "mean_threshold": ev.mean_threshold,
+        "n_stems": ev.n_stems,
+        "source": ev.source,
+    }
+
+
 def counts_at_threshold(
     positive: Sequence[float],
     negative: Sequence[float],

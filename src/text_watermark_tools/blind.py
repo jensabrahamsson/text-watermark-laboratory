@@ -67,6 +67,23 @@ class Twin:
     def unmarked_texts(self) -> list[str]:
         return [self.unmarked_text, *self.extra_unmarked_text]
 
+    def clip_draws(self, max_draws: int) -> Twin:
+        """Keep the first N marked/unmarked draws (draw 1 plus N-1 extras)."""
+        if max_draws < 1:
+            raise ValueError("max_draws must be >= 1")
+        keep = max_draws - 1
+        return Twin(
+            stem=self.stem,
+            marked_text=self.marked_text,
+            unmarked_text=self.unmarked_text,
+            marked_ids=list(self.marked_ids),
+            unmarked_ids=list(self.unmarked_ids),
+            extra_marked_ids=[list(x) for x in self.extra_marked_ids[:keep]],
+            extra_unmarked_ids=[list(x) for x in self.extra_unmarked_ids[:keep]],
+            extra_marked_text=list(self.extra_marked_text[:keep]),
+            extra_unmarked_text=list(self.extra_unmarked_text[:keep]),
+        )
+
 
 @dataclass
 class BlindFold:
@@ -266,6 +283,11 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
     if not twins:
         raise FileNotFoundError(f"no *-marked.txt / *-unmarked-gen.txt twins in {pair_dir}")
     return twins
+
+
+def clip_twins(twins: Sequence[Twin], max_draws: int) -> list[Twin]:
+    """Keep the first N draws per stem. Draw 1 is the primary marked/unmarked pair."""
+    return [twin.clip_draws(max_draws) for twin in twins]
 
 
 def pair_marked_wins(marked_lr: float, unmarked_lr: float, *, margin: float = 0.0) -> bool:

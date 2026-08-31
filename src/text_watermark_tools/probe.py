@@ -26,6 +26,8 @@ from text_watermark_tools.stats import (
     counts_at_threshold,
     fit_ridge_logodds,
     format_binary_eval,
+    nested_stem_eval_to_dict,
+    nested_threshold_by_stem,
     score_ridge_logodds,
     threshold_at_fpr,
 )
@@ -802,9 +804,12 @@ class ProbeRun:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    max_draws: int | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
-        "AUC is single-file ranking; prompt wins are the 10/12 grain."
+        "AUC is single-file ranking; prompt wins are the 10/12 grain. "
+        "nested-youden-by-stem is a threshold chosen on other prompt "
+        "families' already-held-out LRs, not a global peek at the same stem."
     )
 
 
@@ -850,6 +855,18 @@ class TransferRun:
     )
 
 
+def nested_stem_gates(ev: IndicatorHoldout) -> dict:
+    """Youden and 10% FPR leave-one-stem thresholds on held-out LRs."""
+    youden = nested_threshold_by_stem(ev.stems, ev.marked_lrs, ev.unmarked_lrs)
+    fpr10 = nested_threshold_by_stem(
+        ev.stems, ev.marked_lrs, ev.unmarked_lrs, fpr=0.10
+    )
+    return {
+        "nested-youden-by-stem": nested_stem_eval_to_dict(youden),
+        "nested-fpr10-by-stem": nested_stem_eval_to_dict(fpr10),
+    }
+
+
 def summarize_holdout(name: str, ev: IndicatorHoldout) -> MethodSummary:
     binary = binary_eval(ev.marked_lrs, ev.unmarked_lrs)
     return MethodSummary(
@@ -873,6 +890,7 @@ def run_probe(
     n_hashes: int = 8,
     n_buckets: int = 256,
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
+    max_draws: int | None = None,
     lm=None,
 ) -> ProbeRun:
     requested = list(methods) if methods is not None else list(COUNT_SPECS)
@@ -882,6 +900,7 @@ def run_probe(
         pair_dir=pair_dir,
         model_name=model_name,
         context_len=context_len,
+        max_draws=max_draws,
     )
     if count_names:
         counted = rotate_count_methods(
@@ -970,8 +989,8 @@ def print_probe(run: ProbeRun) -> str:
         (
             f"probe n_methods={len(run.methods)} pair_dir={run.pair_dir} "
             f"context_len={run.context_len} model={run.model_name} "
-            f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
-            f"g_values={run.used_g_values}"
+            f"max_draws={run.max_draws} used_keys={run.used_keys} "
+            f"hash_iv={run.used_hash_iv} g_values={run.used_g_values}"
         ),
         run.note,
         CAVEAT,
@@ -989,6 +1008,20 @@ def print_probe(run: ProbeRun) -> str:
             f"{b.n_positive_above_zero}/{b.n_positive} | "
             f"{b.n_negative_at_most_zero}/{b.n_negative} | "
             f"{b.permutation_p:.4g} | {b.mean_diff:.4f} |"
+        )
+    lines.append("")
+    lines.append(
+        "| method | nested-youden-by-stem marked>t | unmarked<=t | "
+        "mean t | sens | spec |"
+    )
+    lines.append("|---|---|---|---|---|---|")
+    for m in run.methods:
+        gate = nested_stem_gates(m.holdout)["nested-youden-by-stem"]
+        lines.append(
+            f"| {m.name} | {gate['n_marked_above']}/{gate['n_marked']} | "
+            f"{gate['n_unmarked_at_most']}/{gate['n_unmarked']} | "
+            f"{gate['mean_threshold']:.4f} | {gate['sensitivity']:.3f} | "
+            f"{gate['specificity']:.3f} |"
         )
     lines.append("")
     for m in run.methods:
@@ -1010,6 +1043,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "used_keys": run.used_keys,
         "used_hash_iv": run.used_hash_iv,
         "used_g_values": run.used_g_values,
+        "max_draws": run.max_draws,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1026,6 +1060,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
             "binary": binary_eval_to_dict(m.binary),
+            "nested_stem": nested_stem_gates(m.holdout),
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)

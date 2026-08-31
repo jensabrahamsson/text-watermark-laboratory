@@ -4,6 +4,7 @@ from pathlib import Path
 
 from text_watermark_tools.blind import (
     Twin,
+    clip_twins,
     fit_blind,
     leave_one_prompt_out,
     likelihood_ratio,
@@ -19,6 +20,45 @@ def test_margin_turns_a_close_miss_into_a_hit() -> None:
     assert pair_marked_wins(0.01, 0.02, margin=0.0) is False
     assert pair_marked_wins(0.01, 0.02, margin=0.015) is True
     assert pair_marked_wins(-0.05, 0.02, margin=0.015) is False
+
+
+def test_clip_twins_keeps_the_first_n_draws() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="a",
+        unmarked_text="b",
+        marked_ids=[1],
+        unmarked_ids=[2],
+        extra_marked_ids=[[3], [4], [5]],
+        extra_unmarked_ids=[[6], [7], [8]],
+        extra_marked_text=["c", "d", "e"],
+        extra_unmarked_text=["f", "g", "h"],
+    )
+    one = clip_twins([twin], 1)[0]
+    assert one.extra_marked_ids == []
+    assert one.extra_unmarked_text == []
+    assert len(one.marked_seqs()) == 1
+    two = clip_twins([twin], 2)[0]
+    assert two.extra_marked_ids == [[3]]
+    assert two.extra_unmarked_ids == [[6]]
+    assert len(two.marked_seqs()) == 2
+    four = clip_twins([twin], 4)[0]
+    assert len(four.marked_seqs()) == 4
+
+
+def test_clip_twins_rejects_zero_draws() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="a",
+        unmarked_text="b",
+        marked_ids=[1],
+        unmarked_ids=[2],
+    )
+    try:
+        clip_twins([twin], 0)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError")
 
 
 def test_blind_separates_synthetic_alternating_tokens() -> None:

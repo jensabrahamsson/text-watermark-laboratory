@@ -5,6 +5,7 @@ from text_watermark_tools.stats import (
     binomial_sf,
     counts_at_threshold,
     fit_ridge_logodds,
+    nested_threshold_by_stem,
     permutation_mean_diff_p,
     roc_auc,
     score_ridge_logodds,
@@ -69,6 +70,27 @@ def test_counts_at_threshold_matches_youden_zero() -> None:
     assert tn == 2
     assert abs(sens - 2 / 3) < 1e-12
     assert abs(spec - 2 / 3) < 1e-12
+
+
+def test_nested_youden_by_stem_classifies_without_the_held_stem() -> None:
+    # One loud stem plus two quiet stems. Nested Youden must still separate
+    # the quiet files using a threshold fitted without the loud stem.
+    stems = ["loud", "loud", "q1", "q1", "q2", "q2"]
+    marked = [10.0, 10.0, 0.2, 0.3, 0.25, 0.15]
+    unmarked = [-10.0, -10.0, -0.2, -0.1, -0.15, -0.05]
+    ev = nested_threshold_by_stem(stems, marked, unmarked)
+    assert ev.n_stems == 3
+    assert ev.n_marked_above == 6
+    assert ev.n_unmarked_at_most == 6
+    assert ev.source == "nested-youden-by-stem"
+
+
+def test_nested_threshold_by_stem_rejects_misaligned_inputs() -> None:
+    try:
+        nested_threshold_by_stem(["a"], [0.1, 0.2], [0.0])
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError")
 
 
 def test_threshold_at_fpr_ten_percent_on_ten_unmarked() -> None:

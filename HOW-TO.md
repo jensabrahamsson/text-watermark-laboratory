@@ -22,7 +22,7 @@ It uses the published keys and DeepMind's detector.
 
 It does **not** use the watermark keys, `hash_iv`, or g-values.
 
-This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment the original last-4 count tables separate held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **11/12** with no margin (AUC **0.737**). Hash pooling reaches **11/12** and **35/48** isolated marked files with `lr > 0`. On the original hard scorer, individual files are weaker: **29/48** held-out marked files have `lr > 0`.
+This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment the original last-4 count tables separate held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **11/12** with no margin (AUC **0.737**). Hash pooling reaches **11/12** and **35/48** isolated marked files with `lr > 0`. On the original hard scorer, individual files are weaker: **29/48** held-out marked files have `lr > 0`. Four draws on 36 GPT-2 topics lift in-domain hits to **36/36** (AUC **0.934**); a nested-by-stem Youden on those LRs is **119/144** vs **134/144**. Train 12×4 and score 96 new-topic 36×4 files: nested hits 10% FPR is **83/96** vs **85/96**. None of that is a universal yes/no.
 
 Use `score` when you have the relevant public reference instance. Use `indicate` when you are exploring the key-free signal.
 
@@ -282,9 +282,9 @@ python -m text_watermark_tools probe \
   --out-dir experiments/probe
 ```
 
-`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, `surface`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer). `--shuffle-labels` is a negative control. Nested Youden / 10% FPR thresholds come from leave-one-prompt-out on the training stems only.
+`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, `surface`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer). `--shuffle-labels` is a negative control. Nested Youden / 10% FPR thresholds come from leave-one-prompt-out on the training stems only. `--max-draws N` keeps the first N marked/unmarked draws per stem (draw-count ablation). Leave-one-out `probe` also reports **nested-youden-by-stem**: a threshold fitted on other prompts' already-held-out LRs, then applied to this prompt.
 
-These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. `surface` hashes UTF-8 bytes of the raw string. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769); nested hashpool Youden is **33/48** vs **34/48**. Witten–Bell interpolation did not help on 12×4. See [research/key-free-probe.md](research/key-free-probe.md).
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. `surface` hashes UTF-8 bytes of the raw string. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769); nested hashpool Youden is **33/48** vs **34/48**. Four training draws lift that ranking to **12/12** and **42/48** at t=0 (nested hits Youden 26/48 vs 44/48). Train 12×4, score 96 new-topic 36×4 files: nested hits 10% FPR **83/96** vs **85/96**. Witten–Bell interpolation did not help on 12×4. See [research/key-free-probe.md](research/key-free-probe.md).
 
 ## Key-free argmax snap (`scrub`)
 

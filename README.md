@@ -32,7 +32,7 @@ A different reader of the same tables — score only 4-grams seen on both traini
 
 **Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Hard last-4 marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003). Binomial P(≥29 | n=48, p=0.5) = 0.097, so that sign is not a 5% test. Ranking of the same LRs is (AUC 0.626, permutation p = 0.0075). Hashpool’s isolated sign is **35/48** (p ≈ 0.001), with unmarked specificity still 29/48.
 
-When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986**). That ranking is not a calibrated detector: ten unmarked twins are also positive at threshold 0. Nested Youden fitted only on the training stems, then frozen on the test files, is the honest isolated-file gate: OOD hashpool is **33/48** marked and **34/48** unmarked (sens 0.69 / spec 0.71); reverse `freqhits` is **23/24** and **23/24**. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
+When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). Four training draws per new topic lift that ranking to **12/12** prompt groups and **42/48** isolated files at threshold 0 (AUC **0.793**); nested Youden then becomes conservative (26/48 vs 44/48). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986** on the 1-draw 256-token stems; **24/24** and AUC **0.924** on four 128-token draws). Nested hits 10% FPR on those 96 new-topic files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws reaches **36/36** prompt grain (AUC **0.934**) and a nested-by-stem hits gate of **119/144** vs **134/144**; that is in-domain, same generator. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
 
 | Method | What is being asked | Result |
 |---|---|---|
@@ -45,7 +45,11 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free hashpool, 36 topics | Same method, one draw per prompt | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | Different generator, last-4 hashpool | **10/12**, isolated **11/12** |
 | Key-free hits, other topics → 12×4 | Train 24 new stems, score 12×4 files | isolated **39/48**, AUC **0.769** |
+| Same split, 4 training draws | 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
 | Nested hashpool Youden, same split | Train-only threshold, frozen on 12×4 | **33/48** marked, **34/48** unmarked |
+| Nested hits Youden, 4-draw train | Same 12×4 files, higher threshold | **26/48** marked, **44/48** unmarked |
+| Nested hits FPR10, 12×4 → 36×4 | New topics, 96 files, train-only 10% FPR | **83/96** vs **85/96** |
+| Key-free hits, 36 topics × 4 draws | In-domain leave-one-out | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | UTF-8 surface, 12×4 leave-one-out | Byte hashpool, no tokenizer | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | Probe-tokenizer paired ranking | **11/12** (isolated `lr>0` **1/12**) |
 | New topics GPT-2 → Qwen | Hits / hashpool / surface | chance |
@@ -97,7 +101,7 @@ flowchart LR
 
 The experiment therefore asks a harder question than ordinary detection: **is there enough structure in the sampler's output to infer watermark presence without reproducing the detector?**
 
-For held-out *groups*, yes (10/12 hard last-4; 11/12 with `hits` or `hashpool`). For one file’s hard sign at 0 under leave-one-of-12-out, not reliably (29/48). Out-of-family hits is stronger (39/48 on 12×4; 24/24 ranking on new topics) but still not a universal detector. Hashpool’s in-family isolated sign is 35/48.
+For held-out *groups*, yes (10/12 hard last-4; 11/12 with `hits` or `hashpool`; 36/36 hits on 36 topics × 4 draws). For one file’s hard sign at 0 under leave-one-of-12-out, not reliably (29/48). Out-of-family hits is stronger (39/48 on 12×4 from 1-draw train; 42/48 from 4-draw train; 24/24 ranking on new topics) but still not a universal detector. Nested hits 10% FPR on 96 new-topic 36×4 files is 83/96 vs 85/96. Hashpool’s in-family isolated sign is 35/48.
 
 ---
 

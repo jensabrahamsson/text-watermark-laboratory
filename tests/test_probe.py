@@ -490,3 +490,126 @@ def test_qwen_in_domain_surface_is_nine_of_twelve() -> None:
     assert ev.n_prompts_marked_above == 9
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.60
+
+
+def test_pair_36x4_official_splits_all_first_draws() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-pair-36x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["instance"] == "public-deepmind-30"
+    assert raw["max_new_tokens"] == 128
+    assert raw["model_name"] == "gpt2"
+    assert len(raw["rows"]) == 36
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 36
+
+
+def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts == 36
+    assert ev.n_files == 288
+    assert ev.n_prompts_marked_above == 36
+    assert ev.n_marked_positive == 134
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.92
+    nested = nested_threshold_by_stem(ev.stems, ev.marked_lrs, ev.unmarked_lrs)
+    assert nested.n_marked_above == 119
+    assert nested.n_unmarked_at_most == 134
+    assert nested.sensitivity > 0.80
+    assert nested.specificity > 0.90
+
+
+def test_transfer_36x4_to_12x4_hits_is_twelve_of_twelve() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4"
+    )
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    logit = holdout_from_json(root / "logit" / "holdout.json")
+    assert hits.used_keys is False
+    assert hits.mode == "transfer"
+    assert hits.n_prompts_marked_above == 12
+    assert hits.n_marked_positive == 42
+    stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.78
+    assert logit.n_prompts_marked_above == 12
+    logit_stats = binary_eval(
+        logit.marked_lrs, logit.unmarked_lrs, n_perm=200, seed=0
+    )
+    assert logit_stats.auc > 0.80
+    raw = json.loads((root / "results.json").read_text())
+    assert raw["used_keys"] is False
+    nested = next(
+        r
+        for r in raw["thresholds"]
+        if r["name"] == "hits" and r["source"] == "nested-youden"
+    )
+    assert nested["n_marked_above"] == 26
+    assert nested["n_unmarked_at_most"] == 44
+
+
+def test_probe_36x4_draw_ablation_lifts_hits_with_extra_draws() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    one = holdout_from_json(root / "2026-08-31-probe-36x4-draws1" / "hits" / "holdout.json")
+    two = holdout_from_json(root / "2026-08-31-probe-36x4-draws2" / "hits" / "holdout.json")
+    four = holdout_from_json(root / "2026-08-31-probe-36x4" / "hits" / "holdout.json")
+    assert one.used_keys is False
+    assert one.n_prompts_marked_above == 30
+    assert two.n_prompts_marked_above == 33
+    assert four.n_prompts_marked_above == 36
+    assert one.n_files == 72
+    assert two.n_files == 144
+    assert four.n_files == 288
+    one_auc = binary_eval(one.marked_lrs, one.unmarked_lrs, n_perm=200, seed=0).auc
+    four_auc = binary_eval(four.marked_lrs, four.unmarked_lrs, n_perm=200, seed=0).auc
+    assert one_auc > 0.82
+    assert four_auc > one_auc
+
+
+def test_transfer_12x4_to_36x4_nested_hits_fpr10_is_balanced() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-12x4-to-36x4"
+    )
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    assert hits.used_keys is False
+    assert hits.n_prompts == 24
+    assert hits.n_prompts_marked_above == 24
+    assert hits.n_files == 192
+    stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.90
+    raw = json.loads((root / "results.json").read_text())
+    assert raw["used_keys"] is False
+    nested = next(
+        r
+        for r in raw["thresholds"]
+        if r["name"] == "hits" and r["source"] == "nested-fpr10"
+    )
+    assert nested["n_marked_above"] == 83
+    assert nested["n_unmarked_at_most"] == 85

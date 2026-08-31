@@ -80,6 +80,43 @@ The earlier lesson that “more topics alone do not help” was a **scorer artif
 
 JSON: [../experiments/2026-08-31-probe-36/](../experiments/2026-08-31-probe-36/).
 
+## Results on 36 GPT-2 topics × 4 draws (128 tokens)
+
+Corpus: [../experiments/2026-08-31-pair-36x4/](../experiments/2026-08-31-pair-36x4/).
+Official first-draw lamp **36/36**. Length-matched to 12×4, not the historical
+256-token 36×1 run. Leave-one-out JSON:
+[../experiments/2026-08-31-probe-36x4/](../experiments/2026-08-31-probe-36x4/).
+
+| Method | Prompt wins | File AUC | Marked `> 0` | Nested-by-stem Youden |
+|---|---|---|---|---|
+| **hits** | **36/36** | **0.934** | 134/144 | **119/144 vs 134/144** |
+| hitmass | **36/36** | **0.938** | 134/144 | 116/144 vs 134/144 |
+| hashpool | **36/36** | 0.909 | 128/144 | 111/144 vs 128/144 |
+
+**36/36 is in-domain ranking**, same generator. Nested-by-stem Youden chooses
+the threshold on other prompts' already-held-out LRs. It is the honest
+in-domain isolated-file gate here; it is not a detector of a new model.
+
+Draw-count ablation (`--max-draws` on the same files):
+
+| Draws | hits wins | hits AUC | Nested-by-stem hits |
+|---|---|---|---|
+| 1 | 30/36 | 0.845 | 29/36 vs 31/36 |
+| 2 | 33/36 | 0.875 | 52/72 vs 64/72 |
+| 4 | **36/36** | **0.934** | **119/144 vs 134/144** |
+
+One 128-token draw reproduces the old 36×1 hits ranking (30/36). Extra
+*draws* lift it to 36/36. Hashpool on the short 1-draw slice is only 23/36
+(the 256-token 36×1 hashpool was 31/36).
+
+Train those 24 new stems × 4 draws, score the original 12×4 files
+([../experiments/2026-08-31-transfer-36x4-to-12x4/](../experiments/2026-08-31-transfer-36x4-to-12x4/)):
+hits **12/12**, AUC **0.793**, isolated **42/48** at t=0. Nested hits Youden
+is conservative: **26/48** vs **44/48**. Reverse — train 12×4, score 96
+new-topic 36×4 files
+([../experiments/2026-08-31-transfer-12x4-to-36x4/](../experiments/2026-08-31-transfer-12x4-to-36x4/)):
+hits **24/24**, AUC 0.924; nested hits 10% FPR **83/96** vs **85/96**.
+
 ## Results on Qwen2-1.5B (12×1)
 
 Published last-2 on this corpus was **10/12**. Hard last-4 is **6/12**. Hashpool is **10/12**, AUC **0.750**, isolated **11/12** marked `lr > 0`. Exact `hits` prompt-wins 8/12 but file AUC **0.417** (below chance): one draw and a large tokenizer leave almost no shared 4-grams.
@@ -186,7 +223,7 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 
 **Coverage gating was the missing ablation on 12×4 and 36-topic GPT-2.** Scoring *only* 4-grams seen on both training sides raises 12×4 AUC from 0.626 to 0.737 (11/12) and 36-topic ranking from 20/36 to 30–31/36 (AUC 0.89). The unigram fallback in `hard` was adding topic noise. The old “more topics do not help” lesson was a scorer artifact.
 
-**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Nested hashpool Youden on that split is the honest yes/no: **33/48** marked and **34/48** unmarked. Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986**); nested `freqhits` is **23/24** and **23/24**. Leave-one-of-12-out hard last-4 remains 29/48.
+**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Nested hashpool Youden on that split is the honest yes/no: **33/48** marked and **34/48** unmarked. Four training draws lift OOD ranking to **12/12** and **42/48** at t=0; nested hits Youden then sits at **26/48** vs **44/48**. Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986** on 1-draw 256-token stems; AUC **0.924** on 96 files from 36×4). Nested hits 10% FPR on those 96 files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws is **36/36** (AUC **0.934**); nested-by-stem hits **119/144** vs **134/144**. Leave-one-of-12-out hard last-4 remains 29/48.
 
 **Hash pooling is the method that generalizes across generators.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750), and 11/12 prompt grain when those hash buckets are trained on other GPT-2 topics. Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
 
@@ -201,6 +238,8 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 **Same-topic GPT-2 hits can rank Qwen twins 11/12 through a probe tokenizer.** Isolated sign at 0 fails (1/12). Token hashpool does not transfer (AUC 0.521). New topics plus Qwen is chance. Paired ranking is not a single-file detector.
 
 **A hits+hashpool LDA stack is a specificity knob, not a 12/12 detector.** On 12×4 LOO it keeps 11/12 and AUC 0.732 while unmarked ≤0 rises to 44/48.
+
+**Four extra draws at matched length, not extra topics, lift in-domain hits to 36/36.** One 128-token draw is still 30/36. Nested-by-stem Youden on the 4-draw LRs is 119/144 vs 134/144. Out-of-family, 4-draw train → 12×4 is 12/12 ranking (42/48 at t=0) with a conservative nested Youden (26/48 vs 44/48). The reverse nested hits 10% FPR on 96 new-topic files is 83/96 vs 85/96.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 
@@ -218,9 +257,12 @@ python -m text_watermark_tools indicate holdout \
   experiments/2026-08-17-pair-12x4 \
   --rotate --context-len 4 --score-mode hits
 
-python -m text_watermark_tools probe \
-  experiments/2026-08-17-pair-12x4 \
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/2026-08-31-probe-12x4
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --max-draws 1 --methods hits,hashpool \
+  --out-dir experiments/2026-08-31-probe-36x4-draws1
 
 python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
   --test-dir experiments/2026-08-17-pair-12x4 \

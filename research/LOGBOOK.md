@@ -184,3 +184,17 @@ JSON: `experiments/2026-08-31-transfer-36-to-12x4/`, `experiments/2026-08-31-tra
 Nested train-only thresholds on the same splits: OOD hashpool Youden **33/48** marked / **34/48** unmarked; reverse `freqhits` **23/24** and **23/24**. `hitmass` recovers OOD prompt grain **10/12**. A 50% train-label shuffle drops isolated sign to 19–20/48. `surface` is a UTF-8 byte hashpool (no tokenizer): 12×4 LOO **10/12** AUC 0.602; Qwen LOO **9/12**. Same-topic GPT-2 hits through GPT-2 BPE of Qwen text ranks **11/12** (isolated `lr>0` 1/12); new topics plus Qwen is chance. `logit` is nested-calibrated ridge logistic on the file scores. JSON: `experiments/2026-08-31-transfer-nested-36-to-12x4/`, `experiments/2026-08-31-transfer-nested-12x4-to-36/`, `experiments/2026-08-31-transfer-shuffle-36-to-12x4/`, `experiments/2026-08-31-probe-surface-12x4/`, `experiments/2026-08-31-transfer-gpt2-to-qwen/`, `experiments/2026-08-31-transfer-36-to-qwen/`.
 
 ---
+
+## 2026-08-31 extra draws (36×4)
+
+New GPT-2 corpus: 36 prompts × 4 draws × 128 tokens (`experiments/2026-08-31-pair-36x4/`). Official first-draw **36/36**. `used_keys=false` on every key-free number below.
+
+Leave-one-out hits **36/36**, AUC **0.934**, isolated 134/144 at t=0. Nested-by-stem Youden (threshold from other stems' held-out LRs): **119/144** vs **134/144**. Draw ablation on the same files: 1-draw hits **30/36** (AUC 0.845); 2-draw **33/36**; 4-draw **36/36**. Extra draws, not extra topics, are the lift. Hashpool on the short 1-draw slice is only 23/36.
+
+Train 24 new stems × 4, score original 12×4: hits **12/12**, AUC **0.793**, isolated **42/48**. Nested hits Youden **26/48** vs **44/48**. Reverse — train 12×4, score 96 new-topic files: hits **24/24**, AUC 0.924; nested hits 10% FPR **83/96** vs **85/96**.
+
+Do not replace the published hard last-4 **10/12** / **29/48** with 36/36. 36/36 is in-domain. The 83/96 gate is still GPT-2 laboratory prompts.
+
+JSON: `experiments/2026-08-31-probe-36x4/`, `experiments/2026-08-31-transfer-36x4-to-12x4/`, `experiments/2026-08-31-transfer-12x4-to-36x4/`.
+
+---

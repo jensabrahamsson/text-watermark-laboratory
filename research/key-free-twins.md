@@ -20,6 +20,10 @@ Current results:
 | Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
 | Key-free hits, train 24 other topics → 12×4 files | isolated **39/48**, AUC **0.769** |
 | Nested hashpool Youden on that split | **33/48** marked, **34/48** unmarked |
+| Key-free hits, 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
+| Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
+| Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
+| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | **11/12** paired; isolated `lr>0` **1/12** |
 | New GPT-2 topics → Qwen | chance |
