@@ -57,6 +57,7 @@ LOGIT_FEATURE_ORDER: tuple[str, ...] = (
     "surface",
     "hitmass",
     "poshitmass",
+    "first",
 )
 DEFAULT_POS_BUCKET = 16
 DEFAULT_COVERAGE_WINDOWS: tuple[tuple[int, int], ...] = (
@@ -73,6 +74,25 @@ POS_SPECS: dict[str, ScoreSpec] = {
     "poshits": POSHITS_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
+
+
+def _twin_prefix(twin: Twin, prompt_context: bool) -> tuple[int, ...]:
+    if not prompt_context:
+        return ()
+    if not twin.prompt_ids:
+        raise ValueError(
+            f"prompt-context needs prompt token ids on stem {twin.stem!r}"
+        )
+    return tuple(int(x) for x in twin.prompt_ids)
+
+
+def _call_scorer(scorer: ScoreFn, seq, *, prefix: Sequence[int] = ()):
+    if not prefix:
+        return scorer(seq)
+    try:
+        return scorer(seq, prefix=prefix)
+    except TypeError:
+        return scorer(seq)
 
 
 def _twin_sides(twin: Twin, seq_mode: str) -> tuple[list, list]:
@@ -426,6 +446,8 @@ def rotate_count_methods(
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
     position_bucket: int = 0,
     extra_specs: dict[str, ScoreSpec] | None = None,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> dict[str, IndicatorHoldout]:
     extra_specs = extra_specs or {}
     names = list(COUNT_SPECS.keys()) if methods is None else list(methods)
@@ -451,12 +473,21 @@ def rotate_count_methods(
     }
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
-        model = fit_count_model(
-            train, context_len=context_len, position_bucket=position_bucket
+        store_first = include_first or any(
+            _spec(n).include_first or _spec(n).first_only for n in names
         )
+        model = fit_count_model(
+            train,
+            context_len=context_len,
+            position_bucket=position_bucket,
+            include_first=store_first,
+            prompt_context=prompt_context,
+        )
+        model.include_first = bool(include_first)
         flags = (model.used_keys, model.used_hash_iv, model.used_g_values)
         marked_seqs = held.marked_seqs()
         unmarked_seqs = held.unmarked_seqs()
+        held_prefix = _twin_prefix(held, prompt_context)
         n = min(len(marked_seqs), len(unmarked_seqs))
         for name in names:
             spec = _spec(name)
@@ -468,24 +499,38 @@ def rotate_count_methods(
                     buckets[name],
                     held.stem,
                     i + 1,
-                    score_sequence(marked, model, spec),
-                    score_sequence(unmarked, model, spec),
+                    score_sequence(marked, model, spec, prefix=held_prefix),
+                    score_sequence(unmarked, model, spec, prefix=held_prefix),
                 )
                 for plen in lenses:
                     _append_pair(
                         prefix_buckets[plen][name],
                         held.stem,
                         i + 1,
-                        score_sequence(clip_seq(marked, plen), model, spec),
-                        score_sequence(clip_seq(unmarked, plen), model, spec),
+                        score_sequence(
+                            clip_seq(marked, plen), model, spec, prefix=held_prefix
+                        ),
+                        score_sequence(
+                            clip_seq(unmarked, plen), model, spec, prefix=held_prefix
+                        ),
                     )
                 for start, end in spans:
                     _append_pair(
                         window_buckets[(start, end)][name],
                         held.stem,
                         i + 1,
-                        score_sequence(slice_seq(marked, start, end), model, spec),
-                        score_sequence(slice_seq(unmarked, start, end), model, spec),
+                        score_sequence(
+                            slice_seq(marked, start, end),
+                            model,
+                            spec,
+                            prefix=held_prefix,
+                        ),
+                        score_sequence(
+                            slice_seq(unmarked, start, end),
+                            model,
+                            spec,
+                            prefix=held_prefix,
+                        ),
                     )
     out: dict[str, IndicatorHoldout] = {}
     for name in names:
@@ -600,6 +645,8 @@ def rotate_pos_methods(
     prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> dict[str, IndicatorHoldout]:
     extra = {}
     for name in methods:
@@ -618,6 +665,8 @@ def rotate_pos_methods(
         windows=windows,
         window_out=window_out,
         position_bucket=position_bucket,
+        include_first=include_first,
+        prompt_context=prompt_context,
     )
 
 
@@ -1124,6 +1173,7 @@ def score_twins(
     prefix_out: dict[int, IndicatorHoldout] | None = None,
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], IndicatorHoldout] | None = None,
+    prompt_context: bool = False,
 ) -> IndicatorHoldout:
     parts = _empty_holdout_parts()
     lenses = _parse_prefix_lens(prefix_lens)
@@ -1132,6 +1182,7 @@ def score_twins(
     window_parts = {win: _empty_holdout_parts() for win in spans}
     for twin in twins:
         marked_seqs, unmarked_seqs = _twin_sides(twin, seq_mode)
+        held_prefix = _twin_prefix(twin, prompt_context) if seq_mode == "ids" else ()
         n = min(len(marked_seqs), len(unmarked_seqs))
         for i in range(n):
             marked = marked_seqs[i]
@@ -1140,24 +1191,28 @@ def score_twins(
                 parts,
                 twin.stem,
                 i + 1,
-                scorer(marked),
-                scorer(unmarked),
+                _call_scorer(scorer, marked, prefix=held_prefix),
+                _call_scorer(scorer, unmarked, prefix=held_prefix),
             )
             for plen in lenses:
                 _append_pair(
                     prefix_parts[plen],
                     twin.stem,
                     i + 1,
-                    scorer(clip_seq(marked, plen)),
-                    scorer(clip_seq(unmarked, plen)),
+                    _call_scorer(scorer, clip_seq(marked, plen), prefix=held_prefix),
+                    _call_scorer(scorer, clip_seq(unmarked, plen), prefix=held_prefix),
                 )
             for start, end in spans:
                 _append_pair(
                     window_parts[(start, end)],
                     twin.stem,
                     i + 1,
-                    scorer(slice_seq(marked, start, end)),
-                    scorer(slice_seq(unmarked, start, end)),
+                    _call_scorer(
+                        scorer, slice_seq(marked, start, end), prefix=held_prefix
+                    ),
+                    _call_scorer(
+                        scorer, slice_seq(unmarked, start, end), prefix=held_prefix
+                    ),
                 )
     flags = dict(
         used_keys=used_keys,
@@ -1317,6 +1372,8 @@ class ProbeRun:
     )
     fit_prefix: int | None = None
     position_bucket: int = 0
+    include_first: bool = False
+    prompt_context: bool = False
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
@@ -1372,6 +1429,8 @@ class TransferRun:
     )
     fit_prefix: int | None = None
     position_bucket: int = 0
+    include_first: bool = False
+    prompt_context: bool = False
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -1449,9 +1508,15 @@ def run_probe(
     fit_prefix: int | None = None,
     position_bucket: int = DEFAULT_POS_BUCKET,
     with_coverage: bool = False,
+    include_first: bool = False,
+    prompt_context: bool = False,
     lm=None,
 ) -> ProbeRun:
-    requested = list(methods) if methods is not None else list(COUNT_SPECS)
+    requested = (
+        list(methods)
+        if methods is not None
+        else [k for k in COUNT_SPECS if k != "first"]
+    )
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
     pos_names = [m for m in requested if m in POS_SPECS]
@@ -1472,6 +1537,8 @@ def run_probe(
         windows=spans,
         fit_prefix=int(fit_prefix) if fit_prefix and fit_prefix > 0 else None,
         position_bucket=pos_bucket,
+        include_first=bool(include_first),
+        prompt_context=bool(prompt_context),
     )
     if count_names:
         counted = rotate_count_methods(
@@ -1483,6 +1550,8 @@ def run_probe(
             prefix_out=prefix_out if lenses else None,
             windows=spans,
             window_out=window_out if spans else None,
+            include_first=include_first,
+            prompt_context=prompt_context,
         )
         for name in count_names:
             run.methods.append(summarize_holdout(name, counted[name]))
@@ -1514,6 +1583,8 @@ def run_probe(
             prefix_out=prefix_out if lenses else None,
             windows=spans,
             window_out=window_out if spans else None,
+            include_first=include_first,
+            prompt_context=prompt_context,
         )
         for name in pos_names:
             run.methods.append(summarize_holdout(name, counted_pos[name]))
@@ -1623,6 +1694,7 @@ def print_probe(run: ProbeRun) -> str:
             f"max_draws={run.max_draws} prefix_lens={list(run.prefix_lens)} "
             f"windows={[f'{a}:{b}' for a, b in run.windows]} "
             f"fit_prefix={run.fit_prefix} pos_bucket={run.position_bucket} "
+            f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
             f"g_values={run.used_g_values}"
         ),
@@ -1718,6 +1790,8 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "windows": [f"{a}:{b}" for a, b in run.windows],
         "fit_prefix": run.fit_prefix,
         "position_bucket": run.position_bucket,
+        "include_first": run.include_first,
+        "prompt_context": run.prompt_context,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1840,6 +1914,8 @@ def run_transfer(
     windows: Sequence[str | tuple[int, int]] = (),
     fit_prefix: int | None = None,
     position_bucket: int = DEFAULT_POS_BUCKET,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -1862,7 +1938,7 @@ def run_transfer(
         if len(logit_ready) < 2:
             raise ValueError(
                 "logit needs at least two of hits, poshits, hashpool, "
-                "surface, hitmass, poshitmass"
+                "surface, hitmass, poshitmass, first"
             )
     need_counts = bool(count_names) or any(
         n in extras for n in ("hybrid", "stack")
@@ -1871,9 +1947,19 @@ def run_transfer(
         n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix")
     )
     need_surface = "surface" in extras
+    store_first = include_first or "first" in count_names
     count_model = (
-        fit_count_model(train, context_len=context_len) if need_counts else None
+        fit_count_model(
+            train,
+            context_len=context_len,
+            include_first=store_first,
+            prompt_context=prompt_context,
+        )
+        if need_counts
+        else None
     )
+    if count_model is not None:
+        count_model.include_first = bool(include_first)
     hash_model = (
         fit_hashpool_twins(
             train,
@@ -1911,11 +1997,17 @@ def run_transfer(
     pos_names = [n for n in extras if n in POS_SPECS]
     pos_model = (
         fit_count_model(
-            train, context_len=context_len, position_bucket=pos_bucket or DEFAULT_POS_BUCKET
+            train,
+            context_len=context_len,
+            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            include_first=store_first,
+            prompt_context=prompt_context,
         )
         if pos_names
         else None
     )
+    if pos_model is not None:
+        pos_model.include_first = bool(include_first)
     pos_hash = (
         fit_hashpool_twins(
             train,
@@ -1942,7 +2034,9 @@ def run_transfer(
         spec = COUNT_SPECS[name]
         assert count_model is not None
         scorers[name] = (
-            (lambda ids, m=count_model, s=spec: score_sequence(ids, m, s)),
+            (lambda ids, prefix=(), m=count_model, s=spec: score_sequence(
+                ids, m, s, prefix=prefix
+            )),
             spec.instance,
             name,
             "ids",
@@ -1991,7 +2085,11 @@ def run_transfer(
     if "poshits" in extras:
         assert pos_model is not None
         scorers["poshits"] = (
-            (lambda ids, m=pos_model: score_sequence(ids, m, POSHITS_SPEC)),
+            (
+                lambda ids, prefix=(), m=pos_model: score_sequence(
+                    ids, m, POSHITS_SPEC, prefix=prefix
+                )
+            ),
             "key-free-poshits",
             "poshits",
             "ids",
@@ -1999,7 +2097,11 @@ def run_transfer(
     if "poshitmass" in extras:
         assert pos_model is not None
         scorers["poshitmass"] = (
-            (lambda ids, m=pos_model: score_sequence(ids, m, POSHITMASS_SPEC)),
+            (
+                lambda ids, prefix=(), m=pos_model: score_sequence(
+                    ids, m, POSHITMASS_SPEC, prefix=prefix
+                )
+            ),
             "key-free-poshitmass",
             "poshitmass",
             "ids",
@@ -2050,6 +2152,8 @@ def run_transfer(
         windows=_parse_windows(windows),
         fit_prefix=int(fit_prefix) if fit_prefix and fit_prefix > 0 else None,
         position_bucket=pos_bucket,
+        include_first=bool(include_first),
+        prompt_context=bool(prompt_context),
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -2067,6 +2171,7 @@ def run_transfer(
             used_g_values=used_g,
             mode="train",
             seq_mode=seq_mode,
+            prompt_context=prompt_context,
         )
         pref: dict[int, IndicatorHoldout] = {}
         win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -2086,6 +2191,7 @@ def run_transfer(
             prefix_out=pref if run.prefix_lens else None,
             windows=run.windows,
             window_out=win if run.windows else None,
+            prompt_context=prompt_context,
         )
         if pref:
             _store_prefixes(run.prefixes, {n: {name: ev} for n, ev in pref.items()})
@@ -2202,6 +2308,8 @@ def run_transfer(
                 methods=count_names,
                 context_len=context_len,
                 model_name=model_name,
+                include_first=include_first,
+                prompt_context=prompt_context,
             )
             nested_holdouts.update(loo_counts)
         if "hashpool" in extras:
@@ -2228,6 +2336,8 @@ def run_transfer(
                     context_len=context_len,
                     position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
                     model_name=model_name,
+                    include_first=include_first,
+                    prompt_context=prompt_context,
                 )
             )
         if (
@@ -2276,7 +2386,8 @@ def print_transfer(run: TransferRun) -> str:
             f"dropped={len(run.dropped_stems)} context_len={run.context_len} "
             f"model={run.model_name} nested={run.nested} "
             f"shuffle_seed={run.shuffle_seed} used_keys={run.used_keys} "
-            f"hash_iv={run.used_hash_iv} g_values={run.used_g_values}"
+            f"hash_iv={run.used_hash_iv} g_values={run.used_g_values} "
+            f"include_first={run.include_first} prompt_context={run.prompt_context}"
         ),
         run.note,
         CAVEAT,
@@ -2374,6 +2485,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "windows": [f"{a}:{b}" for a, b in run.windows],
         "fit_prefix": run.fit_prefix,
         "position_bucket": run.position_bucket,
+        "include_first": run.include_first,
+        "prompt_context": run.prompt_context,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],

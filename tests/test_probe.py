@@ -134,6 +134,53 @@ def test_clip_prefix_and_poshits_on_lab_pairs_are_key_free(tmp_path) -> None:
     assert isinstance(mass_lr, float)
 
 
+def test_include_first_and_prompt_context_on_lab_pairs_are_key_free() -> None:
+    twins = load_twins(PAIR)
+    assert twins[0].prompt_ids
+    base = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hits", "first"),
+        fit_prefix=4,
+        position_bucket=1,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    with_first = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hits", "first"),
+        fit_prefix=4,
+        position_bucket=1,
+        include_first=True,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    with_prompt = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hits",),
+        fit_prefix=4,
+        position_bucket=1,
+        prompt_context=True,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    assert base.used_keys is False
+    assert with_first.include_first is True
+    assert with_prompt.prompt_context is True
+    assert all(m.holdout.used_keys is False for m in with_first.methods)
+    assert all(m.holdout.used_keys is False for m in with_prompt.methods)
+    first = next(m for m in with_first.methods if m.name == "first")
+    assert first.holdout.instance == "key-free-first"
+    base_hits = next(m for m in base.methods if m.name == "hits")
+    first_hits = next(m for m in with_first.methods if m.name == "hits")
+    assert base_hits.holdout.marked_lrs != first_hits.holdout.marked_lrs
+
+
 def test_prefix_probe_on_lab_pairs_is_key_free(tmp_path) -> None:
     twins = load_twins(PAIR)
     run = run_probe(

@@ -64,6 +64,8 @@ class ScoreSpec:
     shrinkage_tau: float = 0.0
     mix_orders: tuple[int, ...] = ()
     instance: str = "key-free-counts"
+    include_first: bool = False
+    first_only: bool = False
 
 
 COUNT_SPECS: dict[str, ScoreSpec] = {
@@ -79,6 +81,13 @@ COUNT_SPECS: dict[str, ScoreSpec] = {
         kind="shrinkage", shrinkage_tau=2.0, instance="key-free-shrinkage"
     ),
     "mix": ScoreSpec(kind="mix", mix_orders=(1, 4), instance="key-free-mix"),
+    "first": ScoreSpec(
+        kind="gated",
+        min_count=1,
+        include_first=True,
+        first_only=True,
+        instance="key-free-first",
+    ),
 }
 
 
@@ -162,6 +171,8 @@ def score_sequence_detail(
     ids: Sequence[int],
     model: BlindModel,
     spec: ScoreSpec | None = None,
+    *,
+    prefix: Sequence[int] = (),
 ) -> ScoreDetail:
     spec = spec or ScoreSpec()
     if model.used_keys or model.used_hash_iv or model.used_g_values:
@@ -171,7 +182,14 @@ def score_sequence_detail(
         inner = score_sequence_detail(
             ids,
             model,
-            ScoreSpec(kind="gated", min_count=max(spec.min_count, 1), instance=spec.instance),
+            ScoreSpec(
+                kind="gated",
+                min_count=max(spec.min_count, 1),
+                instance=spec.instance,
+                include_first=spec.include_first,
+                first_only=spec.first_only,
+            ),
+            prefix=prefix,
         )
         if inner.n_positions <= 0:
             return inner
@@ -183,7 +201,14 @@ def score_sequence_detail(
             score_sequence_detail(
                 ids,
                 model,
-                ScoreSpec(kind="hard-order", mix_orders=(order,), instance=spec.instance),
+                ScoreSpec(
+                    kind="hard-order",
+                    mix_orders=(order,),
+                    instance=spec.instance,
+                    include_first=spec.include_first,
+                    first_only=spec.first_only,
+                ),
+                prefix=prefix,
             )
             for order in orders
             if 1 <= order <= model.context_len
@@ -201,20 +226,29 @@ def score_sequence_detail(
         order = spec.mix_orders[0] if spec.mix_orders else model.context_len
         kind = "hard"
 
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
     total = 0.0
     weight_sum = 0.0
     n_used = 0
     n_positions = 0
     for i, tok in enumerate(ids):
-        if i == 0:
+        if i == 0 and not score_first:
+            continue
+        if spec.first_only and i > 0:
             continue
         n_positions += 1
         t = int(tok)
         full_ctx = _scored_ctx(
-            ids, i, model.context_len, model.position_bucket
+            ids, i, model.context_len, model.position_bucket, prefix=prefix
         )
         ctx = full_ctx if order is None else _scored_ctx(
-            ids, i, order, model.position_bucket
+            ids, i, order, model.position_bucket, prefix=prefix
         )
         n_m = _count(model.marked, ctx)
         n_u = _count(model.unmarked, ctx)
@@ -248,8 +282,10 @@ def score_sequence(
     ids: Sequence[int],
     model: BlindModel,
     spec: ScoreSpec | None = None,
+    *,
+    prefix: Sequence[int] = (),
 ) -> float:
-    return score_sequence_detail(ids, model, spec).lr
+    return score_sequence_detail(ids, model, spec, prefix=prefix).lr
 
 
 def splitmix64(x: int) -> int:
@@ -801,21 +837,48 @@ def fit_count_model(
     context_len: int = 4,
     alpha: float = DEFAULT_ALPHA,
     position_bucket: int = 0,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> BlindModel:
+    marked: list[Sequence[int]] = []
+    unmarked: list[Sequence[int]] = []
+    marked_prefixes: list[Sequence[int]] = []
+    unmarked_prefixes: list[Sequence[int]] = []
+    for twin in twins:
+        prefix = tuple(int(x) for x in twin.prompt_ids) if prompt_context else ()
+        if prompt_context and not prefix:
+            raise ValueError(
+                f"prompt-context fit needs prompt token ids on stem {twin.stem!r}"
+            )
+        for ids in twin.marked_seqs():
+            marked.append(ids)
+            marked_prefixes.append(prefix)
+        for ids in twin.unmarked_seqs():
+            unmarked.append(ids)
+            unmarked_prefixes.append(prefix)
     return fit_blind(
-        [ids for t in twins for ids in t.marked_seqs()],
-        [ids for t in twins for ids in t.unmarked_seqs()],
+        marked,
+        unmarked,
         context_len=context_len,
         alpha=alpha,
         backoff=False,
         position_bucket=position_bucket,
+        include_first=include_first,
+        prompt_context=prompt_context,
+        marked_prefixes=marked_prefixes,
+        unmarked_prefixes=unmarked_prefixes,
     )
 
 
 def count_scorer(model: BlindModel, spec: ScoreSpec):
-    def _score(ids: Sequence[int]) -> float:
-        if spec.kind == "hard" and spec.min_count <= 0 and spec.shrinkage_tau <= 0:
-            return likelihood_ratio(ids, model)
-        return score_sequence(ids, model, spec)
+    def _score(ids: Sequence[int], *, prefix: Sequence[int] = ()) -> float:
+        if (
+            spec.kind == "hard"
+            and spec.min_count <= 0
+            and spec.shrinkage_tau <= 0
+            and not spec.first_only
+        ):
+            return likelihood_ratio(ids, model, prefix=prefix)
+        return score_sequence(ids, model, spec, prefix=prefix)
 
     return _score

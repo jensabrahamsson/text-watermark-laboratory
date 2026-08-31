@@ -635,6 +635,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
             windows=_parse_windows_arg(getattr(args, "windows", "")),
             fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
             position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
+            include_first=bool(getattr(args, "include_first", False)),
+            prompt_context=bool(getattr(args, "prompt_context", False)),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -661,6 +663,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
         position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
         with_coverage=with_coverage,
+        include_first=bool(getattr(args, "include_first", False)),
+        prompt_context=bool(getattr(args, "prompt_context", False)),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1022,7 +1026,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit, poshits, poshitmass, pospool"
+            "hybrid, hashmix, surface, stack, logit, poshits, poshitmass, "
+            "pospool, first"
         ),
     )
     p_probe.add_argument(
@@ -1114,6 +1119,24 @@ def build_parser() -> argparse.ArgumentParser:
             "Token-position bucket size for poshits/poshitmass/pospool. "
             "Prepends i//N to the last-4 context so early 4-grams do not "
             "share counts with the tail. Not a watermark key. Default 16."
+        ),
+    )
+    p_probe.add_argument(
+        "--include-first",
+        action="store_true",
+        help=(
+            "Also fit and score generated token 0 as a first-token unigram "
+            "(empty last-k). Default skip matches the published tables. "
+            "Not a watermark key."
+        ),
+    )
+    p_probe.add_argument(
+        "--prompt-context",
+        action="store_true",
+        help=(
+            "Use *-prompt.txt token ids as last-k context only, so token 0 "
+            "sees the prompt the way the mixin does. Isolated indicate score "
+            "of a lone file cannot reconstruct that prompt."
         ),
     )
     p_probe.add_argument(

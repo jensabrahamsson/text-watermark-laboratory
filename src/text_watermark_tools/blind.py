@@ -20,6 +20,9 @@ from text_watermark_tools.score import load_tokenizer
 # last-1 overlaps across prompts; last-2+ is too sparse on ~12×128 tokens.
 DEFAULT_CONTEXT_LEN = 1
 DEFAULT_ALPHA = 0.5
+# Sentinel last-k for generated token 0 when the prompt is not used as
+# context. Token ids are >= 0, so -1 cannot collide. Not a watermark key.
+FIRST_TOKEN_CTX = (-1,)
 
 
 @dataclass
@@ -42,6 +45,8 @@ class BlindModel:
     used_hash_iv: bool = False
     used_g_values: bool = False
     position_bucket: int = 0
+    include_first: bool = False
+    prompt_context: bool = False
 
 
 @dataclass
@@ -55,6 +60,8 @@ class Twin:
     extra_unmarked_ids: list[list[int]] = field(default_factory=list)
     extra_marked_text: list[str] = field(default_factory=list)
     extra_unmarked_text: list[str] = field(default_factory=list)
+    prompt_text: str = ""
+    prompt_ids: list[int] = field(default_factory=list)
 
     def marked_seqs(self) -> list[list[int]]:
         return [self.marked_ids, *self.extra_marked_ids]
@@ -83,6 +90,8 @@ class Twin:
             extra_unmarked_ids=[list(x) for x in self.extra_unmarked_ids[:keep]],
             extra_marked_text=list(self.extra_marked_text[:keep]),
             extra_unmarked_text=list(self.extra_unmarked_text[:keep]),
+            prompt_text=self.prompt_text,
+            prompt_ids=list(self.prompt_ids),
         )
 
     def clip_prefix(self, n: int) -> Twin:
@@ -99,6 +108,8 @@ class Twin:
             extra_unmarked_ids=[list(x[:n]) for x in self.extra_unmarked_ids],
             extra_marked_text=list(self.extra_marked_text),
             extra_unmarked_text=list(self.extra_unmarked_text),
+            prompt_text=self.prompt_text,
+            prompt_ids=list(self.prompt_ids),
         )
 
 
@@ -146,14 +157,31 @@ def _scored_ctx(
     i: int,
     context_len: int,
     position_bucket: int = 0,
+    prefix: Sequence[int] = (),
 ) -> tuple[int, ...]:
     """Last-k tokens, optionally namespaced by i // position_bucket.
 
     Bucket 0 is the published last-k table. A positive bucket keeps early
     4-grams from sharing counts with the same tokens later in the string.
     It is not a watermark key.
+
+    `prefix` is prompt token ids used as context only (not scored). Empty
+    last-k (generated token 0 with no prefix) maps to FIRST_TOKEN_CTX so
+    `_log_prob` can look it up; the empty tuple is skipped as a backoff
+    rest stop and must not become a first-token bucket.
     """
-    ctx = _ctx(ids, i, context_len)
+    if prefix:
+        available = tuple(int(x) for x in prefix) + tuple(int(x) for x in ids[:i])
+        if context_len <= 0:
+            ctx = FIRST_TOKEN_CTX
+        else:
+            ctx = available[-context_len:] if available else FIRST_TOKEN_CTX
+            if not ctx:
+                ctx = FIRST_TOKEN_CTX
+    else:
+        ctx = _ctx(ids, i, context_len)
+        if not ctx:
+            ctx = FIRST_TOKEN_CTX
     if position_bucket <= 0:
         return ctx
     return (i // int(position_bucket),) + ctx
@@ -164,17 +192,28 @@ def _add_sequence(
     ids: Sequence[int],
     *,
     position_bucket: int = 0,
+    include_first: bool = False,
+    prefix: Sequence[int] = (),
 ) -> None:
     for i, tok in enumerate(ids):
         t = int(tok)
         table.unigram[t] += 1
         table.n_tokens += 1
         if i == 0:
+            if prefix:
+                for length in range(1, table.context_len + 1):
+                    ctx = _scored_ctx(
+                        ids, i, length, position_bucket, prefix=prefix
+                    )
+                    table.counts.setdefault(ctx, Counter())[t] += 1
+            elif include_first:
+                ctx = _scored_ctx(ids, i, 0, position_bucket, prefix=())
+                table.counts.setdefault(ctx, Counter())[t] += 1
             continue
         # Store every suffix length 1..k so backoff can shrink the context
         # instead of jumping straight to the unigram.
         for length in range(1, table.context_len + 1):
-            ctx = _scored_ctx(ids, i, length, position_bucket)
+            ctx = _scored_ctx(ids, i, length, position_bucket, prefix=prefix)
             table.counts.setdefault(ctx, Counter())[t] += 1
 
 
@@ -183,10 +222,25 @@ def fit_table(
     *,
     context_len: int,
     position_bucket: int = 0,
+    include_first: bool = False,
+    prefixes: Iterable[Sequence[int]] | None = None,
 ) -> NextTokenTable:
+    seqs = list(sequences)
+    if prefixes is None:
+        prefs: list[Sequence[int]] = [() for _ in seqs]
+    else:
+        prefs = list(prefixes)
+        if len(prefs) != len(seqs):
+            raise ValueError("prefixes must match sequences")
     table = NextTokenTable(context_len=context_len)
-    for seq in sequences:
-        _add_sequence(table, seq, position_bucket=position_bucket)
+    for seq, prefix in zip(seqs, prefs, strict=True):
+        _add_sequence(
+            table,
+            seq,
+            position_bucket=position_bucket,
+            include_first=include_first,
+            prefix=prefix,
+        )
     return table
 
 
@@ -198,12 +252,24 @@ def fit_blind(
     alpha: float = DEFAULT_ALPHA,
     backoff: bool = False,
     position_bucket: int = 0,
+    include_first: bool = False,
+    prompt_context: bool = False,
+    marked_prefixes: Iterable[Sequence[int]] | None = None,
+    unmarked_prefixes: Iterable[Sequence[int]] | None = None,
 ) -> BlindModel:
     marked = fit_table(
-        marked_seqs, context_len=context_len, position_bucket=position_bucket
+        marked_seqs,
+        context_len=context_len,
+        position_bucket=position_bucket,
+        include_first=include_first,
+        prefixes=marked_prefixes,
     )
     unmarked = fit_table(
-        unmarked_seqs, context_len=context_len, position_bucket=position_bucket
+        unmarked_seqs,
+        context_len=context_len,
+        position_bucket=position_bucket,
+        include_first=include_first,
+        prefixes=unmarked_prefixes,
     )
     vocab = set(marked.unigram) | set(unmarked.unigram)
     return BlindModel(
@@ -217,6 +283,8 @@ def fit_blind(
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(position_bucket) if position_bucket > 0 else 0,
+        include_first=bool(include_first),
+        prompt_context=bool(prompt_context),
     )
 
 
@@ -253,6 +321,8 @@ def _log_prob(
 def likelihood_ratio(
     ids: Sequence[int],
     model: BlindModel,
+    *,
+    prefix: Sequence[int] = (),
 ) -> float:
     """Mean log P_marked − log P_unmarked. Positive ⇒ more like the marked pile."""
     if model.used_keys or model.used_hash_iv or model.used_g_values:
@@ -260,10 +330,13 @@ def likelihood_ratio(
     v = max(len(model.vocab), 2)
     total = 0.0
     n = 0
+    score_first = bool(prefix) or model.include_first or model.prompt_context
     for i, tok in enumerate(ids):
-        if i == 0:
+        if i == 0 and not score_first:
             continue
-        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        ctx = _scored_ctx(
+            ids, i, model.context_len, model.position_bucket, prefix=prefix
+        )
         t = int(tok)
         total += _log_prob(
             model.marked, ctx, t, alpha=model.alpha, v=v, backoff=model.backoff
@@ -318,6 +391,9 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
                 utxt = extra_u_path.read_text()
                 extra_u_text.append(utxt)
                 extra_u.append(tok(utxt)["input_ids"])
+        prompt_path = pair_dir / f"{stem}-prompt.txt"
+        prompt_text = prompt_path.read_text() if prompt_path.is_file() else ""
+        prompt_ids = tok(prompt_text)["input_ids"] if prompt_text else []
         twins.append(
             Twin(
                 stem=stem,
@@ -329,6 +405,8 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
                 extra_unmarked_ids=extra_u,
                 extra_marked_text=extra_m_text,
                 extra_unmarked_text=extra_u_text,
+                prompt_text=prompt_text,
+                prompt_ids=prompt_ids,
             )
         )
     if not twins:

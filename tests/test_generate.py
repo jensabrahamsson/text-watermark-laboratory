@@ -1,6 +1,6 @@
 """Mixin generate at temp 1.0 scores above chance on the official scorer."""
 
-from text_watermark_tools.generate import _merge_warper_cfg, generate_text
+from text_watermark_tools.generate import _merge_warper_cfg, generate_text, is_gpt2_name
 from text_watermark_tools.score import (
     control_keys,
     load_tokenizer,
@@ -18,6 +18,15 @@ def test_merge_warper_cfg_caller_keys_win() -> None:
     assert cfg["keys"] == dummy
     assert cfg["temperature"] == 1.0
     assert cfg["device"].type == "cpu"
+
+
+def test_gpt2_family_names_use_the_gpt2_mixin() -> None:
+    assert is_gpt2_name(None) is True
+    assert is_gpt2_name("gpt2") is True
+    assert is_gpt2_name("distilgpt2") is True
+    assert is_gpt2_name("gpt2-medium") is True
+    assert is_gpt2_name("openai-community/gpt2") is True
+    assert is_gpt2_name("Qwen/Qwen2-1.5B-Instruct") is False
 
 
 def test_mixin_generate_scores_above_chance() -> None:

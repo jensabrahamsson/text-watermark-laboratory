@@ -160,9 +160,24 @@ def fit_indicator(
     alpha: float = DEFAULT_ALPHA,
     backoff: bool = False,
     position_bucket: int = 0,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> BlindModel:
     if not twins:
         raise ValueError("need at least one twin prompt to fit the indicator")
+    from text_watermark_tools.transfer import fit_count_model
+
+    if prompt_context or include_first:
+        model = fit_count_model(
+            twins,
+            context_len=context_len,
+            alpha=alpha,
+            position_bucket=position_bucket,
+            include_first=include_first,
+            prompt_context=prompt_context,
+        )
+        model.backoff = backoff
+        return model
     return fit_blind(
         [ids for t in twins for ids in t.marked_seqs()],
         [ids for t in twins for ids in t.unmarked_seqs()],
@@ -170,6 +185,8 @@ def fit_indicator(
         alpha=alpha,
         backoff=backoff,
         position_bucket=position_bucket,
+        include_first=include_first,
+        prompt_context=prompt_context,
     )
 
 
@@ -198,6 +215,8 @@ def persist_indicator(
         "alpha": model.alpha,
         "backoff": model.backoff,
         "position_bucket": bucket,
+        "include_first": bool(getattr(model, "include_first", False)),
+        "prompt_context": bool(getattr(model, "prompt_context", False)),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -234,6 +253,8 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(raw.get("position_bucket") or 0),
+        include_first=bool(raw.get("include_first", False)),
+        prompt_context=bool(raw.get("prompt_context", False)),
     )
     meta = IndicatorMeta(
         model_name=str(raw.get("model_name") or "gpt2"),
@@ -333,6 +354,12 @@ def score_text_from_tables(
     if tokenizer is None:
         raise ValueError("count tables need a tokenizer")
     model, meta = load_indicator(path)
+    if bool(getattr(model, "prompt_context", False)):
+        raise ValueError(
+            "these tables were fit with prompt context; indicate score of a "
+            "lone file cannot reconstruct the prompt. Score pair twins with "
+            "probe --prompt-context instead."
+        )
     ids = tokenizer(text)["input_ids"]
     bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
     if mode == "poshits" or (mode in ("auto", "") and bucketed):
