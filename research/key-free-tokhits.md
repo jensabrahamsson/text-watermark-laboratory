@@ -368,4 +368,15 @@ unmarked LRs).
   `postokbackoff2` shows the last-2+ core is **13/48** on every train
   set in that curve. Unbucketed last-1 and `--include-first` unigrams
   raise recall only by spending precision.
+- Covering an opening is not the same as `lr>0`. On the 60-stem
+  combined train, postokbackoff covers **42/48** and marks **34/48**;
+  eight covered files have a negative observed-token LR. Precision
+  among decided files stays 1.0 (no unmarked FP). See
+  [key-free-cascade.md](key-free-cascade.md).
+- Unmarked-LM opening geometry (4 generated tokens, no prompt) is
+  stronger in-domain than the published 128-token pivot (27/48 vs
+  17/48) and does **not** transfer as a calibrated OOD isolated-file
+  reader. Prompt-conditioned geometry is worse than chance under
+  leave-one-prompt-out. Cascade is two channels, not one score.
+  `indicate score` prints `decision=ABSTAIN` when `n_used=0`.
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

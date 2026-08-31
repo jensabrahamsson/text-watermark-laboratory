@@ -479,4 +479,23 @@ is not those openings. Do not sell 42/48 as beating 39/48.
 JSON: `experiments/2026-08-31-pair-family12x4/`,
 `experiments/2026-08-31-openings-short-medium-tails-family/`.
 
+## 2026-08-31 coverage-then-pivot cascade
+
+Opening-only unmarked-LM geometry (4 generated tokens, no prompt)
+leave-one-of-12-out: pivot-lda **10/12**, AUC **0.672**, isolated
+**27/48**. That beats the published 128-token pivot-lda (0.599, 17/48).
+Prompt-conditioned opening LDA is worse than chance (7/12, AUC 0.468).
+OOD 24-short → 12×4: postokbackoff still **16/48** precision 1.0;
+opening LDA does not transfer (4/12). Combined 60-stem train covers
+42/48 and marks **34/48** (eight covered files have negative LR);
+cascade combined 39/48 spends 15 unmarked FPs. `indicate score` now
+prints `n_used` and `decision=ABSTAIN` at coverage 0. Not a universal
+detector. Do not sell 27/48, 34/48, or 39/48 as beating 39/48 poshits
+or replacing 29/48. Do not replace 10/12 or 36/36.
+
+JSON: `experiments/2026-08-31-probe-12x4-fitprefix4-cascade-isolated/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-cascade-isolated/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-isolated/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
 ---

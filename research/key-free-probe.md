@@ -53,6 +53,15 @@ and does not recover the SHA-256 IV.
 | **hashpool** | **11/12** | 0.716 | **35/48** | 29/48 | 0.00050 |
 | pivot-lda | 10/12 | 0.599 | 17/48 | 31/48 | 0.016 |
 | pivot-rank | 8/12 | 0.609 | 26/48 | 27/48 | 0.045 |
+| opening pivot-lda (`--fit-prefix 4`, no prompt) | **10/12** | **0.672** | **27/48** | 37/48 | 0.0010 |
+| opening pivot-rank | **10/12** | **0.674** | **31/48** | 30/48 | 0.0015 |
+
+The unpublished full-file pivot averaged 128 tokens. The mark in
+unmarked-LM geometry is front-loaded: a 4-token generated-only opening
+beats that 17/48 isolated sign. Prompt-conditioned opening LDA is
+worse than chance under leave-one-prompt-out (7/12, AUC 0.468). It
+does not transfer as a calibrated OOD isolated-file reader. See
+[key-free-cascade.md](key-free-cascade.md).
 
 Prompt-level misses:
 
@@ -529,6 +538,7 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
 Learned scorers: [key-free-learn.md](key-free-learn.md).
 
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
+Opening geometry and ABSTAIN: [key-free-cascade.md](key-free-cascade.md).
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \

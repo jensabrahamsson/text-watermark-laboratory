@@ -65,6 +65,7 @@ python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-b
 python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1
 python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff,postokbackoff2
+python -m text_watermark_tools probe PAIR --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --pivot --pivot-weight uniform,entropy --cascade postokbackoff
 python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train OTHER --fit-prefix 4 --pos-bucket 1
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
@@ -119,7 +120,11 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Unbucketed tokbackoff on that combined train | **36/48** marked, **3** unmarked FP |
 | `--include-first` postokhits on that combined train | **43/48** marked, **10** unmarked FP (first-token unigram) |
 | Neighborhood paraphrases, 12 scenes × 4 | Official **12/12**; no Closing/Now/While/The ferry openings |
-| Same plus short+medium+tails → 12×4 | postokbackoff **42/48**, last-2+ **15/48**, precision **1.000** |
+| Same plus short+medium+tails → 12×4 | postokbackoff **42/48** covered, last-2+ **15/48**, precision **1.000** |
+| That 42/48 covered, isolated `lr>0` | **34/48** (eight covered files have negative observed-token LR) |
+| Opening pivot-lda, 12×4 LOO, 4 generated tokens | **10/12**, AUC **0.672**, isolated **27/48** (full-file pivot-lda was 17/48) |
+| Same geometry with prompt context | 7/12, AUC 0.468 (worse than chance; not an isolated-file protocol) |
+| Opening pivot-lda, 24-short → 12×4 | 4/12, AUC 0.422 (does not transfer) |
 | poshits on those medium-seed tables | 8/12; The-Laplace δ flips to ≈ −0.365 |
 | Key-free last-k coverage, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
@@ -148,7 +153,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), and [research/key-free-tokhits.md](research/key-free-tokhits.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), and [research/key-free-cascade.md](research/key-free-cascade.md).
 
 ## Code map
 
@@ -161,8 +166,8 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `indicator.py` | Frozen count tables and single-file LR |
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
 | `transfer.py` | Interpolated, gated, hash-pool, and UTF-8 surface scorers |
-| `pivot.py` | Unmarked-LM choice geometry and argmax snap |
-| `probe.py` | Compare scorers; transfer; nested thresholds; shuffle control; scrub |
+| `pivot.py` | Unmarked-LM choice geometry, entropy pooling, argmax snap |
+| `probe.py` | Compare scorers; transfer; cascade; nested thresholds; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
 | `contrast.py` | Key-free public vs control-shuffled-30 instance check |
 | `atoms.py` | Decode hits atoms (The-Laplace occupancy vs observed tokens) |

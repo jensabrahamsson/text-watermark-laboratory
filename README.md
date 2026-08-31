@@ -176,6 +176,7 @@ python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
 
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
+# Coverage-gated tables print n_used. n_used=0 is ABSTAIN, not unmarked.
 
 # Hashpool tables (usable 35/48 reader) and out-of-family transfer
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
