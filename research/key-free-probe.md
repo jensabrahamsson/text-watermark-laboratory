@@ -235,11 +235,11 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 
 **Surface (UTF-8 byte) hashpool is a tokenizer-agnostic reader, not the best isolated-file rule.** In-domain: GPT-2 10/12 (AUC 0.602), Qwen 9/12 (AUC 0.674). OOD GPT-2 topics: 9/12 (AUC 0.648). Nested Youden 15/48 vs 40/48 loses to nested token hashpool 33/48 vs 34/48.
 
-**Same-topic GPT-2 hits can rank Qwen twins 11/12 through a probe tokenizer.** Isolated sign at 0 fails (1/12). Token hashpool does not transfer (AUC 0.521). New topics plus Qwen is chance. Paired ranking is not a single-file detector.
+**Same-topic GPT-2 hits can rank Qwen twins 11/12 through a probe tokenizer.** Isolated sign at 0 fails (1/12). Token hashpool does not transfer (AUC 0.521). New topics plus Qwen is chance. Paired ranking is not a single-file detector. A **new Qwen 12×4 sample of the same prompts** does not reproduce that 11/12 (hits 5/12, AUC 0.355; first-draw 6/12). Extra Qwen draws also fail to lift in-domain hits (8/12, AUC 0.602) the way extra GPT-2 draws lift 30/36 to 36/36. The published Qwen 12×1 hashpool **10/12** stays tied to that corpus.
 
 **A hits+hashpool LDA stack is a specificity knob, not a 12/12 detector.** On 12×4 LOO it keeps 11/12 and AUC 0.732 while unmarked ≤0 rises to 44/48.
 
-**Four extra draws at matched length, not extra topics, lift in-domain hits to 36/36.** One 128-token draw is still 30/36. Nested-by-stem Youden on the 4-draw LRs is 119/144 vs 134/144. Out-of-family, 4-draw train → 12×4 is 12/12 ranking (42/48 at t=0) with a conservative nested Youden (26/48 vs 44/48). The reverse nested hits 10% FPR on 96 new-topic files is 83/96 vs 85/96.
+**Four extra draws at matched length, not extra topics, lift in-domain GPT-2 hits to 36/36.** One 128-token draw is still 30/36. Nested-by-stem Youden on the 4-draw LRs is 119/144 vs 134/144. Out-of-family, 4-draw train → 12×4 is 12/12 ranking (42/48 at t=0) with a conservative nested Youden (26/48 vs 44/48). The reverse nested hits 10% FPR on 96 new-topic files is 83/96 vs 85/96. The same extra-draw protocol on Qwen does **not** produce a comparable isolated-file gate.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 

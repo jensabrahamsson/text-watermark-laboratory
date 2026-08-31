@@ -62,6 +62,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-probe-36x4-draws2/` | `--max-draws 2` ablation | hits **33/36** AUC 0.875 |
 | `2026-08-31-transfer-36x4-to-12x4/` | 24×4 new stems → 12×4 | hits **12/12**, isolated **42/48**; nested Youden 26/48 vs 44/48 |
 | `2026-08-31-transfer-12x4-to-36x4/` | 12×4 → 96 new-topic files | hits **24/24**; nested FPR10 **83/96** vs **85/96** |
+| `2026-08-31-pair-qwen-12x4/` | Qwen 12×4 new sample | official first-draw **12/12** |
+| `2026-08-31-probe-qwen-12x4/` | Qwen tokenizer LOO | hits **8/12** AUC 0.602; extra draws do not close the gap |
+| `2026-08-31-transfer-gpt2-to-qwen-12x4/` | GPT-2 tables → new Qwen sample | hits **5/12**; 11/12 did not replicate |
 | `2026-08-31-stack-12x4/` | LOO LDA of hits+hashpool file scores | **11/12**, AUC 0.732, unmarked ≤0 **44/48** |
 
 ## What changed across the runs

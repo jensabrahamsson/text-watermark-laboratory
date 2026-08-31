@@ -197,4 +197,8 @@ Do not replace the published hard last-4 **10/12** / **29/48** with 36/36. 36/36
 
 JSON: `experiments/2026-08-31-probe-36x4/`, `experiments/2026-08-31-transfer-36x4-to-12x4/`, `experiments/2026-08-31-transfer-12x4-to-36x4/`.
 
+New Qwen 12×4 sample (`experiments/2026-08-31-pair-qwen-12x4/`, seed 20260831): official **12/12**. In-domain hits **8/12** AUC 0.602; hashpool 7/12. Extra Qwen draws do not copy the GPT-2 extra-draw lift. GPT-2 12×4 tables on this new Qwen sample (probe BPE): hits **5/12** AUC 0.355. The published same-topic **11/12** on the original Qwen 12×1 corpus does not replicate.
+
+JSON: `experiments/2026-08-31-probe-qwen-12x4/`, `experiments/2026-08-31-transfer-gpt2-to-qwen-12x4/`.
+
 ---

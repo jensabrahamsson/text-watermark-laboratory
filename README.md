@@ -52,6 +52,7 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free hits, 36 topics × 4 draws | In-domain leave-one-out | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | UTF-8 surface, 12×4 leave-one-out | Byte hashpool, no tokenizer | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | Probe-tokenizer paired ranking | **11/12** (isolated `lr>0` **1/12**) |
+| New Qwen 12×4 sample, GPT-2 hits | Same prompts, new draws | **5/12** (does not replicate 11/12) |
 | New topics GPT-2 → Qwen | Hits / hashpool / surface | chance |
 | Key-free hits, 12×4 → 24 new topics | Train 12×4, score stems 13–36 | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse split | Train-only threshold, frozen on 24 stems | **23/24** and **23/24** |

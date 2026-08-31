@@ -26,6 +26,8 @@ Current results:
 | Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | **11/12** paired; isolated `lr>0` **1/12** |
+| New Qwen 12×4 sample, same prompts, GPT-2 hits | **5/12** (first-draw **6/12**); does not replicate 11/12 |
+| Qwen 12×4 in-domain hits, Qwen tokenizer | **8/12**, AUC **0.602** |
 | New GPT-2 topics → Qwen | chance |
 | Key-free hits, train 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** (unmarked ≤0 only 14/24) |
 | Nested freqhits Youden on the reverse split | **23/24** and **23/24** |

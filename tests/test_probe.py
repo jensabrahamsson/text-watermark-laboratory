@@ -613,3 +613,68 @@ def test_transfer_12x4_to_36x4_nested_hits_fpr10_is_balanced() -> None:
     )
     assert nested["n_marked_above"] == 83
     assert nested["n_unmarked_at_most"] == 85
+
+
+def test_qwen_12x4_official_splits_all_first_draws() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-pair-qwen-12x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert len(raw["rows"]) == 12
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 12
+
+
+def test_qwen_12x4_hits_does_not_match_gpt2_extra_draw_lift() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4"
+        / "hits"
+        / "holdout.json"
+    )
+    hashed = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4"
+        / "hashpool"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 8
+    assert hashed.n_prompts_marked_above == 7
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.55 < stats.auc < 0.70
+
+
+def test_gpt2_to_new_qwen_sample_does_not_replicate_eleven_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-gpt2-to-qwen-12x4"
+        / "hits"
+        / "holdout.json"
+    )
+    one = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-gpt2-to-qwen-12x4-draws1"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 5
+    assert one.n_prompts_marked_above == 6
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc < 0.45
