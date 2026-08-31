@@ -117,6 +117,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-contrast-36x4-to-12x4-full/` | Full 128-token contrast | poshits still **0/48**; unbucketed hits control **29/48** `lr>0` |
 | `2026-08-31-contrast-36x4-to-limit-fitprefix4/` | 4-token contrast on 12×1×700 | poshits control **0/12** `lr>0`; public vs control **12/12** |
 | `2026-08-31-contrast-36x4-to-limit-full/` | Full 700-token contrast | hits public vs control AUC **1.000**; control vs unmarked 0.556 |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits/` | Occupancy vs observed next token | poshits **39/48**; postokhits **16/48** precision **1.000** |
+| `2026-08-31-probe-36x4-fitprefix4-postokhits/` | 36×4 LOO postokhits | 34/36, **122/144 vs 132/144** (9 of 131 TPs were occupancy) |
+| `2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits/` | postokhits vs control-shuffled-30 | control `lr>0` **0/48** |
 
 ## What changed across the runs
 
@@ -149,6 +152,7 @@ The later runs clarified what strengthens it:
 - tiny learned scorers (hashlog / tokmlp / charcnn) do **not** beat 4-token poshits on the new-topic gate (tokmlp 8/12, AUC 0.714 vs **0.873**) and do not transfer to Distil or Qwen;
 - shuffling half the training labels drops isolated sign at 0 to chance;
 - a public-trained 4-token poshits table is **instance-specific** on this mixin: `control-shuffled-30` openings get `lr>0` on **0/48** files, while public vs control ranks **12/12** (AUC **0.906**). Unbucketed hits on full files is not that check (29/48 control `lr>0`). Not key recovery.
+- **39/48 poshits is not 39 token preferences.** Shared `'The'` plus unequal occupancy gives every novel continuation the same δ = 0.330 (23 of 39 TPs and all 7 FPs). `postokhits` keeps observed next tokens only: **16/48**, precision 1.0 among decided, still **12/12**, and control stays **0/48**. In-domain, only 9 of 131 TPs were occupancy (122/144).
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
 

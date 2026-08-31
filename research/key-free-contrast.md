@@ -69,6 +69,9 @@ control-gen). Quote **isolated `lr > 0` on control** separately from
 prompt-mean wins. When every control LR is exactly 0, prompt-mean “wins”
 against negative unmarked LRs are not evidence that control is marked.
 
+`--methods poshits,postokhits` runs the occupancy-gated reader on the
+same split. Control stays **0/48**. See [key-free-tokhits.md](key-free-tokhits.md).
+
 The matched 4-token poshits gate is the same split as
 [key-free-probe.md](key-free-probe.md): train 24 other 36×4 stems, skip
 generated token 0, position bucket 1.
@@ -172,9 +175,11 @@ also gets `lr > 0` on **0/48** isolated files.
 
 It does not show: key recovery, SHA-256 IV recovery, a second-vendor
 detector, or a calibrated isolated-file yes/no. Public marked isolated
-sign on this gate remains **39/48**. Leave-one-of-12-out hard last-4
-remains **29/48**. Qwen and DistilGPT2 transfer remain chance. Tiny nets
-still do not beat poshits.
+sign on this gate remains **39/48**. That 39/48 includes The-Laplace
+occupancy; observed-token `postokhits` is **16/48** with precision 1.0
+among decided files, and control stays **0/48** under that reader too.
+Leave-one-of-12-out hard last-4 remains **29/48**. Qwen and DistilGPT2
+transfer remain chance. Tiny nets still do not beat poshits.
 
 `control_keys()` is a laboratory permutation of the public 30. A genuinely
 independent key sample, or a different generator, is a different

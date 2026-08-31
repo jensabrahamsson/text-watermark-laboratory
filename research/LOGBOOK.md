@@ -369,4 +369,22 @@ JSON: `experiments/2026-08-31-pair-12x4-controlkeys/`,
 `experiments/2026-08-31-contrast-36x4-to-limit-fitprefix4/`,
 `experiments/2026-08-31-contrast-36x4-to-limit-full/`.
 
+## 2026-08-31 tokhits: occupancy Laplace vs observed next tokens
+
+The 4-token poshits OOD gate is still **12/12**, AUC **0.873**, t=0
+**39/48 vs 41/48**. Nine marked misses are zeros. Hits scores an unseen
+next token after a shared context via Laplace. On this split `'The'` at
+index 1 is 8 marked vs 52 unmarked, so every novel continuation gets
+δ = 0.330103: **23 of 39** marked TPs and **all 7** unmarked FPs.
+`postokhits` skips those: **12/12**, isolated **16/48**, decided
+precision **1.000** (16 TP, 0 FP). In-domain 36×4 LOO poshits **131/144**
+drops only to **122/144**; 9 of 131 TPs were occupancy. Control-shuffled-30
+stays **0/48** `lr>0` under postokhits. Do not sell 16/48 as beating
+39/48. Do not replace 10/12, 29/48, or 36/36. Protocol:
+[key-free-tokhits.md](key-free-tokhits.md).
+
+JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits/`,
+`experiments/2026-08-31-probe-36x4-fitprefix4-postokhits/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits/`.
+
 ---

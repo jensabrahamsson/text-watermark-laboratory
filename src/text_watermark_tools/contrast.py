@@ -21,7 +21,7 @@ from text_watermark_tools.blind import Twin, clip_twins_prefix, load_twins
 from text_watermark_tools.indicator import CAVEAT, IndicatorHoldout
 from text_watermark_tools.probe import (
     DEFAULT_POS_BUCKET,
-    POSHITS_SPEC,
+    POS_SPECS,
     TransferRun,
     _append_pair,
     _empty_holdout_parts,
@@ -210,12 +210,14 @@ def run_instance_contrast(
         raise ValueError("instance contrast needs *-control-gen.txt draws")
     names = list(methods)
     pos_bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    count_names = [n for n in names if n in COUNT_SPECS]
+    pos_names = [n for n in names if n in POS_SPECS]
     count_model = None
     pos_model = None
     hash_model = None
-    if any(n in COUNT_SPECS for n in names) or "hits" in names:
+    if count_names:
         count_model = fit_count_model(train, context_len=context_len)
-    if "poshits" in names:
+    if pos_names:
         pos_model = fit_count_model(
             train, context_len=context_len, position_bucket=pos_bucket or DEFAULT_POS_BUCKET
         )
@@ -228,22 +230,39 @@ def run_instance_contrast(
             raise RuntimeError("instance contrast consulted keys / hash_iv / g-values")
 
     scorers = {}
-    if "hits" in names and count_model is not None:
-        spec = COUNT_SPECS["hits"]
-        scorers["hits"] = (
+    for name in count_names:
+        spec = COUNT_SPECS[name]
+        assert count_model is not None
+        scorers[name] = (
             lambda ids, m=count_model, s=spec: score_sequence(ids, m, s),
             spec.instance,
         )
-    if "poshits" in names and pos_model is not None:
-        scorers["poshits"] = (
-            lambda ids, m=pos_model: score_sequence(ids, m, POSHITS_SPEC),
-            POSHITS_SPEC.instance,
+    for name in pos_names:
+        spec = POS_SPECS[name]
+        assert pos_model is not None
+        scorers[name] = (
+            lambda ids, m=pos_model, s=spec: score_sequence(ids, m, s),
+            spec.instance,
         )
     if "hashpool" in names and hash_model is not None:
         scorers["hashpool"] = (
             lambda ids, m=hash_model: score_hashpool(ids, m),
             "key-free-hashpool",
         )
+    unknown = [
+        n
+        for n in names
+        if n not in scorers
+    ]
+    if unknown:
+        raise ValueError(
+            "unknown contrast methods: "
+            + ", ".join(unknown)
+            + "; choose hits, tokhits, poshits, postokhits, hashpool, "
+            f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
+        )
+    if not scorers:
+        raise ValueError("instance contrast needs at least one scorer")
 
     unmarked = _index_unmarked(test)
     marked = _index_marked(test)

@@ -62,7 +62,7 @@ def test_instance_contrast_on_planted_shift(tmp_path: Path) -> None:
         train,
         test,
         control,
-        methods=("hits", "poshits"),
+        methods=("hits", "poshits", "postokhits"),
         fit_prefix=4,
         position_bucket=1,
     )
@@ -74,6 +74,13 @@ def test_instance_contrast_on_planted_shift(tmp_path: Path) -> None:
     assert ("poshits", "public-vs-unmarked") in names
     assert ("poshits", "control-vs-unmarked") in names
     assert ("poshits", "public-vs-control") in names
+    assert ("postokhits", "control-vs-unmarked") in names
+    postok_ctrl = next(
+        m
+        for m in run.methods
+        if m.name == "postokhits" and m.comparison == "control-vs-unmarked"
+    )
+    assert postok_ctrl.holdout.n_marked_positive == 0
     pub = next(
         m for m in run.methods if m.name == "poshits" and m.comparison == "public-vs-unmarked"
     )
@@ -141,6 +148,34 @@ def _contrast_hold(name: str, slug: str):
 
     root = Path(__file__).resolve().parents[1] / "experiments" / name
     return holdout_from_json(root / slug / "holdout.json")
+
+
+def test_postokhits_four_token_contrast_control_never_positive() -> None:
+    pub = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits",
+        "postokhits-public-vs-unmarked",
+    )
+    ctrl = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits",
+        "postokhits-control-vs-unmarked",
+    )
+    vs = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits",
+        "postokhits-public-vs-control",
+    )
+    tok = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits",
+        "tokhits-control-vs-unmarked",
+    )
+    assert pub.used_keys is False
+    assert pub.n_prompts_marked_above == 12
+    assert pub.n_marked_positive == 16
+    assert pub.n_unmarked_nonpositive == 48
+    assert ctrl.n_marked_positive == 0
+    assert tok.n_marked_positive == 0
+    assert vs.n_prompts_marked_above == 12
+    assert vs.n_unmarked_nonpositive == 48
+    assert vs.n_marked_positive == 16
 
 
 def test_poshits_four_token_contrast_is_instance_specific() -> None:

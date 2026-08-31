@@ -11,6 +11,7 @@ and change only how a finished string is read:
 * backoff — shrink the context instead of jumping to the unigram
 * interpolate — Witten–Bell mix of every stored order
 * gated / hits — skip positions whose exact context is too rare
+* tokhits — hits that also skip an unseen next token (no occupancy Laplace)
 * freqhits — shared 4-grams with count ≥ 4 on both sides
 * hitmass — hits log-ratio × fraction of positions that hit
 * shrinkage — credibility-weight each token's log ratio
@@ -297,6 +298,84 @@ def score_sequence_detail(
     if n_used == 0 or weight_sum == 0.0:
         return ScoreDetail(0.0, 0, n_positions)
     return ScoreDetail(total / weight_sum, n_used, n_positions)
+
+
+@dataclass(frozen=True)
+class HitAtom:
+    """One scored last-k → next-token event. Not a watermark key."""
+
+    i: int
+    ctx: tuple[int, ...]
+    tok: int
+    n_m: int
+    n_u: int
+    c_m: int
+    c_u: int
+    delta: float
+    unseen_next: bool
+
+
+def gated_hit_trace(
+    ids: Sequence[int],
+    model: BlindModel,
+    spec: ScoreSpec | None = None,
+    *,
+    prefix: Sequence[int] = (),
+) -> list[HitAtom]:
+    """Per-position hits atoms. tokhits drops rows with unseen_next."""
+    spec = spec or ScoreSpec(kind="gated", min_count=1)
+    if spec.kind not in ("gated", "hitmass"):
+        raise ValueError("gated_hit_trace is for hits / tokhits tables")
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hit trace consulted keys / hash_iv / g-values")
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
+    out: list[HitAtom] = []
+    for i, tok in enumerate(ids):
+        if i == 0 and not score_first:
+            continue
+        if spec.first_only and i > 0:
+            continue
+        t = int(tok)
+        ctx = _scored_ctx(
+            ids, i, model.context_len, model.position_bucket, prefix=prefix
+        )
+        n_m = _count(model.marked, ctx)
+        n_u = _count(model.unmarked, ctx)
+        if spec.min_count > 0:
+            support = min(n_m, n_u) if spec.require_both else max(n_m, n_u)
+            if support < spec.min_count:
+                continue
+        c_m = _tok_count(model.marked, ctx, t)
+        c_u = _tok_count(model.unmarked, ctx, t)
+        unseen = c_m + c_u < 1
+        if spec.require_token and unseen:
+            continue
+        log_m = _log_p_mode(
+            model.marked, ctx, t, model=model, kind="gated"
+        )
+        log_u = _log_p_mode(
+            model.unmarked, ctx, t, model=model, kind="gated"
+        )
+        out.append(
+            HitAtom(
+                i=i,
+                ctx=ctx,
+                tok=t,
+                n_m=n_m,
+                n_u=n_u,
+                c_m=c_m,
+                c_u=c_u,
+                delta=float(log_m - log_u),
+                unseen_next=unseen,
+            )
+        )
+    return out
 
 
 def score_sequence(

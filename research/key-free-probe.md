@@ -362,6 +362,18 @@ into hits (`--include-first`) **hurts** OOD (9/12, AUC 0.719).
 recall (OOD 12/12 ranking, 13/48 at t=0). `indicate score` of a lone
 file cannot reconstruct the prompt.
 
+**That 39/48 is not 39 independent token preferences.** Nine marked
+misses are zeros. Hits still scores an *unseen* next token after a
+shared context via Laplace. On this split, `'The'` at index 1 is 8
+marked vs 52 unmarked in train, so every novel continuation gets
+δ = 0.330103. That occupancy atom is 23 of 39 marked TPs and all 7
+unmarked FPs. `postokhits` skips those: **12/12**, isolated **16/48**,
+precision **1.000** among decided files. In-domain, only 9 of 131
+poshits TPs were occupancy (`postokhits` **122/144**). Control-shuffled-30
+stays **0/48** `lr>0` under both readers. Details:
+[key-free-tokhits.md](key-free-tokhits.md). Do not sell 16/48 as beating
+39/48. Do not replace 10/12, 29/48, or 36/36.
+
 **Qwen's in-domain opening signal is generated token 0.** `--methods first`
 on a 4-token prefix ranks **12/12** (AUC **0.901**). Hits that skip
 token 0 is 7/12. Full-file Qwen hits stays **8/12**. GPT-2 tables still
@@ -425,6 +437,12 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --out-dir experiments/2026-08-31-probe-36x4-fitprefix4-pos1
 
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --methods poshits,postokhits,hits,tokhits \
+  --out-dir experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --fit-prefix 4 --context-len 1 --methods hits,poshits --pos-bucket 1 \
   --out-dir experiments/2026-08-31-probe-36x4-fitprefix4-k1-pos1
 
@@ -481,6 +499,8 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
 ```
 
 Learned scorers: [key-free-learn.md](key-free-learn.md).
+
+Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
 
 Instance contrast (public vs `control-shuffled-30`, not key recovery):
 [key-free-contrast.md](key-free-contrast.md).

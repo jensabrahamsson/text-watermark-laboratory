@@ -34,6 +34,8 @@ Current results:
 | Key-free hits, tokens 0:4 only, 36×4 | **34/36**, AUC **0.917** (matches 0:16) |
 | Key-free poshits, matched 4-token bucket 1, 36×4 | **34/36**, AUC **0.935**; t=0 **131/144 vs 132/144** |
 | Same reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| Key-free postokhits on that OOD gate | **12/12**, isolated **16/48**, decided precision **1.000** |
+| Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** |
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
@@ -43,6 +45,7 @@ Current results:
 | Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
 | GPT-2 learned scorers → Distil / Qwen | chance (charcnn Qwen AUC 0.496) |
 | Key-free poshits vs control-shuffled-30, 4-token 24×4 → 12×4 | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
+| Key-free postokhits vs control-shuffled-30, same split | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
 | Official lamp, 12×4 control-key twins | public **0.501**; matching **0.624** |
 | Key-free last-k coverage, 36×4 LOO | 0:16 shared **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
@@ -61,7 +64,7 @@ Current results:
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 
-The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md).
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens is in [key-free-tokhits.md](key-free-tokhits.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 

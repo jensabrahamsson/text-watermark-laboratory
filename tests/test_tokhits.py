@@ -6,6 +6,7 @@ from text_watermark_tools.stats import coverage_gate
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_count_model,
+    gated_hit_trace,
     score_sequence_detail,
 )
 
@@ -50,6 +51,12 @@ def test_tokhits_skips_unseen_next_token_after_shared_the() -> None:
     assert seen_tok.lr != 0.0
     assert counts.used_keys is False
     assert pos.used_keys is False
+    trace = gated_hit_trace(unseen, pos, POSHITS_SPEC)
+    assert trace
+    assert all(a.unseen_next for a in trace)
+    assert all(a.delta > 0.0 for a in trace)
+    skipped = gated_hit_trace(unseen, pos, POSTOKHITS_SPEC)
+    assert skipped == []
 
 
 def test_coverage_gate_treats_zeros_as_abstain_not_sign_errors() -> None:
@@ -85,3 +92,92 @@ def test_poshits_ood_zeros_are_the_isolated_file_misses() -> None:
     assert g.decided_tp == 39
     assert g.decided_fp == 7
     assert g.n_unmarked_zero == 33
+
+
+def test_postokhits_ood_is_observed_token_only() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits"
+    )
+    ev = holdout_from_json(root / "postokhits" / "holdout.json")
+    g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 16
+    assert ev.n_unmarked_nonpositive == 48
+    assert g.n_marked_zero == 32
+    assert g.n_unmarked_zero == 44
+    assert g.decided_tp == 16
+    assert g.decided_fn == 0
+    assert g.decided_fp == 0
+    assert g.decided_tn == 4
+    assert g.precision == 1.0
+    pos = holdout_from_json(root / "poshits" / "holdout.json")
+    assert pos.n_prompts_marked_above == 12
+    assert pos.n_marked_positive == 39
+
+
+def test_postokhits_36x4_loo_keeps_most_in_domain_hits() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-fitprefix4-postokhits"
+    )
+    pos = holdout_from_json(root / "poshits" / "holdout.json")
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    assert pos.used_keys is False
+    assert tok.used_keys is False
+    assert pos.n_prompts_marked_above == 34
+    assert tok.n_prompts_marked_above == 34
+    assert pos.n_marked_positive == 131
+    assert tok.n_marked_positive == 122
+    assert pos.n_unmarked_nonpositive == 132
+    assert tok.n_unmarked_nonpositive == 132
+    g = coverage_gate(tok.marked_lrs, tok.unmarked_lrs)
+    assert g.n_marked_zero == 19
+    assert g.decided_fp == 12
+
+
+def test_the_laplace_atom_is_occupancy_not_token_preference() -> None:
+    import json
+    from pathlib import Path
+
+    payload = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert payload["used_keys"] is False
+    the = [
+        a
+        for a in payload["atom_counts"]
+        if a["ctx"] == ["The"] and a["unseen_next"]
+    ]
+    assert the
+    assert all(abs(a["delta"] - 0.330103) < 1e-5 for a in the)
+    unseen_n = sum(a["n"] for a in payload["atom_counts"] if a["unseen_next"])
+    seen_n = sum(a["n"] for a in payload["atom_counts"] if not a["unseen_next"])
+    assert unseen_n >= 20
+    assert seen_n >= 20
+    zeros = [
+        r
+        for r in payload["rows"]
+        if r["side"] == "marked" and abs(r["poshits_lr"]) <= 1e-15
+    ]
+    openings = ["".join(r["opening"]).strip() for r in zeros]
+    assert any(s.startswith("After") for s in openings)
+    assert any(s.startswith("Cl") for s in openings)
+    assert any(s.startswith("Now") for s in openings)
+    assert any(s.startswith("While") for s in openings)

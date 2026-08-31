@@ -706,6 +706,32 @@ def rotate_poshits(
     )["poshits"]
 
 
+def rotate_postokhits(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> IndicatorHoldout:
+    return rotate_pos_methods(
+        twins,
+        methods=("postokhits",),
+        context_len=context_len,
+        position_bucket=position_bucket,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+    )["postokhits"]
+
+
 def rotate_poshitmass(
     twins: Sequence[Twin],
     *,
