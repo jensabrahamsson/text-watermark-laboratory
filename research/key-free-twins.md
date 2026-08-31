@@ -153,6 +153,12 @@ What works best today is:
 
 What remains difficult is one arbitrary isolated text with no matched context.
 
+`indicate holdout` now prints a single-file AUC and a permutation test on the
+same LRs. Further scorers (Witten–Bell interpolation, coverage gating, context
+hash pooling, unmarked-LM choice geometry) and a key-free argmax snap are
+documented in [key-free-probe.md](key-free-probe.md). They still do not use
+the detector keys.
+
 ## Why this matters for unknown production keys
 
 The public DeepMind instance is the laboratory control because we know the ground truth and can verify it independently.

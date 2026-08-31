@@ -104,7 +104,17 @@ def test_cli_iterate_help_mentions_polish_and_indicate_stop(capsys) -> None:
     assert "not a remover" in flat.lower()
 
 
-def test_cli_indicate_holdout_help_mentions_leave_one_out(capsys) -> None:
+def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
+    try:
+        build_parser().parse_args(["probe", "--help"])
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("expected --help SystemExit")
+    out = capsys.readouterr().out
+    assert "key-free" in out.lower()
+    assert "Not detector_mean" in out
+    assert "--pivot" in out
     try:
         build_parser().parse_args(["indicate", "holdout", "--help"])
     except SystemExit as exc:

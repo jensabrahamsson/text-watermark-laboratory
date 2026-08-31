@@ -58,6 +58,14 @@ from text_watermark_tools.pair import (
     print_pair_run,
     run_pairs,
 )
+from text_watermark_tools.probe import (
+    persist_probe,
+    persist_scrub,
+    print_probe,
+    print_scrub,
+    run_probe,
+    run_scrub_files,
+)
 from text_watermark_tools.resample import run_resample
 from text_watermark_tools.score import (
     CONTROL_INSTANCE,
@@ -338,6 +346,22 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
 
 def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
+    score_kind = str(getattr(args, "score_mode", "hard") or "hard")
+    score_fn = None
+    instance = INDICATOR_INSTANCE
+    if score_kind != "hard":
+        from text_watermark_tools.transfer import COUNT_SPECS, score_sequence
+
+        if score_kind not in COUNT_SPECS:
+            print(
+                f"unknown --score-mode {score_kind}; "
+                f"choose hard or one of {sorted(COUNT_SPECS)}",
+                file=sys.stderr,
+            )
+            return 2
+        spec = COUNT_SPECS[score_kind]
+        instance = spec.instance
+        score_fn = lambda ids, model, s=spec: score_sequence(ids, model, s)
     if args.rotate:
         ev = rotate_holdout(
             twins,
@@ -346,6 +370,9 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             backoff=bool(args.backoff),
             model_name=args.model,
             margin=float(args.margin),
+            score_fn=score_fn,
+            instance=instance,
+            score_kind=score_kind,
         )
     else:
         if not args.hold or len(args.hold) < 2:
@@ -370,6 +397,62 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_probe(args: argparse.Namespace) -> int:
+    twins = load_twins(
+        Path(args.pair_dir),
+        tokenizer=load_tokenizer(getattr(args, "model", None)),
+    )
+    methods = None
+    if args.methods:
+        methods = [m.strip() for m in args.methods.split(",") if m.strip()]
+    run = run_probe(
+        twins,
+        pair_dir=str(args.pair_dir),
+        model_name=args.model,
+        context_len=args.context_len,
+        methods=methods,
+        with_hashpool=not bool(args.skip_hashpool),
+        with_pivot=bool(args.pivot),
+        n_hashes=int(args.n_hashes),
+        n_buckets=int(args.n_buckets),
+    )
+    if run.used_keys or run.used_hash_iv or run.used_g_values:
+        print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_probe(run))
+    if args.out_dir:
+        persist_probe(run, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
+def cmd_scrub(args: argparse.Namespace) -> int:
+    path = Path(args.path)
+    if path.is_dir():
+        files = sorted(
+            p
+            for p in path.glob("*-marked*.txt")
+            if p.is_file() and "unmarked" not in p.name
+        )
+        if not files:
+            print(f"no *-marked*.txt files in {path}", file=sys.stderr)
+            return 2
+    elif path.is_file():
+        files = [path]
+    else:
+        print(f"not a file or directory: {path}", file=sys.stderr)
+        return 2
+    run = run_scrub_files(files, model_name=args.model, top_k=int(args.top_k))
+    if run.used_keys_for_snap or run.used_hash_iv or run.used_g_values:
+        print("scrub snap consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_scrub(run))
+    if args.out_dir:
+        persist_scrub(run, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_experiment(args: argparse.Namespace) -> int:
     result = run_known_mark_experiment(
         max_new_tokens=args.max_new_tokens,
@@ -390,8 +473,8 @@ def build_parser() -> argparse.ArgumentParser:
         prog="text-mark-laboratory",
         description=(
             "Official SynthID-Text scores (public reference keys), a "
-            "known-mark mixin experiment, and a key-free single-text "
-            "indicator. Not a Claude detector."
+            "known-mark mixin experiment, a key-free single-text "
+            "indicator, and key-free probe/scrub attacks. Not a Claude detector."
         ),
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -601,8 +684,71 @@ def build_parser() -> argparse.ArgumentParser:
             "one-file sign uses lr > -margin (0 = strict)"
         ),
     )
+    p_ih.add_argument(
+        "--score-mode",
+        default="hard",
+        help=(
+            "How to read the count tables: hard (default), unigram, backoff, "
+            "interpolate, hits, gated, shrinkage, mix. Still key-free."
+        ),
+    )
     p_ih.add_argument("--out-dir", default="")
     p_ih.set_defaults(func=cmd_indicate_holdout)
+
+    p_probe = sub.add_parser(
+        "probe",
+        help=(
+            "Compare key-free scorers on pair twins (AUC, permutation, "
+            "prompt-grain wins). Optional unmarked-LM pivot. Not detector_mean."
+        ),
+        description=(
+            "Leave-one-prompt-out comparison of key-free scorers. "
+            "Not detector_mean. Not Claude. Not key recovery."
+        ),
+    )
+    p_probe.add_argument("pair_dir", help="Directory with *-marked.txt / *-unmarked-gen.txt")
+    p_probe.add_argument("--model", default="gpt2")
+    p_probe.add_argument("--context-len", type=int, default=4)
+    p_probe.add_argument(
+        "--methods",
+        default="",
+        help="Comma-separated count methods (default: all COUNT_SPECS)",
+    )
+    p_probe.add_argument(
+        "--skip-hashpool",
+        action="store_true",
+        help="Do not fit the random-hash context pool",
+    )
+    p_probe.add_argument(
+        "--pivot",
+        action="store_true",
+        help="Also score unmarked-LM choice geometry (loads GPT-2, slower)",
+    )
+    p_probe.add_argument("--n-hashes", type=int, default=8)
+    p_probe.add_argument("--n-buckets", type=int, default=256)
+    p_probe.add_argument("--out-dir", default="")
+    p_probe.set_defaults(func=cmd_probe)
+
+    p_scrub = sub.add_parser(
+        "scrub",
+        help=(
+            "Key-free argmax snap on marked files, then official-score "
+            "before/after as a reference check (not a fluent rewriter)"
+        ),
+        description=(
+            "Replace tokens with the unmarked LM argmax of each original "
+            "prefix. The snap does not use watermark keys. Official scores "
+            "afterwards are only a reference measurement."
+        ),
+    )
+    p_scrub.add_argument(
+        "path",
+        help="Marked .txt file, or directory of *-marked*.txt twins",
+    )
+    p_scrub.add_argument("--model", default="gpt2")
+    p_scrub.add_argument("--top-k", type=int, default=40)
+    p_scrub.add_argument("--out-dir", default="")
+    p_scrub.set_defaults(func=cmd_scrub)
 
     p_it = sub.add_parser(
         "iterate",

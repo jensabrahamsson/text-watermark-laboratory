@@ -56,6 +56,8 @@ python -m text_watermark_tools score FILE.txt
 python -m text_watermark_tools pair DIR --out-dir experiments/pair
 python -m text_watermark_tools blind experiments/pair --out-dir experiments/blind
 python -m text_watermark_tools indicate score FILE.txt --tables experiments/indicator-gpt2
+python -m text_watermark_tools probe experiments/pair --out-dir experiments/probe
+python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
 python -m text_watermark_tools resample --skip-collect --new-dir experiments/claude-sample-YYYY-MM-DD
 ```
@@ -80,6 +82,10 @@ See [research/key-free-twins.md](research/key-free-twins.md).
 | `pair.py` | Same-prompt marked/unmarked generation |
 | `blind.py` | Key-free leave-one-out comparison |
 | `indicator.py` | Frozen count tables and single-file LR |
+| `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
+| `transfer.py` | Interpolated, gated, mix, and hash-pool scorers |
+| `pivot.py` | Unmarked-LM choice geometry and argmax snap |
+| `probe.py` | Compare scorers; optional pivot and scrub |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |
 
@@ -92,7 +98,8 @@ Anthropic's announced marking is a future external test case, not something the 
 Keep the distinction clean:
 
 - public DeepMind instance → `score`
-- learned key-free statistical signal → `blind` / `indicate`
+- learned key-free statistical signal → `blind` / `indicate` / `probe`
+- key-free argmax snap (removal attempt) → `scrub`
 - Claude pre-mark corpus → control data for a future before/after experiment
 
 After every Claude resample or measurement, append a dated entry to

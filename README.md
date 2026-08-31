@@ -40,7 +40,9 @@ That still leaves two different tasks.
 
 So `indicate` is an experimental watermark-presence indicator. It is not a universal verdict machine, and 10/12 must not be read as single-text accuracy.
 
-Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md).
+`probe` compares other key-free scorers on the same twins (interpolation, coverage gating, hash pooling, optional unmarked-LM choice geometry) and reports AUC as well as prompt-grain wins. `scrub` tries to remove a known public mark by snapping tokens to the unmarked argmax. Neither reconstructs keys.
+
+Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
 
 ---
 
@@ -107,6 +109,10 @@ python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
 
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
+
+# Compare key-free scorers (AUC + prompt-grain wins)
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --out-dir experiments/probe
 ```
 
 `score` and `indicate` answer different questions:

@@ -238,7 +238,37 @@ That is a genuine indicator signal, but its calibration depends on the training 
 
 The strongest evidence currently comes from matched/repeated prompt groups, where the indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin.
 
-See [research/key-free-twins.md](research/key-free-twins.md).
+`indicate holdout` also prints a single-file **AUC** and a label-permutation p-value. The published 29/48 sign at threshold 0 is not a 5% binomial test; ranking of the same LRs is the fairer isolated-file summary.
+
+See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
+
+---
+
+## Compare key-free scorers (`probe`)
+
+Count tables are not the only way to read paired twins. `probe` leave-one-prompt-outs several key-free scorers on the same corpus and reports prompt-grain wins plus single-file AUC:
+
+```bash
+python -m text_watermark_tools probe \
+  experiments/2026-08-17-pair-12x4 \
+  --out-dir experiments/probe
+```
+
+`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, …).
+
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash.
+
+## Key-free argmax snap (`scrub`)
+
+Tournament sampling only reweights the unmarked model’s top-k. Snapping each token to that argmax, using the original prefixes, is a key-free scrub. Official `score` afterwards is a reference check, not part of the snap:
+
+```bash
+python -m text_watermark_tools scrub \
+  experiments/2026-08-17-pair-12x4 \
+  --out-dir experiments/scrub
+```
+
+This is not a fluent rewriter. It asks whether the public mark dies when tournament “upsets” are removed.
 
 ---
 

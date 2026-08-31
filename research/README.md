@@ -8,6 +8,7 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 |---|---|
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; current best 10/12–11/12 at prompt grain |
+| [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [how-synthid-works.md](how-synthid-works.md) | How the public SynthID-Text reference implementation hashes, samples, and scores |
 | [invertibility.md](invertibility.md) | Why the key-free result is not key recovery |
 | [claude.md](claude.md) | Anthropic's announced text marking and what can actually be measured |
@@ -18,4 +19,5 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 The conceptual split is simple:
 
 **known keys → `score`**  
-**unknown keys + paired evidence → `blind` / `indicate`**
+**unknown keys + paired evidence → `blind` / `indicate` / `probe`**  
+**key-free removal attempt → `scrub` (official `score` only as a reference check)**

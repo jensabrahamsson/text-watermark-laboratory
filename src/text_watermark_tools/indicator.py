@@ -24,6 +24,7 @@ from text_watermark_tools.blind import (
     pair_marked_wins,
 )
 from text_watermark_tools.score import load_tokenizer
+from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_binary_eval
 
 INDICATOR_INSTANCE = "key-free-counts"
 TABLES_NAME = "tables.json"
@@ -61,6 +62,8 @@ class IndicatorHoldout:
     samples: list[int] | None = None
     mode: str = "hold"
     margin: float = 0.0
+    instance: str = INDICATOR_INSTANCE
+    score_kind: str = "hard"
 
     def _samples(self) -> list[int]:
         if self.samples is None:
@@ -291,6 +294,9 @@ def rotate_holdout(
     backoff: bool = False,
     model_name: str = "gpt2",
     margin: float = 0.0,
+    score_fn=None,
+    instance: str = INDICATOR_INSTANCE,
+    score_kind: str = "hard",
 ) -> IndicatorHoldout:
     """Leave one prompt out: fit the rest, score each held file alone.
 
@@ -315,9 +321,10 @@ def rotate_holdout(
         marked_seqs = held.marked_seqs()
         unmarked_seqs = held.unmarked_seqs()
         n = min(len(marked_seqs), len(unmarked_seqs))
+        scorer = score_fn or likelihood_ratio
         for i in range(n):
-            marked_lrs.append(likelihood_ratio(marked_seqs[i], model))
-            unmarked_lrs.append(likelihood_ratio(unmarked_seqs[i], model))
+            marked_lrs.append(scorer(marked_seqs[i], model))
+            unmarked_lrs.append(scorer(unmarked_seqs[i], model))
             stems.append(held.stem)
             samples.append(i + 1)
     return IndicatorHoldout(
@@ -332,10 +339,14 @@ def rotate_holdout(
         samples=samples,
         mode="rotate",
         margin=margin,
+        instance=instance,
+        score_kind=score_kind,
     )
 
 
 def print_holdout(ev: IndicatorHoldout) -> str:
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs)
+    instance = ev.instance or INDICATOR_INSTANCE
     lines = [
         (
             f"indicate holdout mode={ev.mode} n_prompts={ev.n_prompts} "
@@ -345,9 +356,12 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"marked_lr_positive={ev.n_marked_positive} "
             f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
             f"margin={ev.margin:g} context_len={ev.context_len} "
+            f"score_kind={ev.score_kind} "
+            f"auc={stats.auc:.3f} perm_p={stats.permutation_p:.4g} "
             f"used_keys={ev.used_keys} hash_iv={ev.used_hash_iv} "
-            f"g_values={ev.used_g_values} instance={INDICATOR_INSTANCE}"
+            f"g_values={ev.used_g_values} instance={instance}"
         ),
+        format_binary_eval(stats, label="single-file"),
         CAVEAT,
     ]
     for stem, sample, m, u in zip(
@@ -360,8 +374,8 @@ def print_holdout(ev: IndicatorHoldout) -> str:
         )
         marked_name = _twin_file(stem, "marked", sample)
         unmarked_name = _twin_file(stem, "unmarked", sample)
-        lines.append(f"{marked_name}: lr={m:.6f} instance={INDICATOR_INSTANCE}")
-        lines.append(f"{unmarked_name}: lr={u:.6f} instance={INDICATOR_INSTANCE}")
+        lines.append(f"{marked_name}: lr={m:.6f} instance={instance}")
+        lines.append(f"{unmarked_name}: lr={u:.6f} instance={instance}")
         lines.append(f"{stem}#{sample}: {flag}")
     return "\n".join(lines)
 
@@ -400,6 +414,8 @@ def holdout_from_json(path: Path, *, margin: float | None = None) -> IndicatorHo
         samples=samples,
         mode=str(raw.get("mode") or "hold"),
         margin=applied,
+        instance=str(raw.get("instance") or INDICATOR_INSTANCE),
+        score_kind=str(raw.get("score_kind") or "hard"),
     )
 
 
@@ -420,7 +436,9 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "used_g_values": ev.used_g_values,
         "context_len": ev.context_len,
         "model_name": ev.model_name,
-        "instance": INDICATOR_INSTANCE,
+        "instance": ev.instance or INDICATOR_INSTANCE,
+        "score_kind": ev.score_kind,
+        "binary": binary_eval_to_dict(binary_eval(ev.marked_lrs, ev.unmarked_lrs)),
         "caveat": CAVEAT,
         "files": [],
     }
