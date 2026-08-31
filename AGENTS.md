@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a 16-token prefix already ranks **34/36** in-domain; a matched 16-token fit lifts unmarked ≤0 to **112/144**; position-bucketed hits keep 134/144 marked at t=0 with unmarked ≤0 **97/144**) but must not be sold as a universal detector. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample.
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**).
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -64,6 +64,9 @@ python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods hits,hashpoo
 python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-bucket 16
 python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1
+python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
+python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
+python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil
 python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
@@ -100,6 +103,11 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |
 | Same 16-token reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 (hurts) |
+| Qwen 12×4 first-token opening | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
+| DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
+| GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
 | Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |

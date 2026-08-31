@@ -62,6 +62,11 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free poshits, matched 4-token bucket 1, 36×4 | Tight matched opening + position namespace | **34/36**, AUC **0.935**; t=0 **131/144 vs 132/144** |
 | Same reader, 24×4 → 12×4 | New-topic matched 4-token isolated-file gate | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | Nested Youden, same split | Train-only Youden, frozen on 12×4 | **39/48 vs 41/48** |
+| Key-free last-1, same 4-token OOD split | Truncated last-4 was already last-1 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `--include-first` on that 4-token OOD gate | Mixing token 0 into hits | 9/12, AUC 0.719 |
+| Qwen 12×4 first-token opening | In-domain, Qwen tokenizer | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
+| DistilGPT2 12×4 official / in-domain hits | Same keys, GPT-2 tokenizer | **12/12** / **9/12**, AUC 0.705 |
+| GPT-2 36×4 → DistilGPT2 | Same BPE, new generator | hits **5/12**, AUC **0.462** |
 | Key-free last-k coverage, 36×4 LOO | Shared both-side contexts by window | 0:16 **13.7%** (driven by i=1–2); full last-4 from i=4 is ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | Coverage-weighted bucketed hits | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | Same OOD gate as 4-token, longer clip | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |

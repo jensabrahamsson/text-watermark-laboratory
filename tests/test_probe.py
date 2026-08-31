@@ -1369,3 +1369,134 @@ def test_matched_four_token_poshits_ood_nested_youden_matches_t0() -> None:
     assert in_domain.n_marked_positive == 131
     assert in_domain.n_unmarked_nonpositive == 132
 
+
+def test_last1_four_token_ood_matches_last4_poshits_gate() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-k1-pos1"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 39
+    assert ev.n_unmarked_nonpositive == 41
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.85
+    first = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-k1-pos1"
+        / "first"
+        / "holdout.json"
+    )
+    assert first.n_prompts_marked_above == 6
+
+
+def test_include_first_hurts_the_four_token_ood_gate() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-include-first"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 9
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc < 0.80
+    in_domain = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-fitprefix4-include-first"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert in_domain.n_prompts_marked_above == 35
+
+
+def test_prompt_context_ood_ranks_without_isolated_recall() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-prompt-context"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 13
+    assert ev.n_unmarked_nonpositive == 48
+
+
+def test_qwen_first_token_opening_is_twelve_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4-fitprefix4-pos1"
+        / "first"
+        / "holdout.json"
+    )
+    hits = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4-fitprefix4-pos1"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert hits.n_prompts_marked_above == 7
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.85
+    xfer = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-qwen-fitprefix4-include-first"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert xfer.n_prompts_marked_above == 8
+    xfer_auc = binary_eval(xfer.marked_lrs, xfer.unmarked_lrs, n_perm=200, seed=0)
+    assert xfer_auc.auc < 0.65
+
+
+def test_distilgpt2_official_splits_and_gpt2_hits_do_not_transfer() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-pair-distilgpt2-12x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["model_name"] == "distilgpt2"
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 12
+    in_domain = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-distilgpt2-12x4"
+        / "hits"
+        / "holdout.json"
+    )
+    assert in_domain.used_keys is False
+    assert in_domain.n_prompts_marked_above == 9
+    xfer = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-distilgpt2-12x4"
+        / "hits"
+        / "holdout.json"
+    )
+    assert xfer.n_prompts_marked_above == 5
+    auc = binary_eval(xfer.marked_lrs, xfer.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc < 0.55
+

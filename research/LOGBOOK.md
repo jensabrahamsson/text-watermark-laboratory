@@ -297,3 +297,32 @@ JSON: `experiments/2026-08-31-probe-36x4-coverage/`,
 `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/`.
 
 ---
+
+## 2026-08-31 first token, prompt context, Qwen opening, DistilGPT2
+
+The published last-k reader skips generated token 0. `--include-first`
+stores it under a sentinel unigram (not a key). `--prompt-context` uses
+`*-prompt.txt` as last-k so token 0 sees the prompt the mixin sees.
+`--methods first` is token 0 alone. Isolated `indicate score` of a lone
+file cannot reconstruct the prompt.
+
+Last-1 on the four-token opening copies the new-topic poshits gate
+(**12/12**, AUC **0.873**, t=0 **39/48 vs 41/48**). Mixing token 0 into
+hits hurts that gate (9/12, AUC 0.719). Prompt-as-context ranks 12/12
+OOD with isolated 13/48.
+
+Qwen in-domain first-token opening is **12/12**, AUC **0.901**. Hits
+without token 0 is 7/12. GPT-2 → Qwen stays chance.
+
+DistilGPT2 12×4 is officially **12/12**. In-domain hits **9/12**, AUC
+0.705. GPT-2 36×4 → Distil (same BPE) hits **5/12**, AUC **0.462**. Same
+keys and tokenizer are not a transferable 4-gram detector. Do not
+replace 10/12, 29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-probe-36x4-fitprefix4-k1-pos1/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-k1-pos1/`,
+`experiments/2026-08-31-probe-qwen-12x4-fitprefix4-pos1/`,
+`experiments/2026-08-31-pair-distilgpt2-12x4/`,
+`experiments/2026-08-31-transfer-36x4-to-distilgpt2-12x4/`.
+
+---

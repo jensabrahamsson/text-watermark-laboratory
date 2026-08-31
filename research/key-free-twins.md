@@ -34,6 +34,11 @@ Current results:
 | Key-free hits, tokens 0:4 only, 36×4 | **34/36**, AUC **0.917** (matches 0:16) |
 | Key-free poshits, matched 4-token bucket 1, 36×4 | **34/36**, AUC **0.935**; t=0 **131/144 vs 132/144** |
 | Same reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
+| Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
+| DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
+| GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
 | Key-free last-k coverage, 36×4 LOO | 0:16 shared **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |

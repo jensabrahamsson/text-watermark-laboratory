@@ -92,6 +92,18 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/` | New-topic 16-token poshits bucket 1 | **12/12** AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `2026-08-31-probe-12x4-fitprefix16-pos1/` | 12×4 LOO, 16-token bucket 1 | 9/12; 23/48 (not 29/48) |
 | `2026-08-31-transfer-36x4-to-qwen-fitprefix16-pos1/` | GPT-2 → Qwen, 16-token bucket 1 | chance (8/12, AUC 0.516) |
+| `2026-08-31-probe-36x4-fitprefix4-k1-pos1/` | Matched 4-token last-1 poshits | **34/36** AUC **0.940** |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix4-k1-pos1/` | New-topic last-1 poshits | **12/12** AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `2026-08-31-probe-36x4-fitprefix4-include-first/` | 4-token include-first | in-domain **35/36**; OOD hurts |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix4-include-first/` | New-topic include-first | 9/12, AUC 0.719 |
+| `2026-08-31-probe-36x4-fitprefix4-prompt-context/` | Mixin-aligned prompt last-k | 34/36, AUC 0.784 |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix4-prompt-context/` | New-topic prompt last-k | **12/12** ranking, isolated 13/48 |
+| `2026-08-31-probe-qwen-12x4-fitprefix4-pos1/` | Qwen opening; token 0 via `first` | **first 12/12** AUC **0.901**; hits 7/12 |
+| `2026-08-31-probe-qwen-12x4-fitprefix4-include-first/` | Qwen opening include-first | hits=first **12/12** AUC **0.901** |
+| `2026-08-31-transfer-36x4-to-qwen-fitprefix4-include-first/` | GPT-2 → Qwen first-token | chance |
+| `2026-08-31-pair-distilgpt2-12x4/` | DistilGPT2 12×4 twins | official **12/12** |
+| `2026-08-31-probe-distilgpt2-12x4/` | Distil in-domain last-4 | hits **9/12** AUC 0.705 |
+| `2026-08-31-transfer-36x4-to-distilgpt2-12x4/` | GPT-2 → Distil, same tokenizer | hits **5/12** AUC **0.462** |
 
 ## What changed across the runs
 
@@ -117,6 +129,10 @@ The later runs clarified what strengthens it:
 - scoring **0:4** already ranks **34/36** (AUC **0.917**), matching 0:16;
 - a matched 4-token fit with bucket 1 balances in-domain t=0 at **131/144 vs 132/144**, and OOD ranks **12/12** (AUC **0.873**, **39/48 vs 41/48**, nested Youden matching t=0);
 - that isolated-file gate needs the extra topics (12×4 LOO is 9/12) and does not transfer to Qwen;
+- last-1 on those four tokens copies the OOD 12/12 / 0.873 / 39 vs 41 gate, so last-4 at the opening was already truncated;
+- mixing generated token 0 into hits (`--include-first`) hurts that OOD gate (9/12, AUC 0.719);
+- Qwen's in-domain opening signal **is token 0** (first **12/12**, AUC **0.901**); hits without it is 7/12;
+- DistilGPT2 is officially 12/12; GPT-2 36×4 hits do not transfer across the shared tokenizer (5/12, AUC 0.462);
 - shuffling half the training labels drops isolated sign at 0 to chance.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".

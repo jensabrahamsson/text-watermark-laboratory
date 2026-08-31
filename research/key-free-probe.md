@@ -355,18 +355,22 @@ only tokens **0:4** already ranks **34/36** (AUC **0.917**), matching
 reader.** `--fit-prefix 4 --pos-bucket 1` in-domain: **34/36**, AUC
 **0.935**, t=0 **131/144 vs 132/144**. Trained on 24 other topics:
 **12/12**, AUC **0.873**, t=0 **39/48 vs 41/48**, and nested Youden
-matches t=0. The 16-token finest-bucket reader copies those OOD numbers;
-its nested Youden is conservative. `poshitmass` on 16-token bucket 4
-reaches in-domain AUC **0.943** (still 34/36; do not quote against
-full-file hitmass 0.938 like-for-like). Leave-one-of-12-out does **not**
-copy the 39/48 gate (9/12, 23/48). GPT-2 → Qwen stays chance (8/12,
-AUC 0.516). JSON:
-[../experiments/2026-08-31-probe-36x4-coverage/](../experiments/2026-08-31-probe-36x4-coverage/),
-[../experiments/2026-08-31-probe-36x4-windows-opening/](../experiments/2026-08-31-probe-36x4-windows-opening/),
-[../experiments/2026-08-31-probe-36x4-fitprefix4-pos1/](../experiments/2026-08-31-probe-36x4-fitprefix4-pos1/),
-[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/),
-[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/),
-[../experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass/](../experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass/).
+matches t=0. Last-1 on those four tokens copies that OOD gate, so
+last-4 at the opening was already truncated. Mixing generated token 0
+into hits (`--include-first`) **hurts** OOD (9/12, AUC 0.719).
+`--prompt-context` is mixin-aligned and does not transfer isolated-file
+recall (OOD 12/12 ranking, 13/48 at t=0). `indicate score` of a lone
+file cannot reconstruct the prompt.
+
+**Qwen's in-domain opening signal is generated token 0.** `--methods first`
+on a 4-token prefix ranks **12/12** (AUC **0.901**). Hits that skip
+token 0 is 7/12. Full-file Qwen hits stays **8/12**. GPT-2 tables still
+do not read Qwen (8/12, AUC 0.584).
+
+**Same tokenizer is not a transferable 4-gram detector.** DistilGPT2
+12×4 is officially **12/12**. In-domain hits **9/12**, AUC 0.705. GPT-2
+36×4 → Distil (shared BPE, same public keys) hits **5/12**, AUC **0.462**.
+The 4-gram footprint is generator-weight specific.
 
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 
@@ -412,8 +416,21 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --out-dir experiments/2026-08-31-probe-36x4-coverage
 
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
-  --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4 \
-  --out-dir experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass
+  --fit-prefix 4 --methods hits,poshits --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-probe-36x4-fitprefix4-pos1
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --fit-prefix 4 --context-len 1 --methods hits,poshits --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-probe-36x4-fitprefix4-k1-pos1
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-qwen-12x4 \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --fit-prefix 4 --methods first,hits --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-probe-qwen-12x4-fitprefix4-pos1
+
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260831 \
+  --out-dir experiments/2026-08-31-pair-distilgpt2-12x4
 
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --test-dir experiments/2026-08-17-pair-12x4 \
