@@ -496,9 +496,46 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         )
         print(CAVEAT)
         return 0
+    if method == "rankpath":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import collect_choice_matrices
+        from text_watermark_tools.rankpath import (
+            fit_rankpath_from_symbols,
+            persist_rankpath,
+            symbols_from_matrices,
+        )
+
+        lm = _load_unmarked_model(generate_device(), model_name=args.model)
+        mats = collect_choice_matrices(twins, lm, prompt_context=False)
+        symbols = symbols_from_matrices(mats)
+        model = fit_rankpath_from_symbols(
+            symbols,
+            [t.stem for t in twins],
+            context_len=min(int(args.context_len), 3),
+            position_bucket=int(getattr(args, "pos_bucket", 0) or 0) or 1,
+        )
+        if model.used_keys or model.used_hash_iv or model.used_g_values:
+            print("rankpath fit consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        path = persist_rankpath(
+            model,
+            Path(args.out_dir),
+            model_name=args.model,
+            pair_dir=str(args.pair_dir),
+            n_train_prompts=len(twins),
+            prompt_context=False,
+        )
+        print(
+            f"wrote {path} instance=key-free-rankpath "
+            f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
+            f"alphabet=5 prompt_context=False"
+        )
+        print(CAVEAT)
+        return 0
     if method not in ("counts", "hard"):
         print(
-            f"unknown --method {method}; choose counts, hashpool, surface, or pivot",
+            f"unknown --method {method}; choose counts, hashpool, surface, "
+            f"pivot, or rankpath",
             file=sys.stderr,
         )
         return 2
@@ -767,6 +804,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
             or bool(getattr(args, "cascade", "")),
             pivot_weights=str(getattr(args, "pivot_weight", "uniform") or "uniform"),
             cascade=str(getattr(args, "cascade", "") or ""),
+            with_rankpath=bool(getattr(args, "rankpath", False)),
+            cascade_fallback=str(getattr(args, "cascade_fallback", "pivot") or "pivot"),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -797,6 +836,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
         with_pivot=bool(args.pivot) or bool(getattr(args, "cascade", "")),
         pivot_weights=str(getattr(args, "pivot_weight", "uniform") or "uniform"),
         cascade=str(getattr(args, "cascade", "") or ""),
+        with_rankpath=bool(getattr(args, "rankpath", False)),
+        cascade_fallback=str(getattr(args, "cascade_fallback", "pivot") or "pivot"),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1127,13 +1168,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument(
         "--method",
         default="counts",
-        choices=("counts", "hashpool", "surface", "pivot"),
+        choices=("counts", "hashpool", "surface", "pivot", "rankpath"),
         help=(
             "counts = exact n-gram tables (default); "
             "hashpool = random token-context buckets; "
             "surface = UTF-8 byte hashpool, no tokenizer; "
             "pivot = unmarked-LM choice geometry (loads GPT-2; "
-            "cannot use prompt context on a lone file)"
+            "cannot use prompt context on a lone file); "
+            "rankpath = unmarked-LM rank-symbol tables (loads GPT-2; "
+            "scores novel openings without token identity)"
         ),
     )
     p_fit.add_argument(
@@ -1280,7 +1323,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Comma-separated methods: count specs plus hashpool, hashvote, "
             "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
             "postokbackoff, postokbackoff2, poshitmass, pospool, first, "
-            "tokhits, tokbackoff, tokbackoff2"
+            "tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, rankhits"
         ),
     )
     p_probe.add_argument(
@@ -1306,7 +1349,25 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Isolated-file protocol: use this count method when n_used>0, "
-            "else unmarked-LM pivot. Example: postokbackoff. Loads GPT-2."
+            "else the --cascade-fallback reader. Example: postokbackoff. "
+            "Loads GPT-2."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade-fallback",
+        default="pivot",
+        help=(
+            "When --cascade has n_used=0: pivot (LDA), rankpath (tokbackoff "
+            "on unmarked-LM rank symbols), or rankuni (rank-symbol unigram). "
+            "Default pivot."
+        ),
+    )
+    p_probe.add_argument(
+        "--rankpath",
+        action="store_true",
+        help=(
+            "Score unmarked-LM rank-symbol tables (rankpath + rankuni). "
+            "Loads GPT-2. Token identity is not used. Still no keys."
         ),
     )
     p_probe.add_argument("--n-hashes", type=int, default=8)

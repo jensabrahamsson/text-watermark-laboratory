@@ -288,6 +288,8 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
         score_kind = "surface"
     elif kind == "key-free-pivot":
         score_kind = "pivot-lda"
+    elif kind == "key-free-rankpath":
+        score_kind = "rankpath"
     else:
         score_kind = "hard"
     threshold = raw.get("decision_threshold")
@@ -370,6 +372,40 @@ def score_text_from_tables(
         meta.n_used = int(vec.size > 0)
         meta.n_positions = None
         return lr, meta, bool(fit.used_keys)
+    if kind == "key-free-rankpath":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS,
+            load_rankpath,
+            score_rankpath_detail,
+            symbols_from_token_ids,
+        )
+
+        model, raw = load_rankpath(path)
+        if bool(raw.get("prompt_context")):
+            raise ValueError(
+                "these rankpath tables were fit with prompt context; indicate "
+                "score of a lone file cannot reconstruct the prompt."
+            )
+        if tokenizer is None:
+            raise ValueError("rankpath tables need a tokenizer")
+        name = str(raw.get("model_name") or "gpt2")
+        lm = _load_unmarked_model(generate_device(), model_name=name)
+        ids = tokenizer(text)["input_ids"]
+        symbols = symbols_from_token_ids(
+            ids, lm, top_k=int(raw.get("top_k") or 40)
+        )
+        spec_name = str(raw.get("spec_name") or "rankpath")
+        spec = RANKPATH_SPECS.get(spec_name, RANKPATH_SPECS["rankpath"])
+        if mode in RANKPATH_SPECS:
+            spec = RANKPATH_SPECS[mode]
+        detail = score_rankpath_detail(symbols, model, spec=spec)
+        meta = load_tables_meta(path)
+        meta.score_kind = spec_name if mode in ("auto", "", spec_name) else mode
+        meta.instance = spec.instance
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
         if mode not in ("auto", "hashpool", ""):
             raise ValueError(

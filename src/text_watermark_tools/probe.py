@@ -1362,6 +1362,7 @@ def rotate_pivot(
     lm: object | None = None,
     prompt_context: bool = False,
     weights: Sequence[str] = ("uniform",),
+    mats=None,
 ) -> dict[str, IndicatorHoldout]:
     """Leave-one-prompt-out LDA and rank baseline on unmarked-LM features."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -1375,13 +1376,13 @@ def rotate_pivot(
         vectors_from_matrices,
     )
 
-    if lm is None:
-        lm = _load_unmarked_model(generate_device(), model_name=model_name)
-
+    if mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        mats = collect_choice_matrices(
+            twins, lm, top_k=top_k, prompt_context=prompt_context
+        )
     weight_names = parse_pivot_weights(weights)
-    mats = collect_choice_matrices(
-        twins, lm, top_k=top_k, prompt_context=prompt_context
-    )
     used_keys = used_hash = used_g = False
     out: dict[str, IndicatorHoldout] = {}
     ctx = 0
@@ -1454,7 +1455,9 @@ def transfer_pivot(
     lm: object | None = None,
     prompt_context: bool = False,
     weights: Sequence[str] = ("uniform",),
-) -> tuple[dict[str, IndicatorHoldout], dict[str, IndicatorHoldout], object]:
+    train_mats=None,
+    test_mats=None,
+) -> tuple[dict[str, IndicatorHoldout], dict[str, IndicatorHoldout], dict]:
     """Fit unmarked-LM geometry on train twins, score test twins. No keys."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
@@ -1467,26 +1470,27 @@ def transfer_pivot(
         vectors_from_matrices,
     )
 
-    if lm is None:
-        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    if train_mats is None or test_mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        if train_mats is None:
+            train_mats = collect_choice_matrices(
+                train, lm, top_k=top_k, prompt_context=prompt_context
+            )
+        if test_mats is None:
+            test_mats = collect_choice_matrices(
+                test, lm, top_k=top_k, prompt_context=prompt_context
+            )
     weight_names = parse_pivot_weights(weights)
-    train_mats = collect_choice_matrices(
-        train, lm, top_k=top_k, prompt_context=prompt_context
-    )
-    test_mats = collect_choice_matrices(
-        test, lm, top_k=top_k, prompt_context=prompt_context
-    )
     train_stems = [t.stem for t in train]
     train_out: dict[str, IndicatorHoldout] = {}
     test_out: dict[str, IndicatorHoldout] = {}
-    last_fit = None
-    last_weight = weight_names[0]
+    fits: dict[str, object] = {}
     for weight in weight_names:
         train_vecs = vectors_from_matrices(train_mats, weight=weight)
         test_vecs = vectors_from_matrices(test_mats, weight=weight)
         fit = fit_pivot_from_vectors(train_vecs, train_stems)
-        last_fit = fit
-        last_weight = weight
+        fits[weight] = fit
         train_lda = _empty_holdout_parts()
         train_rank = _empty_holdout_parts()
         test_lda = _empty_holdout_parts()
@@ -1568,7 +1572,175 @@ def transfer_pivot(
             mode="transfer",
             **flags,
         )
-    return test_out, train_out, last_fit, last_weight
+    return test_out, train_out, fits
+
+
+def rotate_rankpath(
+    twins: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    context_len: int = 3,
+    position_bucket: int = 1,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("rankpath", "rankuni"),
+    mats=None,
+) -> dict[str, IndicatorHoldout]:
+    """Leave-one-prompt-out next-symbol LR on unmarked-LM rank paths."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import collect_choice_matrices
+    from text_watermark_tools.rankpath import (
+        RANKPATH_SPECS,
+        fit_rankpath_from_symbols,
+        score_rankpath,
+        symbols_from_matrices,
+    )
+
+    names = [n for n in methods if n in RANKPATH_SPECS]
+    if not names:
+        raise ValueError("rotate_rankpath needs rankpath, rankuni, or rankhits")
+    if mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        mats = collect_choice_matrices(
+            twins, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    symbols = symbols_from_matrices(mats, top_k=top_k)
+    parts = {name: _empty_holdout_parts() for name in names}
+    used_keys = used_hash = used_g = False
+    bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    for held in twins:
+        train_stems = [t.stem for t in twins if t.stem != held.stem]
+        model = fit_rankpath_from_symbols(
+            symbols,
+            train_stems,
+            context_len=context_len,
+            position_bucket=bucket,
+        )
+        used_keys = used_keys or model.used_keys
+        used_hash = used_hash or model.used_hash_iv
+        used_g = used_g or model.used_g_values
+        n = min(len(held.marked_seqs()), len(held.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            ids_m = symbols.get((held.stem, sample, "marked"), [])
+            ids_u = symbols.get((held.stem, sample, "unmarked"), [])
+            for name in names:
+                spec = RANKPATH_SPECS[name]
+                _append_pair(
+                    parts[name],
+                    held.stem,
+                    sample,
+                    score_rankpath(ids_m, model, spec=spec),
+                    score_rankpath(ids_u, model, spec=spec),
+                )
+    flags = dict(
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+        model_name=model_name,
+        context_len=context_len,
+    )
+    return {
+        name: _holdout_from_parts(
+            parts[name],
+            instance=RANKPATH_SPECS[name].instance,
+            score_kind=name,
+            **flags,
+        )
+        for name in names
+    }
+
+
+def transfer_rankpath(
+    train: Sequence[Twin],
+    test: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    context_len: int = 3,
+    position_bucket: int = 1,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("rankpath", "rankuni"),
+    train_mats=None,
+    test_mats=None,
+):
+    """Fit rank-path tables on train twins, score test. Isolated-file protocol."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import collect_choice_matrices
+    from text_watermark_tools.rankpath import (
+        RANKPATH_SPECS,
+        fit_rankpath_from_symbols,
+        score_rankpath,
+        symbols_from_matrices,
+    )
+
+    names = [n for n in methods if n in RANKPATH_SPECS]
+    if not names:
+        raise ValueError("transfer_rankpath needs rankpath, rankuni, or rankhits")
+    if lm is None and (train_mats is None or test_mats is None):
+        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    if train_mats is None:
+        train_mats = collect_choice_matrices(
+            train, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    if test_mats is None:
+        test_mats = collect_choice_matrices(
+            test, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    train_sym = symbols_from_matrices(train_mats, top_k=top_k)
+    test_sym = symbols_from_matrices(test_mats, top_k=top_k)
+    all_sym = {**train_sym, **test_sym}
+    model = fit_rankpath_from_symbols(
+        train_sym,
+        [t.stem for t in train],
+        context_len=context_len,
+        position_bucket=int(position_bucket) if position_bucket and position_bucket > 0 else 0,
+    )
+
+    def _side(twins, symbols, mode: str) -> dict[str, IndicatorHoldout]:
+        parts = {name: _empty_holdout_parts() for name in names}
+        for twin in twins:
+            n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+            for i in range(n):
+                sample = i + 1
+                ids_m = symbols.get((twin.stem, sample, "marked"), [])
+                ids_u = symbols.get((twin.stem, sample, "unmarked"), [])
+                for name in names:
+                    spec = RANKPATH_SPECS[name]
+                    _append_pair(
+                        parts[name],
+                        twin.stem,
+                        sample,
+                        score_rankpath(ids_m, model, spec=spec),
+                        score_rankpath(ids_u, model, spec=spec),
+                    )
+        flags = dict(
+            used_keys=model.used_keys,
+            used_hash_iv=model.used_hash_iv,
+            used_g_values=model.used_g_values,
+            model_name=model_name,
+            context_len=context_len,
+            mode=mode,
+        )
+        return {
+            name: _holdout_from_parts(
+                parts[name],
+                instance=RANKPATH_SPECS[name].instance,
+                score_kind=name,
+                **flags,
+            )
+            for name in names
+        }
+
+    return (
+        _side(test, test_sym, "transfer"),
+        _side(train, train_sym, "train"),
+        model,
+        all_sym,
+    )
 
 
 def rotate_cascade(
@@ -1584,28 +1756,39 @@ def rotate_cascade(
     prompt_context: bool = False,
     pivot_weight: str = "entropy",
     count_prompt_context: bool = False,
+    fallback: str = "pivot",
+    mats=None,
 ) -> tuple[IndicatorHoldout, list[dict]]:
-    """LOO: count LR when n_used>0, else unmarked-LM pivot. Isolated-file protocol."""
+    """LOO: count LR when n_used>0, else unmarked-LM fallback. Isolated-file."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
         cascade_score,
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
-        score_pivot_lda,
         vectors_from_matrices,
+    )
+    from text_watermark_tools.rankpath import (
+        RANKPATH_SPECS,
+        fit_rankpath_from_symbols,
+        parse_cascade_fallback,
+        symbols_from_matrices,
     )
     from text_watermark_tools.score import load_tokenizer
     from text_watermark_tools.atoms import decode_token
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
-    if lm is None:
-        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    fallback = parse_cascade_fallback(fallback)
+    if mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        mats = collect_choice_matrices(
+            twins, lm, top_k=top_k, prompt_context=prompt_context
+        )
     tok = load_tokenizer(model_name)
-    mats = collect_choice_matrices(
-        twins, lm, top_k=top_k, prompt_context=prompt_context
-    )
     vecs = vectors_from_matrices(mats, weight=pivot_weight)
+    symbols = symbols_from_matrices(mats, top_k=top_k) if fallback != "pivot" else {}
+    rank_spec = RANKPATH_SPECS.get(fallback)
     parts = _empty_holdout_parts()
     rows: list[dict] = []
     used_keys = used_hash = used_g = False
@@ -1623,12 +1806,23 @@ def rotate_cascade(
         used_keys = used_keys or model.used_keys
         used_hash = used_hash or model.used_hash_iv
         used_g = used_g or model.used_g_values
-        fit = fit_pivot_from_vectors(
-            vecs, [t.stem for t in train]
-        )
-        used_keys = used_keys or fit.used_keys
-        used_hash = used_hash or fit.used_hash_iv
-        used_g = used_g or fit.used_g_values
+        fit = None
+        rank_model = None
+        if fallback == "pivot":
+            fit = fit_pivot_from_vectors(vecs, [t.stem for t in train])
+            used_keys = used_keys or fit.used_keys
+            used_hash = used_hash or fit.used_hash_iv
+            used_g = used_g or fit.used_g_values
+        else:
+            rank_model = fit_rankpath_from_symbols(
+                symbols,
+                [t.stem for t in train],
+                context_len=min(context_len, 3),
+                position_bucket=bucket,
+            )
+            used_keys = used_keys or rank_model.used_keys
+            used_hash = used_hash or rank_model.used_hash_iv
+            used_g = used_g or rank_model.used_g_values
         count_prefix = _twin_prefix(held, count_prompt_context)
         n = min(len(held.marked_seqs()), len(held.unmarked_seqs()))
         for i in range(n):
@@ -1637,8 +1831,28 @@ def rotate_cascade(
             ids_u = held.unmarked_seqs()[i]
             dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
             du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
-            pm = score_pivot_lda(vecs[(held.stem, sample, "marked")], fit)
-            pu = score_pivot_lda(vecs[(held.stem, sample, "unmarked")], fit)
+            pm = _cascade_fallback_lr(
+                fallback,
+                stem=held.stem,
+                sample=sample,
+                side="marked",
+                vecs=vecs,
+                pivot_fit=fit,
+                symbols=symbols,
+                rank_model=rank_model,
+                rank_spec=rank_spec,
+            )
+            pu = _cascade_fallback_lr(
+                fallback,
+                stem=held.stem,
+                sample=sample,
+                side="unmarked",
+                vecs=vecs,
+                pivot_fit=fit,
+                symbols=symbols,
+                rank_model=rank_model,
+                rank_spec=rank_spec,
+            )
             sm = cascade_score(dm.lr, dm.n_used, pm)
             su = cascade_score(du.lr, du.n_used, pu)
             _append_pair(parts, held.stem, sample, sm, su)
@@ -1651,7 +1865,7 @@ def rotate_cascade(
                     "n_used": dm.n_used,
                     "count_lr": dm.lr,
                     "pivot_lr": pm,
-                    "source": cascade_source(dm.n_used),
+                    "source": cascade_source(dm.n_used, fallback),
                     "score": sm,
                     "opening_text": opening,
                 }
@@ -1664,7 +1878,7 @@ def rotate_cascade(
                     "n_used": du.n_used,
                     "count_lr": du.lr,
                     "pivot_lr": pu,
-                    "source": cascade_source(du.n_used),
+                    "source": cascade_source(du.n_used, fallback),
                     "score": su,
                     "opening_text": "",
                 }
@@ -1697,22 +1911,32 @@ def transfer_cascade(
     pivot_weight: str = "entropy",
     count_prompt_context: bool = False,
     pos_model=None,
+    fallback: str = "pivot",
+    train_mats=None,
+    test_mats=None,
+    rank_model=None,
 ) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
-    """Train count+pivot on one corpus, score the other. Isolated-file cascade."""
+    """Train count+fallback on one corpus, score the other. Isolated-file cascade."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
         cascade_score,
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
-        score_pivot_lda,
         vectors_from_matrices,
+    )
+    from text_watermark_tools.rankpath import (
+        RANKPATH_SPECS,
+        fit_rankpath_from_symbols,
+        parse_cascade_fallback,
+        symbols_from_matrices,
     )
     from text_watermark_tools.score import load_tokenizer
     from text_watermark_tools.atoms import decode_token
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
-    if lm is None:
+    fallback = parse_cascade_fallback(fallback)
+    if lm is None and (train_mats is None or test_mats is None):
         lm = _load_unmarked_model(generate_device(), model_name=model_name)
     tok = load_tokenizer(model_name)
     bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
@@ -1724,15 +1948,32 @@ def transfer_cascade(
         prompt_context=count_prompt_context,
     )
     model.include_first = bool(include_first)
-    train_mats = collect_choice_matrices(
-        train, lm, top_k=top_k, prompt_context=prompt_context
-    )
-    test_mats = collect_choice_matrices(
-        test, lm, top_k=top_k, prompt_context=prompt_context
-    )
+    if train_mats is None:
+        train_mats = collect_choice_matrices(
+            train, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    if test_mats is None:
+        test_mats = collect_choice_matrices(
+            test, lm, top_k=top_k, prompt_context=prompt_context
+        )
     train_vecs = vectors_from_matrices(train_mats, weight=pivot_weight)
     test_vecs = vectors_from_matrices(test_mats, weight=pivot_weight)
-    fit = fit_pivot_from_vectors(train_vecs, [t.stem for t in train])
+    fit = None
+    symbols: dict = {}
+    rank_spec = RANKPATH_SPECS.get(fallback)
+    if fallback == "pivot":
+        fit = fit_pivot_from_vectors(train_vecs, [t.stem for t in train])
+    else:
+        train_sym = symbols_from_matrices(train_mats, top_k=top_k)
+        test_sym = symbols_from_matrices(test_mats, top_k=top_k)
+        symbols = {**train_sym, **test_sym}
+        if rank_model is None:
+            rank_model = fit_rankpath_from_symbols(
+                train_sym,
+                [t.stem for t in train],
+                context_len=min(context_len, 3),
+                position_bucket=bucket,
+            )
 
     def _score_side(twins, vecs, mode: str) -> tuple[dict, list[dict]]:
         parts = _empty_holdout_parts()
@@ -1746,8 +1987,28 @@ def transfer_cascade(
                 ids_u = twin.unmarked_seqs()[i]
                 dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
                 du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
-                pm = score_pivot_lda(vecs[(twin.stem, sample, "marked")], fit)
-                pu = score_pivot_lda(vecs[(twin.stem, sample, "unmarked")], fit)
+                pm = _cascade_fallback_lr(
+                    fallback,
+                    stem=twin.stem,
+                    sample=sample,
+                    side="marked",
+                    vecs=vecs,
+                    pivot_fit=fit,
+                    symbols=symbols,
+                    rank_model=rank_model,
+                    rank_spec=rank_spec,
+                )
+                pu = _cascade_fallback_lr(
+                    fallback,
+                    stem=twin.stem,
+                    sample=sample,
+                    side="unmarked",
+                    vecs=vecs,
+                    pivot_fit=fit,
+                    symbols=symbols,
+                    rank_model=rank_model,
+                    rank_spec=rank_spec,
+                )
                 sm = cascade_score(dm.lr, dm.n_used, pm)
                 su = cascade_score(du.lr, du.n_used, pu)
                 _append_pair(parts, twin.stem, sample, sm, su)
@@ -1760,7 +2021,7 @@ def transfer_cascade(
                         "n_used": dm.n_used,
                         "count_lr": dm.lr,
                         "pivot_lr": pm,
-                        "source": cascade_source(dm.n_used),
+                        "source": cascade_source(dm.n_used, fallback),
                         "score": sm,
                         "opening_text": opening,
                     }
@@ -1773,20 +2034,25 @@ def transfer_cascade(
                         "n_used": du.n_used,
                         "count_lr": du.lr,
                         "pivot_lr": pu,
-                        "source": cascade_source(du.n_used),
+                        "source": cascade_source(du.n_used, fallback),
                         "score": su,
                         "opening_text": "",
                     }
                 )
+        fb = fit if fallback == "pivot" else rank_model
         ev = _holdout_from_parts(
             parts,
             context_len=context_len,
             model_name=model_name,
             instance="key-free-cascade",
             score_kind="cascade",
-            used_keys=bool(model.used_keys or fit.used_keys),
-            used_hash_iv=bool(model.used_hash_iv or fit.used_hash_iv),
-            used_g_values=bool(model.used_g_values or fit.used_g_values),
+            used_keys=bool(model.used_keys or (fb.used_keys if fb is not None else False)),
+            used_hash_iv=bool(
+                model.used_hash_iv or (fb.used_hash_iv if fb is not None else False)
+            ),
+            used_g_values=bool(
+                model.used_g_values or (fb.used_g_values if fb is not None else False)
+            ),
             mode=mode,
         )
         return ev, rows
@@ -1794,6 +2060,27 @@ def transfer_cascade(
     train_ev, _ = _score_side(train, train_vecs, "train")
     test_ev, rows = _score_side(test, test_vecs, "transfer")
     return test_ev, train_ev, rows
+
+
+def _cascade_fallback_lr(
+    fallback: str,
+    *,
+    stem: str,
+    sample: int,
+    side: str,
+    vecs,
+    pivot_fit,
+    symbols,
+    rank_model,
+    rank_spec,
+) -> float:
+    from text_watermark_tools.pivot import score_pivot_lda
+    from text_watermark_tools.rankpath import score_rankpath
+
+    if fallback == "pivot":
+        return score_pivot_lda(vecs[(stem, sample, side)], pivot_fit)
+    ids = symbols.get((stem, sample, side), [])
+    return score_rankpath(ids, rank_model, spec=rank_spec)
 
 
 @dataclass
@@ -1886,6 +2173,9 @@ class TransferRun:
     prompt_context: bool = False
     pivot_weights: tuple[str, ...] = ()
     pivot_fit: object | None = None
+    pivot_fits: dict = field(default_factory=dict)
+    rankpath_model: object | None = None
+    cascade_fallback: str = "pivot"
     cascade: dict | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
@@ -1957,6 +2247,8 @@ def run_probe(
     with_pivot: bool = False,
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
+    with_rankpath: bool = False,
+    cascade_fallback: str = "pivot",
     n_hashes: int = 8,
     n_buckets: int = 256,
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
@@ -1978,6 +2270,12 @@ def run_probe(
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
     pos_names = [m for m in requested if m in POS_SPECS]
+    from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
+
+    rank_names = [m for m in requested if m in RANKPATH_SPECS]
+    fallback = parse_cascade_fallback(cascade_fallback)
+    if with_rankpath and not rank_names:
+        rank_names = ["rankpath", "rankuni"]
     raw_twins = twins
     if fit_prefix and fit_prefix > 0:
         twins = clip_twins_prefix(twins, int(fit_prefix))
@@ -1997,7 +2295,7 @@ def run_probe(
         position_bucket=pos_bucket,
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
-        pivot_weights=tuple(pivot_weights) if with_pivot or cascade else (),
+        pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names else (),
     )
     if count_names:
         counted = rotate_count_methods(
@@ -2109,14 +2407,21 @@ def run_probe(
             _store_windows(
                 window_out, {win: {"surface": ev} for win, ev in one_win.items()}
             )
-    if with_pivot or cascade:
+    if with_pivot or cascade or rank_names:
         from text_watermark_tools.generate import _load_unmarked_model, generate_device
-        from text_watermark_tools.pivot import parse_pivot_weights, summarize_cascade
+        from text_watermark_tools.pivot import (
+            collect_choice_matrices,
+            parse_pivot_weights,
+            summarize_cascade,
+        )
 
         if lm is None:
             lm = _load_unmarked_model(generate_device(), model_name=model_name)
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
+        mats = collect_choice_matrices(
+            twins, lm, prompt_context=prompt_context
+        )
         if with_pivot:
             pivots = rotate_pivot(
                 twins,
@@ -2124,8 +2429,22 @@ def run_probe(
                 lm=lm,
                 prompt_context=prompt_context,
                 weights=weight_names,
+                mats=mats,
             )
             for name, ev in pivots.items():
+                run.methods.append(summarize_holdout(name, ev))
+        if rank_names:
+            ranked = rotate_rankpath(
+                twins,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                position_bucket=pos_bucket,
+                context_len=min(int(context_len), 3),
+                methods=rank_names,
+                mats=mats,
+            )
+            for name, ev in ranked.items():
                 run.methods.append(summarize_holdout(name, ev))
         cascade_name = str(cascade or "").strip()
         if cascade_name:
@@ -2146,11 +2465,14 @@ def run_probe(
                 prompt_context=prompt_context,
                 pivot_weight=weight_names[0],
                 count_prompt_context=False,
+                fallback=fallback,
+                mats=mats,
             )
             run.methods.append(summarize_holdout("cascade", ev))
             run.cascade = summarize_cascade(rows)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
+            run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
             run.cascade["rows"] = rows
     by_name = {m.name: m.holdout for m in run.methods}
@@ -2186,21 +2508,23 @@ def run_probe(
 
 
 def format_cascade(payload: dict) -> list[str]:
-    """Human lines for the count-then-pivot isolated-file protocol."""
+    """Human lines for the count-then-fallback isolated-file protocol."""
     prec = payload.get("count_precision")
     prec_s = f"{prec:.3f}" if isinstance(prec, float) and prec == prec else "nan"
     n_pm = max(int(payload.get("n_pivot_marked") or 0), 1)
     n_pu = max(int(payload.get("n_pivot_unmarked") or 0), 1)
     n_cm = max(int(payload.get("n_count_marked") or 0), 1)
     n_cu = max(int(payload.get("n_count_unmarked") or 0), 1)
+    fallback = str(payload.get("fallback") or "pivot")
     lines = [
         (
-            "Cascade: count LR when n_used>0, unmarked-LM pivot otherwise. "
+            f"Cascade: count LR when n_used>0, unmarked-LM {fallback} otherwise. "
             "Signs at 0 are comparable. Mixed AUC is not a detector. "
             "Not keys, not a universal detector."
         ),
         (
             f"count_method={payload.get('count_method')} "
+            f"fallback={fallback} "
             f"pivot_weight={payload.get('pivot_weight')} "
             f"prompt_context={payload.get('prompt_context')} "
             f"used_keys={payload.get('used_keys')}"
@@ -2213,7 +2537,7 @@ def format_cascade(payload: dict) -> list[str]:
             f"precision={prec_s}"
         ),
         (
-            f"pivot fallback marked {payload.get('n_pivot_marked')}/"
+            f"{fallback} fallback marked {payload.get('n_pivot_marked')}/"
             f"{payload.get('n_marked')} >0 "
             f"{payload.get('pivot_marked_above_zero')}/{n_pm} unmarked<=0 "
             f"{payload.get('pivot_unmarked_at_most_zero')}/{n_pu}"
@@ -2227,7 +2551,7 @@ def format_cascade(payload: dict) -> list[str]:
     ]
     fallback = payload.get("pivot_fallback_marked") or []
     if fallback:
-        lines.append("Pivot-fallback marked files:")
+        lines.append(f"{fallback}-fallback marked files:")
         for row in fallback:
             score = float(row.get("score") or 0.0)
             sign = "lr>0" if score > 0.0 else "lr<=0"
@@ -2514,6 +2838,8 @@ def run_transfer(
     with_pivot: bool = False,
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
+    with_rankpath: bool = False,
+    cascade_fallback: str = "pivot",
     lm=None,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
@@ -2532,6 +2858,12 @@ def run_transfer(
     names = list(methods or TRANSFER_DEFAULTS)
     count_names = [n for n in names if n in COUNT_SPECS]
     extras = [n for n in names if n not in COUNT_SPECS]
+    from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
+
+    rank_names = [n for n in names if n in RANKPATH_SPECS]
+    fallback = parse_cascade_fallback(cascade_fallback)
+    if with_rankpath and not rank_names:
+        rank_names = ["rankpath", "rankuni"]
     if "logit" in extras:
         logit_ready = [n for n in LOGIT_FEATURE_ORDER if n in names]
         if len(logit_ready) < 2:
@@ -2890,21 +3222,38 @@ def run_transfer(
         test_holdouts["logit"] = test_logit
         train_holdouts["logit"] = train_logit
 
-    if with_pivot or cascade:
-        from text_watermark_tools.pivot import parse_pivot_weights, summarize_cascade
+    if with_pivot or cascade or rank_names:
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import (
+            collect_choice_matrices,
+            parse_pivot_weights,
+            summarize_cascade,
+        )
 
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
+        run.cascade_fallback = fallback
+        train_mats = collect_choice_matrices(
+            train, lm, prompt_context=prompt_context
+        )
+        test_mats = collect_choice_matrices(
+            test, lm, prompt_context=prompt_context
+        )
         if with_pivot:
-            test_pivots, train_pivots, last_fit, last_weight = transfer_pivot(
+            test_pivots, train_pivots, fits = transfer_pivot(
                 train,
                 test,
                 model_name=model_name,
                 lm=lm,
                 prompt_context=prompt_context,
                 weights=weight_names,
+                train_mats=train_mats,
+                test_mats=test_mats,
             )
-            run.pivot_fit = last_fit
+            run.pivot_fits = fits
+            run.pivot_fit = fits.get("uniform") or next(iter(fits.values()), None)
             used_keys = used_keys or any(ev.used_keys for ev in test_pivots.values())
             used_hash = used_hash or any(
                 ev.used_hash_iv for ev in test_pivots.values()
@@ -2924,6 +3273,38 @@ def run_transfer(
                 )
                 test_holdouts[name] = ev
                 train_holdouts[name] = train_pivots[name]
+        rank_model = None
+        if rank_names:
+            test_rank, train_rank, rank_model, _syms = transfer_rankpath(
+                train,
+                test,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                position_bucket=pos_bucket,
+                context_len=min(int(context_len), 3),
+                methods=rank_names,
+                train_mats=train_mats,
+                test_mats=test_mats,
+            )
+            run.rankpath_model = rank_model
+            used_keys = used_keys or rank_model.used_keys
+            used_hash = used_hash or rank_model.used_hash_iv
+            used_g = used_g or rank_model.used_g_values
+            for name, ev in test_rank.items():
+                run.methods.append(summarize_holdout(name, ev))
+                train_bin = binary_eval(
+                    train_rank[name].marked_lrs, train_rank[name].unmarked_lrs
+                )
+                _append_threshold(
+                    run,
+                    name=name,
+                    source="in-sample-youden",
+                    threshold=train_bin.youden_threshold,
+                    test_ev=ev,
+                )
+                test_holdouts[name] = ev
+                train_holdouts[name] = train_rank[name]
         cascade_name = str(cascade or "").strip()
         if cascade_name:
             spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
@@ -2946,6 +3327,10 @@ def run_transfer(
                 pivot_weight=weight_names[0],
                 count_prompt_context=False,
                 pos_model=cascade_pos,
+                fallback=fallback,
+                train_mats=train_mats,
+                test_mats=test_mats,
+                rank_model=rank_model if fallback in RANKPATH_SPECS else None,
             )
             run.methods.append(summarize_holdout("cascade", test_cas))
             train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)
@@ -2961,6 +3346,7 @@ def run_transfer(
             run.cascade = summarize_cascade(rows)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
+            run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
             run.cascade["rows"] = rows
             used_keys = used_keys or test_cas.used_keys
@@ -3008,6 +3394,18 @@ def run_transfer(
                     model_name=model_name,
                     include_first=include_first,
                     prompt_context=prompt_context,
+                )
+            )
+        if rank_names:
+            nested_holdouts.update(
+                rotate_rankpath(
+                    train,
+                    model_name=model_name,
+                    prompt_context=prompt_context,
+                    position_bucket=pos_bucket,
+                    context_len=min(int(context_len), 3),
+                    methods=rank_names,
+                    mats=train_mats,
                 )
             )
         if (
@@ -3192,6 +3590,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "include_first": run.include_first,
         "prompt_context": run.prompt_context,
         "pivot_weights": list(run.pivot_weights),
+        "cascade_fallback": getattr(run, "cascade_fallback", "pivot"),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -3331,7 +3730,50 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             persist_holdout(
                 m.holdout, out_dir / _window_dir(start, end) / m.name
             )
-    if persist_tables and run.pivot_fit is not None:
+    if persist_tables and run.pivot_fits:
+        from text_watermark_tools.pivot import persist_pivot
+
+        for weight, fit in run.pivot_fits.items():
+            nested_t = _t(f"pivot-lda{'' if weight == 'uniform' else '-' + ('intopk' if weight == 'in_topk' else weight)}", "nested-youden")
+            in_t = _t(
+                f"pivot-lda{'' if weight == 'uniform' else '-' + ('intopk' if weight == 'in_topk' else weight)}",
+                "in-sample-youden",
+            )
+            persist_pivot(
+                fit,
+                out_dir / f"tables-pivot-{weight}",
+                model_name=run.model_name,
+                pair_dir=run.train_dir,
+                n_train_prompts=run.n_train_prompts,
+                weight=weight,
+                prompt_context=bool(run.prompt_context),
+                decision_threshold=nested_t if nested_t is not None else in_t,
+                decision_source=(
+                    f"nested-youden-pivot-{weight}"
+                    if nested_t is not None
+                    else f"in-sample-youden-pivot-{weight}"
+                ),
+            )
+        canonical = run.pivot_fits.get("uniform") or next(iter(run.pivot_fits.values()))
+        canonical_weight = (
+            "uniform" if "uniform" in run.pivot_fits else next(iter(run.pivot_fits))
+        )
+        nested_t = _t("pivot-lda", "nested-youden")
+        in_t = _t("pivot-lda", "in-sample-youden")
+        persist_pivot(
+            canonical,
+            out_dir / "tables-pivot",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            weight=canonical_weight,
+            prompt_context=bool(run.prompt_context),
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-pivot" if nested_t is not None else "in-sample-youden-pivot"
+            ),
+        )
+    elif persist_tables and run.pivot_fit is not None:
         from text_watermark_tools.pivot import persist_pivot
 
         nested_t = _t("pivot-lda", "nested-youden")
@@ -3348,6 +3790,26 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_threshold=nested_t if nested_t is not None else in_t,
             decision_source=(
                 "nested-youden-pivot" if nested_t is not None else "in-sample-youden-pivot"
+            ),
+        )
+    if persist_tables and run.rankpath_model is not None:
+        from text_watermark_tools.rankpath import persist_rankpath
+
+        nested_t = _t("rankpath", "nested-youden")
+        in_t = _t("rankpath", "in-sample-youden")
+        persist_rankpath(
+            run.rankpath_model,
+            out_dir / "tables-rankpath",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            prompt_context=bool(run.prompt_context),
+            spec_name="rankpath",
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-rankpath"
+                if nested_t is not None
+                else "in-sample-youden-rankpath"
             ),
         )
     if run.cascade:

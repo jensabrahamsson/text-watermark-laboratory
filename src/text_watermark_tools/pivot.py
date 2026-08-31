@@ -254,16 +254,16 @@ def extract_choice_vector(
     )
 
 
-def cascade_source(n_used: int) -> str:
-    """Count tables when they have coverage; unmarked-LM geometry otherwise."""
-    return "count" if int(n_used) > 0 else "pivot"
+def cascade_source(n_used: int, fallback: str = "pivot") -> str:
+    """Count tables when they have coverage; fallback reader otherwise."""
+    return "count" if int(n_used) > 0 else str(fallback or "pivot")
 
 
-def cascade_score(count_lr: float, n_used: int, pivot_lr: float) -> float:
+def cascade_score(count_lr: float, n_used: int, fallback_lr: float) -> float:
     """Threshold-0 sign is comparable; mixed magnitudes are not an AUC."""
     if int(n_used) > 0:
         return float(count_lr)
-    return float(pivot_lr)
+    return float(fallback_lr)
 
 
 def summarize_cascade(rows: Sequence[dict]) -> dict:
@@ -282,27 +282,39 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
 
     count_m = _subset(marked, "count")
     count_u = _subset(unmarked, "count")
-    pivot_m = _subset(marked, "pivot")
-    pivot_u = _subset(unmarked, "pivot")
+    fallback_m = [r for r in marked if r.get("source") != "count"]
+    fallback_u = [r for r in unmarked if r.get("source") != "count"]
+    fallback = "pivot"
+    for row in list(fallback_m) + list(fallback_u) + list(rows):
+        src = str(row.get("source") or "")
+        if src and src != "count":
+            fallback = src
+            break
     return {
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
+        "fallback": fallback,
         "note": (
-            "Count LR when n_used>0 (coverage); unmarked-LM pivot otherwise. "
-            "Signs at threshold 0 are comparable. A single AUC on mixed "
-            "magnitudes is not a detector. Not keys, not a universal detector."
+            "Count LR when n_used>0 (coverage); unmarked-LM fallback "
+            f"({fallback}) otherwise. Signs at threshold 0 are comparable. "
+            "A single AUC on mixed magnitudes is not a detector. "
+            "Not keys, not a universal detector."
         ),
         "n_marked": len(marked),
         "n_unmarked": len(unmarked),
         "n_count_marked": len(count_m),
         "n_count_unmarked": len(count_u),
-        "n_pivot_marked": len(pivot_m),
-        "n_pivot_unmarked": len(pivot_u),
+        "n_pivot_marked": len(fallback_m),
+        "n_pivot_unmarked": len(fallback_u),
+        "n_fallback_marked": len(fallback_m),
+        "n_fallback_unmarked": len(fallback_u),
         "count_marked_above_zero": _pos(count_m),
         "count_unmarked_at_most_zero": _nonpos(count_u),
-        "pivot_marked_above_zero": _pos(pivot_m),
-        "pivot_unmarked_at_most_zero": _nonpos(pivot_u),
+        "pivot_marked_above_zero": _pos(fallback_m),
+        "pivot_unmarked_at_most_zero": _nonpos(fallback_u),
+        "fallback_marked_above_zero": _pos(fallback_m),
+        "fallback_unmarked_at_most_zero": _nonpos(fallback_u),
         "combined_marked_above_zero": _pos(marked),
         "combined_unmarked_at_most_zero": _nonpos(unmarked),
         "count_precision": (
@@ -316,8 +328,9 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
                 "sample": r.get("sample"),
                 "score": r.get("score"),
                 "opening_text": r.get("opening_text", ""),
+                "source": r.get("source"),
             }
-            for r in pivot_m
+            for r in fallback_m
         ],
     }
 
