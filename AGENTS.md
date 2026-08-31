@@ -115,6 +115,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free tokmlp, 4-token 24×4 → 12×4 | 8/12, AUC 0.714 (does not beat poshits **0.873**) |
 | Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
 | GPT-2 learned scorers → Distil / Qwen | chance |
+| Key-free poshits, 4-token 24×4 → 12×4, control-shuffled-30 | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
+| Official lamp on those 48 control files | public **0.501**; matching control keys **0.624** |
 | Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |
@@ -126,7 +128,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), and [research/key-free-learn.md](research/key-free-learn.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), and [research/key-free-contrast.md](research/key-free-contrast.md).
 
 ## Code map
 
@@ -156,6 +158,7 @@ Keep the distinction clean:
 
 - public DeepMind instance → `score`
 - learned key-free statistical signal → `blind` / `indicate` / `probe`
+- key-free instance contrast (public vs control-shuffled-30) → `contrast`
 - key-free argmax snap (removal attempt) → `scrub`
 - Claude pre-mark corpus → control data for a future before/after experiment
 

@@ -181,6 +181,26 @@ control-shuffled-30 ≈ 0.50
 
 This is a useful sanity check that the measured bias follows the correct key set.
 
+`contrast` asks the same question of the **key-free** reader. Fit public
+marked/unmarked tables. Score `*-control-gen.txt` sampled with
+`control-shuffled-30`. See [research/key-free-contrast.md](research/key-free-contrast.md).
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \
+  --out-dir experiments/2026-08-31-pair-12x4-controlkeys
+
+python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --control-dir experiments/2026-08-31-pair-12x4-controlkeys \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4
+```
+
+On that 4-token poshits gate, control isolated `lr>0` is **0/48**. Public
+vs control ranks **12/12** (AUC **0.906**). That is instance-specificity
+without keys, not key recovery.
+
 ---
 
 ## Run the key-free experiment
@@ -261,23 +281,8 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
   --out-dir experiments/learn-36x4-to-12x4
 ```
 
-`contrast` asks whether that key-free reader is **instance-specific** (public
-DeepMind 30) or a generic tournament-sampling detector. Fit on public
-marked/unmarked twins. Score a third pile sampled with `control-shuffled-30`.
-Control files are `*-control-gen.txt`; `blind` ignores them. This does not
-recover keys.
-
-```bash
-python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
-  --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \
-  --out-dir experiments/pair-controlkeys
-
-python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
-  --test-dir experiments/2026-08-17-pair-12x4 \
-  --control-dir experiments/pair-controlkeys \
-  --fit-prefix 4 --pos-bucket 1 \
-  --out-dir experiments/contrast-36x4-to-12x4
-```
+`contrast` is documented with the shuffled-key control above and in
+[research/key-free-contrast.md](research/key-free-contrast.md).
 
 UTF-8 surface tables need no tokenizer:
 
@@ -292,6 +297,10 @@ python -m text_watermark_tools indicate score path/to/text.txt \
 ```
 
 That is a genuine indicator signal, but its calibration depends on the training corpus. Leave-one-of-12-out hard last-4 still overlaps at threshold 0 (**29/48**). Hits trained on other topics marks **39/48** of those same 12×4 files. Nested hashpool Youden on that split is **33/48** marked and **34/48** unmarked. Do not turn the sign of one LR into a universal yes/no claim.
+
+`contrast` is a different grain: the same 4-token poshits tables assign
+`lr>0` to **0/48** control-shuffled-30 files and still rank public vs
+control **12/12**. See [research/key-free-contrast.md](research/key-free-contrast.md).
 
 The strongest *prompt-group* evidence currently comes from matched/repeated prompts, where the original hard indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin. `hits` and `hashpool` reach **11/12** with no margin. `indicate holdout --score-mode hashpool` leave-one-outs the hash buckets.
 

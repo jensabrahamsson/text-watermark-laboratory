@@ -481,3 +481,14 @@ python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
 ```
 
 Learned scorers: [key-free-learn.md](key-free-learn.md).
+
+Instance contrast (public vs `control-shuffled-30`, not key recovery):
+[key-free-contrast.md](key-free-contrast.md).
+
+```bash
+python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --control-dir experiments/2026-08-31-pair-12x4-controlkeys \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4
+```

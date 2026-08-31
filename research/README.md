@@ -9,6 +9,8 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; original last-4 **10/12**; `hits` **11/12** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
+| [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
+| [key-free-contrast.md](key-free-contrast.md) | Public vs control-shuffled-30: 4-token poshits is instance-specific (**0/48**) |
 | [how-synthid-works.md](how-synthid-works.md) | How the public SynthID-Text reference implementation hashes, samples, and scores |
 | [invertibility.md](invertibility.md) | Why the key-free result is not key recovery |
 | [claude.md](claude.md) | Anthropic's announced text marking and what can actually be measured |
@@ -20,4 +22,5 @@ The conceptual split is simple:
 
 **known keys → `score`**  
 **unknown keys + paired evidence → `blind` / `indicate` / `probe`**  
+**public vs other instance, still key-free → `contrast`**  
 **key-free removal attempt → `scrub` (official `score` only as a reference check)**

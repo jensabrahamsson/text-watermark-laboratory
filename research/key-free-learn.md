@@ -185,3 +185,6 @@ lab has a universal detector; that Claude is marked.
 Do not replace the published headlines **10/12**, **29/48**, or **36/36**.
 Do not call any of these a universal detector.
 
+The next original question after this negative net result is instance
+contrast: [key-free-contrast.md](key-free-contrast.md).
+

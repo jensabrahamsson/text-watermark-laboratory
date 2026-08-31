@@ -70,6 +70,8 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free tokmlp, 4-token 24×4 → 12×4 | Tiny token MLP, same gate as poshits | 8/12, AUC 0.714 (does **not** beat poshits 0.873) |
 | Key-free hashlog on that OOD gate | Hashed logistic, same split | 7/12, AUC 0.606 |
 | GPT-2 learned scorers → Distil / Qwen | tokmlp / charcnn / hashlog | chance (charcnn Qwen AUC 0.496) |
+| Key-free poshits vs control-shuffled-30 | 4-token 24×4 → 12×4, other instance | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
+| Official lamp on 12×4 control-key twins | 48 files, public vs matching keys | public **0.501**; matching **0.624** |
 | Key-free last-k coverage, 36×4 LOO | Shared both-side contexts by window | 0:16 **13.7%** (driven by i=1–2); full last-4 from i=4 is ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | Coverage-weighted bucketed hits | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | Same OOD gate as 4-token, longer clip | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |
@@ -91,7 +93,7 @@ So `indicate` is an experimental watermark-presence indicator. It is not a unive
 
 `probe` compares other key-free scorers on the same twins (interpolation, coverage gating, hash pooling, optional unmarked-LM choice geometry) and reports AUC as well as prompt-grain wins. `scrub` tries to remove a known public mark by snapping tokens to the unmarked argmax. Neither reconstructs keys.
 
-Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md). Tiny key-free learned scorers (`learn`) are an experiment on the same grains, not a replacement of the count tables: [research/key-free-learn.md](research/key-free-learn.md).
+Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md). Tiny key-free learned scorers (`learn`) are an experiment on the same grains, not a replacement of the count tables: [research/key-free-learn.md](research/key-free-learn.md). Instance contrast against `control-shuffled-30` is [research/key-free-contrast.md](research/key-free-contrast.md): the 4-token poshits reader is instance-specific without keys (**0/48** control `lr>0`), not a generic tournament detector.
 
 ---
 

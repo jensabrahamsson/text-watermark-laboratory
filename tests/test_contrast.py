@@ -134,3 +134,113 @@ def test_cli_contrast_help_mentions_instance(capsys) -> None:
     assert "control-shuffled" in out
     assert "instance-specific" in out
     assert "Claude" in out
+
+
+def _contrast_hold(name: str, slug: str):
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = Path(__file__).resolve().parents[1] / "experiments" / name
+    return holdout_from_json(root / slug / "holdout.json")
+
+
+def test_poshits_four_token_contrast_is_instance_specific() -> None:
+    pub = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4",
+        "poshits-public-vs-unmarked",
+    )
+    ctrl = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4",
+        "poshits-control-vs-unmarked",
+    )
+    vs = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4",
+        "poshits-public-vs-control",
+    )
+    hits_ctrl = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4",
+        "hits-control-vs-unmarked",
+    )
+    hashed = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4",
+        "hashpool-control-vs-unmarked",
+    )
+    assert pub.used_keys is False
+    assert ctrl.used_keys is False
+    assert vs.used_keys is False
+    assert pub.n_prompts_marked_above == 12
+    assert pub.n_marked_positive == 39
+    assert pub.n_unmarked_nonpositive == 41
+    assert ctrl.n_marked_positive == 0
+    assert hits_ctrl.n_marked_positive == 0
+    assert hashed.n_marked_positive == 6
+    assert vs.n_prompts_marked_above == 12
+    assert vs.n_unmarked_nonpositive == 48
+    pub_auc = binary_eval(pub.marked_lrs, pub.unmarked_lrs, n_perm=200, seed=0)
+    ctrl_auc = binary_eval(ctrl.marked_lrs, ctrl.unmarked_lrs, n_perm=200, seed=0)
+    vs_auc = binary_eval(vs.marked_lrs, vs.unmarked_lrs, n_perm=200, seed=0)
+    assert pub_auc.auc > 0.85
+    assert 0.45 < ctrl_auc.auc < 0.58
+    assert vs_auc.auc > 0.85
+
+
+def test_unbucketed_hits_on_full_files_is_not_the_instance_sign() -> None:
+    pos = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-full",
+        "poshits-control-vs-unmarked",
+    )
+    hits = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-full",
+        "hits-control-vs-unmarked",
+    )
+    vs = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-full",
+        "hits-public-vs-control",
+    )
+    assert pos.n_marked_positive == 0
+    assert hits.n_marked_positive == 29
+    hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
+    vs_auc = binary_eval(vs.marked_lrs, vs.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.40 < hits_auc.auc < 0.55
+    assert vs_auc.auc > 0.80
+
+
+def test_pair_limit_hits_separates_instances_on_full_files() -> None:
+    vs = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-limit-full",
+        "hits-public-vs-control",
+    )
+    ctrl = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-limit-full",
+        "hits-control-vs-unmarked",
+    )
+    pos = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-limit-fitprefix4",
+        "poshits-control-vs-unmarked",
+    )
+    assert vs.used_keys is False
+    assert vs.n_prompts_marked_above == 12
+    vs_auc = binary_eval(vs.marked_lrs, vs.unmarked_lrs, n_perm=200, seed=0)
+    ctrl_auc = binary_eval(ctrl.marked_lrs, ctrl.unmarked_lrs, n_perm=200, seed=0)
+    assert vs_auc.auc >= 0.999
+    assert 0.45 < ctrl_auc.auc < 0.65
+    assert pos.n_marked_positive == 0
+
+
+def test_controlkeys_official_lamp_is_other_instance() -> None:
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-31-pair-12x4-controlkeys"
+    data = json.loads((root / "results.json").read_text())
+    assert data["control_only"] is True
+    pubs: list[float] = []
+    matches: list[float] = []
+    for row in data["rows"]:
+        pubs.append(row["control_gen_public"]["mean"])
+        matches.append(row["control_gen_matching"]["mean"])
+        for extra in row.get("extra_control", []):
+            pubs.append(extra["public"]["mean"])
+            matches.append(extra["matching"]["mean"])
+    assert len(pubs) == 48
+    assert all(abs(x - 0.5) < 0.04 for x in pubs)
+    assert all(m > 0.58 for m in matches)
+    assert all(m > p for m, p in zip(matches, pubs, strict=True))

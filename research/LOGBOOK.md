@@ -345,4 +345,28 @@ JSON: `experiments/2026-08-31-learn-36x4-to-12x4-fitprefix4/`,
 `experiments/2026-08-31-learn-36x4-to-distil-fitprefix4/`,
 `experiments/2026-08-31-learn-36x4-to-qwen-fitprefix4/`.
 
+## 2026-08-31 instance contrast (public vs control-shuffled-30)
+
+Official `score` already treats `control-shuffled-30` as another instance
+(public ~0.50, matching ~0.62). Key-free tables fit on public
+marked/unmarked only; control-gen is never a `*-marked.txt`. Protocol:
+[key-free-contrast.md](key-free-contrast.md). Not key recovery. Do not
+replace 10/12, 29/48, or 36/36.
+
+New 12×4 control pile (`--control-only`, seed 20260931): 48 files, public
+mean of means **0.501**, matching **0.624**. Matched 4-token poshits
+(24 other 36×4 stems → 12×4): public-vs-unmarked still **12/12**, AUC
+**0.873**, t=0 **39/48 vs 41/48**. Control-vs-unmarked isolated `lr>0` is
+**0/48** (AUC 0.510). Public vs control **12/12**, AUC **0.906**, all 48
+control files `≤ 0`. Hits on that opening is also **0/48** control `lr>0`.
+Hashpool leaks (**6/48**). Unbucketed hits on full 128-token files is not
+the instance sign (control `lr>0` **29/48**, AUC vs unmarked 0.475).
+700-token hits public vs control AUC **1.000**; control vs unmarked 0.556.
+
+JSON: `experiments/2026-08-31-pair-12x4-controlkeys/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-full/`,
+`experiments/2026-08-31-contrast-36x4-to-limit-fitprefix4/`,
+`experiments/2026-08-31-contrast-36x4-to-limit-full/`.
+
 ---

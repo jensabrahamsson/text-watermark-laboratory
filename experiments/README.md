@@ -112,6 +112,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-learn-36x4-to-qwen-fitprefix4/` | GPT-2 nets → Qwen | chance (charcnn AUC 0.496) |
 | `2026-08-31-learn-qwen-12x4-fitprefix4-include-first/` | Qwen in-domain include-first | hashlog **12/12**, AUC 0.826 (below `first` 0.901) |
 | `2026-08-31-learn-36x4-to-12x4-shuffle/` | 50% train-stem shuffle | tokmlp 5/12; hashlog/charcnn do not collapse |
+| `2026-08-31-pair-12x4-controlkeys/` | GPT-2 12×4 `control-shuffled-30` only | official public **0.501**; matching **0.624** |
+| `2026-08-31-contrast-36x4-to-12x4-fitprefix4/` | 4-token poshits vs other instance | control `lr>0` **0/48**; public vs control **12/12**, AUC **0.906** |
+| `2026-08-31-contrast-36x4-to-12x4-full/` | Full 128-token contrast | poshits still **0/48**; unbucketed hits control **29/48** `lr>0` |
+| `2026-08-31-contrast-36x4-to-limit-fitprefix4/` | 4-token contrast on 12×1×700 | poshits control **0/12** `lr>0`; public vs control **12/12** |
+| `2026-08-31-contrast-36x4-to-limit-full/` | Full 700-token contrast | hits public vs control AUC **1.000**; control vs unmarked 0.556 |
 
 ## What changed across the runs
 
@@ -142,7 +147,8 @@ The later runs clarified what strengthens it:
 - Qwen's in-domain opening signal **is token 0** (first **12/12**, AUC **0.901**); hits without it is 7/12;
 - DistilGPT2 is officially 12/12; GPT-2 36×4 hits do not transfer across the shared tokenizer (5/12, AUC 0.462);
 - tiny learned scorers (hashlog / tokmlp / charcnn) do **not** beat 4-token poshits on the new-topic gate (tokmlp 8/12, AUC 0.714 vs **0.873**) and do not transfer to Distil or Qwen;
-- shuffling half the training labels drops isolated sign at 0 to chance.
+- shuffling half the training labels drops isolated sign at 0 to chance;
+- a public-trained 4-token poshits table is **instance-specific** on this mixin: `control-shuffled-30` openings get `lr>0` on **0/48** files, while public vs control ranks **12/12** (AUC **0.906**). Unbucketed hits on full files is not that check (29/48 control `lr>0`). Not key recovery.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
 
