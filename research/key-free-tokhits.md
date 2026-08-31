@@ -82,6 +82,19 @@ Atom counts on this gate: **26** distinct (ctx, next) types; unseen-next
 mass **34**, seen-next mass **33**. JSON: `atoms.json` in the transfer
 directory.
 
+## Seed length on this split
+
+The 12×4 test seeds are 37–241 words (three long Grok paragraphs, nine
+~40-word scenes). The 24 extra 36×4 train seeds are **10–12 word
+one-liners**. Out-of-family here is new topics *and* shorter seeds. The
+transferable observed-token atoms are quote-dialogue openings that both
+seed lengths produce (`'"' → 'This'`). The nine zeros (`After` /
+`Closing` / `Now` / `While`) continue the longer test seeds; extra
+one-liners almost never open that way (on 36×4 marked files, generated
+token 0 is `"` 114 times and `The` 23 times). Covering those zeros needs
+train seeds whose continuations share those openings, not more short
+one-liners. That is still not a universal detector.
+
 ## Frozen result (24 other 36×4 stems → 12×4)
 
 | Method | Prompt wins | File AUC | marked `lr>0` | unmarked `lr≤0` | zeros M/U | decided tp/fn | decided fp/tn | precision |

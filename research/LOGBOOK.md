@@ -387,4 +387,8 @@ JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokhits/`,
 `experiments/2026-08-31-probe-36x4-fitprefix4-postokhits/`,
 `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokhits/`.
 
+The 24 extra train seeds are 10–12 word one-liners; the 12×4 test seeds
+are 37–241 words. Observed-token transfer is mostly quote-dialogue.
+The nine zeros continue the longer seeds.
+
 ---

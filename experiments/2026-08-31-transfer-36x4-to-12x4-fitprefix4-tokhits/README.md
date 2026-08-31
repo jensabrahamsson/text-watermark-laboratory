@@ -21,6 +21,10 @@ Not a universal detector. Not keys. Do not replace 10/12, 29/48, or 36/36.
 Atom dump: [`atoms.json`](atoms.json) (26 types; unseen-next mass 34,
 seen-next 33). Rebuild with `text_watermark_tools.atoms.dump_opening_atoms`.
 
+The 24 extra train seeds are 10–12 word one-liners; the 12×4 test seeds
+are 37–241 words. Observed-token transfer is mostly quote-dialogue that
+both lengths produce. The nine zeros continue the longer seeds.
+
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --test-dir experiments/2026-08-17-pair-12x4 \
