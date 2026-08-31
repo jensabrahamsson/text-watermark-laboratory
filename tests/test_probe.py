@@ -122,6 +122,35 @@ def test_scrub_12x4_official_mean_falls_to_chance() -> None:
     assert all(r["used_keys_for_snap"] is False for r in rows)
 
 
+def test_hashpool_36_topics_is_thirty_one_of_thirty_six() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36"
+        / "hashpool"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts == 36
+    assert ev.n_prompts_marked_above == 31
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.85
+
+
+def test_hashpool_qwen_is_ten_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen"
+        / "hashpool"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 10
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.70
+
+
 def test_run_probe_hashpool_on_lab_pairs() -> None:
     twins = load_twins(PAIR)
     run = run_probe(

@@ -173,6 +173,8 @@ Coverage-gated last-4 (`hits`) **11/12**, file AUC **0.737**. Hashpool **11/12**
 
 Argmax snap on all 48 marked files: official mean **0.6216 → 0.4994**. Unmarked control stayed near half. Statistical scrub, not a fluent rewrite.
 
-Notes: [key-free-probe.md](key-free-probe.md). JSON: `experiments/2026-08-31-probe-12x4/`, `experiments/2026-08-31-scrub-12x4/`.
+36 GPT-2 topics × 1: hard last-4 **20/36**; `hits` **30/36** AUC **0.886**; hashpool **31/36** AUC **0.877**. The old “more topics do not help” result was the hard scorer. Qwen 12×1: hashpool **10/12** AUC **0.750**; exact `hits` AUC **0.417**.
+
+Notes: [key-free-probe.md](key-free-probe.md). JSON: `experiments/2026-08-31-probe-12x4/`, `experiments/2026-08-31-probe-36/`, `experiments/2026-08-31-probe-qwen/`, `experiments/2026-08-31-scrub-12x4/`.
 
 ---

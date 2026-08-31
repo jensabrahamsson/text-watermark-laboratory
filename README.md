@@ -40,7 +40,9 @@ A different reader of the same tables — score only 4-grams seen on both traini
 | Same LRs, margin 0.02 | Same ranking, unmarked may lead by 0.02 | 11/12 (not the headline) |
 | Key-free `hits` (shared 4-grams only) | Same 12×4 twins, skip unseen contexts | **11/12**, AUC **0.737** |
 | Key-free hashpool | Feature-hashed last-4, no secret hash | **11/12**, isolated **35/48** |
-| Local Qwen2-1.5B, last-2 | Twin ranking, different generator | **10/12** |
+| Key-free hashpool, 36 topics | Same method, one draw per prompt | **31/36**, AUC **0.877** |
+| Key-free hashpool, Qwen 12×1 | Different generator, last-4 hashpool | **10/12**, isolated **11/12** |
+| Local Qwen2-1.5B, last-2 | Twin ranking, published count tables | **10/12** |
 | `indicate` hard, one marked file | Isolated `lr > 0` | **29/48** |
 | `indicate` hard, one unmarked file | Isolated `lr ≤ 0` | **23/48** |
 | Argmax snap, then official `score` | Key-free scrub of 48 marked files | **0.622 → 0.499** |
@@ -179,7 +181,7 @@ This lab did **not** invent key-free watermark detection.
 
 What this repository adds is a small, fully checked-in instance of the second measurement on DeepMind’s **public** mixin: GPT-2 and Qwen twins, leave-one-out, a frozen indicator table, tests, and raw JSON. The interesting claim is narrow. The keyed tournament leaves a distributional footprint that a count-based LR can learn **without reconstructing the g-function**. Independent work landed in the same research question; treat this as an empirical notebook, not a priority claim.
 
-If the 10/12 ranking is a confound (topic reuse, tokenizer mismatch, prompt-family leakage), that is the thing to break. Extra draws of the *same* prompt helped last-4. Extra topics, by themselves, did not. Coverage gating (`hits`) later showed that the transferable piece is shared 4-grams, not the unigram fallback.
+If the 10/12 ranking is a confound (topic reuse, tokenizer mismatch, prompt-family leakage), that is the thing to break. Extra draws of the *same* prompt helped last-4 **for the hard scorer**. Extra topics, by themselves, did not help that scorer (20/36). Coverage gating and hash pooling later showed that extra topics *do* help once unseen 4-grams are not dumped into the unigram (30–31/36).
 
 ## Boundaries
 

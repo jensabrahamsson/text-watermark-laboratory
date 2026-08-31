@@ -16,6 +16,8 @@ Current results:
 | Same LRs with 0.02 comparison margin | **11/12** |
 | Key-free `hits` (shared 4-grams only) | **11/12**, AUC **0.737** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
+| Key-free hashpool, 36 GPT-2 topics | **31/36**, AUC **0.877** |
+| Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 
@@ -99,7 +101,9 @@ At 700 new tokens per prompt, last-1 gives **6/12**. Longer text by itself does 
 
 ### More topics alone
 
-Thirty-six different prompts at 256 tokens reach **22/36** at last-1. More topical variety also does not automatically strengthen the signal.
+Thirty-six different prompts at 256 tokens reach **22/36** at last-1. Hard last-4 on the same corpus is **20/36**. More topical variety does not automatically strengthen the **hard** scorer.
+
+Coverage-gated and hash-pool readers of those same 36 twins reach **30–31/36** (AUC 0.88). The topics were carrying signal; unigram fallback was burying it. See [key-free-probe.md](key-free-probe.md).
 
 ### Repeated draws from the same prompts
 

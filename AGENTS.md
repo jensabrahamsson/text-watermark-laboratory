@@ -71,6 +71,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same comparison with margin 0.02 | **11/12** |
 | Key-free hits (shared 4-grams only) | **11/12**, AUC **0.737** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
+| Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 

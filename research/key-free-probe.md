@@ -64,30 +64,39 @@ Prompt-level misses:
 `hits` and `hashpool` fail different prompts. That is recorded; it is not a
 claimed 12/12 ensemble.
 
-### How to read this
+## Results on 36 GPT-2 topics (one draw)
 
-**Coverage gating was the missing ablation.** Scoring *only* 4-grams seen on
-both the marked and unmarked training sides raises AUC from 0.626 to 0.737
-and prompt-grain wins from 10/12 to 11/12. The unigram fallback in `hard` was
-adding topic noise. Shared 4-grams *do* transfer across held-out prompts.
+Corpus: `experiments/2026-08-17-pair-36`. The original last-1 blind was **22/36**. Hard last-4 is **20/36**, AUC 0.549.
 
-**Hash pooling is the first isolated-file sign that clears 5%.** 35/48 marked
-files have `lr > 0` (binomial p ≈ 0.001). Unmarked specificity is still 29/48.
-This is a better indicator, not a verdict machine.
+| Method | Prompt wins | File AUC | Marked `> 0` |
+|---|---|---|---|
+| hard | 20/36 | 0.549 | 20/36 |
+| interpolate | 29/36 | 0.796 | 26/36 |
+| **hits** | **30/36** | **0.886** | 33/36 |
+| gated / shrinkage | **31/36** | 0.86–0.88 | 32–33/36 |
+| **hashpool** | **31/36** | 0.877 | 32/36 |
 
-**Shorter-context interpolation hurt.** Backoff, Witten–Bell, and mixing last-1
-with last-4 all fall to chance-like AUCs. The watermark footprint that
-transfers is the *exact* (or hashed) 4-gram, matching SynthID’s H = 4, not a
-smoothed language model.
+The earlier lesson that “more topics alone do not help” was a **scorer artifact**. Extra topics help once unseen 4-grams are not dumped into the unigram. `hits` at threshold 0 is too sensitive here (unmarked ≤0 only 16/36); Youden t ≈ 0.39 gives sens 0.83 / spec 0.89.
 
-**Choice geometry is real but weaker.** Unmarked-LM rank/LDA separates above
-chance (perm p 0.016–0.045) and stays key-free. It does not beat `hits` or
-`hashpool` on this corpus.
+JSON: [../experiments/2026-08-31-probe-36/](../experiments/2026-08-31-probe-36/).
 
-**Argmax snap removes the public mark without keys.** On all 48 marked 12×4
-files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50
-(0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical
-scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
+## Results on Qwen2-1.5B (12×1)
+
+Published last-2 on this corpus was **10/12**. Hard last-4 is **6/12**. Hashpool is **10/12**, AUC **0.750**, isolated **11/12** marked `lr > 0`. Exact `hits` prompt-wins 8/12 but file AUC **0.417** (below chance): one draw and a large tokenizer leave almost no shared 4-grams.
+
+JSON: [../experiments/2026-08-31-probe-qwen/](../experiments/2026-08-31-probe-qwen/).
+
+## How to read this
+
+**Coverage gating was the missing ablation on 12×4 and 36-topic GPT-2.** Scoring *only* 4-grams seen on both training sides raises 12×4 AUC from 0.626 to 0.737 (11/12) and 36-topic ranking from 20/36 to 30–31/36 (AUC 0.89). The unigram fallback in `hard` was adding topic noise. The old “more topics do not help” lesson was a scorer artifact.
+
+**Hash pooling is the method that generalizes.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750). Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
+
+**Shorter-context interpolation is corpus-dependent.** On 12×4 it hurt (7/12). On 36 topics it helped (29/36). Do not treat Witten–Bell as a default win.
+
+**Choice geometry is real but weaker.** Unmarked-LM rank/LDA separates above chance on 12×4 (perm p 0.016–0.045) and stays key-free. It does not beat `hits` or `hashpool` there.
+
+**Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 
 ## What this is not
 
