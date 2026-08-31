@@ -88,7 +88,7 @@ So `indicate` is an experimental watermark-presence indicator. It is not a unive
 
 `probe` compares other key-free scorers on the same twins (interpolation, coverage gating, hash pooling, optional unmarked-LM choice geometry) and reports AUC as well as prompt-grain wins. `scrub` tries to remove a known public mark by snapping tokens to the unmarked argmax. Neither reconstructs keys.
 
-Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
+Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md). Tiny key-free learned scorers (`learn`) are an experiment on the same grains, not a replacement of the count tables: [research/key-free-learn.md](research/key-free-learn.md).
 
 ---
 

@@ -250,6 +250,17 @@ Count tables also accept `--score-mode hits` (shared 4-grams only). Nested
 out-of-family hashpool tables, with a train-only `decision_threshold`, are in
 `experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool/`.
 
+Tiny key-free learned scorers (`hashlog`, `tokmlp`, `charcnn`) use the same
+twins and grains. They do not use keys. They are not a universal detector.
+See [research/key-free-learn.md](research/key-free-learn.md).
+
+```bash
+python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/learn-36x4-to-12x4
+```
+
 UTF-8 surface tables need no tokenizer:
 
 ```bash

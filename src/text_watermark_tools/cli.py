@@ -60,6 +60,15 @@ from text_watermark_tools.pair import (
     print_pair_run,
     run_pairs,
 )
+from text_watermark_tools.learn import (
+    persist_learn,
+    persist_learn_transfer,
+    print_learn,
+    print_learn_transfer,
+    run_learn,
+    run_learn_transfer,
+    spec_from_args,
+)
 from text_watermark_tools.probe import (
     persist_probe,
     persist_scrub,
@@ -676,6 +685,75 @@ def cmd_probe(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_learn(args: argparse.Namespace) -> int:
+    train_tok = load_tokenizer(getattr(args, "model", None))
+    twins = load_twins(Path(args.pair_dir), tokenizer=train_tok)
+    max_draws = int(getattr(args, "max_draws", 0) or 0)
+    if max_draws > 0:
+        twins = clip_twins(twins, max_draws)
+    archs = None
+    if args.archs:
+        archs = [a.strip() for a in args.archs.split(",") if a.strip()]
+    spec = spec_from_args(
+        context_len=int(args.context_len),
+        pos_bucket=int(getattr(args, "pos_bucket", 1) or 1),
+        include_first=bool(getattr(args, "include_first", False)),
+        prompt_context=bool(getattr(args, "prompt_context", False)),
+        n_hashes=int(args.n_hashes),
+        n_buckets=int(args.n_buckets),
+        seed=int(getattr(args, "seed", 20260831)),
+        epochs=int(getattr(args, "epochs", 40)),
+    )
+    if getattr(args, "test_dir", ""):
+        test_name = getattr(args, "test_model", "") or args.model
+        test_tok = load_tokenizer(test_name)
+        test_twins = load_twins(Path(args.test_dir), tokenizer=test_tok)
+        if max_draws > 0:
+            test_twins = clip_twins(test_twins, max_draws)
+        run = run_learn_transfer(
+            twins,
+            test_twins,
+            train_dir=str(args.pair_dir),
+            test_dir=str(args.test_dir),
+            model_name=args.model,
+            archs=archs,
+            spec=spec,
+            fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
+            overlap_mode=str(getattr(args, "overlap", "drop-from-train")),
+            nested=not bool(getattr(args, "skip_nested", False)),
+            shuffle_labels=bool(getattr(args, "shuffle_labels", False)),
+            shuffle_seed=int(getattr(args, "shuffle_seed", 0)),
+            tokenizer=train_tok,
+            score_tokenizer=test_tok,
+        )
+        if run.used_keys or run.used_hash_iv or run.used_g_values:
+            print("learn transfer consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        print(print_learn_transfer(run))
+        if args.out_dir:
+            persist_learn_transfer(run, Path(args.out_dir))
+            print(f"wrote {args.out_dir}")
+        return 0
+    run = run_learn(
+        twins,
+        pair_dir=str(args.pair_dir),
+        model_name=args.model,
+        archs=archs,
+        spec=spec,
+        fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
+        max_draws=max_draws if max_draws > 0 else None,
+        tokenizer=train_tok,
+    )
+    if run.used_keys or run.used_hash_iv or run.used_g_values:
+        print("learn consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_learn(run))
+    if args.out_dir:
+        persist_learn(run, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_scrub(args: argparse.Namespace) -> int:
     path = Path(args.path)
     if path.is_dir():
@@ -1152,6 +1230,74 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_probe.add_argument("--out-dir", default="")
     p_probe.set_defaults(func=cmd_probe)
+
+    p_learn = sub.add_parser(
+        "learn",
+        help=(
+            "Key-free learned scorers (hashed logistic, token MLP, "
+            "character CNN) on pair twins. Not detector_mean, not Claude, "
+            "not key recovery."
+        ),
+        description=(
+            "Train tiny key-free classifiers on matched twins and evaluate "
+            "leave-one-prompt-out or train/test transfer. Same grains as "
+            "probe. A neural net is not a universal detector. Not SynthID "
+            "key recovery. Do not train this on the Claude pre-mark pile "
+            "alone."
+        ),
+    )
+    p_learn.add_argument("pair_dir", help="Directory with *-marked.txt / *-unmarked-gen.txt")
+    p_learn.add_argument("--model", default="gpt2")
+    p_learn.add_argument(
+        "--test-model",
+        default="",
+        help="Tokenizer for --test-dir (default: --model). Use Qwen id for Qwen twins.",
+    )
+    p_learn.add_argument("--context-len", type=int, default=4)
+    p_learn.add_argument(
+        "--archs",
+        default="hashlog,tokmlp,charcnn",
+        help="Comma-separated: hashlog, tokmlp, charcnn",
+    )
+    p_learn.add_argument("--n-hashes", type=int, default=4)
+    p_learn.add_argument("--n-buckets", type=int, default=64)
+    p_learn.add_argument("--seed", type=int, default=20260831)
+    p_learn.add_argument(
+        "--epochs",
+        type=int,
+        default=40,
+        help="Adam epochs for tokmlp and charcnn (hashlog uses ridge IRLS)",
+    )
+    p_learn.add_argument(
+        "--test-dir",
+        default="",
+        help="If set, fit on pair_dir and score this second twin directory",
+    )
+    p_learn.add_argument(
+        "--overlap",
+        default="drop-from-train",
+        choices=("drop-from-train", "drop-from-test", "keep"),
+    )
+    p_learn.add_argument("--skip-nested", action="store_true")
+    p_learn.add_argument("--shuffle-labels", action="store_true")
+    p_learn.add_argument("--shuffle-seed", type=int, default=0)
+    p_learn.add_argument("--max-draws", type=int, default=0)
+    p_learn.add_argument(
+        "--fit-prefix",
+        type=int,
+        default=0,
+        help="If >0, clip every draw to the first N tokens before fit and score",
+    )
+    p_learn.add_argument(
+        "--pos-bucket",
+        type=int,
+        default=1,
+        help="Position namespace for hashlog (same meaning as probe poshits)",
+    )
+    p_learn.add_argument("--include-first", action="store_true")
+    p_learn.add_argument("--prompt-context", action="store_true")
+    p_learn.add_argument("--out-dir", default="")
+    p_learn.set_defaults(func=cmd_learn)
 
     p_scrub = sub.add_parser(
         "scrub",

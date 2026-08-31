@@ -464,4 +464,10 @@ python -m text_watermark_tools indicate score FILE.txt \
 python -m text_watermark_tools scrub \
   experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/2026-08-31-scrub-12x4
+
+python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-learn-36x4-fitprefix4
 ```
+
+Learned scorers: [key-free-learn.md](key-free-learn.md).
