@@ -411,4 +411,20 @@ JSON: `experiments/2026-08-31-pair-long12x4/`,
 `experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits/`,
 `experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits/`.
 
+## 2026-08-31 tokbackoff: shrink last-k until an observed next token
+
+`postokbackoff` on the short-train 4-token OOD gate copies postokhits
+**16/48**. On the 12 medium scenes it is **21/48** (harbour draws 3 and
+4 via last-1 `' was' → ' in'`). Combined short+medium **22/48**. Precision
+**1.000** among decided. The nine After / Closing / Now / While zeros
+remain. In-domain 36×4: still **122/144** marked, one extra unmarked FP.
+Control-shuffled-30 stays **0/48**. Do not sell 21/48 or 22/48 as beating
+39/48.
+
+JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-probe-36x4-fitprefix4-postokbackoff/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff/`.
+
 ---

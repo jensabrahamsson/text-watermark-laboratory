@@ -387,6 +387,13 @@ train, unseen-after-The Laplace **flips** (δ ≈ −0.365); poshits is then
 **8/12** with 20 marked wrong-sign files. 39/48 poshits is occupancy-
 specific. Do not sell 19/48 or 20/48 as beating 39/48.
 
+**tokbackoff shrinks last-k until an observed next token hits.** On the
+short one-liner train it **copies** postokhits **16/48**. On the medium
+train it adds harbour draws 3 and 4 (`The ferry was in`: last-1
+`' was' → ' in'`), **21/48**, still precision **1.000**. Combined
+**22/48**. The nine zeros remain. In-domain it adds one unmarked FP.
+Control stays **0/48**. Do not sell 21/48 or 22/48 as beating 39/48.
+
 **Qwen's in-domain opening signal is generated token 0.** `--methods first`
 on a 4-token prefix ranks **12/12** (AUC **0.901**). Hits that skip
 token 0 is 7/12. Full-file Qwen hits stays **8/12**. GPT-2 tables still
@@ -524,6 +531,12 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-long12x4 \
   --test-dir experiments/2026-08-17-pair-12x4 \
   --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits \
   --out-dir experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --methods poshits,postokhits,postokbackoff \
+  --out-dir experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff
 ```
 
 Instance contrast (public vs `control-shuffled-30`, not key recovery):

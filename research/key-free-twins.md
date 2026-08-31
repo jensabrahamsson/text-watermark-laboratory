@@ -38,6 +38,8 @@ Current results:
 | Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** |
 | Key-free postokhits, 12 medium scenes → 12×4 | **12/12**, isolated **19/48**, decided precision **1.000** |
 | Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
+| Key-free postokbackoff, 12 medium scenes → 12×4 | **12/12**, isolated **21/48**, decided precision **1.000** |
+| Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
@@ -48,6 +50,7 @@ Current results:
 | GPT-2 learned scorers → Distil / Qwen | chance (charcnn Qwen AUC 0.496) |
 | Key-free poshits vs control-shuffled-30, 4-token 24×4 → 12×4 | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
 | Key-free postokhits vs control-shuffled-30, same split | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
+| Key-free postokbackoff vs control-shuffled-30, same split | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
 | Official lamp, 12×4 control-key twins | public **0.501**; matching **0.624** |
 | Key-free last-k coverage, 36×4 LOO | 0:16 shared **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |

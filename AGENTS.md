@@ -109,6 +109,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** (9 of 131 poshits TPs were occupancy) |
 | Key-free postokhits, 12 medium scenes → 12×4 | **12/12**, isolated **19/48**, decided precision **1.000** |
 | Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
+| Key-free postokbackoff, 12 medium scenes → 12×4 | **12/12**, isolated **21/48**, decided precision **1.000** (harbour last-1 `' was' → ' in'`) |
+| Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
 | poshits on those medium-seed tables | 8/12; The-Laplace δ flips to ≈ −0.365 |
 | Key-free last-k coverage, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
@@ -124,6 +126,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | GPT-2 learned scorers → Distil / Qwen | chance |
 | Key-free poshits, 4-token 24×4 → 12×4, control-shuffled-30 | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
 | Key-free postokhits on that control pile | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
+| Key-free postokbackoff on that control pile | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
 | Official lamp on those 48 control files | public **0.501**; matching control keys **0.624** |
 | Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |

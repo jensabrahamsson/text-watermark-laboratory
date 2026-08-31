@@ -320,3 +320,118 @@ def test_medium_the_laplace_flips_sign_and_zeros_stay() -> None:
     assert any(s.startswith("While") for s in openings)
     stems = {r["stem"] for r in zeros}
     assert stems == {"02-night-bus", "03-library", "08-letter", "11-garden"}
+
+
+def test_postokbackoff_copies_postokhits_on_short_train_ood() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff"
+    )
+    ev = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 16
+    assert tok.n_marked_positive == 16
+    assert ev.n_unmarked_nonpositive == 48
+    assert g.decided_tp == 16
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+
+
+def test_medium_postokbackoff_adds_two_harbour_files() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokbackoff"
+    )
+    back = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    g = coverage_gate(back.marked_lrs, back.unmarked_lrs)
+    assert back.used_keys is False
+    assert back.n_prompts_marked_above == 12
+    assert tok.n_marked_positive == 19
+    assert back.n_marked_positive == 21
+    assert back.n_unmarked_nonpositive == 48
+    assert g.decided_tp == 21
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+    new = [
+        (s, i)
+        for s, i, m, t in zip(
+            back.stems, back.samples, back.marked_lrs, tok.marked_lrs
+        )
+        if m > 0 and abs(t) <= 1e-15
+    ]
+    assert new == [("01-harbour", 3), ("01-harbour", 4)]
+
+
+def test_combined_postokbackoff_is_twenty_two() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokbackoff"
+    )
+    ev = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 22
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+
+
+def test_postokbackoff_36x4_loo_does_not_add_marked_hits() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-fitprefix4-postokbackoff"
+    )
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    back = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    assert tok.n_marked_positive == 122
+    assert back.n_marked_positive == 122
+    assert tok.n_unmarked_nonpositive == 132
+    assert back.n_unmarked_nonpositive == 131
+    assert back.n_prompts_marked_above == 34
+
+
+def test_postokbackoff_contrast_control_never_positive() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff"
+        / "postokbackoff-control-vs-unmarked"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_marked_positive == 0
+    vs = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff"
+        / "postokbackoff-public-vs-control"
+        / "holdout.json"
+    )
+    assert vs.n_prompts_marked_above == 12

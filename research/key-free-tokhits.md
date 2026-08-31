@@ -140,6 +140,47 @@ JSON: `experiments/2026-08-31-pair-long12x4/`,
 `experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokhits/`,
 `experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokhits/`.
 
+## tokbackoff: shrink last-k until an observed next token hits
+
+Tables already store every suffix length 1..k. `tokbackoff` /
+`postokbackoff` try last-k, then last-(k-1), …, last-1, and keep the
+longest context that has both-side support **and** the observed next
+token. Laplace occupancy is still skipped. This is not stupid backoff
+to the unigram, and it is not key recovery.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --methods poshits,postokhits,postokbackoff \
+  --out-dir experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff
+```
+
+| Train | postokhits `lr>0` | postokbackoff `lr>0` | extra files | precision |
+|---|---|---|---|---|
+| 24 short one-liners | **16/48** | **16/48** | none | **1.000** |
+| 12 medium scenes | **19/48** | **21/48** | harbour 3 and 4 | **1.000** |
+| short + medium | **20/48** | **22/48** | same two harbour draws | **1.000** |
+
+The two extra files open `The ferry was in`. Full last-3 never saw
+`in`. Last-1 `' was' → ' in'` at index 3 was seen (2 marked / 0 unmarked
+on the medium train). The nine After / Closing / Now / While zeros still
+have no observed next token at any shorter order.
+
+In-domain 36×4 LOO: postokbackoff stays **122/144** marked and adds one
+unmarked false positive (**131/144** unmarked ≤0 vs postokhits **132/144**).
+Control-shuffled-30 stays **0/48** `lr>0` on the short-train gate.
+
+Do **not** sell 21/48 or 22/48 as beating 39/48. tokbackoff is a
+coverage knob on observed tokens, not a detector for prompt-idiosyncratic
+openings.
+
+JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-long12x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-probe-36x4-fitprefix4-postokbackoff/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff/`.
+
 ## Frozen result (24 other 36×4 stems → 12×4)
 
 | Method | Prompt wins | File AUC | marked `lr>0` | unmarked `lr≤0` | zeros M/U | decided tp/fn | decided fp/tn | precision |
@@ -195,7 +236,8 @@ unmarked LRs).
 
 - Not a universal calibrated detector.
 - Not key recovery. Tokhits only gates Laplace on next-token occupancy.
-- Not a claim that 16/48 or 19/48 or 20/48 isolated-file is the headline.
-  39/48 remains the short-train poshits number; it flips when train
-  occupancy of `The` flips. tokhits explains it.
+- Not a claim that 16/48 or 19/48 or 20/48 or 21/48 or 22/48 isolated-file
+  is the headline. 39/48 remains the short-train poshits number; it flips
+  when train occupancy of `The` flips. tokhits explains it. tokbackoff
+  adds two harbour files on medium train via last-1 `' was' → ' in'`.
 - Not a replacement of **10/12**, **29/48**, or **36/36**.
