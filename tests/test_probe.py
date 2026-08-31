@@ -7,6 +7,7 @@ from text_watermark_tools.cli import main
 from text_watermark_tools.indicator import holdout_from_json
 from text_watermark_tools.probe import (
     apply_overlap,
+    persist_probe,
     rotate_count_methods,
     rotate_score_stack,
     run_probe,
@@ -42,7 +43,44 @@ def test_published_12x4_holdout_is_ten_of_twelve_and_has_auc() -> None:
     assert stats.mean_diff > 0.0
 
 
-def test_probe_count_methods_on_lab_pairs_are_key_free() -> None:
+def test_clip_seq_keeps_a_token_prefix() -> None:
+    from text_watermark_tools.probe import clip_seq, slice_seq
+
+    assert clip_seq([1, 2, 3, 4], 2) == [1, 2]
+    assert clip_seq("abcd", 3) == "abc"
+    assert clip_seq([1, 2], 8) == [1, 2]
+    assert clip_seq([1, 2, 3], 0) == [1, 2, 3]
+    assert slice_seq([1, 2, 3, 4], 1, 3) == [2, 3]
+    assert slice_seq("abcd", 0, 2) == "ab"
+    assert slice_seq([1, 2, 3], 2, 2) == []
+
+
+def test_prefix_probe_on_lab_pairs_is_key_free(tmp_path) -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hard", "hits", "hashpool"),
+        prefix_lens=(2, 4),
+        windows=((0, 2), (2, 4)),
+        n_hashes=4,
+        n_buckets=16,
+    )
+    assert run.used_keys is False
+    assert run.prefix_lens == (2, 4)
+    assert run.windows == ((0, 2), (2, 4))
+    assert set(run.prefixes) == {2, 4}
+    assert set(run.window_results) == {(0, 2), (2, 4)}
+    names = {m.name for m in run.prefixes[2]}
+    assert "hard" in names
+    assert "hits" in names
+    assert "hashpool" in names
+    win_names = {m.name for m in run.window_results[(0, 2)]}
+    assert "hits" in win_names
+    persist_probe(run, tmp_path)
+    assert (tmp_path / "prefix-2" / "hits" / "holdout.json").is_file()
+    assert (tmp_path / "window-0-2" / "hits" / "holdout.json").is_file()
     twins = load_twins(PAIR)
     out = rotate_count_methods(
         twins, methods=("unigram", "hard", "interpolate"), context_len=2
@@ -678,3 +716,150 @@ def test_gpt2_to_new_qwen_sample_does_not_replicate_eleven_of_twelve() -> None:
     assert one.n_prompts_marked_above == 6
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc < 0.45
+
+
+def test_prefix16_36x4_hits_is_front_loaded_and_key_free() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-prefixes"
+    )
+    early = holdout_from_json(root / "prefix-16" / "hits" / "holdout.json")
+    full = holdout_from_json(root / "prefix-128" / "hits" / "holdout.json")
+    published = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4"
+        / "hits"
+        / "holdout.json"
+    )
+    assert early.used_keys is False
+    assert early.n_prompts_marked_above == 34
+    assert early.n_marked_positive == 129
+    early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
+    assert early_auc.auc > 0.90
+    assert full.n_prompts_marked_above == 36
+    assert full.n_marked_positive == 134
+    assert published.n_prompts_marked_above == 36
+    assert published.n_marked_positive == 134
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested = nested_threshold_by_stem(full.stems, full.marked_lrs, full.unmarked_lrs)
+    assert nested.n_marked_above == 119
+    assert nested.n_unmarked_at_most == 134
+
+
+def test_ood_prefix16_hits_ranks_eleven_of_twelve() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-prefixes"
+        / "prefix-16"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 11
+    assert ev.n_marked_positive == 40
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.70
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested = nested_threshold_by_stem(ev.stems, ev.marked_lrs, ev.unmarked_lrs)
+    assert nested.n_marked_above == 25
+    assert nested.n_unmarked_at_most == 29
+
+
+def test_context_len_5_on_36x4_does_not_beat_last_four() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    k5 = holdout_from_json(root / "2026-08-31-probe-36x4-k5" / "hits" / "holdout.json")
+    k4 = holdout_from_json(root / "2026-08-31-probe-36x4" / "hits" / "holdout.json")
+    assert k5.used_keys is False
+    assert k5.context_len == 5
+    assert k5.n_prompts_marked_above == 35
+    k5_auc = binary_eval(k5.marked_lrs, k5.unmarked_lrs, n_perm=200, seed=0).auc
+    k4_auc = binary_eval(k4.marked_lrs, k4.unmarked_lrs, n_perm=200, seed=0).auc
+    assert k5_auc < k4_auc
+    assert k5_auc > 0.88
+
+
+def test_gpt2_36x4_to_new_qwen_is_chance() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-qwen-12x4"
+    )
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    hashed = holdout_from_json(root / "hashpool" / "holdout.json")
+    surface = holdout_from_json(root / "surface" / "holdout.json")
+    assert hits.used_keys is False
+    assert hashed.used_keys is False
+    assert surface.used_keys is False
+    assert hits.n_prompts_marked_above == 6
+    assert hashed.n_prompts_marked_above == 3
+    assert surface.n_prompts_marked_above == 6
+    hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0).auc
+    assert hits_auc < 0.55
+
+
+def test_gpt2_surface_to_new_qwen_is_chance() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-gpt2-surface-to-qwen-12x4"
+        / "surface"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 7
+    assert ev.n_marked_positive == 5
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc < 0.60
+
+
+def test_window_0_16_matches_prefix_and_mid_window_is_weak() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    early = holdout_from_json(
+        root / "2026-08-31-probe-36x4-windows" / "window-0-16" / "hits" / "holdout.json"
+    )
+    mid = holdout_from_json(
+        root / "2026-08-31-probe-36x4-windows" / "window-16-32" / "hits" / "holdout.json"
+    )
+    tail = holdout_from_json(
+        root / "2026-08-31-probe-36x4-windows" / "window-64-128" / "hits" / "holdout.json"
+    )
+    prefix = holdout_from_json(
+        root / "2026-08-31-probe-36x4-prefixes" / "prefix-16" / "hits" / "holdout.json"
+    )
+    assert early.used_keys is False
+    assert mid.used_keys is False
+    assert early.n_prompts_marked_above == 34
+    assert early.n_marked_positive == 129
+    assert prefix.n_prompts_marked_above == 34
+    early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
+    mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
+    tail_auc = binary_eval(tail.marked_lrs, tail.unmarked_lrs, n_perm=200, seed=0)
+    prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
+    assert abs(early_auc.auc - prefix_auc.auc) < 1e-9
+    assert early_auc.auc > 0.90
+    assert mid.n_prompts_marked_above == 22
+    assert mid_auc.auc < 0.60
+    assert tail.n_prompts_marked_above == 29
+    assert tail_auc.auc > 0.65
+
+
+def test_ood_window_16_32_hits_is_near_chance() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-windows"
+    )
+    early = holdout_from_json(root / "window-0-16" / "hits" / "holdout.json")
+    mid = holdout_from_json(root / "window-16-32" / "hits" / "holdout.json")
+    assert early.used_keys is False
+    assert early.n_prompts_marked_above == 11
+    assert mid.n_prompts_marked_above == 8
+    early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
+    mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
+    assert early_auc.auc > 0.70
+    assert mid_auc.auc < 0.60

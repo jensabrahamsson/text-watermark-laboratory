@@ -98,6 +98,63 @@ def _append_pair(parts: dict, stem: str, sample: int, marked: float, unmarked: f
     parts["unmarked"].append(unmarked)
 
 
+def clip_seq(seq, n: int):
+    """Prefix of token ids or of a string. n<=0 leaves the sequence unchanged."""
+    if n <= 0:
+        return seq
+    return seq[:n]
+
+
+def slice_seq(seq, start: int, end: int):
+    """Half-open token or character window [start:end]."""
+    if end <= start or start < 0:
+        return seq[0:0]
+    return seq[start:end]
+
+
+def _parse_prefix_lens(prefix_lens: Sequence[int] | None) -> tuple[int, ...]:
+    if not prefix_lens:
+        return ()
+    out = []
+    seen: set[int] = set()
+    for raw in prefix_lens:
+        n = int(raw)
+        if n <= 0 or n in seen:
+            continue
+        seen.add(n)
+        out.append(n)
+    return tuple(out)
+
+
+def _parse_windows(
+    windows: Sequence[str | tuple[int, int]] | None,
+) -> tuple[tuple[int, int], ...]:
+    if not windows:
+        return ()
+    out: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+    for raw in windows:
+        if isinstance(raw, str):
+            if ":" not in raw:
+                raise ValueError(f"window {raw!r} must look like start:end")
+            left, right = raw.split(":", 1)
+            start, end = int(left.strip()), int(right.strip())
+        else:
+            start, end = int(raw[0]), int(raw[1])
+        if start < 0 or end <= start:
+            continue
+        key = (start, end)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(key)
+    return tuple(out)
+
+
+def _window_dir(start: int, end: int) -> str:
+    return f"window-{start}-{end}"
+
+
 def rotate_custom(
     twins: Sequence[Twin],
     make_scorer: Callable[[Sequence[Twin]], tuple[ScoreFn, bool, bool, bool]],
@@ -108,10 +165,18 @@ def rotate_custom(
     score_kind: str,
     margin: float = 0.0,
     seq_mode: str = "ids",
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, IndicatorHoldout] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], IndicatorHoldout] | None = None,
 ) -> IndicatorHoldout:
     if len(twins) < 3:
         raise ValueError("rotate probe needs at least three prompts")
     parts = _empty_holdout_parts()
+    lenses = _parse_prefix_lens(prefix_lens)
+    spans = _parse_windows(windows)
+    prefix_parts = {n: _empty_holdout_parts() for n in lenses}
+    window_parts = {win: _empty_holdout_parts() for win in spans}
     used_keys = used_hash = used_g = False
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
@@ -122,12 +187,56 @@ def rotate_custom(
         marked_seqs, unmarked_seqs = _twin_sides(held, seq_mode)
         n = min(len(marked_seqs), len(unmarked_seqs))
         for i in range(n):
+            marked = marked_seqs[i]
+            unmarked = unmarked_seqs[i]
             _append_pair(
                 parts,
                 held.stem,
                 i + 1,
-                scorer(marked_seqs[i]),
-                scorer(unmarked_seqs[i]),
+                scorer(marked),
+                scorer(unmarked),
+            )
+            for plen in lenses:
+                _append_pair(
+                    prefix_parts[plen],
+                    held.stem,
+                    i + 1,
+                    scorer(clip_seq(marked, plen)),
+                    scorer(clip_seq(unmarked, plen)),
+                )
+            for start, end in spans:
+                _append_pair(
+                    window_parts[(start, end)],
+                    held.stem,
+                    i + 1,
+                    scorer(slice_seq(marked, start, end)),
+                    scorer(slice_seq(unmarked, start, end)),
+                )
+    flags = dict(
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+        margin=margin,
+    )
+    if prefix_out is not None:
+        for plen in lenses:
+            prefix_out[plen] = _holdout_from_parts(
+                prefix_parts[plen],
+                context_len=context_len,
+                model_name=model_name,
+                instance=instance,
+                score_kind=f"{score_kind}@p{plen}",
+                **flags,
+            )
+    if window_out is not None:
+        for start, end in spans:
+            window_out[(start, end)] = _holdout_from_parts(
+                window_parts[(start, end)],
+                context_len=context_len,
+                model_name=model_name,
+                instance=instance,
+                score_kind=f"{score_kind}@w{start}-{end}",
+                **flags,
             )
     return _holdout_from_parts(
         parts,
@@ -135,10 +244,7 @@ def rotate_custom(
         model_name=model_name,
         instance=instance,
         score_kind=score_kind,
-        used_keys=used_keys,
-        used_hash_iv=used_hash,
-        used_g_values=used_g,
-        margin=margin,
+        **flags,
     )
 
 
@@ -149,6 +255,10 @@ def rotate_count_methods(
     context_len: int = 4,
     model_name: str = "gpt2",
     margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
 ) -> dict[str, IndicatorHoldout]:
     names = list(methods or COUNT_SPECS.keys())
     unknown = [n for n in names if n not in COUNT_SPECS]
@@ -156,6 +266,14 @@ def rotate_count_methods(
         raise ValueError(f"unknown count methods: {unknown}")
     buckets = {name: _empty_holdout_parts() for name in names}
     used = {name: (False, False, False) for name in names}
+    lenses = _parse_prefix_lens(prefix_lens)
+    spans = _parse_windows(windows)
+    prefix_buckets = {
+        plen: {name: _empty_holdout_parts() for name in names} for plen in lenses
+    }
+    window_buckets = {
+        win: {name: _empty_holdout_parts() for name in names} for win in spans
+    }
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
         model = fit_count_model(train, context_len=context_len)
@@ -167,13 +285,31 @@ def rotate_count_methods(
             spec = COUNT_SPECS[name]
             used[name] = tuple(a or b for a, b in zip(used[name], flags, strict=True))
             for i in range(n):
+                marked = marked_seqs[i]
+                unmarked = unmarked_seqs[i]
                 _append_pair(
                     buckets[name],
                     held.stem,
                     i + 1,
-                    score_sequence(marked_seqs[i], model, spec),
-                    score_sequence(unmarked_seqs[i], model, spec),
+                    score_sequence(marked, model, spec),
+                    score_sequence(unmarked, model, spec),
                 )
+                for plen in lenses:
+                    _append_pair(
+                        prefix_buckets[plen][name],
+                        held.stem,
+                        i + 1,
+                        score_sequence(clip_seq(marked, plen), model, spec),
+                        score_sequence(clip_seq(unmarked, plen), model, spec),
+                    )
+                for start, end in spans:
+                    _append_pair(
+                        window_buckets[(start, end)][name],
+                        held.stem,
+                        i + 1,
+                        score_sequence(slice_seq(marked, start, end), model, spec),
+                        score_sequence(slice_seq(unmarked, start, end), model, spec),
+                    )
     out: dict[str, IndicatorHoldout] = {}
     for name in names:
         spec = COUNT_SPECS[name]
@@ -189,6 +325,32 @@ def rotate_count_methods(
             used_g_values=g,
             margin=margin,
         )
+        if prefix_out is not None:
+            for plen in lenses:
+                prefix_out.setdefault(plen, {})[name] = _holdout_from_parts(
+                    prefix_buckets[plen][name],
+                    context_len=context_len,
+                    model_name=model_name,
+                    instance=spec.instance,
+                    score_kind=f"{name}@p{plen}",
+                    used_keys=k,
+                    used_hash_iv=h,
+                    used_g_values=g,
+                    margin=margin,
+                )
+        if window_out is not None:
+            for start, end in spans:
+                window_out.setdefault((start, end), {})[name] = _holdout_from_parts(
+                    window_buckets[(start, end)][name],
+                    context_len=context_len,
+                    model_name=model_name,
+                    instance=spec.instance,
+                    score_kind=f"{name}@w{start}-{end}",
+                    used_keys=k,
+                    used_hash_iv=h,
+                    used_g_values=g,
+                    margin=margin,
+                )
     return out
 
 
@@ -200,6 +362,10 @@ def rotate_hashpool(
     n_buckets: int = 256,
     model_name: str = "gpt2",
     margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
 ) -> IndicatorHoldout:
     def make(train: Sequence[Twin]):
         model = fit_hashpool_twins(
@@ -215,7 +381,9 @@ def rotate_hashpool(
             model.used_g_values,
         )
 
-    return rotate_custom(
+    one: dict[int, IndicatorHoldout] = {}
+    one_win: dict[tuple[int, int], IndicatorHoldout] = {}
+    ev = rotate_custom(
         twins,
         make,
         context_len=context_len,
@@ -223,7 +391,18 @@ def rotate_hashpool(
         instance="key-free-hashpool",
         score_kind="hashpool",
         margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=one if prefix_lens else None,
+        windows=windows,
+        window_out=one_win if windows else None,
     )
+    if prefix_out is not None:
+        for plen, hold in one.items():
+            prefix_out.setdefault(plen, {})["hashpool"] = hold
+    if window_out is not None:
+        for win, hold in one_win.items():
+            window_out.setdefault(win, {})["hashpool"] = hold
+    return ev
 
 
 def rotate_hashvote(
@@ -344,6 +523,10 @@ def rotate_surface(
     n_buckets: int = 256,
     model_name: str = "gpt2",
     margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, IndicatorHoldout] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], IndicatorHoldout] | None = None,
 ) -> IndicatorHoldout:
     def make(train: Sequence[Twin]):
         model = fit_surface_twins(
@@ -368,6 +551,10 @@ def rotate_surface(
         score_kind="surface",
         margin=margin,
         seq_mode="text",
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
     )
 
 
@@ -665,18 +852,70 @@ def score_twins(
     used_g_values: bool = False,
     mode: str = "transfer",
     seq_mode: str = "ids",
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, IndicatorHoldout] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], IndicatorHoldout] | None = None,
 ) -> IndicatorHoldout:
     parts = _empty_holdout_parts()
+    lenses = _parse_prefix_lens(prefix_lens)
+    spans = _parse_windows(windows)
+    prefix_parts = {n: _empty_holdout_parts() for n in lenses}
+    window_parts = {win: _empty_holdout_parts() for win in spans}
     for twin in twins:
         marked_seqs, unmarked_seqs = _twin_sides(twin, seq_mode)
         n = min(len(marked_seqs), len(unmarked_seqs))
         for i in range(n):
+            marked = marked_seqs[i]
+            unmarked = unmarked_seqs[i]
             _append_pair(
                 parts,
                 twin.stem,
                 i + 1,
-                scorer(marked_seqs[i]),
-                scorer(unmarked_seqs[i]),
+                scorer(marked),
+                scorer(unmarked),
+            )
+            for plen in lenses:
+                _append_pair(
+                    prefix_parts[plen],
+                    twin.stem,
+                    i + 1,
+                    scorer(clip_seq(marked, plen)),
+                    scorer(clip_seq(unmarked, plen)),
+                )
+            for start, end in spans:
+                _append_pair(
+                    window_parts[(start, end)],
+                    twin.stem,
+                    i + 1,
+                    scorer(slice_seq(marked, start, end)),
+                    scorer(slice_seq(unmarked, start, end)),
+                )
+    flags = dict(
+        used_keys=used_keys,
+        used_hash_iv=used_hash_iv,
+        used_g_values=used_g_values,
+        mode=mode,
+    )
+    if prefix_out is not None:
+        for plen in lenses:
+            prefix_out[plen] = _holdout_from_parts(
+                prefix_parts[plen],
+                context_len=context_len,
+                model_name=model_name,
+                instance=instance,
+                score_kind=f"{score_kind}@p{plen}",
+                **flags,
+            )
+    if window_out is not None:
+        for start, end in spans:
+            window_out[(start, end)] = _holdout_from_parts(
+                window_parts[(start, end)],
+                context_len=context_len,
+                model_name=model_name,
+                instance=instance,
+                score_kind=f"{score_kind}@w{start}-{end}",
+                **flags,
             )
     return _holdout_from_parts(
         parts,
@@ -684,10 +923,7 @@ def score_twins(
         model_name=model_name,
         instance=instance,
         score_kind=score_kind,
-        used_keys=used_keys,
-        used_hash_iv=used_hash_iv,
-        used_g_values=used_g_values,
-        mode=mode,
+        **flags,
     )
 
 
@@ -805,6 +1041,12 @@ class ProbeRun:
     used_hash_iv: bool = False
     used_g_values: bool = False
     max_draws: int | None = None
+    prefix_lens: tuple[int, ...] = ()
+    prefixes: dict[int, list[MethodSummary]] = field(default_factory=dict)
+    windows: tuple[tuple[int, int], ...] = ()
+    window_results: dict[tuple[int, int], list[MethodSummary]] = field(
+        default_factory=dict
+    )
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
         "AUC is single-file ranking; prompt wins are the 10/12 grain. "
@@ -847,12 +1089,46 @@ class TransferRun:
     nested: bool = False
     shuffle_seed: int | None = None
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT
+    prefix_lens: tuple[int, ...] = ()
+    prefixes: dict[int, list[MethodSummary]] = field(default_factory=dict)
+    windows: tuple[tuple[int, int], ...] = ()
+    window_results: dict[tuple[int, int], list[MethodSummary]] = field(
+        default_factory=dict
+    )
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
         "training files (in-sample), then frozen on the test files. "
         "Not detector_mean. Not Claude. Not key recovery."
     )
+
+
+def _store_prefixes(
+    dest: dict[int, list[MethodSummary]],
+    src: dict[int, dict[str, IndicatorHoldout]],
+) -> None:
+    for plen, by_name in src.items():
+        bucket = dest.setdefault(int(plen), [])
+        seen = {m.name for m in bucket}
+        for name, ev in by_name.items():
+            if name in seen:
+                continue
+            bucket.append(summarize_holdout(name, ev))
+            seen.add(name)
+
+
+def _store_windows(
+    dest: dict[tuple[int, int], list[MethodSummary]],
+    src: dict[tuple[int, int], dict[str, IndicatorHoldout]],
+) -> None:
+    for win, by_name in src.items():
+        bucket = dest.setdefault(win, [])
+        seen = {m.name for m in bucket}
+        for name, ev in by_name.items():
+            if name in seen:
+                continue
+            bucket.append(summarize_holdout(name, ev))
+            seen.add(name)
 
 
 def nested_stem_gates(ev: IndicatorHoldout) -> dict:
@@ -891,16 +1167,24 @@ def run_probe(
     n_buckets: int = 256,
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
     max_draws: int | None = None,
+    prefix_lens: Sequence[int] = (),
+    windows: Sequence[str | tuple[int, int]] = (),
     lm=None,
 ) -> ProbeRun:
     requested = list(methods) if methods is not None else list(COUNT_SPECS)
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
+    lenses = _parse_prefix_lens(prefix_lens)
+    spans = _parse_windows(windows)
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] = {}
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] = {}
     run = ProbeRun(
         pair_dir=pair_dir,
         model_name=model_name,
         context_len=context_len,
         max_draws=max_draws,
+        prefix_lens=lenses,
+        windows=spans,
     )
     if count_names:
         counted = rotate_count_methods(
@@ -908,6 +1192,10 @@ def run_probe(
             methods=count_names,
             context_len=context_len,
             model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
         )
         for name in count_names:
             run.methods.append(summarize_holdout(name, counted[name]))
@@ -922,6 +1210,10 @@ def run_probe(
             n_hashes=n_hashes,
             n_buckets=n_buckets,
             model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashpool", hp))
     if with_hashpool and "hashvote" in extras:
@@ -951,14 +1243,26 @@ def run_probe(
         )
         run.methods.append(summarize_holdout("hashmix", mix))
     if "surface" in extras:
+        one: dict[int, IndicatorHoldout] = {}
+        one_win: dict[tuple[int, int], IndicatorHoldout] = {}
         surf = rotate_surface(
             twins,
             context_len=surface_context_len,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
             model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=one if lenses else None,
+            windows=spans,
+            window_out=one_win if spans else None,
         )
         run.methods.append(summarize_holdout("surface", surf))
+        if one:
+            _store_prefixes(prefix_out, {n: {"surface": ev} for n, ev in one.items()})
+        if one_win:
+            _store_windows(
+                window_out, {win: {"surface": ev} for win, ev in one_win.items()}
+            )
     if with_pivot:
         pivots = rotate_pivot(twins, model_name=model_name, lm=lm)
         for name, ev in pivots.items():
@@ -981,6 +1285,8 @@ def run_probe(
     run.used_keys = any(m.holdout.used_keys for m in run.methods)
     run.used_hash_iv = any(m.holdout.used_hash_iv for m in run.methods)
     run.used_g_values = any(m.holdout.used_g_values for m in run.methods)
+    _store_prefixes(run.prefixes, prefix_out)
+    _store_windows(run.window_results, window_out)
     return run
 
 
@@ -989,8 +1295,10 @@ def print_probe(run: ProbeRun) -> str:
         (
             f"probe n_methods={len(run.methods)} pair_dir={run.pair_dir} "
             f"context_len={run.context_len} model={run.model_name} "
-            f"max_draws={run.max_draws} used_keys={run.used_keys} "
-            f"hash_iv={run.used_hash_iv} g_values={run.used_g_values}"
+            f"max_draws={run.max_draws} prefix_lens={list(run.prefix_lens)} "
+            f"windows={[f'{a}:{b}' for a, b in run.windows]} "
+            f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
+            f"g_values={run.used_g_values}"
         ),
         run.note,
         CAVEAT,
@@ -1023,6 +1331,39 @@ def print_probe(run: ProbeRun) -> str:
             f"{gate['mean_threshold']:.4f} | {gate['sensitivity']:.3f} | "
             f"{gate['specificity']:.3f} |"
         )
+    if run.prefixes:
+        lines.append("")
+        lines.append(
+            "| prefix tokens | method | prompt wins | file auc | "
+            "nested-by-stem marked | unmarked |"
+        )
+        lines.append("|---|---|---|---|---|---|")
+        for plen in sorted(run.prefixes):
+            for m in run.prefixes[plen]:
+                gate = nested_stem_gates(m.holdout)["nested-youden-by-stem"]
+                lines.append(
+                    f"| {plen} | {m.name} | {m.n_prompt_wins}/{m.n_prompts} | "
+                    f"{m.binary.auc:.3f} | "
+                    f"{gate['n_marked_above']}/{gate['n_marked']} | "
+                    f"{gate['n_unmarked_at_most']}/{gate['n_unmarked']} |"
+                )
+    if run.window_results:
+        lines.append("")
+        lines.append(
+            "| window tokens | method | prompt wins | file auc | "
+            "nested-by-stem marked | unmarked |"
+        )
+        lines.append("|---|---|---|---|---|---|")
+        for start, end in sorted(run.window_results):
+            for m in run.window_results[(start, end)]:
+                gate = nested_stem_gates(m.holdout)["nested-youden-by-stem"]
+                lines.append(
+                    f"| {start}:{end} | {m.name} | "
+                    f"{m.n_prompt_wins}/{m.n_prompts} | "
+                    f"{m.binary.auc:.3f} | "
+                    f"{gate['n_marked_above']}/{gate['n_marked']} | "
+                    f"{gate['n_unmarked_at_most']}/{gate['n_unmarked']} |"
+                )
     lines.append("")
     for m in run.methods:
         lines.append(format_binary_eval(m.binary, label=m.name))
@@ -1044,6 +1385,8 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "used_hash_iv": run.used_hash_iv,
         "used_g_values": run.used_g_values,
         "max_draws": run.max_draws,
+        "prefix_lens": list(run.prefix_lens),
+        "windows": [f"{a}:{b}" for a, b in run.windows],
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1064,6 +1407,39 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
+    table["prefixes"] = []
+    for plen in sorted(run.prefixes):
+        for m in run.prefixes[plen]:
+            table["prefixes"].append(
+                {
+                    "prefix_tokens": plen,
+                    "name": m.name,
+                    "n_prompt_wins": m.n_prompt_wins,
+                    "n_prompts": m.n_prompts,
+                    "binary": binary_eval_to_dict(m.binary),
+                    "nested_stem": nested_stem_gates(m.holdout),
+                    "used_keys": m.holdout.used_keys,
+                }
+            )
+            persist_holdout(m.holdout, out_dir / f"prefix-{plen}" / m.name)
+    table["window_scores"] = []
+    for start, end in sorted(run.window_results):
+        for m in run.window_results[(start, end)]:
+            table["window_scores"].append(
+                {
+                    "start": start,
+                    "end": end,
+                    "name": m.name,
+                    "n_prompt_wins": m.n_prompt_wins,
+                    "n_prompts": m.n_prompts,
+                    "binary": binary_eval_to_dict(m.binary),
+                    "nested_stem": nested_stem_gates(m.holdout),
+                    "used_keys": m.holdout.used_keys,
+                }
+            )
+            persist_holdout(
+                m.holdout, out_dir / _window_dir(start, end) / m.name
+            )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free probe\n\n" + print_probe(run) + "\n"
@@ -1126,6 +1502,8 @@ def run_transfer(
     shuffle_labels: bool = False,
     shuffle_seed: int = 0,
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
+    prefix_lens: Sequence[int] = (),
+    windows: Sequence[str | tuple[int, int]] = (),
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -1279,6 +1657,8 @@ def run_transfer(
         nested=bool(nested and len(train) >= 3),
         shuffle_seed=shuffle_seed if shuffle_labels else None,
         surface_context_len=surface_context_len,
+        prefix_lens=_parse_prefix_lens(prefix_lens),
+        windows=_parse_windows(windows),
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -1297,6 +1677,8 @@ def run_transfer(
             mode="train",
             seq_mode=seq_mode,
         )
+        pref: dict[int, IndicatorHoldout] = {}
+        win: dict[tuple[int, int], IndicatorHoldout] = {}
         test_ev = score_twins(
             test,
             scorer,
@@ -1309,7 +1691,17 @@ def run_transfer(
             used_g_values=used_g,
             mode="transfer",
             seq_mode=seq_mode,
+            prefix_lens=run.prefix_lens,
+            prefix_out=pref if run.prefix_lens else None,
+            windows=run.windows,
+            window_out=win if run.windows else None,
         )
+        if pref:
+            _store_prefixes(run.prefixes, {n: {name: ev} for n, ev in pref.items()})
+        if win:
+            _store_windows(
+                run.window_results, {span: {name: ev} for span, ev in win.items()}
+            )
         train_holdouts[name] = train_ev
         test_holdouts[name] = test_ev
         run.methods.append(summarize_holdout(name, test_ev))
@@ -1518,6 +1910,37 @@ def print_transfer(run: TransferRun) -> str:
     if run.dropped_stems:
         lines.append("")
         lines.append("dropped stems: " + ", ".join(run.dropped_stems))
+    if run.prefixes:
+        lines.append("")
+        lines.append(
+            "| prefix tokens | method | prompt wins | file auc | "
+            "marked>0 | unmarked<=0 |"
+        )
+        lines.append("|---|---|---|---|---|---|")
+        for plen in sorted(run.prefixes):
+            for m in run.prefixes[plen]:
+                b = m.binary
+                lines.append(
+                    f"| {plen} | {m.name} | {m.n_prompt_wins}/{m.n_prompts} | "
+                    f"{b.auc:.3f} | {b.n_positive_above_zero}/{b.n_positive} | "
+                    f"{b.n_negative_at_most_zero}/{b.n_negative} |"
+                )
+    if run.window_results:
+        lines.append("")
+        lines.append(
+            "| window tokens | method | prompt wins | file auc | "
+            "marked>0 | unmarked<=0 |"
+        )
+        lines.append("|---|---|---|---|---|---|")
+        for start, end in sorted(run.window_results):
+            for m in run.window_results[(start, end)]:
+                b = m.binary
+                lines.append(
+                    f"| {start}:{end} | {m.name} | "
+                    f"{m.n_prompt_wins}/{m.n_prompts} | "
+                    f"{b.auc:.3f} | {b.n_positive_above_zero}/{b.n_positive} | "
+                    f"{b.n_negative_at_most_zero}/{b.n_negative} |"
+                )
     lines.append("")
     for m in run.methods:
         lines.append(format_binary_eval(m.binary, label=m.name))
@@ -1546,6 +1969,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "nested": run.nested,
         "shuffle_seed": run.shuffle_seed,
         "surface_context_len": run.surface_context_len,
+        "prefix_lens": list(run.prefix_lens),
+        "windows": [f"{a}:{b}" for a, b in run.windows],
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1617,6 +2042,39 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
             ),
         )
+    table["prefixes"] = []
+    for plen in sorted(run.prefixes):
+        for m in run.prefixes[plen]:
+            table["prefixes"].append(
+                {
+                    "prefix_tokens": plen,
+                    "name": m.name,
+                    "n_prompt_wins": m.n_prompt_wins,
+                    "n_prompts": m.n_prompts,
+                    "binary": binary_eval_to_dict(m.binary),
+                    "nested_stem": nested_stem_gates(m.holdout),
+                    "used_keys": m.holdout.used_keys,
+                }
+            )
+            persist_holdout(m.holdout, out_dir / f"prefix-{plen}" / m.name)
+    table["window_scores"] = []
+    for start, end in sorted(run.window_results):
+        for m in run.window_results[(start, end)]:
+            table["window_scores"].append(
+                {
+                    "start": start,
+                    "end": end,
+                    "name": m.name,
+                    "n_prompt_wins": m.n_prompt_wins,
+                    "n_prompts": m.n_prompts,
+                    "binary": binary_eval_to_dict(m.binary),
+                    "nested_stem": nested_stem_gates(m.holdout),
+                    "used_keys": m.holdout.used_keys,
+                }
+            )
+            persist_holdout(
+                m.holdout, out_dir / _window_dir(start, end) / m.name
+            )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free transfer\n\n" + print_transfer(run) + "\n"

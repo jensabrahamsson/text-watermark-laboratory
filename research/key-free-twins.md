@@ -24,11 +24,15 @@ Current results:
 | Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
 | Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
 | Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
+| Key-free hits, first 16 tokens, 36×4 | **34/36**, AUC **0.916** |
+| Key-free hits, tokens 16–32 only, 36×4 | **22/36**, AUC **0.549** |
+| Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | **11/12** paired; isolated `lr>0` **1/12** |
 | New Qwen 12×4 sample, same prompts, GPT-2 hits | **5/12** (first-draw **6/12**); does not replicate 11/12 |
 | Qwen 12×4 in-domain hits, Qwen tokenizer | **8/12**, AUC **0.602** |
 | New GPT-2 topics → Qwen | chance |
+| New topics GPT-2 36×4 → new Qwen 12×4 | hits **6/12**, AUC 0.445 |
 | Key-free hits, train 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** (unmarked ≤0 only 14/24) |
 | Nested freqhits Youden on the reverse split | **23/24** and **23/24** |
 | 50% train-label shuffle, isolated sign | hits **19/48**, hashpool **20/48** |

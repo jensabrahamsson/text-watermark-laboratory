@@ -202,3 +202,34 @@ New Qwen 12×4 sample (`experiments/2026-08-31-pair-qwen-12x4/`, seed 20260831):
 JSON: `experiments/2026-08-31-probe-qwen-12x4/`, `experiments/2026-08-31-transfer-gpt2-to-qwen-12x4/`.
 
 ---
+
+## 2026-08-31 prefix curves, last-5 ablation, Qwen negatives
+
+Same 36×4 GPT-2 twins. `used_keys=false`. `--prefix-lens` clips completions
+before scoring. Sixteen tokens already rank **34/36** in-domain (AUC **0.916**,
+isolated 129/144). Prefix 128 matches the published full-file 36/36 / 0.934 /
+119 vs 134. New-topic 24×4 → 12×4: 16-token hits **11/12** AUC **0.752**,
+nested-by-stem **25/48** vs **29/48**. Ranking is early; the nested isolated
+gate on short prefixes is not. Disjoint windows show the key-free 4-gram
+signal is in the opening, not throughout: in-domain 16–32 tokens are near
+chance (hits 22/36, AUC 0.549); OOD 16–32 is chance (8/12, AUC 0.512). The
+keyed mixin still marks later tokens; the count-table reader does not pick
+them up as shared 4-grams.
+
+`--context-len 5` on 36×4 hits **35/36** AUC **0.912**. Matching mixin
+`ngram_len=5` does not beat last-4. Keep `context_len=4`.
+
+GPT-2 36×4 → new Qwen 12×4 (drop overlapping stems): hits **6/12** AUC 0.445,
+hashpool 3/12, surface 6/12. Same-topic GPT-2 surface → that Qwen sample:
+**7/12** AUC 0.525, isolated 5/48. Extra GPT-2 draws do not create a Qwen
+detector. Do not overwrite the published original-corpus Qwen hashpool 10/12.
+
+JSON: `experiments/2026-08-31-probe-36x4-prefixes/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-prefixes/`,
+`experiments/2026-08-31-probe-36x4-windows/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-windows/`,
+`experiments/2026-08-31-probe-36x4-k5/`,
+`experiments/2026-08-31-transfer-36x4-to-qwen-12x4/`,
+`experiments/2026-08-31-transfer-gpt2-surface-to-qwen-12x4/`.
+
+---

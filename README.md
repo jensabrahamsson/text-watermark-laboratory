@@ -32,7 +32,7 @@ A different reader of the same tables — score only 4-grams seen on both traini
 
 **Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Hard last-4 marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003). Binomial P(≥29 | n=48, p=0.5) = 0.097, so that sign is not a 5% test. Ranking of the same LRs is (AUC 0.626, permutation p = 0.0075). Hashpool’s isolated sign is **35/48** (p ≈ 0.001), with unmarked specificity still 29/48.
 
-When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). Four training draws per new topic lift that ranking to **12/12** prompt groups and **42/48** isolated files at threshold 0 (AUC **0.793**); nested Youden then becomes conservative (26/48 vs 44/48). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986** on the 1-draw 256-token stems; **24/24** and AUC **0.924** on four 128-token draws). Nested hits 10% FPR on those 96 new-topic files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws reaches **36/36** prompt grain (AUC **0.934**) and a nested-by-stem hits gate of **119/144** vs **134/144**; that is in-domain, same generator. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
+When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). Four training draws per new topic lift that ranking to **12/12** prompt groups and **42/48** isolated files at threshold 0 (AUC **0.793**); nested Youden then becomes conservative (26/48 vs 44/48). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986** on the 1-draw 256-token stems; **24/24** and AUC **0.924** on four 128-token draws). Nested hits 10% FPR on those 96 new-topic files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws reaches **36/36** prompt grain (AUC **0.934**) and a nested-by-stem hits gate of **119/144** vs **134/144**; that is in-domain, same generator. The in-domain mark is front-loaded: a 16-token prefix already ranks **34/36** (AUC **0.916**). Matching the mixin's `ngram_len=5` (`context_len=5`) does **not** beat last-4 (35/36, AUC 0.912). Extra GPT-2 training draws do not create a Qwen detector (new topics → new Qwen sample: hits 6/12, AUC 0.445). The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
 
 | Method | What is being asked | Result |
 |---|---|---|
@@ -50,10 +50,15 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Nested hits Youden, 4-draw train | Same 12×4 files, higher threshold | **26/48** marked, **44/48** unmarked |
 | Nested hits FPR10, 12×4 → 36×4 | New topics, 96 files, train-only 10% FPR | **83/96** vs **85/96** |
 | Key-free hits, 36 topics × 4 draws | In-domain leave-one-out | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
+| Key-free hits, first 16 tokens, 36×4 | In-domain prefix (mark is front-loaded) | **34/36**, AUC **0.916**; isolated 129/144 |
+| Key-free hits, tokens 16–32 only, 36×4 | Disjoint window, not a prefix | **22/36**, AUC **0.549** (near chance) |
+| Key-free hits, first 16 tokens, 24×4 → 12×4 | New-topic prefix ranking | **11/12**, AUC **0.752**; nested-by-stem 25/48 vs 29/48 |
+| Mixin last-5 vs last-4, 36×4 hits | `context_len=5` matches `ngram_len=5` | **35/36**, AUC **0.912** (does **not** beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | Byte hashpool, no tokenizer | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen 12×1 | Probe-tokenizer paired ranking | **11/12** (isolated `lr>0` **1/12**) |
 | New Qwen 12×4 sample, GPT-2 hits | Same prompts, new draws | **5/12** (does not replicate 11/12) |
-| New topics GPT-2 → Qwen | Hits / hashpool / surface | chance |
+| New topics GPT-2 36×4 → new Qwen 12×4 | Hits / hashpool / surface | chance (hits **6/12**, AUC 0.445) |
+| Same-topic GPT-2 surface → new Qwen 12×4 | Byte table, overlapping stems | **7/12**, AUC 0.525 (isolated 5/48) |
 | Key-free hits, 12×4 → 24 new topics | Train 12×4, score stems 13–36 | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse split | Train-only threshold, frozen on 24 stems | **23/24** and **23/24** |
 | 50% train-label shuffle, 36→12×4 | Negative control, isolated sign at 0 | hits **19/48**, hashpool **20/48** |
@@ -149,6 +154,13 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
 # Compare key-free scorers (AUC + prompt-grain wins)
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/probe
+
+# Token prefixes and disjoint windows (isolated-file curves)
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --methods hits,hashpool \
+  --prefix-lens 16,32,64,96,128 \
+  --windows 0:16,16:32,32:64,64:128 \
+  --out-dir experiments/probe-prefix-windows
 ```
 
 `score` and `indicate` answer different questions:

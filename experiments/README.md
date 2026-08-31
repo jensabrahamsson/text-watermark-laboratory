@@ -66,6 +66,13 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-probe-qwen-12x4/` | Qwen tokenizer LOO | hits **8/12** AUC 0.602; extra draws do not close the gap |
 | `2026-08-31-transfer-gpt2-to-qwen-12x4/` | GPT-2 tables → new Qwen sample | hits **5/12**; 11/12 did not replicate |
 | `2026-08-31-stack-12x4/` | LOO LDA of hits+hashpool file scores | **11/12**, AUC 0.732, unmarked ≤0 **44/48** |
+| `2026-08-31-probe-36x4-prefixes/` | Token prefixes on 36×4 LOO | 16-token hits **34/36** AUC **0.916**; 128 matches 36/36 |
+| `2026-08-31-transfer-36x4-to-12x4-prefixes/` | New-topic prefix curve | 16-token hits **11/12** AUC 0.752; nested-by-stem 25/48 vs 29/48 |
+| `2026-08-31-probe-36x4-windows/` | Disjoint token windows, 36×4 LOO | 0:16 hits **34/36** AUC 0.916; 16:32 near chance (22/36, 0.549) |
+| `2026-08-31-transfer-36x4-to-12x4-windows/` | New-topic windows | 0:16 hits **11/12**; 16:32 chance (8/12, AUC 0.512) |
+| `2026-08-31-probe-36x4-k5/` | `context_len=5` on 36×4 | hits **35/36** AUC 0.912; does not beat last-4 |
+| `2026-08-31-transfer-36x4-to-qwen-12x4/` | 24×4 GPT-2 → new Qwen | chance (hits **6/12**, AUC 0.445) |
+| `2026-08-31-transfer-gpt2-surface-to-qwen-12x4/` | Same-topic byte table → new Qwen | **7/12**, AUC 0.525, isolated 5/48 |
 
 ## What changed across the runs
 
@@ -81,6 +88,9 @@ The later runs clarified what strengthens it:
 - training on **other** prompt families is a fairer isolated-file test than leave-one-of-12-out: hits then marks **39/48** of the 12×4 files, and ranks **24/24** new 36-topic stems (specificity at 0 is still incomplete);
 - nested Youden on the training stems only is the honest isolated-file gate (OOD hashpool **33/48** vs **34/48**; reverse freqhits **23/24** vs **23/24**; 4-draw reverse nested hits FPR10 **83/96** vs **85/96**);
 - four extra draws at 128 tokens lift in-domain hits from **30/36** to **36/36** (nested-by-stem **119/144** vs **134/144**);
+- a 16-token prefix already ranks **34/36** in-domain (AUC 0.916); tokens 16–32 scored alone are near chance (22/36, AUC 0.549);
+- matching mixin `ngram_len=5` does not beat last-4;
+- extra GPT-2 draws do not create a Qwen detector (36×4 → new Qwen hits 6/12);
 - shuffling half the training labels drops isolated sign at 0 to chance.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".

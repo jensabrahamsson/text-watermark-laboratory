@@ -117,6 +117,66 @@ new-topic 36×4 files
 ([../experiments/2026-08-31-transfer-12x4-to-36x4/](../experiments/2026-08-31-transfer-12x4-to-36x4/)):
 hits **24/24**, AUC 0.924; nested hits 10% FPR **83/96** vs **85/96**.
 
+## Prefix length and mixin `ngram_len=5`
+
+Prefixes are cumulative token clips (`--prefix-lens`). They ask how early
+the key-free footprint is visible. They are not disjoint windows.
+
+In-domain 36×4
+([../experiments/2026-08-31-probe-36x4-prefixes/](../experiments/2026-08-31-probe-36x4-prefixes/)):
+
+| Prefix tokens | hits wins | Isolated `lr>0` | AUC | Nested-by-stem Youden |
+|---|---|---|---|---|
+| 16 | **34/36** | 129/144 | **0.916** | 118/144 vs 127/144 |
+| 64 | **36/36** | 130/144 | 0.919 | 125/144 vs 130/144 |
+| 128 | **36/36** | 134/144 | **0.934** | 119/144 vs 134/144 |
+
+The 128-token prefix matches the published full-file 36×4 result. Sixteen
+tokens already rank almost every prompt. Isolated overlap at `t = 0`
+remains.
+
+New-topic 24×4 → 12×4
+([../experiments/2026-08-31-transfer-36x4-to-12x4-prefixes/](../experiments/2026-08-31-transfer-36x4-to-12x4-prefixes/)):
+16-token hits **11/12**, AUC **0.752**, isolated 40/48; nested-by-stem
+**25/48** vs **29/48**. Full length recovers 12/12 / 0.793 / 42/48. Ranking
+appears early; the nested isolated-file gate on short prefixes stays weak.
+
+`--context-len 5` on the same 36×4 twins
+([../experiments/2026-08-31-probe-36x4-k5/](../experiments/2026-08-31-probe-36x4-k5/))
+matches the mixin's `ngram_len=5` and does **not** beat last-4: hits
+**35/36**, AUC **0.912** versus last-4 **36/36** / **0.934**. Keep
+`context_len=4`.
+
+## Disjoint windows (not prefixes)
+
+`--windows 0:16,16:32,32:64,64:128` scores each slice without earlier
+tokens. Window `0:16` matches the 16-token prefix.
+
+In-domain 36×4 hits
+([../experiments/2026-08-31-probe-36x4-windows/](../experiments/2026-08-31-probe-36x4-windows/)):
+
+| Window | wins | Isolated `lr>0` | AUC |
+|---|---|---|---|
+| 0:16 | **34/36** | 129/144 | **0.916** |
+| 16:32 | 22/36 | 74/144 | 0.549 |
+| 32:64 | 28/36 | 92/144 | 0.651 |
+| 64:128 | 29/36 | 108/144 | 0.723 |
+
+The keyed mixin marks every position. The key-free 4-gram reader does not:
+tokens 16–32 are near chance. The tail still ranks above chance but does
+not match the opening. New-topic transfer
+([../experiments/2026-08-31-transfer-36x4-to-12x4-windows/](../experiments/2026-08-31-transfer-36x4-to-12x4-windows/))
+is sharper: 0:16 hits **11/12** AUC **0.752**; 16:32 is chance (8/12,
+AUC 0.512).
+
+GPT-2 36×4 → new Qwen 12×4, overlapping stems dropped
+([../experiments/2026-08-31-transfer-36x4-to-qwen-12x4/](../experiments/2026-08-31-transfer-36x4-to-qwen-12x4/)):
+hits **6/12** AUC 0.445, hashpool **3/12**, surface **6/12**. Chance.
+Same-topic GPT-2 surface → that Qwen sample: **7/12**, AUC 0.525,
+isolated 5/48. Extra GPT-2 draws and a byte table do not create a Qwen
+detector. Do not overwrite the published original-corpus Qwen hashpool
+**10/12**.
+
 ## Results on Qwen2-1.5B (12×1)
 
 Published last-2 on this corpus was **10/12**. Hard last-4 is **6/12**. Hashpool is **10/12**, AUC **0.750**, isolated **11/12** marked `lr > 0`. Exact `hits` prompt-wins 8/12 but file AUC **0.417** (below chance): one draw and a large tokenizer leave almost no shared 4-grams.
@@ -241,6 +301,17 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 
 **Four extra draws at matched length, not extra topics, lift in-domain GPT-2 hits to 36/36.** One 128-token draw is still 30/36. Nested-by-stem Youden on the 4-draw LRs is 119/144 vs 134/144. Out-of-family, 4-draw train → 12×4 is 12/12 ranking (42/48 at t=0) with a conservative nested Youden (26/48 vs 44/48). The reverse nested hits 10% FPR on 96 new-topic files is 83/96 vs 85/96. The same extra-draw protocol on Qwen does **not** produce a comparable isolated-file gate.
 
+**The in-domain mark is front-loaded, and disjoint windows show where.** A
+16-token prefix of the 36×4 twins already ranks 34/36 (AUC 0.916). Tokens
+16–32 scored alone are near chance (22/36, AUC 0.549). The tail (64–128)
+still ranks 29/36 (AUC 0.723) but does not match the opening. New-topic
+ranking also appears by 16 tokens (11/12, AUC 0.752); the next 16 tokens
+are chance (AUC 0.512). Matching mixin `ngram_len=5` (`context_len=5`)
+does not beat last-4. This is a statement about the count-table indicator,
+not that later tokens are unmarked under official `score`.
+
+**Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
+
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 
 ## What this is not
@@ -263,6 +334,12 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --max-draws 1 --methods hits,hashpool \
   --out-dir experiments/2026-08-31-probe-36x4-draws1
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --methods hits,hashpool \
+  --prefix-lens 16,32,64,96,128 \
+  --windows 0:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-08-31-probe-36x4-prefixes
 
 python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
   --test-dir experiments/2026-08-17-pair-12x4 \

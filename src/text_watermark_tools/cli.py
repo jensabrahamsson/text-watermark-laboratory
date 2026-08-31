@@ -70,6 +70,8 @@ from text_watermark_tools.probe import (
     run_probe,
     run_scrub_files,
     run_transfer,
+    _parse_prefix_lens,
+    _parse_windows,
 )
 from text_watermark_tools.resample import run_resample
 from text_watermark_tools.score import (
@@ -83,6 +85,20 @@ from text_watermark_tools.score import (
 
 QWEN_BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 QWEN_MODEL = "qwen-plus"
+
+
+def _parse_prefix_arg(raw: str | None) -> tuple[int, ...]:
+    if not raw:
+        return ()
+    parts = [p.strip() for p in str(raw).split(",") if p.strip()]
+    return _parse_prefix_lens([int(p) for p in parts])
+
+
+def _parse_windows_arg(raw: str | None) -> tuple[tuple[int, int], ...]:
+    if not raw:
+        return ()
+    parts = [p.strip() for p in str(raw).split(",") if p.strip()]
+    return _parse_windows(parts)
 
 
 def _read_input(path: str | None) -> str:
@@ -606,6 +622,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
             surface_context_len=int(
                 getattr(args, "surface_context_len", 8) or 8
             ),
+            prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
+            windows=_parse_windows_arg(getattr(args, "windows", "")),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -627,6 +645,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
         n_buckets=int(args.n_buckets),
         surface_context_len=int(getattr(args, "surface_context_len", 8) or 8),
         max_draws=max_draws if max_draws > 0 else None,
+        prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
+        windows=_parse_windows_arg(getattr(args, "windows", "")),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1027,6 +1047,23 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "If >0, keep only the first N marked/unmarked draws per stem "
             "(draw-count ablation on a multi-draw pair directory)"
+        ),
+    )
+    p_probe.add_argument(
+        "--prefix-lens",
+        default="",
+        help=(
+            "Comma-separated token (or character, for surface) prefixes to "
+            "score as isolated-file curves, e.g. 16,32,64,96,128"
+        ),
+    )
+    p_probe.add_argument(
+        "--windows",
+        default="",
+        help=(
+            "Comma-separated half-open token windows to score independently, "
+            "e.g. 0:16,16:32,32:64,64:128. Unlike --prefix-lens, later "
+            "windows do not include earlier tokens."
         ),
     )
     p_probe.add_argument("--out-dir", default="")
