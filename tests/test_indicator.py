@@ -8,6 +8,7 @@ from text_watermark_tools.indicator import (
     INDICATOR_INSTANCE,
     IndicatorHoldout,
     fit_indicator,
+    format_indicator,
     holdout_from_json,
     holdout_single_text,
     load_indicator,
@@ -84,6 +85,7 @@ def test_cli_indicate_score_is_stable_and_key_free(tmp_path, capsys) -> None:
     assert "instance=key-free-counts" in line
     assert "used_keys=False" in line
     assert "not_detector_mean=true" in line
+    assert "n_used=" in line
     assert CAVEAT in first
 
 
@@ -277,3 +279,32 @@ def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     soft = holdout_from_json(tmp_path / "holdout.json", margin=0.015)
     assert soft.n_marked_above_unmarked == 2
     assert soft.margin == 0.015
+
+
+def test_format_indicator_abstains_when_coverage_is_zero() -> None:
+    line = format_indicator(
+        "file.txt",
+        0.0,
+        n_tokens=4,
+        used_keys=False,
+        n_used=0,
+        n_positions=3,
+        threshold=0.0,
+        decision_source="nested-youden-poshits",
+    )
+    assert "n_used=0" in line
+    assert "n_positions=3" in line
+    assert "decision=ABSTAIN" in line
+    assert "decision=unmarked" not in line
+    assert "used_keys=False" in line
+    covered = format_indicator(
+        "file.txt",
+        0.2,
+        n_tokens=4,
+        used_keys=False,
+        n_used=2,
+        n_positions=3,
+        threshold=0.0,
+    )
+    assert "decision=marked" in covered
+    assert "decision=ABSTAIN" not in covered

@@ -460,9 +460,45 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         )
         print(CAVEAT)
         return 0
+    if method == "pivot":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import (
+            collect_choice_matrices,
+            fit_pivot_from_vectors,
+            parse_pivot_weights,
+            persist_pivot,
+            vectors_from_matrices,
+        )
+
+        weight = parse_pivot_weights(
+            str(getattr(args, "pivot_weight", "uniform") or "uniform")
+        )[0]
+        lm = _load_unmarked_model(generate_device(), model_name=args.model)
+        mats = collect_choice_matrices(twins, lm, prompt_context=False)
+        vecs = vectors_from_matrices(mats, weight=weight)
+        fit = fit_pivot_from_vectors(vecs, [t.stem for t in twins])
+        if fit.used_keys or fit.used_hash_iv or fit.used_g_values:
+            print("pivot fit consulted keys / hash_iv / g-values", file=sys.stderr)
+            return 1
+        path = persist_pivot(
+            fit,
+            Path(args.out_dir),
+            model_name=args.model,
+            pair_dir=str(args.pair_dir),
+            n_train_prompts=len(twins),
+            weight=weight,
+            prompt_context=False,
+        )
+        print(
+            f"wrote {path} instance=key-free-pivot-lda "
+            f"used_keys={fit.used_keys} n_train_prompts={len(twins)} "
+            f"weight={weight} prompt_context=False"
+        )
+        print(CAVEAT)
+        return 0
     if method not in ("counts", "hard"):
         print(
-            f"unknown --method {method}; choose counts, hashpool, or surface",
+            f"unknown --method {method}; choose counts, hashpool, surface, or pivot",
             file=sys.stderr,
         )
         return 2
@@ -537,6 +573,8 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
             score_kind=meta.score_kind,
             threshold=threshold,
             decision_source=meta.decision_source if threshold is not None else "",
+            n_used=meta.n_used,
+            n_positions=meta.n_positions,
         )
     )
     return 0
@@ -692,10 +730,20 @@ def cmd_probe(args: argparse.Namespace) -> int:
         )
         if max_draws > 0:
             test_twins = clip_twins(test_twins, max_draws)
+        extra_dirs = list(getattr(args, "extra_train", None) or [])
+        tok = load_tokenizer(getattr(args, "model", None))
+        for extra in extra_dirs:
+            more = load_twins(Path(extra), tokenizer=tok)
+            if max_draws > 0:
+                more = clip_twins(more, max_draws)
+            twins = list(twins) + list(more)
+        train_label = str(args.pair_dir)
+        if extra_dirs:
+            train_label = train_label + "+" + "+".join(str(p) for p in extra_dirs)
         run = run_transfer(
             twins,
             test_twins,
-            train_dir=str(args.pair_dir),
+            train_dir=train_label,
             test_dir=str(args.test_dir),
             model_name=args.model,
             context_len=args.context_len,
@@ -715,6 +763,10 @@ def cmd_probe(args: argparse.Namespace) -> int:
             position_bucket=int(getattr(args, "pos_bucket", 16)),
             include_first=bool(getattr(args, "include_first", False)),
             prompt_context=bool(getattr(args, "prompt_context", False)),
+            with_pivot=bool(getattr(args, "pivot", False))
+            or bool(getattr(args, "cascade", "")),
+            pivot_weights=str(getattr(args, "pivot_weight", "uniform") or "uniform"),
+            cascade=str(getattr(args, "cascade", "") or ""),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -731,7 +783,6 @@ def cmd_probe(args: argparse.Namespace) -> int:
         context_len=args.context_len,
         methods=methods,
         with_hashpool=not bool(args.skip_hashpool),
-        with_pivot=bool(args.pivot),
         n_hashes=int(args.n_hashes),
         n_buckets=int(args.n_buckets),
         surface_context_len=int(getattr(args, "surface_context_len", 8) or 8),
@@ -743,6 +794,9 @@ def cmd_probe(args: argparse.Namespace) -> int:
         with_coverage=with_coverage,
         include_first=bool(getattr(args, "include_first", False)),
         prompt_context=bool(getattr(args, "prompt_context", False)),
+        with_pivot=bool(args.pivot) or bool(getattr(args, "cascade", "")),
+        pivot_weights=str(getattr(args, "pivot_weight", "uniform") or "uniform"),
+        cascade=str(getattr(args, "cascade", "") or ""),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1073,11 +1127,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument(
         "--method",
         default="counts",
-        choices=("counts", "hashpool", "surface"),
+        choices=("counts", "hashpool", "surface", "pivot"),
         help=(
             "counts = exact n-gram tables (default); "
             "hashpool = random token-context buckets; "
-            "surface = UTF-8 byte hashpool, no tokenizer"
+            "surface = UTF-8 byte hashpool, no tokenizer; "
+            "pivot = unmarked-LM choice geometry (loads GPT-2; "
+            "cannot use prompt context on a lone file)"
         ),
     )
     p_fit.add_argument(
@@ -1237,6 +1293,22 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Also score unmarked-LM choice geometry (loads GPT-2, slower)",
     )
+    p_probe.add_argument(
+        "--pivot-weight",
+        default="uniform",
+        help=(
+            "How to pool unmarked-LM token features: uniform, entropy "
+            "(weight near-ties), in_topk. Comma-separated for several."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade",
+        default="",
+        help=(
+            "Isolated-file protocol: use this count method when n_used>0, "
+            "else unmarked-LM pivot. Example: postokbackoff. Loads GPT-2."
+        ),
+    )
     p_probe.add_argument("--n-hashes", type=int, default=8)
     p_probe.add_argument("--n-buckets", type=int, default=256)
     p_probe.add_argument(
@@ -1251,6 +1323,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "If set, fit on pair_dir and score this second twin directory "
             "(cross-corpus transfer; not leave-one-prompt-out)"
+        ),
+    )
+    p_probe.add_argument(
+        "--extra-train",
+        action="append",
+        default=[],
+        help=(
+            "Additional train twin directories for --test-dir transfer "
+            "(same idea as openings --extra-train)"
         ),
     )
     p_probe.add_argument(

@@ -1360,69 +1360,30 @@ def rotate_pivot(
     top_k: int = 40,
     margin: float = 0.0,
     lm: object | None = None,
+    prompt_context: bool = False,
+    weights: Sequence[str] = ("uniform",),
 ) -> dict[str, IndicatorHoldout]:
     """Leave-one-prompt-out LDA and rank baseline on unmarked-LM features."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
-        extract_choice_vector,
-        fit_pivot,
+        collect_choice_matrices,
+        fit_pivot_from_vectors,
+        parse_pivot_weights,
+        pivot_method_name,
         score_pivot_lda,
         score_pivot_rank,
+        vectors_from_matrices,
     )
 
     if lm is None:
         lm = _load_unmarked_model(generate_device(), model_name=model_name)
 
-    marked_vecs: dict[tuple[str, int], object] = {}
-    unmarked_vecs: dict[tuple[str, int], object] = {}
-    for twin in twins:
-        for i, ids in enumerate(twin.marked_seqs()):
-            marked_vecs[(twin.stem, i + 1)] = extract_choice_vector(
-                ids, lm, top_k=top_k
-            )
-        for i, ids in enumerate(twin.unmarked_seqs()):
-            unmarked_vecs[(twin.stem, i + 1)] = extract_choice_vector(
-                ids, lm, top_k=top_k
-            )
-
-    lda_parts = _empty_holdout_parts()
-    rank_parts = _empty_holdout_parts()
+    weight_names = parse_pivot_weights(weights)
+    mats = collect_choice_matrices(
+        twins, lm, top_k=top_k, prompt_context=prompt_context
+    )
     used_keys = used_hash = used_g = False
-    import numpy as np
-
-    for held in twins:
-        train_m = []
-        train_u = []
-        for twin in twins:
-            if twin.stem == held.stem:
-                continue
-            n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
-            for i in range(n):
-                train_m.append(marked_vecs[(twin.stem, i + 1)])
-                train_u.append(unmarked_vecs[(twin.stem, i + 1)])
-        fit = fit_pivot(np.stack(train_m), np.stack(train_u))
-        used_keys = used_keys or fit.used_keys
-        used_hash = used_hash or fit.used_hash_iv
-        used_g = used_g or fit.used_g_values
-        n = min(len(held.marked_seqs()), len(held.unmarked_seqs()))
-        for i in range(n):
-            sample = i + 1
-            vm = marked_vecs[(held.stem, sample)]
-            vu = unmarked_vecs[(held.stem, sample)]
-            _append_pair(
-                lda_parts,
-                held.stem,
-                sample,
-                score_pivot_lda(vm, fit),
-                score_pivot_lda(vu, fit),
-            )
-            _append_pair(
-                rank_parts,
-                held.stem,
-                sample,
-                score_pivot_rank(vm, fit),
-                score_pivot_rank(vu, fit),
-            )
+    out: dict[str, IndicatorHoldout] = {}
     ctx = 0
     flags = dict(
         used_keys=used_keys,
@@ -1432,20 +1393,407 @@ def rotate_pivot(
         model_name=model_name,
         context_len=ctx,
     )
-    return {
-        "pivot-lda": _holdout_from_parts(
+    for weight in weight_names:
+        vecs = vectors_from_matrices(mats, weight=weight)
+        lda_parts = _empty_holdout_parts()
+        rank_parts = _empty_holdout_parts()
+        for held in twins:
+            train_stems = [t.stem for t in twins if t.stem != held.stem]
+            fit = fit_pivot_from_vectors(vecs, train_stems)
+            used_keys = used_keys or fit.used_keys
+            used_hash = used_hash or fit.used_hash_iv
+            used_g = used_g or fit.used_g_values
+            n = min(len(held.marked_seqs()), len(held.unmarked_seqs()))
+            for i in range(n):
+                sample = i + 1
+                vm = vecs[(held.stem, sample, "marked")]
+                vu = vecs[(held.stem, sample, "unmarked")]
+                _append_pair(
+                    lda_parts,
+                    held.stem,
+                    sample,
+                    score_pivot_lda(vm, fit),
+                    score_pivot_lda(vu, fit),
+                )
+                _append_pair(
+                    rank_parts,
+                    held.stem,
+                    sample,
+                    score_pivot_rank(vm, fit),
+                    score_pivot_rank(vu, fit),
+                )
+        flags = dict(
+            used_keys=used_keys,
+            used_hash_iv=used_hash,
+            used_g_values=used_g,
+            margin=margin,
+            model_name=model_name,
+            context_len=ctx,
+        )
+        out[pivot_method_name("lda", weight)] = _holdout_from_parts(
             lda_parts,
-            instance="key-free-pivot-lda",
-            score_kind="pivot-lda",
+            instance=f"key-free-{pivot_method_name('lda', weight)}",
+            score_kind=pivot_method_name("lda", weight),
             **flags,
-        ),
-        "pivot-rank": _holdout_from_parts(
+        )
+        out[pivot_method_name("rank", weight)] = _holdout_from_parts(
             rank_parts,
-            instance="key-free-pivot-rank",
-            score_kind="pivot-rank",
+            instance=f"key-free-{pivot_method_name('rank', weight)}",
+            score_kind=pivot_method_name("rank", weight),
             **flags,
-        ),
-    }
+        )
+    return out
+
+
+def transfer_pivot(
+    train: Sequence[Twin],
+    test: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    weights: Sequence[str] = ("uniform",),
+) -> tuple[dict[str, IndicatorHoldout], dict[str, IndicatorHoldout], object]:
+    """Fit unmarked-LM geometry on train twins, score test twins. No keys."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        collect_choice_matrices,
+        fit_pivot_from_vectors,
+        parse_pivot_weights,
+        pivot_method_name,
+        score_pivot_lda,
+        score_pivot_rank,
+        vectors_from_matrices,
+    )
+
+    if lm is None:
+        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    weight_names = parse_pivot_weights(weights)
+    train_mats = collect_choice_matrices(
+        train, lm, top_k=top_k, prompt_context=prompt_context
+    )
+    test_mats = collect_choice_matrices(
+        test, lm, top_k=top_k, prompt_context=prompt_context
+    )
+    train_stems = [t.stem for t in train]
+    train_out: dict[str, IndicatorHoldout] = {}
+    test_out: dict[str, IndicatorHoldout] = {}
+    last_fit = None
+    last_weight = weight_names[0]
+    for weight in weight_names:
+        train_vecs = vectors_from_matrices(train_mats, weight=weight)
+        test_vecs = vectors_from_matrices(test_mats, weight=weight)
+        fit = fit_pivot_from_vectors(train_vecs, train_stems)
+        last_fit = fit
+        last_weight = weight
+        train_lda = _empty_holdout_parts()
+        train_rank = _empty_holdout_parts()
+        test_lda = _empty_holdout_parts()
+        test_rank = _empty_holdout_parts()
+        for twin in train:
+            n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+            for i in range(n):
+                sample = i + 1
+                vm = train_vecs[(twin.stem, sample, "marked")]
+                vu = train_vecs[(twin.stem, sample, "unmarked")]
+                _append_pair(
+                    train_lda,
+                    twin.stem,
+                    sample,
+                    score_pivot_lda(vm, fit),
+                    score_pivot_lda(vu, fit),
+                )
+                _append_pair(
+                    train_rank,
+                    twin.stem,
+                    sample,
+                    score_pivot_rank(vm, fit),
+                    score_pivot_rank(vu, fit),
+                )
+        for twin in test:
+            n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+            for i in range(n):
+                sample = i + 1
+                vm = test_vecs[(twin.stem, sample, "marked")]
+                vu = test_vecs[(twin.stem, sample, "unmarked")]
+                _append_pair(
+                    test_lda,
+                    twin.stem,
+                    sample,
+                    score_pivot_lda(vm, fit),
+                    score_pivot_lda(vu, fit),
+                )
+                _append_pair(
+                    test_rank,
+                    twin.stem,
+                    sample,
+                    score_pivot_rank(vm, fit),
+                    score_pivot_rank(vu, fit),
+                )
+        flags = dict(
+            used_keys=fit.used_keys,
+            used_hash_iv=fit.used_hash_iv,
+            used_g_values=fit.used_g_values,
+            model_name=model_name,
+            context_len=0,
+        )
+        lda_name = pivot_method_name("lda", weight)
+        rank_name = pivot_method_name("rank", weight)
+        train_out[lda_name] = _holdout_from_parts(
+            train_lda,
+            instance=f"key-free-{lda_name}",
+            score_kind=lda_name,
+            mode="train",
+            **flags,
+        )
+        train_out[rank_name] = _holdout_from_parts(
+            train_rank,
+            instance=f"key-free-{rank_name}",
+            score_kind=rank_name,
+            mode="train",
+            **flags,
+        )
+        test_out[lda_name] = _holdout_from_parts(
+            test_lda,
+            instance=f"key-free-{lda_name}",
+            score_kind=lda_name,
+            mode="transfer",
+            **flags,
+        )
+        test_out[rank_name] = _holdout_from_parts(
+            test_rank,
+            instance=f"key-free-{rank_name}",
+            score_kind=rank_name,
+            mode="transfer",
+            **flags,
+        )
+    return test_out, train_out, last_fit, last_weight
+
+
+def rotate_cascade(
+    twins: Sequence[Twin],
+    *,
+    spec: ScoreSpec,
+    position_bucket: int = 1,
+    context_len: int = 4,
+    include_first: bool = False,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    pivot_weight: str = "entropy",
+    count_prompt_context: bool = False,
+) -> tuple[IndicatorHoldout, list[dict]]:
+    """LOO: count LR when n_used>0, else unmarked-LM pivot. Isolated-file protocol."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        cascade_score,
+        cascade_source,
+        collect_choice_matrices,
+        fit_pivot_from_vectors,
+        score_pivot_lda,
+        vectors_from_matrices,
+    )
+    from text_watermark_tools.score import load_tokenizer
+    from text_watermark_tools.atoms import decode_token
+    from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
+
+    if lm is None:
+        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    tok = load_tokenizer(model_name)
+    mats = collect_choice_matrices(
+        twins, lm, top_k=top_k, prompt_context=prompt_context
+    )
+    vecs = vectors_from_matrices(mats, weight=pivot_weight)
+    parts = _empty_holdout_parts()
+    rows: list[dict] = []
+    used_keys = used_hash = used_g = False
+    bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    for held in twins:
+        train = [t for t in twins if t.stem != held.stem]
+        model = fit_count_model(
+            train,
+            context_len=context_len,
+            position_bucket=bucket,
+            include_first=include_first,
+            prompt_context=count_prompt_context,
+        )
+        model.include_first = bool(include_first)
+        used_keys = used_keys or model.used_keys
+        used_hash = used_hash or model.used_hash_iv
+        used_g = used_g or model.used_g_values
+        fit = fit_pivot_from_vectors(
+            vecs, [t.stem for t in train]
+        )
+        used_keys = used_keys or fit.used_keys
+        used_hash = used_hash or fit.used_hash_iv
+        used_g = used_g or fit.used_g_values
+        count_prefix = _twin_prefix(held, count_prompt_context)
+        n = min(len(held.marked_seqs()), len(held.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            ids_m = held.marked_seqs()[i]
+            ids_u = held.unmarked_seqs()[i]
+            dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
+            du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
+            pm = score_pivot_lda(vecs[(held.stem, sample, "marked")], fit)
+            pu = score_pivot_lda(vecs[(held.stem, sample, "unmarked")], fit)
+            sm = cascade_score(dm.lr, dm.n_used, pm)
+            su = cascade_score(du.lr, du.n_used, pu)
+            _append_pair(parts, held.stem, sample, sm, su)
+            opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
+            rows.append(
+                {
+                    "stem": held.stem,
+                    "sample": sample,
+                    "side": "marked",
+                    "n_used": dm.n_used,
+                    "count_lr": dm.lr,
+                    "pivot_lr": pm,
+                    "source": cascade_source(dm.n_used),
+                    "score": sm,
+                    "opening_text": opening,
+                }
+            )
+            rows.append(
+                {
+                    "stem": held.stem,
+                    "sample": sample,
+                    "side": "unmarked",
+                    "n_used": du.n_used,
+                    "count_lr": du.lr,
+                    "pivot_lr": pu,
+                    "source": cascade_source(du.n_used),
+                    "score": su,
+                    "opening_text": "",
+                }
+            )
+    ev = _holdout_from_parts(
+        parts,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-cascade",
+        score_kind="cascade",
+        used_keys=used_keys,
+        used_hash_iv=used_hash,
+        used_g_values=used_g,
+    )
+    return ev, rows
+
+
+def transfer_cascade(
+    train: Sequence[Twin],
+    test: Sequence[Twin],
+    *,
+    spec: ScoreSpec,
+    position_bucket: int = 1,
+    context_len: int = 4,
+    include_first: bool = False,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    pivot_weight: str = "entropy",
+    count_prompt_context: bool = False,
+    pos_model=None,
+) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
+    """Train count+pivot on one corpus, score the other. Isolated-file cascade."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        cascade_score,
+        cascade_source,
+        collect_choice_matrices,
+        fit_pivot_from_vectors,
+        score_pivot_lda,
+        vectors_from_matrices,
+    )
+    from text_watermark_tools.score import load_tokenizer
+    from text_watermark_tools.atoms import decode_token
+    from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
+
+    if lm is None:
+        lm = _load_unmarked_model(generate_device(), model_name=model_name)
+    tok = load_tokenizer(model_name)
+    bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    model = pos_model or fit_count_model(
+        train,
+        context_len=context_len,
+        position_bucket=bucket,
+        include_first=include_first,
+        prompt_context=count_prompt_context,
+    )
+    model.include_first = bool(include_first)
+    train_mats = collect_choice_matrices(
+        train, lm, top_k=top_k, prompt_context=prompt_context
+    )
+    test_mats = collect_choice_matrices(
+        test, lm, top_k=top_k, prompt_context=prompt_context
+    )
+    train_vecs = vectors_from_matrices(train_mats, weight=pivot_weight)
+    test_vecs = vectors_from_matrices(test_mats, weight=pivot_weight)
+    fit = fit_pivot_from_vectors(train_vecs, [t.stem for t in train])
+
+    def _score_side(twins, vecs, mode: str) -> tuple[dict, list[dict]]:
+        parts = _empty_holdout_parts()
+        rows: list[dict] = []
+        for twin in twins:
+            prefix = _twin_prefix(twin, count_prompt_context)
+            n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+            for i in range(n):
+                sample = i + 1
+                ids_m = twin.marked_seqs()[i]
+                ids_u = twin.unmarked_seqs()[i]
+                dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
+                du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
+                pm = score_pivot_lda(vecs[(twin.stem, sample, "marked")], fit)
+                pu = score_pivot_lda(vecs[(twin.stem, sample, "unmarked")], fit)
+                sm = cascade_score(dm.lr, dm.n_used, pm)
+                su = cascade_score(du.lr, du.n_used, pu)
+                _append_pair(parts, twin.stem, sample, sm, su)
+                opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
+                rows.append(
+                    {
+                        "stem": twin.stem,
+                        "sample": sample,
+                        "side": "marked",
+                        "n_used": dm.n_used,
+                        "count_lr": dm.lr,
+                        "pivot_lr": pm,
+                        "source": cascade_source(dm.n_used),
+                        "score": sm,
+                        "opening_text": opening,
+                    }
+                )
+                rows.append(
+                    {
+                        "stem": twin.stem,
+                        "sample": sample,
+                        "side": "unmarked",
+                        "n_used": du.n_used,
+                        "count_lr": du.lr,
+                        "pivot_lr": pu,
+                        "source": cascade_source(du.n_used),
+                        "score": su,
+                        "opening_text": "",
+                    }
+                )
+        ev = _holdout_from_parts(
+            parts,
+            context_len=context_len,
+            model_name=model_name,
+            instance="key-free-cascade",
+            score_kind="cascade",
+            used_keys=bool(model.used_keys or fit.used_keys),
+            used_hash_iv=bool(model.used_hash_iv or fit.used_hash_iv),
+            used_g_values=bool(model.used_g_values or fit.used_g_values),
+            mode=mode,
+        )
+        return ev, rows
+
+    train_ev, _ = _score_side(train, train_vecs, "train")
+    test_ev, rows = _score_side(test, test_vecs, "transfer")
+    return test_ev, train_ev, rows
 
 
 @dataclass
@@ -1477,6 +1825,8 @@ class ProbeRun:
     position_bucket: int = 0
     include_first: bool = False
     prompt_context: bool = False
+    pivot_weights: tuple[str, ...] = ()
+    cascade: dict | None = None
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
@@ -1534,6 +1884,9 @@ class TransferRun:
     position_bucket: int = 0
     include_first: bool = False
     prompt_context: bool = False
+    pivot_weights: tuple[str, ...] = ()
+    pivot_fit: object | None = None
+    cascade: dict | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -1602,6 +1955,8 @@ def run_probe(
     methods: Sequence[str] | None = None,
     with_hashpool: bool = True,
     with_pivot: bool = False,
+    pivot_weights: Sequence[str] = ("uniform",),
+    cascade: str = "",
     n_hashes: int = 8,
     n_buckets: int = 256,
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
@@ -1642,6 +1997,7 @@ def run_probe(
         position_bucket=pos_bucket,
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
+        pivot_weights=tuple(pivot_weights) if with_pivot or cascade else (),
     )
     if count_names:
         counted = rotate_count_methods(
@@ -1753,10 +2109,50 @@ def run_probe(
             _store_windows(
                 window_out, {win: {"surface": ev} for win, ev in one_win.items()}
             )
-    if with_pivot:
-        pivots = rotate_pivot(twins, model_name=model_name, lm=lm)
-        for name, ev in pivots.items():
-            run.methods.append(summarize_holdout(name, ev))
+    if with_pivot or cascade:
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import parse_pivot_weights, summarize_cascade
+
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        weight_names = parse_pivot_weights(pivot_weights)
+        run.pivot_weights = weight_names
+        if with_pivot:
+            pivots = rotate_pivot(
+                twins,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                weights=weight_names,
+            )
+            for name, ev in pivots.items():
+                run.methods.append(summarize_holdout(name, ev))
+        cascade_name = str(cascade or "").strip()
+        if cascade_name:
+            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            if spec is None:
+                raise ValueError(
+                    f"unknown --cascade {cascade_name}; choose postokbackoff, "
+                    f"postokhits, or a count spec"
+                )
+            ev, rows = rotate_cascade(
+                twins,
+                spec=spec,
+                position_bucket=pos_bucket if cascade_name in POS_SPECS else 0,
+                context_len=context_len,
+                include_first=include_first,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                pivot_weight=weight_names[0],
+                count_prompt_context=False,
+            )
+            run.methods.append(summarize_holdout("cascade", ev))
+            run.cascade = summarize_cascade(rows)
+            run.cascade["count_method"] = cascade_name
+            run.cascade["pivot_weight"] = weight_names[0]
+            run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rows"] = rows
     by_name = {m.name: m.holdout for m in run.methods}
     want_stack = "hits" in by_name and "hashpool" in by_name and (
         methods is None or "stack" in extras
@@ -1787,6 +2183,77 @@ def run_probe(
             windows=spans or DEFAULT_COVERAGE_WINDOWS,
         )
     return run
+
+
+def format_cascade(payload: dict) -> list[str]:
+    """Human lines for the count-then-pivot isolated-file protocol."""
+    prec = payload.get("count_precision")
+    prec_s = f"{prec:.3f}" if isinstance(prec, float) and prec == prec else "nan"
+    n_pm = max(int(payload.get("n_pivot_marked") or 0), 1)
+    n_pu = max(int(payload.get("n_pivot_unmarked") or 0), 1)
+    n_cm = max(int(payload.get("n_count_marked") or 0), 1)
+    n_cu = max(int(payload.get("n_count_unmarked") or 0), 1)
+    lines = [
+        (
+            "Cascade: count LR when n_used>0, unmarked-LM pivot otherwise. "
+            "Signs at 0 are comparable. Mixed AUC is not a detector. "
+            "Not keys, not a universal detector."
+        ),
+        (
+            f"count_method={payload.get('count_method')} "
+            f"pivot_weight={payload.get('pivot_weight')} "
+            f"prompt_context={payload.get('prompt_context')} "
+            f"used_keys={payload.get('used_keys')}"
+        ),
+        (
+            f"count covered marked {payload.get('n_count_marked')}/"
+            f"{payload.get('n_marked')} >0 "
+            f"{payload.get('count_marked_above_zero')}/{n_cm} unmarked<=0 "
+            f"{payload.get('count_unmarked_at_most_zero')}/{n_cu} "
+            f"precision={prec_s}"
+        ),
+        (
+            f"pivot fallback marked {payload.get('n_pivot_marked')}/"
+            f"{payload.get('n_marked')} >0 "
+            f"{payload.get('pivot_marked_above_zero')}/{n_pm} unmarked<=0 "
+            f"{payload.get('pivot_unmarked_at_most_zero')}/{n_pu}"
+        ),
+        (
+            f"combined marked>0 {payload.get('combined_marked_above_zero')}/"
+            f"{payload.get('n_marked')} unmarked<=0 "
+            f"{payload.get('combined_unmarked_at_most_zero')}/"
+            f"{payload.get('n_unmarked')}"
+        ),
+    ]
+    fallback = payload.get("pivot_fallback_marked") or []
+    if fallback:
+        lines.append("Pivot-fallback marked files:")
+        for row in fallback:
+            score = float(row.get("score") or 0.0)
+            sign = "lr>0" if score > 0.0 else "lr<=0"
+            lines.append(
+                f"- `{row.get('stem')}` draw {row.get('sample')}: "
+                f"{row.get('opening_text', '')} {sign}={score:.4f}"
+            )
+    return lines
+
+
+def _cascade_json(payload: dict | None) -> dict | None:
+    import math
+
+    if not payload:
+        return None
+
+    def conv(x):
+        if isinstance(x, float) and (math.isnan(x) or math.isinf(x)):
+            return None
+        if isinstance(x, dict):
+            return {k: conv(v) for k, v in x.items()}
+        if isinstance(x, list):
+            return [conv(v) for v in x]
+        return x
+
+    return conv(payload)
 
 
 def print_probe(run: ProbeRun) -> str:
@@ -1880,6 +2347,8 @@ def print_probe(run: ProbeRun) -> str:
                     f"{gate['n_marked_above']}/{gate['n_marked']} | "
                     f"{gate['n_unmarked_at_most']}/{gate['n_unmarked']} |"
                 )
+    if run.cascade:
+        lines.extend(["", *format_cascade(run.cascade)])
     if run.coverage:
         lines.append("")
         lines.append(print_coverage(run.coverage))
@@ -1910,6 +2379,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "position_bucket": run.position_bucket,
         "include_first": run.include_first,
         "prompt_context": run.prompt_context,
+        "pivot_weights": list(run.pivot_weights),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1969,6 +2439,10 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
     table["has_coverage"] = run.coverage is not None
     if run.coverage is not None:
         persist_coverage(run.coverage, out_dir)
+    if run.cascade:
+        (out_dir / "cascade.json").write_text(
+            json.dumps(_cascade_json(run.cascade), indent=2) + "\n"
+        )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free probe\n\n" + print_probe(run) + "\n"
@@ -2037,6 +2511,10 @@ def run_transfer(
     position_bucket: int = DEFAULT_POS_BUCKET,
     include_first: bool = False,
     prompt_context: bool = False,
+    with_pivot: bool = False,
+    pivot_weights: Sequence[str] = ("uniform",),
+    cascade: str = "",
+    lm=None,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -2412,6 +2890,86 @@ def run_transfer(
         test_holdouts["logit"] = test_logit
         train_holdouts["logit"] = train_logit
 
+    if with_pivot or cascade:
+        from text_watermark_tools.pivot import parse_pivot_weights, summarize_cascade
+
+        weight_names = parse_pivot_weights(pivot_weights)
+        run.pivot_weights = weight_names
+        if with_pivot:
+            test_pivots, train_pivots, last_fit, last_weight = transfer_pivot(
+                train,
+                test,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                weights=weight_names,
+            )
+            run.pivot_fit = last_fit
+            used_keys = used_keys or any(ev.used_keys for ev in test_pivots.values())
+            used_hash = used_hash or any(
+                ev.used_hash_iv for ev in test_pivots.values()
+            )
+            used_g = used_g or any(ev.used_g_values for ev in test_pivots.values())
+            for name, ev in test_pivots.items():
+                run.methods.append(summarize_holdout(name, ev))
+                train_bin = binary_eval(
+                    train_pivots[name].marked_lrs, train_pivots[name].unmarked_lrs
+                )
+                _append_threshold(
+                    run,
+                    name=name,
+                    source="in-sample-youden",
+                    threshold=train_bin.youden_threshold,
+                    test_ev=ev,
+                )
+                test_holdouts[name] = ev
+                train_holdouts[name] = train_pivots[name]
+        cascade_name = str(cascade or "").strip()
+        if cascade_name:
+            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            if spec is None:
+                raise ValueError(
+                    f"unknown --cascade {cascade_name}; choose postokbackoff, "
+                    f"postokhits, or a count spec"
+                )
+            cascade_pos = pos_model if cascade_name in POS_SPECS else None
+            test_cas, train_cas, rows = transfer_cascade(
+                train,
+                test,
+                spec=spec,
+                position_bucket=pos_bucket if cascade_name in POS_SPECS else 0,
+                context_len=context_len,
+                include_first=include_first,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                pivot_weight=weight_names[0],
+                count_prompt_context=False,
+                pos_model=cascade_pos,
+            )
+            run.methods.append(summarize_holdout("cascade", test_cas))
+            train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)
+            _append_threshold(
+                run,
+                name="cascade",
+                source="in-sample-youden",
+                threshold=train_bin.youden_threshold,
+                test_ev=test_cas,
+            )
+            test_holdouts["cascade"] = test_cas
+            train_holdouts["cascade"] = train_cas
+            run.cascade = summarize_cascade(rows)
+            run.cascade["count_method"] = cascade_name
+            run.cascade["pivot_weight"] = weight_names[0]
+            run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rows"] = rows
+            used_keys = used_keys or test_cas.used_keys
+            used_hash = used_hash or test_cas.used_hash_iv
+            used_g = used_g or test_cas.used_g_values
+        run.used_keys = used_keys
+        run.used_hash_iv = used_hash
+        run.used_g_values = used_g
+
     if run.nested:
         nested_holdouts: dict[str, IndicatorHoldout] = {}
         if count_names:
@@ -2591,6 +3149,8 @@ def print_transfer(run: TransferRun) -> str:
                     f"{b.auc:.3f} | {b.n_positive_above_zero}/{b.n_positive} | "
                     f"{b.n_negative_at_most_zero}/{b.n_negative} |"
                 )
+    if run.cascade:
+        lines.extend(["", *format_cascade(run.cascade)])
     lines.append("")
     for m in run.methods:
         lines.append(format_binary_eval(m.binary, label=m.name))
@@ -2631,6 +3191,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "position_bucket": run.position_bucket,
         "include_first": run.include_first,
         "prompt_context": run.prompt_context,
+        "pivot_weights": list(run.pivot_weights),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -2770,6 +3331,29 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             persist_holdout(
                 m.holdout, out_dir / _window_dir(start, end) / m.name
             )
+    if persist_tables and run.pivot_fit is not None:
+        from text_watermark_tools.pivot import persist_pivot
+
+        nested_t = _t("pivot-lda", "nested-youden")
+        in_t = _t("pivot-lda", "in-sample-youden")
+        weight = run.pivot_weights[0] if run.pivot_weights else "uniform"
+        persist_pivot(
+            run.pivot_fit,
+            out_dir / "tables-pivot",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            weight=weight,
+            prompt_context=bool(run.prompt_context),
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-pivot" if nested_t is not None else "in-sample-youden-pivot"
+            ),
+        )
+    if run.cascade:
+        (out_dir / "cascade.json").write_text(
+            json.dumps(_cascade_json(run.cascade), indent=2) + "\n"
+        )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free transfer\n\n" + print_transfer(run) + "\n"

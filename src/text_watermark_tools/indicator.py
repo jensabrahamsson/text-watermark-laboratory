@@ -30,8 +30,8 @@ from text_watermark_tools.transfer import (
     HASHPOOL_KIND,
     SURFACE_KIND,
     peek_tables_kind,
-    score_hashpool,
-    score_sequence,
+    score_hashpool_detail,
+    score_sequence_detail,
     score_surface,
 )
 
@@ -53,6 +53,8 @@ class IndicatorMeta:
     score_kind: str = "hard"
     decision_threshold: float | None = None
     decision_source: str = ""
+    n_used: int | None = None
+    n_positions: int | None = None
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -284,6 +286,8 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
         score_kind = "hashpool"
     elif kind == SURFACE_KIND:
         score_kind = "surface"
+    elif kind == "key-free-pivot":
+        score_kind = "pivot-lda"
     else:
         score_kind = "hard"
     threshold = raw.get("decision_threshold")
@@ -333,6 +337,39 @@ def score_text_from_tables(
         meta.score_kind = "surface"
         meta.instance = model.instance
         return lr, meta, bool(model.used_keys)
+    if kind == "key-free-pivot":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import (
+            extract_choice_vector,
+            load_pivot,
+            score_pivot_lda,
+        )
+
+        fit, raw = load_pivot(path)
+        if bool(raw.get("prompt_context")):
+            raise ValueError(
+                "these pivot tables were fit with prompt context; indicate "
+                "score of a lone file cannot reconstruct the prompt. Score "
+                "pair twins with probe --pivot --prompt-context instead."
+            )
+        if tokenizer is None:
+            raise ValueError("pivot tables need a tokenizer")
+        name = str(raw.get("model_name") or "gpt2")
+        lm = _load_unmarked_model(generate_device(), model_name=name)
+        ids = tokenizer(text)["input_ids"]
+        vec = extract_choice_vector(
+            ids,
+            lm,
+            top_k=int(raw.get("top_k") or 40),
+            weight=str(raw.get("weight") or "uniform"),
+        )
+        lr = score_pivot_lda(vec, fit)
+        meta = load_tables_meta(path)
+        meta.score_kind = "pivot-lda"
+        meta.instance = str(raw.get("instance") or "key-free-pivot-lda")
+        meta.n_used = int(vec.size > 0)
+        meta.n_positions = None
+        return lr, meta, bool(fit.used_keys)
     if kind == HASHPOOL_KIND:
         if mode not in ("auto", "hashpool", ""):
             raise ValueError(
@@ -344,11 +381,13 @@ def score_text_from_tables(
             raise ValueError("hashpool tables need a tokenizer")
         model = load_hashpool(path)
         ids = tokenizer(text)["input_ids"]
-        lr = score_hashpool(ids, model)
+        detail = score_hashpool_detail(ids, model)
         meta = load_tables_meta(path)
         meta.score_kind = "hashpool"
         meta.instance = model.instance
-        return lr, meta, bool(model.used_keys)
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
     if kind != "key-free-indicator":
         raise ValueError(f"unknown indicator tables kind {kind!r} in {path}")
     if tokenizer is None:
@@ -362,47 +401,44 @@ def score_text_from_tables(
         )
     ids = tokenizer(text)["input_ids"]
     bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
+
+    def _return_detail(spec, score_kind: str, instance: str):
+        detail = score_sequence_detail(ids, model, spec)
+        meta.score_kind = score_kind
+        meta.instance = instance
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+
     if mode == "poshits" or (mode in ("auto", "") and bucketed):
-        lr = score_sequence(ids, model, COUNT_SPECS["hits"])
-        meta.score_kind = "poshits"
-        meta.instance = "key-free-poshits"
-        return lr, meta, bool(model.used_keys)
+        return _return_detail(COUNT_SPECS["hits"], "poshits", "key-free-poshits")
     if mode == "poshitmass":
-        lr = score_sequence(ids, model, COUNT_SPECS["hitmass"])
-        meta.score_kind = "poshitmass"
-        meta.instance = "key-free-poshitmass"
-        return lr, meta, bool(model.used_keys)
+        return _return_detail(COUNT_SPECS["hitmass"], "poshitmass", "key-free-poshitmass")
     if mode == "postokhits":
-        lr = score_sequence(ids, model, COUNT_SPECS["tokhits"])
-        meta.score_kind = "postokhits"
-        meta.instance = "key-free-postokhits"
-        return lr, meta, bool(model.used_keys)
+        return _return_detail(COUNT_SPECS["tokhits"], "postokhits", "key-free-postokhits")
     if mode == "postokbackoff":
-        lr = score_sequence(ids, model, COUNT_SPECS["tokbackoff"])
-        meta.score_kind = "postokbackoff"
-        meta.instance = "key-free-postokbackoff"
-        return lr, meta, bool(model.used_keys)
+        return _return_detail(
+            COUNT_SPECS["tokbackoff"], "postokbackoff", "key-free-postokbackoff"
+        )
     if mode == "postokbackoff2":
-        lr = score_sequence(ids, model, COUNT_SPECS["tokbackoff2"])
-        meta.score_kind = "postokbackoff2"
-        meta.instance = "key-free-postokbackoff2"
-        return lr, meta, bool(model.used_keys)
+        return _return_detail(
+            COUNT_SPECS["tokbackoff2"], "postokbackoff2", "key-free-postokbackoff2"
+        )
     if mode in ("auto", "hard", ""):
-        lr = likelihood_ratio(ids, model)
+        detail = score_sequence_detail(ids, model, COUNT_SPECS["hard"])
         meta.score_kind = "hard"
         meta.instance = INDICATOR_INSTANCE
-    else:
-        if mode not in COUNT_SPECS:
-            raise ValueError(
-                f"unknown --score-mode {score_mode}; "
-                f"choose auto, hard, poshits, postokhits, postokbackoff, "
-                f"postokbackoff2, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
-            )
-        spec = COUNT_SPECS[mode]
-        lr = score_sequence(ids, model, spec)
-        meta.score_kind = mode
-        meta.instance = spec.instance
-    return lr, meta, bool(model.used_keys)
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+    if mode not in COUNT_SPECS:
+        raise ValueError(
+            f"unknown --score-mode {score_mode}; "
+            f"choose auto, hard, poshits, postokhits, postokbackoff, "
+            f"postokbackoff2, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
+        )
+    spec = COUNT_SPECS[mode]
+    return _return_detail(spec, mode, spec.instance)
 
 
 def format_indicator(
@@ -415,15 +451,26 @@ def format_indicator(
     score_kind: str = "hard",
     threshold: float | None = None,
     decision_source: str = "",
+    n_used: int | None = None,
+    n_positions: int | None = None,
 ) -> str:
     extra = ""
+    if n_used is not None:
+        extra += f" n_used={int(n_used)}"
+        if n_positions is not None:
+            extra += f" n_positions={int(n_positions)}"
     if threshold is not None:
-        decision = "marked" if lr > threshold else "unmarked"
+        if n_used is not None and int(n_used) == 0:
+            decision = "ABSTAIN"
+        else:
+            decision = "marked" if lr > threshold else "unmarked"
         src = f" source={decision_source}" if decision_source else ""
-        extra = (
+        extra += (
             f" threshold={threshold:.6f} decision={decision}{src} "
             f"not_a_universal_detector=true"
         )
+    elif n_used is not None and int(n_used) == 0:
+        extra += " decision=ABSTAIN not_a_universal_detector=true"
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
         f"instance={instance} score_kind={score_kind} used_keys={used_keys} "
