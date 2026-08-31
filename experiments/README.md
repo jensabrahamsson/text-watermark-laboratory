@@ -130,6 +130,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-short24-plus-long12-to-12x4-fitprefix4-tokbackoff/` | tokbackoff, short+medium → 12×4 | **22/48**, same two harbour files |
 | `2026-08-31-probe-36x4-fitprefix4-postokbackoff/` | 36×4 LOO tokbackoff | 122/144 marked; one extra unmarked FP vs postokhits |
 | `2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff/` | tokbackoff vs control-shuffled-30 | control `lr>0` **0/48** |
+| `2026-08-31-prompts-tails12/` | Tail-transplant seeds (new bodies, 12×4 last paragraphs) | not copies of the original 12 as wholes |
+| `2026-08-31-pair-tails12x4/` | Those seeds × 4 draws | official **12/12**; token 0 mostly `The`; no Closing |
+| `2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff/` | Tail train → 12×4 | postokhits **10/48**; postokbackoff **23/48**; precision **1.000** |
+| `2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff/` | short+medium+tails → 12×4 | postokhits **30/48**; postokbackoff **36/48**, AUC **0.888**; precision **1.000** |
+| `2026-08-31-pair-short-medium-tails/` | Hardlink train dir (README only in git) | rebuild from 36x4 13–36 + long12 + tails12 |
 
 ## What changed across the runs
 
@@ -163,7 +168,7 @@ The later runs clarified what strengthens it:
 - shuffling half the training labels drops isolated sign at 0 to chance;
 - a public-trained 4-token poshits table is **instance-specific** on this mixin: `control-shuffled-30` openings get `lr>0` on **0/48** files, while public vs control ranks **12/12** (AUC **0.906**). Unbucketed hits on full files is not that check (29/48 control `lr>0`). Not key recovery.
 - **39/48 poshits is not 39 token preferences.** Shared `'The'` plus unequal occupancy gives every novel continuation the same δ = 0.330 (23 of 39 TPs and all 7 FPs). `postokhits` keeps observed next tokens only: **16/48**, precision 1.0 among decided, still **12/12**, and control stays **0/48**. In-domain, only 9 of 131 TPs were occupancy (122/144).
-- twelve medium-length new topics lift that observed-token isolated recall to **19/48** (20/48 with the short one-liners too); the nine After / Closing / Now / While zeros stay, and The-Laplace **flips sign** on the medium train (poshits 8/12). `postokbackoff` adds two harbour files on that train (**21/48**, combined **22/48**) via last-1 `' was' → ' in'`; it copies **16/48** on the short one-liner gate. Do not sell 16/48–22/48 as beating 39/48.
+- twelve medium-length new topics lift that observed-token isolated recall to **19/48** (20/48 with the short one-liners too); the nine After / Closing / Now / While zeros stay, and The-Laplace **flips sign** on the medium train (poshits 8/12). `postokbackoff` adds two harbour files on that train (**21/48**, combined **22/48**) via last-1 `' was' → ' in'`; it copies **16/48** on the short one-liner gate. Transplanting last paragraphs from the zero-producing 12×4 seeds is **not** new-topic OOD: combined short+medium+tails postokhits **30/48**, postokbackoff **36/48** (AUC **0.888**), precision 1.0 among decided. Library still has no Closing opening in train; backoff scores those four files via `' is' → ' the'`. Letter stays zero. Do not sell 16/48–36/48 as beating 39/48.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
 

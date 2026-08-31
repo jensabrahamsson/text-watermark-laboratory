@@ -435,3 +435,90 @@ def test_postokbackoff_contrast_control_never_positive() -> None:
         / "holdout.json"
     )
     assert vs.n_prompts_marked_above == 12
+
+
+def test_tails12_pair_official_lamp_and_after_opening() -> None:
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-31-pair-tails12x4"
+    payload = json.loads((root / "results.json").read_text())
+    assert payload["instance"] == "public-deepmind-30"
+    rows = payload["rows"]
+    assert len(rows) == 12
+    assert all(
+        float(r["marked"]["mean"]) > float(r["unmarked_gen"]["mean"]) for r in rows
+    )
+    after = (root / "54-bakery-depot-marked-3.txt").read_text()
+    assert after.startswith("After two and a")
+    now = (root / "55-bakery-letter-marked.txt").read_text()
+    assert now.startswith("Now a little after")
+    closings = []
+    for path in root.glob("*-marked*.txt"):
+        if "unmarked" in path.name:
+            continue
+        if path.read_text().startswith("Closing"):
+            closings.append(path.name)
+    assert closings == []
+
+
+def test_tail_transplant_postokhits_covers_night_bus_and_garden() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff"
+    )
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    back = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    g = coverage_gate(tok.marked_lrs, tok.unmarked_lrs)
+    gb = coverage_gate(back.marked_lrs, back.unmarked_lrs)
+    assert tok.used_keys is False
+    assert tok.n_prompts_marked_above == 12
+    assert tok.n_marked_positive == 10
+    assert back.n_marked_positive == 23
+    assert g.decided_fp == 0
+    assert gb.decided_fp == 0
+    assert g.precision == 1.0
+    assert gb.precision == 1.0
+    by = {(s, i): m for s, i, m in zip(tok.stems, tok.samples, tok.marked_lrs)}
+    bb = {(s, i): m for s, i, m in zip(back.stems, back.samples, back.marked_lrs)}
+    assert by[("02-night-bus", 3)] > 0
+    assert by[("11-garden", 1)] > 0
+    assert by[("11-garden", 4)] > 0
+    assert abs(by[("03-library", 1)]) <= 1e-15
+    assert bb[("03-library", 1)] > 0
+    assert abs(by[("08-letter", 2)]) <= 1e-15
+    assert abs(bb[("08-letter", 2)]) <= 1e-15
+
+
+def test_combined_tails_postokbackoff_is_thirty_six() -> None:
+    from pathlib import Path
+
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff"
+    )
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    back = holdout_from_json(root / "postokbackoff" / "holdout.json")
+    g = coverage_gate(back.marked_lrs, back.unmarked_lrs)
+    assert tok.n_prompts_marked_above == 12
+    assert back.n_prompts_marked_above == 12
+    assert tok.n_marked_positive == 30
+    assert back.n_marked_positive == 36
+    assert back.n_unmarked_nonpositive == 48
+    assert g.decided_tp == 36
+    assert g.decided_fp == 0
+    assert g.precision == 1.0
+    by = {(s, i): m for s, i, m in zip(tok.stems, tok.samples, tok.marked_lrs)}
+    bb = {(s, i): m for s, i, m in zip(back.stems, back.samples, back.marked_lrs)}
+    assert abs(by[("08-letter", 3)]) <= 1e-15
+    assert abs(bb[("08-letter", 3)]) <= 1e-15
+    assert abs(by[("03-library", 2)]) <= 1e-15
+    assert bb[("03-library", 2)] > 0

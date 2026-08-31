@@ -427,4 +427,23 @@ JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff/`,
 `experiments/2026-08-31-probe-36x4-fitprefix4-postokbackoff/`,
 `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff/`.
 
+## 2026-08-31 prompt-tail transplant
+
+Three new bodies with last paragraphs from night-bus / library / letter /
+garden (`experiments/2026-08-31-prompts-tails12/`, seed 20260902). Official
+lamp **12/12**. Token 0 is mostly `The`. No Closing. One depot-tail draw
+is `After two and a`. One letter-tail draw is `Now a little after`.
+
+Train tails only → 12×4: postokhits **10/48**, postokbackoff **23/48**,
+precision **1.000**. Short+medium+tails: postokhits **30/48**,
+postokbackoff **36/48**, AUC **0.888**, precision **1.000**. Of the nine
+zeros, night-bus and garden become exact hits; library scores only under
+backoff last-1 `' is' → ' the'`; letter stays zero. Tail-matching is
+close to in-family. Do not sell 30/48 or 36/48 as beating 39/48. Do not
+replace 10/12, 29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-pair-tails12x4/`,
+`experiments/2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff/`.
+
 ---

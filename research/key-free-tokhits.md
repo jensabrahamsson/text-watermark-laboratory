@@ -181,6 +181,43 @@ JSON: `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-tokbackoff/`,
 `experiments/2026-08-31-probe-36x4-fitprefix4-postokbackoff/`,
 `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-tokbackoff/`.
 
+## Prompt-tail transplant (not new-topic OOD)
+
+Three new bodies with last paragraphs from night-bus, library, letter,
+and garden. Official lamp **12/12**. Generated token 0 is mostly `The`
+(41/48). **No Closing.** One depot-tail draw is exactly `After two and a`.
+One letter-tail draw is `Now a little after`. Transplanting the library
+last paragraph did not copy `Closing is the`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-31-prompts-tails12 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260902 \
+  --out-dir experiments/2026-08-31-pair-tails12x4
+```
+
+Train those 12, score original 12×4:
+
+| Train | postokhits | postokbackoff | precision |
+|---|---|---|---|
+| tails only | **10/48** | **23/48** | **1.000** |
+| short + medium + tails | **30/48** | **36/48** | **1.000** |
+
+Of the original nine zeros under combined postokhits: night-bus and both
+garden files become exact-context hits. Library and letter stay zero at
+last-k. Under postokbackoff the four library files score via last-1
+`' is' → ' the'` (23 marked / 0 unmarked at index 3 on this train), not
+via a Closing opening. Letter `Now in the second` / `While working on
+the` remain zeros.
+
+Isolated-file recall is bounded by opening overlap. Tail-matching is
+close to in-family for those seeds. It is not a universal detector.
+Do not sell 30/48 or 36/48 as beating 39/48. Do not replace 10/12,
+29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-pair-tails12x4/`,
+`experiments/2026-08-31-transfer-tails12x4-to-12x4-fitprefix4-tokbackoff/`,
+`experiments/2026-08-31-transfer-short-medium-tails-to-12x4-fitprefix4-tokbackoff/`.
+
 ## Frozen result (24 other 36×4 stems → 12×4)
 
 | Method | Prompt wins | File AUC | marked `lr>0` | unmarked `lr≤0` | zeros M/U | decided tp/fn | decided fp/tn | precision |
@@ -236,8 +273,8 @@ unmarked LRs).
 
 - Not a universal calibrated detector.
 - Not key recovery. Tokhits only gates Laplace on next-token occupancy.
-- Not a claim that 16/48 or 19/48 or 20/48 or 21/48 or 22/48 isolated-file
-  is the headline. 39/48 remains the short-train poshits number; it flips
-  when train occupancy of `The` flips. tokhits explains it. tokbackoff
-  adds two harbour files on medium train via last-1 `' was' → ' in'`.
+- Not a claim that 16/48–36/48 isolated-file is the headline. 39/48
+  remains the short-train poshits number; it flips when train occupancy
+  of `The` flips. tokhits explains it. tokbackoff and tail-matching raise
+  observed-token recall; they do not make a universal detector.
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

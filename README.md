@@ -68,6 +68,8 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Same plus 24 short one-liners | Combined train | **12/12**, isolated **20/48**, decided precision **1.000** |
 | Key-free postokbackoff, 12 medium scenes → 12×4 | Shrink last-k until observed next token | **12/12**, isolated **21/48**, decided precision **1.000** |
 | Key-free postokbackoff plus 24 short one-liners | Combined train | **12/12**, isolated **22/48**, decided precision **1.000** |
+| Key-free postokhits, tail-matched → 12×4 | Last paragraphs from zero-producing seeds | **12/12**, isolated **30/48**, decided precision **1.000** |
+| Key-free postokbackoff, short+medium+tails → 12×4 | Same train, shrink last-k | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
 | Key-free last-1, same 4-token OOD split | Truncated last-4 was already last-1 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | Mixing token 0 into hits | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | In-domain, Qwen tokenizer | **12/12**, AUC **0.901** (hits without token 0: 7/12) |

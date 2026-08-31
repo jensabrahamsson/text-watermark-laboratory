@@ -111,6 +111,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
 | Key-free postokbackoff, 12 medium scenes → 12×4 | **12/12**, isolated **21/48**, decided precision **1.000** (harbour last-1 `' was' → ' in'`) |
 | Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
+| Key-free postokhits, tail-matched → 12×4 | **12/12**, isolated **30/48**, decided precision **1.000** |
+| Key-free postokbackoff, short+medium+tails → 12×4 | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
 | poshits on those medium-seed tables | 8/12; The-Laplace δ flips to ≈ −0.365 |
 | Key-free last-k coverage, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |

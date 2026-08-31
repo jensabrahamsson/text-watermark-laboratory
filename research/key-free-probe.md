@@ -394,6 +394,14 @@ train it adds harbour draws 3 and 4 (`The ferry was in`: last-1
 **22/48**. The nine zeros remain. In-domain it adds one unmarked FP.
 Control stays **0/48**. Do not sell 21/48 or 22/48 as beating 39/48.
 
+**Prompt-tail transplant is not new-topic OOD.** Reusing last paragraphs
+from the zero-producing 12×4 seeds, combined with short+medium train,
+lifts postokhits to **30/48** and postokbackoff to **36/48** (AUC
+**0.888**), precision **1.000** among decided. Library `Closing is the`
+never appears in that train; backoff scores those four files via last-1
+`' is' → ' the'`. Letter stays zero. Do not sell 30/48 or 36/48 as
+beating 39/48.
+
 **Qwen's in-domain opening signal is generated token 0.** `--methods first`
 on a 4-token prefix ranks **12/12** (AUC **0.901**). Hits that skip
 token 0 is 7/12. Full-file Qwen hits stays **8/12**. GPT-2 tables still

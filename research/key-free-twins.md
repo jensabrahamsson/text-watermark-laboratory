@@ -40,6 +40,8 @@ Current results:
 | Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
 | Key-free postokbackoff, 12 medium scenes → 12×4 | **12/12**, isolated **21/48**, decided precision **1.000** |
 | Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
+| Key-free postokhits, tail-matched train → 12×4 | **12/12**, isolated **30/48**, decided precision **1.000** |
+| Key-free postokbackoff, short+medium+tails → 12×4 | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
