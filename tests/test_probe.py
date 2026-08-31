@@ -1095,3 +1095,230 @@ def test_hits_coverage_on_lab_pairs_is_front_loaded(tmp_path) -> None:
     persist_probe(run, tmp_path)
     assert (tmp_path / "coverage.json").is_file()
     assert (tmp_path / "coverage.md").is_file()
+
+
+def test_coverage_36x4_opening_has_more_shared_last4() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-31-probe-36x4-coverage"
+            / "coverage.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is False
+    by_win = {(row["start"], row["end"]): row for row in raw["by_window"]}
+    early = by_win[(0, 16)]
+    mid = by_win[(16, 32)]
+    assert early["shared"] == 592
+    assert early["n"] == 4320
+    assert mid["shared"] == 181
+    assert mid["n"] == 4608
+    assert early["shared_frac"] > 0.12
+    assert mid["shared_frac"] < 0.05
+    assert early["mean_shared_support"] > 80
+    assert mid["mean_shared_support"] < 20
+    by_i = {row["start"]: row for row in raw["by_index"]}
+    assert by_i[1]["shared_frac"] > 0.90
+    four_to_sixteen = sum(by_i[i]["shared"] for i in range(4, 16))
+    four_to_sixteen_n = sum(by_i[i]["n"] for i in range(4, 16))
+    assert four_to_sixteen / four_to_sixteen_n < 0.05
+
+
+def test_poshitmass_matched_prefix_beats_poshits_auc() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    mass = holdout_from_json(
+        root
+        / "2026-08-31-probe-36x4-fitprefix16-poshitmass"
+        / "poshitmass"
+        / "holdout.json"
+    )
+    pos = holdout_from_json(
+        root / "2026-08-31-probe-36x4-fitprefix16-poshitmass" / "poshits" / "holdout.json"
+    )
+    assert mass.used_keys is False
+    assert mass.n_prompts_marked_above == 34
+    assert mass.n_marked_positive == 133
+    assert mass.n_unmarked_nonpositive == 114
+    mass_auc = binary_eval(mass.marked_lrs, mass.unmarked_lrs, n_perm=200, seed=0)
+    pos_auc = binary_eval(pos.marked_lrs, pos.unmarked_lrs, n_perm=200, seed=0)
+    assert mass_auc.auc > 0.94
+    assert mass_auc.auc > pos_auc.auc
+
+
+def test_finest_bucket_balances_in_domain_t0() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-fitprefix16-pos-sweep"
+    )
+    b1 = holdout_from_json(root / "bucket-1" / "poshits" / "holdout.json")
+    b2 = holdout_from_json(root / "bucket-2" / "poshits" / "holdout.json")
+    assert b1.used_keys is False
+    assert b1.n_prompts_marked_above == 34
+    assert b1.n_marked_positive == 132
+    assert b1.n_unmarked_nonpositive == 132
+    auc = binary_eval(b1.marked_lrs, b1.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.93
+    assert b1.marked_lrs == b2.marked_lrs
+    assert b1.unmarked_lrs == b2.unmarked_lrs
+    summary = json.loads((root / "results.json").read_text())
+    assert summary["used_keys"] is False
+    by_b = {row["bucket"]: row for row in summary["buckets"]}
+    assert by_b[4]["binary"]["n_positive_above_zero"] == 133
+    assert by_b[4]["binary"]["n_negative_at_most_zero"] == 114
+
+
+def test_ood_bucket1_poshits_is_twelve_of_twelve_and_balanced() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1"
+    )
+    ev = holdout_from_json(root / "poshits" / "holdout.json")
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 39
+    assert ev.n_unmarked_nonpositive == 41
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.85
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested = nested_threshold_by_stem(ev.stems, ev.marked_lrs, ev.unmarked_lrs)
+    assert nested.n_marked_above == 39
+    assert nested.n_unmarked_at_most == 41
+    table = json.loads((root / "results.json").read_text())
+    fpr10 = next(
+        r
+        for r in table["thresholds"]
+        if r["name"] == "poshits" and r["source"] == "nested-fpr10"
+    )
+    assert fpr10["n_marked_above"] == 39
+    assert fpr10["n_unmarked_at_most"] == 41
+    youden = next(
+        r
+        for r in table["thresholds"]
+        if r["name"] == "poshits" and r["source"] == "nested-youden"
+    )
+    assert youden["n_marked_above"] == 16
+    assert youden["n_unmarked_at_most"] == 48
+
+
+def test_ood_poshitmass_nested_fpr10_matches_nested_stem() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix16-poshitmass"
+    )
+    ev = holdout_from_json(root / "poshitmass" / "holdout.json")
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 11
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.82
+    table = json.loads((root / "results.json").read_text())
+    fpr10 = next(
+        r
+        for r in table["thresholds"]
+        if r["name"] == "poshitmass" and r["source"] == "nested-fpr10"
+    )
+    assert fpr10["n_marked_above"] == 39
+    assert fpr10["n_unmarked_at_most"] == 38
+
+
+def test_12x4_matched_prefix_bucket1_is_not_the_hard_isolated_gate() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-12x4-fitprefix16-pos1"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 9
+    assert ev.n_marked_positive == 23
+    assert ev.n_unmarked_nonpositive == 48
+    # Leave-one-of-12-out is not the published 29/48 hard sign.
+    assert ev.n_marked_positive < 29
+
+
+def test_qwen_matched_prefix_poshits_bucket1_is_chance() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-qwen-fitprefix16-pos1"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 8
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc < 0.60
+
+
+def test_opening_four_tokens_match_sixteen_token_prefix_ranking() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-windows-opening"
+    )
+    early = holdout_from_json(root / "window-0-4" / "hits" / "holdout.json")
+    prefix = holdout_from_json(root / "window-0-16" / "hits" / "holdout.json")
+    mid = holdout_from_json(root / "window-4-16" / "hits" / "holdout.json")
+    late = holdout_from_json(root / "window-16-32" / "hits" / "holdout.json")
+    assert early.used_keys is False
+    assert early.n_prompts_marked_above == 34
+    assert prefix.n_prompts_marked_above == 34
+    assert mid.n_prompts_marked_above == 29
+    assert late.n_prompts_marked_above == 22
+    early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
+    prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
+    mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
+    late_auc = binary_eval(late.marked_lrs, late.unmarked_lrs, n_perm=200, seed=0)
+    assert early_auc.auc > 0.90
+    assert abs(early_auc.auc - prefix_auc.auc) < 0.01
+    assert 0.65 < mid_auc.auc < 0.80
+    assert late_auc.auc < 0.60
+
+
+def test_matched_four_token_poshits_ood_nested_youden_matches_t0() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1"
+    )
+    ev = holdout_from_json(root / "poshits" / "holdout.json")
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 12
+    assert ev.n_marked_positive == 39
+    assert ev.n_unmarked_nonpositive == 41
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.85
+    table = json.loads((root / "results.json").read_text())
+    youden = next(
+        r
+        for r in table["thresholds"]
+        if r["name"] == "poshits" and r["source"] == "nested-youden"
+    )
+    assert youden["n_marked_above"] == 39
+    assert youden["n_unmarked_at_most"] == 41
+    in_domain = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-36x4-fitprefix4-pos1"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert in_domain.n_prompts_marked_above == 34
+    assert in_domain.n_marked_positive == 131
+    assert in_domain.n_unmarked_nonpositive == 132
+

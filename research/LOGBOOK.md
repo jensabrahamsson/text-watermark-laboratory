@@ -267,3 +267,33 @@ vs **38/48**. JSON: `experiments/2026-08-31-probe-36x4-fitprefix16-pos4/`,
 `experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/`.
 
 ---
+
+## 2026-08-31 coverage mechanism and finest-bucket isolated-file gate
+
+Same twins. `used_keys=false`. `--coverage` is leave-one-prompt-out share
+of last-k contexts seen on both training sides.
+
+Window 0:16 shares **13.7%** vs **3.9%** on 16:32, but that average is
+last-1/last-2 at i=1–2 (i=1 is **96.9%** shared). Full last-4 from i=4
+is ~3–4% everywhere. Scoring **0:4** already ranks **34/36** (AUC
+**0.917**), matching 0:16. Tokens 4:16 are 29/36 (AUC 0.712); 16:32 is
+chance.
+
+Matched `--fit-prefix 4 --pos-bucket 1`: in-domain **34/36**, AUC
+**0.935**, t=0 **131/144 vs 132/144**. New-topic **12/12**, AUC
+**0.873**, t=0 **39/48 vs 41/48**, nested Youden matching t=0. The
+16-token finest-bucket reader copies those OOD numbers (nested Youden
+there is conservative). poshitmass on 16-token bucket 4: in-domain AUC
+**0.943** (still 34/36). 12×4 LOO of the 16-token reader is 9/12 / 23/48.
+GPT-2 → Qwen is chance (8/12, AUC 0.516). Do not replace 10/12, 29/48,
+or 36/36.
+
+JSON: `experiments/2026-08-31-probe-36x4-coverage/`,
+`experiments/2026-08-31-probe-36x4-windows-opening/`,
+`experiments/2026-08-31-probe-36x4-fitprefix4-pos1/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/`,
+`experiments/2026-08-31-probe-36x4-fitprefix16-pos-sweep/`,
+`experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/`.
+
+---

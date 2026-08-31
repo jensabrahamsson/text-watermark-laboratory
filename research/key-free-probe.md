@@ -342,6 +342,32 @@ nested-by-stem **39/48** vs **38/48**. JSON:
 [../experiments/2026-08-31-probe-36x4-fitprefix16-pos4/](../experiments/2026-08-31-probe-36x4-fitprefix16-pos4/),
 [../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/).
 
+**Coverage is the mechanism, and it is short-context at the start.**
+`--coverage` asks, leave-one-prompt-out, what share of last-k contexts
+were seen on both training sides. On 36×4, window 0:16 shares **13.7%**
+versus **3.9%** on 16:32, but that gap is last-1/last-2 at i=1–2 (i=1 is
+**96.9%** shared). Full last-4 from i=4 is ~3–4% everywhere. Scoring
+only tokens **0:4** already ranks **34/36** (AUC **0.917**), matching
+0:16; tokens 4:16 are 29/36 (AUC 0.712); 16:32 is chance. Out of family,
+0:4 matches 0:16 at **11/12** / 0.752.
+
+**A matched 4-token fit plus position namespace is the tight isolated-file
+reader.** `--fit-prefix 4 --pos-bucket 1` in-domain: **34/36**, AUC
+**0.935**, t=0 **131/144 vs 132/144**. Trained on 24 other topics:
+**12/12**, AUC **0.873**, t=0 **39/48 vs 41/48**, and nested Youden
+matches t=0. The 16-token finest-bucket reader copies those OOD numbers;
+its nested Youden is conservative. `poshitmass` on 16-token bucket 4
+reaches in-domain AUC **0.943** (still 34/36; do not quote against
+full-file hitmass 0.938 like-for-like). Leave-one-of-12-out does **not**
+copy the 39/48 gate (9/12, 23/48). GPT-2 → Qwen stays chance (8/12,
+AUC 0.516). JSON:
+[../experiments/2026-08-31-probe-36x4-coverage/](../experiments/2026-08-31-probe-36x4-coverage/),
+[../experiments/2026-08-31-probe-36x4-windows-opening/](../experiments/2026-08-31-probe-36x4-windows-opening/),
+[../experiments/2026-08-31-probe-36x4-fitprefix4-pos1/](../experiments/2026-08-31-probe-36x4-fitprefix4-pos1/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/),
+[../experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass/](../experiments/2026-08-31-probe-36x4-fitprefix16-poshitmass/).
+
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.

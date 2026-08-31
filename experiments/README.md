@@ -80,6 +80,18 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-36x4-to-12x4-posbucket/` | New-topic poshits | **10/12** AUC **0.811**; nested-by-stem 37/48 vs 35/48 |
 | `2026-08-31-probe-36x4-fitprefix16-pos4/` | Matched 16-token poshits, bucket 4 | **34/36** AUC **0.937**; unmarked ≤0 **114/144** |
 | `2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos4/` | New-topic matched 16-token poshits bucket 4 | **11/12** AUC **0.820**; nested-by-stem 39/48 vs 38/48 |
+| `2026-08-31-probe-36x4-coverage/` | Shared last-k by window, 36×4 LOO | 0:16 **13.7%** (i=1–2); full last-4 from i=4 ~4% |
+| `2026-08-31-probe-12x4-coverage/` | Same on 12×4 | 0:16 **6.5%** vs 16:32 **1.0%** |
+| `2026-08-31-probe-36x4-windows-opening/` | Hits windows 0:4 vs 4:16 | **0:4 = 0:16** at **34/36** / **0.917** |
+| `2026-08-31-transfer-36x4-to-12x4-windows-opening/` | New-topic 0:4 vs 4:16 | **0:4 = 0:16** at **11/12** / **0.752** |
+| `2026-08-31-probe-36x4-fitprefix4-pos1/` | Matched 4-token poshits bucket 1 | **34/36** AUC **0.935**; t=0 **131/144 vs 132/144** |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1/` | New-topic matched 4-token poshits | **12/12** AUC **0.873**; nested Youden **39/48 vs 41/48** |
+| `2026-08-31-probe-36x4-fitprefix16-pos-sweep/` | Buckets 1/2/4/8 on 16-token poshits | bucket 1 t=0 **132/144 vs 132/144** |
+| `2026-08-31-probe-36x4-fitprefix16-poshitmass/` | Matched 16-token poshitmass bucket 4 | **34/36** AUC **0.943** |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix16-poshitmass/` | New-topic poshitmass bucket 4 | **11/12** AUC **0.831**; nested FPR10 39/48 vs 38/48 |
+| `2026-08-31-transfer-36x4-to-12x4-fitprefix16-pos1/` | New-topic 16-token poshits bucket 1 | **12/12** AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `2026-08-31-probe-12x4-fitprefix16-pos1/` | 12×4 LOO, 16-token bucket 1 | 9/12; 23/48 (not 29/48) |
+| `2026-08-31-transfer-36x4-to-qwen-fitprefix16-pos1/` | GPT-2 → Qwen, 16-token bucket 1 | chance (8/12, AUC 0.516) |
 
 ## What changed across the runs
 
@@ -101,6 +113,10 @@ The later runs clarified what strengthens it:
 - matching the train window to those first 16 tokens lifts unmarked ≤0 to **112/144** in-domain and OOD file AUC to **0.818**;
 - position-bucketed last-4 keeps 134/144 marked at t=0 on 36×4 with unmarked ≤0 **97/144**, and raises OOD file AUC to **0.811**;
 - finer buckets (4) on that 16-token window reach in-domain poshits AUC **0.937** with unmarked ≤0 **114/144**;
+- shared last-k coverage on 36×4 is **13.7%** in 0:16 vs **3.9%** in 16:32, but that gap is last-1/last-2 at i=1–2;
+- scoring **0:4** already ranks **34/36** (AUC **0.917**), matching 0:16;
+- a matched 4-token fit with bucket 1 balances in-domain t=0 at **131/144 vs 132/144**, and OOD ranks **12/12** (AUC **0.873**, **39/48 vs 41/48**, nested Youden matching t=0);
+- that isolated-file gate needs the extra topics (12×4 LOO is 9/12) and does not transfer to Qwen;
 - shuffling half the training labels drops isolated sign at 0 to chance.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
