@@ -159,6 +159,7 @@ def fit_indicator(
     context_len: int = 4,
     alpha: float = DEFAULT_ALPHA,
     backoff: bool = False,
+    position_bucket: int = 0,
 ) -> BlindModel:
     if not twins:
         raise ValueError("need at least one twin prompt to fit the indicator")
@@ -168,6 +169,7 @@ def fit_indicator(
         context_len=context_len,
         alpha=alpha,
         backoff=backoff,
+        position_bucket=position_bucket,
     )
 
 
@@ -185,15 +187,17 @@ def persist_indicator(
         raise RuntimeError("refusing to persist an indicator that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    bucket = int(getattr(model, "position_bucket", 0) or 0)
     payload = {
         "kind": "key-free-indicator",
-        "instance": INDICATOR_INSTANCE,
+        "instance": "key-free-poshits" if bucket > 0 else INDICATOR_INSTANCE,
         "model_name": model_name,
         "pair_dir": pair_dir,
         "n_train_prompts": n_train_prompts,
         "context_len": model.context_len,
         "alpha": model.alpha,
         "backoff": model.backoff,
+        "position_bucket": bucket,
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -229,6 +233,7 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
+        position_bucket=int(raw.get("position_bucket") or 0),
     )
     meta = IndicatorMeta(
         model_name=str(raw.get("model_name") or "gpt2"),
@@ -329,6 +334,12 @@ def score_text_from_tables(
         raise ValueError("count tables need a tokenizer")
     model, meta = load_indicator(path)
     ids = tokenizer(text)["input_ids"]
+    bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
+    if mode == "poshits" or (mode in ("auto", "") and bucketed):
+        lr = score_sequence(ids, model, COUNT_SPECS["hits"])
+        meta.score_kind = "poshits"
+        meta.instance = "key-free-poshits"
+        return lr, meta, bool(model.used_keys)
     if mode in ("auto", "hard", ""):
         lr = likelihood_ratio(ids, model)
         meta.score_kind = "hard"
@@ -337,7 +348,7 @@ def score_text_from_tables(
         if mode not in COUNT_SPECS:
             raise ValueError(
                 f"unknown --score-mode {score_mode}; "
-                f"choose auto, hard, hashpool, or one of {sorted(COUNT_SPECS)}"
+                f"choose auto, hard, poshits, hashpool, or one of {sorted(COUNT_SPECS)}"
             )
         spec = COUNT_SPECS[mode]
         lr = score_sequence(ids, model, spec)

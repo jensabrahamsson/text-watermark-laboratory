@@ -404,6 +404,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         context_len=args.context_len,
         alpha=args.alpha,
         backoff=bool(args.backoff),
+        position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
     )
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         print("indicator fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -485,6 +486,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hybrid": "rotate_hybrid",
         "hashmix": "rotate_hashmix",
         "surface": "rotate_surface",
+        "poshits": "rotate_poshits",
     }
     if score_kind in extra_rotate:
         if not args.rotate:
@@ -507,7 +509,9 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             kwargs["context_len"] = int(
                 getattr(args, "surface_context_len", 8) or 8
             )
-        if score_kind != "hard":
+        if score_kind == "poshits":
+            kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16) or 16)
+        elif score_kind != "hard":
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
             kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
         ev = rotator(**kwargs)
@@ -517,7 +521,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashvote, hybrid, surface, or one of {sorted(COUNT_SPECS)}",
+                f"choose hard, hashpool, hashvote, hybrid, surface, poshits, or one of {sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
             return 2
@@ -624,6 +628,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
             ),
             prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
             windows=_parse_windows_arg(getattr(args, "windows", "")),
+            fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
+            position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -647,6 +653,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
         max_draws=max_draws if max_draws > 0 else None,
         prefix_lens=_parse_prefix_arg(getattr(args, "prefix_lens", "")),
         windows=_parse_windows_arg(getattr(args, "windows", "")),
+        fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
+        position_bucket=int(getattr(args, "pos_bucket", 16) or 16),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -872,6 +880,15 @@ def build_parser() -> argparse.ArgumentParser:
             "surface = UTF-8 byte hashpool, no tokenizer"
         ),
     )
+    p_fit.add_argument(
+        "--pos-bucket",
+        type=int,
+        default=0,
+        help=(
+            "If >0, prepend i//N to last-k context when fitting count "
+            "tables (poshits). Not a watermark key. Default 0."
+        ),
+    )
     p_fit.add_argument("--n-hashes", type=int, default=8)
     p_fit.add_argument("--n-buckets", type=int, default=256)
     p_fit.add_argument(
@@ -902,7 +919,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="auto",
         help=(
             "How to read count tables: auto (hashpool tables → hashpool, "
-            "count tables → hard), or hard/hits/gated/unigram/… "
+            "bucketed count tables → poshits, else hard), or "
+            "hard/hits/poshits/gated/unigram/… "
             "Hashpool tables ignore count modes."
         ),
     )
@@ -958,8 +976,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, gated, shrinkage, mix, hashpool, hashvote, "
-            "hybrid, surface. Hashpool/surface modes need --rotate. Still key-free."
+            "hybrid, surface, poshits. Hashpool/surface/poshits modes need "
+            "--rotate. Still key-free."
         ),
+    )
+    p_ih.add_argument(
+        "--pos-bucket",
+        type=int,
+        default=16,
+        help="Token-position bucket size for --score-mode poshits (default 16)",
     )
     p_ih.add_argument("--n-hashes", type=int, default=8)
     p_ih.add_argument("--n-buckets", type=int, default=256)
@@ -991,7 +1016,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit"
+            "hybrid, hashmix, surface, stack, logit, poshits, pospool"
         ),
     )
     p_probe.add_argument(
@@ -1064,6 +1089,25 @@ def build_parser() -> argparse.ArgumentParser:
             "Comma-separated half-open token windows to score independently, "
             "e.g. 0:16,16:32,32:64,64:128. Unlike --prefix-lens, later "
             "windows do not include earlier tokens."
+        ),
+    )
+    p_probe.add_argument(
+        "--fit-prefix",
+        type=int,
+        default=0,
+        help=(
+            "If >0, clip every draw to the first N tokens before fit and "
+            "score (matched prefix protocol, not fit-full/score-prefix)"
+        ),
+    )
+    p_probe.add_argument(
+        "--pos-bucket",
+        type=int,
+        default=16,
+        help=(
+            "Token-position bucket size for poshits/pospool. Prepends "
+            "i//N to the last-4 context so early 4-grams do not share "
+            "counts with the tail. Not a watermark key. Default 16."
         ),
     )
     p_probe.add_argument("--out-dir", default="")

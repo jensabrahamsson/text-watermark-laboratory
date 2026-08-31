@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Sequence
 
-from text_watermark_tools.blind import Twin
+from text_watermark_tools.blind import Twin, clip_twins_prefix
 from text_watermark_tools.indicator import (
     CAVEAT,
     IndicatorHoldout,
@@ -34,6 +34,7 @@ from text_watermark_tools.stats import (
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     DEFAULT_SURFACE_CONTEXT,
+    ScoreSpec,
     fit_count_model,
     fit_hashmix_twins,
     fit_hashpool_twins,
@@ -49,6 +50,8 @@ from text_watermark_tools.transfer import (
 
 ScoreFn = Callable[[Sequence[int] | str], float]
 LOGIT_FEATURE_ORDER: tuple[str, ...] = ("hits", "hashpool", "surface", "hitmass")
+DEFAULT_POS_BUCKET = 16
+POSHITS_SPEC = ScoreSpec(kind="gated", min_count=1, instance="key-free-poshits")
 
 
 def _twin_sides(twin: Twin, seq_mode: str) -> tuple[list, list]:
@@ -366,6 +369,8 @@ def rotate_hashpool(
     prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+    method_name: str = "hashpool",
 ) -> IndicatorHoldout:
     def make(train: Sequence[Twin]):
         model = fit_hashpool_twins(
@@ -373,9 +378,62 @@ def rotate_hashpool(
             context_len=context_len,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
+            position_bucket=position_bucket,
         )
         return (
             lambda ids, m=model: score_hashpool(ids, m),
+            model.used_keys,
+            model.used_hash_iv,
+            model.used_g_values,
+        )
+
+    kind = "pospool" if position_bucket > 0 else "hashpool"
+    instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
+    store_name = method_name or kind
+    one: dict[int, IndicatorHoldout] = {}
+    one_win: dict[tuple[int, int], IndicatorHoldout] = {}
+    ev = rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance=instance,
+        score_kind=kind,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=one if prefix_lens else None,
+        windows=windows,
+        window_out=one_win if windows else None,
+    )
+    if prefix_out is not None:
+        for plen, hold in one.items():
+            prefix_out.setdefault(plen, {})[store_name] = hold
+    if window_out is not None:
+        for win, hold in one_win.items():
+            window_out.setdefault(win, {})[store_name] = hold
+    return ev
+
+
+def rotate_poshits(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+) -> IndicatorHoldout:
+    def make(train: Sequence[Twin]):
+        model = fit_count_model(
+            train,
+            context_len=context_len,
+            position_bucket=position_bucket,
+        )
+        return (
+            lambda ids, m=model: score_sequence(ids, m, POSHITS_SPEC),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
@@ -388,8 +446,8 @@ def rotate_hashpool(
         make,
         context_len=context_len,
         model_name=model_name,
-        instance="key-free-hashpool",
-        score_kind="hashpool",
+        instance="key-free-poshits",
+        score_kind="poshits",
         margin=margin,
         prefix_lens=prefix_lens,
         prefix_out=one if prefix_lens else None,
@@ -398,10 +456,10 @@ def rotate_hashpool(
     )
     if prefix_out is not None:
         for plen, hold in one.items():
-            prefix_out.setdefault(plen, {})["hashpool"] = hold
+            prefix_out.setdefault(plen, {})["poshits"] = hold
     if window_out is not None:
         for win, hold in one_win.items():
-            window_out.setdefault(win, {})["hashpool"] = hold
+            window_out.setdefault(win, {})["poshits"] = hold
     return ev
 
 
@@ -1047,6 +1105,8 @@ class ProbeRun:
     window_results: dict[tuple[int, int], list[MethodSummary]] = field(
         default_factory=dict
     )
+    fit_prefix: int | None = None
+    position_bucket: int = 0
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
         "AUC is single-file ranking; prompt wins are the 10/12 grain. "
@@ -1086,6 +1146,8 @@ class TransferRun:
     count_model: object | None = None
     hash_model: object | None = None
     surface_model: object | None = None
+    pos_model: object | None = None
+    pos_hash: object | None = None
     nested: bool = False
     shuffle_seed: int | None = None
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT
@@ -1095,6 +1157,8 @@ class TransferRun:
     window_results: dict[tuple[int, int], list[MethodSummary]] = field(
         default_factory=dict
     )
+    fit_prefix: int | None = None
+    position_bucket: int = 0
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -1169,15 +1233,20 @@ def run_probe(
     max_draws: int | None = None,
     prefix_lens: Sequence[int] = (),
     windows: Sequence[str | tuple[int, int]] = (),
+    fit_prefix: int | None = None,
+    position_bucket: int = DEFAULT_POS_BUCKET,
     lm=None,
 ) -> ProbeRun:
     requested = list(methods) if methods is not None else list(COUNT_SPECS)
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
+    if fit_prefix and fit_prefix > 0:
+        twins = clip_twins_prefix(twins, int(fit_prefix))
     lenses = _parse_prefix_lens(prefix_lens)
     spans = _parse_windows(windows)
     prefix_out: dict[int, dict[str, IndicatorHoldout]] = {}
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] = {}
+    pos_bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
     run = ProbeRun(
         pair_dir=pair_dir,
         model_name=model_name,
@@ -1185,6 +1254,8 @@ def run_probe(
         max_draws=max_draws,
         prefix_lens=lenses,
         windows=spans,
+        fit_prefix=int(fit_prefix) if fit_prefix and fit_prefix > 0 else None,
+        position_bucket=pos_bucket,
     )
     if count_names:
         counted = rotate_count_methods(
@@ -1216,6 +1287,33 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashpool", hp))
+    if "poshits" in extras:
+        ph = rotate_poshits(
+            twins,
+            context_len=context_len,
+            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("poshits", ph))
+    if "pospool" in extras:
+        pp = rotate_hashpool(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+            method_name="pospool",
+        )
+        run.methods.append(summarize_holdout("pospool", pp))
     if with_hashpool and "hashvote" in extras:
         vote = rotate_hashvote(
             twins,
@@ -1297,6 +1395,7 @@ def print_probe(run: ProbeRun) -> str:
             f"context_len={run.context_len} model={run.model_name} "
             f"max_draws={run.max_draws} prefix_lens={list(run.prefix_lens)} "
             f"windows={[f'{a}:{b}' for a, b in run.windows]} "
+            f"fit_prefix={run.fit_prefix} pos_bucket={run.position_bucket} "
             f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
             f"g_values={run.used_g_values}"
         ),
@@ -1387,6 +1486,8 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "max_draws": run.max_draws,
         "prefix_lens": list(run.prefix_lens),
         "windows": [f"{a}:{b}" for a, b in run.windows],
+        "fit_prefix": run.fit_prefix,
+        "position_bucket": run.position_bucket,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -1504,11 +1605,16 @@ def run_transfer(
     surface_context_len: int = DEFAULT_SURFACE_CONTEXT,
     prefix_lens: Sequence[int] = (),
     windows: Sequence[str | tuple[int, int]] = (),
+    fit_prefix: int | None = None,
+    position_bucket: int = DEFAULT_POS_BUCKET,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
         train_twins, test_twins, mode=overlap_mode
     )
+    if fit_prefix and fit_prefix > 0:
+        train = clip_twins_prefix(train, int(fit_prefix))
+        test = clip_twins_prefix(test, int(fit_prefix))
     if shuffle_labels:
         train = shuffle_twin_sides(train, seed=shuffle_seed)
     if len(train) < 1:
@@ -1565,10 +1671,31 @@ def run_transfer(
         if need_surface
         else None
     )
+    pos_bucket = (
+        int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    )
+    pos_model = (
+        fit_count_model(
+            train, context_len=context_len, position_bucket=pos_bucket or DEFAULT_POS_BUCKET
+        )
+        if "poshits" in extras
+        else None
+    )
+    pos_hash = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            position_bucket=pos_bucket or DEFAULT_POS_BUCKET,
+        )
+        if "pospool" in extras
+        else None
+    )
     used_keys = False
     used_hash = False
     used_g = False
-    for model in (count_model, hash_model, mix_model, surface_model):
+    for model in (count_model, hash_model, mix_model, surface_model, pos_model, pos_hash):
         if model is None:
             continue
         used_keys = used_keys or model.used_keys
@@ -1626,6 +1753,23 @@ def run_transfer(
             "text",
         )
 
+    if "poshits" in extras:
+        assert pos_model is not None
+        scorers["poshits"] = (
+            (lambda ids, m=pos_model: score_sequence(ids, m, POSHITS_SPEC)),
+            "key-free-poshits",
+            "poshits",
+            "ids",
+        )
+    if "pospool" in extras:
+        assert pos_hash is not None
+        scorers["pospool"] = (
+            (lambda ids, m=pos_hash: score_hashpool(ids, m)),
+            "key-free-pospool",
+            "pospool",
+            "ids",
+        )
+
     note = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. In-sample Youden is optimistic. "
@@ -1654,11 +1798,15 @@ def run_transfer(
         count_model=count_model,
         hash_model=hash_model,
         surface_model=surface_model,
+        pos_model=pos_model,
+        pos_hash=pos_hash,
         nested=bool(nested and len(train) >= 3),
         shuffle_seed=shuffle_seed if shuffle_labels else None,
         surface_context_len=surface_context_len,
         prefix_lens=_parse_prefix_lens(prefix_lens),
         windows=_parse_windows(windows),
+        fit_prefix=int(fit_prefix) if fit_prefix and fit_prefix > 0 else None,
+        position_bucket=pos_bucket,
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -1971,6 +2119,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "surface_context_len": run.surface_context_len,
         "prefix_lens": list(run.prefix_lens),
         "windows": [f"{a}:{b}" for a, b in run.windows],
+        "fit_prefix": run.fit_prefix,
+        "position_bucket": run.position_bucket,
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -2040,6 +2190,38 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_threshold=nested_t if nested_t is not None else in_t,
             decision_source=(
                 "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
+            ),
+        )
+    if persist_tables and run.pos_model is not None:
+        nested_t = _t("poshits", "nested-youden")
+        in_t = _t("poshits", "in-sample-youden")
+        persist_indicator(
+            run.pos_model,
+            out_dir / "tables-poshits",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-poshits"
+                if nested_t is not None
+                else "in-sample-youden-poshits"
+            ),
+        )
+    if persist_tables and run.pos_hash is not None:
+        nested_t = _t("pospool", "nested-youden")
+        in_t = _t("pospool", "in-sample-youden")
+        persist_hashpool(
+            run.pos_hash,
+            out_dir / "tables-pospool",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-pospool"
+                if nested_t is not None
+                else "in-sample-youden-pospool"
             ),
         )
     table["prefixes"] = []

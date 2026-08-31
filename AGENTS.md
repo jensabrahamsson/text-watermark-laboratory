@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a 16-token prefix already ranks **34/36** in-domain) but must not be sold as a universal detector. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample.
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a 16-token prefix already ranks **34/36** in-domain; a matched 16-token fit lifts unmarked ≤0 to **112/144**; position-bucketed hits keep 134/144 marked at t=0 with unmarked ≤0 **97/144**) but must not be sold as a universal detector. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample.
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -60,6 +60,8 @@ python -m text_watermark_tools indicate fit PAIR --method hashpool --out-dir exp
 python -m text_watermark_tools probe PAIR --out-dir experiments/probe
 python -m text_watermark_tools probe PAIR --test-dir OTHER --out-dir experiments/transfer
 python -m text_watermark_tools probe PAIR --prefix-lens 16,32,64,96,128 --windows 0:16,16:32,32:64,64:128
+python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods hits,hashpool
+python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-bucket 16
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
 python -m text_watermark_tools resample --skip-collect --new-dir experiments/claude-sample-YYYY-MM-DD
@@ -82,7 +84,11 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
 | Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
 | Key-free hits, first 16 tokens, 36×4 | **34/36**, AUC **0.916** |
+| Key-free hits, matched 16-token fit, 36×4 | **34/36**, AUC **0.929**; unmarked ≤0 **112/144** |
+| Key-free poshits (bucket=16), 36×4 | **34/36**, AUC **0.925**; t=0 spec **97/144** |
 | Key-free hits, tokens 16–32 only, 36×4 | **22/36**, AUC **0.549** |
+| Key-free hits, matched 16-token 24×4 → 12×4 | **11/12**, AUC **0.818**; nested-by-stem 39/48 vs 36/48 |
+| Key-free poshits, 24×4 → 12×4 | **10/12**, AUC **0.811**; nested-by-stem 37/48 vs 35/48 |
 | Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |

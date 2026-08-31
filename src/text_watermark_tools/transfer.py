@@ -44,6 +44,7 @@ from text_watermark_tools.blind import (
     Twin,
     _ctx,
     _log_prob,
+    _scored_ctx,
     fit_blind,
     likelihood_ratio,
 )
@@ -209,8 +210,12 @@ def score_sequence_detail(
             continue
         n_positions += 1
         t = int(tok)
-        full_ctx = _ctx(ids, i, model.context_len)
-        ctx = full_ctx if order is None else _ctx(ids, i, order)
+        full_ctx = _scored_ctx(
+            ids, i, model.context_len, model.position_bucket
+        )
+        ctx = full_ctx if order is None else _scored_ctx(
+            ids, i, order, model.position_bucket
+        )
         n_m = _count(model.marked, ctx)
         n_u = _count(model.unmarked, ctx)
         if spec.min_count > 0:
@@ -289,10 +294,15 @@ class HashPoolModel:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    position_bucket: int = 0
 
     @property
     def instance(self) -> str:
-        return "key-free-surface" if self.alphabet == "bytes" else "key-free-hashpool"
+        if self.alphabet == "bytes":
+            return "key-free-surface"
+        if self.position_bucket > 0:
+            return "key-free-pospool"
+        return "key-free-hashpool"
 
 
 def _add_hash_seq(
@@ -303,6 +313,7 @@ def _add_hash_seq(
     context_len: int,
     seeds: Sequence[int],
     n_buckets: int,
+    position_bucket: int = 0,
 ) -> int:
     n = 0
     for i, tok in enumerate(ids):
@@ -311,7 +322,7 @@ def _add_hash_seq(
         n += 1
         if i == 0:
             continue
-        ctx = _ctx(ids, i, context_len)
+        ctx = _scored_ctx(ids, i, context_len, position_bucket)
         for h, seed in enumerate(seeds):
             bucket = hash_context(ctx, seed) % n_buckets
             tables[h].setdefault(bucket, Counter())[t] += 1
@@ -328,6 +339,7 @@ def fit_hashpool(
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
     alphabet: str = "tokens",
+    position_bucket: int = 0,
 ) -> HashPoolModel:
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -343,6 +355,7 @@ def fit_hashpool(
             context_len=context_len,
             seeds=seeds,
             n_buckets=n_buckets,
+            position_bucket=position_bucket,
         )
     for seq in unmarked_seqs:
         n_u += _add_hash_seq(
@@ -352,6 +365,7 @@ def fit_hashpool(
             context_len=context_len,
             seeds=seeds,
             n_buckets=n_buckets,
+            position_bucket=position_bucket,
         )
     vocab = set(marked_uni) | set(unmarked_uni)
     if alphabet == "bytes":
@@ -373,6 +387,7 @@ def fit_hashpool(
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
+        position_bucket=int(position_bucket) if position_bucket > 0 else 0,
     )
 
 
@@ -384,6 +399,7 @@ def fit_hashpool_twins(
     n_buckets: int = 256,
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
+    position_bucket: int = 0,
 ) -> HashPoolModel:
     return fit_hashpool(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -393,6 +409,7 @@ def fit_hashpool_twins(
         n_buckets=n_buckets,
         alpha=alpha,
         seed=seed,
+        position_bucket=position_bucket,
     )
 
 
@@ -485,7 +502,7 @@ def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDeta
         if i == 0:
             continue
         n_positions += 1
-        ctx = _ctx(ids, i, model.context_len)
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         total += hashpool_token_lr(model, ctx, int(tok))
         n_used += 1
     if n_used == 0:
@@ -505,7 +522,7 @@ def score_hashpool_vote(ids: Sequence[int], model: HashPoolModel) -> float:
     for i, tok in enumerate(ids):
         if i == 0:
             continue
-        ctx = _ctx(ids, i, model.context_len)
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         delta = hashpool_token_lr(model, ctx, int(tok))
         if delta > 0.0:
             signs.append(1.0)
@@ -697,6 +714,7 @@ def persist_hashpool(
         "alpha": model.alpha,
         "n_marked": model.n_marked,
         "n_unmarked": model.n_unmarked,
+        "position_bucket": int(model.position_bucket),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -753,6 +771,7 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
+        position_bucket=int(raw.get("position_bucket") or 0),
     )
 
 
@@ -781,6 +800,7 @@ def fit_count_model(
     *,
     context_len: int = 4,
     alpha: float = DEFAULT_ALPHA,
+    position_bucket: int = 0,
 ) -> BlindModel:
     return fit_blind(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -788,6 +808,7 @@ def fit_count_model(
         context_len=context_len,
         alpha=alpha,
         backoff=False,
+        position_bucket=position_bucket,
     )
 
 

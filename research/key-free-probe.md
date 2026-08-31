@@ -133,7 +133,8 @@ In-domain 36×4
 
 The 128-token prefix matches the published full-file 36×4 result. Sixteen
 tokens already rank almost every prompt. Isolated overlap at `t = 0`
-remains.
+remains. `--fit-prefix 16` is a different protocol: it trains on those
+16 tokens instead of scoring a prefix of a full-file table. See below.
 
 New-topic 24×4 → 12×4
 ([../experiments/2026-08-31-transfer-36x4-to-12x4-prefixes/](../experiments/2026-08-31-transfer-36x4-to-12x4-prefixes/)):
@@ -310,6 +311,31 @@ are chance (AUC 0.512). Matching mixin `ngram_len=5` (`context_len=5`)
 does not beat last-4. This is a statement about the count-table indicator,
 not that later tokens are unmarked under official `score`.
 
+**Matching the train window to those first 16 tokens is stricter than
+scoring a prefix of a full-file table.** `--fit-prefix 16` clips every
+draw before fit *and* score. In-domain hits then ranks **34/36** (AUC
+**0.929**) with unmarked ≤0 **112/144**, versus 76/144 on the full
+128-token reader and 93/144 on fit-full/score-prefix 16. Out of family,
+matched 16-token hits is **11/12**, AUC **0.818**, nested-by-stem
+**39/48** vs **36/48** — better file AUC than full-file hits (0.793)
+with one fewer prompt win. JSON:
+[../experiments/2026-08-31-probe-36x4-fitprefix16/](../experiments/2026-08-31-probe-36x4-fitprefix16/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16/](../experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16/).
+
+**Position-bucketed last-4 (`poshits`, bucket 16) stops early 4-grams
+sharing counts with the tail.** The prepended `i // 16` is not a
+watermark key. In-domain on 36×4 it keeps hits' **134/144** marked t=0
+detections while unmarked ≤0 rises from 76 to **97/144** (34/36, AUC
+0.925). Out of family it beats full-file hits on file AUC (**0.811** vs
+0.793) and nested-by-stem balance (**37/48** vs **35/48** vs hits 27/48
+vs 40/48) while dropping prompt grain to 10/12. On 12×4 leave-one-out
+it is a specificity knob (24/48 marked, 37/48 unmarked), not a better
+t=0 detector. Combining `--fit-prefix 16` with bucket 16 is a no-op:
+every token sits in bucket 0. JSON:
+[../experiments/2026-08-31-probe-36x4-posbucket/](../experiments/2026-08-31-probe-36x4-posbucket/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/](../experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/),
+[../experiments/2026-08-31-probe-12x4-posbucket/](../experiments/2026-08-31-probe-12x4-posbucket/).
+
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
@@ -340,6 +366,14 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --prefix-lens 16,32,64,96,128 \
   --windows 0:16,16:32,32:64,64:128 \
   --out-dir experiments/2026-08-31-probe-36x4-prefixes
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --fit-prefix 16 --methods hits,hashpool \
+  --out-dir experiments/2026-08-31-probe-36x4-fitprefix16
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --methods hits,poshits,pospool --pos-bucket 16 \
+  --out-dir experiments/2026-08-31-probe-36x4-posbucket
 
 python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
   --test-dir experiments/2026-08-17-pair-12x4 \

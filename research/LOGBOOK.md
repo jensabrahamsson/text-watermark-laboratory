@@ -233,3 +233,31 @@ JSON: `experiments/2026-08-31-probe-36x4-prefixes/`,
 `experiments/2026-08-31-transfer-gpt2-surface-to-qwen-12x4/`.
 
 ---
+
+## 2026-08-31 matched 16-token fit and position-bucketed last-4
+
+Same 36×4 / 12×4 GPT-2 twins. `used_keys=false`. `--fit-prefix 16` clips
+token ids before fit and score (not `--prefix-lens 16` on a full-file
+table). `--pos-bucket 16` prepends `i // 16` to last-4 for `poshits` /
+`pospool`. That namespace is not a watermark key.
+
+In-domain matched 16-token hits: **34/36**, AUC **0.929**, isolated
+132/144, unmarked ≤0 **112/144** (full-file hits unmarked ≤0 76/144;
+fit-full/score-prefix 16 was 93/144). Nested-by-stem **121/144** vs
+**136/144**. New-topic matched 16-token hits: **11/12**, AUC **0.818**,
+unmarked ≤0 31/48, nested-by-stem **39/48** vs **36/48**. File AUC beats
+full-file OOD hits (0.793). Prompt grain drops one stem.
+
+In-domain poshits: **34/36**, AUC 0.925, same **134/144** marked t=0 as
+hits, unmarked ≤0 **97/144**. Nested-by-stem 119 vs 129. New-topic
+poshits: **10/12**, AUC **0.811**, nested-by-stem **37/48** vs **35/48**.
+On 12×4 leave-one-out poshits is a specificity knob (24/48 marked,
+37/48 unmarked). Do not replace 10/12, 29/48, or 36/36.
+
+JSON: `experiments/2026-08-31-probe-36x4-fitprefix16/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix16/`,
+`experiments/2026-08-31-probe-36x4-posbucket/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-posbucket/`,
+`experiments/2026-08-31-probe-12x4-posbucket/`.
+
+---

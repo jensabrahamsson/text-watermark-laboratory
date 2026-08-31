@@ -41,6 +41,7 @@ class BlindModel:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    position_bucket: int = 0
 
 
 @dataclass
@@ -84,6 +85,22 @@ class Twin:
             extra_unmarked_text=list(self.extra_unmarked_text[:keep]),
         )
 
+    def clip_prefix(self, n: int) -> Twin:
+        """Keep the first n tokens of every draw. n<=0 leaves ids unchanged."""
+        if n <= 0:
+            return self
+        return Twin(
+            stem=self.stem,
+            marked_text=self.marked_text,
+            unmarked_text=self.unmarked_text,
+            marked_ids=list(self.marked_ids[:n]),
+            unmarked_ids=list(self.unmarked_ids[:n]),
+            extra_marked_ids=[list(x[:n]) for x in self.extra_marked_ids],
+            extra_unmarked_ids=[list(x[:n]) for x in self.extra_unmarked_ids],
+            extra_marked_text=list(self.extra_marked_text),
+            extra_unmarked_text=list(self.extra_unmarked_text),
+        )
+
 
 @dataclass
 class BlindFold:
@@ -124,7 +141,30 @@ def _ctx(ids: Sequence[int], i: int, context_len: int) -> tuple[int, ...]:
     return tuple(ids[start:i])
 
 
-def _add_sequence(table: NextTokenTable, ids: Sequence[int]) -> None:
+def _scored_ctx(
+    ids: Sequence[int],
+    i: int,
+    context_len: int,
+    position_bucket: int = 0,
+) -> tuple[int, ...]:
+    """Last-k tokens, optionally namespaced by i // position_bucket.
+
+    Bucket 0 is the published last-k table. A positive bucket keeps early
+    4-grams from sharing counts with the same tokens later in the string.
+    It is not a watermark key.
+    """
+    ctx = _ctx(ids, i, context_len)
+    if position_bucket <= 0:
+        return ctx
+    return (i // int(position_bucket),) + ctx
+
+
+def _add_sequence(
+    table: NextTokenTable,
+    ids: Sequence[int],
+    *,
+    position_bucket: int = 0,
+) -> None:
     for i, tok in enumerate(ids):
         t = int(tok)
         table.unigram[t] += 1
@@ -134,14 +174,19 @@ def _add_sequence(table: NextTokenTable, ids: Sequence[int]) -> None:
         # Store every suffix length 1..k so backoff can shrink the context
         # instead of jumping straight to the unigram.
         for length in range(1, table.context_len + 1):
-            ctx = _ctx(ids, i, length)
+            ctx = _scored_ctx(ids, i, length, position_bucket)
             table.counts.setdefault(ctx, Counter())[t] += 1
 
 
-def fit_table(sequences: Iterable[Sequence[int]], *, context_len: int) -> NextTokenTable:
+def fit_table(
+    sequences: Iterable[Sequence[int]],
+    *,
+    context_len: int,
+    position_bucket: int = 0,
+) -> NextTokenTable:
     table = NextTokenTable(context_len=context_len)
     for seq in sequences:
-        _add_sequence(table, seq)
+        _add_sequence(table, seq, position_bucket=position_bucket)
     return table
 
 
@@ -152,9 +197,14 @@ def fit_blind(
     context_len: int = DEFAULT_CONTEXT_LEN,
     alpha: float = DEFAULT_ALPHA,
     backoff: bool = False,
+    position_bucket: int = 0,
 ) -> BlindModel:
-    marked = fit_table(marked_seqs, context_len=context_len)
-    unmarked = fit_table(unmarked_seqs, context_len=context_len)
+    marked = fit_table(
+        marked_seqs, context_len=context_len, position_bucket=position_bucket
+    )
+    unmarked = fit_table(
+        unmarked_seqs, context_len=context_len, position_bucket=position_bucket
+    )
     vocab = set(marked.unigram) | set(unmarked.unigram)
     return BlindModel(
         marked=marked,
@@ -166,6 +216,7 @@ def fit_blind(
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
+        position_bucket=int(position_bucket) if position_bucket > 0 else 0,
     )
 
 
@@ -212,7 +263,7 @@ def likelihood_ratio(
     for i, tok in enumerate(ids):
         if i == 0:
             continue
-        ctx = _ctx(ids, i, model.context_len)
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         t = int(tok)
         total += _log_prob(
             model.marked, ctx, t, alpha=model.alpha, v=v, backoff=model.backoff
@@ -288,6 +339,11 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
 def clip_twins(twins: Sequence[Twin], max_draws: int) -> list[Twin]:
     """Keep the first N draws per stem. Draw 1 is the primary marked/unmarked pair."""
     return [twin.clip_draws(max_draws) for twin in twins]
+
+
+def clip_twins_prefix(twins: Sequence[Twin], n: int) -> list[Twin]:
+    """Keep the first n tokens of every draw. Matched fit/score prefix."""
+    return [twin.clip_prefix(n) for twin in twins]
 
 
 def pair_marked_wins(marked_lr: float, unmarked_lr: float, *, margin: float = 0.0) -> bool:

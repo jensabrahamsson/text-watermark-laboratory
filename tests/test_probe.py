@@ -55,6 +55,71 @@ def test_clip_seq_keeps_a_token_prefix() -> None:
     assert slice_seq([1, 2, 3], 2, 2) == []
 
 
+def test_clip_prefix_and_poshits_on_lab_pairs_are_key_free(tmp_path) -> None:
+    from text_watermark_tools.blind import clip_twins_prefix
+    from text_watermark_tools.probe import persist_probe
+
+    twins = load_twins(PAIR)
+    clipped = clip_twins_prefix(twins, 4)
+    assert clipped[0].marked_ids == twins[0].marked_ids[:4]
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hits", "poshits", "pospool"),
+        fit_prefix=6,
+        position_bucket=2,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    assert run.used_keys is False
+    assert run.fit_prefix == 6
+    names = {m.name for m in run.methods}
+    assert names == {"hits", "poshits", "pospool"}
+    assert all(m.holdout.used_keys is False for m in run.methods)
+    poshits = next(m for m in run.methods if m.name == "poshits")
+    assert poshits.holdout.instance == "key-free-poshits"
+    persist_probe(run, tmp_path)
+    assert (tmp_path / "poshits" / "holdout.json").is_file()
+    assert (tmp_path / "pospool" / "holdout.json").is_file()
+    from text_watermark_tools.probe import persist_transfer, run_transfer
+
+    xfer = run_transfer(
+        twins[:2],
+        twins[2:],
+        train_dir=str(PAIR),
+        test_dir=str(PAIR),
+        context_len=2,
+        methods=("poshits",),
+        overlap_mode="keep",
+        nested=False,
+        position_bucket=2,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    assert xfer.used_keys is False
+    persist_transfer(xfer, tmp_path / "xfer")
+    tables = tmp_path / "xfer" / "tables-poshits" / "tables.json"
+    assert tables.is_file()
+    from text_watermark_tools.indicator import load_indicator, score_text_from_tables
+    from text_watermark_tools.score import load_tokenizer
+
+    model, meta = load_indicator(tmp_path / "xfer" / "tables-poshits")
+    assert model.used_keys is False
+    assert model.position_bucket == 2
+    assert meta.instance == "key-free-poshits"
+    tok = load_tokenizer("gpt2")
+    lr, scored, used_keys = score_text_from_tables(
+        twins[0].marked_text,
+        tmp_path / "xfer" / "tables-poshits",
+        tokenizer=tok,
+        score_mode="auto",
+    )
+    assert used_keys is False
+    assert scored.score_kind == "poshits"
+    assert isinstance(lr, float)
+
+
 def test_prefix_probe_on_lab_pairs_is_key_free(tmp_path) -> None:
     twins = load_twins(PAIR)
     run = run_probe(
@@ -457,6 +522,7 @@ def test_shuffle_transfer_does_not_persist_tables(tmp_path) -> None:
     assert run.shuffle_seed == 0
     assert not (tmp_path / "tables-hashpool").exists()
     assert not (tmp_path / "tables-counts").exists()
+    assert not (tmp_path / "tables-poshits").exists()
     assert (tmp_path / "results.json").is_file()
 
 
@@ -846,6 +912,89 @@ def test_window_0_16_matches_prefix_and_mid_window_is_weak() -> None:
     assert mid_auc.auc < 0.60
     assert tail.n_prompts_marked_above == 29
     assert tail_auc.auc > 0.65
+
+
+def test_poshits_36x4_keeps_recall_and_lifts_specificity() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hits = holdout_from_json(
+        root / "2026-08-31-probe-36x4-posbucket" / "hits" / "holdout.json"
+    )
+    poshits = holdout_from_json(
+        root / "2026-08-31-probe-36x4-posbucket" / "poshits" / "holdout.json"
+    )
+    fit16 = holdout_from_json(
+        root / "2026-08-31-probe-36x4-fitprefix16" / "hits" / "holdout.json"
+    )
+    loo12 = holdout_from_json(
+        root / "2026-08-31-probe-12x4-posbucket" / "poshits" / "holdout.json"
+    )
+    assert hits.used_keys is False
+    assert poshits.used_keys is False
+    assert fit16.used_keys is False
+    assert loo12.used_keys is False
+    assert hits.n_prompts_marked_above == 36
+    assert poshits.n_prompts_marked_above == 34
+    assert poshits.n_marked_positive == 134
+    assert poshits.n_unmarked_nonpositive == 97
+    assert poshits.n_unmarked_nonpositive > hits.n_unmarked_nonpositive
+    pos_auc = binary_eval(poshits.marked_lrs, poshits.unmarked_lrs, n_perm=200, seed=0)
+    assert pos_auc.auc > 0.90
+    assert fit16.n_prompts_marked_above == 34
+    assert fit16.n_marked_positive == 132
+    assert fit16.n_unmarked_nonpositive == 112
+    fit_auc = binary_eval(fit16.marked_lrs, fit16.unmarked_lrs, n_perm=200, seed=0)
+    assert fit_auc.auc > 0.92
+    assert loo12.n_prompts_marked_above == 10
+    assert loo12.n_marked_positive == 24
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested = nested_threshold_by_stem(
+        poshits.stems, poshits.marked_lrs, poshits.unmarked_lrs
+    )
+    assert nested.n_marked_above == 119
+    assert nested.n_unmarked_at_most == 129
+    nested16 = nested_threshold_by_stem(fit16.stems, fit16.marked_lrs, fit16.unmarked_lrs)
+    assert nested16.n_marked_above == 121
+    assert nested16.n_unmarked_at_most == 136
+
+
+def test_ood_poshits_and_fit_prefix_raise_file_auc() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hits = holdout_from_json(
+        root / "2026-08-31-transfer-36x4-to-12x4-posbucket" / "hits" / "holdout.json"
+    )
+    poshits = holdout_from_json(
+        root / "2026-08-31-transfer-36x4-to-12x4-posbucket" / "poshits" / "holdout.json"
+    )
+    fit16 = holdout_from_json(
+        root / "2026-08-31-transfer-36x4-to-12x4-fitprefix16" / "hits" / "holdout.json"
+    )
+    assert hits.used_keys is False
+    assert poshits.used_keys is False
+    assert fit16.used_keys is False
+    assert hits.n_prompts_marked_above == 12
+    assert poshits.n_prompts_marked_above == 10
+    assert poshits.n_marked_positive == 39
+    assert poshits.n_unmarked_nonpositive == 31
+    pos_auc = binary_eval(poshits.marked_lrs, poshits.unmarked_lrs, n_perm=200, seed=0)
+    hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
+    assert pos_auc.auc > 0.80
+    assert pos_auc.auc > hits_auc.auc
+    assert fit16.n_prompts_marked_above == 11
+    assert fit16.n_unmarked_nonpositive == 31
+    fit_auc = binary_eval(fit16.marked_lrs, fit16.unmarked_lrs, n_perm=200, seed=0)
+    assert fit_auc.auc > 0.80
+    assert fit_auc.auc > hits_auc.auc
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    nested_pos = nested_threshold_by_stem(
+        poshits.stems, poshits.marked_lrs, poshits.unmarked_lrs
+    )
+    assert nested_pos.n_marked_above == 37
+    assert nested_pos.n_unmarked_at_most == 35
+    nested16 = nested_threshold_by_stem(fit16.stems, fit16.marked_lrs, fit16.unmarked_lrs)
+    assert nested16.n_marked_above == 39
+    assert nested16.n_unmarked_at_most == 36
 
 
 def test_ood_window_16_32_hits_is_near_chance() -> None:

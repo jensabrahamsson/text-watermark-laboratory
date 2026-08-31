@@ -4,6 +4,7 @@ from pathlib import Path
 
 from text_watermark_tools.blind import (
     Twin,
+    _scored_ctx,
     clip_twins,
     fit_blind,
     leave_one_prompt_out,
@@ -14,6 +15,15 @@ from text_watermark_tools.blind import (
 from text_watermark_tools.cli import main
 
 PAIR = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-17-pair"
+
+
+def test_position_bucket_namespaces_the_same_last_k() -> None:
+    ids = [10, 20, 30, 40, 50, 60]
+    assert _scored_ctx(ids, 4, 4, 0) == (10, 20, 30, 40)
+    assert _scored_ctx(ids, 4, 4, 16) == (0, 10, 20, 30, 40)
+    later = list(range(25))
+    assert _scored_ctx(later, 20, 4, 16)[0] == 20 // 16
+    assert _scored_ctx(later, 20, 4, 16)[1:] == _scored_ctx(later, 20, 4, 0)
 
 
 def test_margin_turns_a_close_miss_into_a_hit() -> None:
