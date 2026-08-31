@@ -67,6 +67,9 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Qwen 12×4 first-token opening | In-domain, Qwen tokenizer | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
 | DistilGPT2 12×4 official / in-domain hits | Same keys, GPT-2 tokenizer | **12/12** / **9/12**, AUC 0.705 |
 | GPT-2 36×4 → DistilGPT2 | Same BPE, new generator | hits **5/12**, AUC **0.462** |
+| Key-free tokmlp, 4-token 24×4 → 12×4 | Tiny token MLP, same gate as poshits | 8/12, AUC 0.714 (does **not** beat poshits 0.873) |
+| Key-free hashlog on that OOD gate | Hashed logistic, same split | 7/12, AUC 0.606 |
+| GPT-2 learned scorers → Distil / Qwen | tokmlp / charcnn / hashlog | chance (charcnn Qwen AUC 0.496) |
 | Key-free last-k coverage, 36×4 LOO | Shared both-side contexts by window | 0:16 **13.7%** (driven by i=1–2); full last-4 from i=4 is ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | Coverage-weighted bucketed hits | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | Same OOD gate as 4-token, longer clip | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |

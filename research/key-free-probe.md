@@ -372,6 +372,11 @@ do not read Qwen (8/12, AUC 0.584).
 36×4 → Distil (shared BPE, same public keys) hits **5/12**, AUC **0.462**.
 The 4-gram footprint is generator-weight specific.
 
+**A tiny neural net does not beat those tables.** On the same 4-token
+new-topic gate, tokmlp is 8/12 (AUC 0.714) against poshits **12/12**
+(AUC **0.873**). A character CNN trained on GPT-2 openings does not
+transfer to Distil or Qwen. Details: [key-free-learn.md](key-free-learn.md).
+
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
@@ -468,6 +473,11 @@ python -m text_watermark_tools scrub \
 python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
   --fit-prefix 4 --pos-bucket 1 \
   --out-dir experiments/2026-08-31-learn-36x4-fitprefix4
+
+python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-learn-36x4-to-12x4-fitprefix4
 ```
 
 Learned scorers: [key-free-learn.md](key-free-learn.md).

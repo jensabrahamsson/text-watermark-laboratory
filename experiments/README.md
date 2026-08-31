@@ -104,6 +104,14 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-pair-distilgpt2-12x4/` | DistilGPT2 12×4 twins | official **12/12** |
 | `2026-08-31-probe-distilgpt2-12x4/` | Distil in-domain last-4 | hits **9/12** AUC 0.705 |
 | `2026-08-31-transfer-36x4-to-distilgpt2-12x4/` | GPT-2 → Distil, same tokenizer | hits **5/12** AUC **0.462** |
+| `2026-08-31-learn-36x4-to-12x4-fitprefix4/` | Tiny nets on the 4-token OOD gate | tokmlp 8/12 AUC 0.714; does **not** beat poshits **0.873** |
+| `2026-08-31-learn-36x4-fitprefix4/` | 36×4 LOO learned scorers | hashlog 34/36 AUC 0.864 (poshits 0.935) |
+| `2026-08-31-learn-12x4-fitprefix4/` | 12×4 LOO learned scorers | hashlog 11/12 in-family; OOD is 7/12 |
+| `2026-08-31-probe-12x4-fitprefix4-pos1/` | 12×4 LOO 4-token poshits | **9/12**, 23/48 vs 48/48 |
+| `2026-08-31-learn-36x4-to-distil-fitprefix4/` | GPT-2 nets → Distil | chance (tokmlp 8/12, AUC 0.559) |
+| `2026-08-31-learn-36x4-to-qwen-fitprefix4/` | GPT-2 nets → Qwen | chance (charcnn AUC 0.496) |
+| `2026-08-31-learn-qwen-12x4-fitprefix4-include-first/` | Qwen in-domain include-first | hashlog **12/12**, AUC 0.826 (below `first` 0.901) |
+| `2026-08-31-learn-36x4-to-12x4-shuffle/` | 50% train-stem shuffle | tokmlp 5/12; hashlog/charcnn do not collapse |
 
 ## What changed across the runs
 
@@ -133,6 +141,7 @@ The later runs clarified what strengthens it:
 - mixing generated token 0 into hits (`--include-first`) hurts that OOD gate (9/12, AUC 0.719);
 - Qwen's in-domain opening signal **is token 0** (first **12/12**, AUC **0.901**); hits without it is 7/12;
 - DistilGPT2 is officially 12/12; GPT-2 36×4 hits do not transfer across the shared tokenizer (5/12, AUC 0.462);
+- tiny learned scorers (hashlog / tokmlp / charcnn) do **not** beat 4-token poshits on the new-topic gate (tokmlp 8/12, AUC 0.714 vs **0.873**) and do not transfer to Distil or Qwen;
 - shuffling half the training labels drops isolated sign at 0 to chance.
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".

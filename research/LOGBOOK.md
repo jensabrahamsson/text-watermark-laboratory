@@ -325,4 +325,24 @@ JSON: `experiments/2026-08-31-probe-36x4-fitprefix4-k1-pos1/`,
 `experiments/2026-08-31-pair-distilgpt2-12x4/`,
 `experiments/2026-08-31-transfer-36x4-to-distilgpt2-12x4/`.
 
+## 2026-08-31 learned scorers (hashlog / tokmlp / charcnn)
+
+Tiny key-free classifiers on the same 4-token twins. Not keys, not
+Claude, not a replacement of 10/12 or 29/48. Protocol:
+[key-free-learn.md](key-free-learn.md).
+
+On the new-topic GPT-2 gate (24×4 → 12×4) poshits remains **12/12**,
+AUC **0.873**, t=0 **39/48 vs 41/48**. tokmlp is 8/12, AUC 0.714.
+hashlog 7/12, AUC 0.606. charcnn 7/12, AUC 0.557. GPT-2 nets do not
+transfer to DistilGPT2 or Qwen (charcnn Qwen AUC 0.496). Qwen
+`--include-first` hashlog ranks 12/12, AUC 0.826 — below the first-token
+count table (0.901). hashlog 12×4 LOO 11/12 is in-family; the same
+reader is 7/12 on new topics. tokmlp shuffle collapses (5/12, AUC
+0.471); hashlog/charcnn shuffle do not.
+
+JSON: `experiments/2026-08-31-learn-36x4-to-12x4-fitprefix4/`,
+`experiments/2026-08-31-learn-36x4-fitprefix4/`,
+`experiments/2026-08-31-learn-36x4-to-distil-fitprefix4/`,
+`experiments/2026-08-31-learn-36x4-to-qwen-fitprefix4/`.
+
 ---

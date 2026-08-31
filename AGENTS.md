@@ -110,6 +110,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
 | DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
 | GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
+| Key-free tokmlp, 4-token 24×4 → 12×4 | 8/12, AUC 0.714 (does not beat poshits **0.873**) |
+| Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
+| GPT-2 learned scorers → Distil / Qwen | chance |
 | Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
 | UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
 | Same-topic GPT-2 hits → Qwen | **11/12** paired (isolated 1/12) |
@@ -121,7 +124,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), and [research/key-free-learn.md](research/key-free-learn.md).
 
 ## Code map
 

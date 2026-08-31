@@ -139,3 +139,77 @@ def test_cli_learn_help_mentions_key_free(capsys) -> None:
     assert "hashlog" in out
     assert "tokmlp" in out
     assert "charcnn" in out
+
+
+def _hold(name: str, method: str):
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = Path(__file__).resolve().parents[1] / "experiments" / name
+    return holdout_from_json(root / method / "holdout.json")
+
+
+def test_learned_ood_gate_does_not_beat_poshits() -> None:
+    hashlog = _hold("2026-08-31-learn-36x4-to-12x4-fitprefix4", "hashlog")
+    tokmlp = _hold("2026-08-31-learn-36x4-to-12x4-fitprefix4", "tokmlp")
+    charcnn = _hold("2026-08-31-learn-36x4-to-12x4-fitprefix4", "charcnn")
+    poshits = _hold("2026-08-31-transfer-36x4-to-12x4-fitprefix4-pos1", "poshits")
+    assert hashlog.used_keys is False
+    assert tokmlp.used_keys is False
+    assert charcnn.used_keys is False
+    assert hashlog.n_prompts_marked_above == 7
+    assert tokmlp.n_prompts_marked_above == 8
+    assert charcnn.n_prompts_marked_above == 7
+    assert poshits.n_prompts_marked_above == 12
+    h_auc = binary_eval(hashlog.marked_lrs, hashlog.unmarked_lrs, n_perm=200, seed=0)
+    t_auc = binary_eval(tokmlp.marked_lrs, tokmlp.unmarked_lrs, n_perm=200, seed=0)
+    c_auc = binary_eval(charcnn.marked_lrs, charcnn.unmarked_lrs, n_perm=200, seed=0)
+    p_auc = binary_eval(poshits.marked_lrs, poshits.unmarked_lrs, n_perm=200, seed=0)
+    assert h_auc.auc < 0.65
+    assert 0.65 < t_auc.auc < 0.80
+    assert c_auc.auc < 0.65
+    assert p_auc.auc > 0.85
+    assert t_auc.auc < p_auc.auc
+
+
+def test_learned_cross_generator_is_chance() -> None:
+    distil = _hold("2026-08-31-learn-36x4-to-distil-fitprefix4", "tokmlp")
+    qwen = _hold("2026-08-31-learn-36x4-to-qwen-fitprefix4", "charcnn")
+    assert distil.used_keys is False
+    assert qwen.used_keys is False
+    d_auc = binary_eval(distil.marked_lrs, distil.unmarked_lrs, n_perm=200, seed=0)
+    q_auc = binary_eval(qwen.marked_lrs, qwen.unmarked_lrs, n_perm=200, seed=0)
+    assert d_auc.auc < 0.65
+    assert q_auc.auc < 0.55
+    hashlog_q = _hold("2026-08-31-learn-36x4-to-qwen-fitprefix4", "hashlog")
+    assert binary_eval(hashlog_q.marked_lrs, hashlog_q.unmarked_lrs, n_perm=200, seed=0).auc < 0.55
+
+
+def test_hashlog_twelve_prompt_loo_is_not_the_ood_gate() -> None:
+    loo = _hold("2026-08-31-learn-12x4-fitprefix4", "hashlog")
+    ood = _hold("2026-08-31-learn-36x4-to-12x4-fitprefix4", "hashlog")
+    poshits = _hold("2026-08-31-probe-12x4-fitprefix4-pos1", "poshits")
+    assert loo.n_prompts_marked_above == 11
+    assert ood.n_prompts_marked_above == 7
+    assert poshits.n_prompts_marked_above == 9
+    assert poshits.n_marked_positive == 23
+    assert poshits.n_unmarked_nonpositive == 48
+
+
+def test_qwen_include_first_hashlog_ranks_but_is_not_first_token_table() -> None:
+    learned = _hold("2026-08-31-learn-qwen-12x4-fitprefix4-include-first", "hashlog")
+    first = _hold("2026-08-31-probe-qwen-12x4-fitprefix4-pos1", "first")
+    assert learned.used_keys is False
+    assert learned.n_prompts_marked_above == 12
+    assert first.n_prompts_marked_above == 12
+    learned_auc = binary_eval(learned.marked_lrs, learned.unmarked_lrs, n_perm=200, seed=0)
+    first_auc = binary_eval(first.marked_lrs, first.unmarked_lrs, n_perm=200, seed=0)
+    assert learned_auc.auc > 0.75
+    assert first_auc.auc > learned_auc.auc
+
+
+def test_tokmlp_shuffle_collapses() -> None:
+    ev = _hold("2026-08-31-learn-36x4-to-12x4-shuffle", "tokmlp")
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 5
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc < 0.55

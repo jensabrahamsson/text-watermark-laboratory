@@ -39,6 +39,9 @@ Current results:
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
 | DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
 | GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
+| Key-free tokmlp, 4-token 24×4 → 12×4 | 8/12, AUC 0.714 (does not beat poshits **0.873**) |
+| Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
+| GPT-2 learned scorers → Distil / Qwen | chance (charcnn Qwen AUC 0.496) |
 | Key-free last-k coverage, 36×4 LOO | 0:16 shared **13.7%** (i=1–2); full last-4 from i=4 ~4% |
 | Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
 | Key-free poshits, matched 16-token bucket 1, 36×4 | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |
