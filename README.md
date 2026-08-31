@@ -10,7 +10,7 @@ Using Google DeepMind's public SynthID-Text implementation as a controlled refer
 
 The clean headline for the original last-4 count tables is **10/12 held-out prompt groups**: after training on the other eleven prompt families, the marked side of the twelfth ranks above its unmarked twin group. That is **relative discrimination**, not “here is one unknown file; marked yes/no?”. A 0.02 comparison margin lifts *that same scorer* to 11/12; that is a robustness check, not the main result.
 
-Scoring only 4-grams seen on both training sides (`hits`) reaches **11/12** with no margin and file-level AUC **0.737**. Feature-hashing those contexts (`hashpool`) reaches **11/12** and **35/48** isolated marked files with `lr > 0` (binomial p ≈ 0.001). The original hard sign at 0 remains weak: **29/48**. There is a measurable held-out signal. It is not a magic detector, and this lab did not invent key-free watermark detection.
+Scoring only 4-grams seen on both training sides (`hits`) reaches **11/12** with no margin and file-level AUC **0.737**. Feature-hashing those contexts (`hashpool`) reaches **11/12** and **35/48** isolated marked files with `lr > 0` (binomial p ≈ 0.001). The original hard sign at 0 remains weak under leave-one-of-12-out: **29/48**. Train the same hits reader on 24 *other* GPT-2 topics and the 12×4 files score **39/48** (AUC **0.769**). Train on 12×4 and score 24 new topics: hits ranks **24/24** (AUC **0.986**), with unmarked specificity at 0 only 14/24. There is a transferable held-out signal. It is not a magic detector, and this lab did not invent key-free watermark detection.
 
 This repository also contains the ordinary key-based reference scorer, matched-pair generation, rewrite/degradation experiments, and a pre-mark Claude corpus for future before/after comparison.
 
@@ -32,6 +32,8 @@ A different reader of the same tables — score only 4-grams seen on both traini
 
 **Single-text classification (the 29/48 number).** Same leave-one-out tables, but decide from the sign of one file’s LR against 0, with no twin. Hard last-4 marked `lr > 0`: **29/48**. Unmarked `lr ≤ 0`: **23/48**. The two distributions overlap (mean marked LR +0.033, unmarked −0.003). Binomial P(≥29 | n=48, p=0.5) = 0.097, so that sign is not a 5% test. Ranking of the same LRs is (AUC 0.626, permutation p = 0.0075). Hashpool’s isolated sign is **35/48** (p ≈ 0.001), with unmarked specificity still 29/48.
 
+When the tables are trained on **other prompt families** (24 stems from the 36-topic corpus, none of harbour/night-bus/…), hits on the 12×4 files is **39/48** marked `lr > 0` (AUC **0.769**). The reverse — train 12×4, test 24 new topics — ranks every marked file above its unmarked twin (hits **24/24**, AUC **0.986**). That ranking is not a calibrated detector: ten unmarked twins are also positive at threshold 0. The 29/48 figure is the leave-one-of-12-out hard scorer, not the best isolated-file protocol this lab now has.
+
 | Method | What is being asked | Result |
 |---|---|---|
 | Official `score` | Public DeepMind keys, 12 matched prompts | **12/12** |
@@ -42,8 +44,10 @@ A different reader of the same tables — score only 4-grams seen on both traini
 | Key-free hashpool | Feature-hashed last-4, no secret hash | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | Same method, one draw per prompt | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | Different generator, last-4 hashpool | **10/12**, isolated **11/12** |
+| Key-free hits, other topics → 12×4 | Train 24 new stems, score 12×4 files | isolated **39/48**, AUC **0.769** |
+| Key-free hits, 12×4 → 24 new topics | Train 12×4, score stems 13–36 | **24/24** ranking, AUC **0.986** |
 | Local Qwen2-1.5B, last-2 | Twin ranking, published count tables | **10/12** |
-| `indicate` hard, one marked file | Isolated `lr > 0` | **29/48** |
+| `indicate` hard, one marked file | Isolated `lr > 0`, leave-one-of-12-out | **29/48** |
 | `indicate` hard, one unmarked file | Isolated `lr ≤ 0` | **23/48** |
 | Argmax snap, then official `score` | Key-free scrub of 48 marked files | **0.622 → 0.499** |
 
@@ -87,7 +91,7 @@ flowchart LR
 
 The experiment therefore asks a harder question than ordinary detection: **is there enough structure in the sampler's output to infer watermark presence without reproducing the detector?**
 
-For held-out *groups*, yes (10/12 hard last-4; 11/12 with `hits` or `hashpool`). For one file’s hard sign at 0, not reliably (29/48). Hashpool’s isolated sign is stronger (35/48) but still not a universal detector.
+For held-out *groups*, yes (10/12 hard last-4; 11/12 with `hits` or `hashpool`). For one file’s hard sign at 0 under leave-one-of-12-out, not reliably (29/48). Out-of-family hits is stronger (39/48 on 12×4; 24/24 ranking on new topics) but still not a universal detector. Hashpool’s in-family isolated sign is 35/48.
 
 ---
 
@@ -118,6 +122,18 @@ python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
 
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
+
+# Hashpool tables (usable 35/48 reader) and out-of-family transfer
+python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
+  --method hashpool --out-dir experiments/indicator-gpt2-hashpool
+
+python -m text_watermark_tools indicate score path/to/text.txt \
+  --tables experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool
+
+python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --overlap drop-from-train \
+  --out-dir experiments/transfer
 
 # Compare key-free scorers (AUC + prompt-grain wins)
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \

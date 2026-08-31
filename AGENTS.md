@@ -56,7 +56,9 @@ python -m text_watermark_tools score FILE.txt
 python -m text_watermark_tools pair DIR --out-dir experiments/pair
 python -m text_watermark_tools blind experiments/pair --out-dir experiments/blind
 python -m text_watermark_tools indicate score FILE.txt --tables experiments/indicator-gpt2
-python -m text_watermark_tools probe experiments/pair --out-dir experiments/probe
+python -m text_watermark_tools indicate fit PAIR --method hashpool --out-dir experiments/hashpool
+python -m text_watermark_tools probe PAIR --out-dir experiments/probe
+python -m text_watermark_tools probe PAIR --test-dir OTHER --out-dir experiments/transfer
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
 python -m text_watermark_tools resample --skip-collect --new-dir experiments/claude-sample-YYYY-MM-DD
@@ -72,6 +74,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hits (shared 4-grams only) | **11/12**, AUC **0.737** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
+| Key-free hits, other topics → 12×4 | isolated **39/48**, AUC **0.769** |
+| Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
@@ -89,7 +93,7 @@ See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-f
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
 | `transfer.py` | Interpolated, gated, mix, and hash-pool scorers |
 | `pivot.py` | Unmarked-LM choice geometry and argmax snap |
-| `probe.py` | Compare scorers; optional pivot and scrub |
+| `probe.py` | Compare scorers; transfer across corpora; optional pivot and scrub |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |
 

@@ -1,0 +1,33 @@
+{
+  "source": "experiments/2026-08-31-probe-qwen",
+  "methods": [
+    "hits",
+    "hashpool"
+  ],
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "n_prompt_wins": 10,
+  "n_prompts": 12,
+  "n_marked_positive": 9,
+  "n_unmarked_nonpositive": 7,
+  "binary": {
+    "n_positive": 12,
+    "n_negative": 12,
+    "auc": 0.7291666666666666,
+    "mean_positive": 0.015642378364014144,
+    "mean_negative": -0.14942176281884897,
+    "mean_diff": 0.1650641411828631,
+    "n_positive_above_zero": 9,
+    "n_negative_at_most_zero": 7,
+    "permutation_p": 0.026986506746626688,
+    "binomial_p_above_zero": 0.072998046875,
+    "youden_threshold": -0.0013287104678393247,
+    "youden_sensitivity": 0.8333333333333334,
+    "youden_specificity": 0.5833333333333334,
+    "youden_j": 0.41666666666666674,
+    "n_perm": 2000
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "note": "Leave-one-prompt LDA on saved hits+hashpool file scores. Not a new fit."
+}

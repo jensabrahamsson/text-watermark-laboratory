@@ -18,10 +18,12 @@ Current results:
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 GPT-2 topics | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
+| Key-free hits, train 24 other topics → 12×4 files | isolated **39/48**, AUC **0.769** |
+| Key-free hits, train 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** (unmarked ≤0 only 14/24) |
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 
-The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, and a key-free argmax snap, are in [key-free-probe.md](key-free-probe.md).
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 

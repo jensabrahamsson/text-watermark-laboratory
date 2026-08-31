@@ -115,6 +115,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "key-free" in out.lower()
     assert "Not detector_mean" in out
     assert "--pivot" in out
+    assert "--test-dir" in out
     try:
         build_parser().parse_args(["indicate", "holdout", "--help"])
     except SystemExit as exc:

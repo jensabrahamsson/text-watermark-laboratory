@@ -177,4 +177,8 @@ Argmax snap on all 48 marked files: official mean **0.6216 → 0.4994**. Unmarke
 
 Notes: [key-free-probe.md](key-free-probe.md). JSON: `experiments/2026-08-31-probe-12x4/`, `experiments/2026-08-31-probe-36/`, `experiments/2026-08-31-probe-qwen/`, `experiments/2026-08-31-scrub-12x4/`.
 
+Train 24 other 36-topic stems, score 12×4: hits isolated **39/48** (AUC **0.769**); hashpool prompt **11/12**. Train 12×4, score stems 13–36: hits **24/24** ranking (AUC **0.986**, unmarked ≤0 14/24); hashpool **23/24**. Stack LDA of hits+hashpool on 12×4 LOO: **11/12**, AUC 0.732, unmarked ≤0 44/48. Frozen hashpool tables: `experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool/`. `indicate fit --method hashpool` / `indicate score` can now use that reader on one file.
+
+JSON: `experiments/2026-08-31-transfer-36-to-12x4/`, `experiments/2026-08-31-transfer-12x4-to-36/`, `experiments/2026-08-31-stack-12x4/`.
+
 ---

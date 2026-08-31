@@ -18,6 +18,7 @@ from text_watermark_tools.indicator import (
     CAVEAT,
     IndicatorHoldout,
     persist_holdout,
+    persist_indicator,
 )
 from text_watermark_tools.stats import (
     binary_eval,
@@ -29,6 +30,7 @@ from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_count_model,
     fit_hashpool_twins,
+    persist_hashpool,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
@@ -577,6 +579,8 @@ class TransferRun:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    count_model: object | None = None
+    hash_model: object | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
@@ -855,6 +859,8 @@ def run_transfer(
         used_keys=used_keys,
         used_hash_iv=used_hash,
         used_g_values=used_g,
+        count_model=count_model,
+        hash_model=hash_model,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
     test_holdouts: dict[str, IndicatorHoldout] = {}
@@ -1074,6 +1080,22 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         }
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
+    if run.hash_model is not None:
+        persist_hashpool(
+            run.hash_model,
+            out_dir / "tables-hashpool",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+        )
+    if run.count_model is not None:
+        persist_indicator(
+            run.count_model,
+            out_dir / "tables-counts",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+        )
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
     (out_dir / "results.md").write_text(
         "# Key-free transfer\n\n" + print_transfer(run) + "\n"

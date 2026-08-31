@@ -46,6 +46,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-probe-36/` | Same scorers on 36 GPT-2 topics × 1 | hashpool **31/36** AUC **0.877**; hard last-4 **20/36** |
 | `2026-08-31-probe-qwen/` | Qwen2-1.5B 12×1, Qwen tokenizer | hashpool **10/12** AUC **0.750**; hits AUC **0.417** |
 | `2026-08-31-scrub-12x4/` | Key-free argmax snap, official `score` as reference | **0.622 → 0.499** on 48 marked files |
+| `2026-08-31-transfer-36-to-12x4/` | Train 24 new topics, score 12×4 files | hits isolated **39/48** AUC **0.769**; hashpool **11/12** |
+| `2026-08-31-transfer-12x4-to-36/` | Train 12×4, score stems 13–36 | hits **24/24** AUC **0.986**; hashpool **23/24** |
+| `2026-08-31-stack-12x4/` | LOO LDA of hits+hashpool file scores | **11/12**, AUC 0.732, unmarked ≤0 **44/48** |
 
 ## What changed across the runs
 
@@ -58,6 +61,7 @@ The later runs clarified what strengthens it:
 - **repeated draws from the same prompts did help** that scorer, because they create reusable higher-order contexts;
 - coverage-gated and hash-pool readers later showed that extra topics *do* help once unseen 4-grams are not scored as unigrams (30–31/36);
 - the effect also appears with a different local generator (Qwen2-1.5B), where hashpool matches the published **10/12**.
+- training on **other** prompt families is a fairer isolated-file test than leave-one-of-12-out: hits then marks **39/48** of the 12×4 files, and ranks **24/24** new 36-topic stems (specificity at 0 is still incomplete).
 
 This is why the current result should be described as a working experimental indicator rather than merely a "promising idea".
 

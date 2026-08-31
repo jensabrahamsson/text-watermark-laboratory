@@ -234,9 +234,25 @@ The output contains `lr`, a log-likelihood ratio.
 - positive `lr`: more similar to the learned marked distribution
 - negative `lr`: more similar to the learned unmarked distribution
 
-That is a genuine indicator signal, but its calibration depends on the training corpus. The current one-file distributions overlap, so do not turn the sign of one LR into a universal yes/no claim.
+Hashpool tables (the 35/48 isolated reader) are a different persist:
 
-The strongest evidence currently comes from matched/repeated prompt groups, where the indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin.
+```bash
+python -m text_watermark_tools indicate fit \
+  experiments/2026-08-17-pair-12x4 \
+  --method hashpool \
+  --out-dir experiments/indicator-gpt2-hashpool
+
+python -m text_watermark_tools indicate score path/to/text.txt \
+  --tables experiments/indicator-gpt2-hashpool
+```
+
+Count tables also accept `--score-mode hits` (shared 4-grams only). Out-of-family
+hashpool tables from training on 24 other topics are in
+`experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool/`.
+
+That is a genuine indicator signal, but its calibration depends on the training corpus. Leave-one-of-12-out hard last-4 still overlaps at threshold 0 (**29/48**). Hits trained on other topics marks **39/48** of those same 12×4 files. Do not turn the sign of one LR into a universal yes/no claim.
+
+The strongest *prompt-group* evidence currently comes from matched/repeated prompts, where the original hard indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin. `hits` and `hashpool` reach **11/12** with no margin. `indicate holdout --score-mode hashpool` leave-one-outs the hash buckets.
 
 `indicate holdout` also prints a single-file **AUC** and a label-permutation p-value. The published 29/48 sign at threshold 0 is not a 5% binomial test; ranking of the same LRs is the fairer isolated-file summary.
 
@@ -254,9 +270,9 @@ python -m text_watermark_tools probe \
   --out-dir experiments/probe
 ```
 
-`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, …).
+`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer).
 
-These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Witten–Bell interpolation did not help. See [research/key-free-probe.md](research/key-free-probe.md).
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769). Witten–Bell interpolation did not help on 12×4. See [research/key-free-probe.md](research/key-free-probe.md).
 
 ## Key-free argmax snap (`scrub`)
 

@@ -233,3 +233,62 @@ def test_stack_12x4_hits_and_hashpool_stays_key_free() -> None:
     stats = binary_eval(stacked.marked_lrs, stacked.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.65
     assert stacked.n_prompts_marked_above >= 10
+
+
+def test_transfer_36_to_12x4_hits_isolated_is_thirty_nine_of_forty_eight() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36-to-12x4"
+    )
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    hashed = holdout_from_json(root / "hashpool" / "holdout.json")
+    assert hits.used_keys is False
+    assert hashed.used_keys is False
+    assert hits.mode == "transfer"
+    assert hits.n_prompts == 12
+    assert hits.n_marked_positive == 39
+    assert hashed.n_prompts_marked_above == 11
+    stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.75
+    assert binomial_sf(39, 48, 0.5) < 1e-5
+
+
+def test_transfer_12x4_to_36_hits_ranks_all_new_topics() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-12x4-to-36"
+        / "hits"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts == 24
+    assert ev.n_prompts_marked_above == 24
+    assert ev.n_marked_positive == 24
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.95
+
+
+def test_ood_hashpool_tables_score_one_file_without_keys() -> None:
+    from text_watermark_tools.indicator import score_text_from_tables
+    from text_watermark_tools.score import load_tokenizer
+
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36-to-12x4"
+        / "tables-hashpool"
+    )
+    text = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-17-pair-12x4"
+        / "01-harbour-marked.txt"
+    ).read_text()
+    tok = load_tokenizer("gpt2")
+    lr, meta, used = score_text_from_tables(text, tables, tokenizer=tok)
+    assert used is False
+    assert meta.instance == "key-free-hashpool"
+    assert meta.score_kind == "hashpool"
+    assert isinstance(lr, float)

@@ -86,15 +86,58 @@ Published last-2 on this corpus was **10/12**. Hard last-4 is **6/12**. Hashpool
 
 JSON: [../experiments/2026-08-31-probe-qwen/](../experiments/2026-08-31-probe-qwen/).
 
+## Cross-corpus transfer (new prompt families)
+
+Leave-one-of-12-out still shares the 12-prompt topic pool. The harder isolated-file
+question is: train on **other** prompt families, score the 12×4 files (and the
+reverse). Shared stems are dropped. Tables: [../experiments/2026-08-31-transfer-36-to-12x4/](../experiments/2026-08-31-transfer-36-to-12x4/)
+and [../experiments/2026-08-31-transfer-12x4-to-36/](../experiments/2026-08-31-transfer-12x4-to-36/).
+
+Train 24 new 36-topic stems, test all 12×4 files:
+
+| Method | Prompt wins | File AUC | Marked `> 0` | Unmarked `≤ 0` |
+|---|---|---|---|---|
+| hard | 10/12 | 0.640 | 32/48 | 27/48 |
+| **hits** | 8/12 | **0.769** | **39/48** | 28/48 |
+| **hashpool** | **11/12** | 0.766 | 34/48 | 30/48 |
+| hybrid | 10/12 | 0.757 | 34/48 | 31/48 |
+
+Train 12×4, test stems 13–36 (24 new topics):
+
+| Method | Prompt wins | File AUC | Marked `> 0` | Unmarked `≤ 0` |
+|---|---|---|---|---|
+| hard | 14/24 | 0.606 | 16/24 | 12/24 |
+| **hits** | **24/24** | **0.986** | **24/24** | 14/24 |
+| **hashpool** | **23/24** | 0.924 | 21/24 | 20/24 |
+| **hybrid** | **23/24** | **0.946** | 22/24 | 20/24 |
+
+Hits on new topics is an almost-perfect *ranking* of marked vs unmarked files
+(AUC 0.986) and every marked file is positive at 0. It is not a calibrated
+yes/no: ten unmarked twins are also positive. Hashpool/hybrid keep higher
+specificity at threshold 0.
+
+A leave-one-prompt LDA **stack** of hits+hashpool on the original 12×4 LOO
+scores is **11/12**, AUC 0.732, isolated 23/48 with unmarked ≤0 **44/48**.
+It trades recall for specificity. Complementary probe misses are not a 12/12
+ensemble.
+
+`indicate fit --method hashpool` writes frozen buckets. `indicate score`
+reads them. The 36→12×4 hashpool tables live at
+`experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool/`.
+
 ## How to read this
 
 **Coverage gating was the missing ablation on 12×4 and 36-topic GPT-2.** Scoring *only* 4-grams seen on both training sides raises 12×4 AUC from 0.626 to 0.737 (11/12) and 36-topic ranking from 20/36 to 30–31/36 (AUC 0.89). The unigram fallback in `hard` was adding topic noise. The old “more topics do not help” lesson was a scorer artifact.
 
-**Hash pooling is the method that generalizes.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750). Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
+**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986**). Leave-one-of-12-out hard last-4 remains 29/48.
+
+**Hash pooling is the method that generalizes across generators.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750), and 11/12 prompt grain when those hash buckets are trained on other GPT-2 topics. Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
 
 **Shorter-context interpolation is corpus-dependent.** On 12×4 it hurt (7/12). On 36 topics it helped (29/36). Do not treat Witten–Bell as a default win.
 
 **Choice geometry is real but weaker.** Unmarked-LM rank/LDA separates above chance on 12×4 (perm p 0.016–0.045) and stays key-free. It does not beat `hits` or `hashpool` there.
+
+**A hits+hashpool LDA stack is a specificity knob, not a 12/12 detector.** On 12×4 LOO it keeps 11/12 and AUC 0.732 while unmarked ≤0 rises to 44/48.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 
@@ -115,6 +158,17 @@ python -m text_watermark_tools indicate holdout \
 python -m text_watermark_tools probe \
   experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/2026-08-31-probe-12x4
+
+python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --overlap drop-from-train \
+  --out-dir experiments/2026-08-31-transfer-36-to-12x4
+
+python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
+  --method hashpool --out-dir experiments/indicator-gpt2-hashpool
+
+python -m text_watermark_tools indicate score FILE.txt \
+  --tables experiments/2026-08-31-transfer-36-to-12x4/tables-hashpool
 
 python -m text_watermark_tools scrub \
   experiments/2026-08-17-pair-12x4 \
