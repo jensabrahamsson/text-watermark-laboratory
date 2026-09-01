@@ -38,6 +38,7 @@ def test_protocol_qgen_names_frozen_sources_before_decode() -> None:
     assert "Do **not** use `--include-first`" in text
     assert "Dashscope" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
+    assert "`3c0a5c9`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert TRAIN.is_dir()
     assert TEST.is_dir()
 

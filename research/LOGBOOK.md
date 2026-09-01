@@ -1678,4 +1678,13 @@ replaces **25/48**. Isolated-file detection is still not finished.
 JSON: `experiments/2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/`,
 `experiments/2026-09-01-openings-distil100x4-to-distil12x4/`.
 
+## 2026-09-01 Qwen occupancy-free Qwen-12 transfer frozen
+
+[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md)
+committed at SHA `3c0a5c9`. Qwen 100×4 tables score Qwen 12×4 files.
+Not leftover-18. Native tokenizer. No lock A. No `--include-first`.
+Do not apply leftover-18 GPT-2 keys to Qwen files. Do not look at
+Qwen→Qwen occupancy-free LRs until this line is on origin. Do not
+write `thesis/`.
+
 ---
