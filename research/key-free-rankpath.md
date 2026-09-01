@@ -200,17 +200,76 @@ rows: FPR10 t=0.154 signs 1/6 leftover and 3 unmarked FPs (combined
 The high-precision fill-in is a threshold on the uncovered channel, not
 a mixed-magnitude AUC.
 
+## DistilGPT2 and Qwen: not a universal tournament detector
+
+A working mixin is not enough. Rank-path uses the **generator's own**
+unmarked LM. DistilGPT2 12×4 is officially **12/12**; in-domain token
+hits is **9/12**, AUC 0.705. Native Distil unmarked-LM rankpath is
+chance.
+
+JSON: [../experiments/2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath/](../experiments/2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath/),
+[../experiments/2026-08-31-probe-distilgpt2-12x4-prefix4-rankpath/](../experiments/2026-08-31-probe-distilgpt2-12x4-prefix4-rankpath/),
+[../experiments/2026-08-31-transfer-36x4-to-distilgpt2-fitprefix4-rankpath/](../experiments/2026-08-31-transfer-36x4-to-distilgpt2-fitprefix4-rankpath/),
+[../experiments/2026-08-31-probe-qwen-12x4-fitprefix4-rankpath/](../experiments/2026-08-31-probe-qwen-12x4-fitprefix4-rankpath/),
+[../experiments/2026-08-31-probe-qwen-12x4-prefix4-rankpath/](../experiments/2026-08-31-probe-qwen-12x4-prefix4-rankpath/).
+
+| Protocol | Prompt wins | File AUC | marked>0 | unmarked≤0 | perm p |
+|---|---|---|---|---|---|
+| Distil opening rankpath | **8/12** | **0.579** | 28/48 | 32/48 | 0.132 |
+| Distil prefix-4 rankpath | **7/12** | **0.563** | 23/48 | 26/48 | 0.099 |
+| GPT-2 36×4 rankpath → Distil (GPT-2 LM) | 9/12 | 0.636 | 21/48 | 34/48 | 0.017 |
+| Qwen opening rankpath | **8/12** | **0.590** | 24/48 | 32/48 | 0.029 |
+| Qwen prefix-4 rankpath | **9/12** | **0.662** | 25/48 | 33/48 | 0.0035 |
+
+Distil rankuni is worse than chance (opening 5/12, AUC 0.451). GPT-2
+ranks of Distil tokens are the **wrong LM** for Distil’s tournament:
+weak ranking, isolated **21/48**, not a Distil reader. Token-identity
+hits on that split is **5/12**, AUC **0.462**. Native Distil (right LM)
+is the fairer test, and that is chance.
+
+Qwen’s in-domain opening **is generated token 0** (`first` **12/12**,
+AUC **0.901**). Rankpath scores generated tokens 1… and does not recover
+that. Opening rankpath is 8/12 (isolated 24/48). Prefix-4 file AUC is
+weakly above chance (**9/12**, AUC **0.662**, perm p=0.0035, isolated
+25/48) and is still not the first-token gate. Do not score Qwen ids with
+GPT-2 tables.
+
+Rank-path is GPT-2-geometry-specific on the piles we have. It is not a
+universal tournament detector.
+
+## 60-stem prefix-4 as a standalone isolated-file reader
+
+Not leftover-only cascade. Train 60 stems (36×4 + long + tails +
+family, overlapping 12×4 prompts dropped). Score the original 12×4.
+`--fit-prefix 5 --pos-bucket 0`. `used_keys=false`.
+
+JSON: [../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/](../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/).
+
+| Method | Prompt wins | File AUC | marked>0 | unmarked≤0 | precision |
+|---|---|---|---|---|---|
+| **rankpath** | **10/12** | **0.770** | **28/48** | **40/48** | 0.778 |
+| rankuni | 11/12 | 0.761 | 39/48 | 32/48 | 0.709 |
+
+24-short unbucketed prefix-4 was **11/12**, **25/48 vs 43/48**. Combined
+accuracy is the same **68/96**. Extra stems add 3 TPs and 3 FPs.
+Nested FPR10 is 11/48 vs 47/48. Do not sell 28/48 as beating **29/48**
+or rankuni 39/48 as beating poshits **39/48** (16 unmarked FPs).
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff` with
   `n_used` and **ABSTAIN** at coverage 0. Precision 1.0 among decided files
   on the 24-short OOD gate; recall is the overlap bound.
 - Isolated-file **rank path** is a second channel that does not need token
-  overlap. Use the **opening** reader (`--fit-prefix 4 --pos-bucket 1`):
-  in-domain 12/12, 41/48; OOD 10/12, 28/48 with unmarked FPs. Unbucketed
-  first-four rank symbols transfer as ranking **11/12** with isolated
-  **25/48 vs 43/48** (5 unmarked FPs). Full-file rank-path is chance.
-  It is not a universal detector.
+  overlap. On **GPT-2** use the **opening** reader (`--fit-prefix 4
+  --pos-bucket 1`): in-domain 12/12, 41/48; OOD 10/12, 28/48 with unmarked
+  FPs. Unbucketed first-four rank symbols transfer as ranking **11/12**
+  with isolated **25/48 vs 43/48** (5 unmarked FPs). 60-stem prefix-4 as a
+  standalone reader is **10/12**, **28/48 vs 40/48** (same 68/96 combined
+  as 24-short). Full-file rank-path is chance. Native Distil opening
+  rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12.
+  Native Qwen opening rankpath is **8/12** against first-token **12/12**.
+  Rank-path is not a universal tournament detector.
 - Cascade remains an honest two-channel report. Quote the high-precision
   count channel when `n_used>0`. When it abstains, use the **opening**
   rank-path reader, not the full file. Unbucketed prefix-4 is the

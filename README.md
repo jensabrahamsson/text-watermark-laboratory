@@ -79,8 +79,12 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Key-free last-1, same 4-token OOD split | Truncated last-4 was already last-1 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | Mixing token 0 into hits | 9/12, AUC 0.719 |
 | Qwen 12×4 first-token opening | In-domain, Qwen tokenizer | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
+| Qwen native opening rankpath | Generated tokens 1…, Qwen LM | **8/12**, AUC **0.590** |
+| Qwen native prefix-4 rankpath | Four rank symbols, Qwen LM | **9/12**, AUC **0.662**, isolated 25/48 |
 | DistilGPT2 12×4 official / in-domain hits | Same keys, GPT-2 tokenizer | **12/12** / **9/12**, AUC 0.705 |
+| Distil native opening rankpath | Distil unmarked LM, same twins | **8/12**, AUC **0.579** (chance) |
 | GPT-2 36×4 → DistilGPT2 | Same BPE, new generator | hits **5/12**, AUC **0.462** |
+| GPT-2 36×4 rankpath → Distil | GPT-2 LM ranks of Distil tokens | **9/12**, AUC 0.636, isolated **21/48** |
 | Key-free tokmlp, 4-token 24×4 → 12×4 | Tiny token MLP, same gate as poshits | 8/12, AUC 0.714 (does **not** beat poshits 0.873) |
 | Key-free hashlog on that OOD gate | Hashed logistic, same split | 7/12, AUC 0.606 |
 | GPT-2 learned scorers → Distil / Qwen | tokmlp / charcnn / hashlog | chance (charcnn Qwen AUC 0.496) |
@@ -109,7 +113,7 @@ So `indicate` is an experimental watermark-presence indicator. It is not a unive
 
 `probe` compares other key-free scorers on the same twins (interpolation, coverage gating, hash pooling, optional unmarked-LM choice geometry) and reports AUC as well as prompt-grain wins. `scrub` tries to remove a known public mark by snapping tokens to the unmarked argmax. Neither reconstructs keys.
 
-Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md). Tiny key-free learned scorers (`learn`) are an experiment on the same grains, not a replacement of the count tables: [research/key-free-learn.md](research/key-free-learn.md). Instance contrast against `control-shuffled-30` is [research/key-free-contrast.md](research/key-free-contrast.md): the 4-token poshits reader is instance-specific without keys (**0/48** control `lr>0`), not a generic tournament detector. Occupancy Laplace vs observed next tokens is [research/key-free-tokhits.md](research/key-free-tokhits.md): the 39/48 poshits isolated-file number includes The-Laplace; `postokhits` is **16/48** with precision 1.0 among decided files. Rank-symbol tables that score novel openings without token identity are [research/key-free-rankpath.md](research/key-free-rankpath.md): prefix-4 rankpath ranks control-shuffled-30 with unmarked (AUC **0.511**, isolated **6/48**), not the poshits **0/48**.
+Detailed protocol and results: [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md). Tiny key-free learned scorers (`learn`) are an experiment on the same grains, not a replacement of the count tables: [research/key-free-learn.md](research/key-free-learn.md). Instance contrast against `control-shuffled-30` is [research/key-free-contrast.md](research/key-free-contrast.md): the 4-token poshits reader is instance-specific without keys (**0/48** control `lr>0`), not a generic tournament detector. Occupancy Laplace vs observed next tokens is [research/key-free-tokhits.md](research/key-free-tokhits.md): the 39/48 poshits isolated-file number includes The-Laplace; `postokhits` is **16/48** with precision 1.0 among decided files. Rank-symbol tables that score novel openings without token identity are [research/key-free-rankpath.md](research/key-free-rankpath.md): prefix-4 rankpath ranks control-shuffled-30 with unmarked (AUC **0.511**, isolated **6/48**), not the poshits **0/48**. Native Distil opening rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12; Qwen opening rankpath is **8/12** against first-token **12/12**.
 
 ---
 

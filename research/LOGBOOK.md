@@ -552,4 +552,36 @@ JSON: `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/`.
 Write-up: [key-free-rankpath.md](key-free-rankpath.md).
 
+## 2026-08-31 Distil/Qwen rankpath and 60-stem prefix-4 standalone
+
+DistilGPT2 12×4 is officially **12/12**. Native Distil unmarked-LM
+opening rankpath is chance: **8/12**, AUC **0.579**, perm p=0.132,
+isolated 28/48 vs 32/48. Prefix-4 is **7/12**, AUC 0.563. Distil
+in-domain token hits on the same pile is 9/12. Rank-path is **not** a
+universal tournament detector across GPT-2-family generators.
+
+GPT-2 36×4 rankpath scored on Distil tokens with the GPT-2 LM (wrong
+LM): **9/12**, AUC 0.636, isolated **21/48 vs 34/48**. Weak ranking,
+not a Distil reader. Token hits on that split stay 5/12 / 0.462.
+
+Qwen2-1.5B opening rankpath: **8/12**, AUC **0.590**, isolated 24/48 vs
+32/48. Prefix-4 is **9/12**, AUC **0.662**, isolated 25/48 vs 33/48
+(perm p=0.0035). Qwen’s in-domain opening remains token 0 (`first`
+**12/12**, AUC **0.901**). Rankpath starts at generated token 1 and
+does not recover that.
+
+60-stem prefix-4 as a standalone isolated-file reader (not leftover
+cascade): rankpath **10/12**, AUC **0.770**, **28/48 vs 40/48**.
+24-short prefix-4 was 11/12, 25/48 vs 43/48. Combined accuracy is the
+same **68/96**. Do not sell 28/48 as beating 29/48, or rankuni 39/48
+(16 FPs) as beating poshits 39/48.
+
+JSON: `experiments/2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-distilgpt2-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-36x4-to-distilgpt2-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-qwen-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-qwen-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
 ---

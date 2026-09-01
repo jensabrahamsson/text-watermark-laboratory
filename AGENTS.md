@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; that 39/48 includes The-Laplace occupancy, and observed-token `postokhits` on the same gate is **16/48** with precision 1.0 among decided files; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Isolated observed-token recall equals train opening-atom overlap (`openings`): last-2+ `postokbackoff2` stays **13/48** while last-1 backoff carries 16→36. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**).
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; that 39/48 includes The-Laplace occupancy, and observed-token `postokhits` on the same gate is **16/48** with precision 1.0 among decided files; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Isolated observed-token recall equals train opening-atom overlap (`openings`): last-2+ `postokbackoff2` stays **13/48** while last-1 backoff carries 16→36. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**). Native Distil opening rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12; Qwen opening rankpath is **8/12** against first-token **12/12**.
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -135,8 +135,12 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
 | `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 (hurts) |
 | Qwen 12×4 first-token opening | **12/12**, AUC **0.901** (hits without token 0: 7/12) |
+| Qwen native opening rankpath | **8/12**, AUC **0.590** (not first-token 12/12) |
+| Qwen native prefix-4 rankpath | **9/12**, AUC **0.662**, isolated 25/48 |
 | DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
+| Distil native opening rankpath | **8/12**, AUC **0.579** (chance; official 12/12) |
 | GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
+| GPT-2 36×4 rankpath → Distil (GPT-2 LM) | **9/12**, AUC 0.636, isolated **21/48** |
 | Key-free tokmlp, 4-token 24×4 → 12×4 | 8/12, AUC 0.714 (does not beat poshits **0.873**) |
 | Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
 | GPT-2 learned scorers → Distil / Qwen | chance |
@@ -157,6 +161,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Opening rankpath, 24-short → 12×4 | **10/12**, isolated **28/48** |
 | Unbucketed full-file rankpath, 12×4 LOO | **8/12**, AUC 0.559 (front-loaded; 16:32 chance) |
 | Unbucketed prefix-4 rankpath, 24-short → 12×4 | **11/12**, isolated **25/48 vs 43/48** |
+| 60-stem prefix-4 rankpath standalone → 12×4 | **10/12**, **28/48 vs 40/48** (same 68/96 as 24-short) |
 | Prefix-4 rankpath vs control-shuffled-30 | control AUC **0.511**, isolated **6/48** (not poshits 0/48) |
 | 60-stem count + prefix-4 rankpath leftover | **1/6** leftover; cascade **35/48 vs 43/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |

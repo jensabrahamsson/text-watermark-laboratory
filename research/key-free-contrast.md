@@ -183,7 +183,9 @@ sign on this gate remains **39/48**. That 39/48 includes The-Laplace
 occupancy; observed-token `postokhits` is **16/48** with precision 1.0
 among decided files, and control stays **0/48** under that reader too.
 Leave-one-of-12-out hard last-4 remains **29/48**. Qwen and DistilGPT2
-transfer remain chance. Tiny nets still do not beat poshits.
+token-identity transfer remain chance. Native Distil rankpath is chance
+(**8/12**, AUC **0.579**) despite official 12/12. Tiny nets still do not
+beat poshits.
 
 Rank-path tables (unmarked-LM rank symbols, not token identity) are a
 different instance check. Unbucketed prefix-4 **rankpath** ranks

@@ -1500,3 +1500,132 @@ def test_distilgpt2_official_splits_and_gpt2_hits_do_not_transfer() -> None:
     auc = binary_eval(xfer.marked_lrs, xfer.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.55
 
+
+def test_distilgpt2_native_rankpath_is_chance() -> None:
+    opening = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    prefix = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-distilgpt2-12x4-prefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    uni = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath"
+        / "rankuni"
+        / "holdout.json"
+    )
+    assert opening.used_keys is False
+    assert prefix.used_keys is False
+    assert opening.n_prompts_marked_above == 8
+    assert opening.n_marked_positive == 28
+    assert opening.n_unmarked_nonpositive == 32
+    assert prefix.n_prompts_marked_above == 7
+    assert prefix.n_marked_positive == 23
+    assert uni.n_prompts_marked_above == 5
+    opening_auc = binary_eval(opening.marked_lrs, opening.unmarked_lrs, n_perm=200, seed=0)
+    prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
+    assert opening_auc.auc < 0.65
+    assert prefix_auc.auc < 0.65
+
+
+def test_gpt2_rankpath_on_distil_tokens_is_not_a_distil_reader() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-distilgpt2-fitprefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 9
+    assert ev.n_marked_positive == 21
+    assert ev.n_unmarked_nonpositive == 34
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.58 < auc.auc < 0.70
+
+
+def test_stem60_prefix4_rankpath_matches_short_combined_accuracy() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    uni = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath"
+        / "rankuni"
+        / "holdout.json"
+    )
+    short = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36x4-to-12x4-rankpath-full-isolated"
+        / "prefix-4"
+        / "rankpath"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 10
+    assert ev.n_marked_positive == 28
+    assert ev.n_unmarked_nonpositive == 40
+    assert uni.n_prompts_marked_above == 11
+    assert uni.n_marked_positive == 39
+    assert uni.n_unmarked_nonpositive == 32
+    assert short.n_marked_positive == 25
+    assert short.n_unmarked_nonpositive == 43
+    assert ev.n_marked_positive + ev.n_unmarked_nonpositive == 68
+    assert short.n_marked_positive + short.n_unmarked_nonpositive == 68
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.72
+
+
+def test_qwen_native_opening_rankpath_does_not_match_first_token() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4-fitprefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    first = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4-fitprefix4-pos1"
+        / "first"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 8
+    assert ev.n_marked_positive == 24
+    assert ev.n_unmarked_nonpositive == 32
+    assert first.n_prompts_marked_above == 12
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    first_auc = binary_eval(first.marked_lrs, first.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc < 0.70
+    assert first_auc.auc > 0.85
+    prefix = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-qwen-12x4-prefix4-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    assert prefix.used_keys is False
+    assert prefix.n_prompts_marked_above == 9
+    assert prefix.n_marked_positive == 25
+    assert prefix.n_unmarked_nonpositive == 33
+    prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.60 < prefix_auc.auc < 0.75
+

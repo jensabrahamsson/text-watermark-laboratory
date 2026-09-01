@@ -419,7 +419,13 @@ do not read Qwen (8/12, AUC 0.584).
 **Same tokenizer is not a transferable 4-gram detector.** DistilGPT2
 12×4 is officially **12/12**. In-domain hits **9/12**, AUC 0.705. GPT-2
 36×4 → Distil (shared BPE, same public keys) hits **5/12**, AUC **0.462**.
-The 4-gram footprint is generator-weight specific.
+The 4-gram footprint is generator-weight specific. Native Distil
+unmarked-LM rankpath is chance (**8/12**, AUC **0.579**). Rank-path is
+not a universal tournament detector.
+
+**Qwen native rankpath does not copy first-token 12/12.** Opening
+rankpath is **8/12**, AUC **0.590**, isolated 24/48. Qwen's in-domain
+opening remains generated token 0.
 
 **A tiny neural net does not beat those tables.** On the same 4-token
 new-topic gate, tokmlp is 8/12 (AUC 0.714) against poshits **12/12**
@@ -539,7 +545,7 @@ Learned scorers: [key-free-learn.md](key-free-learn.md).
 
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
 Opening geometry and ABSTAIN: [key-free-cascade.md](key-free-cascade.md).
-Rank-path (no token identity): opening **12/12 / 41/48**, OOD **10/12 / 28/48**; full file is chance. [key-free-rankpath.md](key-free-rankpath.md).
+Rank-path (no token identity): GPT-2 opening **12/12 / 41/48**, OOD **10/12 / 28/48**; full file is chance. Distil native opening is chance (**8/12**, AUC **0.579**). Qwen opening rankpath is **8/12** against first-token **12/12**. [key-free-rankpath.md](key-free-rankpath.md).
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \
