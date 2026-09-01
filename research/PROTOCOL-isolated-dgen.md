@@ -124,7 +124,9 @@ python -m text_watermark_tools openings experiments/2026-09-01-pair-distil-100x4
 - Lock A interpolate on Distil twins.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
-- Distil ∪ SMT coverage union without a new freeze before looking.
+- Distil ∪ SMT coverage union except as
+  [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md), frozen before
+  leftover-after-union counts.
 - Qwen 100×4 → Qwen 12×4 occupancy-free transfer; that is
   [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md), not leftover-18.
 - Selling Distil→Distil t=0, Distil poshits, Distil→GPT-2 **22/48**,

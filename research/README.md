@@ -30,6 +30,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md) | Distil occupancy-free leftover-18 **3/18** (office); Distil postokhits **22/48** beats GPT-2 occupancy-free **16/48**, not **25/48** |
 | [PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) | Distil 100×4 → Distil 12×4 occupancy-free **16/48** = coverage; not leftover-18; not **25/48** |
 | [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md) | Qwen 100×4 → Qwen 12×4 occupancy-free **31/48 vs 48/48**; coverage **37/48**; not leftover-18; not **25/48** |
+| [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md) | Distil ∪ SMT openings union; frozen before leftover-after-union counts; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

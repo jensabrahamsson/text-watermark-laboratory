@@ -201,6 +201,10 @@ Distil→Distil postokhits t=0 **16/48 vs 39/48** equals coverage
 Qwen→Qwen postokhits t=0 **31/48 vs 48/48**; coverage **37/48**; six
 covered files have negative LR. Cross-corpus **31/48** > **25/48** does
 not replace original-12 GPT-2. Do not sell Qwen→Qwen **31/48**.
+Distil ∪ SMT occupancy-free openings on the original 12 is
+[PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md). Frozen before
+leftover-after-union counts. Do not target leftover-15 openings after
+peeking.
 
 ## What this freeze refuses
 

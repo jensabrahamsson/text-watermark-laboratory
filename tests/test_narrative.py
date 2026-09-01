@@ -33,6 +33,7 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "PROTOCOL-isolated-leftover-18-closed" in text
     assert "PROTOCOL-isolated-xgen" in text
     assert "Distil occupancy-free t=0 **22/48 vs 43/48**" in text
+    assert "PROTOCOL-isolated-dsmt" in text
     assert "Do not write `thesis/`" in text or "Do **not** write `thesis/`" in text
     assert "`004397c`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 

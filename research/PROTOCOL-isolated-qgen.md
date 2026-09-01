@@ -133,7 +133,9 @@ python -m text_watermark_tools openings experiments/2026-09-01-pair-qwen-100x4 \
 - `--include-first` on this transfer.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
-- Distil ∪ SMT coverage union without a new freeze before looking.
+- Distil ∪ SMT coverage union except as
+  [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md), frozen before
+  leftover-after-union counts.
 - Paid chat APIs, including Dashscope `qwen-plus`.
 - Selling Qwen→Qwen t=0, Qwen poshits, Qwen first **12/12**,
   Distil→Distil **16/48**, Distil→GPT-2 **22/48**, leftover-18 Distil
