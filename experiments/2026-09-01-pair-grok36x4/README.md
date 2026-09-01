@@ -21,7 +21,8 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-grok36 \
   --out-dir experiments/2026-09-01-pair-grok36x4
 ```
 
-Frozen key-free analysis (do not change flags): see
+Frozen key-free analysis: see
 [PROTOCOL-isolated-scale.md](../../research/PROTOCOL-isolated-scale.md).
-Do not look at those LRs until the frozen commands have been run once.
-Does not replace **25/48**.
+Lock A nested Youden on grok12×4 is **36/48 vs 39/48**; occupancy-free
+equals coverage **39/48**. On the original 12, lock A nested is
+**26/48 vs 33/48**; occupancy-free **10/48**. Does not replace **25/48**.

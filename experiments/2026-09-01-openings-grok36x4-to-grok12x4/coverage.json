@@ -1,0 +1,703 @@
+{
+  "note": "Isolated-file observed-token recall equals opening-atom overlap with train. Exact 4-token copy is a lower bound. Not keys, not hash_iv, not g-values, not a universal detector.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "model_name": "gpt2",
+  "fit_prefix": 4,
+  "position_bucket": 1,
+  "include_first": false,
+  "context_len": 4,
+  "groups": [
+    "2026-09-01-pair-grok36x4"
+  ],
+  "n_test_stems": 12,
+  "methods": [
+    "postokhits"
+  ],
+  "curve": [
+    {
+      "upto": "2026-09-01-pair-grok36x4",
+      "n_train_stems": 36,
+      "n_train_openings": 77,
+      "methods": {
+        "postokhits": {
+          "n_covered": 39,
+          "n_exact_opening": 21,
+          "n_last1_only": 26,
+          "n_last1_later": 0,
+          "n_train_openings": 77,
+          "coverage_gate": {
+            "n_marked": 48,
+            "n_unmarked": 48,
+            "n_marked_zero": 9,
+            "n_unmarked_zero": 42,
+            "n_marked_decided": 39,
+            "n_unmarked_decided": 6,
+            "decided_tp": 39,
+            "decided_fn": 0,
+            "decided_fp": 3,
+            "decided_tn": 3,
+            "precision": 0.9285714285714286,
+            "decided_accuracy": 0.9333333333333333,
+            "recall_including_zeros": 0.8125
+          },
+          "zero_openings": [
+            "102-car-boot-4: The street was a",
+            "105-charity-shop-2: ***\n\nIn",
+            "105-charity-shop-3: Photograph by Chris",
+            "105-charity-shop-4: ***\n\nFor",
+            "107-campsite-2: The sun was rising",
+            "107-campsite-3: By then I realized",
+            "108-registry-office-1: After I'd finished",
+            "108-registry-office-4: There was one place",
+            "109-scrapyard-1: ***\n\nThree"
+          ]
+        }
+      }
+    }
+  ],
+  "stem_curve": [],
+  "final": {
+    "postokhits": {
+      "n_covered": 39,
+      "n_exact_opening": 21,
+      "n_last1_only": 26,
+      "n_last1_later": 0,
+      "n_train_openings": 77,
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 9,
+        "n_unmarked_zero": 42,
+        "n_marked_decided": 39,
+        "n_unmarked_decided": 6,
+        "decided_tp": 39,
+        "decided_fn": 0,
+        "decided_fp": 3,
+        "decided_tn": 3,
+        "precision": 0.9285714285714286,
+        "decided_accuracy": 0.9333333333333333,
+        "recall_including_zeros": 0.8125
+      },
+      "zeros": [
+        {
+          "stem": "102-car-boot",
+          "sample": 4,
+          "opening_text": "The street was a",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " street",
+              "n_m": 121,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " a",
+              "n_m": 15,
+              "n_u": 6,
+              "c_m": 6,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "105-charity-shop",
+          "sample": 2,
+          "opening_text": "***\n\nIn",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "***"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "***",
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 7,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "***",
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "In",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "In",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "In",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "105-charity-shop",
+          "sample": 3,
+          "opening_text": "Photograph by Chris",
+          "nearest": [
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " by"
+                ]
+              },
+              "next": " Chris",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "105-charity-shop",
+          "sample": 4,
+          "opening_text": "***\n\nFor",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "***"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "***",
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 7,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "***",
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "For",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "For",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "For",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "107-campsite",
+          "sample": 2,
+          "opening_text": "The sun was rising",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " sun",
+              "n_m": 121,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " rising",
+              "n_m": 15,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "107-campsite",
+          "sample": 3,
+          "opening_text": "By then I realized",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "By"
+                ]
+              },
+              "next": " then",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " then"
+                ]
+              },
+              "next": " I",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " I"
+                ]
+              },
+              "next": " realized",
+              "n_m": 2,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "108-registry-office",
+          "sample": 1,
+          "opening_text": "After I'd finished",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "After"
+                ]
+              },
+              "next": " I",
+              "n_m": 5,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " I"
+                ]
+              },
+              "next": "'d",
+              "n_m": 0,
+              "n_u": 4,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "108-registry-office",
+          "sample": 4,
+          "opening_text": "There was one place",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "There"
+                ]
+              },
+              "next": " was",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " one",
+              "n_m": 0,
+              "n_u": 9,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "109-scrapyard",
+          "sample": 1,
+          "opening_text": "***\n\nThree",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "***"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "***",
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 7,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "\n",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 7,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "***",
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "Three",
+              "n_m": 7,
+              "n_u": 0,
+              "c_m": 6,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n",
+                  "\n"
+                ]
+              },
+              "next": "Three",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 6,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "\n"
+                ]
+              },
+              "next": "Three",
+              "n_m": 7,
+              "n_u": 1,
+              "c_m": 6,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d."
+}

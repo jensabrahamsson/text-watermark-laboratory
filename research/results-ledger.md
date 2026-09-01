@@ -248,6 +248,25 @@ Do not sell `The car` or tail **9/12**. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
 
+## Isolated-file scale (36 Grok-length families)
+
+Protocol SHA `e537d71`. Pair `69ef41f`. Official **36/36**.
+`used_keys=false`.
+
+36 Grok-length → grok12×4 lock A nested **36/48 vs 39/48** (prompt
+**12/12**). Occupancy-free **39/48 vs 45/48** equals opening coverage
+**39/48** (exact 21/48; 3 FP). H-scale-grok holds vs 100-one-liner
+**22/48**. Isolated observed-token recall is still opening overlap.
+
+36 Grok-length → original 12×4 lock A nested **26/48 vs 33/48**.
+H-scale-A holds vs n=12 train **16/48**. Occupancy-free **10/48** equals
+coverage **10/48**. Do not sell 26/48, t=0 **29/48**, or grok12
+**39/48**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`.
+
 The next isolated freeze (not this file) is
 [PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md): 36 new
 Grok-length families, prompts before `pair`. Does not replace

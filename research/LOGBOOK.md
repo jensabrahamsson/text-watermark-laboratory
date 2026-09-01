@@ -1397,4 +1397,27 @@ Thirty-six new Grok-register scenes, disjoint from grok12. Seed
 grok12 into the train. Does not replace **25/48**. Do not write
 `thesis/`.
 
+## 2026-09-01 36 Grok-length scale protocol opened
+
+SHA `e537d71`. Pair `69ef41f`. Official first-draw **36/36**.
+`used_keys=false`.
+
+Lock A nested Youden, grok12×4 test: **36/48 vs 39/48** (prompt
+**12/12**). Occupancy-free postokhits **39/48 vs 45/48**, equal to
+opening coverage **39/48** (exact 21/48; 3 unmarked FP). H-scale-grok
+holds vs 100-one-liner xreg **22/48**. Isolated observed-token recall
+is still opening-atom overlap.
+
+Lock A nested Youden, original 12×4: **26/48 vs 33/48** (prompt
+**10/12**). Occupancy-free **10/48**, equal to coverage **10/48**.
+H-scale-A holds vs grok12-train **16/48**. Do not sell 26/48 or t=0
+**29/48**.
+
+H-scale-iso holds. Nothing here replaces **25/48**. Isolated-file
+detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`.
+
 ---

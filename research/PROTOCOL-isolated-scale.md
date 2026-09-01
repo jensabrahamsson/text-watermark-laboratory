@@ -239,5 +239,55 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen commands)
 
-Not yet. Do not fill this section until `pair` and the analysis
-commands have been run once, as written.
+Official first-draw lamp on the new twins is **36/36**. `used_keys=false`
+on every key-free path below.
+
+| Split | Lock | Prompt | Nested Youden | t=0 marked |
+|---|---|---|---|---|
+| grok12×4 | A interpolate | **12/12** | **36/48 vs 39/48** | **39/48 vs 33/48** |
+| grok12×4 | B opening poshits | **12/12** | **39/48 vs 45/48** | **39/48 vs 45/48** |
+| grok12×4 | C opening rankpath | 11/12 | **37/48 vs 32/48** | **36/48 vs 35/48** |
+| grok12×4 | occupancy-free postokhits | **12/12** | **39/48 vs 45/48** | **39/48 vs 45/48** |
+| original 12×4 | A interpolate | **10/12** | **26/48 vs 33/48** | **29/48 vs 29/48** |
+| original 12×4 | B opening poshits | 7/12 | **10/48 vs 47/48** | **10/48 vs 47/48** |
+| original 12×4 | C opening rankpath | 7/12 | **24/48 vs 31/48** | **24/48 vs 33/48** |
+| original 12×4 | occupancy-free postokhits | 11/12 | **10/48 vs 47/48** | **10/48 vs 47/48** |
+
+H-scale-A **holds**: lock A nested on the original 12 is **26/48**, above
+grok12-train **16/48**. More in-register mass helps that cell. Nested
+**26/48 vs 33/48** is not t=0 **25/48**. Occupancy-free on those files
+is **10/48**. Do not sell 26/48 or t=0 **29/48**.
+
+H-scale-grok **holds**: lock A nested on grok12×4 is **36/48**, above
+100-one-liner xreg **22/48**. Prompt **12/12**. That is still not
+**25/48**.
+
+H-scale-B **holds**: occupancy-free t=0 on grok12×4 is **39/48**, equal
+to opening coverage **39/48** (exact **21/48**; decided 39 TP / 3 FP,
+precision 0.929). On the original 12 it is **10/48**, equal to coverage
+**10/48** (exact **8/48**; 1 FP). Isolated observed-token recall is
+still train opening-atom overlap. More Grok-length train filled the
+channel that 100 one-liners left at **0/48** on grok12. It did not
+invent a denser isolated detector.
+
+H-scale-iso **holds**. Do not sell grok12 occupancy-free **39/48**, lock
+A nested **36/48**, prompt **12/12**, lock C nested **37/48** (negative
+train threshold), or original-12 nested **26/48**. None of those
+replaces **25/48**. Isolated-file detection is not finished.
+
+In-family interpolate on the new 36: prompt **35/36**, nested-by-stem
+**93/144 vs 110/144**, t=0 **114/144 vs 98/144**, file AUC **0.823**.
+Ranking works in-family. That is not **25/48**.
+
+JSON: `experiments/2026-09-01-pair-grok36x4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-grok12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-grok36x4-to-grok12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-grok36x4-to-grok12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-grok36x4-to-12x4/`,
+`experiments/2026-09-01-probe-grok36x4-hard-last4/`.
