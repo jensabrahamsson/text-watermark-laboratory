@@ -910,4 +910,12 @@ arXiv 2402.19361, not 2311.04378 (that is Zhang et al., 2024); arXiv
 2405.20777 is Gloaguen et al. (2025), not Sabanayagam, Hörl, and Dobriban.
 Do not write the dissertation until isolated-file research is finished.
 
+## 2026-09-01 same problem, not a priority claim
+
+Neither this lab nor the agent invented key-free detection. Closest
+published analog is Wang et al. (2026) (TTP-Detect): same audit problem,
+different method. Gloaguen et al. (2025) ask whether a *generator* is
+watermarked via queries, not whether one finished file is marked.
+Isolated hard last-4 stays **29/48**. See [related-work.md](related-work.md).
+
 ---

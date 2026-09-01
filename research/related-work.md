@@ -73,6 +73,34 @@ key-agnostic verification from observable outputs and paired
 watermarked/unwatermarked reference sets — the same audit problem, a
 different method.
 
+## Same problem, not a priority claim
+
+Neither Jens nor this laboratory invented the *question*. Independent
+work already asked whether a third party can detect a sampling watermark
+without the vendor’s keys.
+
+| Work | What it measures | Same as this lab? |
+|---|---|---|
+| Dathathri et al. (2024) | Keyed official detection of SynthID-Text | No. This is `score`. |
+| Jovanović et al. (2024) | Steal the keyed mapping from API samples | No. Not key recovery, not implemented. |
+| Gloaguen et al. (2025) | Is *this generator* watermarked? Black-box queries | Same *family* of key-free questions. Different measurement: not a finished file. |
+| Wang et al. (2026) | Third-party file verification from paired references | **Closest published analog.** Same audit problem. Different method (proxy model + relative tests, not count-table LR). |
+| Duan et al. (2025) | ZK that keyed detection ran | No. Still uses keys internally. |
+| This repository | Finished-string count LR on public twins | An empirical notebook of that second measurement. Not TTP-Detect. Not Gloaguen. |
+
+What this repo *does* add is a small, fully checked-in instance on the
+public mixin: GPT-2 and Qwen twins, leave-one-out, frozen tables, tests,
+raw JSON, and later occupancy-free / rank-path protocols. The interesting
+claim is narrow: the keyed tournament leaves a distributional footprint
+that a count-based LR can learn **without reconstructing the g-function**.
+
+That is not “more than” Dathathri et al. (2024) (they built the scheme),
+not “more than” Jovanović et al. (2024) (they steal; we do not), and not
+a calibrated isolated-file detector that beats Wang et al. (2026) on a
+shared benchmark. Isolated hard last-4 remains **29/48**. Opening
+occupancy-free hashing is **24/48** marked `lr>0`, which is below that
+headline. Treat this as an empirical notebook, not a priority claim.
+
 ## What this repository adds
 
 A small, fully checked-in instance of **finished-string** key-free

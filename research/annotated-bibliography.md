@@ -84,7 +84,7 @@ Annotation: Applies Gloaguen et al. (2025) to a local SynthID-Text deployment. S
 
 **Wang, Z., Ren, Y., Cao, Y., Fang, F., Li, X., & Guo, L. (2026).** Rethinking LLM watermark detection in black-box settings: A non-intrusive third-party framework. In *Findings of the Association for Computational Linguistics: ACL 2026* (pp. 19773–19790). Association for Computational Linguistics. https://doi.org/10.18653/v1/2026.findings-acl.990
 
-Annotation: TTP-Detect: third-party, key-agnostic verification from observable outputs and paired watermarked/unwatermarked references. Same *audit problem* as this lab, a different method (proxy model + relative hypothesis tests). This repository is a small checked-in instance of finished-string count-table indication on the public mixin, not TTP-Detect.
+Annotation: TTP-Detect: third-party, key-agnostic verification from observable outputs and paired watermarked/unwatermarked references. Same *audit problem* as this lab, a different method (proxy model + relative hypothesis tests). Closest published analog of `indicate`. This repository is a small checked-in instance of finished-string count-table indication on the public mixin, not TTP-Detect, and not a claim to have surpassed Wang et al. (2026).
 
 **Duan, H., Xiang, L., & Zhang, X. (2025).** PVMark: Enabling public verifiability for LLM watermarking schemes [Preprint]. arXiv. https://arxiv.org/abs/2510.26274
 
