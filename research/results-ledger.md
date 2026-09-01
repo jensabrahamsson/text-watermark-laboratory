@@ -22,6 +22,8 @@ Leftover-20 union with short+medium+tails openings is
 union **30/48** (equals SMT); leftover **18**; last-4 **10/18 vs 10/18**.
 Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
 ([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
+Leftover-18 mixed rankpath and grok36 interpolate are
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
 
 ## Locked headlines
 

@@ -164,6 +164,11 @@ Leftover-18 official is **18/18** at prefix-128 by subset of leftover-20
 target leftover openings after peeking. Do not sell leftover official
 **18/18**.
 
+Mixed opening rankpath and grok36 interpolate on leftover-18 are
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
+Do not look at leftover-18 rankpath or leftover-18 interpolate counts
+until that freeze is named.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.

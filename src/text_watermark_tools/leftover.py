@@ -1,8 +1,9 @@
-"""Occupancy leftover-20 bounds from published JSON.
+"""Occupancy leftover bounds from published JSON.
 
 Official prefix scores use detector keys (positive control). Interpolate
-atoms on leftover files do not. Neither is a new probe method. Neither
-replaces 25/48.
+atoms on leftover files do not. Leftover-18 remaining readers re-slice
+published holdouts. None of that is a new probe method. None replaces
+25/48.
 """
 
 from __future__ import annotations
@@ -12,7 +13,11 @@ from pathlib import Path
 from typing import Sequence
 
 from text_watermark_tools.atoms import DEFAULT_ATOM_WINDOWS, window_atom_summary
-from text_watermark_tools.openings import _zero_keys
+from text_watermark_tools.openings import (
+    _holdout_file_lrs,
+    _leftover_sign,
+    _zero_keys,
+)
 
 
 def leftover_keys_from_coverage(
@@ -274,3 +279,104 @@ def persist_leftover_bound(
     (out_dir / "results.md").write_text(
         print_leftover_bound(official=official, atoms=atoms)
     )
+
+
+def summarize_leftover_holdouts(
+    keys: set[tuple[str, int]],
+    holdouts: dict[str, Path],
+) -> dict:
+    """Leftover-file signs from published holdouts. Not a new probe method."""
+    leftover = set(keys)
+    leftover_rows = []
+    used_keys = False
+    used_hash_iv = False
+    used_g_values = False
+    for name, path in holdouts.items():
+        raw = json.loads(Path(path).read_text())
+        if raw.get("used_keys"):
+            used_keys = True
+        if raw.get("used_hash_iv"):
+            used_hash_iv = True
+        if raw.get("used_g_values"):
+            used_g_values = True
+        marked_keys, marked, unmarked = _holdout_file_lrs(path)
+        missing = leftover - marked_keys
+        if missing:
+            raise RuntimeError("leftover keys missing from holdout")
+        leftover_rows.append(
+            {"label": name, **_leftover_sign(leftover, marked, unmarked)}
+        )
+    return {
+        "note": (
+            "Leftover-18 remaining readers on published holdouts. "
+            "Not mixed tables, not a new probe method. "
+            "Does not replace 25/48."
+        ),
+        "used_keys": used_keys,
+        "used_hash_iv": used_hash_iv,
+        "used_g_values": used_g_values,
+        "n_leftover": len(leftover),
+        "leftover": sorted(
+            [{"stem": s, "sample": n} for s, n in leftover],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "leftover_signs": leftover_rows,
+    }
+
+
+def print_leftover_readers(payload: dict) -> str:
+    lines = [
+        "# Leftover-18 remaining readers",
+        "",
+        str(payload.get("note") or ""),
+        "",
+        (
+            f"used_keys={payload.get('used_keys')} "
+            f"leftover={payload.get('n_leftover')}"
+        ),
+        "",
+        "Leftover signs:",
+        "",
+    ]
+    for row in payload.get("leftover_signs") or []:
+        lines.append(
+            f"- {row['label']}: marked>0 {row['marked_above_zero']}/{row['n']}, "
+            f"unmarked≤0 {row['unmarked_at_most_zero']}/{row['n']}"
+        )
+    atoms = payload.get("atoms") or {}
+    if atoms:
+        lines.extend(
+            [
+                "",
+                (
+                    f"atoms_used_keys={atoms.get('used_keys')} "
+                    f"n_rows={atoms.get('n_rows')} "
+                    f"leftover marked lr>0={atoms.get('n_marked_lr_positive')}"
+                ),
+                "",
+                "| window | mean marked Δ | mean unmarked Δ | seen | unseen |",
+                "|---|---|---|---|---|",
+            ]
+        )
+        for win in atoms.get("windows") or []:
+            lines.append(
+                f"| {win.get('start')}:{win.get('end')} | "
+                f"{float(win.get('mean_marked_delta') or 0):.4f} | "
+                f"{float(win.get('mean_unmarked_delta') or 0):.4f} | "
+                f"{win.get('n_seen')} | {win.get('n_unseen')} |"
+            )
+    lines.extend(
+        [
+            "",
+            "Leftover-18 remaining readers are not occupancy-free coverage. "
+            "Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_leftover_readers(payload: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "readers.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (out_dir / "results.md").write_text(print_leftover_readers(payload))

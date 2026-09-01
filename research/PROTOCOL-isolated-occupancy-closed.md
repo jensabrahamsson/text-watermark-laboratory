@@ -117,5 +117,9 @@ official **18/18** as key-free isolated-file detection.
 
 H-closed-iso **holds**. Occupancy-free isolated recall on the original
 12 is still opening-atom overlap. Published disjoint-topic GPT-2 trains
-are exhausted for leftover-18. Isolated-file remains open. Do not write
+are exhausted for leftover-18. Mixed opening rankpath and grok36
+interpolate on leftover-18 are
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
+Do not look at leftover-18 rankpath or leftover-18 interpolate counts
+until that freeze is named. Isolated-file remains open. Do not write
 `thesis/`.
