@@ -147,6 +147,14 @@ def opening_matrix_end(fit_prefix: int | None, prompt_context: bool) -> int | No
     return max(n - 1, 0)
 
 
+def generated_tokens_for_rank_symbols(n_symbols: int, prompt_context: bool) -> int:
+    """How many generated tokens yield ``n_symbols`` choice-matrix rows."""
+    n = max(int(n_symbols), 0)
+    if prompt_context:
+        return n
+    return n + 1
+
+
 def slice_matrices(
     mats: dict[tuple[str, int, str], np.ndarray],
     start: int = 0,
@@ -176,6 +184,25 @@ def slice_symbols(
         e = len(seq) if end is None else int(end)
         out[key] = seq[s:e]
     return out
+
+
+def cascade_fallback_matrices(
+    opening: dict[tuple[str, int, str], np.ndarray],
+    full: dict[tuple[str, int, str], np.ndarray] | None = None,
+    *,
+    end: int | None = None,
+) -> dict[tuple[str, int, str], np.ndarray]:
+    """Rank-path cascade fallback is the opening path, never the full file.
+
+    ``end`` slices a longer collected view to the first N rank symbols
+    (unbucketed prefix-N). ``None`` keeps the ``--fit-prefix`` opening.
+    ``rankpath-full`` must not change this default: averaging 128 rank
+    symbols dilutes the opening the way the published pivot did.
+    """
+    if end is None or int(end) <= 0:
+        return opening
+    source = full if full is not None else opening
+    return slice_matrices(source, 0, int(end))
 
 
 def parse_cascade_fallback(raw: str | None) -> str:

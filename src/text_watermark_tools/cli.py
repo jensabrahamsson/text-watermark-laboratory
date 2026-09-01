@@ -812,6 +812,11 @@ def cmd_probe(args: argparse.Namespace) -> int:
                 if getattr(args, "rankpath_pos_bucket", None) is not None
                 else None
             ),
+            cascade_rankpath_end=(
+                int(args.cascade_rankpath_end)
+                if getattr(args, "cascade_rankpath_end", None)
+                else None
+            ),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -848,6 +853,11 @@ def cmd_probe(args: argparse.Namespace) -> int:
         rankpath_pos_bucket=(
             int(args.rankpath_pos_bucket)
             if getattr(args, "rankpath_pos_bucket", None) is not None
+            else None
+        ),
+        cascade_rankpath_end=(
+            int(args.cascade_rankpath_end)
+            if getattr(args, "cascade_rankpath_end", None)
             else None
         ),
     )
@@ -954,6 +964,13 @@ def cmd_contrast(args: argparse.Namespace) -> int:
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
         position_bucket=int(getattr(args, "pos_bucket", 1)),
         methods=methods or ("hits", "poshits", "hashpool"),
+        rankpath_pos_bucket=(
+            int(args.rankpath_pos_bucket)
+            if getattr(args, "rankpath_pos_bucket", None) is not None
+            else None
+        ),
+        rankpath_end=int(getattr(args, "rankpath_end", 0) or 0) or None,
+        prompt_context=bool(getattr(args, "prompt_context", False)),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("contrast consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1371,7 +1388,18 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "When --cascade has n_used=0: pivot (LDA), rankpath (tokbackoff "
             "on unmarked-LM rank symbols), or rankuni (rank-symbol unigram). "
+            "Rank-path fallback uses the opening path, not --rankpath-full. "
             "Default pivot."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade-rankpath-end",
+        type=int,
+        default=0,
+        help=(
+            "First N rank symbols for --cascade-fallback rankpath/rankuni. "
+            "0 (default) is the --fit-prefix opening. 4 is the unbucketed "
+            "prefix-4 reader. Never the full 128-token path. Still no keys."
         ),
     )
     p_probe.add_argument(
@@ -1619,11 +1647,32 @@ def build_parser() -> argparse.ArgumentParser:
     p_contrast.add_argument("--methods", default="hits,poshits,hashpool",
         help=(
             "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
-            "poshits, postokhits, postokbackoff, postokbackoff2, hashpool"
+            "poshits, postokhits, postokbackoff, postokbackoff2, hashpool, "
+            "rankpath, rankuni, rankhits"
         ),
     )
     p_contrast.add_argument("--fit-prefix", type=int, default=0)
     p_contrast.add_argument("--pos-bucket", type=int, default=1)
+    p_contrast.add_argument(
+        "--rankpath-pos-bucket",
+        type=int,
+        default=None,
+        help=(
+            "Position bucket for rank-symbol tables. Default: same as "
+            "--pos-bucket. 0 is unbucketed. Not a watermark key."
+        ),
+    )
+    p_contrast.add_argument(
+        "--rankpath-end",
+        type=int,
+        default=0,
+        help=(
+            "If >0, score only the first N rank symbols after collection. "
+            "Isolated --fit-prefix 4 is three symbols; --fit-prefix 5 is "
+            "four (unbucketed prefix-4). Still no keys."
+        ),
+    )
+    p_contrast.add_argument("--prompt-context", action="store_true")
     p_contrast.add_argument("--out-dir", default="")
     p_contrast.set_defaults(func=cmd_contrast)
 

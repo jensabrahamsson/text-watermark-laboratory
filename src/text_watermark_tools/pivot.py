@@ -266,6 +266,76 @@ def cascade_score(count_lr: float, n_used: int, fallback_lr: float) -> float:
     return float(fallback_lr)
 
 
+def _combined_at_fallback_threshold(rows: Sequence[dict], threshold: float) -> dict:
+    """Count stays at t=0; fallback files use ``score > threshold``."""
+    t = float(threshold)
+    n_m = n_u = m_pos = u_nonpos = 0
+    for row in rows:
+        side = row.get("side")
+        source = row.get("source")
+        score = float(row.get("score") or 0.0)
+        if side == "marked":
+            n_m += 1
+            if source == "count":
+                if score > 0.0:
+                    m_pos += 1
+            elif score > t:
+                m_pos += 1
+        elif side == "unmarked":
+            n_u += 1
+            if source == "count":
+                if score <= 0.0:
+                    u_nonpos += 1
+            elif score <= t:
+                u_nonpos += 1
+    return {
+        "threshold": t,
+        "marked_above": m_pos,
+        "n_marked": n_m,
+        "unmarked_at_most": u_nonpos,
+        "n_unmarked": n_u,
+    }
+
+
+def _fallback_operating_points(
+    rows: Sequence[dict],
+    fallback_m: Sequence[dict],
+    fallback_u: Sequence[dict],
+) -> dict:
+    """Youden / 10% FPR on uncovered files only. Not a mixed-magnitude AUC."""
+    from text_watermark_tools.stats import (
+        binary_eval,
+        binary_eval_to_dict,
+        threshold_at_fpr,
+    )
+
+    fb_pos = [float(r["score"]) for r in fallback_m]
+    fb_neg = [float(r["score"]) for r in fallback_u]
+    if not fb_pos or not fb_neg:
+        return {
+            "fallback_binary": None,
+            "fallback_fpr10": None,
+            "combined_at_fallback_youden": None,
+            "combined_at_fallback_fpr10": None,
+        }
+    ev = binary_eval(fb_pos, fb_neg, n_perm=200)
+    t10 = threshold_at_fpr(fb_neg, fpr=0.10)
+    return {
+        "fallback_binary": binary_eval_to_dict(ev),
+        "fallback_fpr10": {
+            "threshold": t10,
+            "marked_above": sum(1 for s in fb_pos if s > t10),
+            "unmarked_at_most": sum(1 for s in fb_neg if s <= t10),
+            "n_marked": len(fb_pos),
+            "n_unmarked": len(fb_neg),
+        },
+        "combined_at_fallback_youden": _combined_at_fallback_threshold(
+            rows, ev.youden_threshold
+        ),
+        "combined_at_fallback_fpr10": _combined_at_fallback_threshold(rows, t10),
+    }
+
+
 def summarize_cascade(rows: Sequence[dict]) -> dict:
     """Per-file count/pivot split. Mixed scores are not one ranking."""
     marked = [r for r in rows if r.get("side") == "marked"]
@@ -332,6 +402,7 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
             }
             for r in fallback_m
         ],
+        **_fallback_operating_points(rows, fallback_m, fallback_u),
     }
 
 

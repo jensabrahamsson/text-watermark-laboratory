@@ -1830,6 +1830,7 @@ def rotate_cascade(
     count_prompt_context: bool = False,
     fallback: str = "pivot",
     mats=None,
+    rankpath_pos_bucket: int | None = None,
 ) -> tuple[IndicatorHoldout, list[dict]]:
     """LOO: count LR when n_used>0, else unmarked-LM fallback. Isolated-file."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -1865,6 +1866,10 @@ def rotate_cascade(
     rows: list[dict] = []
     used_keys = used_hash = used_g = False
     bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    if rankpath_pos_bucket is None:
+        rank_bucket = bucket
+    else:
+        rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
         model = fit_count_model(
@@ -1890,7 +1895,7 @@ def rotate_cascade(
                 symbols,
                 [t.stem for t in train],
                 context_len=min(context_len, 3),
-                position_bucket=bucket,
+                position_bucket=rank_bucket,
             )
             used_keys = used_keys or rank_model.used_keys
             used_hash = used_hash or rank_model.used_hash_iv
@@ -1987,6 +1992,7 @@ def transfer_cascade(
     train_mats=None,
     test_mats=None,
     rank_model=None,
+    rankpath_pos_bucket: int | None = None,
 ) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
     """Train count+fallback on one corpus, score the other. Isolated-file cascade."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -2012,6 +2018,10 @@ def transfer_cascade(
         lm = _load_unmarked_model(generate_device(), model_name=model_name)
     tok = load_tokenizer(model_name)
     bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    if rankpath_pos_bucket is None:
+        rank_bucket = bucket
+    else:
+        rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
     model = pos_model or fit_count_model(
         train,
         context_len=context_len,
@@ -2044,7 +2054,7 @@ def transfer_cascade(
                 train_sym,
                 [t.stem for t in train],
                 context_len=min(context_len, 3),
-                position_bucket=bucket,
+                position_bucket=rank_bucket,
             )
 
     def _score_side(twins, vecs, mode: str) -> tuple[dict, list[dict]]:
@@ -2188,6 +2198,7 @@ class ProbeRun:
     rankpath_full: bool = False
     rankpath_pos_bucket: int | None = None
     cascade: dict | None = None
+    cascade_rankpath_end: int | None = None
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
@@ -2252,6 +2263,7 @@ class TransferRun:
     rankpath_full: bool = False
     rankpath_pos_bucket: int | None = None
     cascade_fallback: str = "pivot"
+    cascade_rankpath_end: int | None = None
     cascade: dict | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
@@ -2298,16 +2310,40 @@ def _choice_matrix_views(
     prompt_context: bool,
     rankpath_full: bool,
     want_spans: bool,
+    cascade_end: int | None = None,
 ):
-    """Collect unmarked-LM ranks once. Opening view matches --fit-prefix."""
-    from text_watermark_tools.pivot import collect_choice_matrices
-    from text_watermark_tools.rankpath import opening_matrix_end, slice_matrices
+    """Collect unmarked-LM ranks once. Opening view matches --fit-prefix.
 
-    need_full = bool(rankpath_full or want_spans)
-    source = raw if need_full else clipped
-    full = collect_choice_matrices(source, lm, prompt_context=prompt_context)
+    Cascade rank-path fallback never uses the full file. ``cascade_end``
+    may collect a few extra opening rows (prefix-N) without 128-token
+    forwards.
+    """
+    from text_watermark_tools.blind import clip_twins_prefix
+    from text_watermark_tools.pivot import collect_choice_matrices
+    from text_watermark_tools.rankpath import (
+        generated_tokens_for_rank_symbols,
+        opening_matrix_end,
+        slice_matrices,
+    )
+
     open_end = opening_matrix_end(fit_prefix, prompt_context)
-    if open_end is None or source is clipped:
+    cas_end = int(cascade_end) if cascade_end and int(cascade_end) > 0 else None
+    if rankpath_full or want_spans:
+        source = raw
+    else:
+        need_rows = max(open_end or 0, cas_end or 0)
+        if need_rows <= 0:
+            source = clipped
+        else:
+            need_tokens = generated_tokens_for_rank_symbols(
+                need_rows, prompt_context
+            )
+            if fit_prefix and int(fit_prefix) >= need_tokens:
+                source = clipped
+            else:
+                source = clip_twins_prefix(raw, need_tokens)
+    full = collect_choice_matrices(source, lm, prompt_context=prompt_context)
+    if open_end is None:
         opening = full
     else:
         opening = slice_matrices(full, 0, open_end)
@@ -2364,6 +2400,7 @@ def run_probe(
     prompt_context: bool = False,
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
+    cascade_rankpath_end: int | None = None,
     lm=None,
 ) -> ProbeRun:
     requested = (
@@ -2407,6 +2444,11 @@ def run_probe(
         pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names else (),
         rankpath_full=rank_full,
         rankpath_pos_bucket=rank_bucket if rank_names else None,
+        cascade_rankpath_end=(
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            else None
+        ),
     )
     if count_names:
         counted = rotate_count_methods(
@@ -2529,8 +2571,17 @@ def run_probe(
             lm = _load_unmarked_model(generate_device(), model_name=model_name)
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
-        from text_watermark_tools.rankpath import RANKPATH_SPECS as _RANK_SPECS
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS as _RANK_SPECS,
+            cascade_fallback_matrices,
+        )
 
+        cas_end = (
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            and fallback in _RANK_SPECS
+            else None
+        )
         full_mats, opening_mats, rank_mats = _choice_matrix_views(
             twins,
             raw_twins,
@@ -2539,6 +2590,7 @@ def run_probe(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=bool(rank_names and (lenses or spans)),
+            cascade_end=cas_end,
         )
         if with_pivot:
             pivots = rotate_pivot(
@@ -2578,8 +2630,10 @@ def run_probe(
                     f"postokhits, or a count spec"
                 )
             cascade_mats = (
-                full_mats
-                if rank_full and fallback in _RANK_SPECS
+                cascade_fallback_matrices(
+                    opening_mats, full_mats, end=cas_end
+                )
+                if fallback in _RANK_SPECS
                 else opening_mats
             )
             ev, rows = rotate_cascade(
@@ -2595,6 +2649,7 @@ def run_probe(
                 count_prompt_context=False,
                 fallback=fallback,
                 mats=cascade_mats,
+                rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
             )
             run.methods.append(summarize_holdout("cascade", ev))
             run.cascade = summarize_cascade(rows)
@@ -2602,6 +2657,7 @@ def run_probe(
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rankpath_end"] = cas_end
             run.cascade["rows"] = rows
     by_name = {m.name: m.holdout for m in run.methods}
     want_stack = "hits" in by_name and "hashpool" in by_name and (
@@ -2677,6 +2733,26 @@ def format_cascade(payload: dict) -> list[str]:
             f"{payload.get('n_unmarked')}"
         ),
     ]
+    if payload.get("rankpath_end"):
+        lines.append(
+            f"cascade rankpath_end={payload.get('rankpath_end')} "
+            "(opening prefix-N, not the full file)"
+        )
+    fb10 = payload.get("fallback_fpr10") or {}
+    comb10 = payload.get("combined_at_fallback_fpr10") or {}
+    if fb10:
+        lines.append(
+            f"{fallback} uncovered FPR10 t={float(fb10.get('threshold') or 0):.4f} "
+            f"marked>t {fb10.get('marked_above')}/{fb10.get('n_marked')} "
+            f"unmarked<=t {fb10.get('unmarked_at_most')}/{fb10.get('n_unmarked')}"
+        )
+    if comb10:
+        lines.append(
+            f"combined at fallback FPR10 marked>t "
+            f"{comb10.get('marked_above')}/{comb10.get('n_marked')} "
+            f"unmarked<=t {comb10.get('unmarked_at_most')}/{comb10.get('n_unmarked')}. "
+            "Count stays at 0; mixed AUC is still not a detector."
+        )
     marked_fallback = payload.get("pivot_fallback_marked") or []
     if marked_fallback:
         lines.append(f"{fallback}-fallback marked files:")
@@ -2718,6 +2794,7 @@ def print_probe(run: ProbeRun) -> str:
             f"fit_prefix={run.fit_prefix} pos_bucket={run.position_bucket} "
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
             f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
+            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)} "
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
             f"g_values={run.used_g_values}"
@@ -2836,6 +2913,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "pivot_weights": list(run.pivot_weights),
         "rankpath_full": bool(getattr(run, "rankpath_full", False)),
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
+        "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -2974,6 +3052,7 @@ def run_transfer(
     cascade_fallback: str = "pivot",
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
+    cascade_rankpath_end: int | None = None,
     lm=None,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
@@ -3218,6 +3297,11 @@ def run_transfer(
         prompt_context=bool(prompt_context),
         rankpath_full=rank_full,
         rankpath_pos_bucket=rank_bucket if rank_names else None,
+        cascade_rankpath_end=(
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            else None
+        ),
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -3376,8 +3460,17 @@ def run_transfer(
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
         run.cascade_fallback = fallback
-        from text_watermark_tools.rankpath import RANKPATH_SPECS as _RANK_SPECS
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS as _RANK_SPECS,
+            cascade_fallback_matrices,
+        )
 
+        cas_end = (
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            and fallback in _RANK_SPECS
+            else None
+        )
         want_spans = bool(rank_names and (run.prefix_lens or run.windows))
         train_full, train_opening, train_rank_mats = _choice_matrix_views(
             train,
@@ -3387,6 +3480,7 @@ def run_transfer(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=want_spans,
+            cascade_end=cas_end,
         )
         test_full, test_opening, test_rank_mats = _choice_matrix_views(
             test,
@@ -3396,6 +3490,7 @@ def run_transfer(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=want_spans,
+            cascade_end=cas_end,
         )
         train_mats = train_rank_mats
         test_mats = test_rank_mats
@@ -3484,10 +3579,21 @@ def run_transfer(
                     f"postokhits, or a count spec"
                 )
             cascade_pos = pos_model if cascade_name in POS_SPECS else None
-            if fallback in _RANK_SPECS and rank_full:
-                cas_train, cas_test = train_full, test_full
+            if fallback in _RANK_SPECS:
+                cas_train = cascade_fallback_matrices(
+                    train_opening, train_full, end=cas_end
+                )
+                cas_test = cascade_fallback_matrices(
+                    test_opening, test_full, end=cas_end
+                )
             else:
                 cas_train, cas_test = train_opening, test_opening
+            reuse_rank = (
+                fallback in RANKPATH_SPECS
+                and rank_model is not None
+                and not rank_full
+                and cas_end is None
+            )
             test_cas, train_cas, rows = transfer_cascade(
                 train,
                 test,
@@ -3504,7 +3610,8 @@ def run_transfer(
                 fallback=fallback,
                 train_mats=cas_train,
                 test_mats=cas_test,
-                rank_model=rank_model if fallback in RANKPATH_SPECS else None,
+                rank_model=rank_model if reuse_rank else None,
+                rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
             )
             run.methods.append(summarize_holdout("cascade", test_cas))
             train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)
@@ -3522,6 +3629,7 @@ def run_transfer(
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rankpath_end"] = cas_end
             run.cascade["rows"] = rows
             used_keys = used_keys or test_cas.used_keys
             used_hash = used_hash or test_cas.used_hash_iv
@@ -3631,7 +3739,8 @@ def print_transfer(run: TransferRun) -> str:
             f"hash_iv={run.used_hash_iv} g_values={run.used_g_values} "
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
-            f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)}"
+            f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
+            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)}"
         ),
         run.note,
         CAVEAT,
@@ -3769,6 +3878,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "rankpath_full": bool(getattr(run, "rankpath_full", False)),
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
         "cascade_fallback": getattr(run, "cascade_fallback", "pivot"),
+        "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],

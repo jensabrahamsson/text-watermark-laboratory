@@ -135,6 +135,9 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert summary["combined_marked_above_zero"] == 1
     assert summary["pivot_marked_above_zero"] == 0
     assert summary["pivot_fallback_marked"][0]["opening_text"] == "Now in the second"
+    assert summary["fallback_fpr10"] is not None
+    assert summary["combined_at_fallback_fpr10"]["n_marked"] == 2
+    assert summary["combined_at_fallback_youden"]["n_unmarked"] == 2
 
 
 def test_format_cascade_does_not_dump_raw_rows() -> None:

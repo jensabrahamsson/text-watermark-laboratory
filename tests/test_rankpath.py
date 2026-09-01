@@ -194,3 +194,19 @@ def test_rotate_rankpath_matched_window_finds_late_signal() -> None:
     assert win.n_prompts_marked_above == 3
     assert pref.n_prompts_marked_above <= win.n_prompts_marked_above
     assert min(win.marked_lrs) > max(win.unmarked_lrs)
+
+
+def test_cascade_fallback_matrices_ignore_full_file_by_default() -> None:
+    from text_watermark_tools.rankpath import (
+        cascade_fallback_matrices,
+        generated_tokens_for_rank_symbols,
+    )
+
+    opening = {("a", 1, "marked"): np.ones((3, 6))}
+    full = {("a", 1, "marked"): np.ones((20, 6))}
+    default = cascade_fallback_matrices(opening, full, end=None)
+    assert default[("a", 1, "marked")].shape[0] == 3
+    prefix = cascade_fallback_matrices(opening, full, end=4)
+    assert prefix[("a", 1, "marked")].shape[0] == 4
+    assert generated_tokens_for_rank_symbols(4, False) == 5
+    assert generated_tokens_for_rank_symbols(4, True) == 4
