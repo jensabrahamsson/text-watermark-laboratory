@@ -415,6 +415,55 @@ def rebind_cascade_rows(
     return out
 
 
+def rebind_count_channel(
+    rows: Sequence[dict],
+    counts: dict[tuple[str, int, str], dict],
+    *,
+    when: str = CASCADE_WHEN_COVERAGE,
+    fallback: str | None = None,
+    count_method: str = "",
+) -> list[dict]:
+    """Replace count_lr / n_used; keep unmarked-LM pivot_lr.
+
+    Use this to put an occupancy-free hashed reader on saved rank-path
+    rows without new GPT-2 forwards. Signs at 0 are comparable. Mixed
+    magnitudes are not an AUC.
+    """
+    when = parse_cascade_when(when)
+    fb = str(fallback or "")
+    if not fb:
+        for row in rows:
+            src = str(row.get("source") or "")
+            if src and src != "count":
+                fb = src
+                break
+        fb = fb or "pivot"
+    method = str(count_method or "")
+    out: list[dict] = []
+    for row in rows:
+        item = dict(row)
+        key = (str(item.get("stem") or ""), int(item.get("sample") or 0), str(item.get("side") or ""))
+        rec = counts.get(key)
+        if rec is None:
+            raise KeyError(f"no hashed count for {key}")
+        n_used = int(rec.get("n_used") or 0)
+        count_lr = float(rec.get("count_lr") or 0.0)
+        pivot_lr = float(item.get("pivot_lr") or 0.0)
+        item["n_used"] = n_used
+        item["count_lr"] = count_lr
+        if method:
+            item["count_method"] = method
+        item["source"] = cascade_source(
+            n_used, fb, count_lr=count_lr, when=when
+        )
+        item["score"] = cascade_score(
+            count_lr, n_used, pivot_lr, when=when
+        )
+        item["cascade_when"] = when
+        out.append(item)
+    return out
+
+
 def _combined_at_fallback_threshold(rows: Sequence[dict], threshold: float) -> dict:
     """Count stays at t=0; fallback files use ``score > threshold``."""
     t = float(threshold)

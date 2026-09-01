@@ -174,6 +174,71 @@ def test_rebind_cascade_rows_switches_covered_negatives_to_fallback() -> None:
     assert summary["n_count_marked"] == 0
 
 
+def test_rebind_count_channel_swaps_hashed_n_used_onto_saved_rankpath() -> None:
+    from text_watermark_tools.pivot import rebind_count_channel
+
+    rows = [
+        {
+            "stem": "harbour",
+            "sample": 2,
+            "side": "marked",
+            "n_used": 1,
+            "count_lr": -2.0,
+            "pivot_lr": 0.4,
+            "source": "count",
+            "score": -2.0,
+        },
+        {
+            "stem": "harbour",
+            "sample": 2,
+            "side": "unmarked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.2,
+            "source": "rankpath",
+            "score": -0.2,
+        },
+        {
+            "stem": "letter",
+            "sample": 2,
+            "side": "marked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.9,
+            "source": "rankpath",
+            "score": -0.9,
+        },
+        {
+            "stem": "letter",
+            "sample": 2,
+            "side": "unmarked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.1,
+            "source": "rankpath",
+            "score": -0.1,
+        },
+    ]
+    counts = {
+        ("harbour", 2, "marked"): {"count_lr": 0.6, "n_used": 1},
+        ("harbour", 2, "unmarked"): {"count_lr": 0.0, "n_used": 0},
+        ("letter", 2, "marked"): {"count_lr": 0.0, "n_used": 0},
+        ("letter", 2, "unmarked"): {"count_lr": 0.0, "n_used": 0},
+    }
+    rebound = rebind_count_channel(
+        rows, counts, when="coverage", fallback="rankpath", count_method="hashtoklen"
+    )
+    assert rebound[0]["source"] == "count"
+    assert rebound[0]["score"] == 0.6
+    assert rebound[0]["count_method"] == "hashtoklen"
+    assert rebound[2]["source"] == "rankpath"
+    assert rebound[2]["score"] == -0.9
+    summary = summarize_cascade(rebound, when="coverage")
+    assert summary["combined_marked_above_zero"] == 1
+    assert summary["n_count_marked"] == 1
+    assert summary["n_fallback_marked"] == 1
+
+
 def test_format_cascade_does_not_dump_raw_rows() -> None:
     from text_watermark_tools.probe import format_cascade
 

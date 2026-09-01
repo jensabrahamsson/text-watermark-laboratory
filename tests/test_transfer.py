@@ -210,6 +210,47 @@ def test_hashtoklen_refuses_short_prefix_in_longer_order() -> None:
     ).lr
 
 
+def test_score_hashed_reader_detail_matches_hashtoklen_and_backoff() -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.transfer import (
+        fit_hashmix_twins,
+        fit_hashpool,
+        score_hashed_reader_detail,
+        score_hashtok_detail,
+        score_hashtokbackoff_detail,
+    )
+
+    marked = [[0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2]]
+    pool = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7, exact_len=True
+    )
+    direct = score_hashtok_detail([0, 1, 0, 1], pool, exact_len=True)
+    via = score_hashed_reader_detail(
+        [0, 1, 0, 1], "hashtoklen", hash_len_model=pool
+    )
+    assert via.n_used == direct.n_used
+    assert abs(via.lr - direct.lr) < 1e-12
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="m",
+            unmarked_text="u",
+            marked_ids=[0, 1, 0, 1, 0, 1, 0, 1],
+            unmarked_ids=[0, 2, 0, 2, 0, 2, 0, 2],
+        )
+    ]
+    mix = fit_hashmix_twins(
+        twins, orders=(1, 2), n_hashes=4, n_buckets=32, seed=7, exact_len=True
+    )
+    back = score_hashtokbackoff_detail([0, 1, 0, 1], mix, min_order=1, exact_len=True)
+    via_b = score_hashed_reader_detail(
+        [0, 1, 0, 1], "hashtoklenbackoff", mix_len_model=mix
+    )
+    assert via_b.n_used == back.n_used
+    assert abs(via_b.lr - back.lr) < 1e-12
+
+
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     marked = [[0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

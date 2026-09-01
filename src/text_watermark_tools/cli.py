@@ -1397,9 +1397,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--cascade",
         default="",
         help=(
-            "Isolated-file protocol: use this count method when the "
-            "--cascade-when rule fires, else the --cascade-fallback reader. "
-            "Example: postokbackoff. Loads GPT-2."
+            "Isolated-file protocol: use this count or occupancy-free "
+            "hashed method when the --cascade-when rule fires, else the "
+            "--cascade-fallback reader. Example: postokbackoff or "
+            "hashtoklen. Hashed readers skip empty-cell Laplace. Loads GPT-2."
         ),
     )
     p_probe.add_argument(

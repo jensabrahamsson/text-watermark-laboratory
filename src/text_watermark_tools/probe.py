@@ -38,6 +38,7 @@ from text_watermark_tools.transfer import (
     COUNT_SPECS,
     DEFAULT_SURFACE_CONTEXT,
     HASHBACKOFF_ORDERS,
+    HASH_CASCADE_READERS,
     ScoreSpec,
     fit_count_model,
     fit_hashmix_twins,
@@ -45,6 +46,7 @@ from text_watermark_tools.transfer import (
     fit_surface_twins,
     _count,
     persist_hashpool,
+    score_hashed_reader_detail,
     score_hashmix,
     score_hashtok,
     score_hashtokbackoff,
@@ -102,6 +104,104 @@ POS_SPECS: dict[str, ScoreSpec] = {
     "postokbackoff2": POSTOKBACKOFF2_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
+
+
+def _hashed_cascade_models(
+    twins: Sequence[Twin],
+    reader: str,
+    *,
+    context_len: int,
+    n_hashes: int,
+    n_buckets: int,
+) -> dict:
+    """Fit occupancy-free hashed tables for a cascade count channel."""
+    name = str(reader)
+    models: dict = {
+        "hash_model": None,
+        "hash_len_model": None,
+        "mix_model": None,
+        "mix_len_model": None,
+    }
+    if name == "hashtok":
+        models["hash_model"] = fit_hashpool_twins(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+    elif name == "hashtoklen":
+        models["hash_len_model"] = fit_hashpool_twins(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+    elif name in ("hashtokbackoff", "hashtokbackoff2"):
+        models["mix_model"] = fit_hashmix_twins(
+            twins,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+    elif name in ("hashtoklenbackoff", "hashtoklenbackoff2"):
+        models["mix_len_model"] = fit_hashmix_twins(
+            twins,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+    else:
+        raise ValueError(
+            f"unknown hashed cascade {reader!r}; choose "
+            + ", ".join(HASH_CASCADE_READERS)
+        )
+    return models
+
+
+def hashed_count_detail(reader: str, models: dict):
+    """ScoreDetail callable for an occupancy-free hashed cascade channel."""
+
+    def _detail(ids, prefix=()):
+        del prefix
+        return score_hashed_reader_detail(ids, reader, **models)
+
+    return _detail
+
+
+def hashed_count_map(
+    twins: Sequence[Twin],
+    reader: str,
+    models: dict,
+) -> dict[tuple[str, int, str], dict]:
+    """Per-file hashed count_lr / n_used for rebind_count_channel."""
+    detail = hashed_count_detail(reader, models)
+    out: dict[tuple[str, int, str], dict] = {}
+    for twin in twins:
+        n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            for side, ids in (
+                ("marked", twin.marked_seqs()[i]),
+                ("unmarked", twin.unmarked_seqs()[i]),
+            ):
+                rec = detail(ids)
+                out[(twin.stem, sample, side)] = {
+                    "count_lr": rec.lr,
+                    "n_used": rec.n_used,
+                    "n_positions": rec.n_positions,
+                    "count_method": reader,
+                }
+    return out
+
+
+def _hashed_flag_model(models: dict):
+    for key in ("hash_len_model", "hash_model", "mix_len_model", "mix_model"):
+        model = models.get(key)
+        if model is not None:
+            return model
+    return None
 
 
 def _twin_prefix(twin: Twin, prompt_context: bool) -> tuple[int, ...]:
@@ -2152,7 +2252,7 @@ def transfer_rankpath(
 def rotate_cascade(
     twins: Sequence[Twin],
     *,
-    spec: ScoreSpec,
+    spec: ScoreSpec | None = None,
     position_bucket: int = 1,
     context_len: int = 4,
     include_first: bool = False,
@@ -2166,6 +2266,9 @@ def rotate_cascade(
     mats=None,
     rankpath_pos_bucket: int | None = None,
     cascade_when: str = "coverage",
+    hashed_reader: str = "",
+    n_hashes: int = 8,
+    n_buckets: int = 256,
 ) -> tuple[IndicatorHoldout, list[dict]]:
     """LOO: count LR when the cascade-when rule fires, else unmarked-LM fallback."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -2209,17 +2312,33 @@ def rotate_cascade(
         rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
-        model = fit_count_model(
-            train,
-            context_len=context_len,
-            position_bucket=bucket,
-            include_first=include_first,
-            prompt_context=count_prompt_context,
-        )
-        model.include_first = bool(include_first)
-        used_keys = used_keys or model.used_keys
-        used_hash = used_hash or model.used_hash_iv
-        used_g = used_g or model.used_g_values
+        hashed = str(hashed_reader or "").strip()
+        count_detail = None
+        model = None
+        if hashed:
+            models = _hashed_cascade_models(
+                train,
+                hashed,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+            )
+            count_detail = hashed_count_detail(hashed, models)
+            model = _hashed_flag_model(models)
+        else:
+            if spec is None:
+                raise ValueError("count cascade needs a ScoreSpec")
+            model = fit_count_model(
+                train,
+                context_len=context_len,
+                position_bucket=bucket,
+                include_first=include_first,
+                prompt_context=count_prompt_context,
+            )
+            model.include_first = bool(include_first)
+        used_keys = used_keys or bool(getattr(model, "used_keys", False))
+        used_hash = used_hash or bool(getattr(model, "used_hash_iv", False))
+        used_g = used_g or bool(getattr(model, "used_g_values", False))
         fit = None
         rank_model = None
         if fallback == "pivot":
@@ -2243,8 +2362,12 @@ def rotate_cascade(
             sample = i + 1
             ids_m = held.marked_seqs()[i]
             ids_u = held.unmarked_seqs()[i]
-            dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
-            du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
+            if count_detail is not None:
+                dm = count_detail(ids_m)
+                du = count_detail(ids_u)
+            else:
+                dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
+                du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
             pm = _cascade_fallback_lr(
                 fallback,
                 stem=held.stem,
@@ -2320,7 +2443,7 @@ def transfer_cascade(
     train: Sequence[Twin],
     test: Sequence[Twin],
     *,
-    spec: ScoreSpec,
+    spec: ScoreSpec | None = None,
     position_bucket: int = 1,
     context_len: int = 4,
     include_first: bool = False,
@@ -2337,6 +2460,11 @@ def transfer_cascade(
     rank_model=None,
     rankpath_pos_bucket: int | None = None,
     cascade_when: str = "coverage",
+    hashed_reader: str = "",
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    count_detail=None,
+    flag_model=None,
 ) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
     """Train count+fallback on one corpus, score the other. Isolated-file cascade."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -2368,14 +2496,30 @@ def transfer_cascade(
         rank_bucket = bucket
     else:
         rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
-    model = pos_model or fit_count_model(
-        train,
-        context_len=context_len,
-        position_bucket=bucket,
-        include_first=include_first,
-        prompt_context=count_prompt_context,
-    )
-    model.include_first = bool(include_first)
+    hashed = str(hashed_reader or "").strip()
+    if count_detail is None and hashed:
+        models = _hashed_cascade_models(
+            train,
+            hashed,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        count_detail = hashed_count_detail(hashed, models)
+        flag_model = _hashed_flag_model(models)
+    if count_detail is None:
+        if spec is None:
+            raise ValueError("count cascade needs a ScoreSpec")
+        model = pos_model or fit_count_model(
+            train,
+            context_len=context_len,
+            position_bucket=bucket,
+            include_first=include_first,
+            prompt_context=count_prompt_context,
+        )
+        model.include_first = bool(include_first)
+    else:
+        model = flag_model
     if train_mats is None:
         train_mats = collect_choice_matrices(
             train, lm, top_k=top_k, prompt_context=prompt_context
@@ -2413,8 +2557,12 @@ def transfer_cascade(
                 sample = i + 1
                 ids_m = twin.marked_seqs()[i]
                 ids_u = twin.unmarked_seqs()[i]
-                dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
-                du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
+                if count_detail is not None:
+                    dm = count_detail(ids_m)
+                    du = count_detail(ids_u)
+                else:
+                    dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
+                    du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
                 pm = _cascade_fallback_lr(
                     fallback,
                     stem=twin.stem,
@@ -2480,12 +2628,17 @@ def transfer_cascade(
             model_name=model_name,
             instance="key-free-cascade",
             score_kind="cascade",
-            used_keys=bool(model.used_keys or (fb.used_keys if fb is not None else False)),
+            used_keys=bool(
+                getattr(model, "used_keys", False)
+                or (fb.used_keys if fb is not None else False)
+            ),
             used_hash_iv=bool(
-                model.used_hash_iv or (fb.used_hash_iv if fb is not None else False)
+                getattr(model, "used_hash_iv", False)
+                or (fb.used_hash_iv if fb is not None else False)
             ),
             used_g_values=bool(
-                model.used_g_values or (fb.used_g_values if fb is not None else False)
+                getattr(model, "used_g_values", False)
+                or (fb.used_g_values if fb is not None else False)
             ),
             mode=mode,
         )
@@ -3055,11 +3208,15 @@ def run_probe(
                 run.methods.append(summarize_holdout(name, ev))
         cascade_name = str(cascade or "").strip()
         if cascade_name:
-            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
-            if spec is None:
+            hashed = cascade_name if cascade_name in HASH_CASCADE_READERS else ""
+            spec = None if hashed else (
+                POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            )
+            if spec is None and not hashed:
                 raise ValueError(
                     f"unknown --cascade {cascade_name}; choose postokbackoff, "
-                    f"postokhits, or a count spec"
+                    f"postokhits, a count spec, or occupancy-free "
+                    + ", ".join(HASH_CASCADE_READERS)
                 )
             cascade_mats = (
                 cascade_fallback_matrices(
@@ -3083,6 +3240,9 @@ def run_probe(
                 mats=cascade_mats,
                 rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
                 cascade_when=cascade_when,
+                hashed_reader=hashed,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
             )
             run.methods.append(summarize_holdout("cascade", ev))
             run.cascade = summarize_cascade(rows, when=cascade_when)
@@ -4177,13 +4337,19 @@ def run_transfer(
                 train_holdouts[name] = train_rank[name]
         cascade_name = str(cascade or "").strip()
         if cascade_name:
-            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
-            if spec is None:
+            hashed = cascade_name if cascade_name in HASH_CASCADE_READERS else ""
+            spec = None if hashed else (
+                POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            )
+            if spec is None and not hashed:
                 raise ValueError(
                     f"unknown --cascade {cascade_name}; choose postokbackoff, "
-                    f"postokhits, or a count spec"
+                    f"postokhits, a count spec, or occupancy-free "
+                    + ", ".join(HASH_CASCADE_READERS)
                 )
-            cascade_pos = pos_model if cascade_name in POS_SPECS else None
+            cascade_pos = None if hashed else (
+                pos_model if cascade_name in POS_SPECS else None
+            )
             if fallback in _RANK_SPECS:
                 cas_train = cascade_fallback_matrices(
                     train_opening, train_full, end=cas_end
@@ -4199,6 +4365,19 @@ def run_transfer(
                 and not rank_full
                 and cas_end is None
             )
+            hashed_models = None
+            count_detail = None
+            flag_model = None
+            if hashed:
+                hashed_models = _hashed_cascade_models(
+                    train,
+                    hashed,
+                    context_len=context_len,
+                    n_hashes=n_hashes,
+                    n_buckets=n_buckets,
+                )
+                count_detail = hashed_count_detail(hashed, hashed_models)
+                flag_model = _hashed_flag_model(hashed_models)
             test_cas, train_cas, rows = transfer_cascade(
                 train,
                 test,
@@ -4218,6 +4397,11 @@ def run_transfer(
                 rank_model=rank_model if reuse_rank else None,
                 rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
                 cascade_when=cascade_when,
+                hashed_reader="" if count_detail is not None else hashed,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                count_detail=count_detail,
+                flag_model=flag_model,
             )
             run.methods.append(summarize_holdout("cascade", test_cas))
             train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)

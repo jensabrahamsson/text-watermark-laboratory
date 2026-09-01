@@ -2376,3 +2376,56 @@ def test_prefix5_hashtoklen_drops_short_prefix_collisions() -> None:
         assert tried[row["order"]]["ctx_len"] == row["order"]
 
 
+def test_prefix5_hashtoklen_recovers_one_postokhits_miss_by_collision() -> None:
+    """Official-grain hashing is not a denser last-4 table.
+
+    20 of 21 hashtoklen TPs are exact postokhits. Harbour d2 is the
+    unique occupancy-free collision: exact last-4 of `The ferry was over`
+    → `,` is unmarked-like; hashed last-4 of the comma is marked-like.
+    Letter d2's official 5-gram still abstains. Do not sell 21/48.
+    """
+    p5 = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen"
+    )
+    p5h = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtok"
+    )
+    hl = holdout_from_json(p5 / "hashtoklen" / "holdout.json")
+    ph = holdout_from_json(p5h / "postokhits" / "holdout.json")
+    ht = holdout_from_json(p5 / "hashtok" / "holdout.json")
+    hl_pos = {
+        (s, samp)
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if m > 0
+    }
+    ph_pos = {
+        (s, samp)
+        for s, samp, m in zip(ph.stems, ph._samples(), ph.marked_lrs)
+        if m > 0
+    }
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    assert hl.n_marked_positive == 21
+    assert ph.n_marked_positive == 30
+    assert hl_pos - ph_pos == {("01-harbour", 2)}
+    assert ht_pos == ph_pos
+    by_hl = {
+        (s, samp): m
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+    }
+    by_ph = {
+        (s, samp): m
+        for s, samp, m in zip(ph.stems, ph._samples(), ph.marked_lrs)
+    }
+    assert by_hl[("01-harbour", 2)] > 0
+    assert by_ph[("01-harbour", 2)] < 0
+    assert by_hl[("08-letter", 2)] == 0
+
+

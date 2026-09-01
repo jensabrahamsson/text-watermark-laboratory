@@ -1041,6 +1041,63 @@ def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
 
 
 HASHBACKOFF_ORDERS: tuple[int, ...] = (1, 2, 3, 4)
+HASH_CASCADE_READERS: tuple[str, ...] = (
+    "hashtok",
+    "hashtoklen",
+    "hashtokbackoff",
+    "hashtokbackoff2",
+    "hashtoklenbackoff",
+    "hashtoklenbackoff2",
+)
+
+
+def score_hashed_reader_detail(
+    ids: Sequence[int],
+    reader: str,
+    *,
+    hash_model: HashPoolModel | None = None,
+    hash_len_model: HashPoolModel | None = None,
+    mix_model: HashMixModel | None = None,
+    mix_len_model: HashMixModel | None = None,
+) -> ScoreDetail:
+    """Occupancy-free hashed ScoreDetail for cascade count channels.
+
+    Still no keys, hash_iv, or g-values. Not detector_mean.
+    """
+    name = str(reader or "").strip()
+    if name == "hashtok":
+        if hash_model is None:
+            raise ValueError("hashtok needs a hashpool model")
+        return score_hashtok_detail(ids, hash_model)
+    if name == "hashtoklen":
+        model = hash_len_model if hash_len_model is not None else hash_model
+        if model is None:
+            raise ValueError("hashtoklen needs an exact-length hashpool")
+        return score_hashtok_detail(ids, model, exact_len=True)
+    if name == "hashtokbackoff":
+        if mix_model is None:
+            raise ValueError("hashtokbackoff needs per-order hash tables")
+        return score_hashtokbackoff_detail(ids, mix_model, min_order=1)
+    if name == "hashtokbackoff2":
+        if mix_model is None:
+            raise ValueError("hashtokbackoff2 needs per-order hash tables")
+        return score_hashtokbackoff_detail(ids, mix_model, min_order=2)
+    if name == "hashtoklenbackoff":
+        if mix_len_model is None:
+            raise ValueError("hashtoklenbackoff needs exact-length mix tables")
+        return score_hashtokbackoff_detail(
+            ids, mix_len_model, min_order=1, exact_len=True
+        )
+    if name == "hashtoklenbackoff2":
+        if mix_len_model is None:
+            raise ValueError("hashtoklenbackoff2 needs exact-length mix tables")
+        return score_hashtokbackoff_detail(
+            ids, mix_len_model, min_order=2, exact_len=True
+        )
+    raise ValueError(
+        f"unknown hashed reader {reader!r}; choose "
+        + ", ".join(HASH_CASCADE_READERS)
+    )
 
 
 def score_hashtokbackoff_detail(
