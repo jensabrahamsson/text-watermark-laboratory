@@ -168,4 +168,37 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `5be70f3`. Named `3610cef`. Official first-draw lamp on
+the gpt2-medium 12×4 twins is **12/12**. `used_keys=false`. Local
+Hugging Face gpt2-medium, not a paid API.
+
+Probe: [experiments/2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/](../experiments/2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/).
+Openings: [experiments/2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/](../experiments/2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/).
+Pair: [experiments/2026-09-01-pair-gpt2-medium-12x4/](../experiments/2026-09-01-pair-gpt2-medium-12x4/).
+
+| Reader | gpt2-medium 12×4 marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|
+| gpt2-medium→gpt2-medium postokhits | **10/48** | **48/48** |
+| gpt2-medium→gpt2-medium poshits | **39/48** | **41/48** |
+| gpt2-medium→gpt2-medium openings postokhits | covered **13/48** (exact 10/48) | decided FP 0 |
+
+H-m12-cover **holds** on coverage not **48/48**. Coverage is **13/48**.
+Isolated t=0 is **10/48**, below coverage: three covered files have
+negative observed-token LR. Recall is bounded by opening overlap on
+this split; it is not equal to **13/48**. Exact 4-token copies are
+**10/48**.
+
+H-m12-B **holds**. gpt2-medium→gpt2-medium postokhits t=0 is **10/48 vs
+48/48**, which does not beat hard **25/48**. Distil→Distil occupancy-free
+was **16/48** on Distil files. gpt2-medium→GPT-2 occupancy-free was
+**16/48** on original-12 GPT-2 files. Same-generator gpt2-medium 12 is
+not leftover-15 recall and is not denser than those transfers. Nested
+Youden postokhits **10/48 vs 48/48** at a train threshold ≈ 1.13; do
+not sell 10/48 as a Youden win. Prompt ranking on postokhits is
+**8/12** strict, with **3 ties** (harbour, night-bus, ferry-queue) and
+four ranking wins with 0 isolated TPs (library, market, workshop,
+garden). Historical `>=` would print 11/12. Do not sell **8/12**,
+**11/12**, **10/48**, or **39/48**.
+
+H-m12-iso **holds**. These are gpt2-medium 12×4 files, not the original
+GPT-2 12. Do not apply leftover-15 GPT-2 keys here. Do not sell gpt2-medium→gpt2-medium **10/48**, coverage **13/48**, nested **10/48 vs 48/48**, gpt2-medium poshits **39/48**, gpt2-medium→GPT-2 **16/48**, leftover **0/15**, leftover official **15/15**, Distil→Distil **16/48**, Distil→GPT-2 **22/48**, leftover Distil **3/18**, Qwen→Qwen **31/48**, or official **12/12** as replacing **25/48**. Isolated-file remains open. Do not write `thesis/`.

@@ -1804,4 +1804,19 @@ Do not apply leftover-15 keys to gpt2-medium 12 files. Do not target
 leftover-15 openings. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-01 gpt2-medium occupancy-free medium-12 transfer opened
+
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md) named `3610cef`.
+Official first-draw lamp on gpt2-medium 12×4 is **12/12**. Occupancy-free
+postokhits t=0 on those files is **10/48 vs 48/48** (coverage **13/48**,
+exact **10/48**, three covered files have negative LR, decided FP 0).
+H-m12-cover, H-m12-B, and H-m12-iso hold. Prompt ranking postokhits is
+**8/12** strict with **3 ties**. Do not sell **10/48**, **13/48**,
+**8/12**, or official **12/12** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-pair-gpt2-medium-12x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/`.
+
 ---

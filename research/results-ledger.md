@@ -465,7 +465,8 @@ Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
 48/48**. Do not sell **0/15** or **16/48**. Does not replace **25/48**.
 The remaining occupancy-free analog that is not leftover targeting is
 [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
-100×4 → gpt2-medium 12×4. Freeze before LRs.
+100×4 → gpt2-medium 12×4. Opened: occupancy-free t=0 **10/48 vs 48/48**;
+coverage **13/48**. Do not sell **10/48**. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

@@ -125,5 +125,6 @@ Opened: leftover-18 mixed rankpath **12/18 vs 13/18**; interpolate
 The leftover-15 gpt2-medium analog opened leftover coverage **0/15**
 ([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
 occupancy-free analog that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not write
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): occupancy-free
+t=0 **10/48 vs 48/48**. Do not sell **10/48**. Do not write
 `thesis/`.

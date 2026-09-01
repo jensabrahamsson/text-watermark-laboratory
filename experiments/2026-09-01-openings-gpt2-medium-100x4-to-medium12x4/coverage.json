@@ -1,0 +1,1528 @@
+{
+  "note": "Isolated-file observed-token recall equals opening-atom overlap with train. Exact 4-token copy is a lower bound. Not keys, not hash_iv, not g-values, not a universal detector.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "model_name": "gpt2-medium",
+  "fit_prefix": 4,
+  "position_bucket": 1,
+  "include_first": false,
+  "context_len": 4,
+  "groups": [
+    "2026-09-01-pair-gpt2-medium-100x4"
+  ],
+  "n_test_stems": 12,
+  "methods": [
+    "postokhits"
+  ],
+  "curve": [
+    {
+      "upto": "2026-09-01-pair-gpt2-medium-100x4",
+      "n_train_stems": 100,
+      "n_train_openings": 64,
+      "methods": {
+        "postokhits": {
+          "n_covered": 13,
+          "n_exact_opening": 10,
+          "n_last1_only": 3,
+          "n_last1_later": 0,
+          "n_train_openings": 64,
+          "coverage_gate": {
+            "n_marked": 48,
+            "n_unmarked": 48,
+            "n_marked_zero": 35,
+            "n_unmarked_zero": 42,
+            "n_marked_decided": 13,
+            "n_unmarked_decided": 6,
+            "decided_tp": 10,
+            "decided_fn": 3,
+            "decided_fp": 0,
+            "decided_tn": 6,
+            "precision": 1.0,
+            "decided_accuracy": 0.8421052631578947,
+            "recall_including_zeros": 0.20833333333333334
+          },
+          "zero_openings": [
+            "01-harbour-1: The ferry was leaving",
+            "01-harbour-2: The ferry was leaving",
+            "01-harbour-3: The ferry was leaving",
+            "01-harbour-4: ***\n\nThree",
+            "02-night-bus-1: The bus is old",
+            "02-night-bus-2: The bus's name",
+            "02-night-bus-3: The bus is old",
+            "02-night-bus-4: The bus is old",
+            "03-library-1: The map is a",
+            "03-library-2: The map is a",
+            "03-library-3: The map is a",
+            "03-library-4: The map is a",
+            "04-market-1: The dog's nose",
+            "04-market-2: The dog jumped up",
+            "04-market-3: The dog's nose",
+            "04-market-4: The dog's nose",
+            "05-kitchen-1: Danger, I",
+            "05-kitchen-2: The cook came over",
+            "05-kitchen-4: The cook, whose",
+            "06-station-2: The car doors slid",
+            "06-station-3: The car turned in",
+            "06-station-4: The car turned into",
+            "08-letter-2: Now a little bit",
+            "09-workshop-1: The teacher had called",
+            "09-workshop-2: The teacher had called",
+            "09-workshop-3: After a long night",
+            "09-workshop-4: The teacher had called",
+            "11-garden-1: The plan is for",
+            "11-garden-2: After about 2 and",
+            "11-garden-3: The plan is for",
+            "11-garden-4: Now a little back",
+            "12-ferry-queue-1: The ferry was empty",
+            "12-ferry-queue-2: The ferry was empty",
+            "12-ferry-queue-3: The ferry was empty",
+            "12-ferry-queue-4: The ferry was empty"
+          ]
+        }
+      }
+    }
+  ],
+  "stem_curve": [],
+  "final": {
+    "postokhits": {
+      "n_covered": 13,
+      "n_exact_opening": 10,
+      "n_last1_only": 3,
+      "n_last1_later": 0,
+      "n_train_openings": 64,
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 35,
+        "n_unmarked_zero": 42,
+        "n_marked_decided": 13,
+        "n_unmarked_decided": 6,
+        "decided_tp": 10,
+        "decided_fn": 3,
+        "decided_fp": 0,
+        "decided_tn": 6,
+        "precision": 1.0,
+        "decided_accuracy": 0.8421052631578947,
+        "recall_including_zeros": 0.20833333333333334
+      },
+      "zeros": [
+        {
+          "stem": "01-harbour",
+          "sample": 1,
+          "opening_text": "The ferry was leaving",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " leaving",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 2,
+          "opening_text": "The ferry was leaving",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " leaving",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 3,
+          "opening_text": "The ferry was leaving",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " leaving",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 4,
+          "opening_text": "***\n\nThree",
+          "nearest": []
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 1,
+          "opening_text": "The bus is old",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " bus",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " old",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 2,
+          "opening_text": "The bus's name",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " bus",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'s"
+                ]
+              },
+              "next": " name",
+              "n_m": 0,
+              "n_u": 19,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 3,
+          "opening_text": "The bus is old",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " bus",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " old",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 4,
+          "opening_text": "The bus is old",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " bus",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " old",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 1,
+          "opening_text": "The map is a",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " map",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " a",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 1,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 2,
+          "opening_text": "The map is a",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " map",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " a",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 1,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 3,
+          "opening_text": "The map is a",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " map",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " a",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 1,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 4,
+          "opening_text": "The map is a",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " map",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " a",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 1,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "04-market",
+          "sample": 1,
+          "opening_text": "The dog's nose",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " dog",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'s"
+                ]
+              },
+              "next": " nose",
+              "n_m": 0,
+              "n_u": 19,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "04-market",
+          "sample": 2,
+          "opening_text": "The dog jumped up",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " dog",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "04-market",
+          "sample": 3,
+          "opening_text": "The dog's nose",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " dog",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'s"
+                ]
+              },
+              "next": " nose",
+              "n_m": 0,
+              "n_u": 19,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "04-market",
+          "sample": 4,
+          "opening_text": "The dog's nose",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " dog",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'s"
+                ]
+              },
+              "next": " nose",
+              "n_m": 0,
+              "n_u": 19,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 1,
+          "opening_text": "Danger, I",
+          "nearest": [
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  ","
+                ]
+              },
+              "next": " I",
+              "n_m": 19,
+              "n_u": 16,
+              "c_m": 0,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 2,
+          "opening_text": "The cook came over",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " cook",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " came"
+                ]
+              },
+              "next": " over",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 4,
+          "opening_text": "The cook, whose",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " cook",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  ","
+                ]
+              },
+              "next": " whose",
+              "n_m": 19,
+              "n_u": 16,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 2,
+          "opening_text": "The car doors slid",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " car",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " car"
+                ]
+              },
+              "next": " doors",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 3,
+          "opening_text": "The car turned in",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " car",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " car"
+                ]
+              },
+              "next": " turned",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 4,
+          "opening_text": "The car turned into",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " car",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " car"
+                ]
+              },
+              "next": " turned",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 2,
+          "opening_text": "Now a little bit",
+          "nearest": [
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " a"
+                ]
+              },
+              "next": " little",
+              "n_m": 0,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " little"
+                ]
+              },
+              "next": " bit",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 1,
+          "opening_text": "The teacher had called",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " teacher",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " had"
+                ]
+              },
+              "next": " called",
+              "n_m": 0,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 2,
+          "opening_text": "The teacher had called",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " teacher",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " had"
+                ]
+              },
+              "next": " called",
+              "n_m": 0,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 3,
+          "opening_text": "After a long night",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "After"
+                ]
+              },
+              "next": " a",
+              "n_m": 0,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " a"
+                ]
+              },
+              "next": " long",
+              "n_m": 0,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 4,
+          "opening_text": "The teacher had called",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " teacher",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " had"
+                ]
+              },
+              "next": " called",
+              "n_m": 0,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "11-garden",
+          "sample": 1,
+          "opening_text": "The plan is for",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " plan",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " for",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "11-garden",
+          "sample": 2,
+          "opening_text": "After about 2 and",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "After"
+                ]
+              },
+              "next": " about",
+              "n_m": 0,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "11-garden",
+          "sample": 3,
+          "opening_text": "The plan is for",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " plan",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": " for",
+              "n_m": 234,
+              "n_u": 10,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "11-garden",
+          "sample": 4,
+          "opening_text": "Now a little back",
+          "nearest": [
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " a"
+                ]
+              },
+              "next": " little",
+              "n_m": 0,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " little"
+                ]
+              },
+              "next": " back",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 1,
+          "opening_text": "The ferry was empty",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " empty",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 2,
+          "opening_text": "The ferry was empty",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " empty",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 3,
+          "opening_text": "The ferry was empty",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " empty",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 4,
+          "opening_text": "The ferry was empty",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " ferry",
+              "n_m": 5,
+              "n_u": 46,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " was"
+                ]
+              },
+              "next": " empty",
+              "n_m": 1,
+              "n_u": 24,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d."
+}

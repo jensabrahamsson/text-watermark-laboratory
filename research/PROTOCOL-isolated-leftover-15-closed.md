@@ -142,5 +142,7 @@ without targeting. The gpt2-medium analog on the already-frozen 100
 prompts opened leftover coverage **0/15**
 ([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
 occupancy-free analog that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not sell
-**0/15** or gpt2-medium **16/48**. Do not write `thesis/`.
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): occupancy-free
+t=0 **10/48 vs 48/48** (coverage **13/48**). Do not sell **0/15**,
+gpt2-medium **16/48**, or gpt2-medium→gpt2-medium **10/48**. Do not write
+`thesis/`.
