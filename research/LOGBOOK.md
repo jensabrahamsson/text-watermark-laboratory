@@ -1477,4 +1477,14 @@ core. Do not look at mixed rankpath LRs until this line is on origin.
 Do not sell leftover signs as replacing **25/48**. Do not write
 `thesis/`.
 
+## 2026-09-01 leftover-opening rankpath opened
+
+SHA `7afd049`. `used_keys=false`. Leftover 20 mixed rankpath marked
+`lr>0` **12/20**, unmarked `lr≤0` **14/20**. Library leftover **0/4**.
+H-left-C holds. Full nested **35/48 vs 38/48** fails H-left-full as a
+raw count; do not sell 35/48 (it includes covered openings). Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+
 ---

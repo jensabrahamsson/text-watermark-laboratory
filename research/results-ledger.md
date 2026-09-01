@@ -310,3 +310,12 @@ JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
 `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
 `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`.
 
+## Isolated-file leftover rankpath (mixed lock C)
+
+Protocol SHA `7afd049`. `used_keys=false`. Leftover 20: marked `lr>0`
+**12/20**, unmarked `lr≤0` **14/20**. Full nested **35/48 vs 38/48**
+includes covered openings; do not sell 35/48. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+

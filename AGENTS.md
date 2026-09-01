@@ -119,6 +119,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Interpolate atoms, grok36→original 12 | tail unseen 5996 vs seen 137; `'Cl'→'osing'` n=4 is unbucketed (postokhits zeros library); nested **26/48** ≠ occupancy-free **10/48**; not **25/48** |
 | Interpolate atoms, grok36→grok12 | 0:4 marked Δ +2.518 (`'The'→' car'` n=19) equals occupancy-free **39/48**; tail still backoff (183 vs 5955); not **25/48** |
 | Opening-coverage union, 100 ∪ grok36 → original 12 | disjoint **28/48** (18+10, leftover 20); mixed coverage **28/48**; t=0 **26/48**; interpolate nested **27/48**; not **25/48** |
+| Mixed rankpath leftover 20 | marked **12/20**, unmarked ≤0 **14/20**; full nested **35/48** includes coverage; not **25/48** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
