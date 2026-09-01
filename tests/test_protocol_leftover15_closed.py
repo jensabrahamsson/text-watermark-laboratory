@@ -51,6 +51,7 @@ def test_protocol_leftover15_closed_refuses_targeting() -> None:
     assert "H-l15-iso **holds**" in text
     assert "Do not sell leftover official **15/15**" in text
     assert "Do not target leftover-15" in text
+    assert "`570a5c6`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_leftover15_official_is_15_of_15() -> None:
@@ -84,3 +85,5 @@ def test_leftover15_official_is_15_of_15() -> None:
         "Leftover-15 official is **15/15**" in text
     )
     assert "leftover last-4 is **9/15 vs 8/15**" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "leftover-15 occupancy-free closed" in log

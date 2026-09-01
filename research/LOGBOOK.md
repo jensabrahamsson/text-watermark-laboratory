@@ -1722,4 +1722,13 @@ after peeking.
 
 JSON: `experiments/2026-09-01-openings-union-distil100x4-and-smt-to-12x4/`.
 
+## 2026-09-01 leftover-15 occupancy-free closed
+
+[PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)
+committed at SHA `570a5c6`. Leftover-15 official is **15/15** at
+prefix-5 from the published keyed dump. Occupancy-free leftover-15
+versus Distil is **0/15** by construction. Leftover last-4 is **9/15 vs
+8/15**. Do not target leftover-15 openings. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
 ---
