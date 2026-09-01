@@ -52,6 +52,7 @@ refuses the wrong next experiment.
 |---|---|
 | Leftover-18 keys | `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/union.json` |
 | Leftover-20 official | `experiments/2026-09-01-isolated-leftover-bound/official.json` |
+| Official prefixes (keyed) | `experiments/2026-09-01-official-prefix-leftover/results.json` |
 | Leftover last-4 | same union dump (`12loo-hard-last4`) |
 
 Helper: `leftover_keys_from_union` and `summarize_official_on_keys` in

@@ -1,5 +1,6 @@
 """Occupancy-free leftover-18 closed; no new occupancy-free trains."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.leftover import (
@@ -23,6 +24,12 @@ COVERAGE20 = (
     / "coverage.json"
 )
 OFFICIAL = (
+    ROOT
+    / "experiments"
+    / "2026-09-01-official-prefix-leftover"
+    / "results.json"
+)
+BOUND = (
     ROOT / "experiments" / "2026-09-01-isolated-leftover-bound" / "official.json"
 )
 
@@ -36,6 +43,7 @@ def test_protocol_occupancy_closed_refuses_family12_and_new_trains() -> None:
     assert "leftover_keys_from_union" in text
     assert "summarize_official_on_keys" in text
     assert "2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/union.json" in text
+    assert "2026-09-01-official-prefix-leftover/results.json" in text
     assert "thesis/" in text
     assert "family-12" in text
     assert "Do not redefine leftover" in text
@@ -58,6 +66,9 @@ def test_leftover18_official_is_18_of_18_by_subset() -> None:
     assert ("11-garden", 1) in keys20
     assert ("11-garden", 1) not in keys18
     assert ("11-garden", 4) not in keys18
+    bound = json.loads(BOUND.read_text())
+    keys20_bound = {(r["stem"], int(r["sample"])) for r in bound["leftover"]}
+    assert keys20_bound == keys20
     payload = summarize_official_on_keys(keys18, OFFICIAL)
     assert payload["used_keys"] is True
     assert payload["n_leftover"] == 18
