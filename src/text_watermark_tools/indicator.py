@@ -154,19 +154,55 @@ class IndicatorHoldout:
     def n_unmarked_nonpositive(self) -> int:
         return sum(u <= self.margin for u in self.unmarked_lrs)
 
+    def _stem_pairs(self) -> dict[str, list[tuple[float, float]]]:
+        buckets: dict[str, list[tuple[float, float]]] = {}
+        for stem, m, u in zip(
+            self.stems, self.marked_lrs, self.unmarked_lrs, strict=True
+        ):
+            buckets.setdefault(stem, []).append((m, u))
+        return buckets
+
     @property
     def n_prompts_marked_above(self) -> int:
         """Mean LR per prompt, then marked (+margin) ≥ unmarked. Same grain as blind."""
-        buckets: dict[str, list[tuple[float, float]]] = {}
-        for stem, m, u in zip(self.stems, self.marked_lrs, self.unmarked_lrs, strict=True):
-            buckets.setdefault(stem, []).append((m, u))
         n = 0
-        for pairs in buckets.values():
+        for pairs in self._stem_pairs().values():
             marked_mean = sum(m for m, _ in pairs) / len(pairs)
             unmarked_mean = sum(u for _, u in pairs) / len(pairs)
             if pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
                 n += 1
         return n
+
+    @property
+    def ranking_without_isolated_tp(self) -> list[str]:
+        """Prompt-ranking wins with no marked file ``lr > 0``.
+
+        Isolated sign stays hard ``lr > 0`` even when ``margin`` is nonzero.
+        Those stems rank because unmarked LRs are more negative, not because
+        any isolated marked file signs. Do not read prompt wins as isolated
+        recall.
+        """
+        names: list[str] = []
+        for stem, pairs in sorted(self._stem_pairs().items()):
+            marked_mean = sum(m for m, _ in pairs) / len(pairs)
+            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
+            if not pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
+                continue
+            if any(m > 0.0 for m, _ in pairs):
+                continue
+            names.append(stem)
+        return names
+
+    @property
+    def n_prompt_wins_without_isolated_tp(self) -> int:
+        return len(self.ranking_without_isolated_tp)
+
+    def ranking_payload(self) -> dict:
+        stems = self.ranking_without_isolated_tp
+        return {
+            "n_prompt_wins_without_isolated_tp": len(stems),
+            "ranking_without_isolated_tp": stems,
+        }
 
 
 def _dump_table(table: NextTokenTable) -> dict:
@@ -716,6 +752,9 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"n_files={ev.n_files} "
             f"marked_above_unmarked={ev.n_marked_above_unmarked} "
             f"prompts_marked_above={ev.n_prompts_marked_above} "
+            f"ranking_without_isolated_tp="
+            f"{ev.n_prompt_wins_without_isolated_tp}/"
+            f"{ev.n_prompts_marked_above} "
             f"marked_lr_positive={ev.n_marked_positive} "
             f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
             f"margin={ev.margin:g} context_len={ev.context_len} "
@@ -791,6 +830,8 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "n_files": ev.n_files,
         "n_marked_above_unmarked": ev.n_marked_above_unmarked,
         "n_prompts_marked_above": ev.n_prompts_marked_above,
+        "n_prompt_wins_without_isolated_tp": ev.n_prompt_wins_without_isolated_tp,
+        "ranking_without_isolated_tp": ev.ranking_without_isolated_tp,
         "n_marked_lr_positive": ev.n_marked_positive,
         "n_unmarked_lr_nonpositive": ev.n_unmarked_nonpositive,
         "margin": ev.margin,

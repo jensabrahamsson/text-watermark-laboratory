@@ -51,7 +51,9 @@ CONTRAST_NOTE = (
     "control-shuffled-30 at sampling. If control ranks with unmarked, the "
     "key-free reader is instance-specific without keys. If it ranks with "
     "marked, the reader is detecting tournament sampling, not this instance. "
-    "Not key recovery. Not Claude."
+    "Not key recovery. Not Claude. ranking_without_isolated_tp counts "
+    "prompt wins with no marked file lr>0; do not read prompt wins as "
+    "isolated recall."
 )
 
 
@@ -661,7 +663,10 @@ def print_contrast(run: ContrastRun) -> str:
                 label=f"{row.name} {row.comparison}",
             )
             + f" brier={row.brier:.4f} "
-            f"prompts={row.holdout.n_prompts_marked_above}/{row.holdout.n_prompts}"
+            f"prompts={row.holdout.n_prompts_marked_above}/{row.holdout.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{row.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{row.holdout.n_prompts_marked_above}"
         )
     if run.transfer is not None:
         lines.append("")
@@ -699,6 +704,7 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
                 "comparison": row.comparison,
                 "n_prompt_wins": row.holdout.n_prompts_marked_above,
                 "n_prompts": row.holdout.n_prompts,
+                **row.holdout.ranking_payload(),
                 "brier": row.brier,
                 "binary": binary_eval_to_dict(
                     binary_eval(row.holdout.marked_lrs, row.holdout.unmarked_lrs)

@@ -1255,7 +1255,12 @@ under rankpath (`The ferry` openings). Do not sell union A/B/C t=0
 **42/48** or nested **40/48**. On 36×4 the only prompt loss is library
 (same Closing opening, different draws, still 0/4 marked t=0).
 
-Does not replace **25/48**. JSON:
-`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
+## 2026-09-01 ranking-without-isolated-TP is a first-class holdout field
+
+Prompt-group ranking can hide stems whose marked files are all `lr<=0`.
+Lock C 10/12 includes night-bus, library, and market that way.
+`IndicatorHoldout.ranking_without_isolated_tp` now reports those stems.
+`probe` / `transfer` / `indicate holdout` print the count. Not a new
+scorer. Does not replace **25/48**.
 
 ---

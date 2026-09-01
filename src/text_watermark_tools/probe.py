@@ -3057,7 +3057,9 @@ class ProbeRun:
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
         "AUC is single-file ranking; prompt wins are prompt-group ranking, "
-        "not per-file accuracy. "
+        "not per-file accuracy. ranking_without_isolated_tp counts prompt "
+        "wins with no marked file lr>0 — those stems rank because unmarked "
+        "is more negative, not because any isolated file signs. "
         "nested-youden-by-stem is a threshold chosen on other prompt "
         "families' already-held-out LRs, not a global peek at the same stem. "
         "coverage.json is leave-one-out shared last-k fraction by position; "
@@ -3128,6 +3130,8 @@ class TransferRun:
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
         "training files (in-sample), then frozen on the test files. "
+        "ranking_without_isolated_tp counts prompt wins with no marked "
+        "file lr>0; do not read prompt wins as isolated recall. "
         "Not detector_mean. Not Claude. Not key recovery."
     )
 
@@ -3231,6 +3235,29 @@ def summarize_holdout(name: str, ev: IndicatorHoldout) -> MethodSummary:
         n_prompt_wins=ev.n_prompts_marked_above,
         n_prompts=ev.n_prompts,
     )
+
+
+def _ranking_without_tp_md(methods: Sequence[MethodSummary]) -> list[str]:
+    lines = [
+        "",
+        "| method | prompt wins | ranking wins with no isolated TP |",
+        "|---|---|---|",
+    ]
+    for m in methods:
+        stems = m.holdout.ranking_without_isolated_tp
+        cell = f"{len(stems)}/{m.n_prompt_wins}"
+        if 0 < len(stems) <= 6:
+            cell += f" ({', '.join(stems)})"
+        lines.append(
+            f"| {m.name} | {m.n_prompt_wins}/{m.n_prompts} | {cell} |"
+        )
+    lines.append("")
+    lines.append(
+        "Ranking wins with no isolated TP are prompt groups whose marked "
+        "mean LR beats unmarked while every marked file has lr<=0. They "
+        "are not isolated-file true positives."
+    )
+    return lines
 
 
 def run_probe(
@@ -3888,6 +3915,7 @@ def print_probe(run: ProbeRun) -> str:
             f"{b.n_negative_at_most_zero}/{b.n_negative} | "
             f"{b.permutation_p:.4g} | {b.mean_diff:.4f} |"
         )
+    lines.extend(_ranking_without_tp_md(run.methods))
     lines.append("")
     lines.append(
         "| method | marked zeros | unmarked zeros | decided tp/fn | "
@@ -3960,6 +3988,9 @@ def print_probe(run: ProbeRun) -> str:
         lines.append(format_binary_eval(m.binary, label=m.name))
         lines.append(
             f"{m.name} prompts_marked_above={m.n_prompt_wins}/{m.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{m.n_prompt_wins} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)
@@ -3999,6 +4030,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
             "n_prompt_wins": m.n_prompt_wins,
             "n_prompts": m.n_prompts,
             "n_marked_above_unmarked": m.holdout.n_marked_above_unmarked,
+            **m.holdout.ranking_payload(),
             "used_keys": m.holdout.used_keys,
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
@@ -4019,6 +4051,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -4035,6 +4068,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -4578,6 +4612,8 @@ def run_transfer(
         "are dropped as overlap_mode says. In-sample Youden is optimistic. "
         "nested-youden / nested-fpr10 come from leave-one-prompt-out on "
         "training stems only, then frozen on the test files. "
+        "ranking_without_isolated_tp counts prompt wins with no marked "
+        "file lr>0; do not read prompt wins as isolated recall. "
         "Not detector_mean. Not Claude. Not key recovery."
     )
     if shuffle_labels:
@@ -5236,6 +5272,7 @@ def print_transfer(run: TransferRun) -> str:
             f"{b.n_negative_at_most_zero}/{b.n_negative} | "
             f"{b.permutation_p:.4g} | {b.mean_diff:.4f} |"
         )
+    lines.extend(_ranking_without_tp_md(run.methods))
     lines.append("")
     lines.append(
         "| method | marked zeros | unmarked zeros | decided tp/fn | "
@@ -5334,6 +5371,9 @@ def print_transfer(run: TransferRun) -> str:
         )
         lines.append(
             f"{m.name} prompts_marked_above={m.n_prompt_wins}/{m.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{m.n_prompt_wins} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)
@@ -5388,6 +5428,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             "n_prompt_wins": m.n_prompt_wins,
             "n_prompts": m.n_prompts,
             "n_marked_above_unmarked": m.holdout.n_marked_above_unmarked,
+            **m.holdout.ranking_payload(),
             "used_keys": m.holdout.used_keys,
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
@@ -5558,6 +5599,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -5574,6 +5616,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,

@@ -43,7 +43,9 @@ In-domain 36×4 hits is still **36/36**, AUC **0.930**. JSON:
 `experiments/2026-09-01-probe-12x4-recount-hard-last4/`,
 `experiments/2026-09-01-probe-12x4-recount-hits/`,
 `experiments/2026-09-01-probe-36x4-recount-hits/`. The 2026-08-17 holdout
-files stay as collected.
+files stay as collected. `probe` / `indicate holdout` now report
+`ranking_without_isolated_tp`: prompt-group wins whose marked files are
+all `lr<=0`. Those stems are not isolated-file true positives.
 
 ## What the new scorers do
 

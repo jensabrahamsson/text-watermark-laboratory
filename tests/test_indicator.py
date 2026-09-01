@@ -1,5 +1,6 @@
 """Single-text key-free indicator: fit, persist, load, score one file."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.cli import main
@@ -14,6 +15,7 @@ from text_watermark_tools.indicator import (
     load_indicator,
     persist_holdout,
     persist_indicator,
+    print_holdout,
     rotate_holdout,
     score_text,
     score_text_from_tables,
@@ -282,6 +284,28 @@ def test_holdout_margin_counts_a_close_miss() -> None:
     ).n_marked_positive == 1
 
 
+def test_ranking_without_isolated_tp_is_prompt_win_with_no_marked_sign() -> None:
+    ev = IndicatorHoldout(
+        stems=["bus", "bus", "ferry", "ferry"],
+        marked_lrs=[-0.1, -0.2, 0.4, 0.5],
+        unmarked_lrs=[-0.4, -0.5, -0.2, -0.1],
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+        context_len=4,
+        model_name="gpt2",
+        samples=[1, 2, 1, 2],
+        mode="transfer",
+    )
+    assert ev.n_prompts_marked_above == 2
+    assert ev.n_marked_positive == 2
+    assert ev.ranking_without_isolated_tp == ["bus"]
+    assert ev.n_prompt_wins_without_isolated_tp == 1
+    assert ev.ranking_payload()["ranking_without_isolated_tp"] == ["bus"]
+    text = print_holdout(ev)
+    assert "ranking_without_isolated_tp=1/2" in text
+
+
 def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     ev = IndicatorHoldout(
         stems=["close", "wide"],
@@ -299,6 +323,10 @@ def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     persist_holdout(ev, tmp_path)
     same = holdout_from_json(tmp_path / "holdout.json")
     assert same.n_marked_above_unmarked == 1
+    assert same.ranking_without_isolated_tp == []
+    raw = json.loads((tmp_path / "holdout.json").read_text())
+    assert raw["n_prompt_wins_without_isolated_tp"] == 0
+    assert raw["ranking_without_isolated_tp"] == []
     soft = holdout_from_json(tmp_path / "holdout.json", margin=0.015)
     assert soft.n_marked_above_unmarked == 2
     assert soft.margin == 0.015

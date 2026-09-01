@@ -7,14 +7,17 @@ from text_watermark_tools.blind import load_twins
 from text_watermark_tools.cli import main
 from text_watermark_tools.indicator import holdout_from_json
 from text_watermark_tools.probe import (
+    ProbeRun,
     apply_overlap,
     persist_probe,
+    print_probe,
     rotate_count_methods,
     rotate_hashpool,
     rotate_score_stack,
     run_probe,
     run_transfer,
     shuffle_twin_sides,
+    summarize_holdout,
 )
 from text_watermark_tools.stats import (
     binary_eval,
@@ -1382,6 +1385,33 @@ def test_protocol_isolated_lock_c_12x4_losses_are_letter_and_garden() -> None:
     assert stems["union_t0_marked_do_not_sell"] > 25
     assert nested["n_marked_above"] == 24
     assert nested["n_marked_above"] < 25
+
+
+def test_lock_c_holdout_exposes_ranking_without_isolated_tp() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    ev = holdout_from_json(
+        root
+        / "2026-09-01-transfer-100x4-to-12x4-opening-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    stems = json.loads(
+        (root / "2026-09-01-transfer-100x4-to-12x4-hard-last4" / "stems.json").read_text()
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 10
+    assert ev.n_marked_positive == 24
+    assert ev.ranking_without_isolated_tp == [
+        "02-night-bus",
+        "03-library",
+        "04-market",
+    ]
+    assert ev.ranking_without_isolated_tp == stems["lock_c_ranking_without_isolated_tp"]
+    assert ev.n_prompt_wins_without_isolated_tp == 3
+    text = print_probe(ProbeRun(methods=[summarize_holdout("rankpath", ev)]))
+    assert "ranking wins with no isolated TP" in text
+    assert "3/10 (02-night-bus, 03-library, 04-market)" in text
+    assert "not isolated-file true positives" in text
 
 
 def test_protocol_isolated_opening_overlap_matches_occupancy_free() -> None:
