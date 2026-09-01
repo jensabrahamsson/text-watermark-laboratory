@@ -17,6 +17,8 @@ versus covered on those tails is
 [PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).
 Occupancy leftover-20 official+atoms bound is
 [PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
+Leftover-20 union with short+medium+tails openings is
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md).
 
 ## Locked headlines
 

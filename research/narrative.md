@@ -149,6 +149,10 @@ Opened: leftover-20 official full-file mean **0.624**, **20/20** above
 key-free chance is not an unmarked mixin miss. Do not sell official
 **20/20** or interpolate **13/20**.
 
+Whether short+medium+tails openings cover any leftover-20 files is
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md).
+Do not look at leftover-after-union counts until that freeze is named.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.
