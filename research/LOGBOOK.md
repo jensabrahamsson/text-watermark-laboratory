@@ -1290,4 +1290,15 @@ nonzero. Live 12×4 last-4 remeasure wrote
 with **5** TPs. Historical recount JSON unchanged. Not a new scorer.
 Does not replace **25/48**.
 
+## 2026-09-01 Grok-register isolated protocol frozen
+
+[PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) and
+`experiments/2026-09-01-prompts-grok12/` committed at SHA `07ce009`.
+Twelve new multi-paragraph scene prompts, disjoint from the original 12
+and from the 100 one-liners. Same three locks as PROTOCOL-isolated.
+Seed `20260904`. Do **not** run `pair` until this line is on origin.
+Do not look at key-free LRs until the frozen analysis commands have
+been run once. Nested Youden on the original 12×4 is the primary
+endpoint. It still does not replace **25/48**.
+
 ---
