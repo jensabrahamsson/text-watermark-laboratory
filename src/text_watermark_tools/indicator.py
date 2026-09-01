@@ -173,6 +173,18 @@ class IndicatorHoldout:
                 n += 1
         return n
 
+    def _stem_rank_isolated(self) -> list[tuple[str, bool, int]]:
+        rows: list[tuple[str, bool, int]] = []
+        for stem, pairs in sorted(self._stem_pairs().items()):
+            marked_mean = sum(m for m, _ in pairs) / len(pairs)
+            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
+            win = pair_marked_wins(
+                marked_mean, unmarked_mean, margin=self.margin
+            )
+            n_tp = sum(1 for m, _ in pairs if m > 0.0)
+            rows.append((stem, win, n_tp))
+        return rows
+
     @property
     def ranking_without_isolated_tp(self) -> list[str]:
         """Prompt-ranking wins with no marked file ``lr > 0``.
@@ -182,26 +194,44 @@ class IndicatorHoldout:
         any isolated marked file signs. Do not read prompt wins as isolated
         recall.
         """
-        names: list[str] = []
-        for stem, pairs in sorted(self._stem_pairs().items()):
-            marked_mean = sum(m for m, _ in pairs) / len(pairs)
-            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
-            if not pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
-                continue
-            if any(m > 0.0 for m, _ in pairs):
-                continue
-            names.append(stem)
-        return names
+        return [stem for stem, win, n_tp in self._stem_rank_isolated() if win and n_tp == 0]
 
     @property
     def n_prompt_wins_without_isolated_tp(self) -> int:
         return len(self.ranking_without_isolated_tp)
 
+    @property
+    def ranking_losses_with_isolated_tp(self) -> list[str]:
+        """Prompt-ranking losses that still have a marked file ``lr > 0``.
+
+        Isolated TPs on a ranking loss do not make the prompt-group
+        comparison. Ferry-queue on 12-LOO hard last-4 is the type case.
+        """
+        return [
+            stem
+            for stem, win, n_tp in self._stem_rank_isolated()
+            if (not win) and n_tp > 0
+        ]
+
+    @property
+    def n_marked_positive_on_ranking_losses(self) -> int:
+        return sum(
+            n_tp
+            for _stem, win, n_tp in self._stem_rank_isolated()
+            if not win
+        )
+
     def ranking_payload(self) -> dict:
-        stems = self.ranking_without_isolated_tp
+        hide = self.ranking_without_isolated_tp
+        loss_tp = self.ranking_losses_with_isolated_tp
         return {
-            "n_prompt_wins_without_isolated_tp": len(stems),
-            "ranking_without_isolated_tp": stems,
+            "n_prompt_wins_without_isolated_tp": len(hide),
+            "ranking_without_isolated_tp": hide,
+            "n_ranking_losses_with_isolated_tp": len(loss_tp),
+            "ranking_losses_with_isolated_tp": loss_tp,
+            "n_marked_positive_on_ranking_losses": (
+                self.n_marked_positive_on_ranking_losses
+            ),
         }
 
 
@@ -755,6 +785,8 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"ranking_without_isolated_tp="
             f"{ev.n_prompt_wins_without_isolated_tp}/"
             f"{ev.n_prompts_marked_above} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(ev.ranking_losses_with_isolated_tp)} "
             f"marked_lr_positive={ev.n_marked_positive} "
             f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
             f"margin={ev.margin:g} context_len={ev.context_len} "
@@ -832,6 +864,9 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "n_prompts_marked_above": ev.n_prompts_marked_above,
         "n_prompt_wins_without_isolated_tp": ev.n_prompt_wins_without_isolated_tp,
         "ranking_without_isolated_tp": ev.ranking_without_isolated_tp,
+        "n_ranking_losses_with_isolated_tp": len(ev.ranking_losses_with_isolated_tp),
+        "ranking_losses_with_isolated_tp": ev.ranking_losses_with_isolated_tp,
+        "n_marked_positive_on_ranking_losses": ev.n_marked_positive_on_ranking_losses,
         "n_marked_lr_positive": ev.n_marked_positive,
         "n_unmarked_lr_nonpositive": ev.n_unmarked_nonpositive,
         "margin": ev.margin,

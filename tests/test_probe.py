@@ -1411,7 +1411,51 @@ def test_lock_c_holdout_exposes_ranking_without_isolated_tp() -> None:
     text = print_probe(ProbeRun(methods=[summarize_holdout("rankpath", ev)]))
     assert "ranking wins with no isolated TP" in text
     assert "3/10 (02-night-bus, 03-library, 04-market)" in text
-    assert "not isolated-file true positives" in text
+    assert "ranking losses with isolated TP" in text
+    assert "Neither column is a detector" in text
+
+
+def test_ranking_isolated_honesty_readout_matches_frozen_holdouts() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    readout = json.loads(
+        (root / "2026-09-01-ranking-isolated-honesty" / "readout.json").read_text()
+    )
+    assert readout["used_keys"] is False
+    by_id = {row["id"]: row for row in readout["rows"]}
+    hard = by_id["12loo-hard-last4"]
+    assert hard["n_prompt_wins"] == 9
+    assert hard["n_marked_positive"] == 25
+    assert hard["ranking_without_isolated_tp"] == ["11-garden"]
+    assert hard["ranking_losses_with_isolated_tp"] == [
+        "06-station",
+        "10-office",
+        "12-ferry-queue",
+    ]
+    assert hard["n_marked_positive_on_ranking_losses"] == 5
+    lock_c = by_id["100-to-12-lock-c"]
+    assert lock_c["ranking_without_isolated_tp"] == [
+        "02-night-bus",
+        "03-library",
+        "04-market",
+    ]
+    assert lock_c["ranking_losses_with_isolated_tp"] == []
+    lock_a = by_id["100-to-12-lock-a"]
+    assert lock_a["ranking_without_isolated_tp"] == []
+    assert lock_a["ranking_losses_with_isolated_tp"] == [
+        "01-harbour",
+        "02-night-bus",
+        "03-library",
+    ]
+    for row in readout["rows"]:
+        ev = holdout_from_json(root / row["path"])
+        assert ev.used_keys is False
+        assert ev.ranking_without_isolated_tp == row["ranking_without_isolated_tp"]
+        assert ev.ranking_losses_with_isolated_tp == row[
+            "ranking_losses_with_isolated_tp"
+        ]
+        assert ev.n_marked_positive_on_ranking_losses == row[
+            "n_marked_positive_on_ranking_losses"
+        ]
 
 
 def test_protocol_isolated_opening_overlap_matches_occupancy_free() -> None:

@@ -1263,4 +1263,17 @@ Lock C 10/12 includes night-bus, library, and market that way.
 `probe` / `transfer` / `indicate holdout` print the count. Not a new
 scorer. Does not replace **25/48**.
 
+## 2026-09-01 ranking vs isolated-file honesty on frozen holdouts
+
+Same derived fields, applied to already-saved holdouts. No new scorer.
+
+12-LOO hard last-4 (**9/12**, **25/48**): garden ranks with 0/4 marked
+`lr>0`. Station, office, and ferry-queue lose ranking but hold **5** of
+the **25** isolated TPs (ferry-queue 3/4). Lock C 100→12: three ranking
+wins with 0 isolated TPs, zero TPs on ranking losses. Lock A 100→12: no
+hidden ranking wins; 4 isolated TPs on ranking losses.
+
+Do not rewrite **9/12** or **25/48**. JSON:
+`experiments/2026-09-01-ranking-isolated-honesty/`.
+
 ---

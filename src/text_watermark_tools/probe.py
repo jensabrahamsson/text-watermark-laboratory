@@ -3240,22 +3240,31 @@ def summarize_holdout(name: str, ev: IndicatorHoldout) -> MethodSummary:
 def _ranking_without_tp_md(methods: Sequence[MethodSummary]) -> list[str]:
     lines = [
         "",
-        "| method | prompt wins | ranking wins with no isolated TP |",
-        "|---|---|---|",
+        (
+            "| method | prompt wins | ranking wins with no isolated TP | "
+            "ranking losses with isolated TP |"
+        ),
+        "|---|---|---|---|",
     ]
     for m in methods:
-        stems = m.holdout.ranking_without_isolated_tp
-        cell = f"{len(stems)}/{m.n_prompt_wins}"
-        if 0 < len(stems) <= 6:
-            cell += f" ({', '.join(stems)})"
+        hide = m.holdout.ranking_without_isolated_tp
+        loss = m.holdout.ranking_losses_with_isolated_tp
+        hide_cell = f"{len(hide)}/{m.n_prompt_wins}"
+        if 0 < len(hide) <= 6:
+            hide_cell += f" ({', '.join(hide)})"
+        loss_cell = str(len(loss))
+        if 0 < len(loss) <= 6:
+            loss_cell += f" ({', '.join(loss)})"
         lines.append(
-            f"| {m.name} | {m.n_prompt_wins}/{m.n_prompts} | {cell} |"
+            f"| {m.name} | {m.n_prompt_wins}/{m.n_prompts} | "
+            f"{hide_cell} | {loss_cell} |"
         )
     lines.append("")
     lines.append(
         "Ranking wins with no isolated TP are prompt groups whose marked "
-        "mean LR beats unmarked while every marked file has lr<=0. They "
-        "are not isolated-file true positives."
+        "mean LR beats unmarked while every marked file has lr<=0. Ranking "
+        "losses with isolated TP still have marked files above 0 but lose "
+        "the prompt-mean comparison. Neither column is a detector."
     )
     return lines
 
@@ -3991,6 +4000,8 @@ def print_probe(run: ProbeRun) -> str:
             f"ranking_without_isolated_tp="
             f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
             f"{m.n_prompt_wins} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(m.holdout.ranking_losses_with_isolated_tp)} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)
@@ -5374,6 +5385,8 @@ def print_transfer(run: TransferRun) -> str:
             f"ranking_without_isolated_tp="
             f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
             f"{m.n_prompt_wins} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(m.holdout.ranking_losses_with_isolated_tp)} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)

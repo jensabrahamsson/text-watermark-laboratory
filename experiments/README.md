@@ -221,6 +221,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-openings-100x4-to-36x4/` | Opening-overlap bound, 100→36 | postokhits covered **117/144**, exact **103/144**, decided 114/5 |
 | `2026-09-01-transfer-100x4-to-12x4-opening-rankpath/` | 100 families → original 12×4 lock C | **10/12**, nested Youden **24/48 vs 41/48**; losses letter/garden; 3 ranking wins have 0 isolated TPs |
 | `2026-09-01-transfer-100x4-to-36x4-opening-rankpath/` | 100 families → 36×4 lock C | **35/36**, nested Youden **109/144 vs 117/144**; only miss library |
+| `2026-09-01-ranking-isolated-honesty/` | Ranking vs isolated TP on frozen holdouts | 12-LOO hard: garden ranks with 0 TP; 5/25 TPs on ranking losses |
 
 ## What changed across the runs
 

@@ -24,7 +24,11 @@ Pre-fix **10/12** / **29/48** counted `(10,)→20` four times at
 `context_len=4`. JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`,
 `experiments/2026-09-01-probe-12x4-recount-hard-last4/`. Official
 public-key `score` on those twins is **12/12**. That path uses keys. It
-is the positive control, not the key-free indicator.
+is the positive control, not the key-free indicator. Ranking and isolated
+sign disagree on stems: garden is one of nine 12-LOO hard ranking wins
+with no marked file `lr>0`; station, office, and ferry-queue lose ranking
+but hold 5 of 25 isolated TPs. Table:
+`experiments/2026-09-01-ranking-isolated-honesty/`.
 
 ## Mechanistic finding already on the old corpus
 

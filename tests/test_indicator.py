@@ -301,9 +301,12 @@ def test_ranking_without_isolated_tp_is_prompt_win_with_no_marked_sign() -> None
     assert ev.n_marked_positive == 2
     assert ev.ranking_without_isolated_tp == ["bus"]
     assert ev.n_prompt_wins_without_isolated_tp == 1
+    assert ev.ranking_losses_with_isolated_tp == []
+    assert ev.n_marked_positive_on_ranking_losses == 0
     assert ev.ranking_payload()["ranking_without_isolated_tp"] == ["bus"]
     text = print_holdout(ev)
     assert "ranking_without_isolated_tp=1/2" in text
+    assert "ranking_losses_with_isolated_tp=0" in text
 
 
 def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
