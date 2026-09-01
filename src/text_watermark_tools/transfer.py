@@ -1056,6 +1056,28 @@ def hashtok_trace(
         t = int(tok)
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         ctx_n = hash_ctx_len(ctx, model.position_bucket)
+        exact = bool(model.exact_len) or bool(model.drop_one) or bool(model.mask_one)
+        if exact and ctx_n != int(model.context_len):
+            rows.append(
+                {
+                    "i": int(i),
+                    "tok": t,
+                    "ctx": [int(x) for x in ctx],
+                    "ctx_len": ctx_n,
+                    "exact_ok": False,
+                    "drop_one": bool(model.drop_one),
+                    "mask_one": bool(model.mask_one),
+                    "n_hashes_seen": 0,
+                    "n_hashes": int(model.n_hashes),
+                    "c_m": 0,
+                    "c_u": 0,
+                    "delta": None,
+                    "hashpool_delta": 0.0,
+                    "hashes": [],
+                    "skip_views": [],
+                }
+            )
+            continue
         views = hashed_ctx_views(
             ctx,
             position_bucket=model.position_bucket,
@@ -1068,6 +1090,7 @@ def hashtok_trace(
         c_m_sum = 0
         c_u_sum = 0
         n_seen = 0
+        multi_view = bool(model.drop_one) or bool(model.mask_one)
         for drop_i, view in enumerate(views):
             view_hashes: list[dict] = []
             view_seen = 0
@@ -1093,24 +1116,25 @@ def hashtok_trace(
                     "seen": seen,
                 }
                 view_hashes.append(rec)
-                if not model.drop_one:
+                if not multi_view:
                     hashes.append(rec)
             view_delta = hashtok_token_lr(model, view, t, min_count=floor)
             if view_delta is not None:
                 pieces.append(view_delta)
-            if model.drop_one:
-                skip_rows.append(
-                    {
-                        "drop_i": int(drop_i),
-                        "view": [int(x) for x in view],
-                        "n_hashes_seen": view_seen,
-                        "c_m": view_cm,
-                        "c_u": view_cu,
-                        "delta": None if view_delta is None else float(view_delta),
-                        "hashes": view_hashes,
-                    }
-                )
-        if not model.drop_one:
+            if multi_view:
+                view_row = {
+                    "drop_i": int(drop_i),
+                    "view": [int(x) for x in view],
+                    "n_hashes_seen": view_seen,
+                    "c_m": view_cm,
+                    "c_u": view_cu,
+                    "delta": None if view_delta is None else float(view_delta),
+                    "hashes": view_hashes,
+                }
+                if model.mask_one:
+                    view_row["mask_i"] = int(drop_i)
+                skip_rows.append(view_row)
+        if not multi_view:
             delta = hashtok_token_lr(model, ctx, t, min_count=floor)
             pool = hashpool_token_lr(model, ctx, t)
         else:

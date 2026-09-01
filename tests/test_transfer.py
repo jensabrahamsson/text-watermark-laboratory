@@ -370,6 +370,19 @@ def test_hashmask_is_length_k_replace_not_skip() -> None:
     unseen = score_hashtok_detail([0, 1, 2, 3, 99], mask)
     assert unseen.n_used == 0
     assert unseen.lr == 0.0
+    from text_watermark_tools.transfer import hashtok_trace
+
+    trace = hashtok_trace(held, mask)
+    slot = next(row for row in trace if row["i"] == 4)
+    assert slot["mask_one"] is True
+    assert slot["drop_one"] is False
+    assert slot["skip_views"]
+    assert all("mask_i" in view for view in slot["skip_views"])
+    assert slot["delta"] == score_hashmask(held, mask)
+    short = next(row for row in trace if row["i"] == 2)
+    assert short["exact_ok"] is False
+    assert short["skip_views"] == []
+    assert short["delta"] is None
 
 
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:

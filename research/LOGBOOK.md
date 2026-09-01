@@ -777,4 +777,39 @@ worse than hashtoklen alone (26/48 vs 35/48). Do not sell 10/48,
 JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 count-weighting and hashtoklen2 cascade are dead ends
+
+Weighting occupancy-free hashes by `c_m+c_u` or `log(1+n)` copies
+uniform prefix-5 hashtoklen (**21/48 vs 45/48**): no file mixes a
+singleton with a dense hash on the official slot. Weight `n-1` copies
+`min_count=2` (**10/48 vs 48/48**). Not a product.
+
+Rebound `hashtoklen2` onto saved prefix-4 rankpath: coverage cascade
+**28/48 vs 40/48**, the same as standalone rankpath. All 10 robust
+5-gram TPs are already rankpath TPs. Leftover fill-in **0/8**. Combined
+**68/96** vs hashtoklen cascade **70/96**. Do not add hashtoklen2 as a
+cascade count channel. Do not sell 28/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2-cascade-rankpath/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 MASK replace is worse nested than exact 5-grams
+
+`hashmask` replaces one last-4 token with `MASK_TAG` (length stays 4).
+Occupancy-free. 60-stem prefix-5 → 12×4: **11/12**, **21/48 vs 42/48**,
+nested Youden **19/48 vs 45/48**. Same 21 TPs as hashtoklen at t=0
+(extras harbour d3/d4, letter d2, workshop d4; lost market ×4). Nested
+is **worse** than hashtoklen **21/48 vs 45/48**. `hashmask2` **15/48 vs
+44/48**, nested **11/48 vs 45/48**.
+
+Letter d2 official `I` is a MASK hit at `mask_i=3` (`Now in the MASK`
+→ `I`): two opposing singletons average to file lr=+0.240, which is
+that slot. Nested 0.778 throws it out. Leftover nested fill-in is
+harbour d3/d4 only, not 8/8. Do not sell 21/48, 19/48, or 15/48 as
+beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/`,
+`experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

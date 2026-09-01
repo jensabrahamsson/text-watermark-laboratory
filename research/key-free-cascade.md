@@ -226,4 +226,7 @@ see [key-free-hashtok.md](key-free-hashtok.md). Occupancy-free
 `hashtoklen` as the count channel, saved prefix-4 rankpath as
 fallback, is **33/48 vs 37/48** (combined 70/96 vs count 82/96). The
 leftover eight stay misses. `--cascade hashtoklen` is first-class.
-Do not sell 33/48.
+Do not sell 33/48. Rebound `hashtoklen2` onto the same rankpath rows
+is **28/48 vs 40/48**, copying standalone prefix-4 rankpath: the 10
+robust 5-gram TPs are already rankpath TPs. Leftover fill-in still
+0/8. `hashtoklen2` is not a cascade count channel on that number.

@@ -413,3 +413,70 @@ hashskip2 zeros letter d2's unmarked singleton votes but still has
 22/48, or 15/48 as beating poshits **39/48** or replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/).
+
+## Count-weighting hashes does nothing at this grain
+
+Occupancy-free default averages the hashes that saw the observed next
+token. Weighting those hashes by `c_m+c_u` or `log(1+n)` **copies**
+uniform hashtoklen (**21/48 vs 45/48**) on the frozen prefix-5
+`tables-hashtoklen`. No marked file mixes a singleton hash with a
+dense one on the official 5-gram slot, so the weights never change
+the mean. Weight `n-1` (skip n=1) copies `min_count=2` (**10/48 vs
+48/48**). Not a product scorer. The test
+`test_prefix5_hashtoklen_count_weighting_copies_uniform` rescores the
+saved tables.
+
+## hashtoklen2 + prefix-4 rankpath is not complementary
+
+Rebound saved prefix-4 rankpath rows with `hashtoklen2` as the count
+channel (no new GPT-2). Coverage cascade **28/48 vs 40/48** copies
+standalone 60-stem prefix-4 rankpath. All 10 robust hashed 5-gram TPs
+are already rankpath TPs. Leftover fill-in **0/8**. Combined **68/96**
+vs hashtoklen cascade **70/96** vs prefix-4 count **82/96**.
+`hashtoklen2` is not in `HASH_CASCADE_READERS`. Do not add it as a
+cascade count channel on this number. Do not sell 28/48.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2-cascade-rankpath/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2-cascade-rankpath/).
+
+## MASK replace (`hashmask`) is denser coverage and worse nested
+
+`hashmask` hashes exact last-k with one token replaced by
+`MASK_TAG=-4`. Length stays k: a masked 4-gram is not a last-3 and not
+a tagged skip-gram. Occupancy-free. Instance `key-free-hashmask`.
+Persist `tables-hashmask/` (`mask_one=true`, `drop_one=false`,
+`exact_len=true`). Refuse score-time `hashmask` on a non-mask mixer.
+`hashmask2` is `min_count=2` on the same tables.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --extra-train experiments/2026-08-31-pair-family12x4 \
+  --fit-prefix 5 --pos-bucket 0 \
+  --methods hashtoklen,hashmask,hashmask2 \
+  --out-dir experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden | precision |
+|---|---|---|---|---|---|---|
+| hashtoklen | 12/12† | 0.701 | **21/48** | 45/48 | **21/48 vs 45/48** | 0.875 |
+| **hashmask** | 11/12 | 0.704 | **21/48** | **42/48** | **19/48 vs 45/48** | 0.778 |
+| **hashmask2** | 10/12 | 0.642 | **15/48** | 44/48 | **11/48 vs 45/48** | 0.789 |
+
+† Ties among zeros. Same 21 TPs at t=0 as hashtoklen: extras harbour
+d3/d4, letter d2, workshop d4; lost market ×4. Six unmarked FPs.
+Nested Youden **19/48 vs 45/48** is worse than exact hashtoklen.
+Keep prefix-5 `hashtoklen` / robust `hashtoklen2`.
+
+Letter d2 `Now in the second I`: only `mask_i=3` (`Now in the MASK` →
+`I`) sees the continuation. Two opposing singleton hashes (bucket
+hashes c_m=1 and c_u=1) average to file lr=**+0.240**, and that **is**
+the official slot (`n_used=1`). `hashmask2` skips both (`n_used=0`).
+Nested t=0.778 throws letter d2 out. Leftover t=0 is harbour d3/d4
+and letter d2; nested leftover is harbour d3/d4 only. Not 8/8. Do not
+sell 21/48, 19/48, 15/48, or letter d2 +0.240.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/),
+[../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json).
+

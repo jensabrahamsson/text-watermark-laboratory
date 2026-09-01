@@ -82,7 +82,13 @@ backoff hurts versus hashtok. `hashskip` (tagged drop-one last-k)
 is denser at t=0 (**25/48**) and nested Youden **16/48**; letter d2's
 official `I` is seen unmarked-only. `hashtoklen2` skips singleton
 collisions: **10/48 vs 48/48**, precision 1.0; 11 of 21 hashtoklen TPs
-were singletons; harbour d2 survives. See [key-free-hashtok.md](key-free-hashtok.md).
+were singletons; harbour d2 survives. Count-weighting those hashes
+copies uniform hashtoklen. `hashtoklen2` + prefix-4 rankpath cascade
+is **28/48 vs 40/48** (same as standalone rankpath). `hashmask`
+(length-k MASK replace) is **21/48 vs 42/48** at t=0 and nested
+Youden **19/48 vs 45/48**, worse than hashtoklen; letter d2's official
+slot is two opposing singletons (lr=+0.240), thrown out nested.
+See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)
 

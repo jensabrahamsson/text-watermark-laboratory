@@ -2815,3 +2815,334 @@ def test_prefix5_hashtoklen2_is_the_robust_collision_core() -> None:
     assert leftover_hs2_nested == set()
 
 
+def test_prefix5_hashmask_is_not_a_nested_leftover_rescue() -> None:
+    """MASK replace is denser coverage and worse nested than hashtoklen.
+
+    t=0 21/48 vs 42/48 spends 6 unmarked FPs. Nested Youden 19/48 vs 45/48.
+    Letter d2's file LR is the official slot: two opposing singletons.
+    Do not sell 21/48 or 19/48.
+    """
+    import json
+
+    from text_watermark_tools.transfer import HASH_CASCADE_READERS, MASK_TAG
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hm = holdout_from_json(root / "hashmask" / "holdout.json")
+    hm2 = holdout_from_json(root / "hashmask2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    tables = json.loads((root / "tables-hashmask" / "tables.json").read_text())
+    atoms = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-letter-d2-first-ngram"
+            / "letter-d2-hashmask-trace.json"
+        ).read_text()
+    )
+    assert hl.used_keys is False
+    assert hm.used_keys is False
+    assert hm2.used_keys is False
+    assert tables["mask_one"] is True
+    assert tables["drop_one"] is False
+    assert tables["exact_len"] is True
+    assert tables["used_keys"] is False
+    assert hm.instance == "key-free-hashmask"
+    assert hm2.instance == "key-free-hashmask2"
+    assert hm.n_prompts_marked_above == 11
+    assert hm.n_marked_positive == 21
+    assert hm.n_unmarked_nonpositive == 42
+    assert hl.n_marked_positive == 21
+    assert hm.n_marked_positive < 39
+    assert hm2.n_marked_positive == 15
+    assert hm2.n_unmarked_nonpositive == 44
+    assert _nested_youden(results, "hashtoklen") == (21, 45)
+    assert _nested_youden(results, "hashmask") == (19, 45)
+    assert _nested_youden(results, "hashmask2") == (11, 45)
+    assert "hashmask" not in HASH_CASCADE_READERS
+    hl_pos = {
+        (s, samp)
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if m > 0
+    }
+    hm_pos = {
+        (s, samp)
+        for s, samp, m in zip(hm.stems, hm._samples(), hm.marked_lrs)
+        if m > 0
+    }
+    assert hm_pos - hl_pos == {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("08-letter", 2),
+        ("09-workshop", 4),
+    }
+    assert hl_pos - hm_pos == {
+        ("04-market", 1),
+        ("04-market", 2),
+        ("04-market", 3),
+        ("04-market", 4),
+    }
+    by_hm = {
+        (s, samp): m
+        for s, samp, m in zip(hm.stems, hm._samples(), hm.marked_lrs)
+    }
+    by_hm2 = {
+        (s, samp): m
+        for s, samp, m in zip(hm2.stems, hm2._samples(), hm2.marked_lrs)
+    }
+    leftover = {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("06-station", 4),
+        ("08-letter", 2),
+        ("08-letter", 3),
+        ("10-office", 1),
+        ("10-office", 3),
+        ("12-ferry-queue", 4),
+    }
+    leftover_tp = {k for k in leftover if by_hm[k] > 0}
+    assert leftover_tp == {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("08-letter", 2),
+    }
+    assert by_hm[("08-letter", 2)] > 0
+    hm_nested_t = next(
+        row["train_youden"]
+        for row in results["thresholds"]
+        if row["name"] == "hashmask" and row["source"] == "nested-youden"
+    )
+    leftover_nested = {k for k in leftover if by_hm[k] > hm_nested_t}
+    assert leftover_nested == {("01-harbour", 3), ("01-harbour", 4)}
+    assert by_hm[("08-letter", 2)] < hm_nested_t
+    leftover_hm2 = {k for k in leftover if by_hm2[k] > 0}
+    assert leftover_hm2 == set()
+    assert atoms["used_keys"] is False
+    assert atoms["mask_one"] is True
+    assert atoms["drop_one"] is False
+    assert atoms["mask_tag"] == MASK_TAG
+    assert atoms["ids"] == [3844, 287, 262, 1218, 314]
+    assert atoms["hashmask"]["n_used"] == 1
+    assert atoms["hashmask"]["lr"] == by_hm[("08-letter", 2)]
+    assert atoms["holdout_lr"] == by_hm[("08-letter", 2)]
+    assert atoms["hashmask2"]["n_used"] == 0
+    slot = atoms["official_slot"]
+    assert slot["i"] == 4
+    assert slot["tok"] == 314
+    assert slot["delta"] == by_hm[("08-letter", 2)]
+    views = {v["mask_i"]: v for v in slot["mask_views"]}
+    assert views[0]["n_hashes_seen"] == 0
+    assert views[1]["n_hashes_seen"] == 0
+    assert views[2]["n_hashes_seen"] == 0
+    assert views[3]["n_hashes_seen"] == 2
+    assert views[3]["c_m"] == 1 and views[3]["c_u"] == 1
+    hashes = {(h["c_m"], h["c_u"]) for h in views[3]["hashes"]}
+    assert hashes == {(1, 0), (0, 1)}
+
+
+def test_prefix5_hashtoklen2_rankpath_cascade_copies_rankpath() -> None:
+    """Robust 5-gram TPs are already prefix-4 rankpath TPs.
+
+    Coverage cascade 28/48 vs 40/48. Leftover fill-in 0/8. Do not sell 28/48.
+    """
+    import json
+
+    from text_watermark_tools.transfer import HASH_CASCADE_READERS
+
+    cas = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2-cascade-rankpath"
+            / "cascade.json"
+        ).read_text()
+    )
+    assert cas["used_keys"] is False
+    assert cas["count_method"] == "hashtoklen2"
+    assert cas["fallback"] == "rankpath"
+    assert cas["combined_marked_above_zero"] == 28
+    assert cas["combined_unmarked_at_most_zero"] == 40
+    assert cas["count_marked_above_zero"] == 10
+    assert cas["count_unmarked_at_most_zero"] == 0
+    assert cas["fallback_marked_above_zero"] == 18
+    assert cas["combined_marked_above_zero"] < 39
+    assert cas["leftover_marked_above_zero"] == 0
+    assert cas["leftover_tps"] == []
+    assert cas["hashtoklen2_tps_subset_of_rankpath"] is True
+    assert "hashtoklen2" not in HASH_CASCADE_READERS
+    leftover = {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("06-station", 4),
+        ("08-letter", 2),
+        ("08-letter", 3),
+        ("10-office", 1),
+        ("10-office", 3),
+        ("12-ferry-queue", 4),
+    }
+    leftover_tp = {
+        (row["stem"], row["sample"])
+        for row in cas["rows"]
+        if row["side"] == "marked"
+        and (row["stem"], row["sample"]) in leftover
+        and row["score"] > 0
+    }
+    assert leftover_tp == set()
+    hl2 = {
+        (row["stem"], row["sample"])
+        for row in cas["rows"]
+        if row["side"] == "marked" and row["count_lr"] > 0
+    }
+    rank = {
+        (row["stem"], row["sample"])
+        for row in cas["rows"]
+        if row["side"] == "marked" and row["pivot_lr"] > 0
+    }
+    assert len(hl2) == 10
+    assert len(rank) == 28
+    assert hl2 <= rank
+
+
+def test_prefix5_hashtoklen_count_weighting_copies_uniform() -> None:
+    """Weighting hashes by c_m+c_u does nothing at official 5-gram grain.
+
+    No marked file mixes singleton and dense hashes on that slot. excess
+    n-1 copies min_count=2. Not a product scorer.
+    """
+    import math
+
+    from text_watermark_tools.blind import clip_twins_prefix, load_twins
+    from text_watermark_tools.transfer import (
+        _dirichlet_logp,
+        _hash_bucket_tok_count,
+        _scored_ctx,
+        hash_context,
+        hash_ctx_len,
+        load_hashpool,
+        score_hashtok,
+        score_hashtok_detail,
+    )
+
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2"
+        / "tables-hashtoklen"
+    )
+    hold_root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2"
+    )
+    hl = holdout_from_json(hold_root / "hashtoklen" / "holdout.json")
+    hl2 = holdout_from_json(hold_root / "hashtoklen2" / "holdout.json")
+    model = load_hashpool(tables)
+    assert model.used_keys is False
+    assert model.exact_len is True
+    assert model.drop_one is False
+    twins = clip_twins_prefix(
+        load_twins(
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-08-17-pair-12x4"
+        ),
+        5,
+    )
+
+    def weighted(ids: list[int], scheme: str) -> float:
+        v = max(len(model.vocab), 2)
+        pos: list[float] = []
+        for i, tok in enumerate(ids):
+            if i == 0:
+                continue
+            ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+            if hash_ctx_len(ctx, model.position_bucket) != int(model.context_len):
+                continue
+            pieces: list[tuple[int, float]] = []
+            t = int(tok)
+            for h, seed in enumerate(model.seeds):
+                bucket = hash_context(ctx, seed) % model.n_buckets
+                c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
+                c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
+                n = c_m + c_u
+                if n < 1:
+                    continue
+                lr = _dirichlet_logp(
+                    model.marked[h].get(bucket),
+                    t,
+                    fallback=model.marked_unigram,
+                    n_fallback=model.n_marked,
+                    alpha=model.alpha,
+                    v=v,
+                ) - _dirichlet_logp(
+                    model.unmarked[h].get(bucket),
+                    t,
+                    fallback=model.unmarked_unigram,
+                    n_fallback=model.n_unmarked,
+                    alpha=model.alpha,
+                    v=v,
+                )
+                pieces.append((n, lr))
+            if not pieces:
+                continue
+            if scheme == "uniform":
+                pos.append(sum(p for _, p in pieces) / len(pieces))
+            elif scheme == "count":
+                w = sum(n for n, _ in pieces)
+                pos.append(sum(n * p for n, p in pieces) / w)
+            elif scheme == "log":
+                w = sum(math.log(1 + n) for n, _ in pieces)
+                pos.append(sum(math.log(1 + n) * p for n, p in pieces) / w)
+            elif scheme == "excess":
+                kept = [(n - 1, p) for n, p in pieces if n >= 2]
+                if not kept:
+                    continue
+                w = sum(n for n, _ in kept)
+                pos.append(sum(n * p for n, p in kept) / w)
+            else:
+                raise ValueError(scheme)
+        if not pos:
+            return 0.0
+        return pos[0] if len(pos) == 1 else sum(pos) / len(pos)
+
+    marked_uniform = []
+    unmarked_uniform = []
+    for twin in twins:
+        for seq in twin.marked_seqs():
+            u = weighted(seq, "uniform")
+            c = weighted(seq, "count")
+            lg = weighted(seq, "log")
+            assert abs(u - score_hashtok(seq, model)) < 1e-12
+            assert abs(u - c) < 1e-12
+            assert abs(u - lg) < 1e-12
+            marked_uniform.append(u)
+        for seq in twin.unmarked_seqs():
+            u = weighted(seq, "uniform")
+            c = weighted(seq, "count")
+            lg = weighted(seq, "log")
+            assert abs(u - score_hashtok(seq, model)) < 1e-12
+            assert abs(u - c) < 1e-12
+            assert abs(u - lg) < 1e-12
+            unmarked_uniform.append(u)
+    assert sum(x > 0 for x in marked_uniform) == hl.n_marked_positive == 21
+    assert sum(x <= 0 for x in unmarked_uniform) == hl.n_unmarked_nonpositive == 45
+    marked_ex = [
+        weighted(seq, "excess") for twin in twins for seq in twin.marked_seqs()
+    ]
+    unmarked_ex = [
+        weighted(seq, "excess") for twin in twins for seq in twin.unmarked_seqs()
+    ]
+    assert sum(x > 0 for x in marked_ex) == hl2.n_marked_positive == 10
+    assert sum(x <= 0 for x in unmarked_ex) == hl2.n_unmarked_nonpositive == 48
+    harbour = next(t for t in twins if t.stem == "01-harbour")
+    assert abs(
+        score_hashtok_detail(harbour.marked_seqs()[1], model).lr
+        - score_hashtok_detail(harbour.marked_seqs()[1], model, min_count=2).lr
+    ) < 1e-12
+
+
+

@@ -64,6 +64,11 @@ Occupancy-free drop-one skip-grams (`hashskip`) **see** letter d2's
 lr=−0.847). Coarsening is not a leftover rescue. Nested Youden on
 that reader is **16/48 vs 41/48**. JSON:
 `letter-d2-hashskip-trace.json`.
+Occupancy-free MASK replace (`hashmask`) hits letter d2's official
+slot at `mask_i=3` (`Now in the MASK` → `I`): two opposing singleton
+hashes average to file lr=+0.240, which **is** that slot. Nested
+Youden **19/48 vs 45/48** throws it out (t=0.778). `hashmask2`
+abstains. JSON: `letter-d2-hashmask-trace.json`.
 In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 Hashed occupancy write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).

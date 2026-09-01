@@ -1,0 +1,203 @@
+{
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "exact_len": true,
+  "drop_one": false,
+  "mask_one": true,
+  "mask_tag": -4,
+  "fit": "60-stem prefix-5 hash_mask_model (MASK replace of exact last-4; length stays 4)",
+  "note": "Letter d2 official 5-gram Now in the second I. Occupancy-free MASK hashing hits only mask_i=3 (Now in the MASK -> I). Two opposing singleton hashes (c_m=1 vs c_u=1) average to file lr=+0.240, which IS the official slot. hashmask2 skips both singletons (n_used=0). Nested Youden 0.778 throws letter d2 out; leftover nested fill-in is harbour d3/d4 only. Not a dense 5-gram rescue. Nested 19/48 vs 45/48 is worse than hashtoklen 21/48 vs 45/48. Do not sell 21/48 or 19/48.",
+  "ids": [
+    3844,
+    287,
+    262,
+    1218,
+    314
+  ],
+  "pieces": [
+    "Now",
+    " in",
+    " the",
+    " second",
+    " I"
+  ],
+  "hashmask": {
+    "lr": 0.2404707687700509,
+    "n_used": 1,
+    "n_positions": 4
+  },
+  "hashmask2": {
+    "lr": 0.0,
+    "n_used": 0,
+    "n_positions": 4
+  },
+  "holdout_lr": 0.2404707687700509,
+  "official_slot": {
+    "i": 4,
+    "tok": 314,
+    "ctx": [
+      3844,
+      287,
+      262,
+      1218
+    ],
+    "ctx_len": 4,
+    "n_hashes_seen": 2,
+    "delta": 0.2404707687700509,
+    "skip_views": [
+      {
+        "mask_i": 0,
+        "drop_i": 0,
+        "view": [
+          -4,
+          287,
+          262,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 1,
+        "drop_i": 1,
+        "view": [
+          3844,
+          -4,
+          262,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 2,
+        "drop_i": 2,
+        "view": [
+          3844,
+          287,
+          -4,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 3,
+        "drop_i": 3,
+        "view": [
+          3844,
+          287,
+          262,
+          -4
+        ],
+        "n_hashes_seen": 2,
+        "c_m": 1,
+        "c_u": 1,
+        "delta": 0.2404707687700509,
+        "hashes": [
+          {
+            "h": 2,
+            "bucket": 148,
+            "c_m": 1,
+            "c_u": 0,
+            "seen": true
+          },
+          {
+            "h": 6,
+            "bucket": 85,
+            "c_m": 0,
+            "c_u": 1,
+            "seen": true
+          }
+        ]
+      }
+    ],
+    "mask_views": [
+      {
+        "mask_i": 0,
+        "drop_i": 0,
+        "view": [
+          -4,
+          287,
+          262,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 1,
+        "drop_i": 1,
+        "view": [
+          3844,
+          -4,
+          262,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 2,
+        "drop_i": 2,
+        "view": [
+          3844,
+          287,
+          -4,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashes": []
+      },
+      {
+        "mask_i": 3,
+        "drop_i": 3,
+        "view": [
+          3844,
+          287,
+          262,
+          -4
+        ],
+        "n_hashes_seen": 2,
+        "c_m": 1,
+        "c_u": 1,
+        "delta": 0.2404707687700509,
+        "hashes": [
+          {
+            "h": 2,
+            "bucket": 148,
+            "c_m": 1,
+            "c_u": 0,
+            "seen": true
+          },
+          {
+            "h": 6,
+            "bucket": 85,
+            "c_m": 0,
+            "c_u": 1,
+            "seen": true
+          }
+        ]
+      }
+    ]
+  }
+}
