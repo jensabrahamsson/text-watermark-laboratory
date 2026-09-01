@@ -181,13 +181,18 @@ the original 12 Grok-prompt files.
 
 H-iso-B holds on the original 12: poshits ranks **11/12** ≥ interpolate
 **8/12**. Nested Youden **36/48 vs 42/48** has occupancy (9 marked /
-33 unmarked `n_used=0`). Do not treat those TPs as observed-token TPs.
+33 unmarked `n_used=0`). Occupancy-free readout of those same frozen
+tables (`occupancy-free.json`): postokhits t=0 **16/48 vs 48/48**.
+**21** of the poshits marked TPs were Laplace-on-unseen (`The`→` ferry`
+and kin). Do not sell 36/48 as observed-token isolated recall.
 
 H-iso-36: lock A ranks **36/36** on the 36-topic pool (same one-line
 register as the 100). Nested Youden **109/144 vs 122/144** is the
 honest out-of-family isolated operating point for interpolate. It does
 not replace **25/48**. Lock B **35/36** is slightly below lock A on that
-split; occupancy is 7/144 vs 75/144 zeros.
+split. Occupancy-free postokhits on those same tables is **114/144 vs
+139/144**; 20 occupancy marked TPs. Shared observed openings
+(`"This is the"`) are register overlap, not a universal detector.
 
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,

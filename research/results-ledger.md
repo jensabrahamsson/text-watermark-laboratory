@@ -125,17 +125,14 @@ Youden on the test files (train-LOO threshold). Lock C not opened.
 | 36×4 | A interpolate | **36/36** | **109/144 vs 122/144** |
 | 36×4 | B opening poshits | 35/36 | **134/144 vs 129/144** (75/144 unmarked zeros) |
 
-Lock A does not beat **25/48** on the original 12 files. The 36-topic
-nested Youden is out-of-family but same one-line register; it does not
-replace **25/48**. Occupancy TPs are not observed-token TPs.
+Lock A does not beat **25/48** on the original 12 files. Occupancy-free
+readout of the frozen lock B tables (same fit, postokhits): original
+12×4 **16/48 vs 48/48** (21 occupancy TPs); 36×4 **114/144 vs 139/144**.
+The 36-topic nested Youden is out-of-family but same one-line register;
+it does not replace **25/48**. Occupancy TPs are not observed-token TPs.
 
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
-
-JSON: `experiments/2026-09-01-probe-100x4-hard-last4/`,
-`experiments/2026-09-01-probe-100x4-opening-poshits/`,
-`experiments/2026-09-01-probe-100x4-opening-rankpath/`,
-`experiments/2026-09-01-probe-100x4-hard-windows/`.
 

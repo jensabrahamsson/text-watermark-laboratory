@@ -1145,6 +1145,34 @@ def test_protocol_isolated_100x4_to_36x4_locks() -> None:
     assert poshits["methods"][0]["coverage_gate"]["n_unmarked_zero"] == 75
 
 
+def test_protocol_isolated_lock_b_occupancy_free_readout() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    orig = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-poshits"
+            / "occupancy-free.json"
+        ).read_text()
+    )
+    pool = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-36x4-opening-poshits"
+            / "occupancy-free.json"
+        ).read_text()
+    )
+    assert orig["used_keys"] is False
+    assert pool["used_keys"] is False
+    assert orig["postokhits_t0_marked_above"] == 16
+    assert orig["postokhits_t0_unmarked_at_most"] == 48
+    assert orig["occupancy_marked_tp"] == 21
+    # Occupancy-free isolated recall on the original 12 does not beat 25/48.
+    assert orig["postokhits_t0_marked_above"] < 25
+    assert pool["postokhits_t0_marked_above"] == 114
+    assert pool["postokhits_t0_unmarked_at_most"] == 139
+    assert pool["occupancy_marked_tp"] == 20
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

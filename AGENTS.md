@@ -97,7 +97,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | 100×4 lock B nested-by-stem Youden | **392/400 vs 382/400** (occupancy 198/400 unmarked `n_used=0`) |
 | 100 families → original 12×4 lock A nested Youden | **23/48 vs 38/48** (prompt 8/12; does not beat **25/48**) |
 | 100 families → original 12×4 lock B nested Youden | **36/48 vs 42/48** (prompt 11/12; occupancy 33/48 unmarked zeros) |
+| Same lock B tables, occupancy-free postokhits t=0 | **16/48 vs 48/48** (21 occupancy TPs; not **25/48**) |
 | 100 families → 36×4 lock A nested Youden | **109/144 vs 122/144** (prompt **36/36**; same register, not **25/48**) |
+| Same lock B tables → 36×4 occupancy-free postokhits t=0 | **114/144 vs 139/144** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

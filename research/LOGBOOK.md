@@ -1158,4 +1158,19 @@ waits on Qwen RAM. JSON:
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
 
+## 2026-09-01 lock B occupancy-free readout of the frozen 100-family tables
+
+Same poshits tables as PROTOCOL-isolated lock B. No new `probe
+--methods`. Observed-token scorer is postokhits on those tables.
+
+- Original 12×4: postokhits t=0 **16/48 vs 48/48**. **21** poshits TPs
+  were unseen next (`The`→` ferry` / ` bus` / ` dog` / ` printer`).
+  Nested poshits **36/48** is not 36 observed tokens.
+- 36×4: postokhits t=0 **114/144 vs 139/144**. Occupancy marked TP
+  **20**. Shared `"This is the"` openings are register overlap.
+
+Do not sell 16/48 or 114/144 as replacing **25/48**. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/occupancy-free.json`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/occupancy-free.json`.
+
 ---
