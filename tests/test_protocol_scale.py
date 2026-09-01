@@ -57,3 +57,4 @@ def test_protocol_scale_names_frozen_locks_before_pair() -> None:
     assert "thesis/" in text
     assert "Not yet" in text
     assert "pair-grok36x4" in text
+    assert "`e537d71`" in (ROOT / "research" / "LOGBOOK.md").read_text()

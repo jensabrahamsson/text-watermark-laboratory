@@ -1388,4 +1388,13 @@ replace **25/48**. Isolated-file detection is still not finished.
 
 JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
 
+## 2026-09-01 36 Grok-length train protocol frozen
+
+[PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md) and
+`experiments/2026-09-01-prompts-grok36/` committed at SHA `e537d71`.
+Thirty-six new Grok-register scenes, disjoint from grok12. Seed
+`20260905`. Do not run `pair` until this line is on origin. Do not mix
+grok12 into the train. Does not replace **25/48**. Do not write
+`thesis/`.
+
 ---
