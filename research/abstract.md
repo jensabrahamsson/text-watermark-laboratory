@@ -1,27 +1,21 @@
 # Abstract
 
+**Author.** Jens Abrahamsson, Master of Science.
+
 The abstract is the **shop window**. It shows what is new. The rest of
-the repository is the stockroom.
+the repository is the stockroom. This is front matter for a future
+research report, not `thesis/`. Isolated-file research is not finished.
 
 ## Shop window
 
-We have built an indicator for watermark presence **without the detector keys**.
-On Google DeepMind's public SynthID-Text instance (`public-deepmind-30`),
-matched marked and unmarked twins leave a next-token footprint that a frozen
-count-table likelihood ratio learns. Held-out **prompt groups** rank **9/12**
-(original 12-LOO hard last-4), **36/36** (in-domain 36×4 hits), and **99/100**
-(confirmatory lock A). Isolated sign of one original-12 file at `t=0` is
-**25/48**. Official keyed `score` is already **12/12**; that is the positive
-control, not this result. Occupancy-free isolated recall is bounded by
-opening-atom overlap. This is not a universal isolated-file detector, not key
-recovery, and not a refutation of Christ et al. (2024) or Zhang et al. (2024).
-Closest published analog: Wang et al. (2026). Isolated-file research is not
-finished.
+We have built an empirical indicator for watermark presence **without the detector keys**: a frozen count-table likelihood ratio that ranks held-out **prompt groups** on Google DeepMind's public SynthID-Text instance (`public-deepmind-30`). Matched marked and unmarked twins leave a next-token footprint that ratio learns. Held-out prompt groups rank **9/12** (original 12-LOO hard last-4), **36/36** (in-domain 36×4 hits), and **99/100** (confirmatory lock A). Isolated sign of one original-12 file at `t=0` is **25/48**. Official keyed `score` is already **12/12**; that is the positive control, not this result. Occupancy-free isolated recall is bounded by opening-atom overlap. This is not a universal isolated-file detector, not key recovery, and not a refutation of Christ et al. (2024) or Zhang et al. (2024). Closest published analog: Wang et al. (2026). Isolated-file research is not finished.
 
 The same paragraph is the `## Abstract` block in the root
-[README](../README.md). Lead with the indicator. Do not open the window
-with the keyed control, with occupancy-free transfer counts, or with a
-theorem slogan.
+[README](../README.md). Lead with the indicator **and its grain**. A
+hostile reading of “we have built” as an isolated-file detector is
+false: the built object is prompt-group ranking on this mixin. Do not
+open the window with the keyed control, with occupancy-free transfer
+counts, or with a theorem slogan.
 
 ## Not in the window
 

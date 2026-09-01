@@ -18,8 +18,11 @@ def test_abstract_is_the_shop_window() -> None:
     locked = ABSTRACT.read_text()
     assert "shop window" in locked
     assert "Not in the window" in locked
-    assert "We have built an indicator for watermark presence" in locked
+    assert "We have built an empirical indicator for watermark presence" in locked
     assert "without the detector keys" in locked
+    assert "**prompt groups**" in locked
+    assert "Jens Abrahamsson" in locked
+    assert "Master of Science" in locked
     assert "**9/12**" in locked
     assert "**36/36**" in locked
     assert "**99/100**" in locked
@@ -49,8 +52,9 @@ def test_abstract_is_the_shop_window() -> None:
 def test_readme_abstract_matches_the_window() -> None:
     pane = _readme_abstract()
     first = pane.split(".", 1)[0]
-    assert first.startswith("We have built an indicator for watermark presence")
+    assert first.startswith("We have built an empirical indicator for watermark presence")
     assert "without the detector keys" in first
+    assert "**prompt groups**" in first
     assert not pane.startswith("Official")
     assert "**9/12**" in pane
     assert "**36/36**" in pane
@@ -63,6 +67,8 @@ def test_readme_abstract_matches_the_window() -> None:
     assert "33/48" not in pane
     assert "15/15" not in pane
     assert "research/abstract.md" in pane
+    assert "Master of Science" in README.read_text()
+    assert "Jens Abrahamsson" in README.read_text()
     locked = ABSTRACT.read_text()
     window = locked.split("## Shop window", 1)[1].split("## Not in the window", 1)[0]
     for token in ("**9/12**", "**36/36**", "**99/100**", "**25/48**"):

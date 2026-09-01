@@ -2,7 +2,7 @@
 
 This directory contains the reasoning behind the experiments in the root [README](../README.md).
 
-The locked abstract is the **shop window** ([abstract.md](abstract.md)): what is new, first. The main result is the **key-free watermark indicator** described in [key-free-twins.md](key-free-twins.md): matched marked/unmarked generations contain enough statistical structure to classify most held-out prompt groups without using the detector keys.
+The locked abstract is the **shop window** ([abstract.md](abstract.md)): what is new, first. Report author line: Jens Abrahamsson, Master of Science. Do not write `thesis/`. The main result is the **key-free watermark indicator** described in [key-free-twins.md](key-free-twins.md): matched marked/unmarked generations contain enough statistical structure to classify most held-out prompt groups without using the detector keys.
 
 Citations in these notes are author–year ([CITING.md](CITING.md)). Do not invent papers. A future research report should compile [references.bib](references.bib); do not write `thesis/` until isolated-file research is finished.
 

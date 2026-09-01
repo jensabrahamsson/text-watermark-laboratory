@@ -4,7 +4,8 @@ This file locks the **story** of the key-free work. It is not
 `thesis/`, not a draft article, and not a new scorer. Isolated-file
 detection is **not finished**. Author–year citations follow
 [CITING.md](CITING.md). Locked abstract (shop window: what is new first):
-[abstract.md](abstract.md).
+[abstract.md](abstract.md). Report author line: Jens Abrahamsson,
+Master of Science. Do not write `thesis/` from this file.
 
 Headlines after the truncated-context recount remain **9/12**,
 **25/48**, and **36/36**. Pre-fix **10/12** / **29/48** stay in
