@@ -249,6 +249,10 @@ in-family. That is not **25/48**.
 Cross-register interpolate → 36×4: prompt **24/36**, nested
 **50/144 vs 115/144**. Weaker than 100 one-liners → 36×4.
 
+The reverse split (100 one-liners → these Grok-length files) is
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Do not look at
+those test LRs until that freeze is named in [LOGBOOK.md](LOGBOOK.md).
+
 JSON: `experiments/2026-09-01-transfer-grok12x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/`,
 `experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-rankpath/`,

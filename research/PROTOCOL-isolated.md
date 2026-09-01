@@ -264,3 +264,7 @@ Lock A nested Youden **16/48 vs 41/48** does not beat one-liner lock A
 **23/48** or **25/48**. H-reg-A fails. Occupancy-free coverage **5/48**.
 Do not sell lock C nested **45/48 vs 22/48**.
 
+The reverse split (100 one-liners → Grok-register 12) is
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Do not look at
+those test LRs until that freeze is named in [LOGBOOK.md](LOGBOOK.md).
+
