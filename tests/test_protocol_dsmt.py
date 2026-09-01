@@ -61,3 +61,4 @@ def test_protocol_dsmt_names_frozen_sources_before_decode() -> None:
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H-dsmt-cover **holds**" not in text
     assert not (DUMP / "union.json").exists()
+    assert "`b1f0c7d`" in (ROOT / "research" / "LOGBOOK.md").read_text()

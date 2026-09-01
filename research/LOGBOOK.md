@@ -1701,4 +1701,12 @@ at a positive threshold. Do not sell Qwen→Qwen 31/48. Nothing replaces
 JSON: `experiments/2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/`,
 `experiments/2026-09-01-openings-qwen100x4-to-qwen12x4/`.
 
+## 2026-09-01 Distil ∪ SMT openings union frozen
+
+[PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md)
+committed at SHA `b1f0c7d`. Distil 100×4 occupancy-free zeros and
+short+medium+tails zeros on the original 12. No new tables. Do not look
+at leftover-after-union counts until this line is on origin. Do not
+write `thesis/`.
+
 ---
