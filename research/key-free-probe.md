@@ -93,7 +93,9 @@ In-domain full-file `hashtok` is **33/48 vs 22/48**, nested-by-stem
 last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
 indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
 exist; the unmarked OR cost destroys the combined gate. Do not sell
-33/48 or 39/48 as replacing **29/48**.
+33/48 or 39/48 as replacing **29/48**. `tokhybrid` (tokhits, then
+hashtok) copies that isolated 33/48 and lifts prompt ranking to 11/12;
+`poshashtok` nested **14/48 vs 38/48** is a specificity knob.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

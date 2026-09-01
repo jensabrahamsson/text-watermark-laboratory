@@ -839,4 +839,17 @@ sell 39/48 as beating poshits 39/48 or replacing 29/48.
 JSON: `experiments/2026-09-01-probe-12x4-hashtok-indicate-or/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 tokhybrid copies hashtok isolated 33/48
+
+In-domain 12×4 LOO. Occupancy-free token-level hybrid (tokhits, then
+hashtok) copies hashtok **33/48 vs 22/48** (same 33 TPs). Prompt grain
+rises to **11/12** (station remains). Nested **23/48 vs 35/48**.
+Occupancy hybrid extras are the same four files as hashpool vs hashtok.
+`poshashtok` is **28/48 vs 25/48**, nested **14/48 vs 38/48**. Letter
+d2 stays negative. Do not sell 33/48 or tokhybrid 11/12 as replacing
+29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

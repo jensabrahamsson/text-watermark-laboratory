@@ -533,3 +533,32 @@ not a 12/12 ensemble; the published hits+hashpool stack stays **11/12**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok-indicate-or/](../experiments/2026-09-01-probe-12x4-hashtok-indicate-or/).
 
+## tokhybrid copies hashtok isolated; poshashtok is a specificity knob
+
+In-domain 12×4 LOO, full 128-token last-4. `tokhybrid` uses exact
+tokhits when the n-gram and next token were seen, else hashtok.
+That is token-level occupancy-free hybrid, not file-level OR.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods tokhybrid,poshashtok,hashtok,hybrid \
+  --out-dir experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem |
+|---|---|---|---|---|---|
+| poshashtok | 11/12 | 0.621 | **28/48** | 25/48 | **14/48 vs 38/48** |
+| hashtok | 9/12 | 0.664 | **33/48** | 22/48 | 22/48 vs 30/48 |
+| hybrid | 11/12 | 0.725 | **35/48** | 28/48 | 24/48 vs 41/48 |
+| **tokhybrid** | **11/12** | 0.683 | **33/48** | 22/48 | **23/48 vs 35/48** |
+
+`tokhybrid` copies hashtok's 33 true positives. No isolated-file sign
+flips. Prompt ranking rises to **11/12** (station remains). Nested
+spec is still worse than hits **22/48 vs 39/48**. Occupancy hybrid
+extras versus tokhybrid are the same four files as hashpool versus
+hashtok. Letter d2 stays negative. `poshashtok` (`i // 16`) is a
+specificity knob, not a denser isolated-file reader. Do not sell
+33/48, 35/48, 28/48, or tokhybrid 11/12 as replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/](../experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/).
+

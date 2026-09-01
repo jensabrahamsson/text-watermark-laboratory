@@ -3389,3 +3389,78 @@ def test_in_domain_hashtok_or_indicate_is_not_a_detector() -> None:
     assert or_m < 40
     assert stacked.n_prompts_marked_above == 10
 
+
+def test_in_domain_tokhybrid_copies_hashtok_isolated() -> None:
+    """Token-level occupancy-free hybrid copies hashtok 33/48 vs 22/48.
+
+    Prompt ranking rises to 11/12. poshashtok nested 14/48 vs 38/48 is a
+    specificity knob. Hybrid occupancy extras are the same four files as
+    hashpool vs hashtok. Letter d2 stays negative. Do not sell 33/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-tokhybrid-poshashtok"
+    )
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    th = holdout_from_json(root / "tokhybrid" / "holdout.json")
+    hy = holdout_from_json(root / "hybrid" / "holdout.json")
+    ph = holdout_from_json(root / "poshashtok" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert th.used_keys is False
+    assert ph.used_keys is False
+    assert th.instance == "key-free-tokhybrid"
+    assert ph.instance == "key-free-poshashtok"
+    assert ht.n_marked_positive == th.n_marked_positive == 33
+    assert ht.n_unmarked_nonpositive == th.n_unmarked_nonpositive == 22
+    assert th.n_prompts_marked_above == 11
+    assert ht.n_prompts_marked_above == 9
+    assert ph.n_marked_positive == 28
+    assert ph.n_unmarked_nonpositive == 25
+    assert hy.n_marked_positive == 35
+    assert th.n_marked_positive < 39
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("tokhybrid") == (23, 35)
+    assert nested_stem("poshashtok") == (14, 38)
+    assert nested_stem("hashtok") == (22, 30)
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    th_pos = {
+        (s, samp)
+        for s, samp, m in zip(th.stems, th._samples(), th.marked_lrs)
+        if m > 0
+    }
+    hy_pos = {
+        (s, samp)
+        for s, samp, m in zip(hy.stems, hy._samples(), hy.marked_lrs)
+        if m > 0
+    }
+    assert ht_pos == th_pos
+    assert hy_pos - th_pos == {
+        ("02-night-bus", 3),
+        ("03-library", 2),
+        ("04-market", 1),
+        ("12-ferry-queue", 4),
+    }
+    by_th = {
+        (s, samp): m
+        for s, samp, m in zip(th.stems, th._samples(), th.marked_lrs)
+    }
+    by_ph = {
+        (s, samp): m
+        for s, samp, m in zip(ph.stems, ph._samples(), ph.marked_lrs)
+    }
+    assert by_th[("08-letter", 2)] < 0
+    assert by_ph[("08-letter", 2)] < 0
+
