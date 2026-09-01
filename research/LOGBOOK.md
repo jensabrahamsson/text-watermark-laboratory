@@ -1537,4 +1537,16 @@ zeros. Primary holdout stays hard 4:128. Do not look at leftover
 versus covered window counts until this line is on origin. Do not sell
 tail **9/12**. Do not write `thesis/`.
 
+## 2026-09-01 leftover-versus-covered mask-k window split opened
+
+SHA `3e30e70`. `used_keys=false`. Hard 4:128 leftover marked `lr>0`
+**11/20**, unmarked `lr≤0` **11/20**, occupancy-covered **16/28 vs
+11/28**. H-wsplit-tail, H-wsplit-open, and H-wsplit-iso hold. Leftover
+tail is chance. Tail **9/12** is not leftover-file recall. Prefix 0:4
+isolated **29/48** is **12 leftover + 17 covered**. Do not sell 11/20,
+16/28, window 29/48, or tail 9/12. Nothing replaces **25/48**.
+Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
+
 ---

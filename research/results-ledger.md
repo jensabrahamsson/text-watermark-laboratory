@@ -12,7 +12,9 @@ nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails. The two
 [narrative.md](narrative.md): prompt-group ranking is real; isolated
 `lr>0` is not a calibrated detector. Do not write a “key-free
 detection fails” paper. Spatial mask-*k* of the headline 12-LOO scorer
-is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md).
+is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). Leftover
+versus covered on those tails is
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).
 
 ## Locked headlines
 
@@ -341,4 +343,14 @@ headline hard **9/12** is not an opening-only n-gram artifact. Do not
 sell prefix 10/12 or tail 9/12. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
+## Isolated-file leftover vs covered (mask-*k* hard windows)
+
+Protocol SHA `3e30e70`. `used_keys=false`. Hard **4:128** leftover
+**11/20 vs 11/20**, occupancy-covered **16/28 vs 11/28**. Leftover tail
+is chance. Tail prompt **9/12** is not leftover-file recall. Prefix
+0:4 isolated **29/48** is **12 leftover + 17 covered**. Do not sell
+11/20, 16/28, window 29/48, or tail 9/12. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
 

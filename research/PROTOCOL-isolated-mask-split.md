@@ -131,4 +131,51 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `3e30e70`. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/](../experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/).
+
+Opening coverage of 12-LOO last-4 interpolate is still **28/48** covered
+and **20/48** leftover (same occupancy atoms as
+[PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md)). Primary =
+hard **4:128** (prompt still **9/12**, isolated **27/48 vs 22/48**).
+
+| Slice | Marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|
+| Leftover 20 | **11/20** | **11/20** |
+| Occupancy-covered 28 | **16/28** | **11/28** |
+
+H-wsplit-tail **holds**. Leftover tail is chance (**11/20 vs 11/20**).
+Unmarked leftover `lr≤0` is 11/20, not 20/20. The 27 isolated TPs are
+**11 leftover + 16 covered**. Tail prompt **9/12** is occupancy-covered
+ranking, not leftover-file recall.
+
+Leftover **4:128** TPs (11): harbour 2–3, library 3–4, station-4,
+letter-2, office-4, garden 1 and 4, ferry-queue 1–2. Unique leftover TP
+stems on the tail: harbour, library, station, letter, office, garden,
+ferry-queue. Full-file leftover last-4 had garden leftover **0/2** and
+letter leftover **0/2**; dropping the opening lets garden leftover and
+letter-2 sign. Ranking-loss TPs from the headline split (station-4,
+office-4, ferry-queue 1–3) stay leftover on the tail except
+ferry-queue-3, which goes FN.
+
+Secondary:
+
+| Holdout | Leftover marked / unmarked | Covered marked / unmarked | Isolated total |
+|---|---|---|---|
+| hard 8:128 | **12/20 vs 12/20** | **17/28 vs 11/28** | 29/48 vs 23/48 |
+| hard 0:4 | **12/20 vs 9/20** | **17/28 vs 17/28** | 29/48 vs 26/48 |
+| interpolate 4:128 | **7/20 vs 12/20** | **13/28 vs 14/28** | 20/48 vs 26/48 |
+
+H-wsplit-open **holds**. Prefix 0:4 isolated **29/48** is **12 leftover
++ 17 covered**, not leftover-only. Leftover 0:4 is **12/20 vs 9/20**,
+not a leftover core.
+
+H-wsplit-iso **holds**. Do not sell leftover **11/20**, **12/20**,
+covered **16/28**, isolated window **29/48**, interpolate tail **20/48**,
+or tail prompt **9/12** as replacing **25/48**. Interpolate **4:128**
+stays weak (**20/48**), matching the mask freeze: interpolate is
+front-loaded; hard tails are not leftover-file recall.
+
+The leftover core is still unsolved. Isolated-file remains open.
+Do not write `thesis/`.

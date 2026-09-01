@@ -20,6 +20,8 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "Two grains" in text
     assert "leftover **10/20 vs 11/20**" in text
     assert "PROTOCOL-next **H3**" in text
+    assert "PROTOCOL-isolated-mask-split" in text
+    assert "leftover **11/20 vs 11/20**" in text or "leftover is **11/20 vs 11/20**" in text
     assert "Do not write `thesis/`" in text or "Do **not** write `thesis/`" in text
     assert "`004397c`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 

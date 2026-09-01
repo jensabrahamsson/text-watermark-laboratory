@@ -138,3 +138,8 @@ Grok12 `'The'→' car'` is a different split. Isolated-file detection is
 not finished.
 
 JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
+Leftover versus occupancy-covered on those windows is
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md):
+hard 4:128 leftover **11/20 vs 11/20**, covered **16/28**. Tail **9/12**
+is not leftover-file recall. Do not sell **11/20** or **16/28**.

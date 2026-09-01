@@ -133,12 +133,20 @@ prefix **0:4** is **5/12**; tails **4:128** and **8:128** stay **9/12**.
 Interpolate is front-loaded; hard is not. Isolated t=0 stays chance-like.
 Do not sell prefix **10/12** or tail **9/12**.
 
+Leftover versus occupancy-covered on those windows is
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).
+Hard 4:128 leftover is **11/20 vs 11/20**; covered **16/28**. Tail
+**9/12** is occupancy-covered ranking, not leftover-file recall.
+Prefix 0:4 isolated **29/48** is **12 leftover + 17 covered**. Do not
+sell leftover **11/20**, covered **16/28**, or window **29/48**.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.
-- Selling leftover **10/20**, covered **15/28**, grok12 **39/48**,
-  nested **23/48** / **26/48** / **27/48** / **35/48**, or rankpath
-  **41/48** as replacing **25/48**.
+- Selling leftover **10/20**, covered **15/28**, leftover window
+  **11/20**, covered **16/28**, grok12 **39/48**, nested **23/48** /
+  **26/48** / **27/48** / **35/48**, or rankpath **41/48** as replacing
+  **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.
 - New `probe --methods` names on the 12×4 / 36×4 twins.

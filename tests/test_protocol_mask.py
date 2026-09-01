@@ -46,3 +46,5 @@ def test_protocol_mask_hard_tail_keeps_nine_open_is_five() -> None:
     text = PROTOCOL.read_text()
     assert "Do not sell prefix" in text
     assert "hard** 9/12 is not an opening-only" in text or "hard 9/12 is not an opening-only" in text
+    assert "PROTOCOL-isolated-mask-split" in text
+    assert "leftover **11/20 vs 11/20**" in text
