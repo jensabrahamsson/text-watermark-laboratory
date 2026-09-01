@@ -1093,4 +1093,15 @@ Nested-by-stem remains a threshold nest on already-OOF scores. JSON:
 `experiments/2026-09-01-probe-100x4-opening-rankpath/`,
 `experiments/2026-09-01-probe-100x4-hard-windows/`.
 
+## 2026-09-01 Phase B commands frozen before Distil/Qwen pair
+
+Phase A is checked in. Exact DistilGPT2 and Qwen2-1.5B-Instruct pair
+and opening probes (locks B and C only) are now in
+[PROTOCOL-next.md](PROTOCOL-next.md). Seed `20260901`, four draws,
+128 tokens, same 100 prompts. This commit still precedes those
+`pair` runs. Do not look at key-free LRs until official first-draw
+scores exist and the frozen opening probes have run once. H3 is
+rankpath drop vs poshits drop relative to GPT-2 Phase A. Do not run
+lock A on these twins.
+
 ---

@@ -148,6 +148,42 @@ Locks B and C only (opening grain). H3: lock C prompt ranking drops
 more than lock B relative to GPT-2 Phase A. Tokenizer match is not
 treated as a detector ([key-free-contrast.md](key-free-contrast.md)).
 
+Seed `20260901`. Do not change flags after the first run. Do not run
+lock A on these twins. Do not look at key-free LRs until each `pair`
+has written official first-draw scores and the two opening probes have
+run once, as written.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260901 \
+  --out-dir experiments/2026-09-01-pair-distil-100x4
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model distilgpt2 --methods poshits --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-09-01-probe-distil-100x4-opening-poshits
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model distilgpt2 --rankpath --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-09-01-probe-distil-100x4-opening-rankpath
+
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260901 \
+  --out-dir experiments/2026-09-01-pair-qwen-100x4
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods poshits --fit-prefix 4 \
+  --pos-bucket 1 \
+  --out-dir experiments/2026-09-01-probe-qwen-100x4-opening-poshits
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --rankpath --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-09-01-probe-qwen-100x4-opening-rankpath
+```
+
+H3 compares prompt-win *drops* from GPT-2 Phase A (lock B **100/100**,
+lock C **96/100**). Isolated `lr>0` is not H3.
+
 ## What this protocol refuses
 
 - New hashed / backoff / cascade / learned scorers on 12×4 or 36×4.
@@ -191,7 +227,7 @@ commands above were run once, flags unchanged.
 | H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. |
 | Lock B opening poshits | **100/100**, AUC **0.980** |
 | Lock C opening rankpath | **96/100**, AUC **0.822** |
-| H3 Distil/Qwen | Phase B; not opened |
+| H3 Distil/Qwen | Commands frozen in this file before those `pair` runs |
 
 `--rankpath` also scored default count methods. Lock C is rankpath
 **96/100**, not hashpool/hard 100/100 from that same run. Do not sell
