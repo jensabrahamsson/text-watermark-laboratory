@@ -28,3 +28,13 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods interpolate --context-len 4 \
   --out-dir experiments/2026-09-01-probe-100x4-hard-last4
 ```
+
+Phase A (flags unchanged): lock A interpolate **99/100**
+([../2026-09-01-probe-100x4-hard-last4/](../2026-09-01-probe-100x4-hard-last4/)),
+opening poshits **100/100**
+([../2026-09-01-probe-100x4-opening-poshits/](../2026-09-01-probe-100x4-opening-poshits/)),
+opening rankpath **96/100**
+([../2026-09-01-probe-100x4-opening-rankpath/](../2026-09-01-probe-100x4-opening-rankpath/)),
+windows 0:4 **99/100** vs 16:32 **89/100**
+([../2026-09-01-probe-100x4-hard-windows/](../2026-09-01-probe-100x4-hard-windows/)).
+Isolated `lr>0` is not the primary endpoint.

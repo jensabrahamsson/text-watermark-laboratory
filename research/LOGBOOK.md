@@ -1068,4 +1068,29 @@ unmarked ≈ 0.519). That is the keyed positive control, not the
 key-free indicator. Frozen PROTOCOL-next probes run next on the
 corrected readers; do not change flags.
 
+## 2026-09-01 confirmatory Phase A (frozen probes)
+
+Protocol SHA `7001489`. Prompts `294dba5`. Pair `bf98c92`. Flags
+unchanged. `used_keys=false`.
+
+- **H1 / lock A** interpolate last-4: **99/100** prompt ranking, file
+  AUC **0.898**, permutation p < 0.001. Isolated **352/400 vs 290/400**.
+  Stem **088** misses (`The stone trough held rainwater and a single
+  floating leaf.`).
+- **H2** windows: **0:4** **99/100**, AUC **0.885**; **16:32**
+  **89/100**, AUC **0.689**. Early is stronger; mid-file is not chance.
+- **Lock B** opening poshits: **100/100**, AUC **0.980**, isolated
+  **393/400 vs 344/400**.
+- **Lock C** opening rankpath: **96/100**, AUC **0.822**, isolated
+  **314/400 vs 302/400**. `--rankpath` also emitted default methods;
+  lock C is rankpath, not those extras.
+- **H3** Distil/Qwen: not opened.
+
+Do not sell 352/400 or 393/400 as replacing recounted hard **25/48**.
+Nested-by-stem remains a threshold nest on already-OOF scores. JSON:
+`experiments/2026-09-01-probe-100x4-hard-last4/`,
+`experiments/2026-09-01-probe-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-100x4-opening-rankpath/`,
+`experiments/2026-09-01-probe-100x4-hard-windows/`.
+
 ---

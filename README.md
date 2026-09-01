@@ -11,6 +11,7 @@ On Google DeepMind's public SynthID-Text mixin (`public-deepmind-30`), with matc
 | 1 | Key-free last-4 count tables rank held-out prompt groups | **9/12** | Single-file accuracy |
 | 2 | Same hits reader, 36 topics × 4 draws, in-domain | **36/36** | Cross-generator |
 | 3 | Isolated hard sign, one marked file, `lr>0` | **25/48** | A 5% binomial test; not a calibrated detector |
+| 4 | Frozen lock A on 100 new GPT-2 families | **99/100** | Isolated-file detector; not Distil/Qwen |
 
 Official keyed `score` on the original 12 twins is **12/12**. That path uses keys. It is the positive control.
 
@@ -18,7 +19,7 @@ Official keyed `score` on the original 12 twins is **12/12**. That path uses key
 
 Ablations, hashed readers, rank-path, occupancy, and transfer tables: **[research/results-ledger.md](research/results-ledger.md)** and **[experiments/README.md](experiments/README.md)**. Later 39/48 and 41/48 figures on the same 12×4 files are hypothesis generators (occupancy, in-domain geometry, researcher reuse of one evaluation set). They do not replace **25/48**.
 
-The next measurement is a frozen prediction on new prompts, not another scorer on the old twins: **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**.
+The confirmatory measurement on 100 new GPT-2 prompt families is in: **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**. Lock A (interpolate last-4) ranks **99/100** prompt groups. Isolated `lr>0` is still not the primary endpoint. Distil/Qwen (Phase B) is not opened yet.
 
 Install: **[HOW-TO.md](HOW-TO.md)** · Notes: **[research/](research/)** · Agents: **[AGENTS.md](AGENTS.md)**
 

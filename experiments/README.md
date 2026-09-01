@@ -18,7 +18,7 @@ fit key-free token/context statistics
 evaluate held-out prompts
 ```
 
-That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
+That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
 
 ## Main runs
 
@@ -203,6 +203,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-36x4-to-12x4-hashtok-k2/` | 24 new topics → 12×4 hashtok last-2 | **10/12**, AUC **0.738**, **29/48 vs 36/48**, nested Youden **15/48 vs 45/48**; ranking is not isolated classification |
 | `2026-09-01-prompts-100/` | Confirmatory 100 one-line scenes | Committed before `pair`; disjoint from 36-topic seeds; see PROTOCOL-next.md |
 | `2026-09-01-pair-100x4/` | GPT-2 twins, 100 prompts × 4 draws × 128 tokens | Official first-draw **100/100**; key-free analysis frozen in PROTOCOL-next.md |
+| `2026-09-01-probe-100x4-hard-last4/` | Lock A interpolate last-4 | **99/100**, AUC **0.898**, isolated 352/400 vs 290/400 (miss stem 088) |
+| `2026-09-01-probe-100x4-opening-poshits/` | Lock B opening poshits | **100/100**, AUC **0.980**, isolated 393/400 vs 344/400 |
+| `2026-09-01-probe-100x4-opening-rankpath/` | Lock C opening rankpath | **96/100**, AUC **0.822**, isolated 314/400 vs 302/400 |
+| `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | 0:4 **99/100** AUC **0.885**; 16:32 **89/100** AUC **0.689** |
 
 ## What changed across the runs
 

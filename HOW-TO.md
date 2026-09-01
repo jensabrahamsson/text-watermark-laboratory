@@ -22,7 +22,7 @@ It uses the published keys and DeepMind's detector.
 
 It does **not** use the watermark keys, `hash_iv`, or g-values.
 
-This is one of the main research results of the project: we have built a **key-free watermark indicator**. After correcting truncated-context overcount, the original last-4 count tables separate held-out prompt groups **9/12** times, or **10/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **10/12** (AUC **0.718**). On the hard scorer, individual files are weaker: **25/48** held-out marked files have `lr > 0`. Four draws on 36 GPT-2 topics still lift in-domain hits to **36/36** (AUC **0.930**). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. None of that is a universal yes/no.
+This is one of the main research results of the project: we have built a **key-free watermark indicator**. After correcting truncated-context overcount, the original last-4 count tables separate held-out prompt groups **9/12** times, or **10/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **10/12** (AUC **0.718**). On the hard scorer, individual files are weaker: **25/48** held-out marked files have `lr > 0`. Four draws on 36 GPT-2 topics still lift in-domain hits to **36/36** (AUC **0.930**). Frozen lock A on 100 new GPT-2 families is **99/100**; that is prompt-group ranking on a new corpus, not a replacement of **25/48**. The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. None of that is a universal yes/no.
 
 Use `score` when you have the relevant public reference instance. Use `indicate` when you are exploring the key-free signal.
 

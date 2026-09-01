@@ -955,6 +955,56 @@ def test_pair_100x4_official_splits_all_first_draws() -> None:
     assert wins == 100
 
 
+def test_protocol_next_phase_a_locks_on_100x4() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    lock_a = holdout_from_json(
+        root / "2026-09-01-probe-100x4-hard-last4" / "interpolate" / "holdout.json"
+    )
+    assert lock_a.used_keys is False
+    assert lock_a.used_hash_iv is False
+    assert lock_a.used_g_values is False
+    assert lock_a.n_prompts == 100
+    assert lock_a.n_prompts_marked_above == 99
+    assert lock_a.n_marked_positive == 352
+    stats = binary_eval(lock_a.marked_lrs, lock_a.unmarked_lrs, n_perm=400, seed=0)
+    assert stats.auc > 0.85
+    assert stats.permutation_p < 0.01
+    assert binomial_sf(99, 100, 0.5) < 0.001
+
+    lock_b = holdout_from_json(
+        root / "2026-09-01-probe-100x4-opening-poshits" / "poshits" / "holdout.json"
+    )
+    assert lock_b.used_keys is False
+    assert lock_b.n_prompts_marked_above == 100
+
+    lock_c = holdout_from_json(
+        root / "2026-09-01-probe-100x4-opening-rankpath" / "rankpath" / "holdout.json"
+    )
+    assert lock_c.used_keys is False
+    assert lock_c.n_prompts_marked_above == 96
+
+    early = holdout_from_json(
+        root
+        / "2026-09-01-probe-100x4-hard-windows"
+        / "window-0-4"
+        / "interpolate"
+        / "holdout.json"
+    )
+    mid = holdout_from_json(
+        root
+        / "2026-09-01-probe-100x4-hard-windows"
+        / "window-16-32"
+        / "interpolate"
+        / "holdout.json"
+    )
+    assert early.n_prompts_marked_above == 99
+    assert mid.n_prompts_marked_above == 89
+    early_stats = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
+    mid_stats = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
+    assert early_stats.auc > mid_stats.auc
+    assert early.n_prompts_marked_above > mid.n_prompts_marked_above
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

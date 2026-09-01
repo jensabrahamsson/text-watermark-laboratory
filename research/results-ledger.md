@@ -5,7 +5,8 @@ truncated-context recount are **9/12**, **25/48**, **36/36**. The
 pre-fix **10/12** / **29/48** stay in historical JSON. Exploratory
 ablations live under [../experiments/README.md](../experiments/README.md).
 The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
-scorer on the old 12×4 twins.
+scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
+**99/100**. That does not replace **25/48**.
 
 ## Locked headlines
 
@@ -15,6 +16,7 @@ scorer on the old 12×4 twins.
 | Same scorer, 0.02 margin | Same groups | 10/12 | The main result |
 | Isolated hard sign | One marked file, `lr>0` | **25/48** | A 5% binomial test |
 | In-domain 36×4 hits | Prompt groups | **36/36** | Cross-generator |
+| Confirmatory 100×4 lock A (interpolate last-4) | New prompt groups | **99/100** | Isolated-file detector; not Distil/Qwen |
 
 Pre-fix **10/12** / **29/48** counted `(10,)→20` four times at
 `context_len=4`. JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`,
@@ -74,6 +76,29 @@ isolated signs are discovery, not headlines.
 
 Leave-one-out protects a fit. It does not protect against a researcher
 who tries thirty scorers on the same twelve groups. That is why
-[PROTOCOL-next.md](PROTOCOL-next.md) freezes three readers before a
-new 100×4 corpus is opened.
+[PROTOCOL-next.md](PROTOCOL-next.md) froze three readers before a
+new 100×4 corpus was opened.
+
+## Confirmatory 100×4 Phase A
+
+Protocol SHA `7001489`. Prompts SHA `294dba5`. Pair SHA `bf98c92`.
+Official first-draw keyed score **100/100**. Key-free flags unchanged.
+
+| Lock | Reader | Prompt wins | File AUC | Isolated `lr>0` |
+|---|---|---|---|---|
+| A | interpolate last-4 | **99/100** (miss 088) | **0.898** | 352/400 vs 290/400 |
+| B | opening poshits prefix-4 | **100/100** | **0.980** | 393/400 vs 344/400 |
+| C | opening rankpath | **96/100** | **0.822** | 314/400 vs 302/400 |
+
+H1 holds (lock A prompt ranking). H2 holds: window **0:4** is **99/100**,
+AUC **0.885**; window **16:32** is **89/100**, AUC **0.689**. Early is
+stronger; mid-file is not chance on this corpus. Isolated `lr>0` is
+not H1. `--rankpath` also emitted default methods; those are not lock C.
+Do not sell lock B **393/400** or lock A **352/400** as replacing
+**25/48**. H3 (Distil/Qwen) is Phase B.
+
+JSON: `experiments/2026-09-01-probe-100x4-hard-last4/`,
+`experiments/2026-09-01-probe-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-100x4-opening-rankpath/`,
+`experiments/2026-09-01-probe-100x4-hard-windows/`.
 

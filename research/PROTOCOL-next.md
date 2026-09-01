@@ -178,3 +178,22 @@ Locked headlines and the ablation index:
 - [results-ledger.md](results-ledger.md)
 - [../experiments/README.md](../experiments/README.md)
 - [key-free-twins.md](key-free-twins.md)
+
+## Phase A outcome (2026-09-01)
+
+Protocol SHA `7001489`. Prompts committed in `294dba5`. Pair committed
+in `bf98c92`. Official first-draw keyed score **100/100**. Frozen
+commands above were run once, flags unchanged.
+
+| Hypothesis | Result |
+|---|---|
+| H1 lock A prompt ranking | **99/100** (stem 088 misses). File AUC **0.898**, permutation p < 0.001. Isolated 352/400 vs 290/400 is secondary. |
+| H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. |
+| Lock B opening poshits | **100/100**, AUC **0.980** |
+| Lock C opening rankpath | **96/100**, AUC **0.822** |
+| H3 Distil/Qwen | Phase B; not opened |
+
+`--rankpath` also scored default count methods. Lock C is rankpath
+**96/100**, not hashpool/hard 100/100 from that same run. Do not sell
+isolated 352/400 or poshits 393/400 as replacing **25/48**. Nested-by-stem
+is still a threshold nest on already-OOF scores.
