@@ -627,6 +627,187 @@ def persist_coverage_union(payload: dict, out_dir: Path) -> None:
     (out_dir / "results.md").write_text(print_coverage_union(payload))
 
 
+def _key_rows(keys: set[tuple[str, int]]) -> list[dict]:
+    return sorted(
+        [{"stem": s, "sample": n} for s, n in keys],
+        key=lambda r: (r["stem"], r["sample"]),
+    )
+
+
+def _slice_detail(
+    keys: set[tuple[str, int]],
+    marked: dict[tuple[str, int], float],
+    unmarked: dict[tuple[str, int], float],
+) -> dict:
+    """Occupancy-coverage slice of one published holdout. Not a new scorer."""
+    missing = [k for k in keys if k not in marked or k not in unmarked]
+    if missing:
+        raise RuntimeError(f"holdout missing leftover/covered keys {missing[:3]!r}")
+    tp = []
+    fn = []
+    fp = []
+    tn = []
+    for stem, sample in sorted(keys):
+        row = {"stem": stem, "sample": sample}
+        if float(marked[(stem, sample)]) > 0.0:
+            tp.append(row)
+        else:
+            fn.append(row)
+        if float(unmarked[(stem, sample)]) <= 0.0:
+            tn.append(row)
+        else:
+            fp.append(row)
+    by_stem = []
+    for stem in sorted({s for s, _ in keys}):
+        sub = {(s, n) for s, n in keys if s == stem}
+        by_stem.append({"stem": stem, **_leftover_sign(sub, marked, unmarked)})
+    return {
+        "n": len(keys),
+        "marked_above_zero": len(tp),
+        "unmarked_at_most_zero": len(tn),
+        "marked_at_most_zero": len(fn),
+        "unmarked_above_zero": len(fp),
+        "tp": tp,
+        "fn": fn,
+        "fp": fp,
+        "by_stem": by_stem,
+    }
+
+
+def _split_one_holdout(
+    leftover: set[tuple[str, int]],
+    covered: set[tuple[str, int]],
+    holdout: Path,
+) -> dict:
+    raw = json.loads(Path(holdout).read_text())
+    if raw.get("used_keys"):
+        raise RuntimeError("isolated coverage split consulted keys")
+    keys, marked, unmarked = _holdout_file_lrs(holdout)
+    expected = leftover | covered
+    if keys != expected:
+        raise RuntimeError(
+            "holdout keys do not match leftover∪covered "
+            f"missing={sorted(expected - keys)[:3]!r} "
+            f"extra={sorted(keys - expected)[:3]!r}"
+        )
+    return {
+        "path": str(holdout),
+        "used_keys": False,
+        "used_hash_iv": bool(raw.get("used_hash_iv", False)),
+        "used_g_values": bool(raw.get("used_g_values", False)),
+        "score_kind": raw.get("score_kind"),
+        "n_marked": len(keys),
+        "n_marked_above_zero": sum(1 for k in keys if float(marked[k]) > 0.0),
+        "n_unmarked_at_most_zero": sum(
+            1 for k in keys if float(unmarked[k]) <= 0.0
+        ),
+        "leftover": _slice_detail(leftover, marked, unmarked),
+        "covered": _slice_detail(covered, marked, unmarked),
+    }
+
+
+def summarize_isolated_coverage_split(
+    coverage: Path,
+    holdout: Path,
+    *,
+    method: str = "postokhits",
+    extra_holdouts: dict[str, Path] | None = None,
+) -> dict:
+    """Split a published isolated holdout on occupancy-free leftover keys.
+
+    Leftover membership comes from mixed postokhits zeros. Signs come
+    from an already-saved holdout. Not mixed tables, not a new probe
+    method, not keys. Does not replace 25/48.
+    """
+    pay = json.loads(Path(coverage).read_text())
+    if pay.get("used_keys"):
+        raise RuntimeError("isolated coverage split consulted keys")
+    leftover = _zero_keys(pay, method)
+    all_marked, _, _ = _holdout_file_lrs(holdout)
+    covered = all_marked - leftover
+    if leftover - all_marked:
+        raise RuntimeError("leftover keys missing from primary holdout")
+    primary = _split_one_holdout(leftover, covered, holdout)
+    extras = []
+    for name, path in (extra_holdouts or {}).items():
+        extras.append(
+            {"label": name, **_split_one_holdout(leftover, covered, path)}
+        )
+    return {
+        "note": (
+            "In-domain isolated TPs split on occupancy-free leftover "
+            "membership. Not mixed tables, not a new probe method, not "
+            "keys. Does not replace 25/48."
+        ),
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "method": method,
+        "n_marked": len(all_marked),
+        "n_leftover": len(leftover),
+        "n_covered": len(covered),
+        "leftover": _key_rows(leftover),
+        "primary": primary,
+        "extra": extras,
+    }
+
+
+def print_isolated_coverage_split(payload: dict) -> str:
+    primary = payload.get("primary") or {}
+    left = primary.get("leftover") or {}
+    cov = primary.get("covered") or {}
+    lines = [
+        "# Isolated 25/48 split: leftover vs occupancy-covered",
+        "",
+        str(payload.get("note") or ""),
+        "",
+        (
+            f"used_keys={payload.get('used_keys')} "
+            f"leftover={payload.get('n_leftover')} "
+            f"covered={payload.get('n_covered')} "
+            f"primary_marked>0={primary.get('n_marked_above_zero')}"
+        ),
+        (
+            f"leftover marked>0 {left.get('marked_above_zero')}/"
+            f"{left.get('n')}, unmarked≤0 "
+            f"{left.get('unmarked_at_most_zero')}/{left.get('n')}"
+        ),
+        (
+            f"covered marked>0 {cov.get('marked_above_zero')}/"
+            f"{cov.get('n')}, unmarked≤0 "
+            f"{cov.get('unmarked_at_most_zero')}/{cov.get('n')}"
+        ),
+        "",
+        "Secondary holdouts:",
+        "",
+    ]
+    for row in payload.get("extra") or []:
+        el = row.get("leftover") or {}
+        ec = row.get("covered") or {}
+        lines.append(
+            f"- {row['label']}: leftover {el.get('marked_above_zero')}/"
+            f"{el.get('n')} vs {el.get('unmarked_at_most_zero')}/"
+            f"{el.get('n')}; covered {ec.get('marked_above_zero')}/"
+            f"{ec.get('n')} vs {ec.get('unmarked_at_most_zero')}/"
+            f"{ec.get('n')}"
+        )
+    lines.extend(
+        [
+            "",
+            "Leftover TPs are not leftover-file detection. Covered TPs "
+            "are opening-atom overlap. Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_isolated_coverage_split(payload: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "split.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (out_dir / "results.md").write_text(print_isolated_coverage_split(payload))
+
+
 def load_group(path: Path, tokenizer, name: str | None = None) -> TrainGroup:
     twins = load_twins(path, tokenizer=tokenizer)
     return TrainGroup(name or path.name, twins)

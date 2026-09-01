@@ -17,6 +17,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md) | 36 Grok-length train; grok12 occupancy-free **39/48** = coverage; original-12 nested **26/48** ≠ occupancy-free **10/48** |
 | [PROTOCOL-isolated-pool.md](PROTOCOL-isolated-pool.md) | Pooled 100+grok36 mix; coverage union **28/48**; t=0 **26/48**; interpolate nested **27/48**; not **25/48** |
 | [PROTOCOL-isolated-leftover.md](PROTOCOL-isolated-leftover.md) | Mixed opening rankpath leftover **12/20 vs 14/20**; do not sell full **35/48** |
+| [PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md) | Decode 25/48 TPs on leftover-20 vs occupancy-covered-28; freeze before counts |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
