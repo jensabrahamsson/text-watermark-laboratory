@@ -23,7 +23,9 @@ union **30/48** (equals SMT); leftover **18**; last-4 **10/18 vs 10/18**.
 Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
 ([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
 Leftover-18 mixed rankpath and grok36 interpolate are
-[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md):
+rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen
+**89 vs 19**.
 
 ## Locked headlines
 
@@ -400,4 +402,15 @@ JSON: leftover-18 keys in
 `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`,
 official arithmetic from
 `experiments/2026-09-01-isolated-leftover-bound/`.
+
+## Leftover-18 remaining readers (mixed rankpath + grok36 interpolate)
+
+Protocol SHA `5621544`. `used_keys=false`. Leftover-18 mixed rankpath
+**12/18 vs 13/18**. Grok36 interpolate **12/18 vs 12/18**. 12-LOO hard
+last-4 check **10/18 vs 10/18**. Leftover-18 interpolate 0:4 seen 19 vs
+unseen **89**; seen mass is `'Cl'→'osing'`. Garden leftover had 0 mixed
+rankpath TPs and 1 interpolate TP. Do not sell leftover-18 rankpath
+12/18 or leftover-18 interpolate 12/18. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
 

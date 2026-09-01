@@ -172,4 +172,29 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `5621544`. Named `f1782dc`. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-isolated-leftover-18-readers/](../experiments/2026-09-01-isolated-leftover-18-readers/).
+
+| Reader | Leftover-18 marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|
+| Mixed opening rankpath | **12/18** | **13/18** |
+| Grok36 interpolate | **12/18** | **12/18** |
+| 12-LOO hard last-4 (check) | **10/18** | **10/18** |
+
+H-left18-C **holds**. Leftover-18 mixed rankpath unmarked `lr≤0` is
+**13/18**, not 18/18. Marked **12/18** does not replace **25/48**.
+Garden leftover had 0 mixed rankpath TPs (leftover-20 **12/20** stays
+**12/18**). Occupancy-covering garden did not carry leftover rankpath.
+
+H-left18-A **holds**. Leftover-18 grok36 interpolate marked `lr>0` is
+**12/18**, not 18/18. Leftover-18 interpolate 0:4 is seen 19 vs unseen
+**89**. Seen mass is still library `'Cl'→'osing'` (n=4). Garden leftover
+had 1 interpolate TP (leftover-20 **13/20** becomes **12/18**). That is
+backoff plus an unbucketed body copy, not occupancy-free opening overlap.
+
+H-left18-iso **holds**. Do not sell leftover-18 rankpath **12/18**,
+leftover-18 interpolate **12/18**, leftover official **18/18**, union
+**30/48**, leftover last-4 **10/18**, leftover-20 rankpath **12/20**, or
+leftover interpolate **13/20**. Isolated-file remains open. Do not write
+`thesis/`.

@@ -166,8 +166,10 @@ target leftover openings after peeking. Do not sell leftover official
 
 Mixed opening rankpath and grok36 interpolate on leftover-18 are
 [PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
-Do not look at leftover-18 rankpath or leftover-18 interpolate counts
-until that freeze is named.
+Opened: leftover-18 mixed rankpath **12/18 vs 13/18**; grok36 interpolate
+**12/18 vs 12/18**; leftover-18 interpolate 0:4 unseen **89 vs 19**.
+Garden leftover had 0 mixed rankpath TPs. Do not sell leftover-18
+rankpath **12/18** or leftover-18 interpolate **12/18**.
 
 ## What this freeze refuses
 
@@ -175,7 +177,8 @@ until that freeze is named.
 - Selling leftover **10/20**, covered **15/28**, leftover window
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
-  official **18/18**, grok12 **39/48**, nested **23/48** / **26/48** /
+  official **18/18**, leftover-18 rankpath **12/18**, leftover-18
+  interpolate **12/18**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

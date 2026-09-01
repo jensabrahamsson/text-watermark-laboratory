@@ -120,6 +120,6 @@ H-closed-iso **holds**. Occupancy-free isolated recall on the original
 are exhausted for leftover-18. Mixed opening rankpath and grok36
 interpolate on leftover-18 are
 [PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
-Do not look at leftover-18 rankpath or leftover-18 interpolate counts
-until that freeze is named. Isolated-file remains open. Do not write
-`thesis/`.
+Opened: leftover-18 mixed rankpath **12/18 vs 13/18**; interpolate
+**12/18 vs 12/18**; 0:4 unseen **89 vs 19**. Isolated-file remains open.
+Do not write `thesis/`.

@@ -1609,4 +1609,17 @@ leftover-18 keys. Mixed rankpath and grok36 interpolate stay those
 dumps. Do not look at leftover-18 rankpath or leftover-18 interpolate
 counts until this line is on origin. Do not write `thesis/`.
 
+## 2026-09-01 leftover-18 remaining readers opened
+
+SHA `5621544`. `used_keys=false`. Leftover-18 mixed rankpath **12/18 vs
+13/18**. Grok36 interpolate **12/18 vs 12/18**. 12-LOO hard last-4 check
+**10/18 vs 10/18**. Leftover-18 interpolate 0:4 seen 19 vs unseen **89**;
+seen mass is `'Cl'→'osing'`. Garden leftover had 0 mixed rankpath TPs
+and 1 interpolate TP. H-left18-C, H-left18-A, and H-left18-iso hold.
+Do not sell leftover-18 rankpath 12/18 or leftover-18 interpolate 12/18.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished.
+
+JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
+
 ---
