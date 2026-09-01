@@ -222,4 +222,8 @@ Still not keys. Still not a universal detector. Do not replace
 openings without token identity are in
 [key-free-rankpath.md](key-free-rankpath.md). Hashing the official
 5-gram context does not recover letter d2 without occupancy Laplace;
-see [key-free-hashtok.md](key-free-hashtok.md).
+see [key-free-hashtok.md](key-free-hashtok.md). Occupancy-free
+`hashtoklen` as the count channel, saved prefix-4 rankpath as
+fallback, is **33/48 vs 37/48** (combined 70/96 vs count 82/96). The
+leftover eight stay misses. `--cascade hashtoklen` is first-class.
+Do not sell 33/48.

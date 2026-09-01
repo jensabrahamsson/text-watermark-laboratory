@@ -626,6 +626,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashpool": "rotate_hashpool",
         "hashtok": "rotate_hashtok",
         "hashtoklen": "rotate_hashtoklen",
+        "hashskip": "rotate_hashskip",
         "hashtokbackoff": "rotate_hashtokbackoff",
         "hashtokbackoff2": "rotate_hashtokbackoff2",
         "hashtoklenbackoff": "rotate_hashtoklenbackoff",
@@ -679,7 +680,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashtok, hashtoklen, hashtokbackoff, "
+                f"choose hard, hashpool, hashtok, hashtoklen, hashskip, hashtokbackoff, "
                 f"hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
                 f"hashvote, hybrid, surface, "
                 f"poshits, poshitmass, postokhits, postokbackoff, "
@@ -1321,12 +1322,12 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, tokhits, tokbackoff, tokbackoff2, gated, "
-            "shrinkage, mix, hashpool, hashtok, hashtoklen, hashtokbackoff, "
+            "shrinkage, mix, hashpool, hashtok, hashtoklen, hashskip, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
             "hashvote, hybrid, surface, "
             "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
-            "postokbackoff2/hashtok/hashtoklen/hashtokbackoff/"
+            "postokbackoff2/hashtok/hashtoklen/hashskip/hashtokbackoff/"
             "hashtokbackoff2/hashtoklenbackoff/hashtoklenbackoff2 modes "
             "need --rotate. Still key-free."
         ),
@@ -1367,7 +1368,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Comma-separated methods: count specs plus hashpool, hashtok, "
-            "hashtoklen, hashtokbackoff, hashtokbackoff2, hashtoklenbackoff, "
+            "hashtoklen, hashskip, hashtokbackoff, hashtokbackoff2, hashtoklenbackoff, "
             "hashtoklenbackoff2, hashvote, hybrid, hashmix, "
             "surface, stack, logit, poshits, postokhits, "
             "postokbackoff, postokbackoff2, poshitmass, pospool, "
@@ -1688,7 +1689,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
             "poshits, postokhits, postokbackoff, postokbackoff2, hashpool, "
-            "hashtok, hashtoklen, rankpath, rankuni, "
+            "hashtok, hashtoklen, hashskip, rankpath, rankuni, "
             "rankhits"
         ),
     )

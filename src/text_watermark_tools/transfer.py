@@ -28,6 +28,8 @@ and change only how a finished string is read:
   mixed into a longer-order table)
 * hashtoklenbackoff / hashtoklenbackoff2 — per-order hashtoklen;
   order-k is used only when i >= k
+* hashskip — occupancy-free hashing of exact last-k with one token
+  dropped (tagged skip-grams, not last-(k-1) and not Laplace)
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
@@ -68,6 +70,8 @@ _GOLDEN = 0x9E3779B97F4A7C15
 _MIX1 = 0xBF58476D1CE4E5B9
 _MIX2 = 0x94D049BB133111EB
 MASK64 = 0xFFFFFFFFFFFFFFFF
+# Drop-one skip-gram namespace. Token ids are >= 0; FIRST_TOKEN_CTX is (-1,).
+SKIP_TAG = -3
 
 
 @dataclass(frozen=True)
@@ -509,11 +513,14 @@ class HashPoolModel:
     used_g_values: bool = False
     position_bucket: int = 0
     exact_len: bool = False
+    drop_one: bool = False
 
     @property
     def instance(self) -> str:
         if self.alphabet == "bytes":
             return "key-free-surface"
+        if self.drop_one:
+            return "key-free-hashskip"
         if self.position_bucket > 0:
             return "key-free-pospool"
         return "key-free-hashpool"
@@ -533,6 +540,45 @@ def hash_ctx_len(ctx: tuple[int, ...], position_bucket: int = 0) -> int:
     return len(tokens)
 
 
+def skip_views(
+    ctx: tuple[int, ...],
+    position_bucket: int = 0,
+) -> list[tuple[int, ...]]:
+    """Exact last-k with one token dropped.
+
+    Each view is tagged `(SKIP_TAG, drop_index, *kept)` so a drop-one
+    4-gram is not a last-3. Occupancy-free hashing of these views asks
+    whether a coarsened official 5-gram still shares a next-token
+    preference. Not SynthID's secret hash.
+    """
+    if int(position_bucket or 0) > 0:
+        if not ctx:
+            return []
+        ns = (int(ctx[0]),)
+        tokens = ctx[1:]
+    else:
+        ns = ()
+        tokens = ctx
+    if not tokens or tokens == FIRST_TOKEN_CTX or len(tokens) < 2:
+        return []
+    views: list[tuple[int, ...]] = []
+    for drop_i, _tok in enumerate(tokens):
+        kept = tuple(int(t) for j, t in enumerate(tokens) if j != drop_i)
+        views.append(ns + (SKIP_TAG, int(drop_i)) + kept)
+    return views
+
+
+def hashed_ctx_views(
+    ctx: tuple[int, ...],
+    *,
+    position_bucket: int = 0,
+    drop_one: bool = False,
+) -> list[tuple[int, ...]]:
+    if drop_one:
+        return skip_views(ctx, position_bucket)
+    return [ctx]
+
+
 def _add_hash_seq(
     tables: list[dict[int, Counter]],
     unigram: Counter,
@@ -543,6 +589,7 @@ def _add_hash_seq(
     n_buckets: int,
     position_bucket: int = 0,
     exact_len: bool = False,
+    drop_one: bool = False,
 ) -> int:
     n = 0
     for i, tok in enumerate(ids):
@@ -554,9 +601,15 @@ def _add_hash_seq(
         ctx = _scored_ctx(ids, i, context_len, position_bucket)
         if exact_len and hash_ctx_len(ctx, position_bucket) != int(context_len):
             continue
-        for h, seed in enumerate(seeds):
-            bucket = hash_context(ctx, seed) % n_buckets
-            tables[h].setdefault(bucket, Counter())[t] += 1
+        views = hashed_ctx_views(
+            ctx, position_bucket=position_bucket, drop_one=bool(drop_one)
+        )
+        if not views:
+            continue
+        for view in views:
+            for h, seed in enumerate(seeds):
+                bucket = hash_context(view, seed) % n_buckets
+                tables[h].setdefault(bucket, Counter())[t] += 1
     return n
 
 
@@ -572,7 +625,10 @@ def fit_hashpool(
     alphabet: str = "tokens",
     position_bucket: int = 0,
     exact_len: bool = False,
+    drop_one: bool = False,
 ) -> HashPoolModel:
+    drop_one = bool(drop_one)
+    exact_len = bool(exact_len) or drop_one
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
     unmarked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -589,6 +645,7 @@ def fit_hashpool(
             n_buckets=n_buckets,
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
+            drop_one=drop_one,
         )
     for seq in unmarked_seqs:
         n_u += _add_hash_seq(
@@ -600,6 +657,7 @@ def fit_hashpool(
             n_buckets=n_buckets,
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
+            drop_one=drop_one,
         )
     vocab = set(marked_uni) | set(unmarked_uni)
     if alphabet == "bytes":
@@ -623,6 +681,7 @@ def fit_hashpool(
         used_g_values=False,
         position_bucket=int(position_bucket) if position_bucket > 0 else 0,
         exact_len=bool(exact_len),
+        drop_one=drop_one,
     )
 
 
@@ -636,6 +695,7 @@ def fit_hashpool_twins(
     seed: int = 20260831,
     position_bucket: int = 0,
     exact_len: bool = False,
+    drop_one: bool = False,
 ) -> HashPoolModel:
     return fit_hashpool(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -647,6 +707,7 @@ def fit_hashpool_twins(
         seed=seed,
         position_bucket=position_bucket,
         exact_len=bool(exact_len),
+        drop_one=bool(drop_one),
     )
 
 
@@ -833,7 +894,9 @@ def score_hashtok_detail(
 ) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
-    exact = bool(model.exact_len if exact_len is None else exact_len)
+    exact = bool(model.exact_len if exact_len is None else exact_len) or bool(
+        model.drop_one
+    )
     total = 0.0
     n_used = 0
     n_positions = 0
@@ -844,10 +907,19 @@ def score_hashtok_detail(
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         if exact and hash_ctx_len(ctx, model.position_bucket) != int(model.context_len):
             continue
-        delta = hashtok_token_lr(model, ctx, int(tok))
-        if delta is None:
+        views = hashed_ctx_views(
+            ctx,
+            position_bucket=model.position_bucket,
+            drop_one=bool(model.drop_one),
+        )
+        pieces: list[float] = []
+        for view in views:
+            delta = hashtok_token_lr(model, view, int(tok))
+            if delta is not None:
+                pieces.append(delta)
+        if not pieces:
             continue
-        total += delta
+        total += pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
         n_used += 1
     if n_used == 0:
         return ScoreDetail(0.0, 0, n_positions)
@@ -864,6 +936,16 @@ def score_hashtok(
     return score_hashtok_detail(ids, model, exact_len=exact_len).lr
 
 
+def score_hashskip(
+    ids: Sequence[int],
+    model: HashPoolModel,
+) -> float:
+    """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
+    if not model.drop_one:
+        raise ValueError("score_hashskip needs a drop-one hashpool")
+    return score_hashtok_detail(ids, model).lr
+
+
 def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
     """Per-position observed-token hash collisions. Still no keys."""
     if model.used_keys or model.used_hash_iv or model.used_g_values:
@@ -875,30 +957,67 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
         t = int(tok)
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
         ctx_n = hash_ctx_len(ctx, model.position_bucket)
+        views = hashed_ctx_views(
+            ctx,
+            position_bucket=model.position_bucket,
+            drop_one=bool(model.drop_one),
+        )
+        skip_rows: list[dict] = []
+        pieces: list[float] = []
         hashes: list[dict] = []
         c_m_sum = 0
         c_u_sum = 0
         n_seen = 0
-        for h, seed in enumerate(model.seeds):
-            bucket = hash_context(ctx, seed) % model.n_buckets
-            c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
-            c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
-            seen = c_m + c_u >= 1
-            if seen:
-                n_seen += 1
-                c_m_sum += c_m
-                c_u_sum += c_u
-            hashes.append(
-                {
+        for drop_i, view in enumerate(views):
+            view_hashes: list[dict] = []
+            view_seen = 0
+            view_cm = 0
+            view_cu = 0
+            for h, seed in enumerate(model.seeds):
+                bucket = hash_context(view, seed) % model.n_buckets
+                c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
+                c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
+                seen = c_m + c_u >= 1
+                if seen:
+                    view_seen += 1
+                    view_cm += c_m
+                    view_cu += c_u
+                    n_seen += 1
+                    c_m_sum += c_m
+                    c_u_sum += c_u
+                rec = {
                     "h": int(h),
                     "bucket": int(bucket),
                     "c_m": c_m,
                     "c_u": c_u,
                     "seen": seen,
                 }
+                view_hashes.append(rec)
+                if not model.drop_one:
+                    hashes.append(rec)
+            view_delta = hashtok_token_lr(model, view, t)
+            if view_delta is not None:
+                pieces.append(view_delta)
+            if model.drop_one:
+                skip_rows.append(
+                    {
+                        "drop_i": int(drop_i),
+                        "view": [int(x) for x in view],
+                        "n_hashes_seen": view_seen,
+                        "c_m": view_cm,
+                        "c_u": view_cu,
+                        "delta": None if view_delta is None else float(view_delta),
+                        "hashes": view_hashes,
+                    }
+                )
+        if not model.drop_one:
+            delta = hashtok_token_lr(model, ctx, t)
+            pool = hashpool_token_lr(model, ctx, t)
+        else:
+            delta = None if not pieces else (
+                pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
             )
-        delta = hashtok_token_lr(model, ctx, t)
-        pool = hashpool_token_lr(model, ctx, t)
+            pool = 0.0
         rows.append(
             {
                 "i": int(i),
@@ -906,6 +1025,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                 "ctx": [int(x) for x in ctx],
                 "ctx_len": ctx_n,
                 "exact_ok": ctx_n == int(model.context_len),
+                "drop_one": bool(model.drop_one),
                 "n_hashes_seen": n_seen,
                 "n_hashes": int(model.n_hashes),
                 "c_m": c_m_sum,
@@ -913,6 +1033,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                 "delta": None if delta is None else float(delta),
                 "hashpool_delta": float(pool),
                 "hashes": hashes,
+                "skip_views": skip_rows,
             }
         )
     return rows
@@ -1296,6 +1417,7 @@ def persist_hashpool(
         "n_unmarked": model.n_unmarked,
         "position_bucket": int(model.position_bucket),
         "exact_len": bool(model.exact_len),
+        "drop_one": bool(model.drop_one),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -1354,6 +1476,7 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         used_g_values=False,
         position_bucket=int(raw.get("position_bucket") or 0),
         exact_len=bool(raw.get("exact_len") or False),
+        drop_one=bool(raw.get("drop_one") or False),
     )
 
 

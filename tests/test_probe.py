@@ -404,6 +404,22 @@ def test_run_probe_hashtoklen_on_lab_pairs() -> None:
     assert hlb2.holdout.instance == "key-free-hashtoklenbackoff2"
 
 
+def test_run_probe_hashskip_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashskip",),
+        with_pivot=False,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashskip"]
+    assert run.used_keys is False
+    hsk = run.methods[0]
+    assert hsk.holdout.instance == "key-free-hashskip"
+    assert hsk.holdout.used_keys is False
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")
@@ -2384,6 +2400,8 @@ def test_prefix5_hashtoklen_recovers_one_postokhits_miss_by_collision() -> None:
     → `,` is unmarked-like; hashed last-4 of the comma is marked-like.
     Letter d2's official 5-gram still abstains. Do not sell 21/48.
     """
+    import json
+
     p5 = (
         Path(__file__).resolve().parents[1]
         / "experiments"
@@ -2427,5 +2445,220 @@ def test_prefix5_hashtoklen_recovers_one_postokhits_miss_by_collision() -> None:
     assert by_hl[("01-harbour", 2)] > 0
     assert by_ph[("01-harbour", 2)] < 0
     assert by_hl[("08-letter", 2)] == 0
+    atoms = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-letter-d2-first-ngram"
+            / "harbour-d2-hashtoklen-trace.json"
+        ).read_text()
+    )
+    assert atoms["used_keys"] is False
+    assert atoms["exact_len"] is True
+    assert atoms["ids"] == [464, 26450, 373, 625, 11]
+    assert atoms["pieces"] == ["The", " ferry", " was", " over", ","]
+    assert atoms["postokhits"]["lr"] < 0
+    assert atoms["postokhits"]["n_used"] == 1
+    assert atoms["hashtoklen"]["n_used"] == 1
+    assert atoms["hashtoklen"]["lr"] == by_hl[("01-harbour", 2)]
+    slot = atoms["official_slot"]
+    assert slot["i"] == 4
+    assert slot["tok"] == 11
+    assert slot["n_hashes_seen"] == 1
+    assert slot["c_m"] == 11
+    assert slot["c_u"] == 0
+    cas = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen-cascade-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    assert cas["used_keys"] is False
+    assert cas["count_method"] == "hashtoklen"
+    assert cas["coverage"]["combined_marked_above_zero"] == 33
+    assert cas["coverage"]["combined_unmarked_at_most_zero"] == 37
+    assert cas["coverage"]["combined_marked_above_zero"] < 39
+    assert cas["positive"]["combined_marked_above_zero"] == 33
+
+
+def test_prefix4_hashtoklen_never_fires_on_a_four_token_prefix() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtoklen"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hb = holdout_from_json(root / "hashtoklenbackoff" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert hl.used_keys is False
+    assert hl.n_marked_positive == 0
+    assert hl.n_unmarked_nonpositive == 48
+    assert hl.n_prompts_marked_above == 12
+    hl_bin = next(m for m in results["methods"] if m["name"] == "hashtoklen")["binary"]
+    ht_bin = next(m for m in results["methods"] if m["name"] == "hashtok")["binary"]
+    assert hl_bin["auc"] == 0.5
+    assert hl_bin["permutation_p"] == 1.0
+    assert hb.n_marked_positive == 35
+    assert hb.n_unmarked_nonpositive == 38
+    assert ht.n_marked_positive == 35
+    assert ht_bin["auc"] > 0.80
+    assert _nested_youden(results, "hashtoklen") == (0, 48)
+    assert _nested_youden(results, "hashtoklenbackoff") == (35, 40)
+    assert _nested_youden(results, "hashtok") == (33, 45)
+
+
+def test_in_domain_gpt2_prefix5_hashtoklen_is_seven_of_forty_eight() -> None:
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix5-hashtoklen"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    assert hl.used_keys is False
+    assert hl.n_marked_positive == 7
+    assert hl.n_unmarked_nonpositive == 48
+    letter = [
+        m
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if s == "08-letter" and samp == 2
+    ]
+    harbour = [
+        m
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if s == "01-harbour" and samp == 2
+    ]
+    assert letter[0] == 0
+    assert harbour[0] > 0
+
+
+def test_in_domain_distil_prefix5_hashtoklen_is_seven_of_forty_eight() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-distilgpt2-12x4-fitprefix5-hashtoklen"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert hl.used_keys is False
+    assert hl.n_marked_positive == 7
+    assert hl.n_unmarked_nonpositive == 48
+    hl_bin = next(m for m in results["methods"] if m["name"] == "hashtoklen")["binary"]
+    assert hl_bin["auc"] > 0.56
+    assert hl_bin["permutation_p"] < 0.03
+
+
+def test_sixty_stem_hashtoklen_does_not_become_a_distil_detector() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-distil-prefix5-hashtoklen"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hb = holdout_from_json(root / "hashtoklenbackoff" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert hl.used_keys is False
+    assert hl.n_marked_positive == 10
+    assert hl.n_unmarked_nonpositive == 43
+    hl_bin = next(m for m in results["methods"] if m["name"] == "hashtoklen")["binary"]
+    hb_bin = next(
+        m for m in results["methods"] if m["name"] == "hashtoklenbackoff"
+    )["binary"]
+    assert abs(hl_bin["auc"] - 0.571) < 0.002
+    assert hl_bin["permutation_p"] < 0.05
+    assert hb_bin["auc"] < 0.50
+    assert hb_bin["permutation_p"] > 0.70
+    assert _nested_youden(results, "hashtoklen") == (10, 43)
+
+
+def test_prefix5_hashskip_is_denser_at_zero_and_worse_nested() -> None:
+    """Drop-one skip-grams are not a leftover rescue.
+
+    t=0 25/48 spends 13 unmarked FPs. Nested Youden 16/48 vs 41/48.
+    Letter d2's official I is seen unmarked-only. Do not sell 25/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hs = holdout_from_json(root / "hashskip" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    tables = json.loads((root / "tables-hashskip" / "tables.json").read_text())
+    atoms = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-letter-d2-first-ngram"
+            / "letter-d2-hashskip-trace.json"
+        ).read_text()
+    )
+    assert hl.used_keys is False
+    assert hs.used_keys is False
+    assert tables["drop_one"] is True
+    assert tables["exact_len"] is True
+    assert tables["used_keys"] is False
+    assert hs.n_prompts_marked_above == 8
+    assert hs.n_marked_positive == 25
+    assert hs.n_unmarked_nonpositive == 35
+    assert hl.n_marked_positive == 21
+    assert hs.n_marked_positive < 39
+    assert _nested_youden(results, "hashskip") == (16, 41)
+    assert _nested_youden(results, "hashtoklen") == (21, 45)
+    hl_pos = {
+        (s, samp)
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if m > 0
+    }
+    hs_pos = {
+        (s, samp)
+        for s, samp, m in zip(hs.stems, hs._samples(), hs.marked_lrs)
+        if m > 0
+    }
+    assert hs_pos - hl_pos == {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("02-night-bus", 2),
+        ("02-night-bus", 4),
+        ("09-workshop", 4),
+    }
+    by_hs = {
+        (s, samp): m
+        for s, samp, m in zip(hs.stems, hs._samples(), hs.marked_lrs)
+    }
+    leftover = {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("06-station", 4),
+        ("08-letter", 2),
+        ("08-letter", 3),
+        ("10-office", 1),
+        ("10-office", 3),
+        ("12-ferry-queue", 4),
+    }
+    leftover_tp = {k for k in leftover if by_hs[k] > 0}
+    assert leftover_tp == {("01-harbour", 3), ("01-harbour", 4)}
+    assert by_hs[("08-letter", 2)] < 0
+    assert atoms["used_keys"] is False
+    assert atoms["drop_one"] is True
+    assert atoms["ids"] == [3844, 287, 262, 1218, 314]
+    assert atoms["hashskip"]["n_used"] == 1
+    assert atoms["hashskip"]["lr"] == by_hs[("08-letter", 2)]
+    views = {v["drop_i"]: v for v in atoms["official_slot"]["skip_views"]}
+    assert views[2]["c_m"] == 0 and views[2]["c_u"] == 1
+    assert views[3]["c_m"] == 0 and views[3]["c_u"] == 1
+    assert views[2]["delta"] < 0
+    assert views[3]["delta"] < 0
 
 

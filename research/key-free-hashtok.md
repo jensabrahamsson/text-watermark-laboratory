@@ -257,3 +257,115 @@ Nested Youden **33/48 vs 42/48** is the honest isolated-file number
 for exact hashed backoff. Mixed backoff nested **30/48** was the
 short-prefix mixer plus last-1. Do not sell 36/48 or 33/48 as beating
 poshits **39/48** or replacing **29/48**.
+
+## Harbour d2 is a hashed 5-gram collision, not occupancy
+
+Twenty of hashtoklen's 21 TPs are exact `postokhits`. The extra is
+harbour d2 (`01-harbour-marked-2.txt`): `The ferry was over ,` (ids
+`[464, 26450, 373, 625, 11]`). Exact last-4 of the comma is
+unmarked-like (`postokhits` lr=**−2.65**, `n_used=1`). Occupancy-free
+hashtoklen is marked-like (lr=**+0.618**) because **one of eight**
+laboratory hashes (bucket 178) collided with other last-4s that
+continue with comma marked-only (c_m=11, c_u=0). That is an observed
+next-token collision, not Laplace of an empty cell.
+
+Mixed `tables-hashpool` (short prefixes hashed into the 4-gram mixer)
+plus score-time `exact_len` is a **different** mixer (lr=+2.18, 2/8
+hashes, c_u=1) and is not the holdout number. Persist exact-length
+tables as `tables-hashtoklen`. Letter d2's official `I` still has
+`n_used=0`. In-domain 12×4 LOO hashtoklen is **7/48 vs 48/48**
+(precision 1.0 among decided); harbour d2 is already a TP there;
+letter d2 is not. Unique openings stay unseen.
+
+JSON: [../experiments/2026-09-01-letter-d2-first-ngram/harbour-d2-hashtoklen-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/harbour-d2-hashtoklen-trace.json),
+[../experiments/2026-09-01-probe-12x4-fitprefix5-hashtoklen/](../experiments/2026-09-01-probe-12x4-fitprefix5-hashtoklen/).
+
+## Prefix-4 exact-length backoff no longer hurts
+
+On a 4-token prefix, `hashtoklen` (order 4) abstains everywhere: there
+is no 4-token context. Prompt **12/12** on that run is all-zero ties,
+not a ranking. Exact `hashtoklenbackoff` uses legal last-3/2/1:
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden |
+|---|---|---|---|---|---|
+| hashtok | 10/12 | 0.844 | **35/48** | 39/48 | **33/48 vs 45/48** |
+| hashtoklen | 12/12† | 0.500 | **0/48** | 48/48 | 0/48 vs 48/48 |
+| **hashtoklenbackoff** | 11/12 | 0.826 | **35/48** | 38/48 | **35/48 vs 40/48** |
+
+† Ties. Mixed hashed backoff on this window was **31/48**. Exact
+backoff matches hashtok's t=0 density. Keep prefix-4 `hashtok`.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtoklen/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtoklen/).
+
+## Hashed 5-gram + opening rankpath cascade
+
+`--cascade hashtoklen --cascade-fallback rankpath` puts the
+occupancy-free official 5-gram reader on the count channel. Rebound
+from saved prefix-4 rankpath rows (no new GPT-2 forwards):
+
+| Rule | marked>0 | unmarked≤0 |
+|---|---|---|
+| hashtoklen decided | **21/48** | **45/48** |
+| coverage / positive-when | **33/48** | **37/48** |
+
+hashtoklen has no covered-negative marked files, so the two when-rules
+match. Combined **70/96** vs prefix-4 count **82/96**. Leftover eight
+stay misses. Do not sell 33/48.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen-cascade-rankpath/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen-cascade-rankpath/).
+
+## Distil: same tokenizer, not the same 5-grams
+
+DistilGPT2 12×4 is officially **12/12**. Native Distil opening
+rankpath is chance. Native Distil prefix-5 hashtoklen is **7/48 vs
+48/48** (same sparse in-domain grain as GPT-2). GPT-2 60-stem tables
+scored on Distil prefix-5:
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | perm p |
+|---|---|---|---|---|---|
+| hashtoklen | 9/12 | **0.571** | **10/48** | 43/48 | 0.041 |
+| hashtoklenbackoff | 4/12 | **0.470** | 17/48 | 26/48 | 0.794 |
+| postokhits | 9/12 | 0.591 | 10/48 | 42/48 | 0.017 |
+
+Occupancy-free official-grain hashing does not become a Distil
+detector. Same BPE is not the same generator footprint. Do not sell
+10/48.
+
+JSON: [../experiments/2026-09-01-probe-distilgpt2-12x4-fitprefix5-hashtoklen/](../experiments/2026-09-01-probe-distilgpt2-12x4-fitprefix5-hashtoklen/),
+[../experiments/2026-09-01-transfer-short-medium-tails-family-to-distil-prefix5-hashtoklen/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-distil-prefix5-hashtoklen/).
+
+## Drop-one skip-grams (`hashskip`) are denser at t=0 and worse nested
+
+`hashskip` hashes exact last-k with one token dropped. Views are
+tagged `(SKIP_TAG, drop_index, *kept)` so they are not last-(k-1).
+Same occupancy-free mixer. Instance `key-free-hashskip`. Still no
+keys.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --extra-train experiments/2026-08-31-pair-family12x4 \
+  --fit-prefix 5 --pos-bucket 0 \
+  --methods hashtoklen,hashskip \
+  --out-dir experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden |
+|---|---|---|---|---|---|
+| hashtoklen | 12/12† | 0.701 | **21/48** | 45/48 | **21/48 vs 45/48** |
+| **hashskip** | 8/12 | 0.663 | **25/48** | 35/48 | **16/48 vs 41/48** |
+
+† Ties among zeros. t=0 extras: harbour d3/d4, night-bus d2/d4,
+workshop d4. Thirteen unmarked FPs. Nested Youden **16/48** is the
+honest isolated-file number.
+
+Letter d2 `Now in the second I`: drop-2 and drop-3 **see** `I`, both
+unmarked-only (c_m=0, c_u=1, lr=−0.847). The coarsened official
+5-gram that exists in train votes unmarked, the same way last-1 did.
+Leftover eight: 2/8 at t=0 (tiny harbour d3/d4); nested leftover
+fill-in **0/8**. Do not sell 25/48.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/),
+[../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json).

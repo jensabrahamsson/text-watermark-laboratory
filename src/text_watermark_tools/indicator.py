@@ -408,7 +408,7 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
-        if mode not in ("auto", "hashpool", "hashtok", "hashtoklen", ""):
+        if mode not in ("auto", "hashpool", "hashtok", "hashtoklen", "hashskip", ""):
             raise ValueError(
                 f"tables are hashpool; --score-mode {score_mode} does not apply"
             )
@@ -418,15 +418,24 @@ def score_text_from_tables(
             raise ValueError("hashpool tables need a tokenizer")
         model = load_hashpool(path)
         ids = tokenizer(text)["input_ids"]
-        if mode in ("hashtok", "hashtoklen"):
+        if mode in ("hashtok", "hashtoklen", "hashskip"):
+            if mode == "hashskip" and not bool(getattr(model, "drop_one", False)):
+                raise ValueError(
+                    "these tables were not fit as drop-one skip-grams; "
+                    "refusing score-time hashskip on a different mixer"
+                )
+            if mode == "hashtoklen" and bool(getattr(model, "drop_one", False)):
+                raise ValueError(
+                    "these tables are drop-one skip-grams; use --score-mode hashskip"
+                )
             detail = score_hashtok_detail(
-                ids, model, exact_len=True if mode == "hashtoklen" else None
+                ids,
+                model,
+                exact_len=True if mode in ("hashtoklen", "hashskip") else None,
             )
             meta = load_tables_meta(path)
             meta.score_kind = mode
-            meta.instance = (
-                "key-free-hashtoklen" if mode == "hashtoklen" else "key-free-hashtok"
-            )
+            meta.instance = f"key-free-{mode}"
         else:
             detail = score_hashpool_detail(ids, model)
             meta = load_tables_meta(path)
@@ -483,7 +492,7 @@ def score_text_from_tables(
             f"unknown --score-mode {score_mode}; "
             f"choose auto, hard, poshits, postokhits, postokbackoff, "
             f"postokbackoff2, poshitmass, hashpool, hashtok, hashtoklen, "
-            f"or one of "
+            f"hashskip, or one of "
             f"{sorted(COUNT_SPECS)}"
         )
     spec = COUNT_SPECS[mode]

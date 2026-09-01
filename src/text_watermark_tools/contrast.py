@@ -39,6 +39,7 @@ from text_watermark_tools.transfer import (
     fit_count_model,
     fit_hashpool_twins,
     score_hashtok,
+    score_hashskip,
     score_hashpool,
     score_sequence,
 )
@@ -252,6 +253,7 @@ def run_instance_contrast(
     pos_model = None
     hash_model = None
     hash_len_model = None
+    hash_skip_model = None
     rank_model = None
     if count_names:
         count_model = fit_count_model(train, context_len=context_len)
@@ -265,7 +267,11 @@ def run_instance_contrast(
         hash_len_model = fit_hashpool_twins(
             train, context_len=context_len, exact_len=True
         )
-    for model in (count_model, pos_model, hash_model, hash_len_model):
+    if "hashskip" in names:
+        hash_skip_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True, drop_one=True
+        )
+    for model in (count_model, pos_model, hash_model, hash_len_model, hash_skip_model):
         if model is not None and (
             model.used_keys or model.used_hash_iv or model.used_g_values
         ):
@@ -360,6 +366,11 @@ def run_instance_contrast(
             lambda ids, m=hash_len_model: score_hashtok(ids, m),
             "key-free-hashtoklen",
         )
+    if "hashskip" in names and hash_skip_model is not None:
+        scorers["hashskip"] = (
+            lambda ids, m=hash_skip_model: score_hashskip(ids, m),
+            "key-free-hashskip",
+        )
     unknown = [
         n
         for n in names
@@ -371,7 +382,7 @@ def run_instance_contrast(
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
             "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
-            "hashtoklen, rankpath, rankuni, rankhits, "
+            "hashtoklen, hashskip, rankpath, rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
     if not scorers and not rank_names:

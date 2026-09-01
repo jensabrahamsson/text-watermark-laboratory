@@ -53,6 +53,17 @@ Exact-length `hashtoklen` still abstains (`n_used=0`). Exact backoff2
 lr=0.797 is legal last-2 `'Now in' → ' the'` (i=2, order 2), not token
 4; including last-1 of `I` makes hashtoklenbackoff −0.152.
 `hashtoklen-trace.json` (`used_keys=false`, `exact_len=true`).
+Harbour d2 official 5-gram `The ferry was over ,` is the unique
+hashtoklen extra versus exact `postokhits`: last-4 of that comma is
+unmarked-like as an exact 4-gram (lr=−2.65) and marked-like in one
+colliding hash (1/8 hashes, bucket 178, c_m=11, c_u=0, lr=+0.618).
+Not Laplace occupancy. Letter d2 still abstains. JSON:
+`harbour-d2-hashtoklen-trace.json`.
+Occupancy-free drop-one skip-grams (`hashskip`) **see** letter d2's
+`I` on two tagged last-4 holes, both unmarked-only (c_m=0, c_u=1,
+lr=−0.847). Coarsening is not a leftover rescue. Nested Youden on
+that reader is **16/48 vs 41/48**. JSON:
+`letter-d2-hashskip-trace.json`.
 In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 Hashed occupancy write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).

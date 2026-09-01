@@ -17,6 +17,20 @@ tokens. Short prefixes are not mixed into a longer-order mixer.
 `hashtoklen` scores only the official 5-gram slot. 27 marked files
 abstain. That 21/48 is not a denser isolated-file reader.
 
+Twenty of those 21 TPs are exact `postokhits`. The extra is harbour d2:
+`The ferry was over ,`. Exact last-4 of the comma is unmarked-like
+(lr=−2.65, `n_used=1`). Occupancy-free hashtoklen is marked-like
+(lr=+0.618) because **one of eight** hashes (bucket 178) collided with
+other last-4s that continue with comma marked-only (c_m=11, c_u=0).
+Not Laplace occupancy. Mixed `tables-hashpool` plus score-time
+`exact_len` is a different mixer (lr=+2.18) and is not this number.
+Persisted exact tables: `tables-hashtoklen/`. Letter d2 still
+`n_used=0`.
+
+Occupancy-free hashtoklen as the cascade count channel, saved prefix-4
+rankpath as fallback: **33/48 vs 37/48** (combined 70/96 vs count
+82/96). Leftover eight stay misses.
+
 Letter d2 official 5-gram `I` is still unseen as a 4-gram
 (`hashtoklen` `n_used=0`). Exact backoff2 lr=0.797 is last-2
 `'Now in' → ' the'`, not token 4. Including last-1 of `I` (unmarked,

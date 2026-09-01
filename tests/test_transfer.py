@@ -251,6 +251,59 @@ def test_score_hashed_reader_detail_matches_hashtoklen_and_backoff() -> None:
     assert abs(via_b.lr - back.lr) < 1e-12
 
 
+def test_hashskip_is_tagged_drop_one_not_last_k_minus_one() -> None:
+    from text_watermark_tools.transfer import (
+        SKIP_TAG,
+        fit_hashpool,
+        hash_context,
+        score_hashtok_detail,
+        score_hashskip,
+        skip_views,
+    )
+
+    ctx = (10, 20, 30, 40)
+    views = skip_views(ctx)
+    assert len(views) == 4
+    assert views[0][0] == SKIP_TAG
+    assert views[0][1] == 0
+    assert views[0][2:] == (20, 30, 40)
+    # Tagged skip-grams must not hash as the remaining last-3.
+    assert hash_context(views[0], 7) != hash_context((20, 30, 40), 7)
+    marked = [[9, 1, 2, 3, 4], [8, 1, 2, 3, 4]]
+    unmarked = [[9, 1, 2, 3, 5], [8, 1, 2, 3, 5]]
+    skip = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=4,
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        drop_one=True,
+    )
+    exact = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=4,
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        exact_len=True,
+    )
+    held = [0, 1, 2, 3, 4]
+    assert skip.used_keys is False
+    assert skip.drop_one is True
+    assert skip.exact_len is True
+    skip_d = score_hashtok_detail(held, skip)
+    exact_d = score_hashtok_detail(held, exact)
+    assert exact_d.n_used == 0
+    assert skip_d.n_used == 1
+    assert skip_d.lr > 0
+    assert score_hashskip(held, skip) > score_hashskip([0, 1, 2, 3, 5], skip)
+    unseen = score_hashtok_detail([0, 1, 2, 3, 99], skip)
+    assert unseen.n_used == 0
+    assert unseen.lr == 0.0
+
+
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     marked = [[0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

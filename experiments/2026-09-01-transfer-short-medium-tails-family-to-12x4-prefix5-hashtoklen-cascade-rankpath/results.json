@@ -1,0 +1,519 @@
+{
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "count_method": "hashtoklen",
+  "fallback": "rankpath",
+  "fit_prefix_count": 5,
+  "cascade_rankpath_end": 4,
+  "n_train_prompts": 60,
+  "note": "Occupancy-free exact hashed 5-gram as count channel, saved prefix-4 rankpath as fallback. No new GPT-2 forwards. Mixed AUC is not a detector. Do not sell combined t=0 as beating poshits 39/48 or replacing 29/48.",
+  "coverage": {
+    "used_keys": false,
+    "used_hash_iv": false,
+    "used_g_values": false,
+    "fallback": "rankpath",
+    "cascade_when": "coverage",
+    "note": "Count LR when n_used>0 (coverage); unmarked-LM fallback (rankpath) otherwise. Signs at threshold 0 are comparable. A single AUC on mixed magnitudes is not a detector. Not keys, not a universal detector.",
+    "n_marked": 48,
+    "n_unmarked": 48,
+    "n_count_marked": 21,
+    "n_count_unmarked": 4,
+    "n_pivot_marked": 27,
+    "n_pivot_unmarked": 44,
+    "n_fallback_marked": 27,
+    "n_fallback_unmarked": 44,
+    "count_marked_above_zero": 21,
+    "count_unmarked_at_most_zero": 1,
+    "pivot_marked_above_zero": 12,
+    "pivot_unmarked_at_most_zero": 36,
+    "fallback_marked_above_zero": 12,
+    "fallback_unmarked_at_most_zero": 36,
+    "combined_marked_above_zero": 33,
+    "combined_unmarked_at_most_zero": 37,
+    "count_precision": 0.875,
+    "pivot_fallback_marked": [
+      {
+        "stem": "01-harbour",
+        "sample": 1,
+        "score": 0.1098455360504464,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "01-harbour",
+        "sample": 3,
+        "score": -0.33297586436468146,
+        "opening_text": "The ferry was in",
+        "source": "rankpath"
+      },
+      {
+        "stem": "01-harbour",
+        "sample": 4,
+        "score": -0.33297586436468146,
+        "opening_text": "The ferry was in",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 1,
+        "score": -0.34139151860587846,
+        "opening_text": "The bus is a",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 2,
+        "score": -0.30565642996383985,
+        "opening_text": "The bus is all",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 4,
+        "score": -0.30565642996383985,
+        "opening_text": "The bus is all",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 1,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 2,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 3,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 4,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "05-kitchen",
+        "sample": 4,
+        "score": 0.2567306196125198,
+        "opening_text": "\"Who is on",
+        "source": "rankpath"
+      },
+      {
+        "stem": "06-station",
+        "sample": 2,
+        "score": 0.7502843536942644,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "06-station",
+        "sample": 4,
+        "score": -0.5998218574649407,
+        "opening_text": "The conductor turned and",
+        "source": "rankpath"
+      },
+      {
+        "stem": "07-rain",
+        "sample": 3,
+        "score": 0.7502843536942644,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "08-letter",
+        "sample": 2,
+        "score": -0.9578430082792515,
+        "opening_text": "Now in the second",
+        "source": "rankpath"
+      },
+      {
+        "stem": "08-letter",
+        "sample": 3,
+        "score": -0.4074988179860104,
+        "opening_text": "While working on the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "09-workshop",
+        "sample": 4,
+        "score": 0.8187790032794622,
+        "opening_text": "\"This is actually",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 1,
+        "score": -0.34577517344930836,
+        "opening_text": "The printer worked.",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 2,
+        "score": 0.3459434737456464,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 3,
+        "score": -0.34577517344930836,
+        "opening_text": "The printer worked.",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 4,
+        "score": 0.5175134688769032,
+        "opening_text": "The printer worked better",
+        "source": "rankpath"
+      },
+      {
+        "stem": "11-garden",
+        "sample": 2,
+        "score": 0.7929558587042699,
+        "opening_text": "The car is really",
+        "source": "rankpath"
+      },
+      {
+        "stem": "11-garden",
+        "sample": 3,
+        "score": 0.7929558587042699,
+        "opening_text": "The car is really",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 1,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 2,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 3,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 4,
+        "score": -0.45228744847296304,
+        "opening_text": "The ferry was waiting",
+        "source": "rankpath"
+      }
+    ],
+    "fallback_binary": {
+      "n_positive": 27,
+      "n_negative": 44,
+      "auc": 0.6881313131313131,
+      "mean_positive": -0.04530468788199937,
+      "mean_negative": -0.41465547697690436,
+      "mean_diff": 0.369350789094905,
+      "n_positive_above_zero": 12,
+      "n_negative_at_most_zero": 36,
+      "permutation_p": 0.014925373134328358,
+      "binomial_p_above_zero": 0.7789658308029175,
+      "youden_threshold": -0.4932815003247692,
+      "youden_sensitivity": 0.7777777777777778,
+      "youden_specificity": 0.5681818181818182,
+      "youden_j": 0.345959595959596,
+      "n_perm": 200
+    },
+    "fallback_fpr10": {
+      "threshold": 0.25914815801632635,
+      "marked_above": 10,
+      "unmarked_at_most": 40,
+      "n_marked": 27,
+      "n_unmarked": 44
+    },
+    "combined_at_fallback_youden": {
+      "threshold": -0.4932815003247692,
+      "marked_above": 42,
+      "n_marked": 48,
+      "unmarked_at_most": 26,
+      "n_unmarked": 48
+    },
+    "combined_at_fallback_fpr10": {
+      "threshold": 0.25914815801632635,
+      "marked_above": 31,
+      "n_marked": 48,
+      "unmarked_at_most": 41,
+      "n_unmarked": 48
+    }
+  },
+  "positive": {
+    "used_keys": false,
+    "used_hash_iv": false,
+    "used_g_values": false,
+    "fallback": "rankpath",
+    "cascade_when": "positive",
+    "note": "Count LR when lr>0; unmarked-LM fallback (rankpath) when count is nonpositive (coverage zeros and covered negatives). Signs at threshold 0 are comparable. A single AUC on mixed magnitudes is not a detector. Not keys, not a universal detector.",
+    "n_marked": 48,
+    "n_unmarked": 48,
+    "n_count_marked": 21,
+    "n_count_unmarked": 3,
+    "n_pivot_marked": 27,
+    "n_pivot_unmarked": 45,
+    "n_fallback_marked": 27,
+    "n_fallback_unmarked": 45,
+    "count_marked_above_zero": 21,
+    "count_unmarked_at_most_zero": 0,
+    "pivot_marked_above_zero": 12,
+    "pivot_unmarked_at_most_zero": 37,
+    "fallback_marked_above_zero": 12,
+    "fallback_unmarked_at_most_zero": 37,
+    "combined_marked_above_zero": 33,
+    "combined_unmarked_at_most_zero": 37,
+    "count_precision": 0.875,
+    "pivot_fallback_marked": [
+      {
+        "stem": "01-harbour",
+        "sample": 1,
+        "score": 0.1098455360504464,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "01-harbour",
+        "sample": 3,
+        "score": -0.33297586436468146,
+        "opening_text": "The ferry was in",
+        "source": "rankpath"
+      },
+      {
+        "stem": "01-harbour",
+        "sample": 4,
+        "score": -0.33297586436468146,
+        "opening_text": "The ferry was in",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 1,
+        "score": -0.34139151860587846,
+        "opening_text": "The bus is a",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 2,
+        "score": -0.30565642996383985,
+        "opening_text": "The bus is all",
+        "source": "rankpath"
+      },
+      {
+        "stem": "02-night-bus",
+        "sample": 4,
+        "score": -0.30565642996383985,
+        "opening_text": "The bus is all",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 1,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 2,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 3,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "03-library",
+        "sample": 4,
+        "score": -0.7097371312134934,
+        "opening_text": "Closing is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "05-kitchen",
+        "sample": 4,
+        "score": 0.2567306196125198,
+        "opening_text": "\"Who is on",
+        "source": "rankpath"
+      },
+      {
+        "stem": "06-station",
+        "sample": 2,
+        "score": 0.7502843536942644,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "06-station",
+        "sample": 4,
+        "score": -0.5998218574649407,
+        "opening_text": "The conductor turned and",
+        "source": "rankpath"
+      },
+      {
+        "stem": "07-rain",
+        "sample": 3,
+        "score": 0.7502843536942644,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "08-letter",
+        "sample": 2,
+        "score": -0.9578430082792515,
+        "opening_text": "Now in the second",
+        "source": "rankpath"
+      },
+      {
+        "stem": "08-letter",
+        "sample": 3,
+        "score": -0.4074988179860104,
+        "opening_text": "While working on the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "09-workshop",
+        "sample": 4,
+        "score": 0.8187790032794622,
+        "opening_text": "\"This is actually",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 1,
+        "score": -0.34577517344930836,
+        "opening_text": "The printer worked.",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 2,
+        "score": 0.3459434737456464,
+        "opening_text": "\"This is the",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 3,
+        "score": -0.34577517344930836,
+        "opening_text": "The printer worked.",
+        "source": "rankpath"
+      },
+      {
+        "stem": "10-office",
+        "sample": 4,
+        "score": 0.5175134688769032,
+        "opening_text": "The printer worked better",
+        "source": "rankpath"
+      },
+      {
+        "stem": "11-garden",
+        "sample": 2,
+        "score": 0.7929558587042699,
+        "opening_text": "The car is really",
+        "source": "rankpath"
+      },
+      {
+        "stem": "11-garden",
+        "sample": 3,
+        "score": 0.7929558587042699,
+        "opening_text": "The car is really",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 1,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 2,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 3,
+        "score": 0.4026956706808824,
+        "opening_text": "The ferry was so",
+        "source": "rankpath"
+      },
+      {
+        "stem": "12-ferry-queue",
+        "sample": 4,
+        "score": -0.45228744847296304,
+        "opening_text": "The ferry was waiting",
+        "source": "rankpath"
+      }
+    ],
+    "fallback_binary": {
+      "n_positive": 27,
+      "n_negative": 45,
+      "auc": 0.6950617283950618,
+      "mean_positive": -0.04530468788199937,
+      "mean_negative": -0.42907362739095734,
+      "mean_diff": 0.38376893950895796,
+      "n_positive_above_zero": 12,
+      "n_negative_at_most_zero": 37,
+      "permutation_p": 0.004975124378109453,
+      "binomial_p_above_zero": 0.7789658308029175,
+      "youden_threshold": -0.4932815003247692,
+      "youden_sensitivity": 0.7777777777777778,
+      "youden_specificity": 0.5777777777777777,
+      "youden_j": 0.3555555555555556,
+      "n_perm": 200
+    },
+    "fallback_fpr10": {
+      "threshold": 0.25914815801632635,
+      "marked_above": 10,
+      "unmarked_at_most": 41,
+      "n_marked": 27,
+      "n_unmarked": 45
+    },
+    "combined_at_fallback_youden": {
+      "threshold": -0.4932815003247692,
+      "marked_above": 42,
+      "n_marked": 48,
+      "unmarked_at_most": 26,
+      "n_unmarked": 48
+    },
+    "combined_at_fallback_fpr10": {
+      "threshold": 0.25914815801632635,
+      "marked_above": 31,
+      "n_marked": 48,
+      "unmarked_at_most": 41,
+      "n_unmarked": 48
+    }
+  }
+}

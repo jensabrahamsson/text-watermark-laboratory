@@ -49,6 +49,7 @@ from text_watermark_tools.transfer import (
     score_hashed_reader_detail,
     score_hashmix,
     score_hashtok,
+    score_hashskip,
     score_hashtokbackoff,
     score_hashpool,
     score_hashpool_vote,
@@ -721,11 +722,12 @@ def rotate_hashpool(
     exact_len: bool = False,
 ) -> IndicatorHoldout:
     reader = str(method_name or "hashpool")
-    if reader in ("hashtok", "hashtoklen"):
+    drop_one = reader == "hashskip"
+    if reader in ("hashtok", "hashtoklen", "hashskip"):
         kind = reader
         instance = f"key-free-{reader}"
-        score_fn = score_hashtok
-        exact_len = bool(exact_len) or reader == "hashtoklen"
+        score_fn = score_hashskip if drop_one else score_hashtok
+        exact_len = bool(exact_len) or reader in ("hashtoklen", "hashskip")
     else:
         kind = "pospool" if position_bucket > 0 else "hashpool"
         instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
@@ -739,6 +741,7 @@ def rotate_hashpool(
             n_buckets=n_buckets,
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
+            drop_one=drop_one,
         )
         return (
             lambda ids, m=model, s=score_fn: s(ids, m),
@@ -803,6 +806,38 @@ def rotate_hashtok(
         position_bucket=position_bucket,
         method_name=reader,
         exact_len=bool(exact_len) or reader == "hashtoklen",
+    )
+
+
+def rotate_hashskip(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashskip",
+        exact_len=True,
     )
 
 
@@ -2746,6 +2781,8 @@ class TransferRun:
     used_g_values: bool = False
     count_model: object | None = None
     hash_model: object | None = None
+    hash_len_model: object | None = None
+    hash_skip_model: object | None = None
     surface_model: object | None = None
     pos_model: object | None = None
     pos_hash: object | None = None
@@ -2984,6 +3021,7 @@ def run_probe(
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
         or "hybrid" in extras or "hashtok" in extras or "hashtoklen" in extras
+        or "hashskip" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -3064,6 +3102,19 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashtoklen", htl))
+    if with_hashpool and "hashskip" in extras:
+        hsk = rotate_hashskip(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashskip", hsk))
     if "hybrid" in extras:
         hyb = rotate_hybrid(
             twins,
@@ -3710,6 +3761,7 @@ def run_transfer(
             "hashmix",
             "hashtok",
             "hashtoklen",
+            "hashskip",
             "hashtokbackoff",
             "hashtokbackoff2",
             "hashtoklenbackoff",
@@ -3751,6 +3803,18 @@ def run_transfer(
             exact_len=True,
         )
         if need_hash and "hashtoklen" in extras
+        else None
+    )
+    hash_skip_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+            drop_one=True,
+        )
+        if need_hash and "hashskip" in extras
         else None
     )
     mix_model = (
@@ -3834,6 +3898,7 @@ def run_transfer(
         count_model,
         hash_model,
         hash_len_model,
+        hash_skip_model,
         mix_model,
         mix_len_model,
         surface_model,
@@ -3888,6 +3953,14 @@ def run_transfer(
             (lambda ids, m=hash_len_model: score_hashtok(ids, m)),
             "key-free-hashtoklen",
             "hashtoklen",
+            "ids",
+        )
+    if "hashskip" in extras:
+        assert hash_skip_model is not None
+        scorers["hashskip"] = (
+            (lambda ids, m=hash_skip_model: score_hashskip(ids, m)),
+            "key-free-hashskip",
+            "hashskip",
             "ids",
         )
     if "hybrid" in extras:
@@ -4014,6 +4087,8 @@ def run_transfer(
         used_g_values=used_g,
         count_model=count_model,
         hash_model=hash_model,
+        hash_len_model=hash_len_model,
+        hash_skip_model=hash_skip_model,
         surface_model=surface_model,
         pos_model=pos_model,
         pos_hash=pos_hash,
@@ -4464,6 +4539,14 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashskip" in extras:
+            nested_holdouts["hashskip"] = rotate_hashskip(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "hashtokbackoff" in extras:
             nested_holdouts["hashtokbackoff"] = rotate_hashtokbackoff(
                 train,
@@ -4618,7 +4701,7 @@ def print_transfer(run: TransferRun) -> str:
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
         "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
-        "hashtoklenbackoff2) no observed next token under that "
+        "hashtoklenbackoff2/hashskip) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "
@@ -4626,8 +4709,9 @@ def print_transfer(run: TransferRun) -> str:
         "observed next token hits; tokbackoff2 / hashtokbackoff2 stop at "
         "last-2. hashtoklen / hashtoklenbackoff hash only exact last-k "
         "(short prefixes are not mixed into a longer-order table). "
-        "hashtok is the hashpool analog of tokhits. None of these "
-        "is key recovery."
+        "hashskip hashes exact last-k with one token dropped (tagged "
+        "skip-grams, not last-(k-1)). hashtok is the hashpool analog of "
+        "tokhits. None of these is key recovery."
     )
     lines.append("")
     lines.append(
@@ -4766,6 +4850,52 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_threshold=nested_t if nested_t is not None else in_t,
             decision_source=(
                 "nested-youden" if nested_t is not None else "in-sample-youden"
+            ),
+        )
+    if persist_tables and getattr(run, "hash_len_model", None) is not None:
+        nested_t = _t("hashtoklen", "nested-youden")
+        in_t = _t("hashtoklen", "in-sample-youden")
+        persist_hashpool(
+            run.hash_len_model,
+            out_dir / "tables-hashtoklen",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashtoklen"
+                if nested_t is not None
+                else "in-sample-youden-hashtoklen"
+            ),
+        )
+        if run.hash_model is None and getattr(run, "hash_skip_model", None) is None:
+            persist_hashpool(
+                run.hash_len_model,
+                out_dir / "tables-hashpool",
+                model_name=run.model_name,
+                pair_dir=run.train_dir,
+                n_train_prompts=run.n_train_prompts,
+                decision_threshold=nested_t if nested_t is not None else in_t,
+                decision_source=(
+                    "nested-youden-hashtoklen"
+                    if nested_t is not None
+                    else "in-sample-youden-hashtoklen"
+                ),
+            )
+    if persist_tables and getattr(run, "hash_skip_model", None) is not None:
+        nested_t = _t("hashskip", "nested-youden")
+        in_t = _t("hashskip", "in-sample-youden")
+        persist_hashpool(
+            run.hash_skip_model,
+            out_dir / "tables-hashskip",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashskip"
+                if nested_t is not None
+                else "in-sample-youden-hashskip"
             ),
         )
     if persist_tables and run.surface_model is not None:

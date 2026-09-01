@@ -130,6 +130,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "hashtok" in out
     assert "hashtokbackoff" in out
     assert "hashtoklen" in out
+    assert "hashskip" in out
     assert "hashtoklenbackoff" in out
     assert "--cascade-fallback" in out
     assert "--cascade-rankpath-end" in out

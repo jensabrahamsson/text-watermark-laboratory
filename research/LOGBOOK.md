@@ -718,4 +718,45 @@ JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5
 `experiments/2026-09-01-letter-d2-first-ngram/hashtoklen-trace.json`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtoklen recovers one exact 5-gram by collision
+
+Twenty of 21 prefix-5 hashtoklen TPs are exact `postokhits`. Harbour
+d2 `The ferry was over ,` is the extra: exact last-4 of the comma is
+unmarked-like (lr=−2.65); occupancy-free hashing is marked-like
+(+0.618) on **1/8** hashes (bucket 178, c_m=11, c_u=0). Not Laplace.
+Letter d2 still abstains. In-domain 12×4 LOO hashtoklen **7/48 vs
+48/48** (harbour d2 already a TP; letter d2 zero). Prefix-4
+`hashtoklen` is **0/48** (no last-4 on a 4-token prefix). Exact
+prefix-4 backoff **35/48 vs 38/48**, nested **35/48 vs 40/48** (mixed
+backoff had hurt: 31/48). hashtoklen+rankpath cascade **33/48 vs
+37/48**. Distil native hashtoklen **7/48 vs 48/48**. GPT-2 60-stem
+tables on Distil: hashtoklen AUC **0.571**, **10/48**; backoff chance
+(4/12, AUC 0.470). Do not sell 33/48, 10/48, or 7/48 as beating
+poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-letter-d2-first-ngram/harbour-d2-hashtoklen-trace.json`,
+`experiments/2026-09-01-probe-12x4-fitprefix5-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen-cascade-rankpath/`,
+`experiments/2026-09-01-probe-distilgpt2-12x4-fitprefix5-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-distil-prefix5-hashtoklen/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 drop-one skip-grams see letter d2 unmarked
+
+`hashskip` hashes exact last-4 with one token dropped (tagged so they
+are not last-3). Occupancy-free. 60-stem prefix-5 → 12×4: **8/12**,
+**25/48 vs 35/48**, nested Youden **16/48 vs 41/48**. t=0 extras vs
+hashtoklen 21/48: harbour d3/d4, night-bus d2/d4, workshop d4; 13
+unmarked FPs. Nested leftover fill-in **0/8**.
+
+Letter d2 official `I` is no longer unseen: drop-2 and drop-3 skip
+views saw it unmarked-only (c_m=0, c_u=1, lr=−0.847). Coarsening the
+5-gram does not invent a marked preference. Do not sell 25/48 or
+16/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/`,
+`experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
