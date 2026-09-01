@@ -1656,4 +1656,12 @@ JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`,
 `experiments/2026-09-01-transfer-distil100x4-to-12x4-opening-poshits/`,
 `experiments/2026-09-01-openings-distil100x4-to-12x4/`.
 
+## 2026-09-01 Distil occupancy-free Distil-12 transfer frozen
+
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md)
+committed at SHA `6bb95a6`. Distil 100×4 tables score Distil 12×4 files.
+Not leftover-18. Do not apply leftover-18 GPT-2 keys to Distil files.
+Do not look at Distil→Distil occupancy-free LRs until this line is on
+origin. Do not write `thesis/`.
+
 ---

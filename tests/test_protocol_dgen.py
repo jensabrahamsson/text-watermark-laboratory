@@ -37,6 +37,7 @@ def test_protocol_dgen_names_frozen_sources_before_decode() -> None:
     assert "--model distilgpt2" in text
     assert "Do **not** leftover-slice Distil rankpath" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
+    assert "`6bb95a6`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert TRAIN.is_dir()
     assert TEST.is_dir()
 
