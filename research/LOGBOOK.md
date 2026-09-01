@@ -1640,4 +1640,20 @@ GPT-2 files. Leftover membership stays leftover-union leftover-18 keys.
 Do not look at Distil occupancy-free leftover-18 coverage until this
 line is on origin. Do not write `thesis/`.
 
+## 2026-09-01 Distil occupancy-free leftover-18 opened
+
+SHA `8e33445`. `used_keys=false`. Distil occupancy-free postokhits t=0
+on the original 12 is **22/48 vs 43/48**. That beats GPT-2 lock B
+occupancy-free **16/48 vs 48/48** and does not beat **25/48**. Openings
+covered **23/48**. Leftover-18 Distil coverage is **3/18** (office 1/3/4);
+leftover occupancy-free sign **3/18 vs 16/18**. Remaining leftover-15 is
+harbour, library, station-4, letter 2–3, ferry-queue. H-xgen-cover holds.
+H-xgen-B fails versus 16/48. H-xgen-iso holds. Do not sell Distil 22/48
+or leftover Distil 3/18. Nothing replaces **25/48**. Isolated-file
+detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`,
+`experiments/2026-09-01-transfer-distil100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-12x4/`.
+
 ---

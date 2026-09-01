@@ -192,4 +192,35 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in [LOGBOOK.md](LOGBOOK.md).)*
+Protocol SHA `8e33445`. Named `3876bb8`. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-isolated-xgen-leftover-18/](../experiments/2026-09-01-isolated-xgen-leftover-18/).
+Probe: [experiments/2026-09-01-transfer-distil100x4-to-12x4-opening-poshits/](../experiments/2026-09-01-transfer-distil100x4-to-12x4-opening-poshits/).
+Openings: [experiments/2026-09-01-openings-distil100x4-to-12x4/](../experiments/2026-09-01-openings-distil100x4-to-12x4/).
+
+| Reader | Full 48 marked `lr>0` | Unmarked `lr≤0` | Leftover-18 marked `lr>0` | Leftover-18 unmarked `lr≤0` |
+|---|---|---|---|---|
+| Distil postokhits | **22/48** | **43/48** | **3/18** | **16/18** |
+| Distil poshits | **39/48** | **24/48** | **12/18** | **9/18** |
+| Distil openings postokhits | covered **23/48** (exact 10/48) | decided FP 5 | leftover covered **3/18** | leftover uncovered **15/18** |
+
+H-xgen-cover **holds**. Distil occupancy-free leftover-18 coverage is
+**3/18**, not **18/18**. The three covers are office 1/3/4. Remaining
+leftover-15 is harbour, library, station-4, letter 2–3, ferry-queue.
+Do not target those openings after peeking.
+
+H-xgen-B **fails** on the GPT-2 occupancy-free **16/48** comparison.
+Distil occupancy-free postokhits t=0 is **22/48 vs 43/48**, above GPT-2
+lock B occupancy-free **16/48 vs 48/48**, and still below **25/48**.
+Isolated observed-token recall equals Distil opening-atom overlap
+(**23/48** covered; t=0 **22/48**). Distil occupancy-free has 5 unmarked
+`lr>0` (GPT-2 lock B occupancy-free had 0). Nested Youden **47/48 vs
+7/48** is a negative train threshold; do not sell 47/48. Distil poshits
+**39/48** includes occupancy.
+
+H-xgen-iso **holds**. Distil leftover-18 occupancy-free is office 3/18,
+not leftover-file detection. Do not sell Distil occupancy-free **22/48**,
+Distil leftover **3/18**, Distil poshits **39/48**, Distil nested
+**47/48**, leftover official **18/18**, leftover-18 rankpath **12/18**,
+or union **30/48** as replacing **25/48**. Isolated-file remains open.
+Do not write `thesis/`.

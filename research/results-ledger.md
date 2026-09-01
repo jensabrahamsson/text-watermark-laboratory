@@ -28,7 +28,8 @@ rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen
 **89 vs 19**. Leftover-18 published key-free readers are closed
 ([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
 Distil occupancy-free leftover-18 on the original 12 is
-[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md).
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md): Distil postokhits
+t=0 **22/48 vs 43/48**; leftover-18 Distil **3/18** (office 1/3/4).
 
 ## Locked headlines
 
@@ -429,8 +430,13 @@ detection. Does not replace **25/48**.
 
 ## Distil occupancy-free leftover-18 (PROTOCOL-isolated-xgen)
 
-Protocol [PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md).
-Frozen before Distil→original-12 occupancy-free LRs. Distil 100×4
-tables, same BPE, 100 prompts frozen before leftover peeking. Not more
-GPT-2 scenes. Not leftover targeting. Does not replace **25/48**.
+Protocol SHA `8e33445`. `used_keys=false`. Distil occupancy-free
+postokhits t=0 **22/48 vs 43/48** beats GPT-2 lock B occupancy-free
+**16/48** and does not beat **25/48**. Openings covered **23/48**.
+Leftover-18 Distil coverage **3/18** (office 1/3/4); leftover
+occupancy-free **3/18 vs 16/18**. Nested Youden **47/48** is a negative
+threshold. Do not sell Distil 22/48 or leftover Distil 3/18. Does not
+replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

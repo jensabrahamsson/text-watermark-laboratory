@@ -1,0 +1,40 @@
+# Opening-overlap bound
+
+Isolated-file observed-token recall equals opening-atom overlap with train. Exact 4-token copy is a lower bound. Not keys, not hash_iv, not g-values, not a universal detector.
+
+fit_prefix=4 pos_bucket=1 include_first=False used_keys=False
+
+| upto | stems | distinct openings | method | covered | exact 4-token | last-1 only | last-1 later | decided fp | precision |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-09-01-pair-distil-100x4 | 100 | 207 | postokhits | 23/48 | 10/48 | 10 | 0 | 5 | 0.815 |
+
+Zeros on the full combined train:
+
+### postokhits (25 marked zeros)
+- `01-harbour` draw 1: The ferry was so
+- `01-harbour` draw 2: The ferry was over
+- `01-harbour` draw 3: The ferry was in
+- `01-harbour` draw 4: The ferry was in
+- `02-night-bus` draw 1: The bus is a
+- `02-night-bus` draw 2: The bus is all
+- `02-night-bus` draw 3: After two and a
+- `02-night-bus` draw 4: The bus is all
+- `03-library` draw 1: Closing is the
+- `03-library` draw 2: Closing is the
+- `03-library` draw 3: Closing is the
+- `03-library` draw 4: Closing is the
+- `06-station` draw 4: The conductor turned and
+- `08-letter` draw 1: The second version is
+- `08-letter` draw 2: Now in the second
+- `08-letter` draw 3: While working on the
+- `08-letter` draw 4: The second version is
+- `11-garden` draw 1: Now a little after
+- `11-garden` draw 2: The car is really
+- `11-garden` draw 3: The car is really
+- `11-garden` draw 4: Now a little after
+- `12-ferry-queue` draw 1: The ferry was so
+- `12-ferry-queue` draw 2: The ferry was so
+- `12-ferry-queue` draw 3: The ferry was so
+- `12-ferry-queue` draw 4: The ferry was waiting
+
+Not detector_mean. Not Claude. Not Anthropic. ≈0 is not “human” and not “Claude has no mark”.

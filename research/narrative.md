@@ -175,8 +175,11 @@ Leftover-18 published key-free readers are closed
 ([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
 Do not re-slice more leftover-18 holdouts as leftover-file detection.
 Distil occupancy-free leftover-18 on the original 12 is
-([PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md)): same BPE,
-100 prompts frozen before leftover peeking, not more GPT-2 scenes.
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md). Opened:
+Distil occupancy-free t=0 **22/48 vs 43/48** (beats GPT-2 lock B occupancy-free
+**16/48**, not **25/48**); leftover-18 Distil coverage **3/18** (office
+1/3/4). Isolated recall equals Distil opening overlap **23/48**. Do not
+sell Distil **22/48** or leftover Distil **3/18**.
 
 ## What this freeze refuses
 
@@ -185,7 +188,8 @@ Distil occupancy-free leftover-18 on the original 12 is
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
-  interpolate **12/18**, grok12 **39/48**, nested **23/48** / **26/48** /
+  interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
+  **3/18**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

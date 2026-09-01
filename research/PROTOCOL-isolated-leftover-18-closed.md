@@ -121,5 +121,6 @@ exhausted for leftover-file detection. Occupancy-free leftover-18 is
 **0/18** by construction. Official leftover-18 is **18/18** at
 prefix-128 and uses keys. Isolated-file remains open. Distil occupancy-free
 leftover-18 on the original 12 is
-[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md). Do not write
-`thesis/`.
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md): leftover-18 Distil
+coverage **3/18** (office 1/3/4); Distil postokhits t=0 **22/48**. Do not
+sell Distil **22/48**. Do not write `thesis/`.
