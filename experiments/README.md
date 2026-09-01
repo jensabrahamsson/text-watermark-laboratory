@@ -224,6 +224,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-ranking-isolated-honesty/` | Ranking vs isolated TP on frozen holdouts | 12-LOO hard: garden ranks with 0 TP; 5/25 TPs on ranking losses |
 | `2026-09-01-blind-12x4-ranking-honesty/` | Same 9/12 producer, per-file LRs | **9/12**, garden 0/4, isolated **25**; historical recount JSON unchanged |
 | `2026-09-01-prompts-grok12/` | Grok-register isolated-train prompts | Frozen before `pair`; [PROTOCOL-isolated-register.md](../research/PROTOCOL-isolated-register.md) |
+| `2026-09-01-pair-grok12x4/` | Those seeds × 4 draws × 128 tokens | official first-draw **12/12**; key-free analysis not yet recorded |
 
 ## What changed across the runs
 
