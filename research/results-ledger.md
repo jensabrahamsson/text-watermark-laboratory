@@ -8,7 +8,11 @@ The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
 scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
 **99/100**. That does not replace **25/48**. Register-matched Grok-length train is
 [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md): lock A
-nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails.
+nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails. The two-grain story lock is
+[narrative.md](narrative.md): prompt-group ranking is real; isolated
+`lr>0` is not a calibrated detector. Do not write a “key-free
+detection fails” paper. Spatial mask-*k* of the headline 12-LOO scorer
+is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md).
 
 ## Locked headlines
 
