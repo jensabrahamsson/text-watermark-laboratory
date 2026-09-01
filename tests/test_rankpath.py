@@ -235,7 +235,7 @@ def test_rotate_rankpath_matched_window_finds_late_signal() -> None:
     pref = prefix_out[4]["rankuni"]
     win = window_out[(16, 24)]["rankuni"]
     assert pref.used_keys is False
-    assert win.n_prompts_marked_above == 3
+    assert win.n_prompts_marked_ge == 3
     assert pref.n_prompts_marked_above <= win.n_prompts_marked_above
     assert min(win.marked_lrs) > max(win.unmarked_lrs)
 

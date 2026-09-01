@@ -131,7 +131,7 @@ without the vendor’s keys.
 | Dathathri et al. (2024) | Keyed official detection of SynthID-Text | No. This is `score`. |
 | Jovanović et al. (2024) | Steal the keyed mapping from API samples | No. Not key recovery, not implemented. |
 | Gloaguen et al. (2025) | Is *this generator* watermarked? Black-box queries | Same *family* of key-free questions. Different measurement: not a finished file. |
-| Wang et al. (2026) | Third-party file verification from paired references | **Closest published analog.** Same audit problem. Different method (proxy model + relative tests, not count-table LR). |
+| Wang et al. (2026) | Third-party file verification from paired references | **Closest published finished-string paired-reference analog.** Same audit problem. Different method (proxy model + relative tests, not count-table LR). |
 | Duan et al. (2025) | ZK that keyed detection ran | No. Still uses keys internally. |
 | This repository | Finished-string count LR on public twins | An empirical notebook of that second measurement. Not TTP-Detect. Not Gloaguen. |
 
@@ -150,7 +150,9 @@ a calibrated isolated-file detector that beats Wang et al. (2026) on a
 shared benchmark. Isolated hard last-4 remains **25/48** (pre-fix
 **29/48** overcounted truncated openings). Opening
 occupancy-free hashing is **24/48** marked `lr>0`, which is below that
-headline. Treat this as an empirical notebook, not a priority claim.
+headline. Treat this as an empirical notebook, not a priority claim, not a
+field-defining result, and not a finished conference paper. Manuscript
+position: [threat-model.md](threat-model.md).
 
 ## Later benchmark, not a method race
 

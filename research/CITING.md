@@ -58,3 +58,13 @@ Forbidden:
 - Treating a frontier-model sketch as a proof.
 
 A complexity-theoretic proof that tournament sampling is key-free distinguishable, in the sense of Christ et al. (2024), would be a different paper. This notebook does not contain that proof. Placement of the theorems relative to the measurements: [related-work.md](related-work.md).
+
+## Manuscript position
+
+The measurements here are a **strong empirical notebook**, interesting
+to the field. They are **not field-defining** and **not a finished
+conference paper**. Position the contribution as a cheap count-table
+LR with an exact auditor (key-free, not reference-free) and two grains
+(population ranking vs isolated **25/48**). The honest next artifact is
+a workshop, artifact, or focused empirical report, not `thesis/` and
+not a slogan. Lock: [threat-model.md](threat-model.md).

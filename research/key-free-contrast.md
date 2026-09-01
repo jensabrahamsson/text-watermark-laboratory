@@ -29,7 +29,8 @@ If control ranks with unmarked, the key-free reader is instance-specific
 without keys. If it ranks with marked, the reader is detecting tournament
 sampling, not this instance. Neither outcome recovers keys.
 
-Do not replace the published headlines **10/12**, **29/48**, or **36/36**.
+Do not replace the recounted headlines **9/12**, **25/48**, or **36/36**.
+Pre-fix **10/12** / **29/48** stay in historical JSON.
 This is not a universal detector. It is not Claude.
 
 ## Protocol
@@ -182,7 +183,7 @@ detector, or a calibrated isolated-file yes/no. Public marked isolated
 sign on this gate remains **39/48**. That 39/48 includes The-Laplace
 occupancy; observed-token `postokhits` is **16/48** with precision 1.0
 among decided files, and control stays **0/48** under that reader too.
-Leave-one-of-12-out hard last-4 remains **29/48**. Qwen and DistilGPT2
+Leave-one-of-12-out hard last-4 remains **25/48** (pre-fix **29/48**). Qwen and DistilGPT2
 token-identity transfer remain chance. Native Distil rankpath is chance
 (**8/12**, AUC **0.579**) despite official 12/12. Tiny nets still do not
 beat poshits.

@@ -243,12 +243,12 @@ def test_postokhits_four_token_contrast_control_never_positive() -> None:
         "tokhits-control-vs-unmarked",
     )
     assert pub.used_keys is False
-    assert pub.n_prompts_marked_above == 12
+    assert pub.n_prompts_marked_ge == 12
     assert pub.n_marked_positive == 16
     assert pub.n_unmarked_nonpositive == 48
     assert ctrl.n_marked_positive == 0
     assert tok.n_marked_positive == 0
-    assert vs.n_prompts_marked_above == 12
+    assert vs.n_prompts_marked_ge == 12
     assert vs.n_unmarked_nonpositive == 48
     assert vs.n_marked_positive == 16
 
@@ -277,13 +277,13 @@ def test_poshits_four_token_contrast_is_instance_specific() -> None:
     assert pub.used_keys is False
     assert ctrl.used_keys is False
     assert vs.used_keys is False
-    assert pub.n_prompts_marked_above == 12
+    assert pub.n_prompts_marked_ge == 12
     assert pub.n_marked_positive == 39
     assert pub.n_unmarked_nonpositive == 41
     assert ctrl.n_marked_positive == 0
     assert hits_ctrl.n_marked_positive == 0
     assert hashed.n_marked_positive == 6
-    assert vs.n_prompts_marked_above == 12
+    assert vs.n_prompts_marked_ge == 12
     assert vs.n_unmarked_nonpositive == 48
     pub_auc = binary_eval(pub.marked_lrs, pub.unmarked_lrs, n_perm=200, seed=0)
     ctrl_auc = binary_eval(ctrl.marked_lrs, ctrl.unmarked_lrs, n_perm=200, seed=0)
@@ -328,7 +328,7 @@ def test_pair_limit_hits_separates_instances_on_full_files() -> None:
         "poshits-control-vs-unmarked",
     )
     assert vs.used_keys is False
-    assert vs.n_prompts_marked_above == 12
+    assert vs.n_prompts_marked_ge == 12
     vs_auc = binary_eval(vs.marked_lrs, vs.unmarked_lrs, n_perm=200, seed=0)
     ctrl_auc = binary_eval(ctrl.marked_lrs, ctrl.unmarked_lrs, n_perm=200, seed=0)
     assert vs_auc.auc >= 0.999
@@ -375,7 +375,7 @@ def test_prefix4_rankpath_contrast_control_matches_unmarked_fp() -> None:
     )
     assert pub.used_keys is False
     assert ctrl.used_keys is False
-    assert pub.n_prompts_marked_above == 11
+    assert pub.n_prompts_marked_ge == 11
     assert pub.n_marked_positive == 25
     assert pub.n_unmarked_nonpositive == 43
     pub_auc = binary_eval(pub.marked_lrs, pub.unmarked_lrs, n_perm=200, seed=0)

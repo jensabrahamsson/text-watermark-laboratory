@@ -724,6 +724,7 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
             pair_dir=run.train_dir,
             n_train_prompts=run.transfer.n_train_prompts if run.transfer is not None else 0,
             spec_name="rankpath",
+            fit_prefix=int(run.fit_prefix or 0),
         )
     body = "# Key-free instance contrast\n\n" + print_contrast(run) + "\n"
     (out_dir / "README.md").write_text(body)

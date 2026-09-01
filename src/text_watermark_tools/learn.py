@@ -30,6 +30,7 @@ from text_watermark_tools.probe import (
     TransferRun,
     _append_pair,
     _append_threshold,
+    _call_scorer,
     _empty_holdout_parts,
     _holdout_from_parts,
     _twin_prefix,
@@ -312,6 +313,7 @@ def fit_tokmlp(twins: Sequence[Twin], spec: LearnSpec) -> ScoreFn:
             labels.append(label)
     if len(set(labels)) < 2:
         raise ValueError("tokmlp needs both classes")
+    _seed_torch(spec.seed)
     net = _TokMLP(spec)
     _fit_torch(
         net,
@@ -321,8 +323,7 @@ def fit_tokmlp(twins: Sequence[Twin], spec: LearnSpec) -> ScoreFn:
     )
     net.params.eval()
 
-    def score(seq, prefix: Sequence[int] = ()) -> float:
-        del prefix
+    def score(seq) -> float:
         tok_idx, pos_idx, mask = _tokmlp_indices(seq, spec)
         with torch.no_grad():
             logit = net.logits(
@@ -359,6 +360,7 @@ def fit_charcnn(
             labels.append(label)
     if len(set(labels)) < 2:
         raise ValueError("charcnn needs both classes")
+    _seed_torch(spec.seed)
     net = _CharCNN(spec)
     _fit_torch(
         net,
@@ -368,8 +370,7 @@ def fit_charcnn(
     )
     net.params.eval()
 
-    def score(seq, prefix: Sequence[int] = ()) -> float:
-        del prefix
+    def score(seq) -> float:
         raw = ids_to_bytes(seq[start:], decode_score)
         idx, mask = _byte_indices(raw, spec)
         with torch.no_grad():
@@ -435,8 +436,8 @@ def rotate_learn(
                 parts,
                 held.stem,
                 i + 1,
-                scorer(marked[i], prefix=held_prefix),
-                scorer(unmarked[i], prefix=held_prefix),
+                _call_scorer(scorer, marked[i], prefix=held_prefix),
+                _call_scorer(scorer, unmarked[i], prefix=held_prefix),
             )
     return _holdout_from_parts(
         parts,

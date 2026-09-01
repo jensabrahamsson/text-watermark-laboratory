@@ -370,7 +370,7 @@ without a tokenizer. Nested 36→12×4 hashpool tables with
 
 **Coverage gating was the missing ablation on 12×4 and 36-topic GPT-2.** Scoring *only* 4-grams seen on both training sides raises 12×4 AUC from 0.626 to 0.737 (11/12) and 36-topic ranking from 20/36 to 30–31/36 (AUC 0.89). The unigram fallback in `hard` was adding topic noise. The old “more topics do not help” lesson was a scorer artifact.
 
-**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Nested hashpool Youden on that split is the honest yes/no: **33/48** marked and **34/48** unmarked. Four training draws lift OOD ranking to **12/12** and **42/48** at t=0; nested hits Youden then sits at **26/48** vs **44/48**. Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986** on 1-draw 256-token stems; AUC **0.924** on 96 files from 36×4). Nested hits 10% FPR on those 96 files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws is **36/36** (AUC **0.934**); nested-by-stem hits **119/144** vs **134/144**. Leave-one-of-12-out hard last-4 remains 29/48.
+**The 29/48 isolated sign was partly a protocol artifact.** Training on 24 *other* topics and scoring the 12×4 files, hits marks **39/48** (AUC 0.769). Nested hashpool Youden on that split is the honest yes/no: **33/48** marked and **34/48** unmarked. Four training draws lift OOD ranking to **12/12** and **42/48** at t=0; nested hits Youden then sits at **26/48** vs **44/48**. Training on 12×4 and scoring 24 new topics, hits ranks **24/24** (AUC **0.986** on 1-draw 256-token stems; AUC **0.924** on 96 files from 36×4). Nested hits 10% FPR on those 96 files is **83/96** vs **85/96**. Leave-one-of-36-out with four draws is **36/36** (AUC **0.934**); nested-by-stem hits **119/144** vs **134/144**. Leave-one-of-12-out hard last-4 remains **25/48** (pre-fix **29/48** overcounted truncated openings).
 
 **Hash pooling is the method that generalizes across generators.** Isolated 35/48 on 12×4 GPT-2 (p ≈ 0.001), 32/36 on 36 topics, 11/12 on Qwen 12×1 (AUC 0.750), and 11/12 prompt grain when those hash buckets are trained on other GPT-2 topics. Exact `hits` fails on Qwen 12×1 (AUC 0.417) because the 4-grams do not overlap.
 
@@ -458,7 +458,7 @@ precision **1.000** among decided files. In-domain, only 9 of 131
 poshits TPs were occupancy (`postokhits` **122/144**). Control-shuffled-30
 stays **0/48** `lr>0` under both readers. Details:
 [key-free-tokhits.md](key-free-tokhits.md). Do not sell 16/48 as beating
-39/48. Do not replace 10/12, 29/48, or 36/36.
+39/48. Do not replace recounted **9/12**, **25/48**, or **36/36**.
 
 **Matched seed length does not cover those zeros.** Twelve new ~40-word
 scene topics (`experiments/2026-08-31-pair-long12x4/`, official lamp

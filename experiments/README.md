@@ -206,10 +206,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-100x4-hard-last4/` | Lock A interpolate last-4 | **99/100**, AUC **0.898**, isolated 352/400 vs 290/400 (miss stem 088) |
 | `2026-09-01-probe-100x4-opening-poshits/` | Lock B opening poshits | **100/100**, AUC **0.980**, isolated 393/400 vs 344/400 |
 | `2026-09-01-probe-100x4-opening-rankpath/` | Lock C opening rankpath | **96/100**, AUC **0.822**, isolated 314/400 vs 302/400 |
-| `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | 0:4 **99/100** AUC **0.885**; 16:32 **89/100** AUC **0.689** |
+| `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | reindexed 0:4 **99/100** AUC **0.885**; reindexed 16:32 **89/100** AUC **0.689** |
 | `2026-09-01-pair-distil-100x4/` | DistilGPT2 twins, same 100 prompts | Official first-draw **70/100** (weaker lamp than GPT-2 **100/100**) |
-| `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | **89/100**, AUC **0.713**, isolated 216/400 vs 247/400 |
-| `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | **69/100**, AUC **0.598**, isolated 164/400 vs 270/400 |
+| `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | persist **89/100**; strict `>` recount **88 wins + 1 tie**, AUC **0.713**, isolated 216/400 vs 247/400 |
+| `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | persist **69/100**; strict `>` recount **68 wins + 1 tie**, AUC **0.598**, isolated 164/400 vs 270/400 |
 | `2026-09-01-pair-qwen-100x4/` | Qwen2-1.5B twins, same 100 prompts | Official first-draw **100/100** (local HF; mixin on) |
 | `2026-09-01-probe-qwen-100x4-opening-poshits/` | Qwen lock B | **95/100**, AUC **0.873**, isolated 333/400 vs 308/400 |
 | `2026-09-01-probe-qwen-100x4-opening-rankpath/` | Qwen lock C | **84/100**, AUC **0.706**, isolated 275/400 vs 259/400 |
@@ -228,14 +228,14 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-grok12x4-to-12x4-hard-last4/` | Grok-register → original 12×4 lock A | **5/12**, nested **16/48 vs 41/48**; H-reg-A fails |
 | `2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/` | Same train, lock B | **7/12**, nested **6/48 vs 47/48** |
 | `2026-09-01-transfer-grok12x4-to-12x4-opening-rankpath/` | Same train, lock C | **10/12**, t=0 **22/48**; nested 45/48 vs 22/48 is not a detector |
-| `2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/` | Same tables, postokhits | t=0 **5/48 vs 47/48**; 9 ranking wins with 0 TP |
+| `2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/` | Same tables, postokhits | t=0 **5/48 vs 47/48**; 9 occupancy-free 0=0 ties (not ranking wins) |
 | `2026-09-01-openings-grok12x4-to-12x4/` | Opening-overlap, Grok-register → 12 | covered **5/48**, exact **0/48** |
 | `2026-09-01-probe-grok12x4-hard-last4/` | In-family interpolate on new 12 | **11/12**, nested-by-stem **24/48 vs 40/48** |
 | `2026-09-01-transfer-grok12x4-to-36x4-hard-last4/` | Grok-register → 36×4 lock A | **24/36**, nested **50/144 vs 115/144** |
 | `2026-09-01-transfer-100x4-to-grok12x4-hard-last4/` | 100 one-liners → Grok-register lock A | **11/12**, nested **22/48 vs 41/48**; H-xreg-A holds vs 16/48; not **25/48** |
 | `2026-09-01-transfer-100x4-to-grok12x4-opening-poshits/` | Same train, lock B | **10/12**, nested **36/48 vs 44/48** (occupancy) |
 | `2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/` | Same train, lock C | **8/12**, nested **10/48 vs 41/48** |
-| `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 10 ranking wins with 0 TP |
+| `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 4 ranking wins with 0 TP, 6 occupancy 0=0 ties |
 | `2026-09-01-openings-100x4-to-grok12x4/` | Opening-overlap, 100→Grok-register | covered **5/48**, exact **0/48**; t=0 is 0/48 |
 | `2026-09-01-transfer-100x4-to-grok12x4-hard-windows/` | Same interpolate, token windows | 0:4 **7/12**; tail 32:64 and 64:128 **9/12**; not **25/48** |
 | `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split |

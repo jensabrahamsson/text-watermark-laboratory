@@ -143,6 +143,27 @@ class BlindEval:
         return sum(1 for f in self.folds if f.marked_wins)
 
     @property
+    def n_prompt_ties(self) -> int:
+        return sum(
+            1
+            for f in self.folds
+            if pair_outcome(f.marked_lr, f.unmarked_lr, margin=self.margin) == "tie"
+        )
+
+    @property
+    def n_prompt_losses(self) -> int:
+        return sum(
+            1
+            for f in self.folds
+            if pair_outcome(f.marked_lr, f.unmarked_lr, margin=self.margin) == "loss"
+        )
+
+    @property
+    def n_prompts_marked_ge(self) -> int:
+        """Historical ranking used ``marked >= unmarked`` (ties counted as wins)."""
+        return self.n_marked_wins + self.n_prompt_ties
+
+    @property
     def accuracy(self) -> float:
         if not self.folds:
             return float("nan")
@@ -160,11 +181,14 @@ class BlindEval:
         """
         return sum(1 for f in self.folds for m in f.marked_file_lrs if m > 0.0)
 
-    def _stem_rank_isolated(self) -> list[tuple[str, bool, int]]:
-        rows: list[tuple[str, bool, int]] = []
+    def _stem_rank_isolated(self) -> list[tuple[str, str, int]]:
+        rows: list[tuple[str, str, int]] = []
         for fold in self._sorted_folds():
             n_tp = sum(1 for m in fold.marked_file_lrs if m > 0.0)
-            rows.append((fold.stem, fold.marked_wins, n_tp))
+            outcome = pair_outcome(
+                fold.marked_lr, fold.unmarked_lr, margin=self.margin
+            )
+            rows.append((fold.stem, outcome, n_tp))
         return rows
 
     @property
@@ -176,11 +200,24 @@ class BlindEval:
         any isolated marked file signs. Do not read prompt wins as isolated
         recall.
         """
-        return [stem for stem, win, n_tp in self._stem_rank_isolated() if win and n_tp == 0]
+        return [
+            stem
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "win" and n_tp == 0
+        ]
 
     @property
     def n_prompt_wins_without_isolated_tp(self) -> int:
         return len(self.ranking_without_isolated_tp)
+
+    @property
+    def ranking_ties_without_isolated_tp(self) -> list[str]:
+        """Prompt-ranking ties with no marked file ``lr > 0``."""
+        return [
+            stem
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "tie" and n_tp == 0
+        ]
 
     @property
     def ranking_losses_with_isolated_tp(self) -> list[str]:
@@ -191,22 +228,30 @@ class BlindEval:
         """
         return [
             stem
-            for stem, win, n_tp in self._stem_rank_isolated()
-            if (not win) and n_tp > 0
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "loss" and n_tp > 0
         ]
 
     @property
     def n_marked_positive_on_ranking_losses(self) -> int:
         return sum(
-            n_tp for _stem, win, n_tp in self._stem_rank_isolated() if not win
+            n_tp
+            for _stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "loss"
         )
 
     def ranking_payload(self) -> dict:
         hide = self.ranking_without_isolated_tp
+        ties_hide = self.ranking_ties_without_isolated_tp
         loss_tp = self.ranking_losses_with_isolated_tp
         return {
+            "n_prompt_wins": self.n_marked_wins,
+            "n_prompt_wins_ge": self.n_prompts_marked_ge,
+            "n_prompt_ties": self.n_prompt_ties,
+            "n_prompt_losses": self.n_prompt_losses,
             "n_prompt_wins_without_isolated_tp": len(hide),
             "ranking_without_isolated_tp": hide,
+            "ranking_ties_without_isolated_tp": ties_hide,
             "n_ranking_losses_with_isolated_tp": len(loss_tp),
             "ranking_losses_with_isolated_tp": loss_tp,
             "n_marked_positive_on_ranking_losses": (
@@ -362,6 +407,64 @@ def _bucket_log_prob(bucket: Counter, tok: int, *, alpha: float, v: int) -> floa
     return math.log((c + alpha) / (n + alpha * v))
 
 
+def score_index_range(
+    n: int, score_span: tuple[int, int] | None = None
+) -> range:
+    """Absolute generated-token indices to score. None scores the whole sequence."""
+    if score_span is None:
+        return range(n)
+    start, end = int(score_span[0]), int(score_span[1])
+    start = max(0, start)
+    end = min(int(n), end)
+    if end <= start:
+        return range(0)
+    return range(start, end)
+
+
+def backoff_contexts(
+    ctx: tuple[int, ...], *, namespaced: bool
+) -> list[tuple[int, ...]]:
+    """Shorten token history; keep a leading position namespace if present."""
+    keys = [ctx]
+    if not ctx:
+        return keys
+    if namespaced:
+        ns, hist = ctx[0], ctx[1:]
+        for i in range(1, len(hist) + 1):
+            keys.append((ns,) + hist[i:])
+        return keys
+    keys.extend(ctx[i:] for i in range(1, len(ctx)))
+    return keys
+
+
+def shorten_ctx(
+    ctx: tuple[int, ...], *, namespaced: bool
+) -> tuple[int, ...] | None:
+    """Drop the oldest history token, keeping a leading position namespace."""
+    if namespaced:
+        if len(ctx) <= 1:
+            return None
+        return (ctx[0],) + ctx[2:]
+    if not ctx:
+        return None
+    return ctx[1:]
+
+
+def clip_ctx_order(
+    ctx: tuple[int, ...], order: int, *, namespaced: bool
+) -> tuple[int, ...]:
+    """Keep the last ``order`` history tokens; preserve a leading namespace."""
+    if order <= 0:
+        return (ctx[0],) if namespaced and ctx else ()
+    if namespaced:
+        if not ctx:
+            return ()
+        return (ctx[0],) + ctx[1:][-order:]
+    if len(ctx) <= order:
+        return ctx
+    return ctx[-order:]
+
+
 def _log_prob(
     table: NextTokenTable,
     ctx: tuple[int, ...],
@@ -370,11 +473,10 @@ def _log_prob(
     alpha: float,
     v: int,
     backoff: bool,
+    namespaced: bool = False,
 ) -> float:
-    """P(tok | ctx). Optional stupid backoff: drop oldest context tokens first."""
-    candidates = [ctx]
-    if backoff:
-        candidates.extend(ctx[i:] for i in range(1, len(ctx)))
+    """P(tok | ctx). Optional stupid backoff: drop oldest history tokens first."""
+    candidates = backoff_contexts(ctx, namespaced=namespaced) if backoff else [ctx]
     for key in candidates:
         if not key:
             continue
@@ -391,26 +493,46 @@ def likelihood_ratio(
     model: BlindModel,
     *,
     prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
 ) -> float:
-    """Mean log P_marked − log P_unmarked. Positive ⇒ more like the marked pile."""
+    """Mean log P_marked − log P_unmarked. Positive ⇒ more like the marked pile.
+
+    ``score_span`` scores only those absolute generated indices, keeping the
+    original preceding tokens and position as context. It is not a reindexed
+    substring.
+    """
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("blind model consulted keys / hash_iv / g-values")
     v = max(len(model.vocab), 2)
     total = 0.0
     n = 0
     score_first = bool(prefix) or model.include_first or model.prompt_context
-    for i, tok in enumerate(ids):
+    namespaced = int(getattr(model, "position_bucket", 0) or 0) > 0
+    for i in score_index_range(len(ids), score_span):
         if i == 0 and not score_first:
             continue
+        tok = ids[i]
         ctx = _scored_ctx(
             ids, i, model.context_len, model.position_bucket, prefix=prefix
         )
         t = int(tok)
         total += _log_prob(
-            model.marked, ctx, t, alpha=model.alpha, v=v, backoff=model.backoff
+            model.marked,
+            ctx,
+            t,
+            alpha=model.alpha,
+            v=v,
+            backoff=model.backoff,
+            namespaced=namespaced,
         )
         total -= _log_prob(
-            model.unmarked, ctx, t, alpha=model.alpha, v=v, backoff=model.backoff
+            model.unmarked,
+            ctx,
+            t,
+            alpha=model.alpha,
+            v=v,
+            backoff=model.backoff,
+            namespaced=namespaced,
         )
         n += 1
     if n == 0:
@@ -426,39 +548,78 @@ def _prompt_stem_from_marked(name: str) -> tuple[str, int] | None:
     return m.group(1), int(m.group(2) or 1)
 
 
-def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
-    pair_dir = Path(pair_dir)
-    tok = tokenizer or load_tokenizer()
-    grouped: dict[str, dict[int, Path]] = {}
-    for marked_path in pair_dir.glob("*-marked*.txt"):
-        parsed = _prompt_stem_from_marked(marked_path.name)
+def _prompt_stem_from_unmarked(name: str) -> tuple[str, int] | None:
+    """'01-harbour-unmarked-gen.txt' → (…, 1); '01-harbour-unmarked-gen-2.txt' → (…, 2)."""
+    m = re.fullmatch(r"(.+)-unmarked-gen(?:-(\d+))?\.txt", name)
+    if not m:
+        return None
+    return m.group(1), int(m.group(2) or 1)
+
+
+def _index_pair_files(pair_dir: Path) -> tuple[dict[str, dict[int, Path]], dict[str, dict[int, Path]]]:
+    marked: dict[str, dict[int, Path]] = {}
+    unmarked: dict[str, dict[int, Path]] = {}
+    for path in pair_dir.glob("*-marked*.txt"):
+        parsed = _prompt_stem_from_marked(path.name)
         if parsed is None:
             continue
         stem, idx = parsed
-        grouped.setdefault(stem, {})[idx] = marked_path
+        marked.setdefault(stem, {})[idx] = path
+    for path in pair_dir.glob("*-unmarked-gen*.txt"):
+        parsed = _prompt_stem_from_unmarked(path.name)
+        if parsed is None:
+            continue
+        stem, idx = parsed
+        unmarked.setdefault(stem, {})[idx] = path
+    return marked, unmarked
+
+
+def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
+    """Load marked/unmarked twins indexed by exact sample id.
+
+    Missing a matching unmarked (or marked) draw is an error, not a silent
+    shift of later extras. Draw 1 is ``{stem}-marked.txt`` /
+    ``{stem}-unmarked-gen.txt``.
+    """
+    pair_dir = Path(pair_dir)
+    tok = tokenizer or load_tokenizer()
+    marked_files, unmarked_files = _index_pair_files(pair_dir)
+    stems = sorted(set(marked_files) | set(unmarked_files))
+    if not stems:
+        raise FileNotFoundError(
+            f"no *-marked.txt / *-unmarked-gen.txt twins in {pair_dir}"
+        )
     twins: list[Twin] = []
-    for stem in sorted(grouped):
-        files = grouped[stem]
-        if 1 not in files:
-            continue
-        unmarked_path = pair_dir / f"{stem}-unmarked-gen.txt"
-        if not unmarked_path.is_file():
-            continue
-        marked_text = files[1].read_text()
-        unmarked_text = unmarked_path.read_text()
+    for stem in stems:
+        m_ids = marked_files.get(stem, {})
+        u_ids = unmarked_files.get(stem, {})
+        if set(m_ids) != set(u_ids):
+            missing_u = sorted(set(m_ids) - set(u_ids))
+            missing_m = sorted(set(u_ids) - set(m_ids))
+            raise ValueError(
+                f"asymmetric pair files for stem {stem!r}: "
+                f"marked samples {sorted(m_ids)}, unmarked samples {sorted(u_ids)}"
+                + (f"; missing unmarked {missing_u}" if missing_u else "")
+                + (f"; missing marked {missing_m}" if missing_m else "")
+            )
+        if 1 not in m_ids:
+            raise ValueError(
+                f"stem {stem!r} has extra draws {sorted(m_ids)} but no draw 1"
+            )
+        extras = sorted(k for k in m_ids if k != 1)
+        marked_text = m_ids[1].read_text()
+        unmarked_text = u_ids[1].read_text()
         extra_m: list[list[int]] = []
         extra_u: list[list[int]] = []
         extra_m_text: list[str] = []
         extra_u_text: list[str] = []
-        for idx in sorted(k for k in files if k != 1):
-            mtxt = files[idx].read_text()
+        for idx in extras:
+            mtxt = m_ids[idx].read_text()
+            utxt = u_ids[idx].read_text()
             extra_m_text.append(mtxt)
+            extra_u_text.append(utxt)
             extra_m.append(tok(mtxt)["input_ids"])
-            extra_u_path = pair_dir / f"{stem}-unmarked-gen-{idx}.txt"
-            if extra_u_path.is_file():
-                utxt = extra_u_path.read_text()
-                extra_u_text.append(utxt)
-                extra_u.append(tok(utxt)["input_ids"])
+            extra_u.append(tok(utxt)["input_ids"])
         prompt_path = pair_dir / f"{stem}-prompt.txt"
         prompt_text = prompt_path.read_text() if prompt_path.is_file() else ""
         prompt_ids = tok(prompt_text)["input_ids"] if prompt_text else []
@@ -477,8 +638,6 @@ def load_twins(pair_dir: Path, *, tokenizer=None) -> list[Twin]:
                 prompt_ids=prompt_ids,
             )
         )
-    if not twins:
-        raise FileNotFoundError(f"no *-marked.txt / *-unmarked-gen.txt twins in {pair_dir}")
     return twins
 
 
@@ -492,13 +651,29 @@ def clip_twins_prefix(twins: Sequence[Twin], n: int) -> list[Twin]:
     return [twin.clip_prefix(n) for twin in twins]
 
 
-def pair_marked_wins(marked_lr: float, unmarked_lr: float, *, margin: float = 0.0) -> bool:
-    """True if the marked twin is at least *almost* as marked-like as the unmarked one.
+def pair_outcome(
+    marked_lr: float, unmarked_lr: float, *, margin: float = 0.0
+) -> str:
+    """Win / loss / tie for a paired comparison.
 
-    margin=0 is a strict comparison. margin>0 lets the unmarked twin win by
-    that much on the LR scale before we count a miss.
+    Frozen endpoint: marked mean *exceeds* unmarked mean (strict ``>`` after
+    adding ``margin``). Equality is a tie, not a win.
     """
-    return marked_lr + margin >= unmarked_lr
+    left = marked_lr + margin
+    if left > unmarked_lr:
+        return "win"
+    if left < unmarked_lr:
+        return "loss"
+    return "tie"
+
+
+def pair_marked_wins(marked_lr: float, unmarked_lr: float, *, margin: float = 0.0) -> bool:
+    """True iff the marked twin strictly exceeds the unmarked twin.
+
+    ``margin=0`` is the frozen strict comparison. ``margin>0`` is a named
+    robustness endpoint: win iff ``marked_lr + margin > unmarked_lr``.
+    """
+    return pair_outcome(marked_lr, unmarked_lr, margin=margin) == "win"
 
 
 def leave_one_prompt_out(
@@ -559,7 +734,8 @@ def print_blind_eval(ev: BlindEval) -> str:
     lines = [
         (
             f"blind leave-one-prompt-out n_pairs={ev.n_pairs} "
-            f"marked_wins={ev.n_marked_wins} accuracy={ev.accuracy:.3f} "
+            f"marked_wins={ev.n_marked_wins} ties={ev.n_prompt_ties} "
+            f"accuracy={ev.accuracy:.3f} "
             f"ranking_without_isolated_tp="
             f"{ev.n_prompt_wins_without_isolated_tp}/{ev.n_marked_wins} "
             f"ranking_losses_with_isolated_tp="
@@ -582,7 +758,14 @@ def print_blind_eval(ev: BlindEval) -> str:
             "ranking losses with isolated TP: " + ", ".join(loss)
         )
     for fold in ev.folds:
-        flag = "marked_higher" if fold.marked_wins else "unmarked_higher"
+        outcome = pair_outcome(
+            fold.marked_lr, fold.unmarked_lr, margin=ev.margin
+        )
+        flag = {
+            "win": "marked_higher",
+            "loss": "unmarked_higher",
+            "tie": "tie",
+        }[outcome]
         n_tp = sum(1 for m in fold.marked_file_lrs if m > 0.0)
         n_files = len(fold.marked_file_lrs)
         files = f" marked_files_gt0={n_tp}/{n_files}" if n_files else ""
@@ -599,6 +782,8 @@ def persist_blind_eval(ev: BlindEval, out_dir: Path) -> None:
     table = {
         "n_pairs": ev.n_pairs,
         "n_marked_wins": ev.n_marked_wins,
+        "n_prompt_ties": ev.n_prompt_ties,
+        "n_prompt_losses": ev.n_prompt_losses,
         "accuracy": ev.accuracy,
         **ev.ranking_payload(),
         "context_len": ev.context_len,

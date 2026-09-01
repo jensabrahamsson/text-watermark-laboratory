@@ -48,7 +48,7 @@ def test_protocol_xreg_lock_a_nested_beats_grok_train_not_25() -> None:
     )
     row = next(t for t in nested["thresholds"] if t["source"] == "nested-youden")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompts_marked_ge == 11
     assert ev.n_marked_positive == 27
     assert row["n_marked_above"] == 22
     assert row["n_unmarked_at_most"] == 41
@@ -84,8 +84,17 @@ def test_protocol_xreg_occupancy_free_is_bounded_by_coverage() -> None:
     assert cov["final"]["postokhits"]["n_exact_opening"] == 0
     assert ev.n_marked_positive <= covered
     assert row["n_marked_above"] == 0
-    assert ev.n_prompt_wins_without_isolated_tp == 10
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompt_wins_without_isolated_tp == 4
+    assert ev.ranking_without_isolated_tp == [
+        "102-car-boot",
+        "103-bowling-alley",
+        "109-scrapyard",
+        "112-taxi-rank",
+    ]
+    assert len(ev.ranking_ties_without_isolated_tp) == 6
+    assert ev.n_prompt_ties == 6
+    assert ev.n_prompts_marked_above == 4
+    assert ev.n_prompts_marked_ge == 10
 
 
 def test_protocol_xreg_rankpath_nested_is_not_a_detector() -> None:
@@ -103,7 +112,7 @@ def test_protocol_xreg_rankpath_nested_is_not_a_detector() -> None:
     )
     row = next(t for t in nested["thresholds"] if t["source"] == "nested-youden")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 8
+    assert ev.n_prompts_marked_ge == 8
     assert ev.n_marked_positive == 10
     assert ev.n_marked_positive < 25
     assert row["n_marked_above"] == 10

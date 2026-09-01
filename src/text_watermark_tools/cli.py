@@ -1232,8 +1232,8 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.0,
         help=(
-            "Count a hit if marked_lr + margin >= unmarked_lr "
-            "(0 = strict; 0.02 is a soft bar)"
+            "Count a win if marked_lr + margin > unmarked_lr "
+            "(equality is a tie, not a win; 0 = strict; 0.02 is a named robustness bar)"
         ),
     )
     p_blind.add_argument(
@@ -1390,8 +1390,8 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.0,
         help=(
-            "Count a hit if marked_lr + margin >= unmarked_lr; "
-            "one-file sign uses lr > -margin (0 = strict)"
+            "Count a win if marked_lr + margin > unmarked_lr "
+            "(equality is a tie; one-file sign uses lr > -margin; 0 = strict)"
         ),
     )
     p_ih.add_argument(

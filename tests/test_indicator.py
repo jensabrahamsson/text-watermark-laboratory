@@ -47,6 +47,16 @@ def test_persist_load_same_lr_on_lab_twin(tmp_path: Path) -> None:
     loaded, meta = load_indicator(tmp_path)
     assert loaded.used_keys is False
     assert meta.model_name == "gpt2"
+    assert meta.score_kind == "hard"
+    persist_indicator(
+        model,
+        tmp_path / "hits",
+        model_name="gpt2",
+        n_train_prompts=len(twins),
+        score_kind="hits",
+    )
+    _, hits_meta = load_indicator(tmp_path / "hits")
+    assert hits_meta.score_kind == "hits"
     tok = load_tokenizer("gpt2")
     text = twins[0].marked_text
     a = score_text(text, model, tokenizer=tok)
@@ -304,9 +314,32 @@ def test_ranking_without_isolated_tp_is_prompt_win_with_no_marked_sign() -> None
     assert ev.ranking_losses_with_isolated_tp == []
     assert ev.n_marked_positive_on_ranking_losses == 0
     assert ev.ranking_payload()["ranking_without_isolated_tp"] == ["bus"]
+    assert ev.n_prompts_marked_ge == 2
     text = print_holdout(ev)
     assert "ranking_without_isolated_tp=1/2" in text
     assert "ranking_losses_with_isolated_tp=0" in text
+
+
+def test_equal_stem_means_are_ties_not_wins() -> None:
+    ev = IndicatorHoldout(
+        stems=["zero", "zero", "plus", "plus"],
+        marked_lrs=[0.0, 0.0, 0.4, 0.5],
+        unmarked_lrs=[0.0, 0.0, 0.0, 0.0],
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+        context_len=4,
+        model_name="gpt2",
+        samples=[1, 2, 1, 2],
+        mode="transfer",
+    )
+    assert ev.n_prompts_marked_above == 1
+    assert ev.n_prompt_ties == 1
+    assert ev.n_prompts_marked_ge == 2
+    assert ev.ranking_without_isolated_tp == []
+    assert ev.n_prompt_wins_without_isolated_tp == 0
+    assert ev.ranking_ties_without_isolated_tp == ["zero"]
+    assert ev.ranking_payload()["n_prompt_wins_ge"] == 2
 
 
 def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:

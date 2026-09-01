@@ -38,7 +38,7 @@ matched marked/unmarked twins
         │    12-LOO hard last-4 **9/12** (margin 0.02 → 10/12)
         │    36×4 hits **36/36**
         │    100×4 lock A **99/100**
-        │    Distil lock B **89/100**; Qwen lock B **95/100**
+        │    Distil lock B **88/100** (1 tie); Qwen lock B **95/100**
         │
         └─ isolated file (one LR against 0)
              12-LOO hard last-4 **25/48 vs 22/48** (binomial ≈ 0.44)
@@ -56,9 +56,11 @@ grain. Ranking and isolated sign disagree on stems (garden ranks with
 
 Kirchenbauer et al. (2023) and Dathathri et al. (2024) are the sampling
 watermarks this lab measures against. Wang et al. (2026) is the closest
-published analog for third-party, key-agnostic verification
+published finished-string paired-reference analog for third-party,
+key-agnostic verification
 ([related-work.md](related-work.md)). This freeze is not a priority
-claim over that work.
+claim over that work. The notebook is empirically strong and
+interesting; it is **not field-defining** and **not a finished conference paper** ([threat-model.md](threat-model.md)).
 
 ## What the artifacts actually did
 

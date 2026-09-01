@@ -300,7 +300,12 @@ def stem_curve(
     include_first: bool,
     prefix_n: int,
 ) -> list[dict]:
-    """Add train stems in sorted order. Recall is monotonic in coverage."""
+    """Add train stems in sorted order.
+
+    Occupancy-free observed-token recall is monotonic in coverage when
+    ``lr == 0`` iff ``n_used == 0``. That identity does not lift hard
+    last-4 **25/48**.
+    """
     ordered = sorted(train, key=lambda t: t.stem)
     points = []
     so_far: list[Twin] = []

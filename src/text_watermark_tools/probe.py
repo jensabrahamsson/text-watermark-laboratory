@@ -8,6 +8,7 @@ moved a known public mark toward chance.
 
 from __future__ import annotations
 
+import inspect
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -218,13 +219,75 @@ def _twin_prefix(twin: Twin, prompt_context: bool) -> tuple[int, ...]:
     return tuple(int(x) for x in twin.prompt_ids)
 
 
-def _call_scorer(scorer: ScoreFn, seq, *, prefix: Sequence[int] = ()):
-    if not prefix:
-        return scorer(seq)
+def _call_scorer(
+    scorer: ScoreFn,
+    seq,
+    *,
+    prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
+):
+    """Call a scorer with optional prefix and absolute score_span.
+
+    Inspects the callable. Does not catch TypeError from inside the scorer.
+    Refuses to reindex a window as a new sequence if score_span is missing.
+    """
     try:
-        return scorer(seq, prefix=prefix)
-    except TypeError:
-        return scorer(seq)
+        params = inspect.signature(scorer).parameters
+    except (TypeError, ValueError):
+        params = {}
+    has_var = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+    )
+    kwargs = {}
+    if prefix:
+        if has_var or "prefix" in params:
+            kwargs["prefix"] = prefix
+        else:
+            raise TypeError(
+                "scorer does not accept prefix=; prompt-context was requested"
+            )
+    if score_span is not None:
+        if has_var or "score_span" in params:
+            kwargs["score_span"] = score_span
+        else:
+            raise TypeError(
+                "scorer does not accept score_span=; refusing to reindex "
+                "the window as a new sequence"
+            )
+    if kwargs:
+        return scorer(seq, **kwargs)
+    return scorer(seq)
+
+
+def _bound_ids_scorer(fn, *bound, **fixed):
+    """Wrap fn(ids, *bound, **fixed) so windows keep absolute score_span."""
+    try:
+        params = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        params = {}
+    has_var = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+    )
+
+    def score(ids, prefix=(), score_span=None):
+        kwargs = dict(fixed)
+        if "prefix" in params or has_var:
+            kwargs["prefix"] = prefix
+        elif prefix:
+            raise TypeError(
+                "scorer does not accept prefix=; prompt-context was requested"
+            )
+        if score_span is not None:
+            if "score_span" in params or has_var:
+                kwargs["score_span"] = score_span
+            else:
+                raise TypeError(
+                    "scorer does not accept score_span=; refusing to reindex "
+                    "the window as a new sequence"
+                )
+        return fn(ids, *bound, **kwargs)
+
+    return score
 
 
 def _twin_sides(twin: Twin, seq_mode: str) -> tuple[list, list]:
@@ -522,12 +585,22 @@ def rotate_custom(
                     scorer(clip_seq(unmarked, plen)),
                 )
             for start, end in spans:
+                if seq_mode == "text":
+                    marked_w = scorer(slice_seq(marked, start, end))
+                    unmarked_w = scorer(slice_seq(unmarked, start, end))
+                else:
+                    marked_w = _call_scorer(
+                        scorer, marked, score_span=(start, end)
+                    )
+                    unmarked_w = _call_scorer(
+                        scorer, unmarked, score_span=(start, end)
+                    )
                 _append_pair(
                     window_parts[(start, end)],
                     held.stem,
                     i + 1,
-                    scorer(slice_seq(marked, start, end)),
-                    scorer(slice_seq(unmarked, start, end)),
+                    marked_w,
+                    unmarked_w,
                 )
     flags = dict(
         used_keys=used_keys,
@@ -652,16 +725,18 @@ def rotate_count_methods(
                         held.stem,
                         i + 1,
                         score_sequence(
-                            slice_seq(marked, start, end),
+                            marked,
                             model,
                             spec,
                             prefix=held_prefix,
+                            score_span=(start, end),
                         ),
                         score_sequence(
-                            slice_seq(unmarked, start, end),
+                            unmarked,
                             model,
                             spec,
                             prefix=held_prefix,
+                            score_span=(start, end),
                         ),
                     )
     out: dict[str, IndicatorHoldout] = {}
@@ -748,11 +823,17 @@ def rotate_hashpool(
         kind = reader
         instance = f"key-free-{reader}"
         if drop_one:
-            score_fn = lambda ids, m, k=min_count: score_hashskip(ids, m, min_count=k)
+            score_fn = lambda ids, m, k=min_count, score_span=None: score_hashskip(
+                ids, m, min_count=k, score_span=score_span
+            )
         elif mask_one:
-            score_fn = lambda ids, m, k=min_count: score_hashmask(ids, m, min_count=k)
+            score_fn = lambda ids, m, k=min_count, score_span=None: score_hashmask(
+                ids, m, min_count=k, score_span=score_span
+            )
         else:
-            score_fn = lambda ids, m, k=min_count: score_hashtok(ids, m, min_count=k)
+            score_fn = lambda ids, m, k=min_count, score_span=None: score_hashtok(
+                ids, m, min_count=k, score_span=score_span
+            )
         exact_len = bool(exact_len) or reader in (
             "hashtoklen",
             "hashtoklen2",
@@ -779,7 +860,9 @@ def rotate_hashpool(
             seed=seed,
         )
         return (
-            lambda ids, m=model, s=score_fn: s(ids, m),
+            lambda ids, prefix=(), score_span=None, m=model, s=score_fn: s(
+                ids, m, score_span=score_span
+            ),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
@@ -1253,7 +1336,9 @@ def rotate_hashvote(
             n_buckets=n_buckets,
         )
         return (
-            lambda ids, m=model: score_hashpool_vote(ids, m),
+            lambda ids, score_span=None, m=model: score_hashpool_vote(
+                ids, m, score_span=score_span
+            ),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
@@ -1293,7 +1378,9 @@ def rotate_hybrid(
             counts.used_g_values or hashed.used_g_values,
         )
         return (
-            lambda ids, c=counts, h=hashed: score_hybrid(ids, c, h),
+            lambda ids, score_span=None, c=counts, h=hashed: score_hybrid(
+                ids, c, h, score_span=score_span
+            ),
             used[0],
             used[1],
             used[2],
@@ -1335,7 +1422,9 @@ def rotate_tokhybrid(
             counts.used_g_values or hashed.used_g_values,
         )
         return (
-            lambda ids, c=counts, h=hashed: score_tokhybrid(ids, c, h),
+            lambda ids, score_span=None, c=counts, h=hashed: score_tokhybrid(
+                ids, c, h, score_span=score_span
+            ),
             used[0],
             used[1],
             used[2],
@@ -1377,7 +1466,9 @@ def rotate_hashtokgap(
             counts.used_g_values or hashed.used_g_values,
         )
         return (
-            lambda ids, c=counts, h=hashed: score_hashtokgap(ids, c, h),
+            lambda ids, score_span=None, c=counts, h=hashed: score_hashtokgap(
+                ids, c, h, score_span=score_span
+            ),
             used[0],
             used[1],
             used[2],
@@ -1444,7 +1535,9 @@ def rotate_hashmix(
             n_buckets=n_buckets,
         )
         return (
-            lambda ids, m=model: score_hashmix(ids, m),
+            lambda ids, score_span=None, m=model: score_hashmix(
+                ids, m, score_span=score_span
+            ),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
@@ -1494,8 +1587,8 @@ def rotate_hashtokbackoff(
             exact_len=bool(exact_len),
         )
         return (
-            lambda ids, m=model, mo=floor: score_hashtokbackoff(
-                ids, m, min_order=mo
+            lambda ids, score_span=None, m=model, mo=floor: score_hashtokbackoff(
+                ids, m, min_order=mo, score_span=score_span
             ),
             model.used_keys,
             model.used_hash_iv,
@@ -1639,6 +1732,8 @@ def swap_twin_sides(twin: Twin) -> Twin:
         extra_unmarked_ids=[list(x) for x in twin.extra_marked_ids],
         extra_marked_text=list(twin.extra_unmarked_text),
         extra_unmarked_text=list(twin.extra_marked_text),
+        prompt_text=twin.prompt_text,
+        prompt_ids=list(twin.prompt_ids),
     )
 
 
@@ -1961,10 +2056,16 @@ def score_twins(
                     twin.stem,
                     i + 1,
                     _call_scorer(
-                        scorer, slice_seq(marked, start, end), prefix=held_prefix
+                        scorer,
+                        marked if seq_mode != "text" else slice_seq(marked, start, end),
+                        prefix=held_prefix if seq_mode != "text" else (),
+                        score_span=(start, end) if seq_mode != "text" else None,
                     ),
                     _call_scorer(
-                        scorer, slice_seq(unmarked, start, end), prefix=held_prefix
+                        scorer,
+                        unmarked if seq_mode != "text" else slice_seq(unmarked, start, end),
+                        prefix=held_prefix if seq_mode != "text" else (),
+                        score_span=(start, end) if seq_mode != "text" else None,
                     ),
                 )
     flags = dict(
@@ -4410,9 +4511,7 @@ def run_transfer(
         spec = COUNT_SPECS[name]
         assert count_model is not None
         scorers[name] = (
-            (lambda ids, prefix=(), m=count_model, s=spec: score_sequence(
-                ids, m, s, prefix=prefix
-            )),
+            _bound_ids_scorer(score_sequence, count_model, spec),
             spec.instance,
             name,
             "ids",
@@ -4420,7 +4519,7 @@ def run_transfer(
     if "hashpool" in extras:
         assert hash_model is not None
         scorers["hashpool"] = (
-            (lambda ids, m=hash_model: score_hashpool(ids, m)),
+            _bound_ids_scorer(score_hashpool, hash_model),
             "key-free-hashpool",
             "hashpool",
             "ids",
@@ -4428,7 +4527,7 @@ def run_transfer(
     if "hashvote" in extras:
         assert hash_model is not None
         scorers["hashvote"] = (
-            (lambda ids, m=hash_model: score_hashpool_vote(ids, m)),
+            _bound_ids_scorer(score_hashpool_vote, hash_model),
             "key-free-hashvote",
             "hashvote",
             "ids",
@@ -4436,7 +4535,7 @@ def run_transfer(
     if "hashtok" in extras:
         assert hash_model is not None
         scorers["hashtok"] = (
-            (lambda ids, m=hash_model: score_hashtok(ids, m)),
+            _bound_ids_scorer(score_hashtok, hash_model),
             "key-free-hashtok",
             "hashtok",
             "ids",
@@ -4444,7 +4543,7 @@ def run_transfer(
     if "hashtok2" in extras:
         assert hash_model is not None
         scorers["hashtok2"] = (
-            (lambda ids, m=hash_model: score_hashtok(ids, m, min_count=2)),
+            _bound_ids_scorer(score_hashtok, hash_model, min_count=2),
             "key-free-hashtok2",
             "hashtok2",
             "ids",
@@ -4452,7 +4551,7 @@ def run_transfer(
     if "hashtoklen" in extras:
         assert hash_len_model is not None
         scorers["hashtoklen"] = (
-            (lambda ids, m=hash_len_model: score_hashtok(ids, m)),
+            _bound_ids_scorer(score_hashtok, hash_len_model),
             "key-free-hashtoklen",
             "hashtoklen",
             "ids",
@@ -4460,7 +4559,7 @@ def run_transfer(
     if "hashtoklen2" in extras:
         assert hash_len_model is not None
         scorers["hashtoklen2"] = (
-            (lambda ids, m=hash_len_model: score_hashtok(ids, m, min_count=2)),
+            _bound_ids_scorer(score_hashtok, hash_len_model, min_count=2),
             "key-free-hashtoklen2",
             "hashtoklen2",
             "ids",
@@ -4468,7 +4567,7 @@ def run_transfer(
     if "hashskip" in extras:
         assert hash_skip_model is not None
         scorers["hashskip"] = (
-            (lambda ids, m=hash_skip_model: score_hashskip(ids, m)),
+            _bound_ids_scorer(score_hashskip, hash_skip_model),
             "key-free-hashskip",
             "hashskip",
             "ids",
@@ -4476,7 +4575,7 @@ def run_transfer(
     if "hashskip2" in extras:
         assert hash_skip_model is not None
         scorers["hashskip2"] = (
-            (lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2)),
+            _bound_ids_scorer(score_hashskip, hash_skip_model, min_count=2),
             "key-free-hashskip2",
             "hashskip2",
             "ids",
@@ -4484,7 +4583,7 @@ def run_transfer(
     if "hashmask" in extras:
         assert hash_mask_model is not None
         scorers["hashmask"] = (
-            (lambda ids, m=hash_mask_model: score_hashmask(ids, m)),
+            _bound_ids_scorer(score_hashmask, hash_mask_model),
             "key-free-hashmask",
             "hashmask",
             "ids",
@@ -4492,7 +4591,7 @@ def run_transfer(
     if "hashmask2" in extras:
         assert hash_mask_model is not None
         scorers["hashmask2"] = (
-            (lambda ids, m=hash_mask_model: score_hashmask(ids, m, min_count=2)),
+            _bound_ids_scorer(score_hashmask, hash_mask_model, min_count=2),
             "key-free-hashmask2",
             "hashmask2",
             "ids",
@@ -4500,7 +4599,7 @@ def run_transfer(
     if "hybrid" in extras:
         assert count_model is not None and hash_model is not None
         scorers["hybrid"] = (
-            (lambda ids, c=count_model, h=hash_model: score_hybrid(ids, c, h)),
+            _bound_ids_scorer(score_hybrid, count_model, hash_model),
             "key-free-hybrid",
             "hybrid",
             "ids",
@@ -4508,7 +4607,7 @@ def run_transfer(
     if "tokhybrid" in extras:
         assert count_model is not None and hash_model is not None
         scorers["tokhybrid"] = (
-            (lambda ids, c=count_model, h=hash_model: score_tokhybrid(ids, c, h)),
+            _bound_ids_scorer(score_tokhybrid, count_model, hash_model),
             "key-free-tokhybrid",
             "tokhybrid",
             "ids",
@@ -4516,7 +4615,7 @@ def run_transfer(
     if "hashtokgap" in extras:
         assert count_model is not None and hash_model is not None
         scorers["hashtokgap"] = (
-            (lambda ids, c=count_model, h=hash_model: score_hashtokgap(ids, c, h)),
+            _bound_ids_scorer(score_hashtokgap, count_model, hash_model),
             "key-free-hashtokgap",
             "hashtokgap",
             "ids",
@@ -4524,7 +4623,7 @@ def run_transfer(
     if "hashmix" in extras:
         assert mix_model is not None
         scorers["hashmix"] = (
-            (lambda ids, m=mix_model: score_hashmix(ids, m)),
+            _bound_ids_scorer(score_hashmix, mix_model),
             "key-free-hashmix",
             "hashmix",
             "ids",
@@ -4532,11 +4631,7 @@ def run_transfer(
     if "hashtokbackoff" in extras:
         assert mix_model is not None
         scorers["hashtokbackoff"] = (
-            (
-                lambda ids, m=mix_model: score_hashtokbackoff(
-                    ids, m, min_order=1
-                )
-            ),
+            _bound_ids_scorer(score_hashtokbackoff, mix_model, min_order=1),
             "key-free-hashtokbackoff",
             "hashtokbackoff",
             "ids",
@@ -4544,11 +4639,7 @@ def run_transfer(
     if "hashtokbackoff2" in extras:
         assert mix_model is not None
         scorers["hashtokbackoff2"] = (
-            (
-                lambda ids, m=mix_model: score_hashtokbackoff(
-                    ids, m, min_order=2
-                )
-            ),
+            _bound_ids_scorer(score_hashtokbackoff, mix_model, min_order=2),
             "key-free-hashtokbackoff2",
             "hashtokbackoff2",
             "ids",
@@ -4556,11 +4647,7 @@ def run_transfer(
     if "hashtoklenbackoff" in extras:
         assert mix_len_model is not None
         scorers["hashtoklenbackoff"] = (
-            (
-                lambda ids, m=mix_len_model: score_hashtokbackoff(
-                    ids, m, min_order=1
-                )
-            ),
+            _bound_ids_scorer(score_hashtokbackoff, mix_len_model, min_order=1),
             "key-free-hashtoklenbackoff",
             "hashtoklenbackoff",
             "ids",
@@ -4568,11 +4655,7 @@ def run_transfer(
     if "hashtoklenbackoff2" in extras:
         assert mix_len_model is not None
         scorers["hashtoklenbackoff2"] = (
-            (
-                lambda ids, m=mix_len_model: score_hashtokbackoff(
-                    ids, m, min_order=2
-                )
-            ),
+            _bound_ids_scorer(score_hashtokbackoff, mix_len_model, min_order=2),
             "key-free-hashtoklenbackoff2",
             "hashtoklenbackoff2",
             "ids",
@@ -4592,11 +4675,7 @@ def run_transfer(
         spec = POS_SPECS[name]
         assert pos_model is not None
         scorers[name] = (
-            (
-                lambda ids, prefix=(), m=pos_model, s=spec: score_sequence(
-                    ids, m, s, prefix=prefix
-                )
-            ),
+            _bound_ids_scorer(score_sequence, pos_model, spec),
             spec.instance,
             name,
             "ids",
@@ -4604,7 +4683,7 @@ def run_transfer(
     if "pospool" in extras:
         assert pos_hash is not None
         scorers["pospool"] = (
-            (lambda ids, m=pos_hash: score_hashpool(ids, m)),
+            _bound_ids_scorer(score_hashpool, pos_hash),
             "key-free-pospool",
             "pospool",
             "ids",
@@ -4612,7 +4691,7 @@ def run_transfer(
     if "poshashtok" in extras:
         assert pos_hash is not None
         scorers["poshashtok"] = (
-            (lambda ids, m=pos_hash: score_hashtok(ids, m)),
+            _bound_ids_scorer(score_hashtok, pos_hash),
             "key-free-poshashtok",
             "poshashtok",
             "ids",
@@ -5454,9 +5533,32 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         persist_holdout(m.holdout, out_dir / m.name)
     persist_tables = run.shuffle_seed is None
     fit_n = int(run.fit_prefix or 0)
+    present = {m.name for m in run.methods}
+
+    def _present(*names: str) -> str | None:
+        for name in names:
+            if name in present:
+                return name
+        return None
+
+    def _t_first(*pairs: tuple[str, str]) -> float | None:
+        for name, source in pairs:
+            val = _t(name, source)
+            if val is not None:
+                return val
+        return None
+
     if persist_tables and run.hash_model is not None:
-        nested_t = _t("hashpool", "nested-youden")
-        in_t = _t("hashpool", "in-sample-youden")
+        nested_t = _t_first(
+            ("hashpool", "nested-youden"),
+            ("hashtok", "nested-youden"),
+            ("hashtok2", "nested-youden"),
+        )
+        in_t = _t_first(
+            ("hashpool", "in-sample-youden"),
+            ("hashtok", "in-sample-youden"),
+            ("hashtok2", "in-sample-youden"),
+        )
         persist_hashpool(
             run.hash_model,
             out_dir / "tables-hashpool",
@@ -5468,14 +5570,16 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 "nested-youden" if nested_t is not None else "in-sample-youden"
             ),
             fit_prefix=fit_n,
-            score_kind="hashpool",
+            score_kind=_present("hashpool", "hashtok", "hashtok2") or "hashpool",
         )
     if persist_tables and getattr(run, "hash_len_model", None) is not None:
-        nested_t = _t("hashtoklen", "nested-youden") or _t(
-            "hashtoklen2", "nested-youden"
+        nested_t = _t_first(
+            ("hashtoklen", "nested-youden"),
+            ("hashtoklen2", "nested-youden"),
         )
-        in_t = _t("hashtoklen", "in-sample-youden") or _t(
-            "hashtoklen2", "in-sample-youden"
+        in_t = _t_first(
+            ("hashtoklen", "in-sample-youden"),
+            ("hashtoklen2", "in-sample-youden"),
         )
         persist_hashpool(
             run.hash_len_model,
@@ -5490,14 +5594,16 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 else "in-sample-youden-hashtoklen"
             ),
             fit_prefix=fit_n,
-            score_kind="hashtoklen",
+            score_kind=_present("hashtoklen", "hashtoklen2") or "hashtoklen",
         )
     if persist_tables and getattr(run, "hash_skip_model", None) is not None:
-        nested_t = _t("hashskip", "nested-youden") or _t(
-            "hashskip2", "nested-youden"
+        nested_t = _t_first(
+            ("hashskip", "nested-youden"),
+            ("hashskip2", "nested-youden"),
         )
-        in_t = _t("hashskip", "in-sample-youden") or _t(
-            "hashskip2", "in-sample-youden"
+        in_t = _t_first(
+            ("hashskip", "in-sample-youden"),
+            ("hashskip2", "in-sample-youden"),
         )
         persist_hashpool(
             run.hash_skip_model,
@@ -5512,14 +5618,16 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 else "in-sample-youden-hashskip"
             ),
             fit_prefix=fit_n,
-            score_kind="hashskip",
+            score_kind=_present("hashskip", "hashskip2") or "hashskip",
         )
     if persist_tables and getattr(run, "hash_mask_model", None) is not None:
-        nested_t = _t("hashmask", "nested-youden") or _t(
-            "hashmask2", "nested-youden"
+        nested_t = _t_first(
+            ("hashmask", "nested-youden"),
+            ("hashmask2", "nested-youden"),
         )
-        in_t = _t("hashmask", "in-sample-youden") or _t(
-            "hashmask2", "in-sample-youden"
+        in_t = _t_first(
+            ("hashmask", "in-sample-youden"),
+            ("hashmask2", "in-sample-youden"),
         )
         persist_hashpool(
             run.hash_mask_model,
@@ -5534,7 +5642,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 else "in-sample-youden-hashmask"
             ),
             fit_prefix=fit_n,
-            score_kind="hashmask",
+            score_kind=_present("hashmask", "hashmask2") or "hashmask",
         )
     if persist_tables and run.surface_model is not None:
         nested_t = _t("surface", "nested-youden")
@@ -5567,10 +5675,17 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
             ),
             fit_prefix=fit_n,
+            score_kind="hits",
         )
     if persist_tables and run.pos_model is not None:
-        nested_t = _t("poshits", "nested-youden") or _t("poshitmass", "nested-youden")
-        in_t = _t("poshits", "in-sample-youden") or _t("poshitmass", "in-sample-youden")
+        nested_t = _t_first(
+            ("poshits", "nested-youden"),
+            ("poshitmass", "nested-youden"),
+        )
+        in_t = _t_first(
+            ("poshits", "in-sample-youden"),
+            ("poshitmass", "in-sample-youden"),
+        )
         persist_indicator(
             run.pos_model,
             out_dir / "tables-poshits",
@@ -5584,6 +5699,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 else "in-sample-youden-poshits"
             ),
             fit_prefix=fit_n,
+            score_kind="poshits",
         )
     if persist_tables and run.pos_hash is not None:
         nested_t = _t("pospool", "nested-youden")

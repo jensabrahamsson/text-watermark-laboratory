@@ -125,9 +125,11 @@ Official first-draw keyed score **100/100**. Key-free flags unchanged.
 | B | opening poshits prefix-4 | **100/100** | **0.980** | 393/400 vs 344/400 |
 | C | opening rankpath | **96/100** | **0.822** | 314/400 vs 302/400 |
 
-H1 holds (lock A prompt ranking). H2 holds: window **0:4** is **99/100**,
-AUC **0.885**; window **16:32** is **89/100**, AUC **0.689**. Early is
-stronger; mid-file is not chance on this corpus. Isolated `lr>0` is
+H1 holds (lock A prompt ranking). H2’s committed JSON is a **reindexed**
+window measurement: **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**,
+AUC **0.689**. Until an absolute-history rerun, that is “the reindexed
+opening scorer beat the reindexed mid-file scorer,” not a claim that the
+signal does not accumulate. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
 Do not sell lock B **393/400**, lock A **352/400**, or nested-by-stem
 **322/400** / **392/400** as replacing **25/48**. Those are in-family.
@@ -138,8 +140,9 @@ Out-of-family isolated transfer is frozen in
 ## Confirmatory 100×4 Phase B Distil and Qwen
 
 Official Distil lamp **70/100** (weaker mixin than GPT-2 **100/100**).
-Lock B **89/100** (drop 11 from 100). Lock C **69/100** (drop 27 from
-96). Isolated Distil signs (216/400, 164/400) are not **25/48**.
+Lock B **88/100** with **1 tie** (drop 12 from 100; historical persist
+printed 89/100). Lock C **68/100** with **1 tie** (drop 28 from
+96; historical persist printed 69/100). Isolated Distil signs (216/400, 164/400) are not **25/48**.
 
 Official Qwen lamp **100/100** (local Hugging Face, mixin on). Lock B
 **95/100** (drop 5). Lock C **84/100** (drop 12). H3 holds on both

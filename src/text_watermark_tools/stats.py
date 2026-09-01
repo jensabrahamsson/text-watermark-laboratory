@@ -13,6 +13,15 @@ from dataclasses import dataclass
 from typing import Mapping, Sequence
 
 
+FILE_LEVEL_INFERENCE_NOTE = (
+    "File-level permutation_p and binomial_p_above_zero shuffle or test "
+    "individual files. Draws are paired and clustered by prompt family; "
+    "score 0 is not a calibrated null. Those p-values are descriptive, "
+    "not valid clustered inference. Use permutation_prompt_sign_p on "
+    "prompt-mean differences."
+)
+
+
 @dataclass(frozen=True)
 class BinaryEval:
     n_positive: int
@@ -74,7 +83,10 @@ def permutation_mean_diff_p(
 ) -> float:
     """One-sided P(mean_pos - mean_neg as large as observed | shuffled labels).
 
-    Adds one to numerator and denominator (conservative).
+    Adds one to numerator and denominator (conservative). This is a
+    file-level label shuffle. It is **not** valid inference when files are
+    paired by prompt or clustered in families of four draws. See
+    permutation_prompt_sign_p.
     """
     pos = list(positive)
     neg = list(negative)
@@ -89,6 +101,44 @@ def permutation_mean_diff_p(
         rng.shuffle(pool)
         diff = _mean(pool[:n1]) - _mean(pool[n1:])
         if diff >= observed:
+            count += 1
+    return (count + 1) / (n_perm + 1)
+
+
+def permutation_prompt_sign_p(
+    stems: Sequence[str],
+    marked: Sequence[float],
+    unmarked: Sequence[float],
+    *,
+    n_perm: int = 2000,
+    seed: int = 0,
+) -> float:
+    """One-sided sign-flip p-value on prompt-mean(marked − unmarked).
+
+    The independent unit is the prompt family. For each stem, delta is
+    mean(marked files) − mean(unmarked files). The statistic is the mean
+    of those deltas. Under the null, randomly flip each stem's sign.
+    Conservative +1 / (n_perm+1). Empty input returns nan.
+    """
+    if len(stems) != len(marked) or len(stems) != len(unmarked):
+        raise ValueError("stems and LRs must be aligned")
+    by: dict[str, tuple[list[float], list[float]]] = {}
+    for stem, m, u in zip(stems, marked, unmarked, strict=True):
+        bucket = by.setdefault(str(stem), ([], []))
+        bucket[0].append(float(m))
+        bucket[1].append(float(u))
+    if not by or n_perm <= 0:
+        return float("nan")
+    deltas = [_mean(ms) - _mean(us) for ms, us in by.values()]
+    observed = _mean(deltas)
+    rng = random.Random(seed)
+    count = 0
+    for _ in range(n_perm):
+        flipped = 0.0
+        for delta in deltas:
+            flipped += delta if rng.random() < 0.5 else -delta
+        fake = flipped / len(deltas)
+        if fake >= observed:
             count += 1
     return (count + 1) / (n_perm + 1)
 
@@ -308,8 +358,8 @@ def format_binary_eval(ev: BinaryEval, *, label: str = "") -> str:
         f"diff={ev.mean_diff:.4f} "
         f"pos>0={ev.n_positive_above_zero}/{ev.n_positive} "
         f"neg<=0={ev.n_negative_at_most_zero}/{ev.n_negative} "
-        f"perm_p={ev.permutation_p:.4g} "
-        f"binom_p={ev.binomial_p_above_zero:.4g} "
+        f"perm_p={ev.permutation_p:.4g} (file-level, descriptive) "
+        f"binom_p={ev.binomial_p_above_zero:.4g} (file-level, descriptive) "
         f"youden_t={ev.youden_threshold:.4f} "
         f"youden_sens={ev.youden_sensitivity:.3f} "
         f"youden_spec={ev.youden_specificity:.3f} "
@@ -404,16 +454,20 @@ def coverage_gate(
     unmarked: Sequence[float],
     *,
     eps: float = 1e-15,
+    marked_used: Sequence[int] | None = None,
+    unmarked_used: Sequence[int] | None = None,
 ) -> CoverageGate:
-    def is_zero(x: float) -> bool:
+    def is_zero(i: int, x: float, used: Sequence[int] | None) -> bool:
+        if used is not None:
+            return int(used[i]) == 0
         return abs(float(x)) <= eps
 
     marked_l = [float(x) for x in marked]
     unmarked_l = [float(x) for x in unmarked]
-    mz = sum(1 for x in marked_l if is_zero(x))
-    uz = sum(1 for x in unmarked_l if is_zero(x))
-    m_dec = [x for x in marked_l if not is_zero(x)]
-    u_dec = [x for x in unmarked_l if not is_zero(x)]
+    mz = sum(1 for i, x in enumerate(marked_l) if is_zero(i, x, marked_used))
+    uz = sum(1 for i, x in enumerate(unmarked_l) if is_zero(i, x, unmarked_used))
+    m_dec = [x for i, x in enumerate(marked_l) if not is_zero(i, x, marked_used)]
+    u_dec = [x for i, x in enumerate(unmarked_l) if not is_zero(i, x, unmarked_used)]
     tp = sum(1 for x in m_dec if x > 0)
     fn = sum(1 for x in m_dec if x <= 0)
     fp = sum(1 for x in u_dec if x > 0)
@@ -561,6 +615,8 @@ def binary_eval_to_dict(ev: BinaryEval) -> dict:
         "n_negative_at_most_zero": ev.n_negative_at_most_zero,
         "permutation_p": ev.permutation_p,
         "binomial_p_above_zero": ev.binomial_p_above_zero,
+        "permutation_p_note": FILE_LEVEL_INFERENCE_NOTE,
+        "binomial_p_note": FILE_LEVEL_INFERENCE_NOTE,
         "youden_threshold": ev.youden_threshold,
         "youden_sensitivity": ev.youden_sensitivity,
         "youden_specificity": ev.youden_specificity,

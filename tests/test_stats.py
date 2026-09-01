@@ -1,12 +1,15 @@
 """AUC, permutation, and binomial helpers for key-free scores."""
 
 from text_watermark_tools.stats import (
+    FILE_LEVEL_INFERENCE_NOTE,
     binary_eval,
+    binary_eval_to_dict,
     binomial_sf,
     counts_at_threshold,
     fit_ridge_logodds,
     nested_threshold_by_stem,
     permutation_mean_diff_p,
+    permutation_prompt_sign_p,
     roc_auc,
     score_ridge_logodds,
     stem_marked_positive_on_ranking_losses,
@@ -62,6 +65,37 @@ def test_permutation_p_is_large_when_labels_are_noise() -> None:
         seed=1,
     )
     assert p > 0.2
+
+
+def test_prompt_sign_p_is_small_when_every_stem_separates() -> None:
+    stems = ["a", "a", "b", "b", "c", "c", "d", "d", "e", "e", "f", "f"]
+    marked = [1.0, 1.1, 0.9, 1.2, 0.8, 1.0, 1.3, 1.1, 0.7, 0.9, 1.0, 1.2]
+    unmarked = [0.0, -0.1, 0.05, -0.2, 0.0, -0.05, -0.2, 0.0, -0.1, 0.1, -0.3, 0.0]
+    p = permutation_prompt_sign_p(stems, marked, unmarked, n_perm=500, seed=0)
+    assert p < 0.05
+
+
+def test_file_level_p_values_are_labelled_descriptive() -> None:
+    ev = binary_eval([1.0, 0.5], [-0.2, 0.0], n_perm=50, seed=0)
+    payload = binary_eval_to_dict(ev)
+    assert "descriptive" in payload["permutation_p_note"]
+    assert "prompt family" in payload["permutation_p_note"]
+    assert FILE_LEVEL_INFERENCE_NOTE in payload["binomial_p_note"]
+
+
+def test_coverage_gate_can_use_n_used_instead_of_lr_magnitude() -> None:
+    from text_watermark_tools.stats import coverage_gate
+
+    gate = coverage_gate(
+        [0.4, 0.0],
+        [0.1, -0.2],
+        marked_used=[0, 1],
+        unmarked_used=[0, 1],
+    )
+    assert gate.n_marked_zero == 1
+    assert gate.n_unmarked_zero == 1
+    assert gate.decided_tp == 0
+    assert gate.n_marked_decided == 1
 
 
 def test_youden_picks_a_separating_threshold() -> None:

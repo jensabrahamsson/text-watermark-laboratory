@@ -9,6 +9,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | File | Focus |
 |---|---|
 | [abstract.md](abstract.md) | Shop window: key-free prompt-group indicator first; isolated **25/48** in the same pane; not a theorem refutation |
+| [threat-model.md](threat-model.md) | Auditor access: key-free ≠ reference-free; two grains; not field-defining; not a finished conference paper |
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [PROTOCOL-next.md](PROTOCOL-next.md) | Frozen confirmatory 100×4 protocol; lock A **99/100**; Distil H3 |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |

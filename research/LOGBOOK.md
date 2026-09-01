@@ -1743,4 +1743,35 @@ have been run once, as written. Do not target leftover-15 openings.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-01 manuscript position and Distil strict recount
+
+Locked [threat-model.md](threat-model.md): the auditor is **key-free,
+not reference-free, not fully blind**. The notebook is a **strong
+empirical** measurement, interesting to the field; it is **not
+field-defining** and **not a finished conference paper**. The honest
+next artifact is a workshop, artifact, or focused empirical report with
+the two-grain sentence first. Do not write `thesis/` from that lock.
+
+Strict prompt ranking is `marked_lr + margin > unmarked_lr`. Equality is
+a **tie**, not a win. Distil lock B/C historical persist still prints
+**89/100** and **69/100**. Recomputed from the same LRs: **88 wins + 1
+tie** and **68 wins + 1 tie**. H3 still holds (drops 12 and 28 from
+GPT-2 Phase A). Do not rewrite the Phase B LOGBOOK entry. Do not sell
+88/100 or 68/100 as replacing **25/48**. PROTOCOL-next H2 remains a
+**reindexed** window measurement until an absolute-history rerun.
+
+File-level permutation and binomial p-values are descriptive. The
+inferential unit is the prompt family.
+
+JSON unchanged: `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
+
+Occupancy-free postokhits notes that said “ranking wins with 0 isolated
+TPs” mixed true ranking wins with 0=0 ties. Strict recount from the same
+LRs: Grok-register → original 12 is **2 wins + 9 ties** (the 9 ties have
+0 isolated TPs; the 2 wins do not). 100 one-liners → Grok-register is
+**4 wins + 6 ties** (all four wins have 0 isolated TPs: marked occupancy
+zero vs negative unmarked). Isolated t=0 is unchanged. Do not sell the
+old `>=` prompt counts as ranking wins.
+
 ---
