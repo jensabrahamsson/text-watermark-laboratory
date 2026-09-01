@@ -233,6 +233,13 @@ python -m text_watermark_tools blind experiments/pairs \
   --out-dir experiments/blind
 ```
 
+`n_marked_wins` is prompt-mean ranking, not per-file accuracy. The same
+command now prints `ranking_without_isolated_tp` (ranking wins with no
+marked file `lr>0`) and `ranking_losses_with_isolated_tp` (ranking losses
+that still have isolated TPs). Isolated sign is `marked_lr_positive`.
+On the recounted 12×4 last-4 run that is garden vs station / office /
+ferry-queue. Do not rewrite **9/12** or **25/48**.
+
 For the stronger 12-prompt × 4-draw experiment:
 
 ```bash

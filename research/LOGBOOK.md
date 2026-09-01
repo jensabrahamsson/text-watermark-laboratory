@@ -1276,4 +1276,14 @@ hidden ranking wins; 4 isolated TPs on ranking losses.
 Do not rewrite **9/12** or **25/48**. JSON:
 `experiments/2026-09-01-ranking-isolated-honesty/`.
 
+## 2026-09-01 blind leave-one-prompt-out reports ranking vs isolated
+
+The 9/12 producer (`blind`) stored only stem-mean LRs, so it could not
+name garden as a ranking win with 0 isolated TPs. `leave_one_prompt_out`
+now keeps per-file LRs. Stem-mean ranking is unchanged. New persists
+print `ranking_without_isolated_tp` and `ranking_losses_with_isolated_tp`.
+Historical `experiments/2026-09-01-blind-12x4-recount-last4/` stays
+stem-mean only. Isolated sign stays hard `lr>0` even when `--margin` is
+nonzero. Not a new scorer. Does not replace **25/48**.
+
 ---

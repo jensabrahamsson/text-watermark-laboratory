@@ -9,7 +9,9 @@ from text_watermark_tools.stats import (
     permutation_mean_diff_p,
     roc_auc,
     score_ridge_logodds,
+    stem_marked_positive_on_ranking_losses,
     stem_prompt_losses,
+    stem_ranking_losses_with_isolated_tp,
     stem_ranking_without_isolated_tp,
     stem_transfer_rows,
     threshold_at_fpr,
@@ -132,6 +134,10 @@ def test_stem_transfer_rows_groups_holdout_files() -> None:
         {"file": "02-night-bus-unmarked-gen.txt", "stem": "02-night-bus", "lr": -0.4},
         {"file": "02-night-bus-marked-2.txt", "stem": "02-night-bus", "lr": -0.1},
         {"file": "02-night-bus-unmarked-gen-2.txt", "stem": "02-night-bus", "lr": -0.4},
+        {"file": "12-ferry-queue-marked.txt", "stem": "12-ferry-queue", "lr": 0.2},
+        {"file": "12-ferry-queue-unmarked-gen.txt", "stem": "12-ferry-queue", "lr": 0.4},
+        {"file": "12-ferry-queue-marked-2.txt", "stem": "12-ferry-queue", "lr": -0.1},
+        {"file": "12-ferry-queue-unmarked-gen-2.txt", "stem": "12-ferry-queue", "lr": 0.3},
     ]
     rows = stem_transfer_rows(files, nested_threshold=0.0)
     by = {r["stem"]: r for r in rows}
@@ -140,8 +146,12 @@ def test_stem_transfer_rows_groups_holdout_files() -> None:
     assert by["11-garden"]["prompt_win"] is False
     assert by["02-night-bus"]["prompt_win"] is True
     assert by["02-night-bus"]["marked_t0"] == 0
-    assert stem_prompt_losses(rows) == ["11-garden"]
+    assert by["12-ferry-queue"]["prompt_win"] is False
+    assert by["12-ferry-queue"]["marked_t0"] == 1
+    assert stem_prompt_losses(rows) == ["11-garden", "12-ferry-queue"]
     assert stem_ranking_without_isolated_tp(rows) == ["02-night-bus"]
+    assert stem_ranking_losses_with_isolated_tp(rows) == ["12-ferry-queue"]
+    assert stem_marked_positive_on_ranking_losses(rows) == 1
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

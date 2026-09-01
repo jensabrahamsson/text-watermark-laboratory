@@ -1,8 +1,11 @@
 """Key-free blind detector: counts only, no keys."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.blind import (
+    BlindEval,
+    BlindFold,
     Twin,
     FIRST_TOKEN_CTX,
     _scored_ctx,
@@ -12,8 +15,11 @@ from text_watermark_tools.blind import (
     likelihood_ratio,
     load_twins,
     pair_marked_wins,
+    persist_blind_eval,
+    print_blind_eval,
 )
 from text_watermark_tools.cli import main
+from text_watermark_tools.indicator import holdout_from_json
 
 PAIR = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-17-pair"
 
@@ -207,6 +213,13 @@ def test_leave_one_out_prefers_matching_pile() -> None:
     assert ev.used_keys is False
     assert ev.n_marked_wins == 3
     assert ev.accuracy == 1.0
+    for fold in ev.folds:
+        assert len(fold.marked_file_lrs) == 1
+        assert len(fold.unmarked_file_lrs) == 1
+        assert fold.marked_lr == fold.marked_file_lrs[0]
+        assert fold.unmarked_lr == fold.unmarked_file_lrs[0]
+    assert ev.ranking_without_isolated_tp == []
+    assert ev.ranking_losses_with_isolated_tp == []
 
 
 def test_load_twins_groups_extra_marked_samples(tmp_path: Path) -> None:
@@ -238,3 +251,195 @@ def test_cli_blind_on_lab_pairs_is_key_free(capsys) -> None:
     assert "hash_iv=False" in out
     assert "g_values=False" in out
     assert "accuracy=" in out
+    assert "ranking_without_isolated_tp=" in out
+    assert "ranking_losses_with_isolated_tp=" in out
+    assert "marked_lr_positive=" in out
+
+
+def test_leave_one_out_stores_per_file_lrs_on_extra_draws() -> None:
+    twins = [
+        Twin(
+            "a",
+            "a",
+            "a",
+            [0, 1, 0, 1, 0, 1, 0, 1],
+            [0, 2, 0, 2, 0, 2, 0, 2],
+            extra_marked_ids=[[0, 1, 0, 1, 0, 1]],
+            extra_unmarked_ids=[[0, 2, 0, 2, 0, 2]],
+        ),
+        Twin("b", "b", "b", [0, 1, 0, 1, 0, 1, 0, 1], [0, 2, 0, 2, 0, 2, 0, 2]),
+        Twin("c", "c", "c", [0, 1, 0, 1, 0, 1, 0, 1], [0, 2, 0, 2, 0, 2, 0, 2]),
+    ]
+    ev = leave_one_prompt_out(twins, context_len=1)
+    held = next(f for f in ev.folds if f.stem == "a")
+    assert len(held.marked_file_lrs) == 2
+    assert len(held.unmarked_file_lrs) == 2
+    assert held.marked_lr == sum(held.marked_file_lrs) / 2
+    assert held.unmarked_lr == sum(held.unmarked_file_lrs) / 2
+    assert ev.n_marked_wins == 3
+
+
+def test_blind_eval_ranking_without_isolated_tp_is_prompt_win_with_no_sign() -> None:
+    ev = BlindEval(
+        folds=[
+            BlindFold(
+                stem="bus",
+                marked_lr=-0.15,
+                unmarked_lr=-0.45,
+                marked_wins=True,
+                marked_file_lrs=[-0.1, -0.2],
+                unmarked_file_lrs=[-0.4, -0.5],
+            ),
+            BlindFold(
+                stem="ferry",
+                marked_lr=0.45,
+                unmarked_lr=-0.15,
+                marked_wins=True,
+                marked_file_lrs=[0.4, 0.5],
+                unmarked_file_lrs=[-0.2, -0.1],
+            ),
+            BlindFold(
+                stem="station",
+                marked_lr=-0.05,
+                unmarked_lr=0.10,
+                marked_wins=False,
+                marked_file_lrs=[0.1, -0.2],
+                unmarked_file_lrs=[0.2, 0.0],
+            ),
+        ],
+        context_len=4,
+        alpha=0.5,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+    assert ev.n_marked_wins == 2
+    assert ev.n_marked_positive == 3
+    assert ev.ranking_without_isolated_tp == ["bus"]
+    assert ev.n_prompt_wins_without_isolated_tp == 1
+    assert ev.ranking_losses_with_isolated_tp == ["station"]
+    assert ev.n_marked_positive_on_ranking_losses == 1
+    text = print_blind_eval(ev)
+    assert "ranking_without_isolated_tp=1/2" in text
+    assert "ranking_losses_with_isolated_tp=1" in text
+    assert "ranking wins with no isolated TP: bus" in text
+    assert "ranking losses with isolated TP: station" in text
+    assert "marked_files_gt0=0/2" in text
+
+
+def test_blind_eval_isolated_sign_stays_hard_when_margin_is_nonzero() -> None:
+    ev = BlindEval(
+        folds=[
+            BlindFold(
+                stem="garden",
+                marked_lr=-0.02,
+                unmarked_lr=-0.05,
+                marked_wins=True,
+                marked_file_lrs=[-0.01, -0.03],
+                unmarked_file_lrs=[-0.04, -0.06],
+            )
+        ],
+        context_len=4,
+        alpha=0.5,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+        margin=0.02,
+    )
+    assert ev.n_marked_wins == 1
+    assert ev.n_marked_positive == 0
+    assert ev.ranking_without_isolated_tp == ["garden"]
+
+
+def test_blind_eval_ranking_matches_hard_last4_holdout() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hold = holdout_from_json(
+        root / "2026-09-01-probe-12x4-recount-hard-last4" / "hard" / "holdout.json"
+    )
+    folds: list[BlindFold] = []
+    for stem, pairs in sorted(hold._stem_pairs().items()):
+        marked = [m for m, _ in pairs]
+        unmarked = [u for _, u in pairs]
+        marked_mean = sum(marked) / len(marked)
+        unmarked_mean = sum(unmarked) / len(unmarked)
+        folds.append(
+            BlindFold(
+                stem=stem,
+                marked_lr=marked_mean,
+                unmarked_lr=unmarked_mean,
+                marked_wins=pair_marked_wins(marked_mean, unmarked_mean),
+                marked_file_lrs=marked,
+                unmarked_file_lrs=unmarked,
+            )
+        )
+    ev = BlindEval(
+        folds=folds,
+        context_len=4,
+        alpha=0.5,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+    assert ev.used_keys is False
+    assert ev.n_marked_wins == 9
+    assert ev.n_marked_positive == 25
+    assert ev.ranking_without_isolated_tp == ["11-garden"]
+    assert ev.ranking_losses_with_isolated_tp == [
+        "06-station",
+        "10-office",
+        "12-ferry-queue",
+    ]
+    assert ev.n_marked_positive_on_ranking_losses == 5
+    payload = ev.ranking_payload()
+    assert payload["ranking_without_isolated_tp"] == ["11-garden"]
+    assert payload["n_marked_lr_positive"] == 25
+
+
+def test_persist_blind_eval_writes_ranking_honesty(tmp_path: Path) -> None:
+    ev = BlindEval(
+        folds=[
+            BlindFold(
+                stem="garden",
+                marked_lr=-0.02,
+                unmarked_lr=-0.05,
+                marked_wins=True,
+                marked_file_lrs=[-0.01, -0.03],
+                unmarked_file_lrs=[-0.04, -0.06],
+            ),
+            BlindFold(
+                stem="ferry",
+                marked_lr=-0.01,
+                unmarked_lr=0.02,
+                marked_wins=False,
+                marked_file_lrs=[0.1, -0.12],
+                unmarked_file_lrs=[0.01, 0.03],
+            ),
+        ],
+        context_len=4,
+        alpha=0.5,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+    persist_blind_eval(ev, tmp_path)
+    raw = json.loads((tmp_path / "results.json").read_text())
+    assert raw["n_marked_wins"] == 1
+    assert raw["ranking_without_isolated_tp"] == ["garden"]
+    assert raw["ranking_losses_with_isolated_tp"] == ["ferry"]
+    assert raw["n_marked_lr_positive"] == 1
+    assert raw["folds"][0]["marked_file_lrs"] == [-0.01, -0.03]
+    md = (tmp_path / "results.md").read_text()
+    assert "Ranking wins with no isolated TP: **1/1** (garden)" in md
+    assert "Ranking losses with isolated TP: **1** (ferry)" in md
+    historical = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-blind-12x4-recount-last4"
+            / "results.json"
+        ).read_text()
+    )
+    assert historical["n_marked_wins"] == 9
+    assert "ranking_without_isolated_tp" not in historical
+    assert "marked_file_lrs" not in historical["folds"][0]
+

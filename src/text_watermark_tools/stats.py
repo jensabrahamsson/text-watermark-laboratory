@@ -531,6 +531,24 @@ def stem_ranking_without_isolated_tp(
     ]
 
 
+def stem_ranking_losses_with_isolated_tp(
+    rows: Sequence[Mapping[str, object]],
+) -> list[str]:
+    """Prompt-ranking losses that still have a marked file above 0."""
+    return [
+        str(r["stem"])
+        for r in rows
+        if (not r["prompt_win"]) and int(r["marked_t0"]) > 0
+    ]
+
+
+def stem_marked_positive_on_ranking_losses(
+    rows: Sequence[Mapping[str, object]],
+) -> int:
+    """Isolated ``lr>0`` count sitting on prompt-ranking losses."""
+    return sum(int(r["marked_t0"]) for r in rows if not r["prompt_win"])
+
+
 def binary_eval_to_dict(ev: BinaryEval) -> dict:
     return {
         "n_positive": ev.n_positive,

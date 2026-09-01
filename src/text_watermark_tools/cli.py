@@ -1176,7 +1176,7 @@ def build_parser() -> argparse.ArgumentParser:
         "blind",
         help=(
             "Key-free leave-one-prompt-out on pair twins "
-            "(no keys / hash_iv / g-values)"
+            "(no keys / hash_iv / g-values). Prints ranking vs isolated sign."
         ),
     )
     p_blind.add_argument(

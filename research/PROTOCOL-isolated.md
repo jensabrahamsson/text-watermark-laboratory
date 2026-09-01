@@ -212,7 +212,9 @@ prompt ranking is not isolated-file recall. Cross-holdout table:
 `experiments/2026-09-01-ranking-isolated-honesty/`. The 12-LOO hard
 headline itself disagrees on stems: garden is one of nine ranking wins
 with 0 isolated TPs; station, office, and ferry-queue lose ranking but
-hold 5 of 25 isolated TPs. Do not rewrite **9/12** or **25/48**. On 36×4, lock C ranks
+hold 5 of 25 isolated TPs. The 9/12 producer (`blind` leave-one-prompt-out)
+now stores per-file LRs and prints that split. Do not rewrite **9/12** or
+**25/48**. On 36×4, lock C ranks
 **35/36** with nested **109/144 vs 117/144** (lock A interpolate nested
 is the same **109/144** marked); the one miss is library. JSON:
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
