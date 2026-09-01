@@ -16,13 +16,14 @@ Those are two grains. Collapsing them into a single failure claim
 weakens a result this repository already has, which
 [AGENTS.md](../AGENTS.md) forbids.
 
-That title is the literature slogan, not a measurement. Christ et al.
-(2024) prove cryptographic undetectability for a *different*
-construction. Zhang et al. (2024) prove impossibility of *strong*
-watermarking under quality and perturbation oracles. Neither is a proof
-that count tables must fail on `public-deepmind-30`. Confirmatory
-prompt ranking **99/100** is a distinguisher. Isolated **25/48** does
-not restore either theorem. Placement:
+That title is a slogan, not a measurement. How to write an indication:
+[CITING.md](CITING.md). This laboratory **did not refute** Christ et al.
+(2024) or Zhang et al. (2024). Those papers prove claims about a
+different construction and different oracles. They are not a proof that
+count tables must fail on `public-deepmind-30`. Lock A prompt-group
+ranking **99/100** is a scoped measurement, not a complexity-theoretic
+distinguisher against their scheme. Isolated **25/48** is a different
+grain, not a restoration of those theorems. Placement:
 [related-work.md](related-work.md). Do not write `thesis/` from this
 file.
 

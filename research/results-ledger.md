@@ -11,9 +11,10 @@ scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
 nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails. The two-grain story lock is
 [narrative.md](narrative.md): prompt-group ranking is real; isolated
 `lr>0` is not a calibrated detector. Do not write a “key-free
-detection fails” paper. Christ et al. (2024) and Zhang et al. (2024)
-are not a proof that this mixin’s count tables must fail
-([related-work.md](related-work.md)). Spatial mask-*k* of the headline 12-LOO scorer
+detection fails” paper. This laboratory did not refute Christ et al.
+(2024) or Zhang et al. (2024). Those papers are not a proof that this
+mixin’s count tables must fail
+([related-work.md](related-work.md); [CITING.md](CITING.md)). Spatial mask-*k* of the headline 12-LOO scorer
 is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). Leftover
 versus covered on those tails is
 [PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).

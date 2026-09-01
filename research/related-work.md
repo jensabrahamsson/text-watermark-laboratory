@@ -29,33 +29,51 @@ Christ et al. (2024) prove undetectability for a *different* construction;
 they are not a proof that this lab’s count tables must fail on
 SynthID-Text.
 
-## The impossibility slogan is not this mixin
+## Those theorems are not a refutation target we have hit
 
-Two well-cited theorems *sound* like “key-free detection is impossible.”
-They are not a proof about `public-deepmind-30`.
+How to write an indication rather than a slogan:
+[CITING.md](CITING.md). This laboratory **did not refute** Christ et al.
+(2024) or Zhang et al. (2024). Do not write that it did.
 
-Christ et al. (2024) prove *cryptographic undetectability* for a PRF-based
-scheme: a polynomial-time distinguisher without the key cannot tell
-watermarked from unwatermarked text, even with adaptive queries. That is
-a different construction. This laboratory’s matched twins plus a
-count-table LR *are* a distinguisher. Confirmatory prompt-group ranking
-**99/100** (lock A) is empirical evidence that the public tournament
-instance is not in that regime for this distinguisher class. Isolated
-hard last-4 **25/48** is a different grain (one file versus 0). It does
-not restore the theorem.
+Christ et al. (2024) prove *cryptographic undetectability* for a stated
+PRF-based construction: a polynomial-time algorithm without the key
+cannot distinguish watermarked from unwatermarked text with
+non-negligible advantage, even with adaptive queries. A refutation would
+be a proof error or an efficient distinguisher against *that*
+construction. This laboratory did not implement that construction and
+did not exhibit such a distinguisher.
 
 Zhang et al. (2024) prove impossibility of *strong* watermarking given a
-quality oracle and a mixing perturbation oracle. That is a
-robustness/removal result: detectability can be destroyed under those
-oracles. It does not say a third party cannot rank *unmodified* marked
-versus unmarked files from paired reference twins.
+quality oracle and a mixing perturbation oracle. A refutation would be a
+scheme that remains detectable after the oracles they allow, or a hole
+in that argument. This laboratory did not run those oracles. Official
+keyed leftover-18 is **18/18** at prefix-128; that is not a mixing
+attack.
 
-Language models often collapse those slogans onto any key-free reader.
-This laboratory already saw that collapse as a suggested title of the
-form “Why Key-Free Watermark Detection Fails”
-([narrative.md](narrative.md)). Do not treat that title as a theorem
-about this mixin. Do not claim we know any model’s training mix. Cite
-the papers for what they prove.
+Two slogans *sound* like those theorems: “detection without keys is
+impossible” and “watermarking cannot be strong.” They are not theorems
+about `public-deepmind-30`. Mapping them onto this mixin is a category
+error, not a citation.
+
+**Measurement (scoped).** Under frozen lock A on `public-deepmind-30`
+GPT-2 twins, prompt-group interpolate ranking was **99/100**. Under
+12-LOO hard last-4 on the original 12, prompt-group ranking was **9/12**
+and isolated sign at threshold 0 was **25/48**. `used_keys=false` for
+those key-free readers.
+
+**Indication (not a theorem).** Those prompt-group counts are consistent
+with a learnable next-token footprint of this public tournament
+instance, without reconstructing the g-function. Isolated **25/48** is
+compatible with chance at that grain (binomial *p* ≈ 0.44 under a fair
+coin). The two grains are not one claim.
+
+**Non-claim.** This is not a complexity-theoretic proof that tournament
+sampling is distinguishable in the sense of Christ et al. (2024). It is
+not a proof that production Gemini is key-free detectable. It is not a
+calibrated isolated-file detector. A suggested title of the form “Why
+Key-Free Watermark Detection Fails” collapses the grains and is wrong
+for this laboratory ([narrative.md](narrative.md)). Do not claim we know
+any model’s training mix.
 
 ## Keyed theory is not this lab’s isolated-file reader
 
@@ -120,8 +138,11 @@ without the vendor’s keys.
 What this repo *does* add is a small, fully checked-in instance on the
 public mixin: GPT-2 and Qwen twins, leave-one-out, frozen tables, tests,
 raw JSON, and later occupancy-free / rank-path protocols. The interesting
-claim is narrow: the keyed tournament leaves a distributional footprint
-that a count-based LR can learn **without reconstructing the g-function**.
+claim is an **indication**, not a theorem: on the measured generators and
+protocols, the keyed tournament leaves a distributional footprint that a
+count-based LR can learn **without reconstructing the g-function**.
+Writing rules: [CITING.md](CITING.md). This laboratory did not refute
+Christ et al. (2024) or Zhang et al. (2024).
 
 That is not “more than” Dathathri et al. (2024) (they built the scheme),
 not “more than” Jovanović et al. (2024) (they steal; we do not), and not
