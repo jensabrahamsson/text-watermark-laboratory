@@ -3056,7 +3056,8 @@ class ProbeRun:
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
-        "AUC is single-file ranking; prompt wins are the 10/12 grain. "
+        "AUC is single-file ranking; prompt wins are prompt-group ranking, "
+        "not per-file accuracy. "
         "nested-youden-by-stem is a threshold chosen on other prompt "
         "families' already-held-out LRs, not a global peek at the same stem. "
         "coverage.json is leave-one-out shared last-k fraction by position; "

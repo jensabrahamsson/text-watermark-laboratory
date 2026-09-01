@@ -28,6 +28,11 @@ def test_auc_handles_ties() -> None:
     assert roc_auc([1.0, 0.0], [1.0, -1.0]) == 0.625
 
 
+def test_binomial_nine_of_twelve_is_above_five_percent() -> None:
+    assert binomial_sf(9, 12, 0.5) > 0.05
+    assert binomial_sf(10, 12, 0.5) < 0.05
+
+
 def test_binomial_ten_of_twelve_is_below_five_percent() -> None:
     p = binomial_sf(10, 12, 0.5)
     assert 0.01 < p < 0.05

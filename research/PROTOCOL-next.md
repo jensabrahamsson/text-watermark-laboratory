@@ -4,9 +4,9 @@ This is a **methods freeze**, not a paper. It exists so the next
 measurement is a prediction about data that has not been opened, rather
 than another scorer on `experiments/2026-08-17-pair-12x4`.
 
-Author–year citations follow [CITING.md](CITING.md). Lab counts
-(10/12, 29/48, 36/36) are this repository's data, not a paper. Closest
-published analog for third-party verification remains Wang et al.
+Author–year citations follow [CITING.md](CITING.md). Lab counts after the truncated-context recount are **9/12**, **25/48**,
+and **36/36**. Pre-fix **10/12** / **29/48** stay in historical JSON.
+Closest published analog for third-party verification remains Wang et al.
 (2026) TTP-Detect; this protocol is not a priority claim over that work
 ([related-work.md](related-work.md)).
 
@@ -14,10 +14,11 @@ Do **not** write `thesis/` from this file.
 
 ## Why freeze now
 
-The original key-free last-4 count tables still separate held-out prompt
-groups **10/12** times. Isolated hard sign at 0 is still **29/48**.
-In-domain 36×4 hits is still **36/36**. Those three numbers are the
-locked headlines.
+The original key-free last-4 count tables separate held-out prompt
+groups **9/12** times after storing each real suffix once (pre-fix
+**10/12** overcounted truncated openings). Isolated hard sign at 0 is
+**25/48**. In-domain 36×4 hits is still **36/36**. Those three numbers
+are the locked headlines. Frozen analysis commands below are unchanged.
 
 Later readers on the same twins (hashpool, poshits, rankpath, hashtok,
 cascades, mixer width, mixer seed, last-k) are **hypothesis
@@ -153,7 +154,7 @@ treated as a detector ([key-free-contrast.md](key-free-contrast.md)).
 - Fishing `--n-hashes`, mixer `seed`, or `--context-len` after looking
   at the 100×4 LRs.
 - Selling 39/48, 41/48, 33/48, 24/48, or last-3 **11/12** as replacing
-  **29/48**.
+  **25/48**.
 - Key recovery, SynthID `hash_iv`, or reimplementing `detector_mean`.
 - Training a Claude marked/unmarked classifier on the pre-mark corpus.
 - A 7-day Grok interval loop. Claude resample stays Wed/Fri/Sun 04:00.

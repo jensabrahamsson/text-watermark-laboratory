@@ -1026,4 +1026,36 @@ rest of the table lives in [results-ledger.md](results-ledger.md) and
 shared-data question, not a method race
 ([related-work.md](related-work.md)).
 
+## 2026-09-01 truncated-context recount
+
+Count tables used to store every order `1..k` even when fewer tokens
+existed, so `fit_table([[10,20]], context_len=4)` counted `(10,)→20`
+four times. Rankpath also skipped the empty first-symbol context.
+After storing each real suffix once and scoring the first rank symbol:
+
+- hard last-4 prompt ranking **9/12** (misses station, office,
+  ferry-queue); binomial P(≥9) = 0.073
+- same LRs, margin 0.02: **10/12** (ferry-queue flips)
+- isolated hard `lr>0` **25/48 vs 22/48**; AUC **0.590**, permutation
+  p **0.040**; binomial P(≥25) ≈ 0.44
+- `hits` **10/12**, AUC **0.718**, **28/48 vs 31/48**
+- opening poshits **9/12**, **23/48 vs 48/48**
+- opening rankpath **11/12**, isolated still **41/48 vs 35/48**
+- 36×4 hits still **36/36**, AUC **0.930**
+- interpolate last-4 still **7/12** (PROTOCOL-next lock A unchanged)
+
+Pre-fix **10/12** / **29/48** stay in historical JSON. Hashpool does
+not use `_add_sequence`; those 2026-08-31 numbers were not this bug.
+`indicate score --score-mode auto` now follows the fitted hash mixer.
+Nested-by-stem remains a threshold nest on already-OOF scores, not a
+second-level table refit. JSON:
+`experiments/2026-09-01-blind-12x4-recount-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hits/`,
+`experiments/2026-09-01-probe-12x4-recount-opening-poshits/`,
+`experiments/2026-09-01-probe-12x4-recount-opening-rankpath/`,
+`experiments/2026-09-01-probe-36x4-recount-hits/`. The confirmatory
+100×4 pair is still generating; do not open those LRs until the frozen
+PROTOCOL-next commands run on the corrected readers.
+
 ---

@@ -6,15 +6,16 @@ We have built a **key-free indicator for watermark presence**.
 
 The indicator is trained on matched marked/unmarked generations from the same prompts and then evaluated on held-out prompts. It does not use the watermark keys, `hash_iv`, g-values, or DeepMind's `detector_mean` to make the held-out decision.
 
-Current results:
+Current results (truncated-context recount; pre-fix **10/12** / **29/48**
+stay in historical JSON):
 
 | Experiment | Result |
 |---|---|
 | Official public-key detector, 12 prompts | **12/12** |
 | Key-free, 12 prompts × 1 draw | **8/12** |
-| Key-free, 12 prompts × 4 draws, last-4 | **10/12** |
-| Same LRs with 0.02 comparison margin | **11/12** |
-| Key-free `hits` (shared 4-grams only) | **11/12**, AUC **0.737** |
+| Key-free, 12 prompts × 4 draws, last-4 | **9/12** |
+| Same LRs with 0.02 comparison margin | **10/12** |
+| Key-free `hits` (shared 4-grams only) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 GPT-2 topics | **31/36**, AUC **0.877** |
 | Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
@@ -23,7 +24,7 @@ Current results:
 | Key-free hits, 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
 | Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
 | Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
-| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
+| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.930** |
 | Key-free hits, first 16 tokens, 36×4 | **34/36**, AUC **0.916** |
 | Key-free hits, matched 16-token fit, 36×4 | **34/36**, AUC **0.929**; unmarked ≤0 **112/144** |
 | Key-free poshits (bucket=16), 36×4 | **34/36**, AUC **0.925**; t=0 spec **97/144** |
@@ -75,8 +76,10 @@ Current results:
 | Nested freqhits Youden on the reverse split | **23/24** and **23/24** |
 | 50% train-label shuffle, isolated sign | hits **19/48**, hashpool **20/48** |
 | Qwen2-1.5B twins, last-2 | **10/12** |
-| Single held-out marked file, hard `lr > 0` | **29/48** |
-| Opening occupancy-free hashtok, `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; marked recall below **29/48**; not rankpath **41/48**) |
+| Single held-out marked file, hard `lr > 0` | **25/48** |
+| Opening poshits `--fit-prefix 4 --pos-bucket 1` (recount) | **9/12**, isolated **23/48 vs 48/48** |
+| Opening rankpath, 12×4 LOO 4-token (recount) | **11/12**, isolated **41/48 vs 35/48** |
+| Opening occupancy-free hashtok, `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; marked recall below **25/48**; not rankpath **41/48**) |
 | In-domain full-file hashtok | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
 | In-domain hashtok `--n-hashes` | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48** at seed 20260831; n=4 **36/48 vs 30/48**; n=32 hurts **30/48** |
 | In-domain hashtok n=2 seed sweep | n=2 spec **21–31/48**; default seed is a lucky mixer; not a width law |
@@ -84,9 +87,9 @@ Current results:
 | In-domain hashtok last-k | last-1 chance **5/12**; last-3 **11/12** / **24/48 vs 36/48** nested **22/40**; keep last-4 |
 | Transfer hashtok last-k, 24→12 | last-4 **11/12** nested FPR10 **17/46**; last-2 AUC **0.738** nested **15/45**; last-1 nested **18/45** prompt **7/12** |
 
-The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Occupancy-free hashing is in [key-free-hashtok.md](key-free-hashtok.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md). Rank-symbol tables that score novel openings without token identity are in [key-free-rankpath.md](key-free-rankpath.md). Neighbours of this measurement, with author–year citations, are in [related-work.md](related-work.md) ([CITING.md](CITING.md)).
+The recounted last-4 count table is **9/12** (isolated **25/48**). Pre-fix **10/12** / **29/48** stay in historical JSON. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Occupancy-free hashing is in [key-free-hashtok.md](key-free-hashtok.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md). Rank-symbol tables that score novel openings without token identity are in [key-free-rankpath.md](key-free-rankpath.md). Neighbours of this measurement, with author–year citations, are in [related-work.md](related-work.md) ([CITING.md](CITING.md)).
 
-That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable. Occupancy-free hashing on these twins is closed; the next measurement is [PROTOCOL-next.md](PROTOCOL-next.md). Headlines vs ablations: [results-ledger.md](results-ledger.md).
+That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable. Occupancy-free hashing on these twins is closed; the next measurement is [PROTOCOL-next.md](PROTOCOL-next.md). Headlines vs ablations: [results-ledger.md](results-ledger.md). Truncated-context recount JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`.
 
 ## Why matched twins
 
@@ -172,11 +175,11 @@ Coverage-gated and hash-pool readers of those same 36 twins reach **30–31/36**
 
 This is where the result improves.
 
-With 12 prompts × 4 GPT-2 generations and a last-4 context, the held-out prompt result reaches **10/12**. Last-2 and last-3 reach the same result.
+With 12 prompts × 4 GPT-2 generations and a last-4 context, the held-out prompt result reaches **9/12** after storing each real suffix once.
 
-The two misses are *station* and *office*.
+The three misses are *station*, *office*, and *ferry-queue*.
 
-A 0.02 comparison margin moves *station* into the correct side, giving **11/12**. *Office* remains a clear miss.
+A 0.02 comparison margin moves *ferry-queue* onto the correct side, giving **10/12**. *Station* and *office* remain misses. The pre-fix JSON still reads **10/12** / margin **11/12**; those runs overcounted truncated openings.
 
 The important empirical lesson is therefore not "more text is better". **Repeated evidence from the same prompt creates the context reuse that the higher-order indicator needs.**
 
@@ -196,14 +199,15 @@ python -m text_watermark_tools indicate holdout \
   --rotate --context-len 4
 ```
 
-At prompt-mean grain the result remains **10/12**.
+At prompt-mean grain the result is **9/12**.
 
 At individual-file grain, however:
 
-- marked files with `lr > 0`: **29/48**
-- unmarked files with `lr <= 0`: **23/48**
-- mean marked LR: **+0.033**
-- mean unmarked LR: **−0.003**
+- marked files with `lr > 0`: **25/48**
+- unmarked files with `lr <= 0`: **22/48**
+- mean marked LR: **+0.023**
+- mean unmarked LR: **−0.002**
+- file AUC **0.590**, permutation p **0.040**; binomial P(≥25) ≈ 0.44
 
 The distributions overlap. That makes the one-file LR a useful **indicator**, but not yet a reliable binary detector.
 
@@ -227,9 +231,10 @@ What remains difficult is one arbitrary isolated text with no matched context.
 `indicate holdout` now prints a single-file AUC and a permutation test on the
 same LRs. Further scorers (coverage gating, hash pooling, unmarked-LM choice
 geometry) and a key-free argmax snap are measured in
-[key-free-probe.md](key-free-probe.md). `hits` reaches **11/12** and AUC
-**0.737**; hashpool reaches **11/12** and isolated **35/48**. They still do
-not use the detector keys.
+[key-free-probe.md](key-free-probe.md). After the truncated-context recount,
+`hits` is **10/12** and AUC **0.718**. Hashpool does not use `_add_sequence`
+and stays **11/12**, isolated **35/48**, on the 2026-08-31 JSON. They still do
+not use the detector keys. The 2026-08-17 holdout files stay as collected.
 
 ## Why this matters for unknown production keys
 
@@ -255,4 +260,8 @@ python -m text_watermark_tools indicate holdout \
   --rotate --context-len 4
 ```
 
-Experiment index: [../experiments/README.md](../experiments/README.md).
+Experiment index: [../experiments/README.md](../experiments/README.md). Those
+commands now store each real suffix once. Rechecked JSON:
+`experiments/2026-09-01-blind-12x4-recount-last4/` and
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`. The 2026-08-17
+holdout files stay as collected.

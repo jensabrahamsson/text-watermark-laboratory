@@ -44,6 +44,78 @@ def test_published_12x4_holdout_is_ten_of_twelve_and_has_auc() -> None:
     assert stats.mean_diff > 0.0
 
 
+def test_recount_hard_last4_drops_the_opening_overcount() -> None:
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hard = holdout_from_json(
+        root / "2026-09-01-probe-12x4-recount-hard-last4" / "hard" / "holdout.json"
+    )
+    assert hard.used_keys is False
+    assert hard.used_hash_iv is False
+    assert hard.used_g_values is False
+    assert hard.n_prompts == 12
+    assert hard.n_prompts_marked_above == 9
+    assert hard.n_marked_positive == 25
+    assert hard.n_unmarked_nonpositive == 22
+    stats = binary_eval(hard.marked_lrs, hard.unmarked_lrs, n_perm=500, seed=0)
+    assert 0.55 < stats.auc < 0.63
+    assert stats.permutation_p < 0.05
+    assert binomial_sf(9, 12, 0.5) > 0.05
+    assert stats.binomial_p_above_zero > 0.05
+
+    interpolate = holdout_from_json(
+        root / "2026-09-01-probe-12x4-recount-hard-last4" / "interpolate" / "holdout.json"
+    )
+    assert interpolate.n_prompts_marked_above == 7
+
+    blind = json.loads(
+        (root / "2026-09-01-blind-12x4-recount-last4" / "results.json").read_text()
+    )
+    assert blind["n_marked_wins"] == 9
+    margin = json.loads(
+        (root / "2026-09-01-blind-12x4-recount-last4-margin" / "results.json").read_text()
+    )
+    assert margin["n_marked_wins"] == 10
+
+    hits = holdout_from_json(
+        root / "2026-09-01-probe-12x4-recount-hits" / "hits" / "holdout.json"
+    )
+    assert hits.n_prompts_marked_above == 10
+    assert hits.n_marked_positive == 28
+    hits_stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
+    assert hits_stats.auc > 0.70
+
+    poshits = holdout_from_json(
+        root
+        / "2026-09-01-probe-12x4-recount-opening-poshits"
+        / "poshits"
+        / "holdout.json"
+    )
+    assert poshits.n_prompts_marked_above == 9
+    assert poshits.n_marked_positive == 23
+
+    rank = holdout_from_json(
+        root
+        / "2026-09-01-probe-12x4-recount-opening-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    assert rank.n_prompts_marked_above == 11
+    assert rank.n_marked_positive == 41
+    assert rank.n_unmarked_nonpositive == 35
+
+    hits36 = holdout_from_json(
+        root / "2026-09-01-probe-36x4-recount-hits" / "hits" / "holdout.json"
+    )
+    assert hits36.n_prompts == 36
+    assert hits36.n_prompts_marked_above == 36
+    hits36_stats = binary_eval(
+        hits36.marked_lrs, hits36.unmarked_lrs, n_perm=200, seed=0
+    )
+    assert hits36_stats.auc > 0.92
+
+
 def test_clip_seq_keeps_a_token_prefix() -> None:
     from text_watermark_tools.probe import clip_seq, slice_seq
 

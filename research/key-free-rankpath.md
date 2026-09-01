@@ -46,10 +46,18 @@ JSON: [../experiments/2026-08-31-probe-12x4-fitprefix4-rankpath-isolated/](../ex
 
 † Mixed-magnitude AUC. Not a detector headline.
 
+After the truncated-context recount and first-symbol fix
+(`experiments/2026-09-01-probe-12x4-recount-opening-rankpath/`), in-domain
+opening rankpath is **11/12**, isolated still **41/48 vs 35/48**. That isolated
+sign survived; prompt ranking dropped by one group. It is discovery, not a
+headline, and it does not replace recounted hard **25/48**. Pre-fix JSON in
+the directories above stays as collected.
+
 Rank-path tokbackoff on the five-symbol alphabet is a real in-domain
-isolated-file signal: **41/48** at threshold 0 with 9 unmarked FPs. That
+isolated-file signal: **41/48** at threshold 0 with 9 unmarked FPs (pre-fix
+JSON). That
 is stronger than opening LDA (**27/48**) and stronger than the published
-full-file pivot (**17/48**). It is **not** the 29/48 last-4 hard-holdout
+full-file pivot (**17/48**). It is **not** the 25/48 last-4 hard-holdout
 headline (different protocol, 128-token files). Nested-by-stem Youden is
 **37/48 vs 39/48**. Isolated `--fit-prefix 5` (four symbols, last row =
 the first official 5-gram) is **11/12**, **30/48 vs 36/48** and still

@@ -8,15 +8,15 @@ On Google DeepMind's public SynthID-Text mixin (`public-deepmind-30`), with matc
 
 | | Claim | Number | Not |
 |---|---|---|---|
-| 1 | Key-free last-4 count tables rank held-out prompt groups | **10/12** | Single-file accuracy |
+| 1 | Key-free last-4 count tables rank held-out prompt groups | **9/12** | Single-file accuracy |
 | 2 | Same hits reader, 36 topics × 4 draws, in-domain | **36/36** | Cross-generator |
-| 3 | Isolated hard sign, one marked file, `lr>0` | **29/48** | A 5% binomial test; not a calibrated detector |
+| 3 | Isolated hard sign, one marked file, `lr>0` | **25/48** | A 5% binomial test; not a calibrated detector |
 
 Official keyed `score` on the original 12 twins is **12/12**. That path uses keys. It is the positive control.
 
-**Mechanistic finding.** The in-domain mark is front-loaded. Scoring the first four generated tokens already ranks **34/36**, matching a 16-token prefix. Window **16:32** is near chance. The signal is a prefix-conditioned deformation of the local choice distribution, not a small bias that accumulates over a long file.
+**Mechanistic finding.** The in-domain mark is front-loaded. Scoring the first four generated tokens already ranks **34/36**, matching a 16-token prefix. Window **16:32** is near chance. Truncated last-k contexts used to be stored `context_len` times; that overcount inflated the published **10/12** / **29/48**. After storing each real suffix once, prompt ranking is **9/12** (or **10/12** with margin 0.02) and isolated hard sign is **25/48**. In-domain 36×4 hits is still **36/36**. The signal is a prefix-conditioned deformation of the local choice distribution, not a small bias that accumulates over a long file.
 
-Ablations, hashed readers, rank-path, occupancy, and transfer tables: **[research/results-ledger.md](research/results-ledger.md)** and **[experiments/README.md](experiments/README.md)**. Later 39/48 and 41/48 figures on the same 12×4 files are hypothesis generators (occupancy, in-domain geometry, researcher reuse of one evaluation set). They do not replace **29/48**.
+Ablations, hashed readers, rank-path, occupancy, and transfer tables: **[research/results-ledger.md](research/results-ledger.md)** and **[experiments/README.md](experiments/README.md)**. Later 39/48 and 41/48 figures on the same 12×4 files are hypothesis generators (occupancy, in-domain geometry, researcher reuse of one evaluation set). They do not replace **25/48**.
 
 The next measurement is a frozen prediction on new prompts, not another scorer on the old twins: **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**.
 
@@ -26,9 +26,9 @@ Install: **[HOW-TO.md](HOW-TO.md)** · Notes: **[research/](research/)** · Agen
 
 ## Two different tasks
 
-**Relative discrimination (10/12).** Leave one prompt family out. Fit marked and unmarked count tables on the rest. Score the held-out marked group against the held-out unmarked group. Hard last-4: **10/12**. A 0.02 comparison margin on *that same scorer* is 11/12; that is a robustness check, not the headline. `hits` (shared 4-grams only) and `hashpool` are **11/12** on the same twins; those are different methods.
+**Relative discrimination (9/12).** Leave one prompt family out. Fit marked and unmarked count tables on the rest. Score the held-out marked group against the held-out unmarked group. Hard last-4 after storing each real suffix once: **9/12**. A 0.02 comparison margin on *that same scorer* is **10/12**; that is a robustness check, not the headline. Rechecked `hits` is **10/12** (AUC **0.718**). Hashpool does not use the truncated-context loop and stays **11/12** on its historical JSON.
 
-**Single-text classification (29/48).** Same leave-one-out tables, sign of one file’s LR against 0, no twin. Hard last-4 marked `lr>0`: **29/48**. Unmarked `lr≤0`: **23/48**. Binomial P(≥29 | n=48, p=0.5) = 0.097. Ranking of the same LRs is AUC 0.626 (permutation p = 0.0075). That overlap is why 10/12 must not be read as per-file accuracy.
+**Single-text classification (25/48).** Same leave-one-out tables, sign of one file’s LR against 0, no twin. Hard last-4 marked `lr>0`: **25/48**. Unmarked `lr≤0`: **22/48**. Binomial P(≥25 | n=48, p=0.5) ≈ 0.44. Ranking of the same LRs is AUC **0.590** (permutation p = 0.040). Pre-fix **29/48** / AUC 0.626 overcounted truncated openings. That overlap is why 9/12 must not be read as per-file accuracy.
 
 The code enforces the key-free claim: `BlindModel` carries `used_keys`, `used_hash_iv`, and `used_g_values`; the held-out decision never consults `detector_mean`.
 
@@ -62,7 +62,7 @@ flowchart LR
   C --> D[Likelihood ratio: marked-like vs unmarked-like]
 ```
 
-For held-out *groups*, the original last-4 tables work (**10/12**; **36/36** on 36×4). For one file’s hard sign at 0, not reliably (**29/48**).
+For held-out *groups*, the original last-4 tables work (**9/12**; **36/36** on 36×4). For one file’s hard sign at 0, not reliably (**25/48**).
 
 ---
 

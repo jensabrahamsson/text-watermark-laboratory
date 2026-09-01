@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. It performs well at matched/repeated prompt grain (currently 10/12 hard last-4, or 11/12 with a 0.02 comparison margin on that scorer; hits/hashpool 11/12 on the same 12×4 twins; **36/36** hits on 36 topics × 4 draws). The original hard last-4 isolated sign is **29/48**. Later protocols are stronger (nested hits 10% FPR **83/96** vs **85/96** on new 36×4 files; in-domain nested-by-stem hits **119/144** vs **134/144**; a matched 4-token poshits reader trained on other GPT-2 topics ranks **12/12** with isolated **39/48 vs 41/48**; that 39/48 includes The-Laplace occupancy, and observed-token `postokhits` on the same gate is **16/48** with precision 1.0 among decided files; Qwen in-domain first-token opening is **12/12**, AUC **0.901**) but must not be sold as a universal detector. Isolated observed-token recall equals train opening-atom overlap (`openings`): last-2+ `postokbackoff2` stays **13/48** while last-1 backoff carries 16→36. Matching mixin `ngram_len=5` does not beat last-4. GPT-2 tables do not transfer to a new Qwen sample or to DistilGPT2 (same tokenizer, hits **5/12**). Native Distil opening rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12; Qwen opening rankpath is **8/12** against first-token **12/12**. Occupancy-free hashing (`hashtok`) is denser than hard last-4 at t=0 in-domain (**33/48**) with worse nested spec than hits; opening-grain hashtok is **24/48**, sparse like tokhits, not rankpath **41/48**. Last-k at the frozen mixer does not beat last-4 (in-domain last-1 is chance; last-3 prompt 11/12 has t=0 **24/48**). Do not sell those later hashed signs as replacing **29/48**. Do not add new `probe --methods` names on the 12×4 / 36×4 twins. The next measurement is [research/PROTOCOL-next.md](research/PROTOCOL-next.md). Headlines vs ablations: [research/results-ledger.md](research/results-ledger.md).
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** with a 0.02 comparison margin. Isolated hard sign is **25/48**. In-domain hits on 36 topics × 4 draws is still **36/36**. The pre-fix published numbers **10/12** / **29/48** overweighted openings (`(10,)→20` counted four times at `context_len=4`). Later protocols must not be sold as a universal detector. Do not sell hashed or opening-rankpath signs as replacing **25/48**. Do not add new `probe --methods` names on the 12×4 / 36×4 twins except bug-fix remeasures. The next measurement is [research/PROTOCOL-next.md](research/PROTOCOL-next.md). Headlines vs ablations: [research/results-ledger.md](research/results-ledger.md).
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -89,9 +89,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Path | Result |
 |---|---|
 | Official public-key detector | **12/12** |
-| Key-free 12 prompts × 4 draws, last-4 | **10/12** |
-| Same comparison with margin 0.02 | **11/12** |
-| Key-free hits (shared 4-grams only) | **11/12**, AUC **0.737** |
+| Key-free 12 prompts × 4 draws, last-4 (recount) | **9/12** |
+| Same comparison with margin 0.02 | **10/12** |
+| Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
 | Key-free hits, other topics → 12×4 | isolated **39/48**, AUC **0.769** |
@@ -99,7 +99,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hits, 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
 | Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
 | Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
-| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
+| Key-free hits, 36 topics × 4 draws LOO (recount) | **36/36**, AUC **0.930** |
 | Key-free hits, first 16 tokens, 36×4 | **34/36**, AUC **0.916** |
 | Key-free hits, matched 16-token fit, 36×4 | **34/36**, AUC **0.929**; unmarked ≤0 **112/144** |
 | Key-free poshits (bucket=16), 36×4 | **34/36**, AUC **0.925**; t=0 spec **97/144** |
@@ -157,9 +157,9 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | New topics GPT-2 36×4 → new Qwen | chance (hits **6/12**, AUC 0.445) |
 | Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse | **23/24** and **23/24** |
-| Single held-out marked file, hard `lr > 0` | **29/48** |
-| Opening rankpath, 12×4 LOO 4-token | **12/12**, isolated **41/48** (not 29/48) |
-| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3; nested **23/48 vs 47/48**); marked recall below hard **29/48**; not rankpath 41/48 |
+| Single held-out marked file, hard `lr > 0` (recount) | **25/48** |
+| Opening rankpath, 12×4 LOO 4-token (recount) | **11/12**, isolated **41/48** |
+| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3; nested **23/48 vs 47/48**); marked recall below recounted hard **25/48**; not rankpath 41/48 |
 | In-domain full-file hashtok, 12×4 LOO last-4 | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
 | In-domain hashtok2 (min_count=2) | **8/12**, **34/48 vs 21/48**, nested **19/48 vs 35/48** (sign reshuffle, not a singleton core) |
 | Prefix-5 OOD hashtok / hashtoklen / hashtoklen2 | hashtok **30/48** equals postokhits; hashtoklen **21/48**; hashtoklen2 **10/48 vs 48/48** |

@@ -1,8 +1,10 @@
 # Stronger key-free probes (without reconstructing keys)
 
-The 10/12 prompt-grain count-table result is real. The 29/48 isolated-file sign
-was a weak test. On 2026-08-31 we re-read the same 12×4 GPT-2 twins with
-scorers that still use **no keys, no `hash_iv`, no g-values**.
+The published 10/12 / 29/48 last-4 count-table result overcounted truncated
+openings. After storing each real suffix once, hard last-4 is **9/12** /
+**25/48** (`experiments/2026-09-01-probe-12x4-recount-hard-last4/`). Isolated
+sign at 0 remains a weak test. On 2026-08-31 we re-read the same 12×4 GPT-2
+twins with scorers that still use **no keys, no `hash_iv`, no g-values**.
 
 Raw tables: [../experiments/2026-08-31-probe-12x4/](../experiments/2026-08-31-probe-12x4/)
 and [../experiments/2026-08-31-scrub-12x4/](../experiments/2026-08-31-scrub-12x4/).
@@ -20,6 +22,28 @@ Frozen file: `experiments/2026-08-17-indicate-holdout-12x4/holdout.json`.
 
 So the original method already had a significant **ranking** gap. The headline
 weakness was the threshold-0 sign, not “no signal”.
+
+## Truncated-context recount (2026-09-01)
+
+`_add_sequence` used to store every order `1..k` even when fewer tokens
+existed, so `fit_table([[10,20]], context_len=4)` counted `(10,)→20` four
+times. After storing each real suffix once:
+
+| Grain | Statistic | Result |
+|---|---|---|
+| Prompt-mean ranking | 9/12 | binomial P(≥9) = 0.073 (not a 5% test) |
+| Isolated `lr > 0` | 25/48 | binomial P(≥25) = 0.443 (not a 5% test) |
+| Isolated ranking | AUC | **0.590** |
+| Mean gap | permutation | p = 0.040 |
+
+Prompt ranking survives (**9/12**, or **10/12** with margin 0.02). Isolated
+sign at 0 is chance-like. Rechecked `hits` is **10/12**, AUC **0.718**.
+In-domain 36×4 hits is still **36/36**, AUC **0.930**. JSON:
+`experiments/2026-09-01-blind-12x4-recount-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hits/`,
+`experiments/2026-09-01-probe-36x4-recount-hits/`. The 2026-08-17 holdout
+files stay as collected.
 
 ## What the new scorers do
 
@@ -100,7 +124,7 @@ is seed-confounded (n=2 spec **21–31/48**). 24→12 nested Youden prefers
 n=8 (**17/48 vs 46/48**) at seed 20260831; that win is also
 seed-confounded (n=2 seed 7 nested **19/48 vs 47/48**). Occupancy-free
 last-k at that frozen mixer: in-domain last-1 is chance (**5/12**);
-last-3 prompt **11/12** has t=0 **24/48** (below **29/48**). 24→12
+last-3 prompt **11/12** has t=0 **24/48** (below recounted hard **25/48**). 24→12
 last-4 still wins prompt ranking and nested FPR10 (**17/48 vs 46/48**);
 last-2 file AUC **0.738** is ranking (nested **15/48**); last-1 nested
 **18/48** has prompt **7/12**. Keep `--context-len 4`. Do not fish a
@@ -108,7 +132,7 @@ seed. Do not sell 36/48, 31/48, 24/48, or 18/48. OR with hard
 last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
 indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
 exist; the unmarked OR cost destroys the combined gate. Do not sell
-33/48 or 39/48 as replacing **29/48**. `tokhybrid` (tokhits, then
+33/48 or 39/48 as replacing **25/48**. `tokhybrid` (tokhits, then
 hashtok) copies that isolated 33/48 and lifts prompt ranking to 11/12;
 `poshashtok` nested **14/48 vs 38/48** is a specificity knob.
 `hashtokgap` (hashtok only where tokhits abstains) is **27/48 vs 21/48**,
@@ -120,7 +144,7 @@ density, not opening rankpath **41/48**: tokhits **23/48 vs 48/48**
 (prompt **12/12**); hashtok **24/48 vs 47/48** (nested **23/48 vs
 47/48**, extra TP letter d3 only); hashtok2 **22/48 vs 48/48**. Letter
 d2 is zero at that grain. Marked isolated recall **24/48** is below
-hard last-4 **29/48**. Do not sell 24/48 as replacing **29/48**.
+hard last-4 **25/48**. Do not sell 24/48 as replacing **25/48**.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

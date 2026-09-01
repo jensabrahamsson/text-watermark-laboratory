@@ -1,22 +1,26 @@
 # Results ledger
 
-This is an index, not a fourth detector. Headlines stay **10/12**,
-**29/48**, **36/36**. Exploratory ablations live under
-[../experiments/README.md](../experiments/README.md). The next
-measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another scorer
-on the old 12×4 twins.
+This is an index, not a fourth detector. Headlines after the
+truncated-context recount are **9/12**, **25/48**, **36/36**. The
+pre-fix **10/12** / **29/48** stay in historical JSON. Exploratory
+ablations live under [../experiments/README.md](../experiments/README.md).
+The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
+scorer on the old 12×4 twins.
 
 ## Locked headlines
 
 | Claim | Grain | Number | Not |
 |---|---|---|---|
-| Key-free last-4 count tables | Held-out prompt groups | **10/12** | Single-file accuracy |
-| Same scorer, 0.02 margin | Same groups | 11/12 | The main result |
-| Isolated hard sign | One marked file, `lr>0` | **29/48** | A 5% binomial test |
+| Key-free last-4 count tables | Held-out prompt groups | **9/12** | Single-file accuracy |
+| Same scorer, 0.02 margin | Same groups | 10/12 | The main result |
+| Isolated hard sign | One marked file, `lr>0` | **25/48** | A 5% binomial test |
 | In-domain 36×4 hits | Prompt groups | **36/36** | Cross-generator |
 
-Official public-key `score` on those twins is **12/12**. That path uses
-keys. It is the positive control, not the key-free indicator.
+Pre-fix **10/12** / **29/48** counted `(10,)→20` four times at
+`context_len=4`. JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`. Official
+public-key `score` on those twins is **12/12**. That path uses keys. It
+is the positive control, not the key-free indicator.
 
 ## Mechanistic finding already on the old corpus
 
@@ -39,7 +43,7 @@ mixer seed, and last-k are knobs, not a denser isolated-file detector.
 | Order `--context-len` | last-1 chance; last-3 11/12 with t=0 24/48; transfer last-4 still wins nested FPR10 | `context_len=4` |
 
 Do not sell 36/48, 35/48, 34/48, 33/48, 24/48, 19/48, 18/48, or 17/48
-as replacing **29/48**. Write-up:
+as replacing **25/48**. Write-up:
 [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Where the other numbers are
@@ -47,7 +51,10 @@ as replacing **29/48**. Write-up:
 Instance contrast, tokhits, rankpath, cascade, and transfer tables are
 not copied here. Start from [key-free-twins.md](key-free-twins.md) and
 the experiment index. Neighbours of the measurement, with author–year
-citations, are [related-work.md](related-work.md).
+citations, are [related-work.md](related-work.md). Nested-by-stem Youden
+and FPR figures are a threshold nest on already-OOF scores: the other
+stems' models still trained on H. They are not second-level nested CV.
+t=0, AUC, and prompt ranking do not use that helper.
 
 ## What is scientifically interesting on the old corpus
 

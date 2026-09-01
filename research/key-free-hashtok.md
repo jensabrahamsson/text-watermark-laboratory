@@ -160,7 +160,7 @@ hashed observed-token hits. Station d4 and office d1/d3 stay zeros.
 
 Nested Youden **30/48** is the honest isolated-file number. Do not sell
 38/48 or 36/48 as beating poshits **39/48** (that 39/48 includes
-The-Laplace occupancy) or replacing **29/48**.
+The-Laplace occupancy) or replacing **25/48**.
 
 ## Letter d2 under hashed backoff
 
@@ -256,7 +256,7 @@ order-4 extra is gone. Office d4 is last-3 `' at'` at i=4.
 Nested Youden **33/48 vs 42/48** is the honest isolated-file number
 for exact hashed backoff. Mixed backoff nested **30/48** was the
 short-prefix mixer plus last-1. Do not sell 36/48 or 33/48 as beating
-poshits **39/48** or replacing **29/48**.
+poshits **39/48** or replacing **25/48**.
 
 ## Harbour d2 is a hashed 5-gram collision, not occupancy
 
@@ -410,7 +410,7 @@ rain d2, garden d1/d4. Leftover eight stay zeros.
 
 hashskip2 zeros letter d2's unmarked singleton votes but still has
 9 unmarked FPs. Nested leftover fill-in **0/8**. Do not sell 10/48,
-22/48, or 15/48 as beating poshits **39/48** or replacing **29/48**.
+22/48, or 15/48 as beating poshits **39/48** or replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/).
 
@@ -498,12 +498,12 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
 | **hashtok** | 9/12 | 0.664 | **33/48** | **22/48** | **22/48 vs 30/48** |
 | hashtoklen | 8/12 | 0.592 | 33/48 | 23/48 | 30/48 vs 20/48 |
 
-Occupancy-free hashing is four files denser than hard last-4 **29/48**
+Occupancy-free hashing is eight files denser than recounted hard last-4 **25/48**
 at t=0, with 26 unmarked FPs. Nested-by-stem spec is worse than hits.
 Hashpool occupancy and hashtok disagree on six files (hashpool-only
 night-bus d3, library d2, market d1, ferry-queue d4; hashtok-only
 night-bus d4, market d3). Letter d2 stays negative. Do not sell 33/48
-or 35/48 as replacing **29/48**.
+or 35/48 as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok/](../experiments/2026-09-01-probe-12x4-hashtok/).
 
@@ -537,8 +537,8 @@ letter prompt still loses. Do not sell that as reading the official
 5-gram.
 
 This is not hits nested **22/48 vs 39/48**, not poshits **39/48**, and
-not hard last-4 **29/48**. Combined t=0 at n=2 is **65/96**. Do not
-sell 36/48, 35/48, or 34/48 as replacing **29/48**.
+not recounted hard last-4 **25/48**. Combined t=0 at n=2 is **65/96**. Do not
+sell 36/48, 35/48, or 34/48 as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/),
@@ -595,10 +595,10 @@ Default n=8 wins prompt ranking, file AUC, t=0 spec, nested Youden
 spec, and nested FPR10 recall **at mixer seed 20260831**. The
 in-domain n=2 / n=4 win did not transfer at that seed, and both
 comparisons are seed-confounded. Keep the published protocol frozen. t=0 marked 29/48 here is not the
-headline hard last-4 **29/48**. Nested 17/48 is below hits nested
+headline recounted hard last-4 **25/48**. Nested 17/48 is below hits nested
 Youden **26/48 vs 44/48** on this same split. Letter d2 stays
 negative. Do not sell 31/48, 19/48, or 17/48 as beating poshits
-**39/48** or replacing **29/48**.
+**39/48** or replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/),
 [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/),
@@ -619,7 +619,7 @@ Default seed 20260831 is the best n=8 prompt ranking here. n=2 seed 7
 nested **19/48 vs 47/48** beats that default on nested recall and spec,
 with worse prompt ranking. Letter d2 flips at seed 0. Keep the
 published protocol frozen (`n_hashes=8`, seed `20260831`). Do not fish
-a seed. Do not sell 19/48 or 17/48 as replacing **29/48**.
+a seed. Do not sell 19/48 or 17/48 as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/).
 
@@ -646,7 +646,7 @@ In-domain 12×4 leave-one-out:
 
 Last-1 is chance (permutation p = 0.45). Last-3 is the best prompt
 ranking and nested spec, with sparser t=0 marked recall (**24/48** is
-below default **33/48** and below hard last-4 **29/48**). Last-2
+below default **33/48** and below recounted hard last-4 **25/48**). Last-2
 ranking is not a 5% test (p ≈ 0.097). Letter d2 flips positive at
 last-3; that is an order flip like n=16, not the official 5-gram.
 Nested last-3 recall **22/48** copies default last-4. Combined last-3
@@ -685,7 +685,7 @@ among the four orders, with collapsed prompt **7/12** and nested FPR10
 Letter d2 stays negative on every transfer order. Keep
 `--context-len 4` with `n_hashes=8` and seed `20260831`. Do not sell
 24/48, 18/48 nested, last-3 prompt 11/12, or last-2 AUC **0.738** as
-replacing **29/48** or beating poshits **39/48**.
+replacing **25/48** or beating poshits **39/48**.
 
 Occupancy-free **order** on this 12×4 / 36×4 corpus is closed, as are
 mixer width and seed. Do not add another hashed scorer here. The next
@@ -746,7 +746,7 @@ spec is still worse than hits **22/48 vs 39/48**. Occupancy hybrid
 extras versus tokhybrid are the same four files as hashpool versus
 hashtok. Letter d2 stays negative. `poshashtok` (`i // 16`) is a
 specificity knob, not a denser isolated-file reader. Do not sell
-33/48, 35/48, 28/48, or tokhybrid 11/12 as replacing **29/48**.
+33/48, 35/48, 28/48, or tokhybrid 11/12 as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/](../experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/).
 
@@ -775,7 +775,7 @@ hits **22/48 vs 39/48**. Letter d2 stays negative and copies the
 hashtok LR. Dropping tokhits-scorable positions does not isolate a
 complementary hashed signal; those positions were carrying the six
 lost signs when hashed. Do not sell 27/48, 33/48, or tokhybrid 11/12
-as replacing **29/48**.
+as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtokgap/](../experiments/2026-09-01-probe-12x4-hashtokgap/).
 
@@ -800,7 +800,7 @@ Lost three hashtok TPs (harbour d2, night-bus d4, station d1) and
 gained four (night-bus d3, library d1/d2, ferry-queue d4). Combined t=0
 stays **55/96**. Nested recall drops (19 vs 22) while spec rises
 (35 vs 30), still worse than hits **22/48 vs 39/48**. Letter d2 stays
-negative. Do not sell 34/48 as replacing **29/48**.
+negative. Do not sell 34/48 as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok2/](../experiments/2026-09-01-probe-12x4-hashtok2/).
 
@@ -829,9 +829,9 @@ Nested Youden drops letter d3 (mean t ≈ 0.065). hashtok2 versus tokhits
 gains letter d3 and loses kitchen d4 and rain d1. Letter **d2 is zero**
 on all four readers (not the full-file negative LR). Opening hashed
 readers copy tokhits density, not rankpath **41/48**. Marked isolated
-`lr>0` is **24/48**, below hard last-4 **29/48**. Prompt **12/12** and
+`lr>0` is **24/48**, below recounted hard last-4 **25/48**. Prompt **12/12** and
 unmarked ≤0 **47/48** do not make 24 a denser isolated-file detector.
-Do not sell 24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
+Do not sell 24/48, 23/48, or tokhits **12/12** as replacing **25/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/](../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/).
 

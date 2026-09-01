@@ -9,8 +9,9 @@ detection, or watermark stealing. The map below uses author–year citations
 
 These notes are not a literature review of every sampling watermark, and
 they are not the dissertation. Do not write `thesis/` until the isolated-file
-research is actually finished. Headlines stay **10/12**, **29/48**, and
-**36/36**.
+research is actually finished. Headlines after the truncated-context
+recount are **9/12**, **25/48**, and **36/36**. Pre-fix **10/12** /
+**29/48** stay in historical JSON.
 
 ## Official keyed detection
 
@@ -116,9 +117,10 @@ measurement is [PROTOCOL-next.md](PROTOCOL-next.md).
 
 A small, fully checked-in instance of **finished-string** key-free
 indication on the public mixin: GPT-2 and Qwen twins, leave-one-out,
-frozen tables, tests, and raw JSON. Headlines stay **10/12** (hard last-4
-prompt grain), **29/48** (that scorer’s isolated sign), and **36/36**
-(in-domain hits on 36×4). Occupancy-free hashing, rank-path tables, and
+frozen tables, tests, and raw JSON. Headlines after the truncated-context
+recount are **9/12** (hard last-4 prompt grain), **25/48** (that scorer’s
+isolated sign), and **36/36** (in-domain hits on 36×4). Pre-fix **10/12** /
+**29/48** stay in historical JSON. Occupancy-free hashing, rank-path tables, and
 cascades are later protocols. None of them is a universal detector, and
 none reconstructs keys ([invertibility.md](invertibility.md)).
 
