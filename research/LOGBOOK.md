@@ -918,4 +918,18 @@ different method. Gloaguen et al. (2025) ask whether a *generator* is
 watermarked via queries, not whether one finished file is marked.
 Isolated hard last-4 stays **29/48**. See [related-work.md](related-work.md).
 
+## 2026-09-01 hashtok mixer-width ablation
+
+In-domain 12×4 full-file occupancy-free `hashtok` while varying
+`--n-hashes`. Default n=8 is **33/48 vs 22/48**, nested **22/48 vs
+30/48**, prompt **9/12**. n=2 is **34/48 vs 31/48**, nested **28/48 vs
+37/48**, prompt **11/12**, AUC **0.764**. n=4 is densest t=0
+(**36/48 vs 30/48**, nested **35/48 vs 30/48**). n=16 copies 36/48
+with nested spec **24/48**. n=32 hurts (**30/48**, nested **21/48 vs
+38/48**). Letter d2 stays negative except n=16; that prompt still
+loses. Keep the CLI default at 8. Do not sell 36/48, 35/48, or 34/48
+as replacing **29/48**. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-nhashes{2,4,16,32}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

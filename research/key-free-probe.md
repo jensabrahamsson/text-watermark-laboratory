@@ -90,7 +90,12 @@ is **28/48 vs 40/48** (same as standalone rankpath). `hashmask`
 Youden **19/48 vs 45/48**, worse than hashtoklen; letter d2's official
 slot is two opposing singletons (lr=+0.240), thrown out nested.
 In-domain full-file `hashtok` is **33/48 vs 22/48**, nested-by-stem
-**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). OR with hard
+**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). `--n-hashes 2`
+on that mixer is **34/48 vs 31/48**, nested **28/48 vs 37/48**, AUC
+**0.764**; `--n-hashes 4` is **36/48 vs 30/48**, nested **35/48 vs
+30/48**; `--n-hashes 16` copies 36/48 with nested spec **24/48**;
+`--n-hashes 32` hurts (**30/48**, nested **21/48 vs 38/48**). Default
+n=8 is not the best in-domain width. Do not sell 36/48. OR with hard
 last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
 indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
 exist; the unmarked OR cost destroys the combined gate. Do not sell

@@ -3751,3 +3751,104 @@ def test_opening_grain_hashtok_copies_tokhits_density() -> None:
     }
     assert unmarked_fp == {("05-kitchen", 4)}
 
+
+def test_hashtok_nhashes_width_ablation_default_is_not_best() -> None:
+    """In-domain hashtok n=2/4 beat default n=8; n=32 hurts.
+
+    n=2: 11/12, 34/48 vs 31/48, nested 28/48 vs 37/48, AUC 0.764.
+    n=4: 11/12, 36/48 vs 30/48, nested 35/48 vs 30/48.
+    n=8: 9/12, 33/48 vs 22/48, nested 22/48 vs 30/48.
+    n=16: 11/12, 36/48 vs 22/48, nested 29/48 vs 24/48.
+    n=32: 10/12, 30/48 vs 26/48, nested 21/48 vs 38/48.
+    Letter d2 stays negative except n=16; that prompt still loses.
+    Do not sell 36/48, 35/48, or 34/48 as replacing 29/48.
+    """
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments"
+
+    def load(name: str):
+        d = root / name
+        holdout = holdout_from_json(d / "hashtok" / "holdout.json")
+        results = json.loads((d / "results.json").read_text())
+        method = next(m for m in results["methods"] if m["name"] == "hashtok")
+        nested = method["nested_stem"]["nested-youden-by-stem"]
+        letter = next(
+            m
+            for s, samp, m in zip(
+                holdout.stems, holdout._samples(), holdout.marked_lrs
+            )
+            if s == "08-letter" and samp == 2
+        )
+        return holdout, nested, letter, results
+
+    n2, nest2, letter2, res2 = load("2026-09-01-probe-12x4-hashtok-nhashes2")
+    n4, nest4, letter4, res4 = load("2026-09-01-probe-12x4-hashtok-nhashes4")
+    n8, nest8, letter8, res8 = load("2026-09-01-probe-12x4-hashtok")
+    n16, nest16, letter16, res16 = load("2026-09-01-probe-12x4-hashtok-nhashes16")
+    n32, nest32, letter32, res32 = load("2026-09-01-probe-12x4-hashtok-nhashes32")
+
+    for holdout, results in (
+        (n2, res2),
+        (n4, res4),
+        (n8, res8),
+        (n16, res16),
+        (n32, res32),
+    ):
+        assert results["used_keys"] is False
+        assert holdout.used_keys is False
+        assert holdout.used_hash_iv is False
+        assert holdout.used_g_values is False
+        assert holdout.instance == "key-free-hashtok"
+
+    assert n2.n_prompts_marked_above == 11
+    assert n2.n_marked_positive == 34
+    assert n2.n_unmarked_nonpositive == 31
+    assert (nest2["n_marked_above"], nest2["n_unmarked_at_most"]) == (28, 37)
+    assert res2["methods"][0]["binary"]["auc"] > 0.76
+
+    assert n4.n_prompts_marked_above == 11
+    assert n4.n_marked_positive == 36
+    assert n4.n_unmarked_nonpositive == 30
+    assert (nest4["n_marked_above"], nest4["n_unmarked_at_most"]) == (35, 30)
+
+    ht8 = next(m for m in res8["methods"] if m["name"] == "hashtok")
+    assert n8.n_prompts_marked_above == 9
+    assert n8.n_marked_positive == 33
+    assert n8.n_unmarked_nonpositive == 22
+    assert (nest8["n_marked_above"], nest8["n_unmarked_at_most"]) == (22, 30)
+    assert ht8["binary"]["auc"] < res2["methods"][0]["binary"]["auc"]
+
+    assert n16.n_prompts_marked_above == 11
+    assert n16.n_marked_positive == 36
+    assert n16.n_unmarked_nonpositive == 22
+    assert (nest16["n_marked_above"], nest16["n_unmarked_at_most"]) == (29, 24)
+
+    assert n32.n_prompts_marked_above == 10
+    assert n32.n_marked_positive == 30
+    assert n32.n_unmarked_nonpositive == 26
+    assert (nest32["n_marked_above"], nest32["n_unmarked_at_most"]) == (21, 38)
+    assert n32.n_marked_positive < n8.n_marked_positive
+
+    assert n2.n_marked_positive < 39
+    assert n4.n_marked_positive < 39
+    assert n4.n_marked_positive > 29
+    assert nest2["n_unmarked_at_most"] < 39
+    assert nest2["n_unmarked_at_most"] > nest8["n_unmarked_at_most"]
+    assert nest2["n_marked_above"] > nest8["n_marked_above"]
+
+    assert letter2 < 0
+    assert letter4 < 0
+    assert letter8 < 0
+    assert letter16 > 0
+    assert letter32 < 0
+    assert n16.n_prompts_marked_above == 11
+    letter_prompt_n16 = [
+        m for s, m in zip(n16.stems, n16.marked_lrs) if s == "08-letter"
+    ]
+    unmarked_letter_n16 = [
+        u for s, u in zip(n16.stems, n16.unmarked_lrs) if s == "08-letter"
+    ]
+    assert len(letter_prompt_n16) == 4
+    assert sum(letter_prompt_n16) / 4 < sum(unmarked_letter_n16) / 4
+

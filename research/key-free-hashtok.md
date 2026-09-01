@@ -507,6 +507,45 @@ or 35/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok/](../experiments/2026-09-01-probe-12x4-hashtok/).
 
+## Mixer width: default n=8 is not the best in-domain hashtok
+
+The CLI default is `--n-hashes 8`. That is a random-feature width, not
+SynthID’s secret hash. Leave-one-prompt-out on the same 12×4 full-file
+twins while changing only that width:
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hashtok --n-hashes 2 \
+  --out-dir experiments/2026-09-01-probe-12x4-hashtok-nhashes2
+```
+
+| n_hashes | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem |
+|---|---|---|---|---|---|
+| **2** | **11/12** | **0.764** | 34/48 | **31/48** | **28/48 vs 37/48** |
+| 4 | **11/12** | 0.733 | **36/48** | 30/48 | **35/48 vs 30/48** |
+| 8 (default) | 9/12 | 0.664 | 33/48 | 22/48 | 22/48 vs 30/48 |
+| 16 | **11/12** | 0.662 | **36/48** | 22/48 | 29/48 vs 24/48 |
+| 32 | 10/12 | 0.622 | 30/48 | 26/48 | 21/48 vs 38/48 |
+
+Fewer hashes are denser *and* better nested than n=8 on this gate.
+n=2 has the best file AUC and the best nested spec among the dense
+widths. n=4 is the densest t=0 / nested recall (mean nested t ≈ 0).
+Wider mixers dilute the mean gap: n=16 nested spec is **24/48**; n=32
+nested recall **21/48** is below n=8. Letter d2 stays negative at
+n=2/4/8/32. n=16 is the only width here with letter d2 `lr>0`; the
+letter prompt still loses. Do not sell that as reading the official
+5-gram.
+
+This is not hits nested **22/48 vs 39/48**, not poshits **39/48**, and
+not hard last-4 **29/48**. Combined t=0 at n=2 is **65/96**. Keep the
+CLI default at 8 until a transfer gate says otherwise. Do not sell
+36/48, 35/48, or 34/48 as replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/),
+[../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/),
+[../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/),
+[../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/).
+
 ## OR with hard last-4 is complementary TPs, not a detector
 
 Saved 12×4 LOO holdouts, no new GPT-2. Hard last-4 indicate is still
