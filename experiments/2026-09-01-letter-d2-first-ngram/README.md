@@ -40,9 +40,16 @@ prefix-8 TPs are last-1; **20 of 38** TPs are last-1 only.
 
 JSON: `results.json` (official means use keys; ranks do not),
 `backoff-trace.json` (`used_keys=false`), `fifth-rank-bins.json`,
-`prefix8-backoff-orders.json`, `hashtok-trace.json` (`used_keys=false`).
+`prefix8-backoff-orders.json`, `hashtok-trace.json` (`used_keys=false`),
+`hashtokbackoff-trace.json` (`used_keys=false`).
 60-stem prefix-5 hashpool signs letter d2 at lr=0.372 with **0/8**
-hashes seeing `I`; hashtok abstains. In-domain prefix-5 rankpath:
+hashes seeing `I`; hashtok abstains. Hashed backoff still does not
+read that 5-gram: last-4/3/2 hashes never saw `I`; last-1 saw it
+unmarked only (c_m=0, c_u=2, δ=−1.10). hashtokbackoff lr=0.096
+(`n_used=3`); hashtokbackoff2 lr=0.694 is tokens 1–2 (`Now`→` in` at
+order 3, `Now in`→` the` at order 4), not token 4. The i=1 "order 3"
+hit is a one-token prefix hashed into the order-3 table, not a 3-gram.
+In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 Hashed occupancy write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).
 

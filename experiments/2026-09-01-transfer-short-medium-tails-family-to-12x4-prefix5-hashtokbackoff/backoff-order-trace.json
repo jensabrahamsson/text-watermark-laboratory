@@ -1,0 +1,874 @@
+{
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "fit_prefix": 5,
+  "note": "60-stem prefix-5 hashtokbackoff vs hashtok. Backoff uses per-order hash tables, not shorter hashes in a 4-gram pool. Do not sell 38/48 or 36/48 as beating poshits 39/48.",
+  "headline": {
+    "hashpool": "34/48 vs 34/48",
+    "hashtok": "30/48 vs 36/48",
+    "hashtokbackoff": "38/48 vs 35/48",
+    "hashtokbackoff2": "36/48 vs 34/48",
+    "postokbackoff": "34/48 vs 40/48",
+    "postokbackoff2": "15/48 vs 46/48",
+    "nested_hashtokbackoff_youden": "30/48 vs 40/48",
+    "nested_hashtokbackoff2_youden": "30/48 vs 42/48"
+  },
+  "backoff_extras_vs_hashtok": [
+    [
+      "01-harbour",
+      3
+    ],
+    [
+      "01-harbour",
+      4
+    ],
+    [
+      "03-library",
+      1
+    ],
+    [
+      "03-library",
+      2
+    ],
+    [
+      "03-library",
+      3
+    ],
+    [
+      "03-library",
+      4
+    ],
+    [
+      "08-letter",
+      2
+    ],
+    [
+      "08-letter",
+      3
+    ],
+    [
+      "10-office",
+      4
+    ]
+  ],
+  "backoff2_extras_vs_hashtok": [
+    [
+      "03-library",
+      1
+    ],
+    [
+      "03-library",
+      2
+    ],
+    [
+      "03-library",
+      3
+    ],
+    [
+      "03-library",
+      4
+    ],
+    [
+      "08-letter",
+      2
+    ],
+    [
+      "08-letter",
+      3
+    ],
+    [
+      "10-office",
+      4
+    ]
+  ],
+  "letter_d2": {
+    "ids": [
+      3844,
+      287,
+      262,
+      1218,
+      314
+    ],
+    "pieces": [
+      "Now",
+      " in",
+      " the",
+      " second",
+      " I"
+    ],
+    "hashtokbackoff": {
+      "lr": 0.0955413158228385,
+      "n_used": 3,
+      "n_positions": 4
+    },
+    "hashtokbackoff2": {
+      "lr": 0.6935615154142224,
+      "n_used": 2,
+      "n_positions": 4
+    },
+    "holdout": {
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0955413158228385,
+      "hashtokbackoff2": 0.6935615154142224
+    },
+    "trace": [
+      {
+        "i": 1,
+        "tok": 287,
+        "order": 3,
+        "delta": 1.1099760473184244,
+        "tried": [
+          {
+            "order": 4,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 3,
+            "n_hashes_seen": 1,
+            "c_m": 1,
+            "c_u": 0,
+            "delta": 1.1099760473184244
+          },
+          {
+            "order": 2,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 1,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          }
+        ],
+        "piece": " in"
+      },
+      {
+        "i": 2,
+        "tok": 262,
+        "order": 4,
+        "delta": 0.27714698351002043,
+        "tried": [
+          {
+            "order": 4,
+            "n_hashes_seen": 2,
+            "c_m": 0,
+            "c_u": 2,
+            "delta": 0.27714698351002043
+          },
+          {
+            "order": 3,
+            "n_hashes_seen": 1,
+            "c_m": 0,
+            "c_u": 1,
+            "delta": -1.102414574617848
+          },
+          {
+            "order": 2,
+            "n_hashes_seen": 4,
+            "c_m": 1,
+            "c_u": 3,
+            "delta": 0.7983354175121753
+          },
+          {
+            "order": 1,
+            "n_hashes_seen": 8,
+            "c_m": 0,
+            "c_u": 25,
+            "delta": -1.9695471801458289
+          }
+        ],
+        "piece": " the"
+      },
+      {
+        "i": 3,
+        "tok": 1218,
+        "order": null,
+        "delta": null,
+        "tried": [
+          {
+            "order": 4,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 3,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 2,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 1,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          }
+        ],
+        "piece": " second"
+      },
+      {
+        "i": 4,
+        "tok": 314,
+        "order": 1,
+        "delta": -1.1004990833599293,
+        "tried": [
+          {
+            "order": 4,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 3,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 2,
+            "n_hashes_seen": 0,
+            "c_m": 0,
+            "c_u": 0,
+            "delta": null
+          },
+          {
+            "order": 1,
+            "n_hashes_seen": 2,
+            "c_m": 0,
+            "c_u": 2,
+            "delta": -1.1004990833599293
+          }
+        ],
+        "piece": " I"
+      }
+    ],
+    "fifth_order": 1
+  },
+  "traced_files": [
+    {
+      "stem": "03-library",
+      "sample": 1,
+      "in_backoff2_extras": true,
+      "leftover": false,
+      "hashtok": -0.26658852607944566,
+      "hashtokbackoff": 0.3080946363890795,
+      "hashtokbackoff2": 0.3080946363890795,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": "osing",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " is",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.3080946363890795
+        },
+        {
+          "i": 4,
+          "piece": " same",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "03-library",
+      "sample": 2,
+      "in_backoff2_extras": true,
+      "leftover": false,
+      "hashtok": -0.26658852607944566,
+      "hashtokbackoff": 0.3080946363890795,
+      "hashtokbackoff2": 0.3080946363890795,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": "osing",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " is",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.3080946363890795
+        },
+        {
+          "i": 4,
+          "piece": " same",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "03-library",
+      "sample": 3,
+      "in_backoff2_extras": true,
+      "leftover": false,
+      "hashtok": -0.26658852607944566,
+      "hashtokbackoff": 0.3080946363890795,
+      "hashtokbackoff2": 0.3080946363890795,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": "osing",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " is",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.3080946363890795
+        },
+        {
+          "i": 4,
+          "piece": " same",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "03-library",
+      "sample": 4,
+      "in_backoff2_extras": true,
+      "leftover": false,
+      "hashtok": -0.26658852607944566,
+      "hashtokbackoff": 0.3080946363890795,
+      "hashtokbackoff2": 0.3080946363890795,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": "osing",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " is",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.3080946363890795
+        },
+        {
+          "i": 4,
+          "piece": " same",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "08-letter",
+      "sample": 2,
+      "in_backoff2_extras": true,
+      "leftover": true,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0955413158228385,
+      "hashtokbackoff2": 0.6935615154142224,
+      "orders": [
+        3,
+        4,
+        1
+      ],
+      "min_order": 1,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " in",
+          "order": 3,
+          "delta": 1.1099760473184244
+        },
+        {
+          "i": 2,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.27714698351002043
+        },
+        {
+          "i": 3,
+          "piece": " second",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " I",
+          "order": 1,
+          "delta": -1.1004990833599293
+        }
+      ]
+    },
+    {
+      "stem": "08-letter",
+      "sample": 3,
+      "in_backoff2_extras": true,
+      "leftover": true,
+      "hashtok": -0.1641965758768238,
+      "hashtokbackoff": 1.1100192564614861,
+      "hashtokbackoff2": 1.1100192564614861,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " working",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " on",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 1.1100192564614861
+        },
+        {
+          "i": 4,
+          "piece": " key",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "10-office",
+      "sample": 4,
+      "in_backoff2_extras": true,
+      "leftover": false,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.5364793041446999,
+      "hashtokbackoff2": 0.5364793041446999,
+      "orders": [
+        3
+      ],
+      "min_order": 3,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " printer",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " worked",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " better",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " at",
+          "order": 3,
+          "delta": 0.5364793041446999
+        }
+      ]
+    },
+    {
+      "stem": "01-harbour",
+      "sample": 3,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": -0.2027548542131341,
+      "hashtokbackoff": 0.03042660344281839,
+      "hashtokbackoff2": -0.6121140007155436,
+      "orders": [
+        4,
+        2,
+        1,
+        3
+      ],
+      "min_order": 1,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " ferry",
+          "order": 4,
+          "delta": -1.3140204604564116
+        },
+        {
+          "i": 2,
+          "piece": " was",
+          "order": 2,
+          "delta": -1.1452157036608765
+        },
+        {
+          "i": 3,
+          "piece": " in",
+          "order": 1,
+          "delta": 1.9580484159179041
+        },
+        {
+          "i": 4,
+          "piece": " a",
+          "order": 3,
+          "delta": 0.6228941619706578
+        }
+      ]
+    },
+    {
+      "stem": "01-harbour",
+      "sample": 4,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": -0.2027548542131341,
+      "hashtokbackoff": 0.03042660344281839,
+      "hashtokbackoff2": -0.6121140007155436,
+      "orders": [
+        4,
+        2,
+        1,
+        3
+      ],
+      "min_order": 1,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " ferry",
+          "order": 4,
+          "delta": -1.3140204604564116
+        },
+        {
+          "i": 2,
+          "piece": " was",
+          "order": 2,
+          "delta": -1.1452157036608765
+        },
+        {
+          "i": 3,
+          "piece": " in",
+          "order": 1,
+          "delta": 1.9580484159179041
+        },
+        {
+          "i": 4,
+          "piece": " a",
+          "order": 3,
+          "delta": 0.6228941619706578
+        }
+      ]
+    },
+    {
+      "stem": "06-station",
+      "sample": 4,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0,
+      "hashtokbackoff2": 0.0,
+      "orders": [],
+      "min_order": null,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " conductor",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " turned",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " and",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " shouted",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "08-letter",
+      "sample": 2,
+      "in_backoff2_extras": true,
+      "leftover": true,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0955413158228385,
+      "hashtokbackoff2": 0.6935615154142224,
+      "orders": [
+        3,
+        4,
+        1
+      ],
+      "min_order": 1,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " in",
+          "order": 3,
+          "delta": 1.1099760473184244
+        },
+        {
+          "i": 2,
+          "piece": " the",
+          "order": 4,
+          "delta": 0.27714698351002043
+        },
+        {
+          "i": 3,
+          "piece": " second",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " I",
+          "order": 1,
+          "delta": -1.1004990833599293
+        }
+      ]
+    },
+    {
+      "stem": "08-letter",
+      "sample": 3,
+      "in_backoff2_extras": true,
+      "leftover": true,
+      "hashtok": -0.1641965758768238,
+      "hashtokbackoff": 1.1100192564614861,
+      "hashtokbackoff2": 1.1100192564614861,
+      "orders": [
+        4
+      ],
+      "min_order": 4,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " working",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " on",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": " the",
+          "order": 4,
+          "delta": 1.1100192564614861
+        },
+        {
+          "i": 4,
+          "piece": " key",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "10-office",
+      "sample": 1,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0,
+      "hashtokbackoff2": 0.0,
+      "orders": [],
+      "min_order": null,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " printer",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " worked",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": ".",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " The",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "10-office",
+      "sample": 3,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": 0.0,
+      "hashtokbackoff": 0.0,
+      "hashtokbackoff2": 0.0,
+      "orders": [],
+      "min_order": null,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " printer",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 2,
+          "piece": " worked",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 3,
+          "piece": ".",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " The",
+          "order": null,
+          "delta": null
+        }
+      ]
+    },
+    {
+      "stem": "12-ferry-queue",
+      "sample": 4,
+      "in_backoff2_extras": false,
+      "leftover": true,
+      "hashtok": -1.4389052574939707,
+      "hashtokbackoff": -1.2296180820586442,
+      "hashtokbackoff2": -1.2296180820586442,
+      "orders": [
+        4,
+        2
+      ],
+      "min_order": 2,
+      "only_last1": false,
+      "positions": [
+        {
+          "i": 1,
+          "piece": " ferry",
+          "order": 4,
+          "delta": -1.3140204604564116
+        },
+        {
+          "i": 2,
+          "piece": " was",
+          "order": 2,
+          "delta": -1.1452157036608765
+        },
+        {
+          "i": 3,
+          "piece": " waiting",
+          "order": null,
+          "delta": null
+        },
+        {
+          "i": 4,
+          "piece": " for",
+          "order": null,
+          "delta": null
+        }
+      ]
+    }
+  ]
+}

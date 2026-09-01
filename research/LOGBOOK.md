@@ -674,4 +674,28 @@ JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5
 `experiments/2026-09-01-letter-d2-first-ngram/hashtok-trace.json`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashed backoff is per-order tables, not a 5-gram reader
+
+60-stem prefix-5. `hashtokbackoff` fits separate hashpool tables per
+order (1,2,3,4) and keeps the longest occupancy-free hit.
+hashtokbackoff **10/12**, **38/48 vs 35/48**; hashtokbackoff2 **36/48
+vs 34/48**. Nested Youden stays **30/48 vs 40–42/48**. Do not sell
+38/48 or 36/48 as beating poshits 39/48.
+
+Letter d2 official 5-gram `I`: last-4/3/2 hashes unseen; last-1 saw it
+unmarked only (c_m=0, c_u=2, δ=−1.10). hashtokbackoff2's letter d2
+lr=0.694 is tokens 1–2, not token 4. At i=1 the winning "order 3" is a
+one-token prefix hashed into the order-3 table, not a 3-gram. Harbour
+d3/d4 need last-1; library ×4 and letter d3 are order-4 hashed
+observed-token extras.
+
+Same train, published prefix-4 opening: hashtok **35/48 vs 39/48**;
+hashed backoff **hurts** (**31/48 vs 33/48**, 15 FPs). Hashpool's extra
+three versus hashtok are occupancy. Keep prefix-4 hashtok.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtokbackoff/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtokbackoff/`,
+`experiments/2026-09-01-letter-d2-first-ngram/hashtokbackoff-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

@@ -2088,3 +2088,156 @@ def test_prefix5_hashtok_letter_d2_is_occupancy_not_observed() -> None:
     assert trace["marked_tp_sets"]["hashtok_equals_postokhits"] is True
 
 
+def _nested_youden(results: dict, name: str) -> tuple[int, int]:
+    rows = [
+        row
+        for row in results["thresholds"]
+        if row["name"] == name and row["source"] == "nested-youden"
+    ]
+    assert len(rows) == 1
+    return int(rows[0]["n_marked_above"]), int(rows[0]["n_unmarked_at_most"])
+
+
+def test_prefix5_hashtokbackoff_letter_d2_fifth_is_last1_unmarked() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtokbackoff"
+    )
+    atoms = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-letter-d2-first-ngram"
+        / "hashtokbackoff-trace.json"
+    )
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    hb = holdout_from_json(root / "hashtokbackoff" / "holdout.json")
+    hb2 = holdout_from_json(root / "hashtokbackoff2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    trace = json.loads((root / "backoff-order-trace.json").read_text())
+    atoms_trace = json.loads(atoms.read_text())
+    assert ht.used_keys is False
+    assert hb.used_keys is False
+    assert hb2.used_keys is False
+    assert trace["used_keys"] is False
+    assert atoms_trace["used_keys"] is False
+    assert ht.n_marked_positive == 30
+    assert ht.n_unmarked_nonpositive == 36
+    assert hb.n_prompts_marked_above == 10
+    assert hb.n_marked_positive == 38
+    assert hb.n_unmarked_nonpositive == 35
+    assert hb2.n_marked_positive == 36
+    assert hb2.n_unmarked_nonpositive == 34
+    # t=0 38/48 is not a calibrated detector and does not beat poshits 39/48.
+    assert hb.n_marked_positive < 39
+    assert hb2.n_marked_positive < 39
+    nested_hb = _nested_youden(results, "hashtokbackoff")
+    nested_hb2 = _nested_youden(results, "hashtokbackoff2")
+    assert nested_hb == (30, 40)
+    assert nested_hb2 == (30, 42)
+    extras = {tuple(row) for row in trace["backoff_extras_vs_hashtok"]}
+    extras2 = {tuple(row) for row in trace["backoff2_extras_vs_hashtok"]}
+    assert extras == {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("03-library", 1),
+        ("03-library", 2),
+        ("03-library", 3),
+        ("03-library", 4),
+        ("08-letter", 2),
+        ("08-letter", 3),
+        ("10-office", 4),
+    }
+    assert extras2 == extras - {("01-harbour", 3), ("01-harbour", 4)}
+    d2 = trace["letter_d2"]
+    assert d2["ids"] == atoms_trace["letter_d2"]["ids"] == [3844, 287, 262, 1218, 314]
+    assert d2["hashtokbackoff"]["n_used"] == 3
+    assert d2["hashtokbackoff2"]["n_used"] == 2
+    assert d2["holdout"]["hashtok"] == 0.0
+    assert d2["holdout"]["hashtokbackoff"] > 0
+    assert d2["holdout"]["hashtokbackoff2"] > 0
+    assert d2["holdout"]["hashtokbackoff"] < d2["holdout"]["hashtokbackoff2"]
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    by_hb = {
+        (s, samp): m
+        for s, samp, m in zip(hb.stems, hb._samples(), hb.marked_lrs)
+    }
+    by_hb2 = {
+        (s, samp): m
+        for s, samp, m in zip(hb2.stems, hb2._samples(), hb2.marked_lrs)
+    }
+    assert by_ht[("08-letter", 2)] == 0
+    assert abs(by_hb[("08-letter", 2)] - d2["holdout"]["hashtokbackoff"]) < 1e-9
+    assert abs(by_hb2[("08-letter", 2)] - d2["holdout"]["hashtokbackoff2"]) < 1e-9
+    first, second, third, fifth = d2["trace"]
+    # i=1 "order 3" hashes a 1-token prefix into the order-3 table, not a 3-gram.
+    assert first["i"] == 1
+    assert first["order"] == 3
+    assert first["piece"] == " in"
+    assert second["i"] == 2
+    assert second["order"] == 4
+    assert third["i"] == 3
+    assert third["order"] is None
+    assert fifth["i"] == 4
+    assert fifth["piece"] == " I"
+    assert fifth["order"] == 1
+    assert fifth["delta"] < 0
+    assert d2["fifth_order"] == 1
+    by_order = {row["order"]: row for row in fifth["tried"]}
+    assert by_order[4]["n_hashes_seen"] == 0
+    assert by_order[3]["n_hashes_seen"] == 0
+    assert by_order[2]["n_hashes_seen"] == 0
+    assert by_order[1]["n_hashes_seen"] == 2
+    assert by_order[1]["c_m"] == 0
+    assert by_order[1]["c_u"] == 2
+    library = [
+        row
+        for row in trace["traced_files"]
+        if row["stem"] == "03-library" and row["in_backoff2_extras"]
+    ]
+    assert len(library) == 4
+    assert all(row["orders"] == [4] for row in library)
+
+
+def test_prefix4_hashtok_beats_hashed_backoff_on_opening() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtokbackoff"
+    )
+    hp = holdout_from_json(root / "hashpool" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    hb = holdout_from_json(root / "hashtokbackoff" / "holdout.json")
+    hb2 = holdout_from_json(root / "hashtokbackoff2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert hp.used_keys is False
+    assert ht.used_keys is False
+    assert hb.used_keys is False
+    assert results["fit_prefix"] == 4
+    assert hp.n_prompts_marked_above == 10
+    assert hp.n_marked_positive == 38
+    assert hp.n_unmarked_nonpositive == 37
+    assert ht.n_prompts_marked_above == 10
+    assert ht.n_marked_positive == 35
+    assert ht.n_unmarked_nonpositive == 39
+    assert hb.n_prompts_marked_above == 10
+    assert hb.n_marked_positive == 31
+    assert hb.n_unmarked_nonpositive == 33
+    assert hb2.n_marked_positive == 31
+    assert hb2.n_unmarked_nonpositive == 33
+    assert hb.n_marked_positive < ht.n_marked_positive
+    assert ht.n_marked_positive < hp.n_marked_positive
+    assert hp.n_marked_positive < 39
+    assert ht.n_marked_positive < 39
+    assert _nested_youden(results, "hashtok") == (33, 45)
+    assert _nested_youden(results, "hashtokbackoff") == (31, 42)
+    assert _nested_youden(results, "hashpool") == (35, 46)
+
+
