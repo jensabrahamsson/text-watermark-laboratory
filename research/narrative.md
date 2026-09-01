@@ -174,6 +174,9 @@ rankpath **12/18** or leftover-18 interpolate **12/18**.
 Leftover-18 published key-free readers are closed
 ([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
 Do not re-slice more leftover-18 holdouts as leftover-file detection.
+Distil occupancy-free leftover-18 on the original 12 is
+([PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md)): same BPE,
+100 prompts frozen before leftover peeking, not more GPT-2 scenes.
 
 ## What this freeze refuses
 

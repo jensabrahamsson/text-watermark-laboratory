@@ -27,6 +27,8 @@ Leftover-18 mixed rankpath and grok36 interpolate are
 rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen
 **89 vs 19**. Leftover-18 published key-free readers are closed
 ([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
+Distil occupancy-free leftover-18 on the original 12 is
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md).
 
 ## Locked headlines
 
@@ -424,4 +426,11 @@ Mixed rankpath **12/18 vs 13/18**. Interpolate **12/18 vs 12/18**; 0:4
 unseen **89 vs 19**. Last-4 **10/18 vs 10/18**. Official **18/18** uses
 keys. Do not re-slice more leftover-18 holdouts as leftover-file
 detection. Does not replace **25/48**.
+
+## Distil occupancy-free leftover-18 (PROTOCOL-isolated-xgen)
+
+Protocol [PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md).
+Frozen before Distil→original-12 occupancy-free LRs. Distil 100×4
+tables, same BPE, 100 prompts frozen before leftover peeking. Not more
+GPT-2 scenes. Not leftover targeting. Does not replace **25/48**.
 

@@ -49,6 +49,7 @@ def test_protocol_leftover18_closed_refuses_more_holdout_reslices() -> None:
     assert "leftover-18 mask-*k*" in text
     assert "There is no decode command" in text
     assert "`cdccae5`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "PROTOCOL-isolated-xgen" in text
 
 
 def test_leftover18_published_readers_are_not_leftover_file_detectors() -> None:

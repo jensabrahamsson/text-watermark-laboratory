@@ -2,8 +2,9 @@
 
 Official prefix scores use detector keys (positive control). Interpolate
 atoms on leftover files do not. Leftover-18 remaining readers re-slice
-published holdouts. None of that is a new probe method. None replaces
-25/48.
+published holdouts. Cross-generator occupancy-free leftover coverage
+uses Distil tables on the original 12. None of that is a new probe
+method. None replaces 25/48.
 """
 
 from __future__ import annotations
@@ -380,3 +381,111 @@ def persist_leftover_readers(payload: dict, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "readers.json").write_text(json.dumps(payload, indent=2) + "\n")
     (out_dir / "results.md").write_text(print_leftover_readers(payload))
+
+
+def leftover_openings_coverage(
+    keys: set[tuple[str, int]],
+    openings: Path,
+    *,
+    method: str = "postokhits",
+) -> dict:
+    """How many leftover keys a published openings dump covers.
+
+    Not a new probe method. Distil occupancy-free leftover-18 uses this
+    after PROTOCOL-isolated-xgen decode. Does not replace 25/48.
+    """
+    pay = json.loads(Path(openings).read_text())
+    if pay.get("used_keys"):
+        raise RuntimeError("leftover openings coverage consulted keys")
+    leftover = set(keys)
+    zeros = _zero_keys(pay, method)
+    covered = leftover - zeros
+    uncovered = leftover & zeros
+    final = (pay.get("final") or {}).get(method) or {}
+    return {
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "method": method,
+        "n_leftover": len(leftover),
+        "n_covered": len(covered),
+        "n_uncovered": len(uncovered),
+        "n_train_openings": int(final.get("n_train_openings") or 0),
+        "n_marked_covered": int(final.get("n_covered") or 0),
+        "covered": sorted(
+            [{"stem": s, "sample": n} for s, n in covered],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "uncovered": sorted(
+            [{"stem": s, "sample": n} for s, n in uncovered],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+    }
+
+
+def summarize_xgen_leftover(
+    keys: set[tuple[str, int]],
+    *,
+    holdouts: dict[str, Path],
+    openings: Path,
+    method: str = "postokhits",
+) -> dict:
+    """Distil occupancy-free leftover-18 on the original 12.
+
+    Same BPE as GPT-2. The 100 Distil prompts were frozen before leftover
+    peeking. Not a new probe method. Does not replace 25/48.
+    """
+    payload = summarize_leftover_holdouts(keys, holdouts)
+    payload["note"] = (
+        "Distil occupancy-free leftover-18 on the original 12. "
+        "Same BPE, 100 prompts frozen before leftover peeking. "
+        "Not mixed tables, not a new probe method. "
+        "Does not replace 25/48."
+    )
+    payload["openings"] = leftover_openings_coverage(
+        keys, openings, method=method
+    )
+    return payload
+
+
+def print_xgen_leftover(payload: dict) -> str:
+    lines = [
+        "# Distil occupancy-free leftover-18",
+        "",
+        str(payload.get("note") or ""),
+        "",
+        (
+            f"used_keys={payload.get('used_keys')} "
+            f"leftover={payload.get('n_leftover')}"
+        ),
+        "",
+        "Leftover signs:",
+        "",
+    ]
+    for row in payload.get("leftover_signs") or []:
+        lines.append(
+            f"- {row['label']}: marked>0 {row['marked_above_zero']}/{row['n']}, "
+            f"unmarked≤0 {row['unmarked_at_most_zero']}/{row['n']}"
+        )
+    cov = payload.get("openings") or {}
+    lines.extend(
+        [
+            "",
+            (
+                f"openings leftover covered={cov.get('n_covered')}/"
+                f"{cov.get('n_leftover')} uncovered={cov.get('n_uncovered')} "
+                f"full marked covered={cov.get('n_marked_covered')}/48"
+            ),
+            "",
+            "Distil occupancy-free leftover-18 is not leftover-file detection. "
+            "Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_xgen_leftover(payload: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "xgen.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (out_dir / "results.md").write_text(print_xgen_leftover(payload))

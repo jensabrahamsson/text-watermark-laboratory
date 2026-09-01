@@ -119,5 +119,7 @@ is `'Cl'→'osing'`.
 H-rclosed-iso **holds**. Leftover-18 published key-free readers are
 exhausted for leftover-file detection. Occupancy-free leftover-18 is
 **0/18** by construction. Official leftover-18 is **18/18** at
-prefix-128 and uses keys. Isolated-file remains open. Do not write
+prefix-128 and uses keys. Isolated-file remains open. Distil occupancy-free
+leftover-18 on the original 12 is
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md). Do not write
 `thesis/`.
