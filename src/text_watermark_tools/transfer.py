@@ -34,6 +34,9 @@ and change only how a finished string is read:
   replaced by MASK_TAG (length-k templates, not skip-grams)
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
+* tokhybrid — occupancy-free hybrid: tokhits when the exact context and
+  next token were seen, else hashtok
+* poshashtok — hashtok with a token-position namespace (pospool analog)
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
   (no tokenizer; the reader that can cross generators)
 
@@ -1221,6 +1224,73 @@ def score_hybrid(
     min_count: int = 1,
 ) -> float:
     return score_hybrid_detail(
+        ids, count_model, hash_model, min_count=min_count
+    ).lr
+
+
+def score_tokhybrid_detail(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> ScoreDetail:
+    """Exact tokhits when both sides saw the n-gram and next token; else hashtok.
+
+    Occupancy-free analog of hybrid. Laplace on an unseen next token cannot
+    vote, on either the exact table or a colliding hash. Still no keys.
+    """
+    if (
+        count_model.used_keys
+        or count_model.used_hash_iv
+        or count_model.used_g_values
+        or hash_model.used_keys
+        or hash_model.used_hash_iv
+        or hash_model.used_g_values
+    ):
+        raise RuntimeError("tokhybrid consulted keys / hash_iv / g-values")
+    spec = COUNT_SPECS["tokhits"]
+    floor = max(int(min_count), 1)
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        ctx = _select_score_ctx(ids, i, t, count_model, spec)
+        if ctx is not None:
+            log_m = _log_p_mode(
+                count_model.marked, ctx, t, model=count_model, kind="gated"
+            )
+            log_u = _log_p_mode(
+                count_model.unmarked, ctx, t, model=count_model, kind="gated"
+            )
+            delta = log_m - log_u
+        else:
+            hctx = _scored_ctx(
+                ids, i, hash_model.context_len, hash_model.position_bucket
+            )
+            hashed = hashtok_token_lr(hash_model, hctx, t, min_count=floor)
+            if hashed is None:
+                continue
+            delta = hashed
+        total += delta
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_tokhybrid(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    return score_tokhybrid_detail(
         ids, count_model, hash_model, min_count=min_count
     ).lr
 

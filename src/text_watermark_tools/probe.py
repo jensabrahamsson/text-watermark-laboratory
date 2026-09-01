@@ -55,6 +55,7 @@ from text_watermark_tools.transfer import (
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
+    score_tokhybrid,
     score_sequence,
     score_surface,
 )
@@ -734,6 +735,7 @@ def rotate_hashpool(
         "hashskip2",
         "hashmask",
         "hashmask2",
+        "poshashtok",
     ):
         kind = reader
         instance = f"key-free-{reader}"
@@ -1262,6 +1264,80 @@ def rotate_hybrid(
         instance="key-free-hybrid",
         score_kind="hybrid",
         margin=margin,
+    )
+
+
+def rotate_tokhybrid(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    """Occupancy-free hybrid: tokhits, then hashtok. Still no keys."""
+
+    def make(train: Sequence[Twin]):
+        counts = fit_count_model(train, context_len=context_len)
+        hashed = fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        used = (
+            counts.used_keys or hashed.used_keys,
+            counts.used_hash_iv or hashed.used_hash_iv,
+            counts.used_g_values or hashed.used_g_values,
+        )
+        return (
+            lambda ids, c=counts, h=hashed: score_tokhybrid(ids, c, h),
+            used[0],
+            used[1],
+            used[2],
+        )
+
+    return rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-tokhybrid",
+        score_kind="tokhybrid",
+        margin=margin,
+    )
+
+
+def rotate_poshashtok(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+) -> IndicatorHoldout:
+    """Occupancy-free hashing with a token-position namespace. Not a key."""
+    bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    return rotate_hashtok(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=bucket,
+        method_name="poshashtok",
     )
 
 
@@ -3173,9 +3249,11 @@ def run_probe(
             run.methods.append(summarize_holdout(name, counted[name]))
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
-        or "hybrid" in extras or "hashtok" in extras or "hashtoklen" in extras
+        or "hybrid" in extras or "tokhybrid" in extras or "hashtok" in extras
+        or "hashtoklen" in extras
         or "hashtoklen2" in extras or "hashskip" in extras or "hashskip2" in extras
         or "hashmask" in extras or "hashmask2" in extras
+        or "poshashtok" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -3221,6 +3299,20 @@ def run_probe(
             method_name="pospool",
         )
         run.methods.append(summarize_holdout("pospool", pp))
+    if with_hashpool and "poshashtok" in extras:
+        pht = rotate_poshashtok(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+            position_bucket=pos_bucket,
+        )
+        run.methods.append(summarize_holdout("poshashtok", pht))
     if with_hashpool and "hashvote" in extras:
         vote = rotate_hashvote(
             twins,
@@ -3330,6 +3422,15 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hybrid", hyb))
+    if "tokhybrid" in extras:
+        thyb = rotate_tokhybrid(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("tokhybrid", thyb))
     if "hashmix" in extras:
         mix = rotate_hashmix(
             twins,
@@ -3955,7 +4056,7 @@ def run_transfer(
                 "surface, hitmass, poshitmass, first"
             )
     need_counts = bool(count_names) or any(
-        n in extras for n in ("hybrid", "stack")
+        n in extras for n in ("hybrid", "tokhybrid", "stack")
     )
     need_hash = any(
         n in extras
@@ -3963,6 +4064,7 @@ def run_transfer(
             "hashpool",
             "hashvote",
             "hybrid",
+            "tokhybrid",
             "stack",
             "hashmix",
             "hashtok",
@@ -3976,6 +4078,7 @@ def run_transfer(
             "hashtokbackoff2",
             "hashtoklenbackoff",
             "hashtoklenbackoff2",
+            "poshashtok",
         )
     )
     need_surface = "surface" in extras
@@ -4000,7 +4103,8 @@ def run_transfer(
             n_buckets=n_buckets,
         )
         if need_hash and any(
-            n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashtok")
+            n in extras
+            for n in ("hashpool", "hashvote", "hybrid", "tokhybrid", "stack", "hashtok")
         )
         else None
     )
@@ -4110,7 +4214,7 @@ def run_transfer(
             n_buckets=n_buckets,
             position_bucket=pos_bucket,
         )
-        if "pospool" in extras
+        if "pospool" in extras or "poshashtok" in extras
         else None
     )
     used_keys = False
@@ -4226,6 +4330,14 @@ def run_transfer(
             "hybrid",
             "ids",
         )
+    if "tokhybrid" in extras:
+        assert count_model is not None and hash_model is not None
+        scorers["tokhybrid"] = (
+            (lambda ids, c=count_model, h=hash_model: score_tokhybrid(ids, c, h)),
+            "key-free-tokhybrid",
+            "tokhybrid",
+            "ids",
+        )
     if "hashmix" in extras:
         assert mix_model is not None
         scorers["hashmix"] = (
@@ -4312,6 +4424,14 @@ def run_transfer(
             (lambda ids, m=pos_hash: score_hashpool(ids, m)),
             "key-free-pospool",
             "pospool",
+            "ids",
+        )
+    if "poshashtok" in extras:
+        assert pos_hash is not None
+        scorers["poshashtok"] = (
+            (lambda ids, m=pos_hash: score_hashtok(ids, m)),
+            "key-free-poshashtok",
+            "poshashtok",
             "ids",
         )
 
@@ -4989,7 +5109,8 @@ def print_transfer(run: TransferRun) -> str:
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
         "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
-        "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2) no observed next token under that "
+        "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2/"
+        "tokhybrid/poshashtok) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "

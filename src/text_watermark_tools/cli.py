@@ -637,6 +637,8 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashtoklenbackoff2": "rotate_hashtoklenbackoff2",
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
+        "tokhybrid": "rotate_tokhybrid",
+        "poshashtok": "rotate_poshashtok",
         "hashmix": "rotate_hashmix",
         "surface": "rotate_surface",
         "poshits": "rotate_poshits",
@@ -672,9 +674,16 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             "postokhits",
             "postokbackoff",
             "postokbackoff2",
+            "poshashtok",
         ):
             kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16))
-        elif score_kind != "hard":
+        if score_kind not in (
+            "poshits",
+            "poshitmass",
+            "postokhits",
+            "postokbackoff",
+            "postokbackoff2",
+        ):
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
             kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
         ev = rotator(**kwargs)
@@ -687,7 +696,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
                 f"choose hard, hashpool, hashtok, hashtoklen, hashtoklen2, "
                 f"hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
                 f"hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
-                f"hashvote, hybrid, surface, "
+                f"hashvote, hybrid, tokhybrid, poshashtok, surface, "
                 f"poshits, poshitmass, postokhits, postokbackoff, "
                 f"postokbackoff2, or one of "
                 f"{sorted(COUNT_SPECS)}",
@@ -1332,11 +1341,11 @@ def build_parser() -> argparse.ArgumentParser:
             "shrinkage, mix, hashpool, hashtok, hashtoklen, hashtoklen2, "
             "hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
-            "hashvote, hybrid, surface, "
+            "hashvote, hybrid, tokhybrid, poshashtok, surface, "
             "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
             "postokbackoff2/hashtok/hashtoklen/hashtoklen2/hashskip/hashskip2/"
-            "hashmask/hashmask2/"
+            "hashmask/hashmask2/tokhybrid/poshashtok/"
             "hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
             "hashtoklenbackoff2 modes "
             "need --rotate. Still key-free."
@@ -1380,7 +1389,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Comma-separated methods: count specs plus hashpool, hashtok, "
             "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, "
-            "hashtoklenbackoff2, hashvote, hybrid, hashmix, "
+            "hashtoklenbackoff2, hashvote, hybrid, tokhybrid, poshashtok, hashmix, "
             "surface, stack, logit, poshits, postokhits, "
             "postokbackoff, postokbackoff2, poshitmass, pospool, "
             "first, tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, "
@@ -1568,7 +1577,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=16,
         help=(
-            "Token-position bucket size for poshits/poshitmass/pospool. "
+            "Token-position bucket size for poshits/poshitmass/pospool/poshashtok. "
             "Prepends i//N to the last-4 context so early 4-grams do not "
             "share counts with the tail. 0 is unbucketed (same tables as "
             "hits/tokhits). Not a watermark key. Default 16."

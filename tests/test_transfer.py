@@ -99,6 +99,31 @@ def test_hybrid_uses_exact_hits_then_falls_back_to_hashpool() -> None:
     assert score_hybrid(seen_m, counts, hashed) > score_hybrid(seen_u, counts, hashed)
 
 
+def test_tokhybrid_skips_occupancy_then_uses_hashtok() -> None:
+    from text_watermark_tools.transfer import score_tokhybrid, score_tokhybrid_detail
+
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2]]
+    counts = fit_blind(marked, unmarked, context_len=1, backoff=False)
+    hashed = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    novel = [0, 9]
+    tokhits = score_sequence_detail(novel, counts, COUNT_SPECS["tokhits"])
+    assert tokhits.n_used == 0
+    hybrid = score_hybrid_detail(novel, counts, hashed)
+    assert hybrid.n_used == 1
+    tokhybrid = score_tokhybrid_detail(novel, counts, hashed)
+    assert tokhybrid.n_used == 0
+    assert counts.used_keys is False
+    assert hashed.used_keys is False
+    seen_m = [0, 1, 0, 1]
+    seen_u = [0, 2, 0, 2]
+    assert score_tokhybrid(seen_m, counts, hashed) > score_tokhybrid(
+        seen_u, counts, hashed
+    )
+
+
 def test_hashvote_majority_is_key_free() -> None:
     marked = [[0, 1, 0, 1, 0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

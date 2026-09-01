@@ -437,6 +437,28 @@ def test_run_probe_hashtoklen2_and_hashskip2_on_lab_pairs() -> None:
     assert hsk2.holdout.instance == "key-free-hashskip2"
 
 
+def test_run_probe_tokhybrid_and_poshashtok_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("tokhybrid", "poshashtok"),
+        with_pivot=False,
+        position_bucket=2,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    names = [m.name for m in run.methods]
+    assert set(names) == {"tokhybrid", "poshashtok"}
+    assert run.used_keys is False
+    thyb = next(m for m in run.methods if m.name == "tokhybrid")
+    pht = next(m for m in run.methods if m.name == "poshashtok")
+    assert thyb.holdout.instance == "key-free-tokhybrid"
+    assert pht.holdout.instance == "key-free-poshashtok"
+    assert thyb.holdout.used_keys is False
+    assert pht.holdout.used_keys is False
+
+
 def test_run_probe_hashmask_on_lab_pairs() -> None:
     twins = load_twins(PAIR)
     run = run_probe(
