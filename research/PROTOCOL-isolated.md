@@ -160,3 +160,37 @@ that is not a Distil isolated-file detector.
    Do not add a fourth scorer.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Outcome (2026-09-01)
+
+Protocol SHA `eb00f92`. Frozen lock A/B commands above were run once,
+flags unchanged. `used_keys=false`. Overlap dropped 0 stems. Lock C
+not opened (Qwen pair still resident).
+
+| Test | Lock | Prompt wins | File AUC | t=0 | Nested Youden (primary) |
+|---|---|---|---|---|---|
+| 12×4 | A interpolate | **8/12** | 0.663 | 27/48 vs 33/48 | **23/48 vs 38/48** |
+| 12×4 | B opening poshits | **11/12** | 0.844 | 37/48 vs 42/48 | **36/48 vs 42/48** |
+| 36×4 | A interpolate | **36/36** | 0.858 | 117/144 vs 102/144 | **109/144 vs 122/144** |
+| 36×4 | B opening poshits | **35/36** | 0.955 | 134/144 vs 127/144 | **134/144 vs 129/144** |
+
+H-iso-A holds only as prompt ranking above chance (8/12; binomial
+P(≥8) ≈ 0.19). Isolated nested Youden **23/48** does **not** beat
+recounted hard **25/48**. More one-line train families do not calibrate
+the original 12 Grok-prompt files.
+
+H-iso-B holds on the original 12: poshits ranks **11/12** ≥ interpolate
+**8/12**. Nested Youden **36/48 vs 42/48** has occupancy (9 marked /
+33 unmarked `n_used=0`). Do not treat those TPs as observed-token TPs.
+
+H-iso-36: lock A ranks **36/36** on the 36-topic pool (same one-line
+register as the 100). Nested Youden **109/144 vs 122/144** is the
+honest out-of-family isolated operating point for interpolate. It does
+not replace **25/48**. Lock B **35/36** is slightly below lock A on that
+split; occupancy is 7/144 vs 75/144 zeros.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+

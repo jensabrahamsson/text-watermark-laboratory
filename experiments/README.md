@@ -210,6 +210,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-pair-distil-100x4/` | DistilGPT2 twins, same 100 prompts | Official first-draw **70/100** (weaker lamp than GPT-2 **100/100**) |
 | `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | **89/100**, AUC **0.713**, isolated 216/400 vs 247/400 |
 | `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | **69/100**, AUC **0.598**, isolated 164/400 vs 270/400 |
+| `2026-09-01-transfer-100x4-to-12x4-hard-last4/` | 100 families → original 12×4 lock A | **8/12**, nested Youden **23/48 vs 38/48** (does not beat **25/48**) |
+| `2026-09-01-transfer-100x4-to-12x4-opening-poshits/` | 100 families → original 12×4 lock B | **11/12**, nested Youden **36/48 vs 42/48**, occupancy 33/48 unmarked zeros |
+| `2026-09-01-transfer-100x4-to-36x4-hard-last4/` | 100 families → 36×4 lock A | **36/36**, nested Youden **109/144 vs 122/144** |
+| `2026-09-01-transfer-100x4-to-36x4-opening-poshits/` | 100 families → 36×4 lock B | **35/36**, nested Youden **134/144 vs 129/144**, occupancy 75/144 unmarked zeros |
 
 ## What changed across the runs
 

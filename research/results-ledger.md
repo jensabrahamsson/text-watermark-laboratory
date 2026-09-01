@@ -113,6 +113,27 @@ JSON: `experiments/2026-09-01-pair-distil-100x4/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
 
+## Isolated-file transfer (100 families → old twins)
+
+Protocol SHA `eb00f92`. Frozen locks A/B. Primary endpoint is nested
+Youden on the test files (train-LOO threshold). Lock C not opened.
+
+| Test | Lock | Prompt | Nested Youden |
+|---|---|---|---|
+| original 12×4 | A interpolate | 8/12 | **23/48 vs 38/48** |
+| original 12×4 | B opening poshits | **11/12** | **36/48 vs 42/48** (33/48 unmarked zeros) |
+| 36×4 | A interpolate | **36/36** | **109/144 vs 122/144** |
+| 36×4 | B opening poshits | 35/36 | **134/144 vs 129/144** (75/144 unmarked zeros) |
+
+Lock A does not beat **25/48** on the original 12 files. The 36-topic
+nested Youden is out-of-family but same one-line register; it does not
+replace **25/48**. Occupancy TPs are not observed-token TPs.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+
 JSON: `experiments/2026-09-01-probe-100x4-hard-last4/`,
 `experiments/2026-09-01-probe-100x4-opening-poshits/`,
 `experiments/2026-09-01-probe-100x4-opening-rankpath/`,

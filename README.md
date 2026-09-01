@@ -31,7 +31,9 @@ Install: **[HOW-TO.md](HOW-TO.md)** · Notes: **[research/](research/)** · Agen
 
 **Single-text classification (25/48).** Same leave-one-out tables, sign of one file’s LR against 0, no twin. Hard last-4 marked `lr>0`: **25/48**. Unmarked `lr≤0`: **22/48**. Binomial P(≥25 | n=48, p=0.5) ≈ 0.44. Ranking of the same LRs is AUC **0.590** (permutation p = 0.040). Pre-fix **29/48** / AUC 0.626 overcounted truncated openings. That overlap is why 9/12 must not be read as per-file accuracy.
 
-On 100 new GPT-2 families, lock A *ranking* of isolated files is much stronger (AUC **0.898**). Nested-by-stem Youden — still in-family, still a threshold nest on already-OOF scores — is **322/400 vs 338/400**. Opening poshits nested Youden is **392/400 vs 382/400**, with occupancy (198/400 unmarked `n_used=0`). Those numbers do not replace **25/48**. Whether the same frozen tables classify the original 12×4 / 36×4 files is [research/PROTOCOL-isolated.md](research/PROTOCOL-isolated.md).
+On 100 new GPT-2 families, lock A *ranking* of isolated files is much stronger (AUC **0.898**). Nested-by-stem Youden — still in-family, still a threshold nest on already-OOF scores — is **322/400 vs 338/400**. Opening poshits nested Youden is **392/400 vs 382/400**, with occupancy (198/400 unmarked `n_used=0`). Those numbers do not replace **25/48**.
+
+Out-of-family, the same frozen tables score the original 12×4 files at lock A nested Youden **23/48 vs 38/48** (prompt ranking **8/12**) — that does not beat **25/48**. Opening poshits ranks **11/12** with nested Youden **36/48 vs 42/48** and occupancy (33/48 unmarked `n_used=0`). On the 36-topic pool (same one-line register), lock A nested Youden is **109/144 vs 122/144** (prompt **36/36**). Protocol: [research/PROTOCOL-isolated.md](research/PROTOCOL-isolated.md).
 
 The code enforces the key-free claim: `BlindModel` carries `used_keys`, `used_hash_iv`, and `used_g_values`; the held-out decision never consults `detector_mean`.
 

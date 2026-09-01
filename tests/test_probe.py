@@ -1082,6 +1082,69 @@ def test_protocol_isolated_freezes_out_of_family_transfer_commands() -> None:
     assert "nested Youden" in text
 
 
+def _transfer_threshold(results: dict, name: str, source: str) -> dict:
+    return next(
+        r
+        for r in results["thresholds"]
+        if r["name"] == name and r["source"] == source
+    )
+
+
+def test_protocol_isolated_100x4_to_12x4_locks() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hard = json.loads(
+        (root / "2026-09-01-transfer-100x4-to-12x4-hard-last4" / "results.json").read_text()
+    )
+    poshits = json.loads(
+        (
+            root / "2026-09-01-transfer-100x4-to-12x4-opening-poshits" / "results.json"
+        ).read_text()
+    )
+    assert hard["used_keys"] is False
+    assert poshits["used_keys"] is False
+    assert hard["n_train_prompts"] == 100
+    assert hard["n_test_prompts"] == 12
+    assert hard["dropped_stems"] == []
+    assert hard["methods"][0]["n_prompt_wins"] == 8
+    assert poshits["methods"][0]["n_prompt_wins"] == 11
+    # H-iso-B: opening poshits ranks the original 12 at least as high as interpolate.
+    assert poshits["methods"][0]["n_prompt_wins"] >= hard["methods"][0]["n_prompt_wins"]
+    nested_a = _transfer_threshold(hard, "interpolate", "nested-youden")
+    nested_b = _transfer_threshold(poshits, "poshits", "nested-youden")
+    assert nested_a["n_marked_above"] == 23
+    assert nested_a["n_unmarked_at_most"] == 38
+    assert nested_b["n_marked_above"] == 36
+    assert nested_b["n_unmarked_at_most"] == 42
+    assert poshits["methods"][0]["coverage_gate"]["n_unmarked_zero"] == 33
+    # Isolated lock A on the original 12 does not beat recounted hard 25/48.
+    assert nested_a["n_marked_above"] < 25
+
+
+def test_protocol_isolated_100x4_to_36x4_locks() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    hard = json.loads(
+        (root / "2026-09-01-transfer-100x4-to-36x4-hard-last4" / "results.json").read_text()
+    )
+    poshits = json.loads(
+        (
+            root / "2026-09-01-transfer-100x4-to-36x4-opening-poshits" / "results.json"
+        ).read_text()
+    )
+    assert hard["used_keys"] is False
+    assert poshits["used_keys"] is False
+    assert hard["n_train_prompts"] == 100
+    assert hard["n_test_prompts"] == 36
+    assert hard["methods"][0]["n_prompt_wins"] == 36
+    assert poshits["methods"][0]["n_prompt_wins"] == 35
+    nested_a = _transfer_threshold(hard, "interpolate", "nested-youden")
+    nested_b = _transfer_threshold(poshits, "poshits", "nested-youden")
+    assert nested_a["n_marked_above"] == 109
+    assert nested_a["n_unmarked_at_most"] == 122
+    assert nested_b["n_marked_above"] == 134
+    assert nested_b["n_unmarked_at_most"] == 129
+    assert poshits["methods"][0]["coverage_gate"]["n_unmarked_zero"] == 75
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

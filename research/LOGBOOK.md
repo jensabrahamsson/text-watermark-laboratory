@@ -1136,4 +1136,26 @@ precedes those transfer runs. Do not look at test LRs until the frozen
 commands have been run once. Primary isolated endpoint is nested Youden
 on the test files (threshold from train LOO only).
 
+## 2026-09-01 isolated-file transfer 100→12 and 100→36
+
+Protocol SHA `eb00f92`. Frozen lock A/B `probe --test-dir` once. Official
+keys unused.
+
+- **12×4 lock A** interpolate: prompt **8/12**, AUC **0.663**, nested
+  Youden **23/48 vs 38/48**. Isolated recall does not beat **25/48**.
+- **12×4 lock B** opening poshits: prompt **11/12**, AUC **0.844**, nested
+  Youden **36/48 vs 42/48**, occupancy 9/48 vs 33/48 zeros.
+- **36×4 lock A**: prompt **36/36**, AUC **0.858**, nested Youden
+  **109/144 vs 122/144**.
+- **36×4 lock B**: prompt **35/36**, AUC **0.955**, nested Youden
+  **134/144 vs 129/144**, occupancy 7/144 vs 75/144 zeros.
+
+H-iso-A holds only as 8/12 > 6/12. H-iso-B holds on the original 12
+(11≥8). Do not sell 36/48 or 109/144 as replacing **25/48**. Lock C
+waits on Qwen RAM. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+
 ---
