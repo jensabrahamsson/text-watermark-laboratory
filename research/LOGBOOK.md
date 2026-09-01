@@ -813,4 +813,17 @@ JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5
 `experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 in-domain full-file hashtok is 33/48 vs 22/48
+
+Leave-one-prompt-out on 12×4, full 128-token last-4. Hashpool matches
+the published **35/48 vs 29/48**. Occupancy-free `hashtok` is **9/12**,
+**33/48 vs 22/48**, nested-by-stem **22/48 vs 30/48** (hits nested
+**22/48 vs 39/48**). `hashtoklen` **33/48 vs 23/48**, nested **30/48 vs
+20/48**. Four extra TPs versus hard 29/48, 26 unmarked FPs. Occupancy
+and occupancy-free disagree on six files. Letter d2 stays negative.
+Do not sell 33/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

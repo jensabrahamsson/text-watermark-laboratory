@@ -88,6 +88,9 @@ is **28/48 vs 40/48** (same as standalone rankpath). `hashmask`
 (length-k MASK replace) is **21/48 vs 42/48** at t=0 and nested
 Youden **19/48 vs 45/48**, worse than hashtoklen; letter d2's official
 slot is two opposing singletons (lr=+0.240), thrown out nested.
+In-domain full-file `hashtok` is **33/48 vs 22/48**, nested-by-stem
+**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). Do not sell
+33/48 as replacing **29/48**.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

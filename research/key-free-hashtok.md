@@ -480,3 +480,30 @@ sell 21/48, 19/48, 15/48, or letter d2 +0.240.
 JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/),
 [../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json).
 
+## In-domain full-file hashtok is denser at t=0 and noisier nested
+
+Leave-one-prompt-out on the published 12×4 twins, full 128-token files.
+Unbucketed last-4. Hashpool matches the published **35/48 vs 29/48**.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hashpool,hashtok,hashtoklen,hits,postokhits \
+  --out-dir experiments/2026-09-01-probe-12x4-hashtok
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem |
+|---|---|---|---|---|---|
+| hits | 11/12 | 0.737 | 28/48 | 30/48 | **22/48 vs 39/48** |
+| hashpool | 11/12 | 0.716 | **35/48** | **29/48** | 23/48 vs 36/48 |
+| **hashtok** | 9/12 | 0.664 | **33/48** | **22/48** | **22/48 vs 30/48** |
+| hashtoklen | 8/12 | 0.592 | 33/48 | 23/48 | 30/48 vs 20/48 |
+
+Occupancy-free hashing is four files denser than hard last-4 **29/48**
+at t=0, with 26 unmarked FPs. Nested-by-stem spec is worse than hits.
+Hashpool occupancy and hashtok disagree on six files (hashpool-only
+night-bus d3, library d2, market d1, ferry-queue d4; hashtok-only
+night-bus d4, market d3). Letter d2 stays negative. Do not sell 33/48
+or 35/48 as replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-probe-12x4-hashtok/](../experiments/2026-09-01-probe-12x4-hashtok/).
+

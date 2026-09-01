@@ -2815,6 +2815,79 @@ def test_prefix5_hashtoklen2_is_the_robust_collision_core() -> None:
     assert leftover_hs2_nested == set()
 
 
+def test_in_domain_full_file_hashtok_is_denser_and_noisier() -> None:
+    """Occupancy-free full-file hashing is 33/48 vs 22/48.
+
+    Hashpool stays 35/48 vs 29/48. Nested-by-stem hashtok 22/48 vs 30/48
+    is worse spec than hits 22/48 vs 39/48. Letter d2 stays negative.
+    Do not sell 33/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok"
+    )
+    hp = holdout_from_json(root / "hashpool" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert hp.used_keys is False
+    assert ht.used_keys is False
+    assert hp.instance == "key-free-hashpool"
+    assert ht.instance == "key-free-hashtok"
+    assert hp.n_marked_positive == 35
+    assert hp.n_unmarked_nonpositive == 29
+    assert ht.n_marked_positive == 33
+    assert ht.n_unmarked_nonpositive == 22
+    assert hl.n_marked_positive == 33
+    assert hl.n_unmarked_nonpositive == 23
+    assert ht.n_prompts_marked_above == 9
+    assert hl.n_prompts_marked_above == 8
+    assert ht.n_marked_positive < 39
+    assert hits.n_marked_positive == 28
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("hits") == (22, 39)
+    assert nested_stem("hashpool") == (23, 36)
+    assert nested_stem("hashtok") == (22, 30)
+    hp_pos = {
+        (s, samp)
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+        if m > 0
+    }
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    assert hp_pos - ht_pos == {
+        ("02-night-bus", 3),
+        ("03-library", 2),
+        ("04-market", 1),
+        ("12-ferry-queue", 4),
+    }
+    assert ht_pos - hp_pos == {("02-night-bus", 4), ("04-market", 3)}
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    by_hp = {
+        (s, samp): m
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+    }
+    assert by_ht[("08-letter", 2)] < 0
+    assert by_hp[("08-letter", 2)] < 0
+
+
+
 def test_prefix5_hashmask_is_not_a_nested_leftover_rescue() -> None:
     """MASK replace is denser coverage and worse nested than hashtoklen.
 
@@ -3157,6 +3230,79 @@ def test_prefix5_hashtoklen_count_weighting_copies_uniform() -> None:
         score_hashtok_detail(harbour.marked_seqs()[1], model).lr
         - score_hashtok_detail(harbour.marked_seqs()[1], model, min_count=2).lr
     ) < 1e-12
+
+
+def test_in_domain_full_file_hashtok_is_denser_and_noisier() -> None:
+    """Occupancy-free full-file hashing is 33/48 vs 22/48.
+
+    Hashpool stays 35/48 vs 29/48. Nested-by-stem hashtok 22/48 vs 30/48
+    is worse spec than hits 22/48 vs 39/48. Letter d2 stays negative.
+    Do not sell 33/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok"
+    )
+    hp = holdout_from_json(root / "hashpool" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert hp.used_keys is False
+    assert ht.used_keys is False
+    assert hp.instance == "key-free-hashpool"
+    assert ht.instance == "key-free-hashtok"
+    assert hp.n_marked_positive == 35
+    assert hp.n_unmarked_nonpositive == 29
+    assert ht.n_marked_positive == 33
+    assert ht.n_unmarked_nonpositive == 22
+    assert hl.n_marked_positive == 33
+    assert hl.n_unmarked_nonpositive == 23
+    assert ht.n_prompts_marked_above == 9
+    assert hl.n_prompts_marked_above == 8
+    assert ht.n_marked_positive < 39
+    assert hits.n_marked_positive == 28
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("hits") == (22, 39)
+    assert nested_stem("hashpool") == (23, 36)
+    assert nested_stem("hashtok") == (22, 30)
+    hp_pos = {
+        (s, samp)
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+        if m > 0
+    }
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    assert hp_pos - ht_pos == {
+        ("02-night-bus", 3),
+        ("03-library", 2),
+        ("04-market", 1),
+        ("12-ferry-queue", 4),
+    }
+    assert ht_pos - hp_pos == {("02-night-bus", 4), ("04-market", 3)}
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    by_hp = {
+        (s, samp): m
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+    }
+    assert by_ht[("08-letter", 2)] < 0
+    assert by_hp[("08-letter", 2)] < 0
+
 
 
 
