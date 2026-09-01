@@ -333,6 +333,89 @@ def test_format_indicator_abstains_when_coverage_is_zero() -> None:
     assert "decision=ABSTAIN" not in covered
 
 
+def test_format_indicator_abstains_on_occupancy_only() -> None:
+    line = format_indicator(
+        "file.txt",
+        0.149,
+        n_tokens=4,
+        used_keys=False,
+        score_kind="poshits",
+        n_used=1,
+        n_positions=3,
+        n_observed=0,
+        threshold=0.0,
+    )
+    assert "n_used=1" in line
+    assert "n_observed=0" in line
+    assert "occupancy_only=true" in line
+    assert "decision=ABSTAIN" in line
+    assert "decision=marked" not in line
+
+
+def test_indicate_score_lock_b_tables_abstain_on_the_ferry_occupancy() -> None:
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-100x4-to-12x4-opening-poshits"
+        / "tables-poshits"
+    )
+    pair = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-17-pair-12x4"
+    )
+    tok = load_tokenizer("gpt2")
+    ferry = (pair / "01-harbour-marked.txt").read_text()
+    lr, meta, used = score_text_from_tables(
+        ferry, tables, tokenizer=tok, score_mode="auto"
+    )
+    assert used is False
+    assert meta.score_kind == "poshits"
+    assert meta.n_used == 1
+    assert meta.n_observed == 0
+    line = format_indicator(
+        "01-harbour-marked.txt",
+        lr,
+        n_tokens=4,
+        used_keys=used,
+        instance=meta.instance,
+        score_kind=meta.score_kind,
+        n_used=meta.n_used,
+        n_positions=meta.n_positions,
+        n_observed=meta.n_observed,
+        threshold=0.0,
+    )
+    assert "occupancy_only=true" in line
+    assert "decision=ABSTAIN" in line
+    tok_lr, tok_meta, tok_used = score_text_from_tables(
+        ferry, tables, tokenizer=tok, score_mode="postokhits"
+    )
+    assert tok_used is False
+    assert tok_meta.n_used == 0
+    assert tok_lr == 0.0
+    rain = (pair / "07-rain-marked.txt").read_text()
+    rain_lr, rain_meta, rain_used = score_text_from_tables(
+        rain, tables, tokenizer=tok, score_mode="auto"
+    )
+    assert rain_used is False
+    assert rain_meta.n_observed is not None
+    assert rain_meta.n_observed > 0
+    rain_line = format_indicator(
+        "07-rain-marked.txt",
+        rain_lr,
+        n_tokens=4,
+        used_keys=rain_used,
+        instance=rain_meta.instance,
+        score_kind=rain_meta.score_kind,
+        n_used=rain_meta.n_used,
+        n_positions=rain_meta.n_positions,
+        n_observed=rain_meta.n_observed,
+        threshold=0.0,
+    )
+    assert "occupancy_only=true" not in rain_line
+    assert "decision=ABSTAIN" not in rain_line
+
+
 def test_indicate_score_auto_on_hashtoklen_tables_matches_explicit() -> None:
     tables = (
         Path(__file__).resolve().parents[1]

@@ -626,6 +626,7 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
             decision_source=meta.decision_source if threshold is not None else "",
             n_used=meta.n_used,
             n_positions=meta.n_positions,
+            n_observed=meta.n_observed,
         )
     )
     return 0

@@ -90,7 +90,8 @@ python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
 
 python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
-# n_used=0 is ABSTAIN, not unmarked.
+# n_used=0 is ABSTAIN, not unmarked. Occupancy-only poshits
+# (context seen, next token unseen) is also ABSTAIN.
 
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/probe

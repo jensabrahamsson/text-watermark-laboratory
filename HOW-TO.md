@@ -271,6 +271,11 @@ positions had table coverage).
 - `n_used=0` / `decision=ABSTAIN`: no overlapping atom; this is not
   “unmarked”. Observed-token tables cannot score a novel opening.
   See [research/key-free-cascade.md](research/key-free-cascade.md).
+- Opening poshits tables can have `n_used>0` from Laplace on an unseen
+  next token (`The`→` ferry`). Isolated `indicate score` then prints
+  `occupancy_only=true` and `decision=ABSTAIN`. That is not a watermark
+  call. `--score-mode postokhits` scores observed tokens only. Probe
+  `--methods poshits` on the frozen lock B experiment is unchanged.
 
 Hashpool tables (the 35/48 isolated reader) are a different persist:
 

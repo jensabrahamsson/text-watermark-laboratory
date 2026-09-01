@@ -1194,4 +1194,14 @@ Zeros on the original 12 are `The ferry` / `Closing` / `The dog` /
 `experiments/2026-09-01-openings-100x4-to-12x4/`,
 `experiments/2026-09-01-openings-100x4-to-36x4/`.
 
+## 2026-09-01 indicate score occupancy-only ABSTAIN
+
+`indicate score` auto on the frozen lock B poshits tables called
+`01-harbour-marked.txt` **marked** (`lr≈0.149`, `n_used=1`) via Laplace
+on unseen `The`→` ferry`. That is occupancy, not an observed token.
+Isolated `indicate score` now prints `n_observed` and
+`occupancy_only=true`, and **ABSTAINs** when `n_observed=0`. Probe
+`--methods poshits` is unchanged. `--score-mode postokhits` still has
+`n_used=0`. This does not replace **25/48**.
+
 ---

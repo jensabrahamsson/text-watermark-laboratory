@@ -98,6 +98,7 @@ class IndicatorMeta:
     decision_source: str = ""
     n_used: int | None = None
     n_positions: int | None = None
+    n_observed: int | None = None
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -505,7 +506,18 @@ def score_text_from_tables(
         return detail.lr, meta, bool(model.used_keys)
 
     if mode == "poshits" or (mode in ("auto", "") and bucketed):
-        return _return_detail(COUNT_SPECS["hits"], "poshits", "key-free-poshits")
+        # Isolated-file auto matches lock B's poshits LR, but occupancy
+        # Laplace (context seen, observed next token unseen) is not
+        # coverage. n_observed is tokhits n_used; decision ABSTAINs
+        # when that is 0. Probe --methods poshits is unchanged.
+        hits = score_sequence_detail(ids, model, COUNT_SPECS["hits"])
+        observed = score_sequence_detail(ids, model, COUNT_SPECS["tokhits"])
+        meta.score_kind = "poshits"
+        meta.instance = "key-free-poshits"
+        meta.n_used = hits.n_used
+        meta.n_positions = hits.n_positions
+        meta.n_observed = observed.n_used
+        return hits.lr, meta, bool(model.used_keys)
     if mode == "poshitmass":
         return _return_detail(COUNT_SPECS["hitmass"], "poshitmass", "key-free-poshitmass")
     if mode == "postokhits":
@@ -549,14 +561,30 @@ def format_indicator(
     decision_source: str = "",
     n_used: int | None = None,
     n_positions: int | None = None,
+    n_observed: int | None = None,
 ) -> str:
     extra = ""
+    occupancy_only = (
+        n_used is not None
+        and n_observed is not None
+        and int(n_used) > 0
+        and int(n_observed) == 0
+    )
     if n_used is not None:
         extra += f" n_used={int(n_used)}"
         if n_positions is not None:
             extra += f" n_positions={int(n_positions)}"
+    if n_observed is not None:
+        extra += f" n_observed={int(n_observed)}"
+    if occupancy_only:
+        extra += " occupancy_only=true"
+    uncovered = False
+    if n_observed is not None:
+        uncovered = int(n_observed) == 0
+    elif n_used is not None:
+        uncovered = int(n_used) == 0
     if threshold is not None:
-        if n_used is not None and int(n_used) == 0:
+        if uncovered:
             decision = "ABSTAIN"
         else:
             decision = "marked" if lr > threshold else "unmarked"
@@ -565,7 +593,7 @@ def format_indicator(
             f" threshold={threshold:.6f} decision={decision}{src} "
             f"not_a_universal_detector=true"
         )
-    elif n_used is not None and int(n_used) == 0:
+    elif uncovered:
         extra += " decision=ABSTAIN not_a_universal_detector=true"
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
