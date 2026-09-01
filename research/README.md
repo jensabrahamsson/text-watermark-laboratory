@@ -13,6 +13,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |
+| [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) | Where lock A lives: windows on those same interpolate tables (freeze before LRs) |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

@@ -1351,4 +1351,13 @@ Lock C prompt **8/12**, nested **10/48 vs 41/48**, t=0 **10/48**.
 H-xreg-iso holds: nothing here replaces **25/48**. Isolated-file
 detection is still not finished.
 
+## 2026-09-01 interpolate window readout frozen
+
+[PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) committed
+in the same change as this line. Same lock A interpolate tables as
+PROTOCOL-isolated-xreg. Windows `0:4,4:16,16:32,32:64,64:128` on grok12
+and on the original 12. No new scorer. Do not look at window LRs until
+the freeze SHA is named on the next logbook line. Does not replace
+**25/48**. Do not write `thesis/`.
+
 ---
