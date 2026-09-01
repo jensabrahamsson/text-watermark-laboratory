@@ -111,7 +111,8 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | Table-free opening snap-rate | Binary leave/upset/miss, no twin tables | `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48** |
 | Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | Hashed token identity, no Laplace | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3); marked recall below **29/48**; not rankpath **41/48** |
 | In-domain full-file hashtok | Occupancy-free last-4 hashpool | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
-| In-domain hashtok `--n-hashes` | Mixer-width ablation of that reader | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48**; n=4 **36/48 vs 30/48**; n=32 hurts **30/48**; default n=8 is not the best in-domain width |
+| In-domain hashtok `--n-hashes` | Mixer-width ablation at seed 20260831 | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48**; n=4 **36/48 vs 30/48**; n=32 hurts **30/48** |
+| In-domain hashtok n=2 seed sweep | Feature-hash seed, not `hash_iv` | n=2 spec **21–31/48**; default seed is a lucky mixer; n=8 seed 7 nested **28/37**; not a width law |
 | Transfer hashtok `--n-hashes`, 24→12 | Same mixer, nested Youden on new topics | n=8 **11/12** / **29/48 vs 35/48** nested **17/48 vs 46/48** beats n=2 and n=4; keep CLI default 8; do not sell 31/48 or 17/48 |
 | In-domain hashtok2 | Same mixer, min_count=2 | **8/12**, **34/48 vs 21/48** (sign reshuffle, not a singleton core) |
 

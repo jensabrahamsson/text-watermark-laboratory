@@ -945,4 +945,17 @@ here is not the headline hard last-4 **29/48**. Do not sell 31/48,
 `experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes{2,4,8}/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok n=2 seed sweep: not a width law
+
+In-domain 12×4 hashtok n=2 while varying the feature-hash seed (not
+SynthID `hash_iv`). Default seed 20260831 reproduces **34/48 vs 31/48**,
+nested **28/48 vs 37/48**. Other n=2 seeds: unmarked spec **21–31/48**,
+nested spec **25–37/48**, prompt **9–11/12**. Seed 0 keeps 34 TPs and
+collapses spec to **21/48**. n=8 seed 7 nested **28/48 vs 37/48**
+matches the advertised n=2 default. Letter d2 flips at seeds 0 and
+12345. Keep CLI `n_hashes=8` and seed `20260831`. Do not sell 34/48 as
+a width law. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-nhashes2-seeds/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

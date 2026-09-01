@@ -723,6 +723,7 @@ def rotate_hashpool(
     position_bucket: int = 0,
     method_name: str = "hashpool",
     exact_len: bool = False,
+    seed: int = 20260831,
 ) -> IndicatorHoldout:
     reader = str(method_name or "hashpool")
     drop_one = reader in ("hashskip", "hashskip2")
@@ -775,6 +776,7 @@ def rotate_hashpool(
             exact_len=bool(exact_len),
             drop_one=drop_one,
             mask_one=mask_one,
+            seed=seed,
         )
         return (
             lambda ids, m=model, s=score_fn: s(ids, m),

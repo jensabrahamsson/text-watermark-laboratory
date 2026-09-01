@@ -78,7 +78,8 @@ Current results:
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Opening occupancy-free hashtok, `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; marked recall below **29/48**; not rankpath **41/48**) |
 | In-domain full-file hashtok | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
-| In-domain hashtok `--n-hashes` | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48**; n=4 **36/48 vs 30/48**; n=32 hurts **30/48**; default n=8 is not the best in-domain width |
+| In-domain hashtok `--n-hashes` | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48** at seed 20260831; n=4 **36/48 vs 30/48**; n=32 hurts **30/48** |
+| In-domain hashtok n=2 seed sweep | n=2 spec **21–31/48**; default seed is a lucky mixer; not a width law |
 | Transfer hashtok `--n-hashes`, 24→12 | n=8 **11/12** / nested **17/48 vs 46/48** beats n=2 and n=4; keep CLI default 8; do not sell 31/48 or 17/48 |
 
 The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Occupancy-free hashing is in [key-free-hashtok.md](key-free-hashtok.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md). Rank-symbol tables that score novel openings without token identity are in [key-free-rankpath.md](key-free-rankpath.md). Neighbours of this measurement, with author–year citations, are in [related-work.md](related-work.md) ([CITING.md](CITING.md)).

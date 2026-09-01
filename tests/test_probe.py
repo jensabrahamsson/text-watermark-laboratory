@@ -9,6 +9,7 @@ from text_watermark_tools.probe import (
     apply_overlap,
     persist_probe,
     rotate_count_methods,
+    rotate_hashpool,
     rotate_score_stack,
     run_probe,
     run_transfer,
@@ -3930,5 +3931,95 @@ def test_hashtok_nhashes_width_does_not_transfer() -> None:
     assert letter8 < 0
     assert letter2 < 0
     assert letter4 < 0
+
+
+def test_rotate_hashpool_seed_is_not_hash_iv() -> None:
+    """Feature-hash seed is not SynthID hash_iv. Different seeds mix differently."""
+    twins = load_twins(PAIR)
+    a = rotate_hashpool(
+        twins,
+        context_len=2,
+        n_hashes=2,
+        n_buckets=16,
+        method_name="hashtok",
+        seed=1,
+    )
+    b = rotate_hashpool(
+        twins,
+        context_len=2,
+        n_hashes=2,
+        n_buckets=16,
+        method_name="hashtok",
+        seed=2,
+    )
+    assert a.used_keys is False
+    assert a.used_hash_iv is False
+    assert a.used_g_values is False
+    assert a.instance == "key-free-hashtok"
+    assert b.used_hash_iv is False
+    assert (tuple(a.marked_lrs), tuple(a.unmarked_lrs)) != (
+        tuple(b.marked_lrs),
+        tuple(b.unmarked_lrs),
+    )
+
+
+def test_hashtok_nhashes2_seed_win_is_not_a_width_law() -> None:
+    """Default n=2 seed 20260831 is a lucky mixer, not a typical n=2.
+
+    n=2 spec ranges 21–31/48 unmarked and 25–37/48 nested. Seed 0 keeps
+    34 TPs and collapses spec to 21/48. n=8 seed 7 nested 28/37 matches
+    the advertised n=2 default. Letter d2 flips at seeds 0 and 12345.
+    Do not sell 34/48 as a width law or as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok-nhashes2-seeds"
+    )
+    payload = json.loads((root / "results.json").read_text())
+    assert payload["used_keys"] is False
+    assert payload["used_hash_iv"] is False
+    assert payload["used_g_values"] is False
+    by = {(int(r["n_hashes"]), int(r["seed"])): r for r in payload["rows"]}
+    d = by[(2, 20260831)]
+    assert d["n_prompt_wins"] == 11
+    assert d["n_marked_positive"] == 34
+    assert d["n_unmarked_nonpositive"] == 31
+    assert d["nested_marked"] == 28
+    assert d["nested_unmarked"] == 37
+    assert d["letter_d2"] < 0
+    locked = holdout_from_json(root / "n2-seed20260831" / "hashtok" / "holdout.json")
+    assert locked.n_marked_positive == 34
+    assert locked.used_hash_iv is False
+
+    s0 = by[(2, 0)]
+    assert s0["n_marked_positive"] == 34
+    assert s0["n_unmarked_nonpositive"] == 21
+    assert s0["letter_d2"] > 0
+
+    s42 = by[(2, 42)]
+    assert s42["nested_marked"] == 34
+    assert s42["nested_unmarked"] == 25
+
+    s12345 = by[(2, 12345)]
+    assert s12345["letter_d2"] > 0
+
+    n8s7 = by[(8, 7)]
+    assert n8s7["n_prompt_wins"] == 11
+    assert n8s7["nested_marked"] == 28
+    assert n8s7["nested_unmarked"] == 37
+
+    n2_specs = [by[(2, s)]["n_unmarked_nonpositive"] for s in (20260831, 0, 1, 7, 42, 12345)]
+    assert min(n2_specs) == 21
+    assert max(n2_specs) == 31
+    n2_nested_spec = [by[(2, s)]["nested_unmarked"] for s in (20260831, 0, 1, 7, 42, 12345)]
+    assert min(n2_nested_spec) == 25
+    assert max(n2_nested_spec) == 37
+    n2_prompts = [by[(2, s)]["n_prompt_wins"] for s in (20260831, 0, 1, 7, 42, 12345)]
+    assert min(n2_prompts) == 9
+    assert max(n2_prompts) == 11
+
 
 

@@ -507,11 +507,11 @@ or 35/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok/](../experiments/2026-09-01-probe-12x4-hashtok/).
 
-## Mixer width: default n=8 is not the best in-domain hashtok
+## Mixer width: n=2/4 beat n=8 at seed 20260831
 
 The CLI default is `--n-hashes 8`. That is a random-feature width, not
 SynthID’s secret hash. Leave-one-prompt-out on the same 12×4 full-file
-twins while changing only that width:
+twins while changing only that width, at mixer seed **20260831**:
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -527,7 +527,7 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
 | 16 | **11/12** | 0.662 | **36/48** | 22/48 | 29/48 vs 24/48 |
 | 32 | 10/12 | 0.622 | 30/48 | 26/48 | 21/48 vs 38/48 |
 
-Fewer hashes are denser *and* better nested than n=8 on this gate.
+Fewer hashes are denser *and* better nested than n=8 **at this seed**.
 n=2 has the best file AUC and the best nested spec among the dense
 widths. n=4 is the densest t=0 / nested recall (mean nested t ≈ 0).
 Wider mixers dilute the mean gap: n=16 nested spec is **24/48**; n=32
@@ -544,6 +544,33 @@ JSON: [../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/](../experiments/20
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/).
+
+## Mixer seed confounds the in-domain n=2 width win
+
+`fit_hashpool_twins` / `rotate_hashpool` take a feature-hash `seed`
+(default **20260831**). That is not SynthID `hash_iv`. Same 12×4
+hashtok n=2 LOO at other seeds:
+
+| n_hashes | seed | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem |
+|---|---|---|---|---|---|---|
+| 2 | **20260831** | **11/12** | **0.764** | 34/48 | **31/48** | **28/48 vs 37/48** |
+| 2 | 0 | 9/12 | 0.637 | 34/48 | 21/48 | 28/48 vs 30/48 |
+| 2 | 1 | **11/12** | 0.687 | 33/48 | 25/48 | 29/48 vs 36/48 |
+| 2 | 7 | **11/12** | 0.695 | 30/48 | 28/48 | 27/48 vs 34/48 |
+| 2 | 42 | 10/12 | 0.743 | 34/48 | 30/48 | **34/48 vs 25/48** |
+| 2 | 12345 | 10/12 | 0.712 | 31/48 | 25/48 | 25/48 vs 37/48 |
+| 8 | 0 | 9/12 | 0.658 | 33/48 | **32/48** | **32/48 vs 33/48** |
+| 8 | 7 | **11/12** | 0.719 | 31/48 | 29/48 | **28/48 vs 37/48** |
+
+n=2 unmarked spec ranges **21–31/48**; nested spec **25–37/48**. Default
+seed 20260831 is among the best n=2 mixers here, not a typical one.
+Seed 0 keeps 34 TPs and collapses spec to **21/48**. n=8 seed 7 nested
+**28/48 vs 37/48** matches the advertised n=2 default. Letter d2 flips
+sign at n=2 seeds 0 and 12345. The in-domain n=2 vs n=8 table is
+seed-confounded. Keep CLI `n_hashes=8` and seed `20260831`. Do not
+sell 34/48 as a width law.
+
+JSON: [../experiments/2026-09-01-probe-12x4-hashtok-nhashes2-seeds/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes2-seeds/).
 
 ## Mixer width does not transfer: keep default n=8
 
@@ -566,7 +593,8 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
 
 Default n=8 wins prompt ranking, file AUC, t=0 spec, nested Youden
 spec, and nested FPR10 recall. The in-domain n=2 / n=4 win did not
-transfer. Keep the CLI default at 8. t=0 marked 29/48 here is not the
+transfer, and that in-domain table is seed-confounded. Keep the CLI
+default at 8. t=0 marked 29/48 here is not the
 headline hard last-4 **29/48**. Nested 17/48 is below hits nested
 Youden **26/48 vs 44/48** on this same split. Letter d2 stays
 negative. Do not sell 31/48, 19/48, or 17/48 as beating poshits
