@@ -197,3 +197,8 @@ GPT-2 paragraph/dialogue templates (`'\n\n" I' → ' am'`,
 isolated-file detector. Do not sell `The car` or tail **9/12**. Does
 not replace **25/48**.
 
+The next isolated freeze is
+[PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md): 36 new
+Grok-length families. Prompts before `pair`. Do not mix grok12 into
+that train.
+

@@ -248,3 +248,8 @@ Do not sell `The car` or tail **9/12**. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
 
+The next isolated freeze (not this file) is
+[PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md): 36 new
+Grok-length families, prompts before `pair`. Does not replace
+**25/48**.
+
