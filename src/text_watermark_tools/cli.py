@@ -409,6 +409,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             model_name=args.model,
         )
     else:
+        out = Path(args.out_dir) if args.out_dir else None
         run = run_pairs(
             prompts,
             max_new_tokens=args.max_new_tokens,
@@ -416,6 +417,8 @@ def cmd_pair(args: argparse.Namespace) -> int:
             also_control_keys=bool(args.also_control_keys),
             model_name=args.model,
             n_samples=int(args.n_samples),
+            resume_dir=out,
+            persist_dir=out,
         )
     print(print_pair_run(run))
     if args.out_dir:

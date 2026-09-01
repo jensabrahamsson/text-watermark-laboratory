@@ -36,7 +36,9 @@ Distil ∪ SMT is opened. The remaining occupancy-free zeros are leftover
 GPT-2 trains did not. Neighborhood paraphrases would target leftover
 stems after peeking. Isolated-file remains open; occupancy-free coverage
 from Distil, SMT, mixed 100+grok36, or more unrelated GPT-2 scenes is
-not the remaining lever. Official leftover-15 uses keys.
+not the remaining lever. Official leftover-15 uses keys. The remaining
+occupancy-free generator analog is
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
 
 ## Primary scientific question
 
@@ -89,6 +91,8 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   detection, including leftover-15 rankpath, leftover-15 interpolate,
   and leftover-15 mask-*k*.
 - More unrelated GPT-2 occupancy-free scenes for leftover-15.
+  gpt2-medium on the already-frozen 100 prompts is
+  [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md), not this file.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
 - Re-running PROTOCOL-isolated-scale; that protocol is already open.
@@ -127,4 +131,8 @@ H-l15-iso **holds**. Leftover last-4 is **9/15 vs 8/15**. Occupancy-free
 leftover-15 versus Distil and SMT is not a leftover-file detector.
 Isolated-file remains open because leftover-15 unique openings are
 officially watermarked and occupancy-free tables cannot copy them
-without targeting. Do not write `thesis/`.
+without targeting. The remaining occupancy-free question that is not
+leftover targeting and not more unrelated GPT-2 scenes is a larger
+same-BPE generator on the already-frozen 100 prompts
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). Do not write
+`thesis/`.

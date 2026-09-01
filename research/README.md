@@ -32,6 +32,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md) | Qwen 100×4 → Qwen 12×4 occupancy-free **31/48 vs 48/48**; coverage **37/48**; not leftover-18; not **25/48** |
 | [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md) | Distil ∪ SMT openings union **33/48**; leftover **15**; last-4 **9/15 vs 8/15**; not **25/48** |
 | [PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md) | Leftover-15 occupancy-free closed; official **15/15** at prefix-5 (keys); last-4 **9/15 vs 8/15**; not **25/48** |
+| [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md) | gpt2-medium 100×4 occupancy-free leftover-15 analog; freeze before LRs; not more scenes; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

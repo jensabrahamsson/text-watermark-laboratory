@@ -211,6 +211,9 @@ is closed
 ([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
 Leftover-15 official is **15/15** at prefix-5 and uses keys. Leftover
 last-4 is **9/15 vs 8/15**. Do not sell leftover official **15/15**.
+The remaining occupancy-free generator analog that is not leftover
+targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)
+(gpt2-medium on the already-frozen 100 prompts; freeze before LRs).
 
 ## What this freeze refuses
 

@@ -4,8 +4,10 @@ Official prefix scores use detector keys (positive control). Interpolate
 atoms on leftover files do not. Leftover-18 remaining readers re-slice
 published holdouts. Cross-generator occupancy-free leftover coverage
 uses Distil tables on the original 12. Leftover-15 official is a keyed
-re-slice of the same dump after Distil ∪ SMT. None of that is a new
-probe method. None replaces 25/48.
+re-slice of the same dump after Distil ∪ SMT. gpt2-medium occupancy-free
+leftover-15 uses the same leftover keys on a larger same-BPE generator
+trained on prompts frozen before leftover peeking. None of that is a
+new probe method. None replaces 25/48.
 """
 
 from __future__ import annotations
@@ -490,3 +492,72 @@ def persist_xgen_leftover(payload: dict, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "xgen.json").write_text(json.dumps(payload, indent=2) + "\n")
     (out_dir / "results.md").write_text(print_xgen_leftover(payload))
+
+
+def summarize_mgen_leftover(
+    keys: set[tuple[str, int]],
+    *,
+    holdouts: dict[str, Path],
+    openings: Path,
+    method: str = "postokhits",
+) -> dict:
+    """gpt2-medium occupancy-free leftover-15 on the original 12.
+
+    Same BPE as GPT-2. The 100 prompts were frozen before leftover
+    peeking. Not more scenes. Not a new probe method. Does not replace
+    25/48.
+    """
+    payload = summarize_leftover_holdouts(keys, holdouts)
+    payload["note"] = (
+        "gpt2-medium occupancy-free leftover-15 on the original 12. "
+        "Same BPE, 100 prompts frozen before leftover peeking. "
+        "Not more unrelated GPT-2 scenes, not a new probe method. "
+        "Does not replace 25/48."
+    )
+    payload["openings"] = leftover_openings_coverage(
+        keys, openings, method=method
+    )
+    return payload
+
+
+def print_mgen_leftover(payload: dict) -> str:
+    lines = [
+        "# gpt2-medium occupancy-free leftover-15",
+        "",
+        str(payload.get("note") or ""),
+        "",
+        (
+            f"used_keys={payload.get('used_keys')} "
+            f"leftover={payload.get('n_leftover')}"
+        ),
+        "",
+        "Leftover signs:",
+        "",
+    ]
+    for row in payload.get("leftover_signs") or []:
+        lines.append(
+            f"- {row['label']}: marked>0 {row['marked_above_zero']}/{row['n']}, "
+            f"unmarked≤0 {row['unmarked_at_most_zero']}/{row['n']}"
+        )
+    cov = payload.get("openings") or {}
+    lines.extend(
+        [
+            "",
+            (
+                f"openings leftover covered={cov.get('n_covered')}/"
+                f"{cov.get('n_leftover')} uncovered={cov.get('n_uncovered')} "
+                f"full marked covered={cov.get('n_marked_covered')}/48"
+            ),
+            "",
+            "gpt2-medium occupancy-free leftover-15 is not leftover-file "
+            "detection. Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_mgen_leftover(payload: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "mgen.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (out_dir / "results.md").write_text(print_mgen_leftover(payload))
