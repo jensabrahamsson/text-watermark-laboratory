@@ -1007,4 +1007,13 @@ endpoint. Protocol: [PROTOCOL-next.md](PROTOCOL-next.md). Index:
 [results-ledger.md](results-ledger.md). Do not write `thesis/` from
 this freeze.
 
+## 2026-09-01 confirmatory prompts committed before pair
+
+One hundred new one-line scenes in
+`experiments/2026-09-01-prompts-100/`, disjoint from the 36-topic
+seeds. This commit is still before `pair`. Seed `20260901`, four
+draws, 128 tokens, as [PROTOCOL-next.md](PROTOCOL-next.md). Do not
+open key-free LRs until generation and the frozen analysis commands
+have run.
+
 ---

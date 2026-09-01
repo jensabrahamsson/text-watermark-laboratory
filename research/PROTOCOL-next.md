@@ -89,17 +89,17 @@ from `experiments/2026-08-17-prompts-36/`. Same register as seeds
 
 | Item | Value |
 |---|---|
-| Prompts | `experiments/YYYY-MM-DD-prompts-100/` (committed **before** `pair`) |
+| Prompts | `experiments/2026-09-01-prompts-100/` (committed **before** `pair`) |
 | Generator | GPT-2 + public DeepMind 30 mixin |
 | Draws | `--n-samples 4` |
 | Length | `--max-new-tokens 128` |
 | Seed | `20260901` |
-| Output | `experiments/YYYY-MM-DD-pair-100x4/` |
+| Output | `experiments/2026-09-01-pair-100x4/` |
 
 ```bash
-python -m text_watermark_tools pair experiments/YYYY-MM-DD-prompts-100 \
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --n-samples 4 --max-new-tokens 128 --seed 20260901 \
-  --out-dir experiments/YYYY-MM-DD-pair-100x4
+  --out-dir experiments/2026-09-01-pair-100x4
 ```
 
 Do not look at key-free LRs until `pair` has written official first-draw
@@ -114,26 +114,26 @@ first run.
 ```bash
 python -m text_watermark_tools probe PAIR \
   --methods interpolate --context-len 4 \
-  --out-dir experiments/YYYY-MM-DD-probe-100x4-hard-last4
+  --out-dir experiments/2026-09-01-probe-100x4-hard-last4
 
 python -m text_watermark_tools probe PAIR \
   --methods poshits --fit-prefix 4 --pos-bucket 1 \
-  --out-dir experiments/YYYY-MM-DD-probe-100x4-opening-poshits
+  --out-dir experiments/2026-09-01-probe-100x4-opening-poshits
 
 python -m text_watermark_tools probe PAIR \
   --rankpath --fit-prefix 4 --pos-bucket 1 \
-  --out-dir experiments/YYYY-MM-DD-probe-100x4-opening-rankpath
+  --out-dir experiments/2026-09-01-probe-100x4-opening-rankpath
 
 python -m text_watermark_tools probe PAIR \
   --methods interpolate --context-len 4 \
   --windows 0:4,4:16,16:32,32:64 \
-  --out-dir experiments/YYYY-MM-DD-probe-100x4-hard-windows
+  --out-dir experiments/2026-09-01-probe-100x4-hard-windows
 ```
 
 Official lamp (first draw only, as in the 36×4 README):
 
 ```bash
-python -m text_watermark_tools score experiments/YYYY-MM-DD-pair-100x4/NN-marked.txt
+python -m text_watermark_tools score experiments/2026-09-01-pair-100x4/001-marked.txt
 ```
 
 H1 is lock A prompt wins. H2 is lock A window 0:4 versus 16:32 (prompt

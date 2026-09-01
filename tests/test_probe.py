@@ -4235,4 +4235,23 @@ def test_hashtok_lastk_does_not_transfer_as_an_order_law() -> None:
     assert _letter_d2(k4) < 0
 
 
+def test_confirmatory_100_prompts_are_preregistered_and_disjoint() -> None:
+    """100 new one-liners exist before pair; no overlap with the 36 seeds."""
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    new = root / "2026-09-01-prompts-100"
+    old = root / "2026-08-17-prompts-36"
+    files = sorted(p for p in new.glob("*.txt") if p.stem.isdigit())
+    assert len(files) == 100
+    texts = [p.read_text().strip() for p in files]
+    assert all(texts)
+    assert len(set(texts)) == 100
+    old_texts = {p.read_text().strip() for p in old.glob("*.txt")}
+    assert not (set(texts) & old_texts)
+    protocol = Path(__file__).resolve().parents[1] / "research" / "PROTOCOL-next.md"
+    body = protocol.read_text()
+    assert "2026-09-01-prompts-100" in body
+    assert "--methods interpolate --context-len 4" in body
+    assert "--methods poshits --fit-prefix 4 --pos-bucket 1" in body
+    assert "--rankpath --fit-prefix 4 --pos-bucket 1" in body
+    assert "Primary endpoint" in body
 
