@@ -1,6 +1,6 @@
 # How to use text-watermark-laboratory
 
-This guide gets the laboratory running, explains the two scoring paths, and shows how to reproduce the key-free watermark experiments.
+This guide gets the laboratory running, explains the two scoring paths, and shows how to reproduce the key-free watermark experiments. The result in one paragraph is the [README abstract](README.md#abstract).
 
 ## What the lab can tell you
 

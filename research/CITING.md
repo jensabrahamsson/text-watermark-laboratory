@@ -10,7 +10,8 @@ is [related-work.md](related-work.md).
 This is the citation layer for a future research report. It is **not** the
 dissertation itself. Do not invent papers. Prefer the archival venue
 (journal or proceedings) over arXiv when both exist. Label preprints and
-web pages as such. In-text forms:
+web pages as such. The locked abstract (shop window: what is new first) is
+[abstract.md](abstract.md). In-text forms:
 
 | Authors | Narrative | Parenthetical |
 |---|---|---|

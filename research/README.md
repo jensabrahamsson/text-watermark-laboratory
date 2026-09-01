@@ -2,12 +2,13 @@
 
 This directory contains the reasoning behind the experiments in the root [README](../README.md).
 
-The main result is the **key-free watermark indicator** described in [key-free-twins.md](key-free-twins.md): matched marked/unmarked generations contain enough statistical structure to classify most held-out prompt groups without using the detector keys.
+The locked abstract is the **shop window** ([abstract.md](abstract.md)): what is new, first. The main result is the **key-free watermark indicator** described in [key-free-twins.md](key-free-twins.md): matched marked/unmarked generations contain enough statistical structure to classify most held-out prompt groups without using the detector keys.
 
 Citations in these notes are author–year ([CITING.md](CITING.md)). Do not invent papers. A future research report should compile [references.bib](references.bib); do not write `thesis/` until isolated-file research is finished.
 
 | File | Focus |
 |---|---|
+| [abstract.md](abstract.md) | Shop window: key-free prompt-group indicator first; isolated **25/48** in the same pane; not a theorem refutation |
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [PROTOCOL-next.md](PROTOCOL-next.md) | Frozen confirmatory 100×4 protocol; lock A **99/100**; Distil H3 |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |

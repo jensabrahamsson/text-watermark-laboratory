@@ -1,5 +1,9 @@
 # text-watermark-laboratory
 
+## Abstract
+
+We have built an indicator for watermark presence **without the detector keys**. On Google DeepMind's public SynthID-Text instance (`public-deepmind-30`), matched marked and unmarked twins leave a next-token footprint that a frozen count-table likelihood ratio learns. Held-out **prompt groups** rank **9/12** (original 12-LOO hard last-4), **36/36** (in-domain 36×4 hits), and **99/100** (confirmatory lock A). Isolated sign of one original-12 file at `t=0` is **25/48**. Official keyed `score` is already **12/12**; that is the positive control, not this result. Occupancy-free isolated recall is bounded by opening-atom overlap. This is not a universal isolated-file detector, not key recovery, and not a refutation of Christ et al. (2024) or Zhang et al. (2024). Closest published analog: Wang et al. (2026). Isolated-file research is not finished. Locked wording: [research/abstract.md](research/abstract.md).
+
 **text-watermark-laboratory** asks a practical question about statistical text watermarks:
 
 > **Can we tell whether text carries a watermark even when we do not have the detector keys?**
