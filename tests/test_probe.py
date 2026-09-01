@@ -4146,7 +4146,7 @@ def test_hashtok_lastk_in_domain_is_not_an_order_law() -> None:
     assert k1.n_prompts_marked_above < k4.n_prompts_marked_above
     assert k3.n_prompts_marked_above > k4.n_prompts_marked_above
     assert k3.n_marked_positive < 39
-    assert nest3["n_unmarked_at_most"] < 39
+    assert nest3["n_marked_above"] < 39
 
     assert _letter_d2(k1) < 0
     assert _letter_d2(k2) < 0
