@@ -592,9 +592,9 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
 | **8 (default)** | **11/12** | **0.707** | 29/48 | **35/48** | **17/48 vs 46/48** | **17/48 vs 46/48** |
 
 Default n=8 wins prompt ranking, file AUC, t=0 spec, nested Youden
-spec, and nested FPR10 recall. The in-domain n=2 / n=4 win did not
-transfer, and that in-domain table is seed-confounded. Keep the CLI
-default at 8. t=0 marked 29/48 here is not the
+spec, and nested FPR10 recall **at mixer seed 20260831**. The
+in-domain n=2 / n=4 win did not transfer at that seed, and both
+comparisons are seed-confounded. Keep the published protocol frozen. t=0 marked 29/48 here is not the
 headline hard last-4 **29/48**. Nested 17/48 is below hits nested
 Youden **26/48 vs 44/48** on this same split. Letter d2 stays
 negative. Do not sell 31/48, 19/48, or 17/48 as beating poshits
@@ -603,6 +603,25 @@ negative. Do not sell 31/48, 19/48, or 17/48 as beating poshits
 JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/),
 [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/),
 [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4/).
+
+## Transfer n=8 win is also seed-confounded
+
+Same 24→12 hashtok gate at other feature-hash seeds (not `hash_iv`):
+
+| n_hashes | seed | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden |
+|---|---|---|---|---|---|---|
+| 8 | **20260831** | **11/12** | 0.707 | 29/48 | 35/48 | 17/48 vs 46/48 |
+| 8 | 0 | 10/12 | 0.709 | 27/48 | 36/48 | 14/48 vs 46/48 |
+| 8 | 7 | 10/12 | 0.705 | 25/48 | **37/48** | 16/48 vs 45/48 |
+| 2 | 7 | 9/12 | **0.740** | 29/48 | 36/48 | **19/48 vs 47/48** |
+
+Default seed 20260831 is the best n=8 prompt ranking here. n=2 seed 7
+nested **19/48 vs 47/48** beats that default on nested recall and spec,
+with worse prompt ranking. Letter d2 flips at seed 0. Keep the
+published protocol frozen (`n_hashes=8`, seed `20260831`). Do not fish
+a seed. Do not sell 19/48 or 17/48 as replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/).
 
 ## OR with hard last-4 is complementary TPs, not a detector
 

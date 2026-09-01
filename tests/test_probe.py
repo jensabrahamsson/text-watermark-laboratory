@@ -4022,4 +4022,48 @@ def test_hashtok_nhashes2_seed_win_is_not_a_width_law() -> None:
     assert max(n2_prompts) == 11
 
 
+def test_hashtok_transfer_seed_win_is_not_a_width_law() -> None:
+    """24→12 n=8 default seed is a lucky mixer, not a typical n=8.
+
+    Other n=8 seeds: prompt 10/12, t=0 marked 25–27. n=2 seed 7 nested
+    19/48 vs 47/48 beats that default nested. Letter d2 flips at seed 0.
+    Keep n_hashes=8 / seed 20260831. Do not sell 19/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-36x4-to-12x4-hashtok-seeds"
+    )
+    payload = json.loads((root / "results.json").read_text())
+    assert payload["used_keys"] is False
+    assert payload["used_hash_iv"] is False
+    by = {(int(r["n_hashes"]), int(r["seed"])): r for r in payload["rows"]}
+    d8 = by[(8, 20260831)]
+    assert d8["n_prompt_wins"] == 11
+    assert d8["n_marked_positive"] == 29
+    assert d8["n_unmarked_nonpositive"] == 35
+    assert d8["nested_marked"] == 17
+    assert d8["nested_unmarked"] == 46
+    s0 = by[(8, 0)]
+    assert s0["n_prompt_wins"] == 10
+    assert s0["n_marked_positive"] == 27
+    assert s0["letter_d2"] > 0
+    s7 = by[(8, 7)]
+    assert s7["n_prompt_wins"] == 10
+    assert s7["n_marked_positive"] == 25
+    n2s7 = by[(2, 7)]
+    assert n2s7["nested_marked"] == 19
+    assert n2s7["nested_unmarked"] == 47
+    assert n2s7["n_prompt_wins"] == 9
+    n2s0 = by[(2, 0)]
+    assert n2s0["letter_d2"] > 0
+    assert n2s7["nested_marked"] < 39
+    hold = holdout_from_json(root / "n2-seed7" / "hashtok" / "holdout.json")
+    assert hold.used_hash_iv is False
+    assert hold.n_prompts_marked_above == 9
+
+
+
 

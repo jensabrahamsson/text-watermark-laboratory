@@ -958,4 +958,15 @@ a width law. JSON:
 `experiments/2026-09-01-probe-12x4-hashtok-nhashes2-seeds/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok transfer seed sweep: n=8 win is not a width law
+
+24→12 occupancy-free `hashtok` at other feature-hash seeds (not
+`hash_iv`). Default n=8 seed 20260831 is **11/12**, nested **17/48 vs
+46/48**. Other n=8 seeds: prompt **10/12**, t=0 marked **25–27/48**.
+n=2 seed 7 nested **19/48 vs 47/48** beats that default nested, with
+prompt 9/12. Letter d2 flips at seed 0. Keep `n_hashes=8` and seed
+`20260831`. Do not fish a seed. Do not sell 19/48. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

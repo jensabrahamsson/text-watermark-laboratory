@@ -188,6 +188,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4/` | 24 new topics → 12×4 hashtok n=4 | **9/12**, **31/48 vs 30/48**, nested Youden **19/48 vs 41/48**; densest OOD t=0, worst nested spec |
 | `2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/` | 24 new topics → 12×4 hashtok n=8 | **11/12**, **29/48 vs 35/48**, nested Youden **17/48 vs 46/48**; default wins OOD; keep CLI n=8 |
 | `2026-09-01-probe-12x4-hashtok-nhashes2-seeds/` | In-domain hashtok n=2/8 mixer-seed sweep | n=2 spec **21–31/48**; default seed 20260831 is a lucky n=2 mixer; n=8 seed 7 nested **28/48 vs 37/48**; not a width law |
+| `2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/` | 24→12 hashtok mixer-seed sweep | n=8 default **11/12** nested **17/48 vs 46/48** is a lucky mixer; n=2 seed 7 nested **19/48 vs 47/48**; do not fish a seed |
 
 ## What changed across the runs
 

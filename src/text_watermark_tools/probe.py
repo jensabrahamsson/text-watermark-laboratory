@@ -824,6 +824,7 @@ def rotate_hashtok(
     position_bucket: int = 0,
     exact_len: bool = False,
     method_name: str = "",
+    seed: int = 20260831,
 ) -> IndicatorHoldout:
     """Hashpool reader that skips unseen next tokens (no occupancy Laplace)."""
     reader = str(method_name or ("hashtoklen" if exact_len else "hashtok"))
@@ -841,6 +842,7 @@ def rotate_hashtok(
         position_bucket=position_bucket,
         method_name=reader,
         exact_len=bool(exact_len) or reader == "hashtoklen",
+        seed=seed,
     )
 
 
@@ -4126,6 +4128,7 @@ def run_transfer(
     cascade_rankpath_end: int | None = None,
     cascade_when: str = "coverage",
     lm=None,
+    hash_seed: int = 20260831,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -4209,6 +4212,7 @@ def run_transfer(
             context_len=context_len,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
+            seed=hash_seed,
         )
         if need_hash and any(
             n in extras
@@ -5039,6 +5043,7 @@ def run_transfer(
                 n_hashes=n_hashes,
                 n_buckets=n_buckets,
                 model_name=model_name,
+                seed=hash_seed,
             )
         if "hashtok2" in extras:
             nested_holdouts["hashtok2"] = rotate_hashtok2(

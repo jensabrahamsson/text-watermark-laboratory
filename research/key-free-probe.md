@@ -97,7 +97,9 @@ on that mixer is **34/48 vs 31/48**, nested **28/48 vs 37/48**, AUC
 `--n-hashes 32` hurts (**30/48**, nested **21/48 vs 38/48**). Default
 n=8 is not the best in-domain width **at seed 20260831**; that n=2 win
 is seed-confounded (n=2 spec **21–31/48**). 24→12 nested Youden prefers
-n=8 (**17/48 vs 46/48**); keep the CLI default. Do not sell 36/48 or
+n=8 (**17/48 vs 46/48**) at seed 20260831; that win is also
+seed-confounded (n=2 seed 7 nested **19/48 vs 47/48**). Keep the
+frozen protocol. Do not fish a seed. Do not sell 36/48 or
 31/48. OR with hard
 last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
 indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
