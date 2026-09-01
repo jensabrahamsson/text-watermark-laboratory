@@ -137,6 +137,45 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert summary["pivot_fallback_marked"][0]["opening_text"] == "Now in the second"
 
 
+def test_format_cascade_does_not_dump_raw_rows() -> None:
+    from text_watermark_tools.probe import format_cascade
+
+    lines = format_cascade(
+        {
+            "fallback": "rankuni",
+            "count_method": "postokbackoff",
+            "pivot_weight": "uniform",
+            "prompt_context": False,
+            "used_keys": False,
+            "n_marked": 2,
+            "n_unmarked": 2,
+            "n_count_marked": 1,
+            "n_count_unmarked": 1,
+            "n_pivot_marked": 1,
+            "n_pivot_unmarked": 1,
+            "count_marked_above_zero": 1,
+            "count_unmarked_at_most_zero": 1,
+            "pivot_marked_above_zero": 1,
+            "pivot_unmarked_at_most_zero": 1,
+            "combined_marked_above_zero": 2,
+            "combined_unmarked_at_most_zero": 2,
+            "count_precision": 1.0,
+            "pivot_fallback_marked": [
+                {
+                    "stem": "b",
+                    "sample": 1,
+                    "score": 0.4,
+                    "opening_text": "Now in the second",
+                }
+            ],
+        }
+    )
+    joined = "\n".join(lines)
+    assert "rankuni-fallback marked files:" in joined
+    assert "[{'stem'" not in joined
+    assert "`b` draw 1: Now in the second lr>0=0.4000" in joined
+
+
 def test_persist_load_pivot_is_key_free(tmp_path) -> None:
     rng = np.random.default_rng(1)
     fit = fit_pivot(rng.normal(1.0, 0.2, (20, 6)), rng.normal(-1.0, 0.2, (20, 6)))

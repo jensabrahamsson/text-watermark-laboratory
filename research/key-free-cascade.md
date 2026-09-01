@@ -122,4 +122,6 @@ precision 0.722. Do not sell 39/48 cascade as beating poshits 39/48
 - Cascade is an honest two-channel report, not a single score.
 
 Still not keys. Still not a universal detector. Do not replace
-**10/12**, **29/48**, or **36/36**.
+**10/12**, **29/48**, or **36/36**. Rank-path tables that score novel
+openings without token identity are in
+[key-free-rankpath.md](key-free-rankpath.md).

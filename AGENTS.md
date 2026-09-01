@@ -65,7 +65,7 @@ python -m text_watermark_tools probe PAIR --methods hits,poshits,pospool --pos-b
 python -m text_watermark_tools probe PAIR --coverage --windows 0:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1
 python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff,postokbackoff2
-python -m text_watermark_tools probe PAIR --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --pivot --pivot-weight uniform,entropy --cascade postokbackoff
+python -m text_watermark_tools probe PAIR --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --pivot --rankpath --cascade postokbackoff --cascade-fallback rankuni
 python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train OTHER --fit-prefix 4 --pos-bucket 1
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
@@ -151,9 +151,11 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free hits, 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** |
 | Nested freqhits Youden, reverse | **23/24** and **23/24** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
+| Opening rankpath, 12×4 LOO 4-token | **12/12**, isolated **41/48** (not 29/48) |
+| Opening rankpath, 24-short → 12×4 | **10/12**, isolated **28/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), and [research/key-free-cascade.md](research/key-free-cascade.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), and [research/key-free-rankpath.md](research/key-free-rankpath.md).
 
 ## Code map
 
@@ -167,6 +169,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
 | `transfer.py` | Interpolated, gated, hash-pool, and UTF-8 surface scorers |
 | `pivot.py` | Unmarked-LM choice geometry, entropy pooling, argmax snap |
+| `rankpath.py` | Five-symbol unmarked-LM rank tables (no token identity) |
 | `probe.py` | Compare scorers; transfer; cascade; nested thresholds; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
 | `contrast.py` | Key-free public vs control-shuffled-30 instance check |

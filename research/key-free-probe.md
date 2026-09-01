@@ -539,6 +539,7 @@ Learned scorers: [key-free-learn.md](key-free-learn.md).
 
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
 Opening geometry and ABSTAIN: [key-free-cascade.md](key-free-cascade.md).
+Rank-path (no token identity): [key-free-rankpath.md](key-free-rankpath.md).
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \

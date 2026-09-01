@@ -77,7 +77,7 @@ Current results:
 | Qwen2-1.5B twins, last-2 | **10/12** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 
-The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md).
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md). Rank-symbol tables that score novel openings without token identity are in [key-free-rankpath.md](key-free-rankpath.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 

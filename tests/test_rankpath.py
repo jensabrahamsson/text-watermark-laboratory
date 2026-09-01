@@ -124,9 +124,12 @@ def test_persist_transfer_writes_each_pivot_weight(tmp_path) -> None:
     )
     persist_transfer(run, tmp_path)
     loaded_u, raw_u = load_pivot(tmp_path / "tables-pivot")
+    loaded_named, raw_named = load_pivot(tmp_path / "tables-pivot-uniform")
     loaded_e, raw_e = load_pivot(tmp_path / "tables-pivot-entropy")
     assert raw_u["weight"] == "uniform"
+    assert raw_named["weight"] == "uniform"
     assert raw_e["weight"] == "entropy"
+    assert np.allclose(loaded_named.weights, fit_u.weights)
     assert np.allclose(loaded_u.weights, fit_u.weights)
     assert np.allclose(loaded_e.weights, fit_e.weights)
     assert not np.allclose(fit_u.weights, fit_e.weights)

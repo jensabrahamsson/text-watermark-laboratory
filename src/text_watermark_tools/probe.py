@@ -2549,10 +2549,10 @@ def format_cascade(payload: dict) -> list[str]:
             f"{payload.get('n_unmarked')}"
         ),
     ]
-    fallback = payload.get("pivot_fallback_marked") or []
-    if fallback:
+    marked_fallback = payload.get("pivot_fallback_marked") or []
+    if marked_fallback:
         lines.append(f"{fallback}-fallback marked files:")
-        for row in fallback:
+        for row in marked_fallback:
             score = float(row.get("score") or 0.0)
             sign = "lr>0" if score > 0.0 else "lr<=0"
             lines.append(

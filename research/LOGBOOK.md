@@ -498,4 +498,21 @@ JSON: `experiments/2026-08-31-probe-12x4-fitprefix4-cascade-isolated/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-isolated/`.
 Write-up: [key-free-cascade.md](key-free-cascade.md).
 
+## 2026-08-31 rank-path tables
+
+Five-symbol unmarked-LM rank paths (miss / argmax / 2–3 / 4–10 / 11–k),
+still no keys. 4-token isolated openings. In-domain 12×4 LOO: rankpath
+**12/12**, AUC **0.797**, isolated **41/48** vs 39/48 unmarked ≤0
+(precision 0.820). That beats opening LDA 27/48. OOD 24-short → 12×4:
+rankpath **10/12**, **28/48**, precision 0.651; LDA stays at chance
+(4/12). Combined 60-stem: rankpath **12/12** ranking, rankuni 37/48
+with 17 unmarked FPs; leftover count zeros 2/6. Cascade mixed scores
+are not a detector. Do not sell 41/48, 28/48, or 37/48 as replacing
+29/48 or beating 39/48 poshits.
+
+JSON: `experiments/2026-08-31-probe-12x4-fitprefix4-rankpath-isolated/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-fitprefix4-rankpath-isolated/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-rankpath-isolated/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
 ---
