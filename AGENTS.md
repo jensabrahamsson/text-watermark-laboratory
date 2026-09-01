@@ -13,7 +13,7 @@ It has two distinct detection paths:
 1. **`score`** — the ordinary key-based reference measurement for `public-deepmind-30`.
 2. **`indicate` / `blind`** — a key-free experimental indicator learned from matched marked/unmarked generations.
 
-The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** with a 0.02 comparison margin. Isolated hard sign is **25/48**. In-domain hits on 36 topics × 4 draws is still **36/36**. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48** and is not Distil/Qwen. The pre-fix published numbers **10/12** / **29/48** overweighted openings (`(10,)→20` counted four times at `context_len=4`). Later protocols must not be sold as a universal detector. Do not sell hashed or opening-rankpath signs as replacing **25/48**. Do not add new `probe --methods` names on the 12×4 / 36×4 twins except bug-fix remeasures. Phase B of [research/PROTOCOL-next.md](research/PROTOCOL-next.md) is Distil/Qwen on the same 100 prompts. Headlines vs ablations: [research/results-ledger.md](research/results-ledger.md).
+The key-free work is a central result of the repository. Describe it accurately: **we have built an indicator for watermark presence without the detector keys**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** with a 0.02 comparison margin. Isolated hard sign is **25/48**. In-domain hits on 36 topics × 4 draws is still **36/36**. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. Distil Phase B is official **70/100**, lock B **89/100**, lock C **69/100**. In-family nested-by-stem Youden on 100×4 lock A is **322/400 vs 338/400**; lock B **392/400 vs 382/400** (occupancy). Out-of-family isolated transfer is [research/PROTOCOL-isolated.md](research/PROTOCOL-isolated.md). Qwen Phase B is still generating. The pre-fix published numbers **10/12** / **29/48** overweighted openings (`(10,)→20` counted four times at `context_len=4`). Later protocols must not be sold as a universal detector. Do not sell hashed or opening-rankpath signs as replacing **25/48**. Do not add new `probe --methods` names on the 12×4 / 36×4 twins except bug-fix remeasures. Phase B of [research/PROTOCOL-next.md](research/PROTOCOL-next.md) is Distil/Qwen on the same 100 prompts. Headlines vs ablations: [research/results-ledger.md](research/results-ledger.md).
 
 Do not weaken that result into vague wording such as "there may be traces". Equally, do not present it as a universal detector.
 
@@ -93,6 +93,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same comparison with margin 0.02 | **10/12** |
 | Confirmatory 100×4 lock A interpolate last-4 | **99/100** (official keyed first-draw **100/100**) |
 | DistilGPT2 100×4 official / lock B / lock C | **70/100** / **89/100** / **69/100** (H3: rankpath drops more) |
+| 100×4 lock A nested-by-stem Youden | **322/400 vs 338/400** (in-family; not **25/48**) |
+| 100×4 lock B nested-by-stem Youden | **392/400 vs 382/400** (occupancy 198/400 unmarked `n_used=0`) |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

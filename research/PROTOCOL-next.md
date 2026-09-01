@@ -2,7 +2,9 @@
 
 This is a **methods freeze**, not a paper. It exists so the next
 measurement is a prediction about data that has not been opened, rather
-than another scorer on `experiments/2026-08-17-pair-12x4`.
+than another scorer on `experiments/2026-08-17-pair-12x4`. Out-of-family
+isolated-file transfer of these same three readers is
+[PROTOCOL-isolated.md](PROTOCOL-isolated.md).
 
 Author–year citations follow [CITING.md](CITING.md). Lab counts after the truncated-context recount are **9/12**, **25/48**,
 and **36/36**. Pre-fix **10/12** / **29/48** stay in historical JSON.
@@ -196,8 +198,9 @@ Official first-draw **70/100**. Lock B **89/100** (drop 11). Lock C
 - New hashed / backoff / cascade / learned scorers on 12×4 or 36×4.
 - Fishing `--n-hashes`, mixer `seed`, or `--context-len` after looking
   at the 100×4 LRs.
-- Selling 39/48, 41/48, 33/48, 24/48, or last-3 **11/12** as replacing
-  **25/48**.
+- Selling 39/48, 41/48, 33/48, 24/48, last-3 **11/12**, or in-family
+  100×4 nested Youden **322/400** / **392/400** as replacing **25/48**.
+  Out-of-family isolated transfer is [PROTOCOL-isolated.md](PROTOCOL-isolated.md).
 - Key recovery, SynthID `hash_iv`, or reimplementing `detector_mean`.
 - Training a Claude marked/unmarked classifier on the pre-mark corpus.
 - A 7-day Grok interval loop. Claude resample stays Wed/Fri/Sun 04:00.

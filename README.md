@@ -19,7 +19,7 @@ Official keyed `score` on the original 12 twins is **12/12**. That path uses key
 
 Ablations, hashed readers, rank-path, occupancy, and transfer tables: **[research/results-ledger.md](research/results-ledger.md)** and **[experiments/README.md](experiments/README.md)**. Later 39/48 and 41/48 figures on the same 12×4 files are hypothesis generators (occupancy, in-domain geometry, researcher reuse of one evaluation set). They do not replace **25/48**.
 
-The confirmatory measurement on 100 new GPT-2 prompt families is in: **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**. Lock A (interpolate last-4) ranks **99/100** prompt groups. Isolated `lr>0` is still not the primary endpoint. Distil/Qwen (Phase B) is not opened yet.
+The confirmatory measurement on 100 new GPT-2 prompt families is in: **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**. Lock A (interpolate last-4) ranks **99/100** prompt groups. Isolated `lr>0` is still not the primary endpoint. DistilGPT2 Phase B official lamp is **70/100**; opening poshits **89/100**; rankpath **69/100** (H3: rankpath drops more). Qwen2-1.5B pair is still generating. Out-of-family isolated-file transfer of those same readers is frozen in **[research/PROTOCOL-isolated.md](research/PROTOCOL-isolated.md)** before those runs.
 
 Install: **[HOW-TO.md](HOW-TO.md)** · Notes: **[research/](research/)** · Agents: **[AGENTS.md](AGENTS.md)**
 
@@ -30,6 +30,8 @@ Install: **[HOW-TO.md](HOW-TO.md)** · Notes: **[research/](research/)** · Agen
 **Relative discrimination (9/12).** Leave one prompt family out. Fit marked and unmarked count tables on the rest. Score the held-out marked group against the held-out unmarked group. Hard last-4 after storing each real suffix once: **9/12**. A 0.02 comparison margin on *that same scorer* is **10/12**; that is a robustness check, not the headline. Rechecked `hits` is **10/12** (AUC **0.718**). Hashpool does not use the truncated-context loop and stays **11/12** on its historical JSON.
 
 **Single-text classification (25/48).** Same leave-one-out tables, sign of one file’s LR against 0, no twin. Hard last-4 marked `lr>0`: **25/48**. Unmarked `lr≤0`: **22/48**. Binomial P(≥25 | n=48, p=0.5) ≈ 0.44. Ranking of the same LRs is AUC **0.590** (permutation p = 0.040). Pre-fix **29/48** / AUC 0.626 overcounted truncated openings. That overlap is why 9/12 must not be read as per-file accuracy.
+
+On 100 new GPT-2 families, lock A *ranking* of isolated files is much stronger (AUC **0.898**). Nested-by-stem Youden — still in-family, still a threshold nest on already-OOF scores — is **322/400 vs 338/400**. Opening poshits nested Youden is **392/400 vs 382/400**, with occupancy (198/400 unmarked `n_used=0`). Those numbers do not replace **25/48**. Whether the same frozen tables classify the original 12×4 / 36×4 files is [research/PROTOCOL-isolated.md](research/PROTOCOL-isolated.md).
 
 The code enforces the key-free claim: `BlindModel` carries `used_keys`, `used_hash_iv`, and `used_g_values`; the held-out decision never consults `detector_mean`.
 

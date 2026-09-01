@@ -18,7 +18,7 @@ fit key-free token/context statistics
 evaluate held-out prompts
 ```
 
-That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
+That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. In-family nested-by-stem Youden on that corpus is **322/400 vs 338/400** (lock A) and **392/400 vs 382/400** (lock B, occupancy). Out-of-family isolated transfer: [../research/PROTOCOL-isolated.md](../research/PROTOCOL-isolated.md). Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
 
 ## Main runs
 

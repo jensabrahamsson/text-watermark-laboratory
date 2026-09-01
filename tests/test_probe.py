@@ -1,5 +1,6 @@
 """Probe CLI and published 12×4 holdout statistics."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.blind import load_twins
@@ -966,6 +967,16 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
     assert lock_a.n_prompts == 100
     assert lock_a.n_prompts_marked_above == 99
     assert lock_a.n_marked_positive == 352
+    lock_a_probe = json.loads(
+        (root / "2026-09-01-probe-100x4-hard-last4" / "results.json").read_text()
+    )
+    lock_a_youden = next(
+        m["nested_stem"]["nested-youden-by-stem"]
+        for m in lock_a_probe["methods"]
+        if m["name"] == "interpolate"
+    )
+    assert lock_a_youden["n_marked_above"] == 322
+    assert lock_a_youden["n_unmarked_at_most"] == 338
     stats = binary_eval(lock_a.marked_lrs, lock_a.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.85
     assert stats.permutation_p < 0.01
@@ -976,6 +987,17 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
     )
     assert lock_b.used_keys is False
     assert lock_b.n_prompts_marked_above == 100
+    lock_b_probe = json.loads(
+        (root / "2026-09-01-probe-100x4-opening-poshits" / "results.json").read_text()
+    )
+    lock_b_youden = next(
+        m["nested_stem"]["nested-youden-by-stem"]
+        for m in lock_b_probe["methods"]
+        if m["name"] == "poshits"
+    )
+    assert lock_b_youden["n_marked_above"] == 392
+    assert lock_b_youden["n_unmarked_at_most"] == 382
+    assert lock_b_probe["methods"][0]["coverage_gate"]["n_unmarked_zero"] == 198
 
     lock_c = holdout_from_json(
         root / "2026-09-01-probe-100x4-opening-rankpath" / "rankpath" / "holdout.json"
@@ -1041,8 +1063,23 @@ def test_protocol_next_phase_b_distil_opening_locks() -> None:
     assert poshits.n_prompts == 100
     assert poshits.n_prompts_marked_above == 89
     assert rankpath.n_prompts_marked_above == 69
+    assert poshits.n_marked_positive == 216
+    assert poshits.n_unmarked_nonpositive == 247
     # H3 on Distil: rankpath drops more from GPT-2 Phase A than poshits.
     assert (96 - rankpath.n_prompts_marked_above) > (100 - poshits.n_prompts_marked_above)
+
+
+def test_protocol_isolated_freezes_out_of_family_transfer_commands() -> None:
+    text = (
+        Path(__file__).resolve().parents[1] / "research" / "PROTOCOL-isolated.md"
+    ).read_text()
+    assert "--methods interpolate --context-len 4" in text
+    assert "--methods poshits --fit-prefix 4 --pos-bucket 1" in text
+    assert "--methods rankpath --fit-prefix 4 --pos-bucket 1" in text
+    assert "2026-09-01-transfer-100x4-to-12x4-hard-last4" in text
+    assert "2026-09-01-transfer-100x4-to-36x4-opening-poshits" in text
+    assert "**25/48**" in text
+    assert "nested Youden" in text
 
 
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:

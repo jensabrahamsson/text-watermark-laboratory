@@ -1124,4 +1124,16 @@ JSON: `experiments/2026-09-01-pair-distil-100x4/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
 
+## 2026-09-01 isolated-file transfer frozen before 100→12 / 100→36
+
+In-family 100×4 nested-by-stem Youden is already measured: lock A
+**322/400 vs 338/400**, lock B **392/400 vs 382/400** (198/400 unmarked
+`n_used=0`), lock C **312/400 vs 319/400**. Those do not replace
+**25/48**. Exact out-of-family `probe --test-dir` commands for locks
+A/B (and C after Qwen RAM) are in
+[PROTOCOL-isolated.md](PROTOCOL-isolated.md). This commit still
+precedes those transfer runs. Do not look at test LRs until the frozen
+commands have been run once. Primary isolated endpoint is nested Youden
+on the test files (threshold from train LOO only).
+
 ---

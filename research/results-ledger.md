@@ -17,6 +17,8 @@ scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
 | Isolated hard sign | One marked file, `lr>0` | **25/48** | A 5% binomial test |
 | In-domain 36×4 hits | Prompt groups | **36/36** | Cross-generator |
 | Confirmatory 100×4 lock A (interpolate last-4) | New prompt groups | **99/100** | Isolated-file detector; not Distil/Qwen |
+| 100×4 lock A nested-by-stem Youden | In-family files | **322/400 vs 338/400** | Out-of-family; not **25/48**; threshold nest on already-OOF scores |
+| 100×4 lock B nested-by-stem Youden | In-family opening | **392/400 vs 382/400** | Occupancy (198/400 unmarked `n_used=0`); not **25/48** |
 
 Pre-fix **10/12** / **29/48** counted `(10,)→20` four times at
 `context_len=4`. JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`,
@@ -94,8 +96,11 @@ H1 holds (lock A prompt ranking). H2 holds: window **0:4** is **99/100**,
 AUC **0.885**; window **16:32** is **89/100**, AUC **0.689**. Early is
 stronger; mid-file is not chance on this corpus. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
-Do not sell lock B **393/400** or lock A **352/400** as replacing
-**25/48**.
+Do not sell lock B **393/400**, lock A **352/400**, or nested-by-stem
+**322/400** / **392/400** as replacing **25/48**. Those are in-family.
+Out-of-family isolated transfer is frozen in
+[PROTOCOL-isolated.md](PROTOCOL-isolated.md) before those `probe
+--test-dir` runs.
 
 ## Confirmatory 100×4 Phase B Distil (Qwen still generating)
 
