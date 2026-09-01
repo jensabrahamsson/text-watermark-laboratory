@@ -21,6 +21,19 @@ ATOMS = (
     / "atoms.json"
 )
 PROTOCOL_WINDOWS = ROOT / "research" / "PROTOCOL-isolated-windows.md"
+ATOMS_GROK36_TO_12 = (
+    ROOT
+    / "experiments"
+    / "2026-09-01-atoms-grok36x4-to-12x4-interpolate"
+    / "atoms.json"
+)
+ATOMS_GROK36_TO_GROK12 = (
+    ROOT
+    / "experiments"
+    / "2026-09-01-atoms-grok36x4-to-grok12x4-interpolate"
+    / "atoms.json"
+)
+PROTOCOL_SCALE = ROOT / "research" / "PROTOCOL-isolated-scale.md"
 
 
 def _twin(stem: str, marked: list[int], unmarked: list[int]) -> Twin:
@@ -132,3 +145,84 @@ def test_live_grok12_atoms_are_backoff_not_a_detector() -> None:
     assert "2026-09-01-atoms-100x4-to-grok12x4-interpolate" in text
     assert "Witten–Bell" in text or "Witten-Bell" in text
     assert "Does not replace **25/48**" in text or "does not replace **25/48**" in text.lower()
+
+
+def _by_window(raw: dict) -> dict[tuple[int, int], dict]:
+    return {(int(w["start"]), int(w["end"])): w for w in raw["windows"]}
+
+
+def test_live_grok36_to_12_atoms_are_not_occupancy_free_26() -> None:
+    raw = json.loads(ATOMS_GROK36_TO_12.read_text())
+    assert raw["used_keys"] is False
+    assert raw["used_hash_iv"] is False
+    assert raw["used_g_values"] is False
+    assert "rows" not in raw
+    assert raw["n_rows"] == 96
+    assert raw["n_marked_lr_positive"] == 29
+    by = _by_window(raw)
+    head = by[(0, 4)]
+    tail = by[(64, 128)]
+    assert head["n_unseen"] > head["n_seen"]
+    assert head["n_seen"] == 69
+    assert head["n_unseen"] == 219
+    assert tail["n_unseen"] == 5996
+    assert tail["n_seen"] == 137
+    assert tail["n_unseen"] > 10 * max(tail["n_seen"], 1)
+    assert head["mean_unmarked_delta"] < 0.0
+    assert head["mean_marked_delta"] > head["mean_unmarked_delta"]
+    top = head["top_marked_positive_seen"]
+    assert top[0]["ctx"] == ["Cl"]
+    assert top[0]["next"] == "osing"
+    assert top[0]["n"] == 4
+    cov = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-openings-grok36x4-to-12x4"
+            / "coverage.json"
+        ).read_text()
+    )
+    zeros = " ".join(
+        z["opening_text"] for z in cov["final"]["postokhits"]["zeros"]
+    )
+    assert "Closing is the" in zeros
+    assert cov["final"]["postokhits"]["n_covered"] == 10
+    text = PROTOCOL_SCALE.read_text()
+    assert "2026-09-01-atoms-grok36x4-to-12x4-interpolate" in text
+    assert "unbucketed" in text
+    assert "Does not replace **25/48**" in text
+
+
+def test_live_grok36_to_grok12_atoms_track_opening_overlap() -> None:
+    raw = json.loads(ATOMS_GROK36_TO_GROK12.read_text())
+    assert raw["used_keys"] is False
+    assert "rows" not in raw
+    assert raw["n_rows"] == 96
+    assert raw["n_marked_lr_positive"] == 39
+    by = _by_window(raw)
+    head = by[(0, 4)]
+    tail = by[(64, 128)]
+    assert head["n_seen"] == 119
+    assert head["n_unseen"] == 169
+    assert head["mean_marked_delta"] > 2.0
+    assert head["mean_marked_delta"] > head["mean_unmarked_delta"]
+    top = head["top_marked_positive_seen"]
+    assert top[0]["ctx"] == ["The"]
+    assert top[0]["next"] == " car"
+    assert top[0]["n"] == 19
+    assert tail["n_unseen"] == 5955
+    assert tail["n_seen"] == 183
+    assert tail["n_unseen"] > 10 * max(tail["n_seen"], 1)
+    cov = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-openings-grok36x4-to-grok12x4"
+            / "coverage.json"
+        ).read_text()
+    )
+    assert cov["final"]["postokhits"]["n_covered"] == 39
+    text = PROTOCOL_SCALE.read_text()
+    assert "2026-09-01-atoms-grok36x4-to-grok12x4-interpolate" in text
+    assert "The car" in text
+    assert "Does not replace **25/48**" in text

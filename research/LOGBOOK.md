@@ -1420,4 +1420,28 @@ JSON: `experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
 `experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
 `experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`.
 
+## 2026-09-01 interpolate atoms on 36 Grok-length transfer
+
+Same lock A tables as PROTOCOL-isolated-scale, after the frozen
+probes. CLI `atoms` (not a new `probe --methods` name).
+`used_keys=false`.
+
+Original 12×4: marked `lr>0` **29/48**. Nested interpolate stays
+**26/48 vs 33/48**. Occupancy-free stays **10/48**. Almost all mass is
+Witten–Bell backoff (tail 64:128: 137 seen vs 5996 unseen). Window
+0:4 ranks because unmarked Δ is more negative and because unbucketed
+body copies fire (`'Cl' → 'osing'` n=4 on library; postokhits zeros
+that opening). The 29-versus-10 gap is not isolated recall.
+
+Grok12×4: marked `lr>0` **39/48**, equal to occupancy-free and
+opening coverage. Window 0:4 marked Δ +2.518 (`'The' → ' car'` n=19).
+Tail still backoff (183 seen vs 5955 unseen). Interpolate nested
+**36/48** is not denser than occupancy-free **39/48**.
+
+Do not sell 26/48, 29/48, 39/48, `Closing`, or `The car`. Does not
+replace **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
+`experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/`.
+
 ---

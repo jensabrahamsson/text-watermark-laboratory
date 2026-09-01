@@ -267,8 +267,24 @@ JSON: `experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
 `experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
 `experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`.
 
-The next isolated freeze (not this file) is
-[PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md): 36 new
-Grok-length families, prompts before `pair`. Does not replace
-**25/48**.
+## Interpolate atoms (36 Grok-length tables)
+
+Decode of the same lock A tables, after the frozen probes. Not a new
+scorer. `used_keys=false`.
+
+Original 12×4: marked `lr>0` **29/48**. Almost all mass is Witten–Bell
+backoff (tail 64:128: 137 seen vs 5996 unseen). Nested **26/48** is
+not occupancy-free **10/48**. Library `'Cl' → 'osing'` (n=4) is an
+unbucketed body copy; opening postokhits zeros `Closing`.
+
+Grok12×4: marked `lr>0` **39/48**, equal to occupancy-free and
+coverage. Window 0:4 marked Δ +2.518 (`'The' → ' car'` n=19). Tail
+still backoff (183 vs 5955). Interpolate nested **36/48** is not
+denser than occupancy-free **39/48**. Do not sell `Closing` or
+`The car`. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
+`experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/`.
+
+Isolated-file detection is not finished. Do not write `thesis/`.
 

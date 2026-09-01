@@ -200,5 +200,9 @@ not replace **25/48**.
 The next isolated freeze is
 [PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md): 36 new
 Grok-length families. Prompts before `pair`. Do not mix grok12 into
-that train.
+that train. The `atoms` decode of those later interpolate tables is
+`experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/` and
+`experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/`.
+Original-12 nested **26/48** is still not occupancy-free **10/48**.
+Does not replace **25/48**.
 

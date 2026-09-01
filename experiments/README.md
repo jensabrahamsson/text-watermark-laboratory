@@ -246,6 +246,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-grok36x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **39/48 vs 45/48** = coverage **39/48** |
 | `2026-09-01-openings-grok36x4-to-grok12x4/` | Opening-overlap, 36 Grok → grok12 | covered **39/48**, exact **21/48**; 3 FP |
 | `2026-09-01-transfer-grok36x4-to-12x4-hard-last4/` | 36 Grok-length → original 12 lock A | **10/12**, nested **26/48 vs 33/48**; occupancy-free **10/48**; not **25/48** |
+| `2026-09-01-atoms-grok36x4-to-12x4-interpolate/` | Decode those interpolate atoms | backoff; `'Cl'→'osing'` n=4 unbucketed; nested **26/48** ≠ occupancy-free **10/48** |
+| `2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/` | Decode grok36→grok12 interpolate atoms | 0:4 `'The'→' car'` n=19 = occupancy-free **39/48**; tail backoff |
 | `2026-09-01-probe-grok36x4-hard-last4/` | In-family interpolate on new 36 | **35/36**, nested-by-stem **93/144 vs 110/144** |
 
 ## What changed across the runs

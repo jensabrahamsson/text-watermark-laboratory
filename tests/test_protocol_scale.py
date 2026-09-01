@@ -170,3 +170,34 @@ def test_protocol_scale_lock_a_original_12_beats_n12_not_25() -> None:
     assert "H-scale-A **holds**" in text
     assert "H-scale-B **holds**" in text
     assert "Do not sell 26/48" in text
+
+
+def test_protocol_scale_atoms_explain_nested_versus_occupancy_free() -> None:
+    text = PROTOCOL.read_text()
+    assert "2026-09-01-atoms-grok36x4-to-12x4-interpolate" in text
+    assert "2026-09-01-atoms-grok36x4-to-grok12x4-interpolate" in text
+    assert "Witten–Bell" in text or "Witten-Bell" in text
+    assert "unbucketed" in text
+    assert "Does not replace **25/48**" in text
+    orig = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-atoms-grok36x4-to-12x4-interpolate"
+            / "atoms.json"
+        ).read_text()
+    )
+    grok = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-atoms-grok36x4-to-grok12x4-interpolate"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert orig["used_keys"] is False
+    assert grok["used_keys"] is False
+    assert orig["n_marked_lr_positive"] == 29
+    assert grok["n_marked_lr_positive"] == 39
+    assert orig["n_marked_lr_positive"] != 10
+    assert grok["n_marked_lr_positive"] == 39

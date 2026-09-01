@@ -291,3 +291,53 @@ JSON: `experiments/2026-09-01-pair-grok36x4/`,
 `experiments/2026-09-01-transfer-grok36x4-to-12x4-occupancy-free/`,
 `experiments/2026-09-01-openings-grok36x4-to-12x4/`,
 `experiments/2026-09-01-probe-grok36x4-hard-last4/`.
+
+## Decode (opened after the frozen probes)
+
+Same lock A interpolate tables, decoded with `atoms` (not a new
+`probe --methods` name, not `detector_mean`). Frozen commands above
+had already been run once.
+
+```bash
+python -m text_watermark_tools atoms \
+  experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/tables-counts \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate
+
+python -m text_watermark_tools atoms \
+  experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/tables-counts \
+  --test-dir experiments/2026-09-01-pair-grok12x4 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate
+```
+
+`used_keys=false`. Full traces are not stored (`store_rows=false`).
+
+Original 12×4: marked `lr>0` **29/48**, matching interpolate t=0.
+Nested Youden remains **26/48 vs 33/48**. Occupancy-free postokhits
+stays **10/48**. Almost all mass is Witten–Bell backoff (0:4 seen 69
+vs unseen 219; tail 64:128 seen 137 vs unseen 5996). Window 0:4
+marked Δ is +0.496 because unmarked Δ is more negative (−0.337) and
+because a few unbucketed body copies fire. Observed-token 0:4 atoms:
+library `'Cl' → 'osing'` (n=4), `'The' → ' dog'` (n=4), `'The' →
+' bus'` (n=3). Library is a postokhits zero: opening-bucketed
+occupancy-free never sees `Closing`. Interpolate tables are unbucketed
+full-file last-4, so a grok36 **body** 4-gram can still score a test
+opening. That 29-versus-10 gap is not a denser isolated-file detector.
+
+Grok12×4: marked `lr>0` **39/48**, matching occupancy-free **39/48**
+and opening coverage **39/48**. Window 0:4 marked Δ is +2.518 vs
+unmarked −0.181 (seen 119 vs unseen 169). Observed-token atoms:
+`'The' → ' car'` (n=19), `'The' → ' coach'` (n=6), `'The' → ' bus'`
+(n=4). The tail is still backoff (64:128 seen 183 vs unseen 5955).
+Interpolate nested **36/48** sits slightly *below* occupancy-free
+**39/48** because that tail is not a cleaner sign.
+
+Do not sell nested **26/48**, t=0 **29/48**, occupancy-free **39/48**,
+`Closing`, or `The car`. H-scale-B still holds: isolated observed-token
+recall equals opening-atom overlap. Does not replace **25/48**.
+Isolated-file detection is not finished.
+
+JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
+`experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/`.
