@@ -1622,4 +1622,14 @@ finished.
 
 JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
 
+## 2026-09-01 leftover-18 published key-free readers closed
+
+[PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)
+committed at SHA `cdccae5`. Leftover-18 published key-free readers
+(occupancy-free, mixed rankpath, grok36 interpolate, 12-LOO hard last-4)
+are exhausted for leftover-file detection. Mixed rankpath leftover-18
+is **12/18 vs 13/18**. Interpolate leftover-18 is **12/18 vs 12/18**.
+Last-4 leftover-18 is **10/18 vs 10/18**. Do not re-slice more leftover-18
+holdouts, including leftover-18 mask-*k*. Do not write `thesis/`.
+
 ---

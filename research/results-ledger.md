@@ -417,7 +417,8 @@ JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
 
 ## Leftover-18 published readers closed
 
-Protocol [PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md).
+Protocol SHA `cdccae5`
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
 No new decode. Leftover-18 occupancy-free is **0/18** by construction.
 Mixed rankpath **12/18 vs 13/18**. Interpolate **12/18 vs 12/18**; 0:4
 unseen **89 vs 19**. Last-4 **10/18 vs 10/18**. Official **18/18** uses
