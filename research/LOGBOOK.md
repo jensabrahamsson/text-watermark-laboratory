@@ -1601,4 +1601,12 @@ subset of leftover-20 **20/20**. Prefix-5 is **16/18**. Do not add
 family-12 paraphrases or target leftover openings after peeking. Do
 not write `thesis/`.
 
+## 2026-09-01 leftover-18 remaining readers frozen
+
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md)
+committed at SHA `5621544`. Leftover membership stays leftover-union
+leftover-18 keys. Mixed rankpath and grok36 interpolate stay those
+dumps. Do not look at leftover-18 rankpath or leftover-18 interpolate
+counts until this line is on origin. Do not write `thesis/`.
+
 ---

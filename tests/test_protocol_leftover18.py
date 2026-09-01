@@ -33,6 +33,7 @@ def test_protocol_leftover18_names_frozen_sources_before_decode() -> None:
     assert "Do **not** mix grok12" in text
     assert "dump_interpolate_atoms" in text
     assert "10/18 vs 10/18" in text
+    assert "`5621544`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_leftover_holdouts_helper_on_synthetic(tmp_path: Path) -> None:
