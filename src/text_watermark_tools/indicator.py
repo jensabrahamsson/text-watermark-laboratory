@@ -408,7 +408,7 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
-        if mode not in ("auto", "hashpool", "hashtok", ""):
+        if mode not in ("auto", "hashpool", "hashtok", "hashtoklen", ""):
             raise ValueError(
                 f"tables are hashpool; --score-mode {score_mode} does not apply"
             )
@@ -418,11 +418,15 @@ def score_text_from_tables(
             raise ValueError("hashpool tables need a tokenizer")
         model = load_hashpool(path)
         ids = tokenizer(text)["input_ids"]
-        if mode == "hashtok":
-            detail = score_hashtok_detail(ids, model)
+        if mode in ("hashtok", "hashtoklen"):
+            detail = score_hashtok_detail(
+                ids, model, exact_len=True if mode == "hashtoklen" else None
+            )
             meta = load_tables_meta(path)
-            meta.score_kind = "hashtok"
-            meta.instance = "key-free-hashtok"
+            meta.score_kind = mode
+            meta.instance = (
+                "key-free-hashtoklen" if mode == "hashtoklen" else "key-free-hashtok"
+            )
         else:
             detail = score_hashpool_detail(ids, model)
             meta = load_tables_meta(path)
@@ -478,7 +482,8 @@ def score_text_from_tables(
         raise ValueError(
             f"unknown --score-mode {score_mode}; "
             f"choose auto, hard, poshits, postokhits, postokbackoff, "
-            f"postokbackoff2, poshitmass, hashpool, hashtok, or one of "
+            f"postokbackoff2, poshitmass, hashpool, hashtok, hashtoklen, "
+            f"or one of "
             f"{sorted(COUNT_SPECS)}"
         )
     spec = COUNT_SPECS[mode]

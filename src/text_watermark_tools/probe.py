@@ -618,12 +618,14 @@ def rotate_hashpool(
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
     position_bucket: int = 0,
     method_name: str = "hashpool",
+    exact_len: bool = False,
 ) -> IndicatorHoldout:
     reader = str(method_name or "hashpool")
-    if reader == "hashtok":
-        kind = "hashtok"
-        instance = "key-free-hashtok"
+    if reader in ("hashtok", "hashtoklen"):
+        kind = reader
+        instance = f"key-free-{reader}"
         score_fn = score_hashtok
+        exact_len = bool(exact_len) or reader == "hashtoklen"
     else:
         kind = "pospool" if position_bucket > 0 else "hashpool"
         instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
@@ -636,6 +638,7 @@ def rotate_hashpool(
             n_hashes=n_hashes,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
         )
         return (
             lambda ids, m=model, s=score_fn: s(ids, m),
@@ -681,8 +684,11 @@ def rotate_hashtok(
     windows: Sequence[str | tuple[int, int]] = (),
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
     position_bucket: int = 0,
+    exact_len: bool = False,
+    method_name: str = "",
 ) -> IndicatorHoldout:
     """Hashpool reader that skips unseen next tokens (no occupancy Laplace)."""
+    reader = str(method_name or ("hashtoklen" if exact_len else "hashtok"))
     return rotate_hashpool(
         twins,
         context_len=context_len,
@@ -695,7 +701,39 @@ def rotate_hashtok(
         windows=windows,
         window_out=window_out,
         position_bucket=position_bucket,
-        method_name="hashtok",
+        method_name=reader,
+        exact_len=bool(exact_len) or reader == "hashtoklen",
+    )
+
+
+def rotate_hashtoklen(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    return rotate_hashtok(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        exact_len=True,
+        method_name="hashtoklen",
     )
 
 
@@ -987,13 +1025,17 @@ def rotate_hashtokbackoff(
     context_len: int = 4,
     min_order: int = 1,
     method_name: str = "",
+    exact_len: bool = False,
 ) -> IndicatorHoldout:
     """Hashtok that shrinks last-k across per-order hash tables."""
     floor = max(1, int(min_order or 1))
-    name = str(method_name or ("hashtokbackoff2" if floor >= 2 else "hashtokbackoff"))
-    instance = (
-        "key-free-hashtokbackoff2" if floor >= 2 else "key-free-hashtokbackoff"
-    )
+    if method_name:
+        name = str(method_name)
+    elif exact_len:
+        name = "hashtoklenbackoff2" if floor >= 2 else "hashtoklenbackoff"
+    else:
+        name = "hashtokbackoff2" if floor >= 2 else "hashtokbackoff"
+    instance = f"key-free-{name}"
 
     def make(train: Sequence[Twin]):
         model = fit_hashmix_twins(
@@ -1001,6 +1043,7 @@ def rotate_hashtokbackoff(
             orders=orders,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
+            exact_len=bool(exact_len),
         )
         return (
             lambda ids, m=model, mo=floor: score_hashtokbackoff(
@@ -1043,6 +1086,54 @@ def rotate_hashtokbackoff2(
         context_len=context_len,
         min_order=2,
         method_name="hashtokbackoff2",
+    )
+
+
+def rotate_hashtoklenbackoff(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=1,
+        method_name="hashtoklenbackoff",
+        exact_len=True,
+    )
+
+
+def rotate_hashtoklenbackoff2(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=2,
+        method_name="hashtoklenbackoff2",
+        exact_len=True,
     )
 
 
@@ -2739,7 +2830,7 @@ def run_probe(
             run.methods.append(summarize_holdout(name, counted[name]))
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
-        or "hybrid" in extras or "hashtok" in extras
+        or "hybrid" in extras or "hashtok" in extras or "hashtoklen" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -2807,6 +2898,19 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashtok", ht))
+    if with_hashpool and "hashtoklen" in extras:
+        htl = rotate_hashtoklen(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtoklen", htl))
     if "hybrid" in extras:
         hyb = rotate_hybrid(
             twins,
@@ -2840,6 +2944,22 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashtokbackoff2", hb2))
+    if "hashtoklenbackoff" in extras:
+        hlb = rotate_hashtoklenbackoff(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtoklenbackoff", hlb))
+    if "hashtoklenbackoff2" in extras:
+        hlb2 = rotate_hashtoklenbackoff2(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtoklenbackoff2", hlb2))
     if "surface" in extras:
         one: dict[int, IndicatorHoldout] = {}
         one_win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -3429,8 +3549,11 @@ def run_transfer(
             "stack",
             "hashmix",
             "hashtok",
+            "hashtoklen",
             "hashtokbackoff",
             "hashtokbackoff2",
+            "hashtoklenbackoff",
+            "hashtoklenbackoff2",
         )
     )
     need_surface = "surface" in extras
@@ -3459,6 +3582,17 @@ def run_transfer(
         )
         else None
     )
+    hash_len_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+        if need_hash and "hashtoklen" in extras
+        else None
+    )
     mix_model = (
         fit_hashmix_twins(
             train,
@@ -3474,6 +3608,19 @@ def run_transfer(
         )
         if any(
             n in extras for n in ("hashmix", "hashtokbackoff", "hashtokbackoff2")
+        )
+        else None
+    )
+    mix_len_model = (
+        fit_hashmix_twins(
+            train,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+        if any(
+            n in extras for n in ("hashtoklenbackoff", "hashtoklenbackoff2")
         )
         else None
     )
@@ -3523,7 +3670,16 @@ def run_transfer(
     used_keys = False
     used_hash = False
     used_g = False
-    for model in (count_model, hash_model, mix_model, surface_model, pos_model, pos_hash):
+    for model in (
+        count_model,
+        hash_model,
+        hash_len_model,
+        mix_model,
+        mix_len_model,
+        surface_model,
+        pos_model,
+        pos_hash,
+    ):
         if model is None:
             continue
         used_keys = used_keys or model.used_keys
@@ -3566,6 +3722,14 @@ def run_transfer(
             "hashtok",
             "ids",
         )
+    if "hashtoklen" in extras:
+        assert hash_len_model is not None
+        scorers["hashtoklen"] = (
+            (lambda ids, m=hash_len_model: score_hashtok(ids, m)),
+            "key-free-hashtoklen",
+            "hashtoklen",
+            "ids",
+        )
     if "hybrid" in extras:
         assert count_model is not None and hash_model is not None
         scorers["hybrid"] = (
@@ -3604,6 +3768,30 @@ def run_transfer(
             ),
             "key-free-hashtokbackoff2",
             "hashtokbackoff2",
+            "ids",
+        )
+    if "hashtoklenbackoff" in extras:
+        assert mix_len_model is not None
+        scorers["hashtoklenbackoff"] = (
+            (
+                lambda ids, m=mix_len_model: score_hashtokbackoff(
+                    ids, m, min_order=1
+                )
+            ),
+            "key-free-hashtoklenbackoff",
+            "hashtoklenbackoff",
+            "ids",
+        )
+    if "hashtoklenbackoff2" in extras:
+        assert mix_len_model is not None
+        scorers["hashtoklenbackoff2"] = (
+            (
+                lambda ids, m=mix_len_model: score_hashtokbackoff(
+                    ids, m, min_order=2
+                )
+            ),
+            "key-free-hashtoklenbackoff2",
+            "hashtoklenbackoff2",
             "ids",
         )
     if "surface" in extras:
@@ -4084,6 +4272,14 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashtoklen" in extras:
+            nested_holdouts["hashtoklen"] = rotate_hashtoklen(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "hashtokbackoff" in extras:
             nested_holdouts["hashtokbackoff"] = rotate_hashtokbackoff(
                 train,
@@ -4093,6 +4289,20 @@ def run_transfer(
             )
         if "hashtokbackoff2" in extras:
             nested_holdouts["hashtokbackoff2"] = rotate_hashtokbackoff2(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklenbackoff" in extras:
+            nested_holdouts["hashtoklenbackoff"] = rotate_hashtoklenbackoff(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklenbackoff2" in extras:
+            nested_holdouts["hashtoklenbackoff2"] = rotate_hashtoklenbackoff2(
                 train,
                 n_hashes=n_hashes,
                 n_buckets=n_buckets,
@@ -4223,13 +4433,16 @@ def print_transfer(run: TransferRun) -> str:
     lines.append(
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
-        "hashtokbackoff/hashtokbackoff2) no observed next token under that "
+        "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
+        "hashtoklenbackoff2) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "
         "preference. tokbackoff / hashtokbackoff shrink last-k until an "
         "observed next token hits; tokbackoff2 / hashtokbackoff2 stop at "
-        "last-2. hashtok is the hashpool analog of tokhits. None of these "
+        "last-2. hashtoklen / hashtoklenbackoff hash only exact last-k "
+        "(short prefixes are not mixed into a longer-order table). "
+        "hashtok is the hashpool analog of tokhits. None of these "
         "is key recovery."
     )
     lines.append("")

@@ -24,6 +24,10 @@ and change only how a finished string is read:
 * hashtokbackoff — hashtok that shrinks last-k across per-order hash
   tables until an observed next token hits (tokbackoff analog)
 * hashtokbackoff2 — hashtokbackoff that will not shrink below last-2
+* hashtoklen — hashtok that hashes only exact last-k (no short prefix
+  mixed into a longer-order table)
+* hashtoklenbackoff / hashtoklenbackoff2 — per-order hashtoklen;
+  order-k is used only when i >= k
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
@@ -504,6 +508,7 @@ class HashPoolModel:
     used_hash_iv: bool = False
     used_g_values: bool = False
     position_bucket: int = 0
+    exact_len: bool = False
 
     @property
     def instance(self) -> str:
@@ -512,6 +517,20 @@ class HashPoolModel:
         if self.position_bucket > 0:
             return "key-free-pospool"
         return "key-free-hashpool"
+
+
+def hash_ctx_len(ctx: tuple[int, ...], position_bucket: int = 0) -> int:
+    """How many token ids were hashed, excluding a position namespace.
+
+    Order-k tables must see length-k contexts. A shorter prefix hashed
+    into a longer-order mixer is not that order's n-gram.
+    """
+    if not ctx:
+        return 0
+    tokens = ctx[1:] if int(position_bucket or 0) > 0 else ctx
+    if tokens == FIRST_TOKEN_CTX:
+        return 0
+    return len(tokens)
 
 
 def _add_hash_seq(
@@ -523,6 +542,7 @@ def _add_hash_seq(
     seeds: Sequence[int],
     n_buckets: int,
     position_bucket: int = 0,
+    exact_len: bool = False,
 ) -> int:
     n = 0
     for i, tok in enumerate(ids):
@@ -532,6 +552,8 @@ def _add_hash_seq(
         if i == 0:
             continue
         ctx = _scored_ctx(ids, i, context_len, position_bucket)
+        if exact_len and hash_ctx_len(ctx, position_bucket) != int(context_len):
+            continue
         for h, seed in enumerate(seeds):
             bucket = hash_context(ctx, seed) % n_buckets
             tables[h].setdefault(bucket, Counter())[t] += 1
@@ -549,6 +571,7 @@ def fit_hashpool(
     seed: int = 20260831,
     alphabet: str = "tokens",
     position_bucket: int = 0,
+    exact_len: bool = False,
 ) -> HashPoolModel:
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -565,6 +588,7 @@ def fit_hashpool(
             seeds=seeds,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
         )
     for seq in unmarked_seqs:
         n_u += _add_hash_seq(
@@ -575,6 +599,7 @@ def fit_hashpool(
             seeds=seeds,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
         )
     vocab = set(marked_uni) | set(unmarked_uni)
     if alphabet == "bytes":
@@ -597,6 +622,7 @@ def fit_hashpool(
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(position_bucket) if position_bucket > 0 else 0,
+        exact_len=bool(exact_len),
     )
 
 
@@ -609,6 +635,7 @@ def fit_hashpool_twins(
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
     position_bucket: int = 0,
+    exact_len: bool = False,
 ) -> HashPoolModel:
     return fit_hashpool(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -619,6 +646,7 @@ def fit_hashpool_twins(
         alpha=alpha,
         seed=seed,
         position_bucket=position_bucket,
+        exact_len=bool(exact_len),
     )
 
 
@@ -797,9 +825,15 @@ def hashtok_token_lr(
     return pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
 
 
-def score_hashtok_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetail:
+def score_hashtok_detail(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    exact_len: bool | None = None,
+) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
+    exact = bool(model.exact_len if exact_len is None else exact_len)
     total = 0.0
     n_used = 0
     n_positions = 0
@@ -808,6 +842,8 @@ def score_hashtok_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetai
             continue
         n_positions += 1
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        if exact and hash_ctx_len(ctx, model.position_bucket) != int(model.context_len):
+            continue
         delta = hashtok_token_lr(model, ctx, int(tok))
         if delta is None:
             continue
@@ -818,9 +854,14 @@ def score_hashtok_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetai
     return ScoreDetail(total / n_used, n_used, n_positions)
 
 
-def score_hashtok(ids: Sequence[int], model: HashPoolModel) -> float:
+def score_hashtok(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    exact_len: bool | None = None,
+) -> float:
     """Hashpool LR using only hashes that saw the observed next token."""
-    return score_hashtok_detail(ids, model).lr
+    return score_hashtok_detail(ids, model, exact_len=exact_len).lr
 
 
 def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
@@ -833,6 +874,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
             continue
         t = int(tok)
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        ctx_n = hash_ctx_len(ctx, model.position_bucket)
         hashes: list[dict] = []
         c_m_sum = 0
         c_u_sum = 0
@@ -862,6 +904,8 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                 "i": int(i),
                 "tok": t,
                 "ctx": [int(x) for x in ctx],
+                "ctx_len": ctx_n,
+                "exact_ok": ctx_n == int(model.context_len),
                 "n_hashes_seen": n_seen,
                 "n_hashes": int(model.n_hashes),
                 "c_m": c_m_sum,
@@ -942,10 +986,11 @@ class HashMixModel:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    exact_len: bool = False
 
     @property
     def instance(self) -> str:
-        return "key-free-hashmix"
+        return "key-free-hashtoklenbackoff" if self.exact_len else "key-free-hashmix"
 
 
 def fit_hashmix_twins(
@@ -956,6 +1001,7 @@ def fit_hashmix_twins(
     n_buckets: int = 256,
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
+    exact_len: bool = False,
 ) -> HashMixModel:
     models: dict[int, HashPoolModel] = {}
     used_keys = used_hash = used_g = False
@@ -967,6 +1013,7 @@ def fit_hashmix_twins(
             n_buckets=n_buckets,
             alpha=alpha,
             seed=seed + int(order),
+            exact_len=bool(exact_len),
         )
         m = models[int(order)]
         used_keys = used_keys or m.used_keys
@@ -978,6 +1025,7 @@ def fit_hashmix_twins(
         used_keys=used_keys,
         used_hash_iv=used_hash,
         used_g_values=used_g,
+        exact_len=bool(exact_len),
     )
 
 
@@ -1000,15 +1048,20 @@ def score_hashtokbackoff_detail(
     model: HashMixModel,
     *,
     min_order: int = 1,
+    exact_len: bool | None = None,
 ) -> ScoreDetail:
     """Longest per-order hashtok hit. Not occupancy hashpool, not SynthID.
 
     Each order has its own hash tables (same as hashmix). Last-k shrinks
     only across those fitted orders. min_order=2 refuses generic last-1.
+    exact_len (default: model.exact_len) skips an order unless the hashed
+    context has that many tokens. Short prefixes in a longer-order mixer
+    are not that order's n-gram.
     """
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtokbackoff consulted keys / hash_iv / g-values")
     floor = max(1, int(min_order or 1))
+    exact = bool(model.exact_len if exact_len is None else exact_len)
     orders = sorted(
         (int(o) for o in model.orders if int(o) >= floor), reverse=True
     )
@@ -1024,6 +1077,8 @@ def score_hashtokbackoff_detail(
         for order in orders:
             pool = model.models[int(order)]
             ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
+            if exact and hash_ctx_len(ctx, pool.position_bucket) != int(order):
+                continue
             delta = hashtok_token_lr(pool, ctx, t)
             if delta is None:
                 continue
@@ -1043,8 +1098,11 @@ def score_hashtokbackoff(
     model: HashMixModel,
     *,
     min_order: int = 1,
+    exact_len: bool | None = None,
 ) -> float:
-    return score_hashtokbackoff_detail(ids, model, min_order=min_order).lr
+    return score_hashtokbackoff_detail(
+        ids, model, min_order=min_order, exact_len=exact_len
+    ).lr
 
 
 def hashtokbackoff_trace(
@@ -1052,6 +1110,7 @@ def hashtokbackoff_trace(
     model: HashMixModel,
     *,
     min_order: int = 1,
+    exact_len: bool | None = None,
 ) -> list[dict]:
     """Per-position longest hashed order that saw tok. Still no keys."""
     if model.used_keys or model.used_hash_iv or model.used_g_values:
@@ -1059,6 +1118,7 @@ def hashtokbackoff_trace(
             "hashtokbackoff trace consulted keys / hash_iv / g-values"
         )
     floor = max(1, int(min_order or 1))
+    exact = bool(model.exact_len if exact_len is None else exact_len)
     orders = sorted(
         (int(o) for o in model.orders if int(o) >= floor), reverse=True
     )
@@ -1073,20 +1133,26 @@ def hashtokbackoff_trace(
         for order in orders:
             pool = model.models[int(order)]
             ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
-            delta = hashtok_token_lr(pool, ctx, t)
+            ctx_n = hash_ctx_len(ctx, pool.position_bucket)
+            exact_ok = ctx_n == int(order)
+            delta = None
             n_seen = 0
             c_m = c_u = 0
-            for h, seed in enumerate(pool.seeds):
-                bucket = hash_context(ctx, seed) % pool.n_buckets
-                cm = _hash_bucket_tok_count(pool.marked[h], bucket, t)
-                cu = _hash_bucket_tok_count(pool.unmarked[h], bucket, t)
-                if cm + cu >= 1:
-                    n_seen += 1
-                    c_m += cm
-                    c_u += cu
+            if not exact or exact_ok:
+                delta = hashtok_token_lr(pool, ctx, t)
+                for h, seed in enumerate(pool.seeds):
+                    bucket = hash_context(ctx, seed) % pool.n_buckets
+                    cm = _hash_bucket_tok_count(pool.marked[h], bucket, t)
+                    cu = _hash_bucket_tok_count(pool.unmarked[h], bucket, t)
+                    if cm + cu >= 1:
+                        n_seen += 1
+                        c_m += cm
+                        c_u += cu
             tried.append(
                 {
                     "order": int(order),
+                    "ctx_len": ctx_n,
+                    "exact_ok": exact_ok,
                     "n_hashes_seen": n_seen,
                     "c_m": c_m,
                     "c_u": c_u,
@@ -1172,6 +1238,7 @@ def persist_hashpool(
         "n_marked": model.n_marked,
         "n_unmarked": model.n_unmarked,
         "position_bucket": int(model.position_bucket),
+        "exact_len": bool(model.exact_len),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -1229,6 +1296,7 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(raw.get("position_bucket") or 0),
+        exact_len=bool(raw.get("exact_len") or False),
     )
 
 

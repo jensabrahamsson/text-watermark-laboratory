@@ -385,6 +385,25 @@ def test_run_probe_hashtokbackoff_on_lab_pairs() -> None:
     assert hb2.holdout.instance == "key-free-hashtokbackoff2"
 
 
+def test_run_probe_hashtoklen_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashtoklen", "hashtoklenbackoff", "hashtoklenbackoff2"),
+        with_pivot=False,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashtoklen", "hashtoklenbackoff", "hashtoklenbackoff2"]
+    assert run.used_keys is False
+    hl = next(m for m in run.methods if m.name == "hashtoklen")
+    assert hl.holdout.instance == "key-free-hashtoklen"
+    hlb = next(m for m in run.methods if m.name == "hashtoklenbackoff")
+    assert hlb.holdout.instance == "key-free-hashtoklenbackoff"
+    hlb2 = next(m for m in run.methods if m.name == "hashtoklenbackoff2")
+    assert hlb2.holdout.instance == "key-free-hashtoklenbackoff2"
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")
@@ -2202,6 +2221,18 @@ def test_prefix5_hashtokbackoff_letter_d2_fifth_is_last1_unmarked() -> None:
     ]
     assert len(library) == 4
     assert all(row["orders"] == [4] for row in library)
+    for row in library:
+        hits = [p for p in row["positions"] if p["order"] is not None]
+        assert hits
+        assert all(p["order"] > p["i"] for p in hits)
+    d3 = next(
+        row
+        for row in trace["traced_files"]
+        if row["stem"] == "08-letter" and row["sample"] == 3
+    )
+    d3_hits = [p for p in d3["positions"] if p["order"] is not None]
+    assert d3_hits
+    assert all(p["order"] > p["i"] for p in d3_hits)
 
 
 def test_prefix4_hashtok_beats_hashed_backoff_on_opening() -> None:

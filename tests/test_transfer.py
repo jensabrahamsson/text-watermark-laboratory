@@ -153,6 +153,63 @@ def test_hashtokbackoff_shrinks_to_last1_not_occupancy() -> None:
     assert back2.n_used == 0 or back2.n_used < back.n_used
 
 
+def test_hashtoklen_refuses_short_prefix_in_longer_order() -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.transfer import (
+        fit_hashmix_twins,
+        hash_ctx_len,
+        hashtokbackoff_trace,
+        score_hashtok_detail,
+        score_hashtokbackoff_detail,
+        _scored_ctx,
+    )
+
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="m",
+            unmarked_text="u",
+            marked_ids=[0, 1, 0, 1, 0, 1, 0, 1],
+            unmarked_ids=[0, 2, 0, 2, 0, 2, 0, 2],
+        )
+    ]
+    mixed = fit_hashmix_twins(
+        twins, orders=(1, 2, 3), n_hashes=4, n_buckets=256, seed=7
+    )
+    exact = fit_hashmix_twins(
+        twins,
+        orders=(1, 2, 3),
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        exact_len=True,
+    )
+    held = [0, 1]
+    assert mixed.used_keys is False
+    assert exact.used_keys is False
+    assert exact.exact_len is True
+    ctx1 = _scored_ctx(held, 1, 3, 0)
+    assert hash_ctx_len(ctx1, 0) == 1
+    mixed_i1 = hashtokbackoff_trace(held, mixed, min_order=1)[0]
+    exact_i1 = hashtokbackoff_trace(held, exact, min_order=1)[0]
+    assert mixed_i1["i"] == exact_i1["i"] == 1
+    assert mixed_i1["order"] == 3
+    assert exact_i1["order"] != 3
+    assert exact_i1["order"] in (1, None)
+    order3 = next(row for row in exact_i1["tried"] if row["order"] == 3)
+    assert order3["exact_ok"] is False
+    assert order3["delta"] is None
+    short_mixed = score_hashtok_detail(held, mixed.models[3])
+    short_exact = score_hashtok_detail(held, exact.models[3])
+    assert short_mixed.n_used == 1
+    assert short_exact.n_used == 0
+    long_exact = score_hashtokbackoff_detail([0, 1, 0, 1], exact, min_order=2)
+    assert long_exact.n_used >= 1
+    assert long_exact.lr > score_hashtokbackoff_detail(
+        [0, 2, 0, 2], exact, min_order=2
+    ).lr
+
+
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     marked = [[0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

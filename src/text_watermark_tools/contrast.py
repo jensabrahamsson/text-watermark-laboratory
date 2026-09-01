@@ -251,6 +251,7 @@ def run_instance_contrast(
     count_model = None
     pos_model = None
     hash_model = None
+    hash_len_model = None
     rank_model = None
     if count_names:
         count_model = fit_count_model(train, context_len=context_len)
@@ -260,7 +261,11 @@ def run_instance_contrast(
         )
     if "hashpool" in names or "hashtok" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
-    for model in (count_model, pos_model, hash_model):
+    if "hashtoklen" in names:
+        hash_len_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True
+        )
+    for model in (count_model, pos_model, hash_model, hash_len_model):
         if model is not None and (
             model.used_keys or model.used_hash_iv or model.used_g_values
         ):
@@ -350,6 +355,11 @@ def run_instance_contrast(
             lambda ids, m=hash_model: score_hashtok(ids, m),
             "key-free-hashtok",
         )
+    if "hashtoklen" in names and hash_len_model is not None:
+        scorers["hashtoklen"] = (
+            lambda ids, m=hash_len_model: score_hashtok(ids, m),
+            "key-free-hashtoklen",
+        )
     unknown = [
         n
         for n in names
@@ -361,7 +371,7 @@ def run_instance_contrast(
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
             "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
-            "rankpath, rankuni, rankhits, "
+            "hashtoklen, rankpath, rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
     if not scorers and not rank_names:
