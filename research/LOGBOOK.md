@@ -1487,4 +1487,13 @@ replaces **25/48**. Isolated-file detection is still not finished.
 
 JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
 
+## 2026-09-01 leftover-versus-covered 25/48 split frozen
+
+[PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md) committed at
+SHA `f09d0e2`. Leftover membership stays the mixed postokhits zeros
+(20 files). Primary holdout stays 12-LOO hard last-4 (**25/48**). Do
+not look at leftover-versus-covered TP counts until this line is on
+origin. Do not sell either slice as replacing **25/48**. Do not write
+`thesis/`.
+
 ---

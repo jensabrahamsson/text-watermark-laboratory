@@ -35,7 +35,7 @@ def test_protocol_split_names_frozen_sources_before_decode() -> None:
     assert "thesis/" in text
     assert "Do **not** mix grok12" in text
     assert "Do not redefine leftover" in text
-    assert "*(empty until the SHA is named" in text
+    assert "`f09d0e2`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_leftover_membership_stays_twenty_mixed_zeros() -> None:
