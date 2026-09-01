@@ -20,6 +20,8 @@ Occupancy leftover-20 official+atoms bound is
 Leftover-20 union with short+medium+tails openings is
 [PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md):
 union **30/48** (equals SMT); leftover **18**; last-4 **10/18 vs 10/18**.
+Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
+([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
 
 ## Locked headlines
 
@@ -381,4 +383,19 @@ leftover sign is **0/18 vs 18/18** by construction. Do not sell union
 30/48 or leftover 10/18. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
+
+## Occupancy-free leftover-18 closed
+
+Protocol [PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md).
+No new decode. Leftover-18 official prefix-128 is **18/18** by subset
+of leftover-20 **20/20**. Prefix-5 is **16/18** (office-1/3 remain).
+Published disjoint-topic GPT-2 occupancy-free trains are exhausted for
+leftover-18. Do not add family-12 paraphrases or target leftover
+openings after peeking. Do not sell leftover official 18/18. Does not
+replace **25/48**.
+
+JSON: leftover-18 keys in
+`experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`,
+official arithmetic from
+`experiments/2026-09-01-isolated-leftover-bound/`.
 

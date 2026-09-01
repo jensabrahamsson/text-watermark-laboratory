@@ -19,5 +19,7 @@ SMT-only covers are garden-1 and garden-4. Mixed 100+grok36 added no
 unique occupancy-free openings over already-published SMT coverage.
 
 Leftover 12-LOO hard last-4 is **10/18 vs 10/18**. Mixed occupancy-free
-leftover sign is **0/18 vs 18/18** by construction. Do not sell union
-**30/48** or leftover **10/18** as replacing **25/48**.
+leftover sign is **0/18 vs 18/18** by construction. Occupancy-free
+leftover-18 is closed for more unrelated GPT-2 scenes
+([PROTOCOL-isolated-occupancy-closed.md](../../research/PROTOCOL-isolated-occupancy-closed.md)).
+Do not sell union **30/48** or leftover **10/18** as replacing **25/48**.

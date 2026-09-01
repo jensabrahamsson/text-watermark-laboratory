@@ -174,4 +174,6 @@ H-union-iso **holds**. Do not sell union **30/48**, SMT postokhits
 **30/48**, postokbackoff **36/48**, leftover official **20/20**, leftover
 interpolate **13/20**, or leftover last-4 **10/18**. Mixed 100+grok36
 added no unique occupancy-free openings over SMT. Isolated-file remains
-open. Do not write `thesis/`.
+open. Occupancy-free leftover-18 is closed for more unrelated GPT-2
+scenes ([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
+Do not write `thesis/`.

@@ -23,6 +23,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md) | Hard 4:128 leftover **11/20 vs 11/20**, covered **16/28**; tail 9/12 not leftover recall; not **25/48** |
 | [PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md) | Leftover-20 official **20/20** at prefix-128; leftover 0:4 atoms unseen **99 vs 21**; interpolate **13/20**; not **25/48** |
 | [PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md) | Union **30/48** equals SMT; leftover **18**; last-4 **10/18 vs 10/18**; not **25/48** |
+| [PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md) | Occupancy-free leftover-18 closed; official **18/18** by subset; do not add unrelated occupancy-free trains |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

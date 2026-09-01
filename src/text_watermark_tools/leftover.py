@@ -24,6 +24,64 @@ def leftover_keys_from_coverage(
     return _zero_keys(pay, method)
 
 
+def leftover_keys_from_union(union: Path) -> set[tuple[str, int]]:
+    """Leftover keys from a published occupancy-free coverage union dump."""
+    pay = json.loads(Path(union).read_text())
+    if pay.get("used_keys"):
+        raise RuntimeError("coverage union consulted keys")
+    return {(str(r["stem"]), int(r["sample"])) for r in pay.get("leftover") or []}
+
+
+def summarize_official_on_keys(
+    keys: set[tuple[str, int]],
+    official: Path,
+    *,
+    prefixes: Sequence[str] = ("5", "16", "128"),
+) -> dict:
+    """Re-slice published official prefix scores on an explicit leftover set.
+
+    This path uses detector keys. It is a positive control, not key-free
+    indication. Does not replace 25/48.
+    """
+    raw = json.loads(Path(official).read_text())
+    if not raw.get("used_keys"):
+        raise RuntimeError("official leftover slice needs a keyed dump")
+    leftover = set(keys)
+    rows = list(raw.get("rows") or [])
+    marked = [r for r in rows if str(r.get("side") or "") == "marked"]
+    unmarked = [r for r in rows if str(r.get("side") or "") == "unmarked"]
+    marked_keys = {(str(r["stem"]), int(r["sample"])) for r in marked}
+    if leftover - marked_keys:
+        raise RuntimeError("leftover keys missing from official dump")
+    prefixes_out = {}
+    for prefix in prefixes:
+        key = str(prefix)
+        left_vals = [
+            float(r["prefixes"][key]["mean"])
+            for r in marked
+            if (str(r["stem"]), int(r["sample"])) in leftover
+        ]
+        prefixes_out[key] = {"leftover_marked": _mean_stats(left_vals)}
+    return {
+        "note": (
+            "Official public-deepmind-30 mean re-sliced on leftover keys. "
+            "Uses detector keys and g-values. Not a key-free reader. "
+            "Does not replace 25/48."
+        ),
+        "used_keys": True,
+        "used_hash_iv": True,
+        "used_g_values": True,
+        "n_leftover": len(leftover),
+        "n_marked": len(marked_keys),
+        "n_unmarked": len(unmarked),
+        "leftover": sorted(
+            [{"stem": s, "sample": n} for s, n in leftover],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "prefixes": prefixes_out,
+    }
+
+
 def _mean_stats(values: Sequence[float]) -> dict:
     nums = [float(v) for v in values]
     n = len(nums)

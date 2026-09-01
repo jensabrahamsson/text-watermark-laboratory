@@ -157,14 +157,21 @@ is a subset). SMT-only covers are garden 1/4. Leftover after union is
 leftover sign is 0/18 by construction. Do not sell union **30/48** or
 leftover **10/18**.
 
+Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
+([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
+Leftover-18 official is **18/18** at prefix-128 by subset of leftover-20
+**20/20**. Prefix-5 is **16/18**. Do not add family-12 paraphrases or
+target leftover openings after peeking. Do not sell leftover official
+**18/18**.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.
 - Selling leftover **10/20**, covered **15/28**, leftover window
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
-  interpolate **13/20**, union **30/48**, leftover **10/18**, grok12
-  **39/48**, nested **23/48** / **26/48** / **27/48** / **35/48**, or
-  rankpath **41/48** as replacing **25/48**.
+  interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
+  official **18/18**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.
 - New `probe --methods` names on the 12×4 / 36×4 twins.
