@@ -369,3 +369,47 @@ fill-in **0/8**. Do not sell 25/48.
 
 JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/),
 [../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json).
+
+Coverage-then-hashskip on saved holdouts is **worse** than hashtoklen
+alone: **26/48 vs 35/48**, 13 FPs, combined **61/96** vs hashtoklen
+**66/96**. Do not add hashskip as a cascade fallback.
+
+## Singleton collisions (`hashtoklen2`)
+
+Occupancy-free default is `c_m + c_u ≥ 1`. `hashtoklen2` /
+`hashskip2` raise that floor to **2** at score time on the same
+frozen tables. Not a new mixer. Still no keys. Instance
+`key-free-hashtoklen2` / `key-free-hashskip2`.
+`indicate score --score-mode hashtoklen2`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --extra-train experiments/2026-08-31-pair-family12x4 \
+  --fit-prefix 5 --pos-bucket 0 \
+  --methods hashtoklen,hashtoklen2,hashskip,hashskip2 \
+  --out-dir experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden | precision |
+|---|---|---|---|---|---|---|
+| hashtoklen | 12/12† | 0.701 | **21/48** | 45/48 | **21/48 vs 45/48** | 0.875 |
+| **hashtoklen2** | 12/12† | 0.604 | **10/48** | **48/48** | **10/48 vs 48/48** | **1.000** |
+| hashskip | 8/12 | 0.663 | **25/48** | 35/48 | **16/48 vs 41/48** | 0.658 |
+| **hashskip2** | 8/12 | 0.641 | **22/48** | 39/48 | **15/48 vs 41/48** | 0.710 |
+
+† Ties among zeros. **11 of 21** hashtoklen TPs are singleton hash
+collisions. min_count=2 is the robust occupancy-free 5-gram core:
+precision 1.0, nested matching t=0.
+
+Harbour d2 survives (c_m=11, same lr=+0.618). Letter d2 still
+abstains. Lost: night-bus d3, market ×4, kitchen d2, station d1/d3,
+rain d2, garden d1/d4. Leftover eight stay zeros.
+
+hashskip2 zeros letter d2's unmarked singleton votes but still has
+9 unmarked FPs. Nested leftover fill-in **0/8**. Do not sell 10/48,
+22/48, or 15/48 as beating poshits **39/48** or replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/).

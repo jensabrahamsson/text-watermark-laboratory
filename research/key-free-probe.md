@@ -80,7 +80,9 @@ also hash short prefixes into longer-order mixers. `hashtoklenbackoff`
 requires exact last-k; nested Youden **33/48**. Prefix-4 hashed
 backoff hurts versus hashtok. `hashskip` (tagged drop-one last-k)
 is denser at t=0 (**25/48**) and nested Youden **16/48**; letter d2's
-official `I` is seen unmarked-only. See [key-free-hashtok.md](key-free-hashtok.md).
+official `I` is seen unmarked-only. `hashtoklen2` skips singleton
+collisions: **10/48 vs 48/48**, precision 1.0; 11 of 21 hashtoklen TPs
+were singletons; harbour d2 survives. See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)
 

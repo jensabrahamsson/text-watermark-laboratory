@@ -12,7 +12,7 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
 | [key-free-contrast.md](key-free-contrast.md) | Public vs control-shuffled-30: 4-token poshits is instance-specific (**0/48**); prefix-4 rankpath control **6/48** |
 | [key-free-tokhits.md](key-free-tokhits.md) | Occupancy Laplace vs observed next tokens: 39/48 includes The-ferry; postokhits **16/48** precision 1.0; opening-overlap last-2+ core **13/48** |
-| [key-free-hashtok.md](key-free-hashtok.md) | Occupancy-free hashpool: prefix-5 hashtok **30/48**; hashtoklen **21/48** with harbour d2 the one collision extra; hashskip nested **16/48**; Distil transfer AUC **0.571** |
+| [key-free-hashtok.md](key-free-hashtok.md) | Occupancy-free hashpool: prefix-5 hashtok **30/48**; hashtoklen **21/48** with harbour d2 the one collision extra; hashtoklen2 **10/48 vs 48/48** (11/21 TPs were singletons); hashskip nested **16/48**; Distil transfer AUC **0.571** |
 | [key-free-cascade.md](key-free-cascade.md) | Coverage-then-fallback: ABSTAIN at n_used=0; `--cascade-when positive` 40/48 vs 40/48; leftover 8 officially marked; letter d2 5-gram isolated-rank invisible; prefix-8 extra TPs are last-1 |
 | [key-free-rankpath.md](key-free-rankpath.md) | Rank-symbol tables: GPT-2 opening 41/48; Distil native **8/12** chance; Qwen opening rankpath **8/12** |
 | [key-free-snaprate.md](key-free-snaprate.md) | Table-free leave/upset/miss: opening `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48** |

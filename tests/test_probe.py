@@ -2679,3 +2679,123 @@ def test_prefix5_hashskip_is_denser_at_zero_and_worse_nested() -> None:
     assert views[3]["delta"] < 0
 
 
+def test_prefix5_hashtoklen2_is_the_robust_collision_core() -> None:
+    """11 of 21 hashtoklen TPs are singleton hash collisions.
+
+    min_count=2 is 10/48 vs 48/48, nested matching t=0, precision 1.0.
+    Harbour d2 survives (c_m=11). Letter d2 still abstains. Do not sell 10/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2"
+    )
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hl2 = holdout_from_json(root / "hashtoklen2" / "holdout.json")
+    hs = holdout_from_json(root / "hashskip" / "holdout.json")
+    hs2 = holdout_from_json(root / "hashskip2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    tables = json.loads((root / "tables-hashtoklen" / "tables.json").read_text())
+    skip_tables = json.loads((root / "tables-hashskip" / "tables.json").read_text())
+    assert not (root / "tables-hashpool").exists()
+    assert hl.used_keys is False
+    assert hl2.used_keys is False
+    assert hs2.used_keys is False
+    assert hl2.instance == "key-free-hashtoklen2"
+    assert hs2.instance == "key-free-hashskip2"
+    assert tables["exact_len"] is True
+    assert tables["drop_one"] is False
+    assert tables["used_keys"] is False
+    assert skip_tables["drop_one"] is True
+    assert hl.n_marked_positive == 21
+    assert hl.n_unmarked_nonpositive == 45
+    assert hl2.n_marked_positive == 10
+    assert hl2.n_unmarked_nonpositive == 48
+    assert hl2.n_marked_positive < 21
+    assert hl2.n_marked_positive < 29
+    assert hs2.n_marked_positive == 22
+    assert hs2.n_unmarked_nonpositive == 39
+    assert _nested_youden(results, "hashtoklen") == (21, 45)
+    assert _nested_youden(results, "hashtoklen2") == (10, 48)
+    assert _nested_youden(results, "hashskip") == (16, 41)
+    assert _nested_youden(results, "hashskip2") == (15, 41)
+    hl_pos = {
+        (s, samp)
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+        if m > 0
+    }
+    hl2_pos = {
+        (s, samp)
+        for s, samp, m in zip(hl2.stems, hl2._samples(), hl2.marked_lrs)
+        if m > 0
+    }
+    assert hl2_pos == {
+        ("01-harbour", 2),
+        ("05-kitchen", 1),
+        ("05-kitchen", 3),
+        ("07-rain", 1),
+        ("07-rain", 4),
+        ("08-letter", 1),
+        ("08-letter", 4),
+        ("09-workshop", 1),
+        ("09-workshop", 2),
+        ("09-workshop", 3),
+    }
+    assert hl_pos - hl2_pos == {
+        ("02-night-bus", 3),
+        ("04-market", 1),
+        ("04-market", 2),
+        ("04-market", 3),
+        ("04-market", 4),
+        ("05-kitchen", 2),
+        ("06-station", 1),
+        ("06-station", 3),
+        ("07-rain", 2),
+        ("11-garden", 1),
+        ("11-garden", 4),
+    }
+    by_hl = {
+        (s, samp): m
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+    }
+    by_hl2 = {
+        (s, samp): m
+        for s, samp, m in zip(hl2.stems, hl2._samples(), hl2.marked_lrs)
+    }
+    by_hs = {
+        (s, samp): m
+        for s, samp, m in zip(hs.stems, hs._samples(), hs.marked_lrs)
+    }
+    by_hs2 = {
+        (s, samp): m
+        for s, samp, m in zip(hs2.stems, hs2._samples(), hs2.marked_lrs)
+    }
+    leftover = {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("06-station", 4),
+        ("08-letter", 2),
+        ("08-letter", 3),
+        ("10-office", 1),
+        ("10-office", 3),
+        ("12-ferry-queue", 4),
+    }
+    assert by_hl[("01-harbour", 2)] == by_hl2[("01-harbour", 2)]
+    assert by_hl2[("01-harbour", 2)] > 0
+    assert by_hl2[("08-letter", 2)] == 0.0
+    assert all(by_hl2[k] == 0.0 for k in leftover)
+    leftover_hs2 = {k for k in leftover if by_hs2[k] > 0}
+    assert leftover_hs2 == {("01-harbour", 3), ("01-harbour", 4)}
+    assert by_hs[("08-letter", 2)] < 0
+    assert by_hs2[("08-letter", 2)] == 0.0
+    hs2_nested_t = next(
+        row["train_youden"]
+        for row in results["thresholds"]
+        if row["name"] == "hashskip2" and row["source"] == "nested-youden"
+    )
+    leftover_hs2_nested = {k for k in leftover if by_hs2[k] > hs2_nested_t}
+    assert leftover_hs2_nested == set()
+
+

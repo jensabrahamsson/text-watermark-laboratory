@@ -759,4 +759,22 @@ JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5
 `experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 eleven of twenty-one hashtoklen TPs are singleton collisions
+
+`hashtoklen2` skips a hash unless `c_m + c_u ≥ 2`. Same frozen
+exact-length tables. 60-stem prefix-5 → 12×4: **10/48 vs 48/48**,
+precision 1.0, nested Youden matching t=0. Harbour d2 survives
+(c_m=11, lr=+0.618). Letter d2 still abstains. Lost: night-bus d3,
+market ×4, kitchen d2, station d1/d3, rain d2, garden d1/d4.
+Leftover eight stay zeros.
+
+`hashskip2` **22/48 vs 39/48**, nested **15/48 vs 41/48**. Letter d2
+goes from −0.847 to 0 (unmarked singleton votes). Nested leftover
+fill-in still **0/8**. Coverage-then-hashskip on saved holdouts is
+worse than hashtoklen alone (26/48 vs 35/48). Do not sell 10/48,
+22/48, or 15/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
