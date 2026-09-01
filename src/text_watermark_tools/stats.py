@@ -149,10 +149,12 @@ def nested_threshold_by_stem(
 ) -> NestedStemEval:
     """Leave-one-stem-out threshold on already-held-out file scores.
 
-    For each stem, choose Youden (or a target FPR) on the *other* stems,
-    then apply that threshold to this stem. Does not refit tables. Use this
-    on leave-one-prompt-out LRs so the operating point is not chosen on the
-    same prompt family being classified.
+    For each stem H, choose Youden (or a target FPR) on the *other* stems'
+    already-OOF LRs, then apply that threshold to H. This is nested on the
+    operating point only. It does not refit tables without H: those other
+    OOF scores were still produced by models that trained on H. True nested
+    CV would refit when choosing H's threshold. t=0, AUC, and prompt
+    ranking do not use this helper.
     """
     if len(stems) != len(marked_lrs) or len(stems) != len(unmarked_lrs):
         raise ValueError("stems and LRs must be aligned")

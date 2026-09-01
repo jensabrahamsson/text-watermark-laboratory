@@ -199,21 +199,20 @@ def _add_sequence(
         t = int(tok)
         table.unigram[t] += 1
         table.n_tokens += 1
-        if i == 0:
-            if prefix:
-                for length in range(1, table.context_len + 1):
-                    ctx = _scored_ctx(
-                        ids, i, length, position_bucket, prefix=prefix
-                    )
-                    table.counts.setdefault(ctx, Counter())[t] += 1
-            elif include_first:
+        available = len(prefix) + i
+        if i == 0 and not prefix:
+            if include_first:
                 ctx = _scored_ctx(ids, i, 0, position_bucket, prefix=())
                 table.counts.setdefault(ctx, Counter())[t] += 1
             continue
-        # Store every suffix length 1..k so backoff can shrink the context
-        # instead of jumping straight to the unigram.
-        for length in range(1, table.context_len + 1):
-            ctx = _scored_ctx(ids, i, length, position_bucket, prefix=prefix)
+        # Store every *real* suffix length 1..min(k, available) once.
+        # Looping 1..k when fewer tokens exist collapses to the same
+        # truncated context and overweights the opening.
+        max_len = min(int(table.context_len), available)
+        for length in range(1, max_len + 1):
+            ctx = _scored_ctx(
+                ids, i, length, position_bucket, prefix=prefix
+            )
             table.counts.setdefault(ctx, Counter())[t] += 1
 
 

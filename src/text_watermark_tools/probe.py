@@ -5398,13 +5398,10 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
     persist_tables = run.shuffle_seed is None
+    fit_n = int(run.fit_prefix or 0)
     if persist_tables and run.hash_model is not None:
-        nested_t = _t("hashpool", "nested-youden") or _t("hashtok", "nested-youden") or _t(
-            "hashtok2", "nested-youden"
-        )
-        in_t = _t("hashpool", "in-sample-youden") or _t("hashtok", "in-sample-youden") or _t(
-            "hashtok2", "in-sample-youden"
-        )
+        nested_t = _t("hashpool", "nested-youden")
+        in_t = _t("hashpool", "in-sample-youden")
         persist_hashpool(
             run.hash_model,
             out_dir / "tables-hashpool",
@@ -5415,6 +5412,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_source=(
                 "nested-youden" if nested_t is not None else "in-sample-youden"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashpool",
         )
     if persist_tables and getattr(run, "hash_len_model", None) is not None:
         nested_t = _t("hashtoklen", "nested-youden") or _t(
@@ -5435,21 +5434,9 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-hashtoklen"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashtoklen",
         )
-        if run.hash_model is None and getattr(run, "hash_skip_model", None) is None and getattr(run, "hash_mask_model", None) is None:
-            persist_hashpool(
-                run.hash_len_model,
-                out_dir / "tables-hashpool",
-                model_name=run.model_name,
-                pair_dir=run.train_dir,
-                n_train_prompts=run.n_train_prompts,
-                decision_threshold=nested_t if nested_t is not None else in_t,
-                decision_source=(
-                    "nested-youden-hashtoklen"
-                    if nested_t is not None
-                    else "in-sample-youden-hashtoklen"
-                ),
-            )
     if persist_tables and getattr(run, "hash_skip_model", None) is not None:
         nested_t = _t("hashskip", "nested-youden") or _t(
             "hashskip2", "nested-youden"
@@ -5469,6 +5456,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-hashskip"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashskip",
         )
     if persist_tables and getattr(run, "hash_mask_model", None) is not None:
         nested_t = _t("hashmask", "nested-youden") or _t(
@@ -5489,6 +5478,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-hashmask"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashmask",
         )
     if persist_tables and run.surface_model is not None:
         nested_t = _t("surface", "nested-youden")
@@ -5505,6 +5496,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-surface"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.count_model is not None:
         nested_t = _t("hits", "nested-youden")
@@ -5519,6 +5511,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_source=(
                 "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.pos_model is not None:
         nested_t = _t("poshits", "nested-youden") or _t("poshitmass", "nested-youden")
@@ -5535,6 +5528,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-poshits"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.pos_hash is not None:
         nested_t = _t("pospool", "nested-youden")
@@ -5551,6 +5545,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-pospool"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashpool",
         )
     table["prefixes"] = []
     for plen in sorted(run.prefixes):
@@ -5666,6 +5662,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-rankpath"
             ),
+            fit_prefix=fit_n,
         )
     if run.cascade:
         (out_dir / "cascade.json").write_text(

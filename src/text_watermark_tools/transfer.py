@@ -207,18 +207,33 @@ def _select_score_ctx(
     tokbackoff tries last-k, then last-(k-1), …, last-min_order, and keeps
     the longest context that has both-side support and (if required) the
     observed next token. min_order=2 refuses generic last-1 English.
+    The opening symbol with include_first uses FIRST_TOKEN_CTX instead of
+    treating the empty prefix as below min_order.
     It does not reconstruct keys.
     """
     min_order = max(1, int(spec.min_order or 1))
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
     if spec.kind == "tokbackoff":
-        orders = range(int(model.context_len), min_order - 1, -1)
+        if i == 0 and score_first and not prefix:
+            # FIRST_TOKEN_CTX is the opening bucket. Naked last-k is empty,
+            # which is not “below min_order English”; skip the 1..k loop.
+            orders: tuple[int, ...] | range = (0,)
+        else:
+            orders = range(int(model.context_len), min_order - 1, -1)
     else:
         orders = (model.context_len if order is None else order,)
     for length in orders:
         ctx = _scored_ctx(
             ids, i, int(length), model.position_bucket, prefix=prefix
         )
-        if spec.kind == "tokbackoff" and len(_naked_tokens(ctx, model)) < min_order:
+        naked = _naked_tokens(ctx, model)
+        if spec.kind == "tokbackoff" and int(length) > 0 and len(naked) < min_order:
             continue
         if spec.min_count > 0 and not _ctx_has_support(model, ctx, spec):
             continue
@@ -528,15 +543,144 @@ class HashPoolModel:
 
     @property
     def instance(self) -> str:
-        if self.alphabet == "bytes":
-            return "key-free-surface"
-        if self.drop_one:
-            return "key-free-hashskip"
-        if self.mask_one:
-            return "key-free-hashmask"
-        if self.position_bucket > 0:
-            return "key-free-pospool"
-        return "key-free-hashpool"
+        return f"key-free-{hash_fit_reader(self)}"
+
+
+HASH_SCORE_MODES = (
+    "auto",
+    "hashpool",
+    "hashtok",
+    "hashtok2",
+    "hashtoklen",
+    "hashtoklen2",
+    "hashskip",
+    "hashskip2",
+    "hashmask",
+    "hashmask2",
+    "",
+)
+
+
+def hash_fit_reader(model: HashPoolModel) -> str:
+    """Mixer encoded in the tables, not a score-time switch."""
+    if model.alphabet == "bytes":
+        return "surface"
+    if model.drop_one:
+        return "hashskip"
+    if model.mask_one:
+        return "hashmask"
+    if model.exact_len:
+        return "hashtoklen"
+    if model.position_bucket > 0:
+        return "pospool"
+    return "hashpool"
+
+
+def resolve_hash_score_mode(
+    model: HashPoolModel,
+    mode: str = "auto",
+    *,
+    stored_reader: str = "",
+) -> str:
+    """Pick a hash reader that matches the fitted mixer.
+
+    ``auto`` follows drop_one / mask_one / exact_len. Occupancy hashpool
+    tables stay Laplace unless the file stored a hashtok reader. Explicit
+    hashtoklen on a non-exact table is refused.
+    """
+    raw = (mode or "auto").strip().lower()
+    mixer = hash_fit_reader(model)
+    allowed = (
+        "hashpool",
+        "hashtok",
+        "hashtok2",
+        "hashtoklen",
+        "hashtoklen2",
+        "hashskip",
+        "hashskip2",
+        "hashmask",
+        "hashmask2",
+    )
+    if raw not in HASH_SCORE_MODES:
+        raise ValueError(
+            f"tables are hashpool; --score-mode {mode} does not apply"
+        )
+    if raw in ("auto", ""):
+        if mixer in ("hashskip", "hashmask", "hashtoklen"):
+            return mixer
+        stored = (stored_reader or "").strip().lower()
+        if stored in ("hashtok", "hashtok2"):
+            return stored
+        if mixer == "pospool":
+            return "hashpool"
+        return "hashpool"
+    drop_one = bool(model.drop_one)
+    mask_one = bool(model.mask_one)
+    exact = bool(model.exact_len) or drop_one or mask_one
+    if raw in ("hashskip", "hashskip2"):
+        if not drop_one:
+            raise ValueError(
+                "these tables were not fit as drop-one skip-grams; "
+                "refusing score-time hashskip on a different mixer"
+            )
+        return raw
+    if raw in ("hashmask", "hashmask2"):
+        if not mask_one:
+            raise ValueError(
+                "these tables were not fit as MASK-replace templates; "
+                "refusing score-time hashmask on a different mixer"
+            )
+        return raw
+    if raw in ("hashtoklen", "hashtoklen2"):
+        if drop_one:
+            raise ValueError(
+                "these tables are drop-one skip-grams; use --score-mode "
+                "hashskip or hashskip2"
+            )
+        if mask_one:
+            raise ValueError(
+                "these tables are MASK-replace templates; use --score-mode "
+                "hashmask or hashmask2"
+            )
+        if not exact:
+            raise ValueError(
+                "these tables were not fit with exact_len; refusing "
+                "score-time hashtoklen on a truncated-context mixer"
+            )
+        return raw
+    if raw in ("hashtok", "hashtok2"):
+        if drop_one:
+            raise ValueError(
+                "these tables are drop-one skip-grams; use --score-mode "
+                "hashskip or hashskip2"
+            )
+        if mask_one:
+            raise ValueError(
+                "these tables are MASK-replace templates; use --score-mode "
+                "hashmask or hashmask2"
+            )
+        if exact:
+            raise ValueError(
+                "these tables were fit with exact_len; use --score-mode "
+                "hashtoklen, not hashtok"
+            )
+        return raw
+    if raw == "hashpool":
+        if drop_one or mask_one or bool(model.exact_len):
+            raise ValueError(
+                f"these tables were fit as {mixer}; refusing Laplace "
+                "hashpool on a different mixer"
+            )
+        return raw
+    if raw not in allowed:
+        raise ValueError(
+            f"tables are hashpool; --score-mode {mode} does not apply"
+        )
+    return raw
+
+
+def hash_score_min_count(mode: str) -> int:
+    return 2 if str(mode).endswith("2") else 1
 
 
 def hash_ctx_len(ctx: tuple[int, ...], position_bucket: int = 0) -> int:
@@ -1652,16 +1796,22 @@ def persist_hashpool(
     n_train_prompts: int = 0,
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
+    score_kind: str | None = None,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist a hashpool that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     kind = SURFACE_KIND if model.alphabet == "bytes" else HASHPOOL_KIND
+    reader = hash_fit_reader(model)
+    stored = str(score_kind or reader)
     payload = {
         "kind": kind,
         "alphabet": model.alphabet,
         "instance": model.instance,
+        "fit_reader": reader,
+        "score_kind": stored,
         "model_name": model_name,
         "pair_dir": pair_dir,
         "n_train_prompts": n_train_prompts,
@@ -1676,6 +1826,7 @@ def persist_hashpool(
         "exact_len": bool(model.exact_len),
         "drop_one": bool(model.drop_one),
         "mask_one": bool(model.mask_one),
+        "fit_prefix": int(fit_prefix or 0),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,

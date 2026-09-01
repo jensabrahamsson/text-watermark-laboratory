@@ -331,3 +331,54 @@ def test_format_indicator_abstains_when_coverage_is_zero() -> None:
     )
     assert "decision=marked" in covered
     assert "decision=ABSTAIN" not in covered
+
+
+def test_indicate_score_auto_on_hashtoklen_tables_matches_explicit() -> None:
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen"
+        / "tables-hashtoklen"
+    )
+    occupancy = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36-to-12x4"
+        / "tables-hashpool"
+    )
+    text = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-17-pair-12x4"
+        / "01-harbour-marked.txt"
+    ).read_text()
+    tok = load_tokenizer("gpt2")
+    auto_lr, auto_meta, auto_used = score_text_from_tables(
+        text, tables, tokenizer=tok, score_mode="auto"
+    )
+    explicit_lr, explicit_meta, explicit_used = score_text_from_tables(
+        text, tables, tokenizer=tok, score_mode="hashtoklen"
+    )
+    assert auto_used is False
+    assert explicit_used is False
+    assert auto_meta.score_kind == "hashtoklen"
+    assert explicit_meta.score_kind == "hashtoklen"
+    assert auto_meta.instance == "key-free-hashtoklen"
+    assert auto_lr == explicit_lr
+    try:
+        score_text_from_tables(
+            text, tables, tokenizer=tok, score_mode="hashpool"
+        )
+    except ValueError as exc:
+        assert "hashtoklen" in str(exc) or "Laplace" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+    try:
+        score_text_from_tables(
+            text, occupancy, tokenizer=tok, score_mode="hashtoklen"
+        )
+    except ValueError as exc:
+        assert "exact_len" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+

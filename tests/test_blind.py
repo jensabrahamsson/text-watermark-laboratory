@@ -177,6 +177,26 @@ def test_backoff_uses_shorter_context_when_full_ngram_is_new() -> None:
     )
 
 
+def test_fit_table_does_not_recount_truncated_openings() -> None:
+    from text_watermark_tools.blind import fit_table
+
+    table = fit_table([[10, 20]], context_len=4)
+    assert table.counts[(10,)][20] == 1
+    assert table.unigram[10] == 1
+    assert table.unigram[20] == 1
+    long = fit_table([[1, 2, 3, 4, 5]], context_len=4)
+    assert long.counts[(1,)][2] == 1
+    assert long.counts[(4,)][5] == 1
+    assert long.counts[(3, 4)][5] == 1
+    assert long.counts[(2, 3, 4)][5] == 1
+    assert long.counts[(1, 2, 3, 4)][5] == 1
+    prefixed = fit_table([[20]], context_len=4, prefixes=[[10]])
+    assert prefixed.counts[(10,)][20] == 1
+    first = fit_table([[9, 8]], context_len=4, include_first=True)
+    assert first.counts[FIRST_TOKEN_CTX][9] == 1
+    assert first.counts[(9,)][8] == 1
+
+
 def test_leave_one_out_prefers_matching_pile() -> None:
     twins = [
         Twin("a", "a", "a", [0, 1, 0, 1, 0, 1, 0, 1], [0, 2, 0, 2, 0, 2, 0, 2]),

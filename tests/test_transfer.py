@@ -629,3 +629,61 @@ def test_surface_persist_load_same_lr(tmp_path) -> None:
     raw = (tmp_path / "tables.json").read_text()
     assert SURFACE_KIND in raw
     assert '"used_keys": false' in raw
+
+
+def test_hash_reader_auto_follows_mixer_flags() -> None:
+    from text_watermark_tools.transfer import (
+        fit_hashpool,
+        hash_fit_reader,
+        resolve_hash_score_mode,
+    )
+
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2]]
+    pool = fit_hashpool(
+        marked, unmarked, context_len=2, n_hashes=4, n_buckets=8, seed=7
+    )
+    exact = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=2,
+        n_hashes=4,
+        n_buckets=8,
+        seed=7,
+        exact_len=True,
+    )
+    skip = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=2,
+        n_hashes=4,
+        n_buckets=8,
+        seed=7,
+        drop_one=True,
+    )
+    assert hash_fit_reader(pool) == "hashpool"
+    assert hash_fit_reader(exact) == "hashtoklen"
+    assert hash_fit_reader(skip) == "hashskip"
+    assert exact.instance == "key-free-hashtoklen"
+    assert resolve_hash_score_mode(pool, "auto") == "hashpool"
+    assert resolve_hash_score_mode(exact, "auto") == "hashtoklen"
+    assert resolve_hash_score_mode(skip, "auto") == "hashskip"
+    try:
+        resolve_hash_score_mode(pool, "hashtoklen")
+    except ValueError as exc:
+        assert "exact_len" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+    try:
+        resolve_hash_score_mode(exact, "hashpool")
+    except ValueError as exc:
+        assert "hashtoklen" in str(exc) or "Laplace" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+    try:
+        resolve_hash_score_mode(exact, "hashtok")
+    except ValueError as exc:
+        assert "hashtoklen" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+

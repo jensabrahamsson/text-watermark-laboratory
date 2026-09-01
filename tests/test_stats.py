@@ -83,6 +83,7 @@ def test_nested_youden_by_stem_classifies_without_the_held_stem() -> None:
     assert ev.n_marked_above == 6
     assert ev.n_unmarked_at_most == 6
     assert ev.source == "nested-youden-by-stem"
+    assert "does not refit tables without H" in nested_threshold_by_stem.__doc__
 
 
 def test_nested_threshold_by_stem_rejects_misaligned_inputs() -> None:

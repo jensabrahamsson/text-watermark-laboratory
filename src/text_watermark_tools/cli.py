@@ -47,6 +47,7 @@ from text_watermark_tools.indicator import (
     fit_indicator,
     format_indicator,
     holdout_single_text,
+    indicate_fit_defaults,
     load_tables_meta,
     rotate_holdout,
     persist_holdout,
@@ -397,6 +398,13 @@ def cmd_pair(args: argparse.Namespace) -> int:
 def cmd_indicate_fit(args: argparse.Namespace) -> int:
     twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
     method = str(getattr(args, "method", "counts") or "counts")
+    raw_prefix = getattr(args, "fit_prefix", None)
+    raw_bucket = getattr(args, "pos_bucket", None)
+    fit_prefix, pos_bucket = indicate_fit_defaults(
+        method, fit_prefix=raw_prefix, pos_bucket=raw_bucket
+    )
+    if fit_prefix > 0:
+        twins = [t.clip_prefix(fit_prefix) for t in twins]
     if method == "hashpool":
         from text_watermark_tools.transfer import fit_hashpool_twins, persist_hashpool
 
@@ -416,12 +424,14 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             model_name=args.model,
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
+            fit_prefix=fit_prefix,
+            score_kind="hashpool",
         )
         print(
             f"wrote {path} instance={model.instance} "
             f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
             f"context_len={model.context_len} n_hashes={model.n_hashes} "
-            f"n_buckets={model.n_buckets}"
+            f"n_buckets={model.n_buckets} fit_prefix={fit_prefix}"
         )
         print(CAVEAT)
         return 0
@@ -451,6 +461,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             model_name=args.model,
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
+            fit_prefix=fit_prefix,
         )
         print(
             f"wrote {path} instance={model.instance} "
@@ -512,7 +523,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             symbols,
             [t.stem for t in twins],
             context_len=min(int(args.context_len), 3),
-            position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
+            position_bucket=pos_bucket,
         )
         if model.used_keys or model.used_hash_iv or model.used_g_values:
             print("rankpath fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -524,11 +535,13 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
             prompt_context=False,
+            fit_prefix=fit_prefix,
         )
         print(
             f"wrote {path} instance=key-free-rankpath "
             f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
-            f"alphabet=5 prompt_context=False"
+            f"alphabet=5 prompt_context=False fit_prefix={fit_prefix} "
+            f"pos_bucket={pos_bucket}"
         )
         print(CAVEAT)
         return 0
@@ -544,7 +557,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         context_len=args.context_len,
         alpha=args.alpha,
         backoff=bool(args.backoff),
-        position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
+        position_bucket=pos_bucket,
     )
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         print("indicator fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -555,11 +568,12 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         model_name=args.model,
         pair_dir=str(args.pair_dir),
         n_train_prompts=len(twins),
+        fit_prefix=fit_prefix,
     )
     print(
         f"wrote {path} instance={INDICATOR_INSTANCE} "
         f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
-        f"context_len={model.context_len}"
+        f"context_len={model.context_len} fit_prefix={fit_prefix}"
     )
     print(CAVEAT)
     return 0
@@ -1240,10 +1254,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument(
         "--pos-bucket",
         type=int,
-        default=0,
+        default=None,
         help=(
             "If >0, prepend i//N to last-k context when fitting count "
-            "tables (poshits). Not a watermark key. Default 0."
+            "tables (poshits). Default 1 for --method rankpath, else 0. "
+            "Not a watermark key."
+        ),
+    )
+    p_fit.add_argument(
+        "--fit-prefix",
+        type=int,
+        default=None,
+        help=(
+            "Clip each twin to the first N generated tokens before fitting. "
+            "Default 4 for --method rankpath (the opening model); 0 (full "
+            "file) otherwise. 0 means no clip."
         ),
     )
     p_fit.add_argument("--n-hashes", type=int, default=8)
@@ -1275,14 +1300,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--score-mode",
         default="auto",
         help=(
-            "How to read count tables: auto (hashpool tables → hashpool, "
-            "bucketed count tables → poshits, else hard), or "
+            "How to read count tables: auto (hashpool tables follow the "
+            "fitted mixer: exact_len→hashtoklen, drop-one→hashskip, "
+            "MASK→hashmask, else Laplace hashpool; bucketed count tables → "
+            "poshits, else hard), or "
             "hard/hits/tokhits/tokbackoff/tokbackoff2/poshits/postokhits/"
             "postokbackoff/postokbackoff2/poshitmass/gated/unigram/… "
-            "Hashpool tables ignore count modes except hashtok / hashtok2 / hashtoklen / "
-            "hashtoklen2 / hashskip / hashskip2 / hashmask / hashmask2 (skip a hash unless the "
-            "observed next token appeared in that bucket; *2 skips "
-            "singleton collisions). "
+            "Hashpool tables refuse a reader that does not match the mixer "
+            "(hashtoklen needs exact_len; hashskip needs drop-one). "
+            "Explicit hashtok / hashtok2 remains occupancy-free hashing on "
+            "Laplace tables. "
             "tokhits skips Laplace scores for a next token never seen under "
             "that context. tokbackoff shrinks last-k until an observed next "
             "token hits. tokbackoff2 stops at last-2."

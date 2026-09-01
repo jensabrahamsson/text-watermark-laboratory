@@ -22,7 +22,8 @@ Symbols (``top_k`` default 40):
 The first generated token has no unmarked-LM context without a prompt, so
 the isolated-file path scores generated tokens 1… (choice-matrix rows).
 The first *symbol* is therefore a real tournament decision and is scored
-(``include_first=True`` on the symbol sequence). ``--rankpath-full`` keeps
+(``include_first=True`` on the symbol sequence; tokbackoff uses the
+``FIRST_TOKEN_CTX`` bucket for that opening symbol). ``--rankpath-full`` keeps
 those rows from the unclipped file when count tables use ``--fit-prefix``.
 Matched ``--prefix-lens`` / ``--windows`` slice the same rows (not token
 identity). Unbucketed full-file tables want ``--rankpath-pos-bucket 0``.
@@ -303,6 +304,7 @@ def persist_rankpath(
     spec_name: str = "rankpath",
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist a rankpath table that used keys")
@@ -321,6 +323,7 @@ def persist_rankpath(
         "position_bucket": int(getattr(model, "position_bucket", 0) or 0),
         "include_first": True,
         "prompt_context": bool(prompt_context),
+        "fit_prefix": int(fit_prefix or 0),
         "top_k": int(top_k),
         "alphabet": RANK_PATH_ALPHABET,
         "spec_name": spec_name if spec_name in RANKPATH_SPECS else "rankpath",

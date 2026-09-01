@@ -64,6 +64,42 @@ def test_rankuni_separates_near_tie_vs_argmax_without_keys() -> None:
     assert unmarked < 0.0
 
 
+def test_rankpath_scores_the_first_symbol() -> None:
+    from text_watermark_tools.rankpath import RANKPATH_SPEC, score_rankpath_detail
+
+    symbols = {
+        ("p1", 1, "marked"): [2],
+        ("p1", 1, "unmarked"): [1],
+        ("p2", 1, "marked"): [2],
+        ("p2", 1, "unmarked"): [1],
+        ("p3", 1, "marked"): [2],
+        ("p3", 1, "unmarked"): [1],
+    }
+    model = fit_rankpath_from_symbols(symbols, ["p1", "p2"], position_bucket=1)
+    marked = score_rankpath_detail([2], model, spec=RANKPATH_SPEC)
+    unmarked = score_rankpath_detail([1], model, spec=RANKPATH_SPEC)
+    assert marked.n_used == 1
+    assert unmarked.n_used == 1
+    assert marked.lr != 0.0
+    assert marked.lr > unmarked.lr
+
+
+def test_indicate_fit_rankpath_defaults_to_the_opening_model() -> None:
+    from text_watermark_tools.indicator import indicate_fit_defaults
+
+    prefix, bucket = indicate_fit_defaults("rankpath")
+    assert prefix == 4
+    assert bucket == 1
+    prefix, bucket = indicate_fit_defaults("counts")
+    assert prefix == 0
+    assert bucket == 0
+    prefix, bucket = indicate_fit_defaults(
+        "rankpath", fit_prefix=0, pos_bucket=0
+    )
+    assert prefix == 0
+    assert bucket == 0
+
+
 def test_persist_load_rankpath_is_key_free(tmp_path) -> None:
     symbols = {
         ("p1", 1, "marked"): [2, 2],
@@ -72,12 +108,13 @@ def test_persist_load_rankpath_is_key_free(tmp_path) -> None:
         ("p2", 1, "unmarked"): [1, 1],
     }
     model = fit_rankpath_from_symbols(symbols, ["p1", "p2"])
-    path = persist_rankpath(model, tmp_path, spec_name="rankuni")
+    path = persist_rankpath(model, tmp_path, spec_name="rankuni", fit_prefix=4)
     loaded, raw = load_rankpath(tmp_path)
     assert path.name == "tables.json"
     assert raw["kind"] == RANK_PATH_KIND
     assert raw["used_keys"] is False
     assert raw["alphabet"] == 5
+    assert raw["fit_prefix"] == 4
     assert loaded.used_keys is False
     assert score_rankpath([2, 2], loaded, spec=RANKUNI_SPEC) == score_rankpath(
         [2, 2], model, spec=RANKUNI_SPEC

@@ -28,8 +28,11 @@ from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     HASHPOOL_KIND,
+    HASH_SCORE_MODES,
     SURFACE_KIND,
+    hash_score_min_count,
     peek_tables_kind,
+    resolve_hash_score_mode,
     score_hashtok_detail,
     score_hashpool_detail,
     score_sequence_detail,
@@ -42,6 +45,45 @@ CAVEAT = (
     "Not detector_mean. Not Claude. Not Anthropic. "
     "≈0 is not “human” and not “Claude has no mark”."
 )
+
+
+def indicate_fit_defaults(
+    method: str,
+    *,
+    fit_prefix: int | None = None,
+    pos_bucket: int | None = None,
+) -> tuple[int, int]:
+    """Public ``indicate fit`` knobs.
+
+    Rankpath defaults to the opening model (``--fit-prefix 4 --pos-bucket 1``)
+    that produced the in-domain 41/48 figure. Other methods stay full-file
+    unless the caller passes a clip.
+    """
+    name = str(method or "counts")
+    if fit_prefix is None:
+        prefix = 4 if name == "rankpath" else 0
+    else:
+        prefix = int(fit_prefix)
+    if pos_bucket is None:
+        bucket = 1 if name == "rankpath" else 0
+    else:
+        bucket = int(pos_bucket)
+    return prefix, bucket
+
+
+def tables_payload(tables_dir: Path) -> dict:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / TABLES_NAME
+    return json.loads(path.read_text())
+
+
+def clip_ids_to_fit_prefix(ids: Sequence[int], raw: dict) -> list[int]:
+    n = int(raw.get("fit_prefix") or 0)
+    seq = [int(x) for x in ids]
+    if n > 0:
+        return seq[:n]
+    return seq
 
 
 @dataclass
@@ -202,6 +244,7 @@ def persist_indicator(
     n_train_prompts: int = 0,
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist an indicator that used keys")
@@ -220,6 +263,7 @@ def persist_indicator(
         "position_bucket": bucket,
         "include_first": bool(getattr(model, "include_first", False)),
         "prompt_context": bool(getattr(model, "prompt_context", False)),
+        "fit_prefix": int(fit_prefix or 0),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -392,7 +436,7 @@ def score_text_from_tables(
             raise ValueError("rankpath tables need a tokenizer")
         name = str(raw.get("model_name") or "gpt2")
         lm = _load_unmarked_model(generate_device(), model_name=name)
-        ids = tokenizer(text)["input_ids"]
+        ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], raw)
         symbols = symbols_from_token_ids(
             ids, lm, top_k=int(raw.get("top_k") or 40)
         )
@@ -408,86 +452,33 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
-        if mode not in (
-            "auto",
-            "hashpool",
-            "hashtok",
-            "hashtok2",
-            "hashtoklen",
-            "hashtoklen2",
-            "hashskip",
-            "hashskip2",
-            "hashmask",
-            "hashmask2",
-            "",
-        ):
+        from text_watermark_tools.transfer import load_hashpool
+
+        if mode not in HASH_SCORE_MODES:
             raise ValueError(
                 f"tables are hashpool; --score-mode {score_mode} does not apply"
             )
-        from text_watermark_tools.transfer import load_hashpool
-
         if tokenizer is None:
             raise ValueError("hashpool tables need a tokenizer")
+        raw = tables_payload(path)
         model = load_hashpool(path)
-        ids = tokenizer(text)["input_ids"]
-        if mode in (
-            "hashtok",
-            "hashtok2",
-            "hashtoklen",
-            "hashtoklen2",
-            "hashskip",
-            "hashskip2",
-            "hashmask",
-            "hashmask2",
-        ):
-            drop_one = bool(getattr(model, "drop_one", False))
-            mask_one = bool(getattr(model, "mask_one", False))
-            if mode in ("hashskip", "hashskip2") and not drop_one:
-                raise ValueError(
-                    "these tables were not fit as drop-one skip-grams; "
-                    "refusing score-time hashskip on a different mixer"
-                )
-            if mode in ("hashmask", "hashmask2") and not mask_one:
-                raise ValueError(
-                    "these tables were not fit as MASK-replace templates; "
-                    "refusing score-time hashmask on a different mixer"
-                )
-            if mode in ("hashtoklen", "hashtoklen2", "hashtok2") and drop_one:
-                raise ValueError(
-                    "these tables are drop-one skip-grams; use --score-mode "
-                    "hashskip or hashskip2"
-                )
-            if mode in ("hashtoklen", "hashtoklen2", "hashtok2") and mask_one:
-                raise ValueError(
-                    "these tables are MASK-replace templates; use --score-mode "
-                    "hashmask or hashmask2"
-                )
-            detail = score_hashtok_detail(
-                ids,
-                model,
-                exact_len=True
-                if mode
-                in (
-                    "hashtoklen",
-                    "hashtoklen2",
-                    "hashskip",
-                    "hashskip2",
-                    "hashmask",
-                    "hashmask2",
-                )
-                else None,
-                min_count=2
-                if mode in ("hashtok2", "hashtoklen2", "hashskip2", "hashmask2")
-                else 1,
-            )
-            meta = load_tables_meta(path)
-            meta.score_kind = mode
-            meta.instance = f"key-free-{mode}"
-        else:
+        ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], raw)
+        stored = str(raw.get("score_kind") or raw.get("fit_reader") or "")
+        resolved = resolve_hash_score_mode(model, mode, stored_reader=stored)
+        if resolved == "hashpool":
             detail = score_hashpool_detail(ids, model)
             meta = load_tables_meta(path)
             meta.score_kind = "hashpool"
             meta.instance = model.instance
+        else:
+            detail = score_hashtok_detail(
+                ids,
+                model,
+                min_count=hash_score_min_count(resolved),
+            )
+            meta = load_tables_meta(path)
+            meta.score_kind = resolved
+            meta.instance = f"key-free-{resolved}"
         meta.n_used = detail.n_used
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
@@ -502,7 +493,7 @@ def score_text_from_tables(
             "lone file cannot reconstruct the prompt. Score pair twins with "
             "probe --prompt-context instead."
         )
-    ids = tokenizer(text)["input_ids"]
+    ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], tables_payload(path))
     bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
 
     def _return_detail(spec, score_kind: str, instance: str):
