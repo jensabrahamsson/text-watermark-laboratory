@@ -18,7 +18,7 @@ fit key-free token/context statistics
 evaluate held-out prompts
 ```
 
-That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. In-family nested-by-stem Youden on that corpus is **322/400 vs 338/400** (lock A) and **392/400 vs 382/400** (lock B, occupancy). Out-of-family isolated transfer: [../research/PROTOCOL-isolated.md](../research/PROTOCOL-isolated.md) (lock A nested Youden **23/48** does not beat **25/48**; occupancy-free **16/48**; opening-overlap **18/48** covered on the original 12). Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
+That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. In-family nested-by-stem Youden on that corpus is **322/400 vs 338/400** (lock A) and **392/400 vs 382/400** (lock B, occupancy). Out-of-family isolated transfer: [../research/PROTOCOL-isolated.md](../research/PROTOCOL-isolated.md) (lock A nested Youden **23/48** does not beat **25/48**; occupancy-free **16/48**; opening-overlap **18/48** covered on the original 12). Register-matched Grok-length train is frozen in [../research/PROTOCOL-isolated-register.md](../research/PROTOCOL-isolated-register.md) and is not yet run. Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
 
 ## Main runs
 
@@ -223,6 +223,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-100x4-to-36x4-opening-rankpath/` | 100 families → 36×4 lock C | **35/36**, nested Youden **109/144 vs 117/144**; only miss library |
 | `2026-09-01-ranking-isolated-honesty/` | Ranking vs isolated TP on frozen holdouts | 12-LOO hard: garden ranks with 0 TP; 5/25 TPs on ranking losses |
 | `2026-09-01-blind-12x4-ranking-honesty/` | Same 9/12 producer, per-file LRs | **9/12**, garden 0/4, isolated **25**; historical recount JSON unchanged |
+| `2026-09-01-prompts-grok12/` | Grok-register isolated-train prompts | Frozen before `pair`; [PROTOCOL-isolated-register.md](../research/PROTOCOL-isolated-register.md) |
 
 ## What changed across the runs
 

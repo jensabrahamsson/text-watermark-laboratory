@@ -6,7 +6,10 @@ pre-fix **10/12** / **29/48** stay in historical JSON. Exploratory
 ablations live under [../experiments/README.md](../experiments/README.md).
 The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
 scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
-**99/100**. That does not replace **25/48**.
+**99/100**. That does not replace **25/48**. Register-matched Grok-length
+isolated transfer is frozen in
+[PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) and is
+not yet run.
 
 ## Locked headlines
 
