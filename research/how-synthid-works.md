@@ -1,6 +1,6 @@
 # How SynthID-Text works
 
-This note describes the public `google-deepmind/synthid-text` reference implementation used by the laboratory.
+This note describes the public `google-deepmind/synthid-text` reference implementation used by the laboratory (Dathathri et al., 2024; Google DeepMind, 2024). Archival records: [annotated-bibliography.md](annotated-bibliography.md).
 
 ## The watermark is a sampling bias
 
@@ -95,5 +95,6 @@ So the public DeepMind scorer is a reference implementation, not a universal det
 
 This distinction is what motivates the paired key-free experiments.
 Keyed detection theory, ZK public verifiability, and stealing sit next
-to this measurement in [related-work.md](related-work.md). They do not
-replace `indicate`.
+to this measurement in [related-work.md](related-work.md)
+([CITING.md](CITING.md)). They do not replace `indicate`. Primary
+archival source for the scheme: Dathathri et al. (2024).

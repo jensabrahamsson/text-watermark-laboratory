@@ -894,10 +894,19 @@ Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 ## 2026-09-01 related-work note
 
 Recorded keyed vs key-free neighbours so the research notes stay
-current: Omidi et al. arXiv:2603.03410 (SynthID mean/Bayesian theory;
+current: Omidi et al. (2026) (SynthID mean/Bayesian theory;
 layer-inflation is a keyed removal study, not implemented here);
-PVMark arXiv:2510.26274 (ZK of keyed detection); TTP-Detect and the
-ETH/SRI probe were already in the root README. Canonical note:
-[related-work.md](related-work.md).
+Duan et al. (2025) (ZK of keyed detection); Wang et al. (2026)
+(TTP-Detect).
+
+## 2026-09-01 scientific references and annotation
+
+Author–year convention ([CITING.md](CITING.md)), canonical BibTeX
+([references.bib](references.bib)), and critical annotations
+([annotated-bibliography.md](annotated-bibliography.md)). Corrected two
+wrong attributions in earlier notes: Jovanović et al. (2024) stealing is
+arXiv 2402.19361, not 2311.04378 (that is Zhang et al., 2024); arXiv
+2405.20777 is Gloaguen et al. (2025), not Sabanayagam, Hörl, and Dobriban.
+Do not write the dissertation until isolated-file research is finished.
 
 ---

@@ -8,7 +8,7 @@ The official DIPPER paraphraser is an 11B T5-XXL model. There is no official 7B/
 
 ## What DIPPER is
 
-[DIPPER](https://arxiv.org/abs/2303.13408) is the paragraph paraphraser introduced by Krishna et al. and used in later watermark-robustness work.
+[DIPPER](https://arxiv.org/abs/2303.13408) is the paragraph paraphraser of Krishna et al. (2023), used in later watermark-robustness work. Full record: [annotated-bibliography.md](annotated-bibliography.md).
 
 Official checkpoint:
 

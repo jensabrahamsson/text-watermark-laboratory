@@ -20,6 +20,7 @@ Do not weaken that result into vague wording such as "there may be traces". Equa
 ## Language and git
 
 - Use English in code, comments, CLI output, documentation, experiment notes, and commits.
+- Citations in research notes follow author–year ([research/CITING.md](research/CITING.md)); do not invent papers.
 - Historical collected outputs stay as collected.
 - Author/committer: **Jens Abrahamsson** `<jens.abrahamsson@makeitso.se>`.
 - Remote: `origin` → `jensabrahamsson/text-watermark-laboratory`.
@@ -172,7 +173,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same rows, `--cascade-when positive` | **40/48 vs 40/48** (8 rankpath FPs; not 39/48) |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), and [research/related-work.md](research/related-work.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
 
 ## Code map
 

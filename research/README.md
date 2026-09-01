@@ -4,6 +4,8 @@ This directory contains the reasoning behind the experiments in the root [README
 
 The main result is the **key-free watermark indicator** described in [key-free-twins.md](key-free-twins.md): matched marked/unmarked generations contain enough statistical structure to classify most held-out prompt groups without using the detector keys.
 
+Citations in these notes are author–year ([CITING.md](CITING.md)). Do not invent papers. A future research report should compile [references.bib](references.bib); do not write `thesis/` until isolated-file research is finished.
+
 | File | Focus |
 |---|---|
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
@@ -13,7 +15,10 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 | [key-free-contrast.md](key-free-contrast.md) | Public vs control-shuffled-30: 4-token poshits is instance-specific (**0/48**); prefix-4 rankpath control **6/48** |
 | [key-free-tokhits.md](key-free-tokhits.md) | Occupancy Laplace vs observed next tokens: 39/48 includes The-ferry; postokhits **16/48** precision 1.0; opening-overlap last-2+ core **13/48** |
 | [key-free-hashtok.md](key-free-hashtok.md) | Occupancy-free hashpool: prefix-5 hashtok **30/48**; hashtoklen **21/48** with harbour d2 the one collision extra; hashtoklen2 **10/48 vs 48/48** (11/21 TPs were singletons); hashskip nested **16/48**; hashmask nested **19/48 vs 45/48** (worse than hashtoklen); hashtoklen2+rankpath cascade copies rankpath **28/48**; in-domain full-file hashtok **33/48 vs 22/48**; OR with indicate **39/48 vs 12/48** combined 51/96 (not a detector); tokhybrid copies that 33/48 (prompt 11/12); poshashtok nested **14/48 vs 38/48**; hashtokgap **27/48 vs 21/48** (strict subset of hashtok; nested **17/48 vs 31/48**); hashtok2 **34/48 vs 21/48** (sign reshuffle, nested **19/48 vs 35/48**); opening-grain `--fit-prefix 4` hashtok **24/48 vs 47/48** (tokhits ⊂ hashtok; extra TP letter d3; nested **23/48 vs 47/48**), not rankpath **41/48**; Distil transfer AUC **0.571** |
-| [related-work.md](related-work.md) | SynthID Nature 2024; Omidi et al. keyed theory (arXiv:2603.03410); PVMark ZK (arXiv:2510.26274); stealing / TTP-Detect / ETH probe. This lab is finished-string key-free indication, not key recovery |
+| [related-work.md](related-work.md) | Narrative related work, author–year |
+| [annotated-bibliography.md](annotated-bibliography.md) | Critical annotations (what each source is, and is not, for this lab) |
+| [references.bib](references.bib) | Canonical BibTeX |
+| [CITING.md](CITING.md) | Author–year convention for a future report |
 | [key-free-cascade.md](key-free-cascade.md) | Coverage-then-fallback: ABSTAIN at n_used=0; `--cascade-when positive` 40/48 vs 40/48; leftover 8 officially marked; letter d2 5-gram isolated-rank invisible; prefix-8 extra TPs are last-1 |
 | [key-free-rankpath.md](key-free-rankpath.md) | Rank-symbol tables: GPT-2 opening 41/48; Distil native **8/12** chance; Qwen opening rankpath **8/12** |
 | [key-free-snaprate.md](key-free-snaprate.md) | Table-free leave/upset/miss: opening `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48** |

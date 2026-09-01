@@ -28,9 +28,10 @@ new. Leave-one-prompt-out makes most content 4-grams unseen. Two hypotheses:
 
 1. Shared function-word 4-grams across prompts carry the transferable mark
    (`hits` / `gated` / `shrinkage`).
-2. Random feature-hashing of the last-4 context shares statistics the way a
-   stealing attack would, without reconstructing SynthID’s secret hash
-   (`hashpool`).
+2. Random feature-hashing of the last-4 context shares statistics across
+   prompts (`hashpool`). That mixer is a laboratory splitmix of token ids,
+   not SynthID’s secret hash, and it is not the stealing attack of
+   Jovanović et al. (2024).
 3. Tournament sampling only reweights top-k, so unmarked-LM rank/gap features
    should also separate (`pivot-*`), and snapping to the unmarked argmax
    should kill the official mean (`scrub`).
