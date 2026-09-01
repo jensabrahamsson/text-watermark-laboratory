@@ -241,6 +241,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split |
 | `2026-09-01-atoms-100x4-to-grok12x4-interpolate/` | Decode lock A interpolate atoms | backoff mass; `'The'→' car'` n=19; occupancy-free **0/48**; not **25/48** |
 | `2026-09-01-prompts-grok36/` | 36 Grok-length scene seeds | Frozen before `pair`; see PROTOCOL-isolated-scale |
+| `2026-09-01-pair-grok36x4/` | GPT-2 twins, 36 Grok-length × 4 | Official first-draw **36/36**; key-free not opened |
 
 ## What changed across the runs
 

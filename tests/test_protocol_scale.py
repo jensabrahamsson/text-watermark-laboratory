@@ -1,5 +1,6 @@
 """36 Grok-length prompts frozen before pair."""
 
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +56,21 @@ def test_protocol_scale_names_frozen_locks_before_pair() -> None:
     assert "2026-09-01-pair-grok12x4" in text
     assert "Do **not** mix" in text
     assert "thesis/" in text
-    assert "Not yet" in text
     assert "pair-grok36x4" in text
     assert "`e537d71`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+
+
+def test_protocol_scale_pair_official_lamp_is_36_of_36() -> None:
+    pair = ROOT / "experiments" / "2026-09-01-pair-grok36x4"
+    raw = json.loads((pair / "results.json").read_text())
+    assert raw["seed"] == 20260905
+    assert raw["instance"] == "public-deepmind-30"
+    assert raw["also_control_keys"] is False
+    rows = raw["rows"]
+    assert len(rows) == 36
+    wins = sum(1 for r in rows if r["marked"]["mean"] > r["unmarked_gen"]["mean"])
+    assert wins == 36
+    assert min(r["marked"]["mean"] for r in rows) > 0.55
+    assert max(r["unmarked_gen"]["mean"] for r in rows) < 0.55
+    assert len(list(pair.glob("*-marked-4.txt"))) == 36
+    assert len(list(pair.glob("*-unmarked-gen-4.txt"))) == 36
