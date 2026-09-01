@@ -192,8 +192,10 @@ Distil occupancy-free t=0 **22/48 vs 43/48** (beats GPT-2 lock B occupancy-free
 1/3/4). Isolated recall equals Distil opening overlap **23/48**. Do not
 sell Distil **22/48** or leftover Distil **3/18**. Distil 100×4 → Distil
 12×4 occupancy-free analog is
-[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) (not leftover-18;
-not lock A).
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md). Opened:
+Distil→Distil postokhits t=0 **16/48 vs 39/48** equals coverage
+**16/48**; not leftover-18; not **25/48**. Do not sell Distil→Distil
+**16/48**.
 
 ## What this freeze refuses
 
@@ -203,7 +205,7 @@ not lock A).
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

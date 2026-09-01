@@ -143,4 +143,27 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `6bb95a6`. Named `603e2bb`. `used_keys=false`.
+
+Probe: [experiments/2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/](../experiments/2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/).
+Openings: [experiments/2026-09-01-openings-distil100x4-to-distil12x4/](../experiments/2026-09-01-openings-distil100x4-to-distil12x4/).
+
+| Reader | Distil 12×4 marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|
+| Distil→Distil postokhits | **16/48** | **39/48** |
+| Distil→Distil poshits | **25/48** | **25/48** |
+| Distil→Distil openings postokhits | covered **16/48** (exact 9/48) | decided FP 9 |
+
+H-dgen-cover **holds**. Coverage is **16/48**, not **48/48**. Isolated
+observed-token recall equals Distil-to-Distil opening-atom overlap
+(covered **16/48**; t=0 **16/48**).
+
+H-dgen-B **holds**. Distil→Distil postokhits t=0 is **16/48 vs 39/48**,
+which does not beat hard **25/48**. Distil→GPT-2 occupancy-free was
+**22/48** on different test files; same-generator Distil 12 is not
+leftover-18 recall and is not denser than that GPT-2 transfer.
+
+H-dgen-iso **holds**. Nested Youden postokhits **48/48 vs 12/48** is a
+negative train threshold; do not sell 48/48. Distil poshits **25/48 vs
+25/48** includes occupancy; unmarked t=0 is chance. Prompt ranking
+**9/12** is not isolated-file detection. Do not sell Distil→Distil **16/48**, Distil poshits **25/48**, Distil nested **48/48**, Distil→GPT-2 **22/48**, leftover-18 Distil **3/18**, or leftover official **18/18** as replacing **25/48**. Isolated-file remains open. Do not write `thesis/`.

@@ -1,0 +1,2411 @@
+{
+  "note": "Isolated-file observed-token recall equals opening-atom overlap with train. Exact 4-token copy is a lower bound. Not keys, not hash_iv, not g-values, not a universal detector.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "model_name": "distilgpt2",
+  "fit_prefix": 4,
+  "position_bucket": 1,
+  "include_first": false,
+  "context_len": 4,
+  "groups": [
+    "2026-09-01-pair-distil-100x4"
+  ],
+  "n_test_stems": 12,
+  "methods": [
+    "postokhits"
+  ],
+  "curve": [
+    {
+      "upto": "2026-09-01-pair-distil-100x4",
+      "n_train_stems": 100,
+      "n_train_openings": 207,
+      "methods": {
+        "postokhits": {
+          "n_covered": 16,
+          "n_exact_opening": 9,
+          "n_last1_only": 8,
+          "n_last1_later": 0,
+          "n_train_openings": 207,
+          "coverage_gate": {
+            "n_marked": 48,
+            "n_unmarked": 48,
+            "n_marked_zero": 32,
+            "n_unmarked_zero": 27,
+            "n_marked_decided": 16,
+            "n_unmarked_decided": 21,
+            "decided_tp": 16,
+            "decided_fn": 0,
+            "decided_fp": 9,
+            "decided_tn": 12,
+            "precision": 0.64,
+            "decided_accuracy": 0.7567567567567568,
+            "recall_including_zeros": 0.3333333333333333
+          },
+          "zero_openings": [
+            "01-harbour-1: You can't take",
+            "01-harbour-3: You can't really",
+            "01-harbour-4: You can't really",
+            "02-night-bus-1: You go to the",
+            "02-night-bus-2: You can now buy",
+            "02-night-bus-3: You can't tell",
+            "02-night-bus-4: You can't tell",
+            "03-library-1: You can now see",
+            "03-library-2: You can now see",
+            "03-library-3: You can now see",
+            "03-library-4: You can't tell",
+            "04-market-3: After about ten minutes",
+            "05-kitchen-1: You can't tell",
+            "05-kitchen-2: You can now play",
+            "05-kitchen-3: You can't tell",
+            "05-kitchen-4: You can't tell",
+            "06-station-1: The train began again",
+            "06-station-2: The train began,",
+            "06-station-3: The train passed over",
+            "07-rain-2: You can't tell",
+            "08-letter-1: The second version is",
+            "08-letter-2: Now how do you",
+            "08-letter-3: Now you must check",
+            "08-letter-4: The second version is",
+            "09-workshop-2: The hand didn't",
+            "09-workshop-3: Now a little hard",
+            "09-workshop-4: You can't tell",
+            "10-office-2: I asked the first",
+            "10-office-4: The meeting had just",
+            "11-garden-2: Bicycle owners,",
+            "12-ferry-queue-1: On this day,",
+            "12-ferry-queue-3: With the current state"
+          ]
+        }
+      }
+    }
+  ],
+  "stem_curve": [],
+  "final": {
+    "postokhits": {
+      "n_covered": 16,
+      "n_exact_opening": 9,
+      "n_last1_only": 8,
+      "n_last1_later": 0,
+      "n_train_openings": 207,
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 32,
+        "n_unmarked_zero": 27,
+        "n_marked_decided": 16,
+        "n_unmarked_decided": 21,
+        "decided_tp": 16,
+        "decided_fn": 0,
+        "decided_fp": 9,
+        "decided_tn": 12,
+        "precision": 0.64,
+        "decided_accuracy": 0.7567567567567568,
+        "recall_including_zeros": 0.3333333333333333
+      },
+      "zeros": [
+        {
+          "stem": "01-harbour",
+          "sample": 1,
+          "opening_text": "You can't take",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " take",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " take",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 3,
+          "opening_text": "You can't really",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " really",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " really",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 4,
+          "opening_text": "You can't really",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " really",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " really",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 1,
+          "opening_text": "You go to the",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " go",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " to"
+                ]
+              },
+              "next": " the",
+              "n_m": 3,
+              "n_u": 5,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 2,
+          "opening_text": "You can now buy",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "You",
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " buy",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " buy",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " now"
+                ]
+              },
+              "next": " buy",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 3,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 4,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 1,
+          "opening_text": "You can now see",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "You",
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 2,
+          "opening_text": "You can now see",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "You",
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 3,
+          "opening_text": "You can now see",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "You",
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " now"
+                ]
+              },
+              "next": " see",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "03-library",
+          "sample": 4,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "04-market",
+          "sample": 3,
+          "opening_text": "After about ten minutes",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "After"
+                ]
+              },
+              "next": " about",
+              "n_m": 5,
+              "n_u": 7,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 1,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 2,
+          "opening_text": "You can now play",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": " now",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 3,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "You",
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " play",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  " now"
+                ]
+              },
+              "next": " play",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " now"
+                ]
+              },
+              "next": " play",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 3,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "05-kitchen",
+          "sample": 4,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 1,
+          "opening_text": "The train began again",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " train",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 2,
+          "opening_text": "The train began,",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " train",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 3,
+          "opening_text": "The train passed over",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " train",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "07-rain",
+          "sample": 2,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 1,
+          "opening_text": "The second version is",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " second",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " second"
+                ]
+              },
+              "next": " version",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 2,
+          "opening_text": "Now how do you",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "Now"
+                ]
+              },
+              "next": " how",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " do"
+                ]
+              },
+              "next": " you",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 1,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 3,
+          "opening_text": "Now you must check",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "Now"
+                ]
+              },
+              "next": " you",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " you"
+                ]
+              },
+              "next": " must",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " must"
+                ]
+              },
+              "next": " check",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 4,
+          "opening_text": "The second version is",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " second",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " second"
+                ]
+              },
+              "next": " version",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 2,
+          "opening_text": "The hand didn't",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " hand",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " hand"
+                ]
+              },
+              "next": " didn",
+              "n_m": 3,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " didn"
+                ]
+              },
+              "next": "'t",
+              "n_m": 5,
+              "n_u": 1,
+              "c_m": 5,
+              "c_u": 1,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 3,
+          "opening_text": "Now a little hard",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "Now"
+                ]
+              },
+              "next": " a",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " a"
+                ]
+              },
+              "next": " little",
+              "n_m": 0,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "09-workshop",
+          "sample": 4,
+          "opening_text": "You can't tell",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "You"
+                ]
+              },
+              "next": " can",
+              "n_m": 2,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 2,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  "You",
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " can"
+                ]
+              },
+              "next": "'t",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            },
+            {
+              "i": 3,
+              "order": 2,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " can",
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 0,
+              "c_m": 1,
+              "c_u": 0,
+              "support": false,
+              "seen_next": true,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  "'t"
+                ]
+              },
+              "next": " tell",
+              "n_m": 1,
+              "n_u": 1,
+              "c_m": 1,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "10-office",
+          "sample": 2,
+          "opening_text": "I asked the first",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "I"
+                ]
+              },
+              "next": " asked",
+              "n_m": 2,
+              "n_u": 6,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " asked"
+                ]
+              },
+              "next": " the",
+              "n_m": 4,
+              "n_u": 0,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " the"
+                ]
+              },
+              "next": " first",
+              "n_m": 17,
+              "n_u": 7,
+              "c_m": 5,
+              "c_u": 0,
+              "support": true,
+              "seen_next": true,
+              "would_hit": true
+            }
+          ]
+        },
+        {
+          "stem": "10-office",
+          "sample": 4,
+          "opening_text": "The meeting had just",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " meeting",
+              "n_m": 77,
+              "n_u": 90,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " had"
+                ]
+              },
+              "next": " just",
+              "n_m": 4,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "11-garden",
+          "sample": 2,
+          "opening_text": "Bicycle owners,",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "B"
+                ]
+              },
+              "next": "icycle",
+              "n_m": 2,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 1,
+          "opening_text": "On this day,",
+          "nearest": [
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " day"
+                ]
+              },
+              "next": ",",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "12-ferry-queue",
+          "sample": 3,
+          "opening_text": "With the current state",
+          "nearest": [
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " the"
+                ]
+              },
+              "next": " current",
+              "n_m": 16,
+              "n_u": 11,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d."
+}

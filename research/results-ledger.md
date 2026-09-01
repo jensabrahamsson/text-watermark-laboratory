@@ -440,8 +440,10 @@ Leftover-18 Distil coverage **3/18** (office 1/3/4); leftover
 occupancy-free **3/18 vs 16/18**. Nested Youden **47/48** is a negative
 threshold. Do not sell Distil 22/48 or leftover Distil 3/18. Does not
 replace **25/48**. Distil 100×4 → Distil 12×4 occupancy-free analog is
-[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) (not leftover-18;
-not lock A).
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md): Distil→Distil
+postokhits t=0 **16/48 vs 39/48** equals coverage **16/48**. Nested
+**48/48** is a negative threshold. Do not sell Distil→Distil **16/48**.
+Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

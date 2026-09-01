@@ -1664,4 +1664,18 @@ Not leftover-18. Do not apply leftover-18 GPT-2 keys to Distil files.
 Do not look at Distil→Distil occupancy-free LRs until this line is on
 origin. Do not write `thesis/`.
 
+## 2026-09-01 Distil occupancy-free Distil-12 transfer opened
+
+SHA `6bb95a6`. `used_keys=false`. Distil occupancy-free postokhits t=0
+on Distil 12×4 is **16/48 vs 39/48**. Openings covered **16/48** (exact
+9/48). That equals opening-atom overlap and does not beat **25/48**.
+Distil→GPT-2 occupancy-free **22/48** used different test files.
+H-dgen-cover, H-dgen-B, and H-dgen-iso hold. Nested Youden **48/48** is
+a negative train threshold; do not sell 48/48. Distil poshits **25/48 vs
+25/48** includes occupancy. Do not sell Distil→Distil 16/48. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-distil12x4/`.
+
 ---

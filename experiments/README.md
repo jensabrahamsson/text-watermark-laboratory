@@ -260,6 +260,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/` | Leftover-20 ∪ SMT openings | union **30/48** equals SMT; leftover **18**; last-4 **10/18 vs 10/18**; not **25/48** |
 | `2026-09-01-isolated-leftover-18-readers/` | Leftover-18 remaining readers | rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen 89 vs 19; not **25/48** |
 | `2026-09-01-isolated-xgen-leftover-18/` | Distil occupancy-free leftover-18 | leftover **3/18** (office); Distil postokhits **22/48 vs 43/48**; not **25/48** |
+| `2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/` | Distil 100×4 → Distil 12×4 occupancy-free | postokhits **16/48 vs 39/48**; poshits **25/48 vs 25/48**; not **25/48** |
+| `2026-09-01-openings-distil100x4-to-distil12x4/` | Distil→Distil opening overlap | covered **16/48** (exact 9/48); equals t=0; not **25/48** |
 | `2026-09-01-probe-grok36x4-hard-last4/` | In-family interpolate on new 36 | **35/36**, nested-by-stem **93/144 vs 110/144** |
 
 ## What changed across the runs
