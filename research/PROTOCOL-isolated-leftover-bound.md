@@ -159,4 +159,49 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `802186e`. Official slice `used_keys=true`. Atom slice
+`used_keys=false`.
+
+Dump: [experiments/2026-09-01-isolated-leftover-bound/](../experiments/2026-09-01-isolated-leftover-bound/).
+
+Official public-deepmind-30 mean on occupancy leftover 20 vs covered 28:
+
+| prefix | leftover marked mean | >0.55 | covered marked mean | >0.55 | unmarked mean | >0.55 |
+|---|---|---|---|---|---|---|
+| 5 | 0.6533 | **18/20** | 0.6202 | 27/28 | 0.4813 | 14/48 |
+| 16 | 0.6272 | **20/20** | 0.6252 | **28/28** | 0.4955 | 3/48 |
+| 128 | 0.6242 | **20/20** | 0.6198 | **28/28** | 0.5000 | 0/48 |
+
+H-bound-lamp **holds**. Leftover-20 full-file official mean is **0.624**,
+**20/20** above 0.55, matching covered-28 (**0.620**, 28/28). Unmarked
+is **0.500**. Leftover key-free chance is not “the mixin missed these
+files.”
+
+H-bound-open **holds**. Leftover prefix-5 mean is **0.653**, **18/20**
+above 0.55 (stronger than covered 0.620). The two prefix-5 misses are
+office-1 and office-3 (`The printer worked.`) at **0.500** on one
+5-gram; both are marked by prefix-16 (**0.656 / 0.644**) and full-file
+(**0.624 / 0.618**). Occupancy-free tables failing leftover openings is
+not because leftover openings are unmarked at the keyed detector.
+
+Leftover-only grok36 interpolate atoms (`n_rows=40`; leftover marked
+`lr>0` **13/20**):
+
+| window | mean marked Δ | mean unmarked Δ | seen | unseen |
+|---|---|---|---|---|
+| 0:4 | 1.079 | −0.213 | 21 | **99** |
+| 4:16 | 0.266 | −0.084 | 15 | 465 |
+| 16:32 | 0.028 | 0.119 | 7 | 633 |
+| 32:64 | 0.237 | −0.080 | 31 | 1249 |
+| 64:128 | 0.043 | −0.111 | 52 | 2502 |
+
+H-bound-atom **holds**. Leftover 0:4 is still mostly `unseen_next`
+(99 vs 21). The only leftover marked positive seen 0:4 atoms are
+library `'Cl'→'osing'` and the two following Closing 4-grams (n=4
+each). That is the published unbucketed body copy, not occupancy-free
+opening overlap.
+
+H-bound-iso **holds**. Do not sell leftover official **20/20**, leftover
+interpolate **13/20**, or `Closing` as replacing **25/48**. Official
+leftover detection uses keys. Isolated-file remains open.
+Do not write `thesis/`.

@@ -1558,4 +1558,18 @@ tables stay grok36 lock A. Do not look at leftover-20 official means
 or leftover-only atom windows until this line is on origin. Do not
 write `thesis/`.
 
+## 2026-09-01 occupancy leftover-20 bound opened
+
+SHA `802186e`. Official `used_keys=true`. Leftover-20 full-file mean
+**0.624**, **20/20** above 0.55 (covered **0.620**, 28/28). Prefix-5
+**18/20** (office-1 and office-3 at 0.500 on one 5-gram; both marked by
+prefix-16). Leftover interpolate atoms 0:4 seen 21 vs unseen **99**;
+seen mass is `'Cl'→'osing'`; leftover marked `lr>0` **13/20**.
+H-bound-lamp, H-bound-open, H-bound-atom, and H-bound-iso hold.
+Leftover key-free chance is not an unmarked mixin miss. Do not sell
+official 20/20, interpolate 13/20, or Closing. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
+
 ---

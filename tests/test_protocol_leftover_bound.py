@@ -1,8 +1,10 @@
 """Occupancy leftover-20 official+atoms bound, frozen before decode."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.leftover import (
+    leftover_keys_from_coverage,
     summarize_leftover_interpolate_atoms,
     summarize_occupancy_leftover_official,
 )
@@ -25,10 +27,15 @@ def test_protocol_leftover_bound_names_frozen_sources_before_decode() -> None:
     assert "2026-09-01-isolated-leftover-bound" in text
     assert "thesis/" in text
     assert "Do not redefine leftover" in text
-    assert "*(empty until the SHA is named" in text
+    assert "*(empty until the SHA is named" not in text
     assert "cascade leftover" in text
     assert "Do **not** mix grok12" in text
     assert "`802186e`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "H-bound-lamp **holds**" in text
+    assert "H-bound-open **holds**" in text
+    assert "H-bound-atom **holds**" in text
+    assert "H-bound-iso **holds**" in text
+    assert "Do not sell leftover official **20/20**" in text
 
 
 def test_occupancy_leftover_official_helper_on_synthetic(tmp_path: Path) -> None:
@@ -179,3 +186,54 @@ def test_leftover_atoms_helper_on_synthetic() -> None:
     assert wins["0:4"]["n_seen"] == 0
     assert wins["4:16"]["n_seen"] == 1
     assert wins["4:16"]["n_unseen"] == 0
+
+
+def test_protocol_leftover_bound_official_20_of_20_atoms_are_backoff() -> None:
+    dump = ROOT / "experiments" / "2026-09-01-isolated-leftover-bound"
+    official = json.loads((dump / "official.json").read_text())
+    atoms = json.loads((dump / "atoms.json").read_text())
+    assert official["used_keys"] is True
+    assert atoms["used_keys"] is False
+    assert official["n_leftover"] == 20
+    assert official["n_covered"] == 28
+    full = official["prefixes"]["128"]
+    assert full["leftover_marked"]["n_above_055"] == 20
+    assert full["covered_marked"]["n_above_055"] == 28
+    assert full["unmarked"]["n_above_055"] == 0
+    assert full["leftover_marked"]["mean"] > 0.60
+    open5 = official["prefixes"]["5"]
+    assert open5["leftover_marked"]["n_above_055"] == 18
+    assert atoms["n_marked_lr_positive"] == 13
+    wins = {f"{w['start']}:{w['end']}": w for w in atoms["windows"]}
+    assert wins["0:4"]["n_unseen"] == 99
+    assert wins["0:4"]["n_seen"] == 21
+    assert wins["0:4"]["n_unseen"] > wins["0:4"]["n_seen"]
+    top = wins["0:4"]["top_marked_positive_seen"]
+    assert top
+    assert top[0]["ctx"] == ["Cl"]
+    assert top[0]["next"] == "osing"
+    assert top[0]["n"] == 4
+    recomputed = summarize_occupancy_leftover_official(
+        ROOT
+        / "experiments"
+        / "2026-09-01-openings-100plusgrok36-to-12x4"
+        / "coverage.json",
+        ROOT
+        / "experiments"
+        / "2026-09-01-official-prefix-leftover"
+        / "results.json",
+    )
+    assert recomputed["prefixes"]["128"]["leftover_marked"]["n_above_055"] == 20
+    keys = leftover_keys_from_coverage(
+        ROOT
+        / "experiments"
+        / "2026-09-01-openings-100plusgrok36-to-12x4"
+        / "coverage.json"
+    )
+    assert len(keys) == 20
+    text = PROTOCOL.read_text()
+    assert "Leftover key-free chance is not" in text
+    assert "Do not sell leftover official **20/20**" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "occupancy leftover-20 bound opened" in log
+

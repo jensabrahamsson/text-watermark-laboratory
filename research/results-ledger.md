@@ -356,3 +356,15 @@ is chance. Tail prompt **9/12** is not leftover-file recall. Prefix
 
 JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
 
+## Occupancy leftover-20 bound (official + leftover atoms)
+
+Protocol SHA `802186e`. Official `used_keys=true`. Leftover-20 full-file
+mean **0.624**, **20/20** above 0.55 (covered **0.620**, 28/28). Prefix-5
+**18/20** (office-1/3 at 0.500 on one 5-gram). Leftover interpolate 0:4
+seen 21 vs unseen **99**; seen mass is `'Cl'→'osing'`; leftover
+`lr>0` **13/20**. Leftover key-free chance is not an unmarked mixin
+miss. Do not sell official 20/20 or interpolate 13/20. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
+

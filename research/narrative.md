@@ -143,13 +143,18 @@ sell leftover **11/20**, covered **16/28**, or window **29/48**.
 Whether those leftover-20 files are still officially marked, and
 whether leftover interpolate mass is still backoff, is
 [PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
-Do not look at leftover-20 official means until that freeze is named.
+Opened: leftover-20 official full-file mean **0.624**, **20/20** above
+0.55. Prefix-5 **18/20**. Leftover interpolate 0:4 is unseen **99 vs
+21**; seen mass is `'Cl'→'osing'`; leftover `lr>0` **13/20**. Leftover
+key-free chance is not an unmarked mixin miss. Do not sell official
+**20/20** or interpolate **13/20**.
 
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.
 - Selling leftover **10/20**, covered **15/28**, leftover window
-  **11/20**, covered **16/28**, grok12 **39/48**, nested **23/48** /
+  **11/20**, covered **16/28**, leftover official **20/20**, leftover
+  interpolate **13/20**, grok12 **39/48**, nested **23/48** /
   **26/48** / **27/48** / **35/48**, or rankpath **41/48** as replacing
   **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
