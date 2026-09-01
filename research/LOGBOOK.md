@@ -1173,4 +1173,9 @@ Do not sell 16/48 or 114/144 as replacing **25/48**. JSON:
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/occupancy-free.json`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/occupancy-free.json`.
 
+Lock A 12×4 prompt losses are harbour, night-bus, library, ferry-queue
+(not the 12-LOO trio station/office/ferry-queue). Lock B loses letter
+only. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
+
 ---

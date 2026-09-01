@@ -1173,6 +1173,30 @@ def test_protocol_isolated_lock_b_occupancy_free_readout() -> None:
     assert pool["occupancy_marked_tp"] == 20
 
 
+def test_protocol_isolated_lock_a_12x4_losses_are_not_the_loo_trio() -> None:
+    stems = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-transfer-100x4-to-12x4-hard-last4"
+            / "stems.json"
+        ).read_text()
+    )
+    assert stems["used_keys"] is False
+    assert stems["lock_a_losses"] == [
+        "01-harbour",
+        "02-night-bus",
+        "03-library",
+        "12-ferry-queue",
+    ]
+    assert stems["lock_b_losses"] == ["08-letter"]
+    # Recount 12-LOO hard misses were station, office, ferry-queue.
+    assert "06-station" not in stems["lock_a_losses"]
+    assert "10-office" not in stems["lock_a_losses"]
+    ferry = next(r for r in stems["lock_a"] if r["stem"] == "12-ferry-queue")
+    assert ferry["marked_t0"] == 0
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

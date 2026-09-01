@@ -179,6 +179,12 @@ P(≥8) ≈ 0.19). Isolated nested Youden **23/48** does **not** beat
 recounted hard **25/48**. More one-line train families do not calibrate
 the original 12 Grok-prompt files.
 
+Lock A prompt losses are **harbour, night-bus, library, ferry-queue**
+(not the 12-LOO misses station/office/ferry-queue). Ferry-queue is the
+stable miss: 0/4 marked files above 0. Lock B's only prompt loss is
+**letter**. Stem table:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
+
 H-iso-B holds on the original 12: poshits ranks **11/12** ≥ interpolate
 **8/12**. Nested Youden **36/48 vs 42/48** has occupancy (9 marked /
 33 unmarked `n_used=0`). Occupancy-free readout of those same frozen
