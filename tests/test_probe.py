@@ -3008,10 +3008,11 @@ def test_prefix5_hashtoklen2_rankpath_cascade_copies_rankpath() -> None:
 
 
 def test_prefix5_hashtoklen_count_weighting_copies_uniform() -> None:
-    """Weighting hashes by c_m+c_u does nothing at official 5-gram grain.
+    """Weighting hashes by count does not flip signs at official 5-gram grain.
 
-    No marked file mixes singleton and dense hashes on that slot. excess
-    n-1 copies min_count=2. Not a product scorer.
+    No file mixes a singleton with a dense hash. Rain d1 mixes n=7 with
+    n=8; that does not change 21/48 vs 45/48. excess n-1 copies min_count=2.
+    Not a product scorer.
     """
     import math
 
@@ -3089,6 +3090,9 @@ def test_prefix5_hashtoklen_count_weighting_copies_uniform() -> None:
                 pieces.append((n, lr))
             if not pieces:
                 continue
+            ns = {n for n, _ in pieces}
+            if 1 in ns and any(n >= 2 for n in ns):
+                mixed_singleton_dense.append((ids, ns))
             if scheme == "uniform":
                 pos.append(sum(p for _, p in pieces) / len(pieces))
             elif scheme == "count":
@@ -3109,25 +3113,35 @@ def test_prefix5_hashtoklen_count_weighting_copies_uniform() -> None:
             return 0.0
         return pos[0] if len(pos) == 1 else sum(pos) / len(pos)
 
+    mixed_singleton_dense: list = []
     marked_uniform = []
     unmarked_uniform = []
+    count_sign_flips = 0
+    log_sign_flips = 0
     for twin in twins:
         for seq in twin.marked_seqs():
             u = weighted(seq, "uniform")
             c = weighted(seq, "count")
             lg = weighted(seq, "log")
             assert abs(u - score_hashtok(seq, model)) < 1e-12
-            assert abs(u - c) < 1e-12
-            assert abs(u - lg) < 1e-12
+            if (u > 0) != (c > 0):
+                count_sign_flips += 1
+            if (u > 0) != (lg > 0):
+                log_sign_flips += 1
             marked_uniform.append(u)
         for seq in twin.unmarked_seqs():
             u = weighted(seq, "uniform")
             c = weighted(seq, "count")
             lg = weighted(seq, "log")
             assert abs(u - score_hashtok(seq, model)) < 1e-12
-            assert abs(u - c) < 1e-12
-            assert abs(u - lg) < 1e-12
+            if (u > 0) != (c > 0):
+                count_sign_flips += 1
+            if (u > 0) != (lg > 0):
+                log_sign_flips += 1
             unmarked_uniform.append(u)
+    assert mixed_singleton_dense == []
+    assert count_sign_flips == 0
+    assert log_sign_flips == 0
     assert sum(x > 0 for x in marked_uniform) == hl.n_marked_positive == 21
     assert sum(x <= 0 for x in unmarked_uniform) == hl.n_unmarked_nonpositive == 45
     marked_ex = [

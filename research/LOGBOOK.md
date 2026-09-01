@@ -779,10 +779,11 @@ Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
 ## 2026-09-01 count-weighting and hashtoklen2 cascade are dead ends
 
-Weighting occupancy-free hashes by `c_m+c_u` or `log(1+n)` copies
-uniform prefix-5 hashtoklen (**21/48 vs 45/48**): no file mixes a
-singleton with a dense hash on the official slot. Weight `n-1` copies
-`min_count=2` (**10/48 vs 48/48**). Not a product.
+Weighting occupancy-free hashes by `c_m+c_u` or `log(1+n)` keeps
+prefix-5 hashtoklen **21/48 vs 45/48** (no sign flips). No file mixes
+a singleton with a dense hash on the official slot. Rain d1 mixes n=7
+with n=8; LR shifts 0.005. Weight `n-1` copies `min_count=2` (**10/48
+vs 48/48**). Not a product.
 
 Rebound `hashtoklen2` onto saved prefix-4 rankpath: coverage cascade
 **28/48 vs 40/48**, the same as standalone rankpath. All 10 robust

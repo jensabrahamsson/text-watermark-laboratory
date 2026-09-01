@@ -420,9 +420,9 @@ Occupancy-free default averages the hashes that saw the observed next
 token. Weighting those hashes by `c_m+c_u` or `log(1+n)` **copies**
 uniform hashtoklen (**21/48 vs 45/48**) on the frozen prefix-5
 `tables-hashtoklen`. No marked file mixes a singleton hash with a
-dense one on the official 5-gram slot, so the weights never change
-the mean. Weight `n-1` (skip n=1) copies `min_count=2` (**10/48 vs
-48/48**). Not a product scorer. The test
+dense one on the official 5-gram slot. Rain d1 mixes n=7 with n=8
+(both dense); that shifts LR by 0.005 and does not flip the sign.
+Weight `n-1` (skip n=1) copies `min_count=2` (**10/48 vs 48/48**). Not a product scorer. The test
 `test_prefix5_hashtoklen_count_weighting_copies_uniform` rescores the
 saved tables.
 
