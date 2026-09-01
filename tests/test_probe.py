@@ -3658,8 +3658,9 @@ def test_opening_grain_hashtok_copies_tokhits_density() -> None:
 
     tokhits 23/48 vs 48/48 (prompt 12/12); hashtok 24/48 vs 47/48 with
     extra TP letter d3 only; hashtok2 22/48 vs 48/48. Letter d2 is zero.
-    Nested hashtok 23/48 vs 47/48. Not opening rankpath 41/48. Do not
-    sell 24/48 as replacing 29/48.
+    Nested hashtok 23/48 vs 47/48. Not opening rankpath 41/48. Marked
+    recall 24/48 is below hard last-4 29/48. Do not sell 24/48 as
+    replacing 29/48.
     """
     import json
 

@@ -30,7 +30,10 @@ gains letter d3 and loses kitchen d4 and rain d1.
 
 Letter **d2 is zero** on hits, tokhits, hashtok, and hashtok2 at this
 grain (not the full-file negative LR). Opening hashed readers copy
-tokhits density, not opening rankpath **41/48**. Do **not** sell
-24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
+tokhits density, not opening rankpath **41/48**. Marked isolated
+`lr>0` is **24/48**, below the hard last-4 headline **29/48**. Prompt
+**12/12** and unmarked ≤0 **47/48** are a sparse high-spec clip, not
+denser marked detection. Combined 71/96 is mostly those zeros. Do
+**not** sell 24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
 
 Write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).

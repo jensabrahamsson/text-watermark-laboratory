@@ -105,7 +105,8 @@ In-domain `--fit-prefix 4` occupancy-free hashing copies tokhits
 density, not opening rankpath **41/48**: tokhits **23/48 vs 48/48**
 (prompt **12/12**); hashtok **24/48 vs 47/48** (nested **23/48 vs
 47/48**, extra TP letter d3 only); hashtok2 **22/48 vs 48/48**. Letter
-d2 is zero at that grain. Do not sell 24/48 as replacing **29/48**.
+d2 is zero at that grain. Marked isolated recall **24/48** is below
+hard last-4 **29/48**. Do not sell 24/48 as replacing **29/48**.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

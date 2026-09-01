@@ -640,8 +640,10 @@ Extra hashtok TP: **letter d3 only**. One unmarked FP: kitchen d4.
 Nested Youden drops letter d3 (mean t ≈ 0.065). hashtok2 versus tokhits
 gains letter d3 and loses kitchen d4 and rain d1. Letter **d2 is zero**
 on all four readers (not the full-file negative LR). Opening hashed
-readers copy tokhits density, not rankpath **41/48**. Do not sell
-24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
+readers copy tokhits density, not rankpath **41/48**. Marked isolated
+`lr>0` is **24/48**, below hard last-4 **29/48**. Prompt **12/12** and
+unmarked ≤0 **47/48** do not make 24 a denser isolated-file detector.
+Do not sell 24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/](../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/).
 

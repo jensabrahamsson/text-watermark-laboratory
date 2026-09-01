@@ -159,7 +159,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Nested freqhits Youden, reverse | **23/24** and **23/24** |
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Opening rankpath, 12×4 LOO 4-token | **12/12**, isolated **41/48** (not 29/48) |
-| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3; nested **23/48 vs 47/48**); not rankpath 41/48 |
+| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3; nested **23/48 vs 47/48**); marked recall below hard **29/48**; not rankpath 41/48 |
 | In-domain full-file hashtok, 12×4 LOO last-4 | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
 | In-domain hashtok2 (min_count=2) | **8/12**, **34/48 vs 21/48**, nested **19/48 vs 35/48** (sign reshuffle, not a singleton core) |
 | Prefix-5 OOD hashtok / hashtoklen / hashtoklen2 | hashtok **30/48** equals postokhits; hashtoklen **21/48**; hashtoklen2 **10/48 vs 48/48** |

@@ -109,7 +109,7 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | `indicate` hard, one unmarked file | Isolated `lr ≤ 0` | **23/48** |
 | Argmax snap, then official `score` | Key-free scrub of 48 marked files | **0.622 → 0.499** |
 | Table-free opening snap-rate | Binary leave/upset/miss, no twin tables | `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48** |
-| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | Hashed token identity, no Laplace | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3); not rankpath **41/48** |
+| Opening occupancy-free hashtok, 12×4 LOO `--fit-prefix 4` | Hashed token identity, no Laplace | **12/12**, isolated **24/48 vs 47/48** (tokhits **23/48**; extra TP letter d3); marked recall below **29/48**; not rankpath **41/48** |
 | In-domain full-file hashtok | Occupancy-free last-4 hashpool | **9/12**, isolated **33/48 vs 22/48**, nested **22/48 vs 30/48** |
 | In-domain hashtok2 | Same mixer, min_count=2 | **8/12**, **34/48 vs 21/48** (sign reshuffle, not a singleton core) |
 

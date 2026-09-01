@@ -886,7 +886,8 @@ zeros). hashtok **24/48 vs 47/48**, nested **23/48 vs 47/48**, prompt
 **12/12**: tokhits ⊂ hashtok; extra TP is letter d3; one unmarked FP
 (kitchen d4). hashtok2 **22/48 vs 48/48** (gains letter d3, loses
 kitchen d4 and rain d1). Letter d2 is zero on all four readers at this
-grain. Do not sell 24/48 as replacing 29/48.
+grain. Marked isolated `lr>0` is **24/48**, below hard last-4 **29/48**.
+Do not sell 24/48 as replacing 29/48.
 
 JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
