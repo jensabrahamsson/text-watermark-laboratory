@@ -171,6 +171,10 @@ Opened: leftover-18 mixed rankpath **12/18 vs 13/18**; grok36 interpolate
 Garden leftover had 0 mixed rankpath TPs. Do not sell leftover-18
 rankpath **12/18** or leftover-18 interpolate **12/18**.
 
+Leftover-18 published key-free readers are closed
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
+Do not re-slice more leftover-18 holdouts as leftover-file detection.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.

@@ -25,7 +25,8 @@ Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
 Leftover-18 mixed rankpath and grok36 interpolate are
 [PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md):
 rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen
-**89 vs 19**.
+**89 vs 19**. Leftover-18 published key-free readers are closed
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
 
 ## Locked headlines
 
@@ -413,4 +414,13 @@ rankpath TPs and 1 interpolate TP. Do not sell leftover-18 rankpath
 12/18 or leftover-18 interpolate 12/18. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
+
+## Leftover-18 published readers closed
+
+Protocol [PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md).
+No new decode. Leftover-18 occupancy-free is **0/18** by construction.
+Mixed rankpath **12/18 vs 13/18**. Interpolate **12/18 vs 12/18**; 0:4
+unseen **89 vs 19**. Last-4 **10/18 vs 10/18**. Official **18/18** uses
+keys. Do not re-slice more leftover-18 holdouts as leftover-file
+detection. Does not replace **25/48**.
 

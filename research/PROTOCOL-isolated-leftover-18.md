@@ -196,5 +196,7 @@ backoff plus an unbucketed body copy, not occupancy-free opening overlap.
 H-left18-iso **holds**. Do not sell leftover-18 rankpath **12/18**,
 leftover-18 interpolate **12/18**, leftover official **18/18**, union
 **30/48**, leftover last-4 **10/18**, leftover-20 rankpath **12/20**, or
-leftover interpolate **13/20**. Isolated-file remains open. Do not write
-`thesis/`.
+leftover interpolate **13/20**. Leftover-18 published key-free readers
+are closed
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
+Isolated-file remains open. Do not write `thesis/`.
