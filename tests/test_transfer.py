@@ -110,6 +110,49 @@ def test_hashvote_majority_is_key_free() -> None:
     assert model.used_keys is False
 
 
+def test_hashtokbackoff_shrinks_to_last1_not_occupancy() -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.transfer import (
+        fit_hashmix_twins,
+        hashtok_token_lr,
+        hashtokbackoff_trace,
+        score_hashtok_detail,
+        score_hashtokbackoff_detail,
+        _scored_ctx,
+    )
+
+    twins = [
+        Twin(
+            stem="a",
+            marked_text="m",
+            unmarked_text="u",
+            marked_ids=[0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            unmarked_ids=[0, 2, 0, 2, 0, 2, 0, 2, 0, 2],
+        )
+    ]
+    mix = fit_hashmix_twins(
+        twins, orders=(1, 2, 3), n_hashes=4, n_buckets=256, seed=7
+    )
+    held_m = [100, 101, 0, 1]
+    held_u = [100, 101, 0, 2]
+    assert mix.used_keys is False
+    ctx3 = _scored_ctx(held_m, 3, 3, 0)
+    assert hashtok_token_lr(mix.models[3], ctx3, 1) is None
+    long = score_hashtok_detail(held_m, mix.models[3])
+    back = score_hashtokbackoff_detail(held_m, mix, min_order=1)
+    back2 = score_hashtokbackoff_detail(held_m, mix, min_order=2)
+    assert back.n_used > long.n_used
+    assert back.lr > score_hashtokbackoff_detail(held_u, mix, min_order=1).lr
+    last = hashtokbackoff_trace(held_m, mix, min_order=1)[-1]
+    assert last["i"] == 3
+    assert last["order"] == 1
+    assert last["delta"] is not None
+    last2 = hashtokbackoff_trace(held_m, mix, min_order=2)[-1]
+    assert last2["order"] is None
+    assert last2["delta"] is None
+    assert back2.n_used == 0 or back2.n_used < back.n_used
+
+
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     marked = [[0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

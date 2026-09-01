@@ -37,6 +37,7 @@ from text_watermark_tools.stats import (
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     DEFAULT_SURFACE_CONTEXT,
+    HASHBACKOFF_ORDERS,
     ScoreSpec,
     fit_count_model,
     fit_hashmix_twins,
@@ -46,6 +47,7 @@ from text_watermark_tools.transfer import (
     persist_hashpool,
     score_hashmix,
     score_hashtok,
+    score_hashtokbackoff,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
@@ -971,6 +973,76 @@ def rotate_hashmix(
         instance="key-free-hashmix",
         score_kind="hashmix",
         margin=margin,
+    )
+
+
+def rotate_hashtokbackoff(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+    min_order: int = 1,
+    method_name: str = "",
+) -> IndicatorHoldout:
+    """Hashtok that shrinks last-k across per-order hash tables."""
+    floor = max(1, int(min_order or 1))
+    name = str(method_name or ("hashtokbackoff2" if floor >= 2 else "hashtokbackoff"))
+    instance = (
+        "key-free-hashtokbackoff2" if floor >= 2 else "key-free-hashtokbackoff"
+    )
+
+    def make(train: Sequence[Twin]):
+        model = fit_hashmix_twins(
+            train,
+            orders=orders,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        return (
+            lambda ids, m=model, mo=floor: score_hashtokbackoff(
+                ids, m, min_order=mo
+            ),
+            model.used_keys,
+            model.used_hash_iv,
+            model.used_g_values,
+        )
+
+    ctx = max(int(o) for o in orders) if orders else int(context_len)
+    return rotate_custom(
+        twins,
+        make,
+        context_len=ctx,
+        model_name=model_name,
+        instance=instance,
+        score_kind=name,
+        margin=margin,
+    )
+
+
+def rotate_hashtokbackoff2(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=2,
+        method_name="hashtokbackoff2",
     )
 
 
@@ -2752,6 +2824,22 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashmix", mix))
+    if "hashtokbackoff" in extras:
+        hb = rotate_hashtokbackoff(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokbackoff", hb))
+    if "hashtokbackoff2" in extras:
+        hb2 = rotate_hashtokbackoff2(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokbackoff2", hb2))
     if "surface" in extras:
         one: dict[int, IndicatorHoldout] = {}
         one_win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -3334,7 +3422,16 @@ def run_transfer(
     )
     need_hash = any(
         n in extras
-        for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix", "hashtok")
+        for n in (
+            "hashpool",
+            "hashvote",
+            "hybrid",
+            "stack",
+            "hashmix",
+            "hashtok",
+            "hashtokbackoff",
+            "hashtokbackoff2",
+        )
     )
     need_surface = "surface" in extras
     store_first = include_first or "first" in count_names
@@ -3365,10 +3462,19 @@ def run_transfer(
     mix_model = (
         fit_hashmix_twins(
             train,
+            orders=(
+                HASHBACKOFF_ORDERS
+                if any(
+                    n in extras for n in ("hashtokbackoff", "hashtokbackoff2")
+                )
+                else (1, 2, 4)
+            ),
             n_hashes=n_hashes,
             n_buckets=n_buckets,
         )
-        if "hashmix" in extras
+        if any(
+            n in extras for n in ("hashmix", "hashtokbackoff", "hashtokbackoff2")
+        )
         else None
     )
     surface_model = (
@@ -3474,6 +3580,30 @@ def run_transfer(
             (lambda ids, m=mix_model: score_hashmix(ids, m)),
             "key-free-hashmix",
             "hashmix",
+            "ids",
+        )
+    if "hashtokbackoff" in extras:
+        assert mix_model is not None
+        scorers["hashtokbackoff"] = (
+            (
+                lambda ids, m=mix_model: score_hashtokbackoff(
+                    ids, m, min_order=1
+                )
+            ),
+            "key-free-hashtokbackoff",
+            "hashtokbackoff",
+            "ids",
+        )
+    if "hashtokbackoff2" in extras:
+        assert mix_model is not None
+        scorers["hashtokbackoff2"] = (
+            (
+                lambda ids, m=mix_model: score_hashtokbackoff(
+                    ids, m, min_order=2
+                )
+            ),
+            "key-free-hashtokbackoff2",
+            "hashtokbackoff2",
             "ids",
         )
     if "surface" in extras:
@@ -3954,6 +4084,20 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashtokbackoff" in extras:
+            nested_holdouts["hashtokbackoff"] = rotate_hashtokbackoff(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtokbackoff2" in extras:
+            nested_holdouts["hashtokbackoff2"] = rotate_hashtokbackoff2(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "surface" in extras:
             nested_holdouts["surface"] = rotate_surface(
                 train,
@@ -4078,13 +4222,15 @@ def print_transfer(run: TransferRun) -> str:
     lines.append("")
     lines.append(
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
-        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok) no "
-        "observed next token under that context (or colliding hash). They "
-        "are abstentions, not sign errors. poshits and hashpool can still "
-        "score an *unseen* next token via Laplace; that occupancy artifact "
-        "is not a token preference. tokbackoff shrinks last-k until an "
-        "observed next token hits; tokbackoff2 stops at last-2. hashtok is "
-        "the hashpool analog of tokhits. None of these is key recovery."
+        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
+        "hashtokbackoff/hashtokbackoff2) no observed next token under that "
+        "context (or colliding hash). They are abstentions, not sign "
+        "errors. poshits and hashpool can still score an *unseen* next "
+        "token via Laplace; that occupancy artifact is not a token "
+        "preference. tokbackoff / hashtokbackoff shrink last-k until an "
+        "observed next token hits; tokbackoff2 / hashtokbackoff2 stop at "
+        "last-2. hashtok is the hashpool analog of tokhits. None of these "
+        "is key recovery."
     )
     lines.append("")
     lines.append(

@@ -364,6 +364,27 @@ def test_run_probe_hashtok_on_lab_pairs() -> None:
     assert ht.binary.n_positive == 3
 
 
+def test_run_probe_hashtokbackoff_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hashtokbackoff", "hashtokbackoff2"),
+        with_hashpool=True,
+        with_pivot=False,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashtokbackoff", "hashtokbackoff2"]
+    assert run.used_keys is False
+    hb = next(m for m in run.methods if m.name == "hashtokbackoff")
+    assert hb.holdout.instance == "key-free-hashtokbackoff"
+    hb2 = next(m for m in run.methods if m.name == "hashtokbackoff2")
+    assert hb2.holdout.instance == "key-free-hashtokbackoff2"
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")

@@ -21,6 +21,9 @@ and change only how a finished string is read:
 * hashpool — feature-hash the context into shared buckets
 * hashtok — hashpool that skips a hash unless the observed next token
   appeared in that bucket (occupancy-free; tokhits analog on collisions)
+* hashtokbackoff — hashtok that shrinks last-k across per-order hash
+  tables until an observed next token hits (tokbackoff analog)
+* hashtokbackoff2 — hashtokbackoff that will not shrink below last-2
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
@@ -987,6 +990,122 @@ def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
     for order in model.orders:
         total += score_hashpool(ids, model.models[order])
     return total / len(model.orders)
+
+
+HASHBACKOFF_ORDERS: tuple[int, ...] = (1, 2, 3, 4)
+
+
+def score_hashtokbackoff_detail(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+) -> ScoreDetail:
+    """Longest per-order hashtok hit. Not occupancy hashpool, not SynthID.
+
+    Each order has its own hash tables (same as hashmix). Last-k shrinks
+    only across those fitted orders. min_order=2 refuses generic last-1.
+    """
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtokbackoff consulted keys / hash_iv / g-values")
+    floor = max(1, int(min_order or 1))
+    orders = sorted(
+        (int(o) for o in model.orders if int(o) >= floor), reverse=True
+    )
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        hit: float | None = None
+        for order in orders:
+            pool = model.models[int(order)]
+            ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
+            delta = hashtok_token_lr(pool, ctx, t)
+            if delta is None:
+                continue
+            hit = delta
+            break
+        if hit is None:
+            continue
+        total += hit
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtokbackoff(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+) -> float:
+    return score_hashtokbackoff_detail(ids, model, min_order=min_order).lr
+
+
+def hashtokbackoff_trace(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+) -> list[dict]:
+    """Per-position longest hashed order that saw tok. Still no keys."""
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError(
+            "hashtokbackoff trace consulted keys / hash_iv / g-values"
+        )
+    floor = max(1, int(min_order or 1))
+    orders = sorted(
+        (int(o) for o in model.orders if int(o) >= floor), reverse=True
+    )
+    rows: list[dict] = []
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        t = int(tok)
+        tried: list[dict] = []
+        chosen: int | None = None
+        chosen_delta: float | None = None
+        for order in orders:
+            pool = model.models[int(order)]
+            ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
+            delta = hashtok_token_lr(pool, ctx, t)
+            n_seen = 0
+            c_m = c_u = 0
+            for h, seed in enumerate(pool.seeds):
+                bucket = hash_context(ctx, seed) % pool.n_buckets
+                cm = _hash_bucket_tok_count(pool.marked[h], bucket, t)
+                cu = _hash_bucket_tok_count(pool.unmarked[h], bucket, t)
+                if cm + cu >= 1:
+                    n_seen += 1
+                    c_m += cm
+                    c_u += cu
+            tried.append(
+                {
+                    "order": int(order),
+                    "n_hashes_seen": n_seen,
+                    "c_m": c_m,
+                    "c_u": c_u,
+                    "delta": None if delta is None else float(delta),
+                }
+            )
+            if chosen is None and delta is not None:
+                chosen = int(order)
+                chosen_delta = float(delta)
+        rows.append(
+            {
+                "i": int(i),
+                "tok": t,
+                "order": chosen,
+                "delta": chosen_delta,
+                "tried": tried,
+            }
+        )
+    return rows
 
 
 HASHPOOL_KIND = "key-free-hashpool"
