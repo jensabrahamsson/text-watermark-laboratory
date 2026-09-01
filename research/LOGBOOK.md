@@ -1549,4 +1549,13 @@ Isolated-file detection is still not finished.
 
 JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
 
+## 2026-09-01 occupancy leftover-20 bound frozen
+
+[PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md)
+committed at SHA `802186e`. Leftover membership stays mixed postokhits
+zeros. Official prefixes stay the published keyed dump. Interpolate
+tables stay grok36 lock A. Do not look at leftover-20 official means
+or leftover-only atom windows until this line is on origin. Do not
+write `thesis/`.
+
 ---

@@ -28,6 +28,7 @@ def test_protocol_leftover_bound_names_frozen_sources_before_decode() -> None:
     assert "*(empty until the SHA is named" in text
     assert "cascade leftover" in text
     assert "Do **not** mix grok12" in text
+    assert "`802186e`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_occupancy_leftover_official_helper_on_synthetic(tmp_path: Path) -> None:
