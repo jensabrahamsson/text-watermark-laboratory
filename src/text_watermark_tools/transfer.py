@@ -21,6 +21,7 @@ and change only how a finished string is read:
 * hashpool — feature-hash the context into shared buckets
 * hashtok — hashpool that skips a hash unless the observed next token
   appeared in that bucket (occupancy-free; tokhits analog on collisions)
+* hashtok2 — hashtok that skips singleton hash collisions (min_count=2)
 * hashtokbackoff — hashtok that shrinks last-k across per-order hash
   tables until an observed next token hits (tokbackoff analog)
 * hashtokbackoff2 — hashtokbackoff that will not shrink below last-2

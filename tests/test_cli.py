@@ -128,6 +128,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "--rankpath" in out
     assert "--snaprate" in out
     assert "hashtok" in out
+    assert "hashtok2" in out
     assert "hashtokbackoff" in out
     assert "hashtoklen" in out
     assert "hashtoklen2" in out

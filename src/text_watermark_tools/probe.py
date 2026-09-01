@@ -727,9 +727,15 @@ def rotate_hashpool(
     reader = str(method_name or "hashpool")
     drop_one = reader in ("hashskip", "hashskip2")
     mask_one = reader in ("hashmask", "hashmask2")
-    min_count = 2 if reader in ("hashtoklen2", "hashskip2", "hashmask2") else 1
+    min_count = 2 if reader in (
+        "hashtok2",
+        "hashtoklen2",
+        "hashskip2",
+        "hashmask2",
+    ) else 1
     if reader in (
         "hashtok",
+        "hashtok2",
         "hashtoklen",
         "hashtoklen2",
         "hashskip",
@@ -833,6 +839,38 @@ def rotate_hashtok(
         position_bucket=position_bucket,
         method_name=reader,
         exact_len=bool(exact_len) or reader == "hashtoklen",
+    )
+
+
+def rotate_hashtok2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Unbucketed hashtok that skips singleton hash collisions. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashtok2",
+        exact_len=False,
     )
 
 
@@ -3293,7 +3331,7 @@ def run_probe(
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
         or "hybrid" in extras or "tokhybrid" in extras or "hashtokgap" in extras
-        or "hashtok" in extras
+        or "hashtok" in extras or "hashtok2" in extras
         or "hashtoklen" in extras
         or "hashtoklen2" in extras or "hashskip" in extras or "hashskip2" in extras
         or "hashmask" in extras or "hashmask2" in extras
@@ -3379,6 +3417,19 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashtok", ht))
+    if with_hashpool and "hashtok2" in extras:
+        ht2 = rotate_hashtok2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtok2", ht2))
     if with_hashpool and "hashtoklen" in extras:
         htl = rotate_hashtoklen(
             twins,
@@ -4122,6 +4173,7 @@ def run_transfer(
             "stack",
             "hashmix",
             "hashtok",
+            "hashtok2",
             "hashtoklen",
             "hashtoklen2",
             "hashskip",
@@ -4166,6 +4218,7 @@ def run_transfer(
                 "hashtokgap",
                 "stack",
                 "hashtok",
+                "hashtok2",
             )
         )
         else None
@@ -4334,6 +4387,14 @@ def run_transfer(
             (lambda ids, m=hash_model: score_hashtok(ids, m)),
             "key-free-hashtok",
             "hashtok",
+            "ids",
+        )
+    if "hashtok2" in extras:
+        assert hash_model is not None
+        scorers["hashtok2"] = (
+            (lambda ids, m=hash_model: score_hashtok(ids, m, min_count=2)),
+            "key-free-hashtok2",
+            "hashtok2",
             "ids",
         )
     if "hashtoklen" in extras:
@@ -4977,6 +5038,14 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashtok2" in extras:
+            nested_holdouts["hashtok2"] = rotate_hashtok2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "hashtoklen" in extras:
             nested_holdouts["hashtoklen"] = rotate_hashtoklen(
                 train,
@@ -5180,7 +5249,7 @@ def print_transfer(run: TransferRun) -> str:
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
         "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
         "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2/"
-        "tokhybrid/hashtokgap/poshashtok) no observed next token under that "
+        "tokhybrid/hashtokgap/poshashtok/hashtok2) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "
@@ -5191,7 +5260,7 @@ def print_transfer(run: TransferRun) -> str:
         "hashskip hashes exact last-k with one token dropped (tagged "
         "skip-grams, not last-(k-1)). hashmask replaces one last-k token "
         "with MASK_TAG (length-k templates). hashtoklen2 / hashskip2 / "
-        "hashmask2 skip "
+        "hashmask2 / hashtok2 skip "
         "singleton hash collisions (min_count=2). hashtok is the hashpool analog of "
         "tokhits. tokhybrid prefers tokhits then hashtok; hashtokgap is the "
         "opposite residual (hashtok only where tokhits abstains). "
@@ -5323,8 +5392,12 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         persist_holdout(m.holdout, out_dir / m.name)
     persist_tables = run.shuffle_seed is None
     if persist_tables and run.hash_model is not None:
-        nested_t = _t("hashpool", "nested-youden") or _t("hashtok", "nested-youden")
-        in_t = _t("hashpool", "in-sample-youden") or _t("hashtok", "in-sample-youden")
+        nested_t = _t("hashpool", "nested-youden") or _t("hashtok", "nested-youden") or _t(
+            "hashtok2", "nested-youden"
+        )
+        in_t = _t("hashpool", "in-sample-youden") or _t("hashtok", "in-sample-youden") or _t(
+            "hashtok2", "in-sample-youden"
+        )
         persist_hashpool(
             run.hash_model,
             out_dir / "tables-hashpool",

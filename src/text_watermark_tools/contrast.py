@@ -263,7 +263,7 @@ def run_instance_contrast(
         pos_model = fit_count_model(
             train, context_len=context_len, position_bucket=pos_bucket
         )
-    if "hashpool" in names or "hashtok" in names:
+    if "hashpool" in names or "hashtok" in names or "hashtok2" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
     if "hashtoklen" in names or "hashtoklen2" in names:
         hash_len_model = fit_hashpool_twins(
@@ -373,6 +373,11 @@ def run_instance_contrast(
         scorers["hashtok"] = (
             lambda ids, m=hash_model: score_hashtok(ids, m),
             "key-free-hashtok",
+        )
+    if "hashtok2" in names and hash_model is not None:
+        scorers["hashtok2"] = (
+            lambda ids, m=hash_model: score_hashtok(ids, m, min_count=2),
+            "key-free-hashtok2",
         )
     if "hashtoklen" in names and hash_len_model is not None:
         scorers["hashtoklen"] = (

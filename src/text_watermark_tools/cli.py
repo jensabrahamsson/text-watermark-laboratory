@@ -625,6 +625,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     extra_rotate = {
         "hashpool": "rotate_hashpool",
         "hashtok": "rotate_hashtok",
+        "hashtok2": "rotate_hashtok2",
         "hashtoklen": "rotate_hashtoklen",
         "hashtoklen2": "rotate_hashtoklen2",
         "hashskip": "rotate_hashskip",
@@ -694,7 +695,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashtok, hashtoklen, hashtoklen2, "
+                f"choose hard, hashpool, hashtok, hashtok2, hashtoklen, hashtoklen2, "
                 f"hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
                 f"hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
                 f"hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
@@ -1278,7 +1279,7 @@ def build_parser() -> argparse.ArgumentParser:
             "bucketed count tables → poshits, else hard), or "
             "hard/hits/tokhits/tokbackoff/tokbackoff2/poshits/postokhits/"
             "postokbackoff/postokbackoff2/poshitmass/gated/unigram/… "
-            "Hashpool tables ignore count modes except hashtok / hashtoklen / "
+            "Hashpool tables ignore count modes except hashtok / hashtok2 / hashtoklen / "
             "hashtoklen2 / hashskip / hashskip2 / hashmask / hashmask2 (skip a hash unless the "
             "observed next token appeared in that bucket; *2 skips "
             "singleton collisions). "
@@ -1339,14 +1340,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, tokhits, tokbackoff, tokbackoff2, gated, "
-            "shrinkage, mix, hashpool, hashtok, hashtoklen, hashtoklen2, "
+            "shrinkage, mix, hashpool, hashtok, hashtok2, hashtoklen, hashtoklen2, "
             "hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
             "hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
             "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
-            "postokbackoff2/hashtok/hashtoklen/hashtoklen2/hashskip/hashskip2/"
-            "hashmask/hashmask2/tokhybrid/hashtokgap/poshashtok/"
+            "postokbackoff2/hashtok/hashtok2/hashtoklen/hashtoklen2/hashskip/hashskip2/"
+            "hashmask/hashmask2/tokhybrid/hashtokgap/poshashtok/hashtok2/"
             "hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
             "hashtoklenbackoff2 modes "
             "need --rotate. Still key-free."
@@ -1387,7 +1388,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--methods",
         default="",
         help=(
-            "Comma-separated methods: count specs plus hashpool, hashtok, "
+            "Comma-separated methods: count specs plus hashpool, hashtok, hashtok2, "
             "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, "
             "hashtoklenbackoff2, hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, hashmix, "
@@ -1710,7 +1711,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
             "poshits, postokhits, postokbackoff, postokbackoff2, hashpool, "
-            "hashtok, hashtoklen, hashtoklen2, hashskip, hashskip2, "
+            "hashtok, hashtok2, hashtoklen, hashtoklen2, hashskip, hashskip2, "
             "hashmask, hashmask2, "
             "rankpath, rankuni, "
             "rankhits"

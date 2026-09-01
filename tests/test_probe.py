@@ -420,6 +420,29 @@ def test_run_probe_hashskip_on_lab_pairs() -> None:
     assert hsk.holdout.used_keys is False
 
 
+def test_run_probe_hashtok2_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashtok2",),
+        with_pivot=False,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashtok2"]
+    assert run.used_keys is False
+    ht2 = run.methods[0]
+    assert ht2.holdout.instance == "key-free-hashtok2"
+    assert ht2.holdout.used_keys is False
+    assert ht2.holdout.used_hash_iv is False
+    assert ht2.holdout.used_g_values is False
+    from text_watermark_tools.transfer import HASH_CASCADE_READERS
+
+    assert "hashtok2" not in HASH_CASCADE_READERS
+
+
 def test_run_probe_hashtoklen2_and_hashskip2_on_lab_pairs() -> None:
     twins = load_twins(PAIR)
     run = run_probe(

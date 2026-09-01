@@ -412,6 +412,7 @@ def score_text_from_tables(
             "auto",
             "hashpool",
             "hashtok",
+            "hashtok2",
             "hashtoklen",
             "hashtoklen2",
             "hashskip",
@@ -431,6 +432,7 @@ def score_text_from_tables(
         ids = tokenizer(text)["input_ids"]
         if mode in (
             "hashtok",
+            "hashtok2",
             "hashtoklen",
             "hashtoklen2",
             "hashskip",
@@ -450,12 +452,12 @@ def score_text_from_tables(
                     "these tables were not fit as MASK-replace templates; "
                     "refusing score-time hashmask on a different mixer"
                 )
-            if mode in ("hashtoklen", "hashtoklen2") and drop_one:
+            if mode in ("hashtoklen", "hashtoklen2", "hashtok2") and drop_one:
                 raise ValueError(
                     "these tables are drop-one skip-grams; use --score-mode "
                     "hashskip or hashskip2"
                 )
-            if mode in ("hashtoklen", "hashtoklen2") and mask_one:
+            if mode in ("hashtoklen", "hashtoklen2", "hashtok2") and mask_one:
                 raise ValueError(
                     "these tables are MASK-replace templates; use --score-mode "
                     "hashmask or hashmask2"
@@ -475,7 +477,7 @@ def score_text_from_tables(
                 )
                 else None,
                 min_count=2
-                if mode in ("hashtoklen2", "hashskip2", "hashmask2")
+                if mode in ("hashtok2", "hashtoklen2", "hashskip2", "hashmask2")
                 else 1,
             )
             meta = load_tables_meta(path)
