@@ -463,10 +463,13 @@ leftover-15 official **15/15** at prefix-5 (keys); last-4 **9/15 vs
 [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
 Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
 48/48**. Do not sell **0/15** or **16/48**. Does not replace **25/48**.
-The remaining occupancy-free analog that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
-100×4 → gpt2-medium 12×4. Opened: occupancy-free t=0 **10/48 vs 48/48**;
-coverage **13/48**. Do not sell **10/48**. Does not replace **25/48**.
+gpt2-medium 100×4 → gpt2-medium 12×4 occupancy-free is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Opened:
+occupancy-free t=0 **10/48 vs 48/48**; coverage **13/48**. Do not sell
+**10/48**. Does not replace **25/48**. The remaining occupancy-free
+analog that is not leftover targeting is
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md): Distil↔gpt2-medium
+occupancy-free transfer on already-frozen 12×4 twins. Freeze before LRs.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

@@ -216,12 +216,15 @@ last-4 is **9/15 vs 8/15**. Do not sell leftover official **15/15**.
 The leftover-15 gpt2-medium analog is
 [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
 Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
-48/48**. Do not sell **0/15** or **16/48**. The remaining occupancy-free
-analog that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
-100×4 → gpt2-medium 12×4. Opened: occupancy-free t=0 **10/48 vs 48/48**;
-coverage **13/48**. Do not sell **10/48**. Isolated-file detection is
-still not finished. Do not write `thesis/`.
+48/48**. Do not sell **0/15** or **16/48**. gpt2-medium 100×4 →
+gpt2-medium 12×4 occupancy-free is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Opened:
+occupancy-free t=0 **10/48 vs 48/48**; coverage **13/48**. Do not sell
+**10/48**. The remaining occupancy-free analog that is not leftover
+targeting is
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md): Distil↔gpt2-medium
+occupancy-free transfer on already-frozen 12×4 twins. Freeze before LRs.
+Isolated-file detection is still not finished. Do not write `thesis/`.
 
 ## What this freeze refuses
 

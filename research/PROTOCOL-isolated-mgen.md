@@ -249,5 +249,5 @@ leftover Distil **3/18**, Distil→Distil **16/48**, gpt2-medium
 **16/48**, or leftover **0/15** as replacing **25/48**. Isolated-file
 detection is still not finished. The remaining occupancy-free analog
 that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not write
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Do not write
 `thesis/`.

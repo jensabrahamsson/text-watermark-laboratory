@@ -39,10 +39,12 @@ from Distil, SMT, mixed 100+grok36, or more unrelated GPT-2 scenes is
 not the remaining lever. Official leftover-15 uses keys. The leftover-15
 gpt2-medium analog on the already-frozen 100 prompts opened leftover
 coverage **0/15**
-([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
-occupancy-free analog that is not leftover targeting is
-[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
-100×4 → gpt2-medium 12×4.
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). gpt2-medium
+100×4 → gpt2-medium 12×4 occupancy-free is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): t=0 **10/48 vs
+48/48**. The remaining occupancy-free analog that is not leftover
+targeting is [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md):
+Distil↔gpt2-medium occupancy-free transfer on already-frozen 12×4 twins.
 
 ## Primary scientific question
 
@@ -99,6 +101,8 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md), opened leftover
   **0/15**. gpt2-medium 100×4 → gpt2-medium 12×4 is
   [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md), not leftover
+  targeting. Distil↔gpt2-medium occupancy-free transfer is
+  [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md), not leftover
   targeting.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
@@ -143,6 +147,8 @@ prompts opened leftover coverage **0/15**
 ([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
 occupancy-free analog that is not leftover targeting is
 [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): occupancy-free
-t=0 **10/48 vs 48/48** (coverage **13/48**). Do not sell **0/15**,
-gpt2-medium **16/48**, or gpt2-medium→gpt2-medium **10/48**. Do not write
-`thesis/`.
+t=0 **10/48 vs 48/48** (coverage **13/48**). Distil↔gpt2-medium
+occupancy-free transfer is
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Freeze before
+LRs. Do not sell **0/15**, gpt2-medium **16/48**, or
+gpt2-medium→gpt2-medium **10/48**. Do not write `thesis/`.
