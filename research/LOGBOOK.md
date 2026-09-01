@@ -1359,4 +1359,19 @@ Windows `0:4,4:16,16:32,32:64,64:128` on grok12 and on the original 12.
 No new scorer. Do not look at window LRs until this line is on origin.
 Does not replace **25/48**. Do not write `thesis/`.
 
+## 2026-09-01 interpolate window readout opened
+
+SHA `7d8759a`. `used_keys=false`.
+
+Grok-register files: window 0:4 ranks **7/12** (AUC 0.619, t=0
+**23/48 vs 31/48**). Windows **32:64** and **64:128** rank **9/12**.
+Window 4:16 anti-ranks **4/12**. Full-file **11/12** is not an opening
+core on this split. Occupancy-free openings remain **0/48**.
+
+Original 12: window 0:4 ranks **9/12**; 16:32 ranks **6/12**.
+Front-loaded transfer holds on the original 12 and not on Grok-length
+OOD files. Isolated t=0 is chance-like in every slice. H-win-iso holds.
+Does not replace **25/48**. Isolated-file detection is still not
+finished.
+
 ---

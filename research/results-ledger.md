@@ -221,3 +221,18 @@ JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/`,
 `experiments/2026-09-01-openings-100x4-to-grok12x4/`.
 
+## Isolated-file windows (100 one-liner interpolate)
+
+Protocol SHA `7d8759a`. Same lock A tables. `used_keys=false`.
+
+On Grok-register test files, window **0:4** ranks **7/12**; tail
+**32:64** and **64:128** rank **9/12**. Full-file **11/12** is not
+front-loaded on that split. Occupancy-free openings remain **0/48**.
+On the original 12, window **0:4** ranks **9/12** and **16:32** ranks
+**6/12** (front-loaded, matching PROTOCOL-next H2). Isolated t=0 is
+chance-like in every slice. Do not sell tail **9/12**. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
+

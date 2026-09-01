@@ -118,3 +118,49 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Results (opened after the frozen commands)
+
+`used_keys=false`. Full-file nested Youden is unchanged (grok12
+**22/48 vs 41/48**; original 12 **23/48 vs 38/48**). Window endpoints
+are prompt ranking, file AUC, and t=0.
+
+Grok-register 12×4:
+
+| Window | Prompt | File AUC | t=0 marked | unmarked ≤0 |
+|---|---|---|---|---|
+| 0:4 | 7/12 | 0.619 | 23/48 | 31/48 |
+| 4:16 | 4/12 | 0.467 | 21/48 | 26/48 |
+| 16:32 | 8/12 | 0.497 | 23/48 | 23/48 |
+| 32:64 | **9/12** | 0.630 | 26/48 | 28/48 |
+| 64:128 | **9/12** | 0.616 | 26/48 | 31/48 |
+
+Original 12×4:
+
+| Window | Prompt | File AUC | t=0 marked | unmarked ≤0 |
+|---|---|---|---|---|
+| 0:4 | **9/12** | 0.636 | 25/48 | 31/48 |
+| 4:16 | 9/12 | 0.572 | 25/48 | 29/48 |
+| 16:32 | 6/12 | 0.560 | 27/48 | 25/48 |
+| 32:64 | 6/12 | 0.493 | 25/48 | 26/48 |
+| 64:128 | 8/12 | 0.603 | 27/48 | 28/48 |
+
+H-win-open **holds**: grok12 window 0:4 is **7/12**, below full-file
+**11/12**. Isolated t=0 **23/48 vs 31/48** is not occupancy-free
+opening TPs (those are **0/48**).
+
+H-win-mid **holds**: windows **32:64** and **64:128** rank **9/12**.
+The 11/12 full-file rank on Grok-length files is not an opening core.
+Window **4:16** anti-ranks **4/12**. Window **16:32** ranks **8/12**
+with file AUC **0.497** — prompt ranking without file ranking. Do not
+sell tail 9/12.
+
+H-win-12 **holds**: on the original 12, window **0:4** ranks **9/12**
+and **16:32** ranks **6/12**. Front-loaded transfer is register-specific.
+
+H-win-iso **holds**. Isolated t=0 is chance-like in every slice. This
+does not replace **25/48**. Isolated-file detection is not finished.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
+

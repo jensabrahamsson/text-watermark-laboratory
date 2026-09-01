@@ -111,6 +111,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same train, lock C nested Youden | **45/48 vs 22/48** at a negative train threshold; t=0 **22/48**; do not sell 45/48 |
 | 100 families → Grok-register 12×4 lock A nested Youden | **22/48 vs 41/48** (prompt **11/12**; H-xreg-A holds vs 16/48; H-xreg-hard holds vs in-family 24/48; not **25/48**) |
 | Same train, occupancy-free postokhits t=0 | **0/48 vs 48/48** (coverage **5/48**, 0 exact; 10 ranking wins with 0 TP) |
+| 100 families → Grok-register interpolate windows | 0:4 **7/12**; tail 32:64 / 64:128 **9/12**; not front-loaded; not **25/48** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

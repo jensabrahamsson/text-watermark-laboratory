@@ -204,6 +204,10 @@ H-xreg-B **holds**: occupancy-free t=0 **0/48** is bounded by opening
 coverage **5/48** (0 exact 4-token copies). The five covered files have
 negative observed-token LR.
 
+Window readout of the same interpolate tables is
+[PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md): grok12
+lock A **11/12** is not front-loaded (0:4 **7/12**; tail **9/12**).
+
 Lock C nested **10/48 vs 41/48** is not a detector. Ranking wins with no
 isolated TP: hospital-corridor, chip-shop.
 

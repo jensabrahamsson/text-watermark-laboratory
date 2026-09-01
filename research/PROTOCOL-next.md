@@ -254,7 +254,7 @@ commands above were run once, flags unchanged.
 | Hypothesis | Result |
 |---|---|
 | H1 lock A prompt ranking | **99/100** (stem 088 misses). File AUC **0.898**, permutation p < 0.001. Isolated 352/400 vs 290/400 is secondary. |
-| H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. |
+| H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. Out-of-family onto Grok-length files the same interpolate tables are **not** front-loaded (0:4 **7/12**; tail **9/12**; [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md)). |
 | Lock B opening poshits | **100/100**, AUC **0.980** |
 | Lock C opening rankpath | **96/100**, AUC **0.822** |
 | H3 Distil/Qwen | Distil official **70/100**, B **89/100** (drop 11), C **69/100** (drop 27). Qwen official **100/100**, B **95/100** (drop 5), C **84/100** (drop 12). Rankpath drops more on both. |
