@@ -153,6 +153,8 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Single held-out marked file, hard `lr > 0` | **29/48** |
 | Opening rankpath, 12×4 LOO 4-token | **12/12**, isolated **41/48** (not 29/48) |
 | Opening rankpath, 24-short → 12×4 | **10/12**, isolated **28/48** |
+| Unbucketed full-file rankpath, 12×4 LOO | **8/12**, AUC 0.559 (front-loaded; 16:32 chance) |
+| Unbucketed prefix-4 rankpath, 24-short → 12×4 | **11/12**, isolated **25/48 vs 43/48** |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
 See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), and [research/key-free-rankpath.md](research/key-free-rankpath.md).

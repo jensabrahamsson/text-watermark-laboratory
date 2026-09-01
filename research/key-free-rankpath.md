@@ -86,18 +86,65 @@ and 15 of 42 uncovered unmarked files. Combined cascade 36/48 is not a
 calibrated detector. Do not sell rankuni 37/48 or cascade 36/48 as beating
 poshits 39/48.
 
+## Full file: the rank path is front-loaded
+
+`--rankpath-full` with `--rankpath-pos-bucket 0` scores the unclipped
+choice-matrix rows (generated tokens 1…). Matched `--prefix-lens` and
+`--windows` slice those rows. `used_keys=false`.
+
+JSON: [../experiments/2026-08-31-probe-12x4-rankpath-full-isolated/](../experiments/2026-08-31-probe-12x4-rankpath-full-isolated/),
+[../experiments/2026-08-31-transfer-36x4-to-12x4-rankpath-full-isolated/](../experiments/2026-08-31-transfer-36x4-to-12x4-rankpath-full-isolated/),
+[../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/](../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/).
+
+In-domain 12×4 LOO, unbucketed:
+
+| Slice | Prompt wins | File AUC | marked>0 | unmarked≤0 |
+|---|---|---|---|---|
+| prefix 4 rank symbols | **10/12** | **0.718** | 30/48 | 35/48 |
+| prefix / window 0:16 | 9/12 | 0.620 | — | — |
+| window 16:32 | 6/12 | 0.506 | 23/48 | 24/48 |
+| full 128 (≈127 symbols) | 8/12 | 0.559 | 27/48 | 28/48 |
+
+Permutation p on the full file is 0.145. Tokens 16–32 are chance, the
+same place token-identity hits go to chance. Averaging a 128-token rank
+path dilutes the opening the way the published full-file pivot did
+(17/48).
+
+Out of family, 24 short 36×4 stems → 12×4, same unbucketed slices:
+
+| Slice | Prompt wins | File AUC | marked>0 | unmarked≤0 | precision |
+|---|---|---|---|---|---|
+| **prefix 4** | **11/12** | **0.759** | **25/48** | **43/48** | **0.833** |
+| window 16:32 | 5/12 | 0.471 | 21/48 | 25/48 | 0.457 |
+| full 128 | 6/12 | 0.534 | 24/48 | 26/48 | 0.522 |
+
+Prefix-4 here is four choice-matrix rows (generated tokens 1–4),
+unbucketed. The opening protocol above is three rows with `--pos-bucket 1`
+(10/12, 28/48, 15 unmarked FPs). Unbucketed prefix-4 transfers as ranking
+**11/12** with only **5** unmarked FPs. It does not beat poshits 39/48
+and is not 29/48. Full-file rankuni 41/48 on this gate spends 31 unmarked
+FPs (precision 0.569): a sign count, not a detector.
+
+60-stem train, `--fit-prefix 4` count tables plus `--rankpath-full`
+fallback: postokbackoff still **42 covered / 34 `lr>0`**, precision 1.0
+among decided. Full-file rankpath fallback signs **4/6** leftover zeros
+and 17 of 42 uncovered unmarked files. Combined cascade **38/48**,
+precision 0.691. Mixed AUC 0.822 is not a detector. Do not sell 38/48.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff` with
   `n_used` and **ABSTAIN** at coverage 0. Precision 1.0 among decided files
   on the 24-short OOD gate; recall is the overlap bound.
 - Isolated-file **rank path** is a second channel that does not need token
-  overlap. In-domain it is strong (12/12, 41/48). Out of family it keeps
-  10/12 ranking and 28/48 isolated sign, with unmarked FPs. It is not a
-  universal detector.
+  overlap. Use the **opening** reader (`--fit-prefix 4 --pos-bucket 1`):
+  in-domain 12/12, 41/48; OOD 10/12, 28/48 with unmarked FPs. Unbucketed
+  first-four rank symbols transfer as ranking **11/12** with isolated
+  **25/48 vs 43/48** (5 unmarked FPs). Full-file rank-path is chance.
+  It is not a universal detector.
 - Cascade remains an honest two-channel report. On these OOD gates the
   high-precision count channel is still the one to quote when coverage
-  exists.
+  exists. Full-file rankpath fallback is not a calibrated fill-in.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**.

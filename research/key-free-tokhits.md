@@ -381,6 +381,7 @@ unmarked LRs).
   `indicate score` prints `decision=ABSTAIN` when `n_used=0`.
 - Rank-path tables (five unmarked-LM rank symbols, no token identity)
   score novel openings: in-domain **12/12 / 41/48**, OOD **10/12 / 28/48**.
-  They are not 29/48 and not a calibrated detector. See
-  [key-free-rankpath.md](key-free-rankpath.md).
+  Unbucketed full-file rank-path is chance; a four-symbol prefix transfers
+  **11/12 / 25/48 vs 43/48**. They are not 29/48 and not a calibrated
+  detector. See [key-free-rankpath.md](key-free-rankpath.md).
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

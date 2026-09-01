@@ -515,4 +515,21 @@ JSON: `experiments/2026-08-31-probe-12x4-fitprefix4-rankpath-isolated/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-rankpath-isolated/`.
 Write-up: [key-free-rankpath.md](key-free-rankpath.md).
 
+## 2026-08-31 full-file rank-path is front-loaded
+
+Unbucketed `--rankpath-full` on 128-token files. In-domain full path is
+chance (8/12, AUC 0.559, perm p=0.145). Window 16:32 is chance in-domain
+and OOD, matching token-identity hits. Matched prefix of four rank
+symbols transfers: **11/12**, AUC **0.759**, isolated **25/48 vs 43/48**
+(5 unmarked FPs, precision 0.833). That is not the pos-bucket-1 opening
+28/48 and not 39/48. 60-stem count tables plus full-file rankpath
+fallback: 4/6 leftover zeros, 17 unmarked FPs, cascade 38/48 precision
+0.691. Do not sell full-file rankpath or cascade 38/48. Keep the opening
+reader.
+
+JSON: `experiments/2026-08-31-probe-12x4-rankpath-full-isolated/`,
+`experiments/2026-08-31-transfer-36x4-to-12x4-rankpath-full-isolated/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
 ---
