@@ -102,30 +102,41 @@ Out-of-family isolated transfer is frozen in
 [PROTOCOL-isolated.md](PROTOCOL-isolated.md) before those `probe
 --test-dir` runs.
 
-## Confirmatory 100×4 Phase B Distil (Qwen still generating)
+## Confirmatory 100×4 Phase B Distil and Qwen
 
 Official Distil lamp **70/100** (weaker mixin than GPT-2 **100/100**).
 Lock B **89/100** (drop 11 from 100). Lock C **69/100** (drop 27 from
-96). H3 holds on Distil: rankpath drops more. Isolated Distil signs
-(216/400, 164/400) are not **25/48**.
+96). Isolated Distil signs (216/400, 164/400) are not **25/48**.
+
+Official Qwen lamp **100/100** (local Hugging Face, mixin on). Lock B
+**95/100** (drop 5). Lock C **84/100** (drop 12). H3 holds on both
+generators: rankpath drops more than poshits. Isolated Qwen signs
+(333/400, 275/400) are not **25/48**. `--rankpath` extras are not lock C.
 
 JSON: `experiments/2026-09-01-pair-distil-100x4/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
-`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`,
+`experiments/2026-09-01-pair-qwen-100x4/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-rankpath/`.
 
 ## Isolated-file transfer (100 families → old twins)
 
-Protocol SHA `eb00f92`. Frozen locks A/B. Primary endpoint is nested
-Youden on the test files (train-LOO threshold). Lock C not opened.
+Protocol SHA `eb00f92`. Frozen locks A/B/C. Primary endpoint is nested
+Youden on the test files (train-LOO threshold).
 
 | Test | Lock | Prompt | Nested Youden |
 |---|---|---|---|
 | original 12×4 | A interpolate | 8/12 | **23/48 vs 38/48** |
 | original 12×4 | B opening poshits | **11/12** | **36/48 vs 42/48** (33/48 unmarked zeros) |
+| original 12×4 | C opening rankpath | **10/12** | **24/48 vs 41/48** |
 | 36×4 | A interpolate | **36/36** | **109/144 vs 122/144** |
 | 36×4 | B opening poshits | 35/36 | **134/144 vs 129/144** (75/144 unmarked zeros) |
+| 36×4 | C opening rankpath | **35/36** | **109/144 vs 117/144** |
 
-Lock A does not beat **25/48** on the original 12 files. Occupancy-free
+Lock A does not beat **25/48** on the original 12 files. Lock C nested
+Youden **24/48 vs 41/48** does not either; H-iso-C: rankpath is more
+domain-specific than lock B **11/12** / **36/48**. Occupancy-free
 readout of the frozen lock B tables (same fit, postokhits): original
 12×4 **16/48 vs 48/48** (21 occupancy TPs); 36×4 **114/144 vs 139/144**.
 The 36-topic nested Youden is out-of-family but same one-line register;
@@ -137,8 +148,10 @@ Opening-overlap bound (same observed-token tables, not a new scorer):
 
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`,
 `experiments/2026-09-01-openings-100x4-to-12x4/`,
 `experiments/2026-09-01-openings-100x4-to-36x4/`.
 

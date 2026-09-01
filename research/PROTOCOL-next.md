@@ -189,9 +189,23 @@ lock C **96/100**). Isolated `lr>0` is not H3.
 ### DistilGPT2 (2026-09-01)
 
 Official first-draw **70/100**. Lock B **89/100** (drop 11). Lock C
-**69/100** (drop 27). Rankpath drops more. Qwen not yet opened.
+**69/100** (drop 27). Rankpath drops more. Qwen opened below.
 
 `used_keys=false`. Do not sell 89/100 or 69/100 as replacing **25/48**.
+
+### Qwen2-1.5B-Instruct (2026-09-01)
+
+Local Hugging Face, not Dashscope. Official first-draw **100/100** (mixin
+on; Distil lamp was **70/100**). Lock B **95/100** (drop 5 from 100).
+Lock C **84/100** (drop 12 from 96). H3 holds on Qwen: rankpath drops
+more. Isolated Qwen signs (333/400, 275/400) are not **25/48**.
+
+`--rankpath` also scored default count methods. Lock C is rankpath
+**84/100**, not those extras.
+
+JSON: `experiments/2026-09-01-pair-qwen-100x4/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-rankpath/`.
 
 ## What this protocol refuses
 
@@ -237,7 +251,7 @@ commands above were run once, flags unchanged.
 | H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. |
 | Lock B opening poshits | **100/100**, AUC **0.980** |
 | Lock C opening rankpath | **96/100**, AUC **0.822** |
-| H3 Distil/Qwen | Commands frozen in this file before those `pair` runs |
+| H3 Distil/Qwen | Distil official **70/100**, B **89/100** (drop 11), C **69/100** (drop 27). Qwen official **100/100**, B **95/100** (drop 5), C **84/100** (drop 12). Rankpath drops more on both. |
 
 `--rankpath` also scored default count methods. Lock C is rankpath
 **96/100**, not hashpool/hard 100/100 from that same run. Do not sell

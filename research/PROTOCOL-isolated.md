@@ -66,7 +66,7 @@ not a key-free endpoint.
   Isolated nested Youden is reported with occupancy (`n_used=0`). Do
   not treat Laplace-on-unseen TPs as observed-token TPs.
 - **H-iso-C.** Lock C (rankpath) is more domain-specific than lock B.
-  Deferred until the Qwen Phase B pair releases RAM.
+  Opened after the Qwen Phase B pair released RAM.
 - **H-iso-36.** The same lock A/B commands, test directory 36×4
   (prompt strings disjoint from the 100; stem names `01-harbour` /
   `13`… do not collide with `001`…`100`).
@@ -164,15 +164,18 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 ## Outcome (2026-09-01)
 
 Protocol SHA `eb00f92`. Frozen lock A/B commands above were run once,
-flags unchanged. `used_keys=false`. Overlap dropped 0 stems. Lock C
-not opened (Qwen pair still resident).
+flags unchanged. `used_keys=false`. Overlap dropped 0 stems. Qwen Phase B
+pair released RAM. Frozen lock C `--methods rankpath` commands were then
+run once.
 
 | Test | Lock | Prompt wins | File AUC | t=0 | Nested Youden (primary) |
 |---|---|---|---|---|---|
 | 12×4 | A interpolate | **8/12** | 0.663 | 27/48 vs 33/48 | **23/48 vs 38/48** |
 | 12×4 | B opening poshits | **11/12** | 0.844 | 37/48 vs 42/48 | **36/48 vs 42/48** |
+| 12×4 | C opening rankpath | **10/12** | 0.770 | 24/48 vs 40/48 | **24/48 vs 41/48** |
 | 36×4 | A interpolate | **36/36** | 0.858 | 117/144 vs 102/144 | **109/144 vs 122/144** |
 | 36×4 | B opening poshits | **35/36** | 0.955 | 134/144 vs 127/144 | **134/144 vs 129/144** |
+| 36×4 | C opening rankpath | **35/36** | 0.838 | 115/144 vs 112/144 | **109/144 vs 117/144** |
 
 H-iso-A holds only as prompt ranking above chance (8/12; binomial
 P(≥8) ≈ 0.19). Isolated nested Youden **23/48** does **not** beat
@@ -191,6 +194,14 @@ H-iso-B holds on the original 12: poshits ranks **11/12** ≥ interpolate
 tables (`occupancy-free.json`): postokhits t=0 **16/48 vs 48/48**.
 **21** of the poshits marked TPs were Laplace-on-unseen (`The`→` ferry`
 and kin). Do not sell 36/48 as observed-token isolated recall.
+
+H-iso-C holds as domain-specificity: rankpath on the original 12 is
+**10/12**, nested Youden **24/48 vs 41/48**, below lock B **11/12** /
+**36/48**. Isolated **24/48** does not beat **25/48**. On 36×4, lock C
+ranks **35/36** with nested **109/144 vs 117/144** (lock A interpolate
+nested is the same **109/144** marked). JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 
 H-iso-36: lock A ranks **36/36** on the 36-topic pool (same one-line
 register as the 100). Nested Youden **109/144 vs 122/144** is the
@@ -224,6 +235,8 @@ observed-token LRs. JSON:
 
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
-`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 

@@ -1118,7 +1118,7 @@ first-draw marked > unmarked is **70/100** (weaker lamp than GPT-2
 H3 on Distil so far: rankpath drop from GPT-2 Phase A is **27**
 (96→69); poshits drop is **11** (100→89). Rankpath drops more.
 `--rankpath` extras are not lock C. Do not sell Distil 89/100 or
-69/100 as replacing **25/48**. Qwen pair is still generating.
+69/100 as replacing **25/48**.
 
 JSON: `experiments/2026-09-01-pair-distil-100x4/`,
 `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
@@ -1203,5 +1203,40 @@ Isolated `indicate score` now prints `n_observed` and
 `occupancy_only=true`, and **ABSTAINs** when `n_observed=0`. Probe
 `--methods poshits` is unchanged. `--score-mode postokhits` still has
 `n_used=0`. This does not replace **25/48**.
+
+## 2026-09-01 Phase B Qwen opening locks
+
+Native `Qwen/Qwen2-1.5B-Instruct`, same 100 prompts, seed `20260901`.
+Local Hugging Face, not Dashscope. Official first-draw marked > unmarked
+is **100/100** (mixin on; min marked ≈ 0.518). Mixin on/off remains
+ground truth.
+
+- **Lock B** opening poshits: **95/100**, AUC **0.873**, isolated
+  **333/400 vs 308/400**
+- **Lock C** opening rankpath: **84/100**, AUC **0.706**, isolated
+  **275/400 vs 259/400**
+
+H3 on Qwen: rankpath drop from GPT-2 Phase A is **12** (96→84); poshits
+drop is **5** (100→95). Rankpath drops more. `--rankpath` extras are
+not lock C. Do not sell Qwen 95/100 or 84/100 as replacing **25/48**.
+
+JSON: `experiments/2026-09-01-pair-qwen-100x4/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-rankpath/`.
+
+## 2026-09-01 isolated lock C transfer 100→12 and 100→36
+
+Qwen pair gone. Frozen `--methods rankpath --fit-prefix 4 --pos-bucket 1`.
+`used_keys=false`. Overlap dropped 0.
+
+- Original 12×4: prompt **10/12**, nested Youden **24/48 vs 41/48**,
+  t=0 **24/48 vs 40/48**, AUC **0.770**. Does not beat **25/48**.
+- 36×4: prompt **35/36**, nested Youden **109/144 vs 117/144**, t=0
+  **115/144 vs 112/144**, AUC **0.838**.
+
+H-iso-C: rankpath is more domain-specific than lock B (**11/12** /
+**36/48** occupancy on the original 12). JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 
 ---

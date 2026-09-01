@@ -1069,6 +1069,53 @@ def test_protocol_next_phase_b_distil_opening_locks() -> None:
     assert (96 - rankpath.n_prompts_marked_above) > (100 - poshits.n_prompts_marked_above)
 
 
+def test_pair_qwen_100x4_official_splits_all_first_draws() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-pair-qwen-100x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["instance"] == "public-deepmind-30"
+    assert raw["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert raw["seed"] == 20260901
+    assert len(raw["rows"]) == 100
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 100
+
+
+def test_protocol_next_phase_b_qwen_opening_locks() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    poshits = holdout_from_json(
+        root / "2026-09-01-probe-qwen-100x4-opening-poshits" / "poshits" / "holdout.json"
+    )
+    rankpath = holdout_from_json(
+        root / "2026-09-01-probe-qwen-100x4-opening-rankpath" / "rankpath" / "holdout.json"
+    )
+    assert poshits.used_keys is False
+    assert rankpath.used_keys is False
+    assert poshits.n_prompts == 100
+    assert poshits.n_prompts_marked_above == 95
+    assert rankpath.n_prompts_marked_above == 84
+    assert poshits.n_marked_positive == 333
+    assert poshits.n_unmarked_nonpositive == 308
+    assert rankpath.n_marked_positive == 275
+    assert rankpath.n_unmarked_nonpositive == 259
+    # H3 on Qwen: rankpath drops more from GPT-2 Phase A than poshits.
+    assert (96 - rankpath.n_prompts_marked_above) > (100 - poshits.n_prompts_marked_above)
+    # Isolated in-family signs are not the old-corpus 25/48 headline.
+    assert poshits.n_marked_positive != 25
+    assert rankpath.n_marked_positive != 25
+
+
 def test_protocol_isolated_freezes_out_of_family_transfer_commands() -> None:
     text = (
         Path(__file__).resolve().parents[1] / "research" / "PROTOCOL-isolated.md"
@@ -1143,6 +1190,48 @@ def test_protocol_isolated_100x4_to_36x4_locks() -> None:
     assert nested_b["n_marked_above"] == 134
     assert nested_b["n_unmarked_at_most"] == 129
     assert poshits["methods"][0]["coverage_gate"]["n_unmarked_zero"] == 75
+
+
+def test_protocol_isolated_100x4_lock_c_rankpath() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    orig = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    pool = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-36x4-opening-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    poshits12 = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-poshits"
+            / "results.json"
+        ).read_text()
+    )
+    assert orig["used_keys"] is False
+    assert pool["used_keys"] is False
+    assert orig["dropped_stems"] == []
+    assert orig["n_train_prompts"] == 100
+    assert orig["n_test_prompts"] == 12
+    assert orig["methods"][0]["name"] == "rankpath"
+    assert orig["methods"][0]["n_prompt_wins"] == 10
+    assert pool["methods"][0]["n_prompt_wins"] == 35
+    nested_12 = _transfer_threshold(orig, "rankpath", "nested-youden")
+    nested_36 = _transfer_threshold(pool, "rankpath", "nested-youden")
+    assert nested_12["n_marked_above"] == 24
+    assert nested_12["n_unmarked_at_most"] == 41
+    assert nested_36["n_marked_above"] == 109
+    assert nested_36["n_unmarked_at_most"] == 117
+    # H-iso-C: rankpath is more domain-specific than lock B on the original 12.
+    assert orig["methods"][0]["n_prompt_wins"] <= poshits12["methods"][0]["n_prompt_wins"]
+    assert nested_12["n_marked_above"] < 25
 
 
 def test_protocol_isolated_lock_b_occupancy_free_readout() -> None:

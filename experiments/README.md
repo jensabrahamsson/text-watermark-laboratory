@@ -210,12 +210,17 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-pair-distil-100x4/` | DistilGPT2 twins, same 100 prompts | Official first-draw **70/100** (weaker lamp than GPT-2 **100/100**) |
 | `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | **89/100**, AUC **0.713**, isolated 216/400 vs 247/400 |
 | `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | **69/100**, AUC **0.598**, isolated 164/400 vs 270/400 |
+| `2026-09-01-pair-qwen-100x4/` | Qwen2-1.5B twins, same 100 prompts | Official first-draw **100/100** (local HF; mixin on) |
+| `2026-09-01-probe-qwen-100x4-opening-poshits/` | Qwen lock B | **95/100**, AUC **0.873**, isolated 333/400 vs 308/400 |
+| `2026-09-01-probe-qwen-100x4-opening-rankpath/` | Qwen lock C | **84/100**, AUC **0.706**, isolated 275/400 vs 259/400 |
 | `2026-09-01-transfer-100x4-to-12x4-hard-last4/` | 100 families → original 12×4 lock A | **8/12**, nested Youden **23/48 vs 38/48** (does not beat **25/48**) |
 | `2026-09-01-transfer-100x4-to-12x4-opening-poshits/` | 100 families → original 12×4 lock B | **11/12**, nested Youden **36/48 vs 42/48**; occupancy-free **16/48 vs 48/48** |
 | `2026-09-01-transfer-100x4-to-36x4-hard-last4/` | 100 families → 36×4 lock A | **36/36**, nested Youden **109/144 vs 122/144** |
 | `2026-09-01-transfer-100x4-to-36x4-opening-poshits/` | 100 families → 36×4 lock B | **35/36**, nested Youden **134/144 vs 129/144**; occupancy-free **114/144 vs 139/144** |
 | `2026-09-01-openings-100x4-to-12x4/` | Opening-overlap bound, 100→12 | postokhits covered **18/48**, exact **14/48**, decided 16/0 |
 | `2026-09-01-openings-100x4-to-36x4/` | Opening-overlap bound, 100→36 | postokhits covered **117/144**, exact **103/144**, decided 114/5 |
+| `2026-09-01-transfer-100x4-to-12x4-opening-rankpath/` | 100 families → original 12×4 lock C | **10/12**, nested Youden **24/48 vs 41/48** (does not beat **25/48**) |
+| `2026-09-01-transfer-100x4-to-36x4-opening-rankpath/` | 100 families → 36×4 lock C | **35/36**, nested Youden **109/144 vs 117/144** |
 
 ## What changed across the runs
 
