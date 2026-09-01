@@ -1449,8 +1449,8 @@ JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
 [PROTOCOL-isolated-pool.md](PROTOCOL-isolated-pool.md) and the
 published-zero union dump
 `experiments/2026-09-01-openings-union-100-and-grok36-to-12x4/` committed
-together. Set-union of occupancy-free openings on the original 12 is
-**28/48** (18+10, intersection 0, leftover 20). That number is
+at SHA `244d23a`. Set-union of occupancy-free openings on the original
+12 is **28/48** (18+10, intersection 0, leftover 20). That number is
 determined from already-opened zeros. Do not look at mixed `probe` /
 mixed `openings` LRs until this line is on origin. Do not sell
 **28/48** as replacing **25/48**. Do not write `thesis/`.

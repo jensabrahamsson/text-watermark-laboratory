@@ -27,8 +27,7 @@ def test_protocol_pool_names_frozen_mix_before_probe() -> None:
     assert "**28/48**" in text
     assert "thesis/" in text
     assert "Do **not** mix grok12" in text
-    log = (ROOT / "research" / "LOGBOOK.md").read_text()
-    assert "PROTOCOL-isolated-pool.md" in log
+    assert "`244d23a`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_published_zero_union_is_disjoint_28() -> None:
