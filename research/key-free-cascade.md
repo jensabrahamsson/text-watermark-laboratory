@@ -171,6 +171,10 @@ miss (rank 41, official 0.767); prefix-4 already signs it from tokens
 1–3. Ferry-queue d4 is officially marked (0.700) on the **argmax**.
 Keep prefix-4. Do not sell 30/48.
 
+Among 45 marked files with official prefix-5 >0.55, isolated token-4
+rank is **10 argmax** and **8 miss**. Unmarked isolated miss is **7/48**
+vs marked **9/48**. Fifth-token rank is not a detector.
+
 JSON: [../experiments/2026-09-01-letter-d2-first-ngram/](../experiments/2026-09-01-letter-d2-first-ngram/).
 
 60-stem `--fit-prefix 8` postokbackoff
@@ -178,8 +182,13 @@ JSON: [../experiments/2026-09-01-letter-d2-first-ngram/](../experiments/2026-09-
 covers 4 of 6 prefix-4 zeros (station d4, letter d3, office d1/d3):
 **38/48 vs 40/48**, precision 0.826, AUC **0.818**. Combined **78/96**
 vs prefix-4 count **82/96**. Nested FPR10 38/48 vs 42/48. Letter d2
-stays `lr<0`. Prefix-8 rankpath is 30/48 vs 35/48 and does not beat
-prefix-4 rankpath. Do not sell 38/48 as beating poshits **39/48**.
+stays `lr<0`. That negative is last-1 `' in' → ' the'` (c_m=2, c_u=8),
+not the official 5-gram. The 5-gram is unseen at last-4/3/2; last-1
+`' second'` never continues with `' I'`. `postokbackoff2` abstains
+(`n_used=0`). Letter d3's prefix-8 rescue is last-1 `',' → ' my'`,
+not `While working on the key`. Prefix-8 rankpath is 30/48 vs 35/48
+and does not beat prefix-4 rankpath. Do not sell 38/48 as beating
+poshits **39/48**.
 
 ## What to use
 

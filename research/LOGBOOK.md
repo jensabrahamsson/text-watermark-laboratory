@@ -646,4 +646,12 @@ JSON: `experiments/2026-09-01-letter-d2-first-ngram/`,
 `experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/`.
 Write-up: [key-free-cascade.md](key-free-cascade.md).
 
+60-stem prefix-8 `postokbackoff` letter d2 `n_used=2` is last-1
+`' in' → ' the'` (2 vs 8), not the official 5-gram. That 5-gram is
+unseen at last-4/3/2; `' second'` never continues with `' I'`.
+`postokbackoff2` abstains. Letter d3's prefix-8 rescue is last-1
+`',' → ' my'`. Isolated token-4 miss rate is 9/48 marked vs 7/48
+unmarked. Officially marked 5-grams include both argmax (10) and miss
+(8).
+
 ---

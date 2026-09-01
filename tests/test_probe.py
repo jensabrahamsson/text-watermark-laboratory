@@ -1903,3 +1903,37 @@ def test_prefix5_rankpath_does_not_beat_prefix4_or_rescue_letter_d2() -> None:
     fifth_auc = binary_eval(fifth.marked_lrs, fifth.unmarked_lrs, n_perm=200, seed=0)
     assert fifth_auc.auc < 0.50
 
+
+def test_letter_d2_ood_backoff_is_last1_not_the_5gram() -> None:
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments" / "2026-09-01-letter-d2-first-ngram"
+    trace = json.loads((root / "backoff-trace.json").read_text())
+    bins = json.loads((root / "fifth-rank-bins.json").read_text())
+    assert trace["used_keys"] is False
+    d2 = trace["letter_d2"]
+    assert d2["n_used"] == 2
+    assert d2["lr"] < 0
+    assert all(a["i"] != 4 for a in d2["atoms"])
+    last1 = [a for a in d2["atoms"] if a["ctx_text"] == " in" and a["piece"] == " the"]
+    assert len(last1) == 1
+    assert last1[0]["c_m"] == 2
+    assert last1[0]["c_u"] == 8
+    assert last1[0]["delta"] < 0
+    gram = d2["official_5gram"]
+    assert gram["scored"] is False
+    assert gram["tok"] == 314
+    by_order = {row["order"]: row for row in gram["orders"]}
+    assert by_order[4]["n_m"] == 0 and by_order[4]["c_m"] == 0
+    assert by_order[1]["n_m"] == 6 and by_order[1]["c_m"] == 0
+    assert d2["postokbackoff2"]["n_used"] == 0
+    d3 = trace["letter_d3"]
+    assert d3["lr"] > 0
+    assert any(a["piece"] == " my" and a["delta"] > 0 for a in d3["atoms"])
+    marked = bins["marked_isolated"]
+    unmarked = bins["unmarked_isolated"]
+    assert marked["bins"]["miss"] == 9
+    assert unmarked["bins"]["miss"] == 7
+    assert marked["bins_official_gt_055"]["argmax"] == 10
+    assert marked["bins_official_gt_055"]["miss"] == 8
+

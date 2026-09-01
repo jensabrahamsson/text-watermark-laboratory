@@ -27,9 +27,17 @@ for.
 Letter d3's first 5-gram is also an isolated top-k miss (rank 41,
 official 0.767). Prefix-4 already signs it from tokens 1–3. Ferry-queue
 d4 is the other official-5-gram invisibility mode: mean **0.700** on
-the **argmax** token (rank 1 isolated and prompt).
+the **argmax** token (rank 1 isolated and prompt). Among 45 marked
+files with official prefix-5 >0.55, isolated token-4 rank is 10 argmax
+and 8 miss. Unmarked isolated miss is 7/48 vs marked 9/48.
 
-JSON: `results.json` (official means use keys; ranks do not).
+60-stem prefix-8 `postokbackoff` letter d2 `lr=-0.606` is last-1
+`' in' → ' the'` (2 vs 8), not the 5-gram. The 5-gram is unseen at
+last-4/3/2; `' second'` never continues with `' I'`. `postokbackoff2`
+abstains. Letter d3's rescue is last-1 `',' → ' my'`.
+
+JSON: `results.json` (official means use keys; ranks do not),
+`backoff-trace.json` (`used_keys=false`), `fifth-rank-bins.json`.
 In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 

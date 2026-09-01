@@ -20,7 +20,9 @@ FPR10 is 38/48 vs 42/48. Do not sell 38/48 as beating poshits **39/48**
 or replacing **29/48**.
 
 Letter d2 (`Now in the second I'm just getting ready for bed.`) stays
-`lr<0` despite official prefix-5 mean **0.733**. Harbour covered-negatives
-stay negative. Prefix-8 rankpath does not beat prefix-4 rankpath.
+`lr<0` despite official prefix-5 mean **0.733**. That negative is
+last-1 `' in' → ' the'`, not the 5-gram (unseen; `postokbackoff2`
+abstains). Harbour covered-negatives stay negative. Prefix-8 rankpath
+does not beat prefix-4 rankpath.
 
 Write-up: [../../research/key-free-cascade.md](../../research/key-free-cascade.md).
