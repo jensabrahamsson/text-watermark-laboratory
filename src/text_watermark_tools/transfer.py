@@ -841,16 +841,29 @@ def _hash_bucket_tok_count(
 
 
 def hashtok_hash_seen(
-    model: HashPoolModel, h: int, bucket: int, tok: int
+    model: HashPoolModel,
+    h: int,
+    bucket: int,
+    tok: int,
+    *,
+    min_count: int = 1,
 ) -> bool:
-    """True if this hash bucket produced tok on either training side."""
+    """True if this hash bucket produced tok at least min_count times.
+
+    Occupancy-free default is 1: Laplace of an empty cell cannot vote.
+    min_count=2 also skips singleton collisions. Not a watermark key.
+    """
     c_m = _hash_bucket_tok_count(model.marked[h], bucket, tok)
     c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, tok)
-    return c_m + c_u >= 1
+    return c_m + c_u >= max(int(min_count), 1)
 
 
 def hashtok_token_lr(
-    model: HashPoolModel, ctx: tuple[int, ...], tok: int
+    model: HashPoolModel,
+    ctx: tuple[int, ...],
+    tok: int,
+    *,
+    min_count: int = 1,
 ) -> float | None:
     """Mean hashpool LR over hashes whose bucket saw tok. None if none did.
 
@@ -860,9 +873,10 @@ def hashtok_token_lr(
     """
     v = max(len(model.vocab), 2)
     pieces: list[float] = []
+    floor = max(int(min_count), 1)
     for h, seed in enumerate(model.seeds):
         bucket = hash_context(ctx, seed) % model.n_buckets
-        if not hashtok_hash_seen(model, h, bucket, tok):
+        if not hashtok_hash_seen(model, h, bucket, tok, min_count=floor):
             continue
         piece = _dirichlet_logp(
             model.marked[h].get(bucket),
@@ -891,12 +905,14 @@ def score_hashtok_detail(
     model: HashPoolModel,
     *,
     exact_len: bool | None = None,
+    min_count: int = 1,
 ) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
     exact = bool(model.exact_len if exact_len is None else exact_len) or bool(
         model.drop_one
     )
+    floor = max(int(min_count), 1)
     total = 0.0
     n_used = 0
     n_positions = 0
@@ -914,7 +930,9 @@ def score_hashtok_detail(
         )
         pieces: list[float] = []
         for view in views:
-            delta = hashtok_token_lr(model, view, int(tok))
+            delta = hashtok_token_lr(
+                model, view, int(tok), min_count=floor
+            )
             if delta is not None:
                 pieces.append(delta)
         if not pieces:
@@ -931,25 +949,36 @@ def score_hashtok(
     model: HashPoolModel,
     *,
     exact_len: bool | None = None,
+    min_count: int = 1,
 ) -> float:
     """Hashpool LR using only hashes that saw the observed next token."""
-    return score_hashtok_detail(ids, model, exact_len=exact_len).lr
+    return score_hashtok_detail(
+        ids, model, exact_len=exact_len, min_count=min_count
+    ).lr
 
 
 def score_hashskip(
     ids: Sequence[int],
     model: HashPoolModel,
+    *,
+    min_count: int = 1,
 ) -> float:
     """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
     if not model.drop_one:
         raise ValueError("score_hashskip needs a drop-one hashpool")
-    return score_hashtok_detail(ids, model).lr
+    return score_hashtok_detail(ids, model, min_count=min_count).lr
 
 
-def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
+def hashtok_trace(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> list[dict]:
     """Per-position observed-token hash collisions. Still no keys."""
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtok trace consulted keys / hash_iv / g-values")
+    floor = max(int(min_count), 1)
     rows: list[dict] = []
     for i, tok in enumerate(ids):
         if i == 0:
@@ -977,7 +1006,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                 bucket = hash_context(view, seed) % model.n_buckets
                 c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
                 c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
-                seen = c_m + c_u >= 1
+                seen = c_m + c_u >= floor
                 if seen:
                     view_seen += 1
                     view_cm += c_m
@@ -995,7 +1024,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                 view_hashes.append(rec)
                 if not model.drop_one:
                     hashes.append(rec)
-            view_delta = hashtok_token_lr(model, view, t)
+            view_delta = hashtok_token_lr(model, view, t, min_count=floor)
             if view_delta is not None:
                 pieces.append(view_delta)
             if model.drop_one:
@@ -1011,7 +1040,7 @@ def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
                     }
                 )
         if not model.drop_one:
-            delta = hashtok_token_lr(model, ctx, t)
+            delta = hashtok_token_lr(model, ctx, t, min_count=floor)
             pool = hashpool_token_lr(model, ctx, t)
         else:
             delta = None if not pieces else (

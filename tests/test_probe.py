@@ -420,6 +420,23 @@ def test_run_probe_hashskip_on_lab_pairs() -> None:
     assert hsk.holdout.used_keys is False
 
 
+def test_run_probe_hashtoklen2_and_hashskip2_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashtoklen2", "hashskip2"),
+        with_pivot=False,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashtoklen2", "hashskip2"]
+    assert run.used_keys is False
+    hl2 = next(m for m in run.methods if m.name == "hashtoklen2")
+    assert hl2.holdout.instance == "key-free-hashtoklen2"
+    hsk2 = next(m for m in run.methods if m.name == "hashskip2")
+    assert hsk2.holdout.instance == "key-free-hashskip2"
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")

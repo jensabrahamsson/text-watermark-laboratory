@@ -263,11 +263,11 @@ def run_instance_contrast(
         )
     if "hashpool" in names or "hashtok" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
-    if "hashtoklen" in names:
+    if "hashtoklen" in names or "hashtoklen2" in names:
         hash_len_model = fit_hashpool_twins(
             train, context_len=context_len, exact_len=True
         )
-    if "hashskip" in names:
+    if "hashskip" in names or "hashskip2" in names:
         hash_skip_model = fit_hashpool_twins(
             train, context_len=context_len, exact_len=True, drop_one=True
         )
@@ -366,10 +366,20 @@ def run_instance_contrast(
             lambda ids, m=hash_len_model: score_hashtok(ids, m),
             "key-free-hashtoklen",
         )
+    if "hashtoklen2" in names and hash_len_model is not None:
+        scorers["hashtoklen2"] = (
+            lambda ids, m=hash_len_model: score_hashtok(ids, m, min_count=2),
+            "key-free-hashtoklen2",
+        )
     if "hashskip" in names and hash_skip_model is not None:
         scorers["hashskip"] = (
             lambda ids, m=hash_skip_model: score_hashskip(ids, m),
             "key-free-hashskip",
+        )
+    if "hashskip2" in names and hash_skip_model is not None:
+        scorers["hashskip2"] = (
+            lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2),
+            "key-free-hashskip2",
         )
     unknown = [
         n
@@ -382,7 +392,8 @@ def run_instance_contrast(
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
             "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
-            "hashtoklen, hashskip, rankpath, rankuni, rankhits, "
+            "hashtoklen, hashtoklen2, hashskip, hashskip2, rankpath, "
+            "rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
     if not scorers and not rank_names:

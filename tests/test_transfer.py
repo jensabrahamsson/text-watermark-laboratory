@@ -327,6 +327,49 @@ def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     assert score_hashtok([0, 99], model) == 0.0
 
 
+def test_hashtok_min_count_skips_singleton_hash_collisions() -> None:
+    from text_watermark_tools.transfer import score_hashskip
+
+    marked = [[0, 1]]
+    unmarked = [[0, 2], [0, 2], [0, 2], [0, 2]]
+    model = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    one = score_hashtok_detail([0, 1], model, min_count=1)
+    two = score_hashtok_detail([0, 1], model, min_count=2)
+    assert model.used_keys is False
+    assert one.n_used == 1
+    assert one.lr > 0
+    assert two.n_used == 0
+    assert two.lr == 0.0
+    repeated = fit_hashpool(
+        [[0, 1], [0, 1]],
+        unmarked,
+        context_len=1,
+        n_hashes=4,
+        n_buckets=8,
+        seed=7,
+    )
+    kept = score_hashtok_detail([0, 1], repeated, min_count=2)
+    assert kept.n_used == 1
+    assert kept.lr > 0
+    skip = fit_hashpool(
+        [[9, 8, 1]],
+        [[9, 8, 2], [9, 8, 2], [9, 8, 2], [9, 8, 2]],
+        context_len=2,
+        n_hashes=8,
+        n_buckets=256,
+        seed=7,
+        drop_one=True,
+    )
+    skip_one = score_hashtok_detail([9, 8, 1], skip, min_count=1)
+    skip_two = score_hashtok_detail([9, 8, 1], skip, min_count=2)
+    assert skip.drop_one is True
+    assert skip_one.n_used == 1
+    assert skip_two.n_used == 0
+    assert score_hashskip([9, 8, 1], skip, min_count=2) == 0.0
+
+
 def test_shrinkage_scores_rare_and_common_contexts_without_keys() -> None:
     marked = [[0, 1, 0, 1, 0, 1, 7, 3]]
     unmarked = [[0, 2, 0, 2, 0, 2, 7, 4]]
