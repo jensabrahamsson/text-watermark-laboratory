@@ -1572,4 +1572,12 @@ official 20/20, interpolate 13/20, or Closing. Nothing replaces
 
 JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
 
+## 2026-09-01 leftover-20 ∪ short-medium-tails openings frozen
+
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md)
+committed at SHA `e5a5f6b`. Leftover membership stays mixed postokhits
+zeros. Short+medium+tails zeros stay that dump. Do not look at
+leftover-after-union counts until this line is on origin. Do not write
+`thesis/`.
+
 ---
