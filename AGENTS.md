@@ -167,7 +167,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same rows, `--cascade-when positive` | **40/48 vs 40/48** (8 rankpath FPs; not 39/48) |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), and [research/key-free-rankpath.md](research/key-free-rankpath.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), and [research/key-free-snaprate.md](research/key-free-snaprate.md).
 
 ## Code map
 

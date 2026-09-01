@@ -598,4 +598,20 @@ the leftover printer zero; 8 unmarked FPs). Count alone stays
 JSON: `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/`.
 Write-up: [key-free-cascade.md](key-free-cascade.md).
 
+## 2026-09-01 table-free opening snap-rate
+
+No twin tables. Unmarked GPT-2 rows only. Opening `--fit-prefix 4`:
+`snapupset` (in-topk not argmax) is chance **7/12**, AUC **0.501**, perm
+p=0.55. Marked and unmarked leave the greedy top-k token at the same
+rate (0.649 vs 0.653). `snapleave` majority vote is 48/48 vs 7/48 (not
+a detector). `snapmiss` ranks **10/12**, AUC **0.707**, isolated
+**21/48 vs 41/48** (off-mode continuation, corr 0.87 with opening
+pivot-rank, 0.23 with rankpath). Prefix-4 `snapupset` stays chance
+(6/12, AUC 0.501). Do not sell 21/48 as beating 29/48. Rank-symbol
+tables are not a dressed-up upset bit.
+
+JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-snaprate/`,
+`experiments/2026-09-01-probe-12x4-prefix4-snaprate/`.
+Write-up: [key-free-snaprate.md](key-free-snaprate.md).
+
 ---

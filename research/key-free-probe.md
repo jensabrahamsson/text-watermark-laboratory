@@ -436,6 +436,8 @@ transfer to Distil or Qwen. Details: [key-free-learn.md](key-free-learn.md).
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
 
+**Binary snap-rate is not a tournament detector.** Table-free `snapupset` (in-topk not argmax) on 12×4 openings is chance: **7/12**, AUC **0.501**, perm p=0.55. Marked and unmarked leave the greedy top-k token at the same rate (0.649 vs 0.653). `snapleave` majority vote marks 48/48 and 41 unmarked files. `snapmiss` ranks (**10/12**, AUC **0.707**) because marked openings sit off-mode more often (46% vs 28% miss); isolated t=0 is **21/48 vs 41/48**, correlation 0.87 with opening pivot-rank, 0.23 with rankpath. Rank-symbol tables are not a dressed-up upset bit. Details: [key-free-snaprate.md](key-free-snaprate.md).
+
 ## What this is not
 
 - Not key recovery and not an inverse of SHA-256.
@@ -531,6 +533,10 @@ python -m text_watermark_tools scrub \
   experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/2026-08-31-scrub-12x4
 
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods snapleave,snapupset,snapmiss --skip-hashpool --fit-prefix 4 \
+  --out-dir experiments/2026-09-01-probe-12x4-fitprefix4-snaprate
+
 python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
   --fit-prefix 4 --pos-bucket 1 \
   --out-dir experiments/2026-08-31-learn-36x4-fitprefix4
@@ -546,6 +552,7 @@ Learned scorers: [key-free-learn.md](key-free-learn.md).
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
 Opening geometry and ABSTAIN: [key-free-cascade.md](key-free-cascade.md).
 Rank-path (no token identity): GPT-2 opening **12/12 / 41/48**, OOD **10/12 / 28/48**; full file is chance. Distil native opening is chance (**8/12**, AUC **0.579**). Qwen opening rankpath is **8/12** against first-token **12/12**. [key-free-rankpath.md](key-free-rankpath.md).
+Table-free snap-rate: opening `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48**. [key-free-snaprate.md](key-free-snaprate.md).
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \

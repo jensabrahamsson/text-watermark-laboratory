@@ -270,6 +270,10 @@ or rankuni 39/48 as beating poshits **39/48** (16 unmarked FPs).
   rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12.
   Native Qwen opening rankpath is **8/12** against first-token **12/12**.
   Rank-path is not a universal tournament detector.
+- Table-free snap-rate is **not** a substitute. Opening `snapupset`
+  (in-topk not argmax) is chance (**7/12**, AUC **0.501**). `snapmiss`
+  ranking is already inside opening LDA. See
+  [key-free-snaprate.md](key-free-snaprate.md).
 - Cascade remains an honest two-channel report. Quote the high-precision
   count channel when `n_used>0`. When it abstains, use the **opening**
   rank-path reader, not the full file. Unbucketed prefix-4 is the

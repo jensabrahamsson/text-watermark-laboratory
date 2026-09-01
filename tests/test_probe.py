@@ -1630,6 +1630,60 @@ def test_qwen_native_opening_rankpath_does_not_match_first_token() -> None:
     assert 0.60 < prefix_auc.auc < 0.75
 
 
+def test_opening_snapupset_is_chance() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix4-snaprate"
+        / "snapupset"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.used_hash_iv is False
+    assert ev.used_g_values is False
+    assert ev.n_prompts_marked_above == 7
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.45 < stats.auc < 0.55
+    assert stats.permutation_p > 0.2
+
+
+def test_opening_snapmiss_ranks_and_is_not_isolated() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix4-snaprate"
+        / "snapmiss"
+        / "holdout.json"
+    )
+    leave = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix4-snaprate"
+        / "snapleave"
+        / "holdout.json"
+    )
+    prefix = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-prefix4-snaprate"
+        / "snapupset"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 10
+    assert ev.n_marked_positive == 21
+    assert ev.n_unmarked_nonpositive == 41
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert stats.auc > 0.65
+    assert stats.permutation_p < 0.01
+    # Majority leave-argmax is not a detector. Prefix-4 upset stays chance.
+    assert leave.n_marked_positive == 48
+    assert leave.n_unmarked_nonpositive == 7
+    assert prefix.n_prompts_marked_above == 6
+    prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
+    assert 0.45 < prefix_auc.auc < 0.55
+
+
 def _snap_twin(stem: str) -> object:
     from text_watermark_tools.blind import Twin
 

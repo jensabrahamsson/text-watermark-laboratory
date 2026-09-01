@@ -14,6 +14,7 @@ The main result is the **key-free watermark indicator** described in [key-free-t
 | [key-free-tokhits.md](key-free-tokhits.md) | Occupancy Laplace vs observed next tokens: 39/48 includes The-ferry; postokhits **16/48** precision 1.0; opening-overlap last-2+ core **13/48** |
 | [key-free-cascade.md](key-free-cascade.md) | Coverage-then-fallback: ABSTAIN at n_used=0; `--cascade-when positive` 40/48 vs 40/48 |
 | [key-free-rankpath.md](key-free-rankpath.md) | Rank-symbol tables: GPT-2 opening 41/48; Distil native **8/12** chance; Qwen opening rankpath **8/12** |
+| [key-free-snaprate.md](key-free-snaprate.md) | Table-free leave/upset/miss: opening `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48** |
 | [how-synthid-works.md](how-synthid-works.md) | How the public SynthID-Text reference implementation hashes, samples, and scores |
 | [invertibility.md](invertibility.md) | Why the key-free result is not key recovery |
 | [claude.md](claude.md) | Anthropic's announced text marking and what can actually be measured |
@@ -29,4 +30,5 @@ The conceptual split is simple:
 **occupancy vs observed next token → `tokhits` / `postokhits`**  
 **opening-overlap bound / last-2 floor → `openings` / `postokbackoff2`**  
 **rank-symbol tables / leftover fill-in → `rankpath` / `--cascade-rankpath-end` / `--cascade-when`**  
+**table-free unmarked-LM snap-rate → `--snaprate` (`snapupset` is chance)**  
 **key-free removal attempt → `scrub` (official `score` only as a reference check)**
