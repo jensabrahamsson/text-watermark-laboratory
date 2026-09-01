@@ -1820,3 +1820,86 @@ def test_prefix8_backoff_rescues_four_zeros_not_letter_d2() -> None:
     assert rank.n_marked_positive == 30
     assert rank.n_unmarked_nonpositive == 35
 
+
+def test_letter_d2_official_5gram_is_isolated_rank_invisible() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-letter-d2-first-ngram"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is True
+    d2 = raw["letter_d2"]
+    assert d2["ids5"] == [3844, 287, 262, 1218, 314]
+    assert d2["pieces8"][:5] == ["Now", " in", " the", " second", " I"]
+    assert d2["official_isolated_prefix5_mean"] > 0.70
+    assert d2["g_last_ones"] == 22
+    assert d2["g_last_equal"] is True
+    assert d2["isolated_fifth"]["rank_topk"] == 41
+    assert d2["isolated_fifth"]["in_topk"] is False
+    assert d2["isolated_fifth"]["symbol"] == 0
+    assert d2["prompt_fifth"]["rank_topk"] == 11
+    assert d2["prompt_fifth"]["in_topk"] is True
+    assert d2["prompt_fifth"]["symbol"] == 4
+    iso_misses = [
+        (r["stem"], r["sample"])
+        for r in raw["leftover_marked"]
+        if not r["isolated_fifth"]["in_topk"]
+    ]
+    assert iso_misses == [("08-letter", 2), ("08-letter", 3)]
+    ferry = [
+        r
+        for r in raw["leftover_marked"]
+        if r["stem"] == "12-ferry-queue" and r["sample"] == 4
+    ][0]
+    assert ferry["official_prefix5_mean"] > 0.65
+    assert ferry["isolated_fifth"]["rank_topk"] == 1
+    assert ferry["prompt_fifth"]["rank_topk"] == 1
+
+
+def test_prefix5_rankpath_does_not_beat_prefix4_or_rescue_letter_d2() -> None:
+    p5 = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix5-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    p4 = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-probe-12x4-fitprefix4-rankpath-isolated"
+        / "rankpath"
+        / "holdout.json"
+    )
+    fifth = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix5-rankpath"
+        / "window-3-4"
+        / "rankuni"
+        / "holdout.json"
+    )
+    assert p5.used_keys is False
+    assert p5.n_prompts_marked_above == 11
+    assert p5.n_marked_positive == 30
+    assert p5.n_unmarked_nonpositive == 36
+    assert p4.n_prompts_marked_above == 12
+    assert p4.n_marked_positive == 41
+    by5 = {
+        (s, samp): lr
+        for s, samp, lr in zip(p5.stems, p5._samples(), p5.marked_lrs)
+    }
+    assert by5[("08-letter", 2)] < 0
+    auc5 = binary_eval(p5.marked_lrs, p5.unmarked_lrs, n_perm=200, seed=0)
+    auc4 = binary_eval(p4.marked_lrs, p4.unmarked_lrs, n_perm=200, seed=0)
+    assert auc5.auc < auc4.auc
+    assert fifth.used_keys is False
+    assert fifth.n_prompts_marked_above == 4
+    fifth_auc = binary_eval(fifth.marked_lrs, fifth.unmarked_lrs, n_perm=200, seed=0)
+    assert fifth_auc.auc < 0.50
+

@@ -136,12 +136,19 @@ def test_persist_transfer_writes_each_pivot_weight(tmp_path) -> None:
 
 
 def test_opening_matrix_end_skips_generated_token_zero() -> None:
-    from text_watermark_tools.rankpath import opening_matrix_end
+    from text_watermark_tools.rankpath import (
+        generated_tokens_for_rank_symbols,
+        opening_matrix_end,
+    )
 
     assert opening_matrix_end(None, False) is None
     assert opening_matrix_end(4, False) == 3
     assert opening_matrix_end(4, True) == 4
     assert opening_matrix_end(1, False) == 0
+    # Isolated prefix-4 never includes the first official 5-gram (token 4).
+    assert opening_matrix_end(5, False) == 4
+    assert generated_tokens_for_rank_symbols(4, False) == 5
+    assert generated_tokens_for_rank_symbols(3, False) == 4
 
 
 def test_slice_matrices_is_half_open_rows() -> None:

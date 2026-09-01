@@ -23,4 +23,8 @@ means are **0.733 / 0.767** (one 5-gram). Office d1/d3
 opening rankpath already signs 7/8 of these files; only letter d2
 misses. The OOD 60-stem prefix-4 reader misses all eight.
 
+Letter d2's official 5-gram is generated token `I`. Isolated GPT-2
+ranks it 41; prompt-conditioned rank is 11. Prefix-5 rankpath still
+misses. See [../2026-09-01-letter-d2-first-ngram/](../2026-09-01-letter-d2-first-ngram/).
+
 Write-up: [../../research/key-free-cascade.md](../../research/key-free-cascade.md).

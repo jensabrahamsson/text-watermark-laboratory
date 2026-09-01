@@ -632,4 +632,18 @@ JSON: `experiments/2026-09-01-official-prefix-leftover/`,
 `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/`.
 Write-up: [key-free-cascade.md](key-free-cascade.md).
 
+## 2026-09-01 letter d2 official 5-gram is isolated-rank invisible
+
+Letter d2 first 5-gram `Now in the second I` is officially marked
+(mean **0.733**, 22/30). Isolated `--fit-prefix 4` never scores token
+4. Isolated unmarked GPT-2 ranks that token at **41** (miss);
+prompt-conditioned rank is **11**. Prefix-5 rankpath is **11/12**,
+**30/48 vs 36/48**, letter d2 still `lr<0`. Fifth-token rankuni is
+**4/12**, AUC **0.406**. Ferry-queue d4 is official 0.700 on the
+argmax. Keep prefix-4. Do not sell 30/48.
+
+JSON: `experiments/2026-09-01-letter-d2-first-ngram/`,
+`experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
 ---

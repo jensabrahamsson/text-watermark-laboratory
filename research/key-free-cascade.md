@@ -152,7 +152,26 @@ Prefix 4 is shorter than `ngram_len=5` and returns no official score.
 Letter d2/d3 prefix-5 means are **0.733 / 0.767**. Office d1/d3 are
 0.500 at five tokens and 0.633 at eight. In-domain opening rankpath
 already signs 7/8; only letter d2 misses. The OOD miss is overlap plus
-one hard 5-gram (`Now in the second I'm just getting ready for bed.`).
+one hard 5-gram (`Now in the second I`).
+
+That 5-gram is generated token 4. Isolated `--fit-prefix 4` rankpath
+never scores it (three symbols = tokens 1–3). Isolated unmarked GPT-2
+ranks `I` given `Now in the second` at **41** (miss top-k). The same
+token with the prompt in context is rank **11**. Official g-values on
+the isolated 5-gram match the last n-gram of `prompt + generated[:5]`
+(22/30). Isolated rankpath is the right tokens and the wrong LM
+context; generation-time rank 11 is not the near-tie bin.
+
+In-domain `--fit-prefix 5` rankpath
+([../experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/](../experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/))
+is **11/12**, **30/48 vs 36/48**. Prefix-4 stays **12/12 / 41/48**.
+Letter d2 stays `lr<0` (−1.208). Window `3:4` rankuni (token 4 alone)
+is **4/12**, AUC **0.406**. Letter d3's 5-gram is also an isolated
+miss (rank 41, official 0.767); prefix-4 already signs it from tokens
+1–3. Ferry-queue d4 is officially marked (0.700) on the **argmax**.
+Keep prefix-4. Do not sell 30/48.
+
+JSON: [../experiments/2026-09-01-letter-d2-first-ngram/](../experiments/2026-09-01-letter-d2-first-ngram/).
 
 60-stem `--fit-prefix 8` postokbackoff
 ([../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/))
@@ -178,9 +197,12 @@ prefix-4 rankpath. Do not sell 38/48 as beating poshits **39/48**.
   `n_used=0`. `--cascade-when positive` also substitutes covered
   negatives; on the 60-stem prefix-4 gate that is **40/48 vs 40/48**.
   Quote the count channel when it is positive. Uncovered-only 10% FPR
-  is reported beside t=0. Prefix-8 backoff on the same 60-stem train is
+  is reported beside t=0.   Prefix-8 backoff on the same 60-stem train is
   **38/48 vs 40/48** (4 extra zeros, 8 FPs). Keep prefix-4 when the
-  high-precision abstaining reader is the point.
+  high-precision abstaining reader is the point. Isolated prefix-5
+  rankpath is **11/12**, **30/48 vs 36/48** and still misses letter
+  d2's official 5-gram (isolated rank 41, prompt rank 11). Keep
+  prefix-4.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel

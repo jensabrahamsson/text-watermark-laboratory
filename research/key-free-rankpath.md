@@ -51,7 +51,10 @@ isolated-file signal: **41/48** at threshold 0 with 9 unmarked FPs. That
 is stronger than opening LDA (**27/48**) and stronger than the published
 full-file pivot (**17/48**). It is **not** the 29/48 last-4 hard-holdout
 headline (different protocol, 128-token files). Nested-by-stem Youden is
-**37/48 vs 39/48**.
+**37/48 vs 39/48**. Isolated `--fit-prefix 5` (four symbols, last row =
+the first official 5-gram) is **11/12**, **30/48 vs 36/48** and still
+misses letter d2. Keep prefix-4. See
+[key-free-cascade.md](key-free-cascade.md).
 
 ## Out-of-family: 24 short 36×4 stems → 12×4
 
@@ -266,10 +269,13 @@ or rankuni 39/48 as beating poshits **39/48** (16 unmarked FPs).
   FPs. Unbucketed first-four rank symbols transfer as ranking **11/12**
   with isolated **25/48 vs 43/48** (5 unmarked FPs). 60-stem prefix-4 as a
   standalone reader is **10/12**, **28/48 vs 40/48** (same 68/96 combined
-  as 24-short). Full-file rank-path is chance. Native Distil opening
-  rankpath is chance (**8/12**, AUC **0.579**) despite official 12/12.
-  Native Qwen opening rankpath is **8/12** against first-token **12/12**.
-  Rank-path is not a universal tournament detector.
+  as 24-short). Prefix-5 (four symbols) is weaker (**11/12**, 30/48) and
+  still misses letter d2's official 5-gram. Full-file rank-path is chance.
+  Native Distil opening rankpath is chance (**8/12**, AUC **0.579**)
+  despite official 12/12. Native Qwen opening rankpath is **8/12** against
+  first-token **12/12**. Rank-path is not a universal tournament detector.
+  An officially marked 5-gram can sit at isolated rank 41 or at the
+  argmax; neither is the near-tie bin.
 - Table-free snap-rate is **not** a substitute. Opening `snapupset`
   (in-topk not argmax) is chance (**7/12**, AUC **0.501**). `snapmiss`
   ranking is already inside opening LDA. See

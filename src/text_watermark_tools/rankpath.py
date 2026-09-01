@@ -137,7 +137,11 @@ def opening_matrix_end(fit_prefix: int | None, prompt_context: bool) -> int | No
     """Choice-matrix rows that match a clipped generated file.
 
     Isolated generated-only skips token 0, so ``--fit-prefix 4`` is three
-    rank symbols. Prompt context scores every generated token.
+    rank symbols (generated tokens 1–3). Official ``detector_mean`` on an
+    isolated prefix of ``ngram_len=5`` scores one 5-gram: generated tokens
+    0–4. That tournament is choice-matrix row 3, which isolated rankpath
+    only sees at ``--fit-prefix 5`` (four symbols). Prompt context scores
+    every generated token.
     """
     if not fit_prefix or int(fit_prefix) <= 0:
         return None
