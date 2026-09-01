@@ -1819,4 +1819,19 @@ JSON: `experiments/2026-09-01-pair-gpt2-medium-12x4/`,
 `experiments/2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/`,
 `experiments/2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/`.
 
+## 2026-09-01 Distil↔gpt2-medium occupancy-free freeze
+
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md) committed at SHA
+`3bb8430`. gpt2-medium→gpt2-medium occupancy-free is already **10/48**.
+The remaining analog is Distil 100×4 tables scoring gpt2-medium 12×4
+files and gpt2-medium 100×4 tables scoring Distil 12×4 files (same BPE;
+already-frozen twins; not leftover targeting). Hypotheses H-xsize-cover,
+H-xsize-B, and H-xsize-iso are stated before any Distil↔gpt2-medium LRs.
+Do not look at those LRs until the probe and openings commands have been
+run once, as written. Do not apply leftover-15 or leftover-18 keys to
+Distil 12 or gpt2-medium 12 files. Do not target leftover-15 openings.
+Do not freeze Distil ∪ gpt2-medium union in this file. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
 ---

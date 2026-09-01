@@ -51,6 +51,7 @@ def test_protocol_xsize_names_frozen_sources_before_decode() -> None:
     assert "Distil ∪ gpt2-medium" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H-xsize-cover **holds**" not in text
+    assert "`3bb8430`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert DISTIL_TRAIN.is_dir()
     assert MEDIUM_TRAIN.is_dir()
     assert DISTIL_TEST.is_dir()
