@@ -114,6 +114,8 @@ When the tables are trained on **other prompt families** (24 stems from the 36-t
 | In-domain hashtok `--n-hashes` | Mixer-width ablation at seed 20260831 | n=2 **11/12** / **34/48 vs 31/48** nested **28/48 vs 37/48**; n=4 **36/48 vs 30/48**; n=32 hurts **30/48** |
 | In-domain hashtok n=2 seed sweep | Feature-hash seed, not `hash_iv` | n=2 spec **21–31/48**; default seed is a lucky mixer; n=8 seed 7 nested **28/37**; not a width law |
 | Transfer hashtok `--n-hashes`, 24→12 | Same mixer at seed 20260831 | n=8 **11/12** / nested **17/48 vs 46/48**; other seeds drop n=8 prompt to 10/12; n=2 seed 7 nested **19/47**; keep frozen protocol |
+| In-domain hashtok last-k | Order ablation at frozen mixer | last-1 chance **5/12**; last-3 prompt **11/12** with t=0 **24/48** (below **29/48**); keep last-4 |
+| Transfer hashtok last-k, 24→12 | Same frozen mixer | last-4 still **11/12** / nested FPR10 **17/46**; last-2 AUC **0.738** nested **15/45**; last-1 nested **18/45** with prompt **7/12** |
 | In-domain hashtok2 | Same mixer, min_count=2 | **8/12**, **34/48 vs 21/48** (sign reshuffle, not a singleton core) |
 
 So `indicate` is an experimental watermark-presence indicator. It is not a universal verdict machine, and 10/12 must not be read as single-text accuracy.

@@ -4065,5 +4065,174 @@ def test_hashtok_transfer_seed_win_is_not_a_width_law() -> None:
     assert hold.n_prompts_marked_above == 9
 
 
+def _letter_d2(holdout) -> float:
+    return next(
+        m
+        for s, samp, m in zip(holdout.stems, holdout._samples(), holdout.marked_lrs)
+        if s == "08-letter" and samp == 2
+    )
+
+
+def _nested_fpr10(results: dict, name: str) -> tuple[int, int]:
+    rows = [
+        row
+        for row in results["thresholds"]
+        if row["name"] == name and row["source"] == "nested-fpr10"
+    ]
+    assert len(rows) == 1
+    return int(rows[0]["n_marked_above"]), int(rows[0]["n_unmarked_at_most"])
+
+
+def test_hashtok_lastk_in_domain_is_not_an_order_law() -> None:
+    """In-domain hashtok last-1 is chance; last-3 11/12 is a sparse knob.
+
+    Frozen mixer n_hashes=8, seed 20260831. last-3 t=0 24/48 is below
+    hard last-4 29/48. Keep context_len=4. Do not sell 24/48.
+    """
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments"
+
+    def load(name: str):
+        d = root / name
+        holdout = holdout_from_json(d / "hashtok" / "holdout.json")
+        results = json.loads((d / "results.json").read_text())
+        method = next(m for m in results["methods"] if m["name"] == "hashtok")
+        nested = method["nested_stem"]["nested-youden-by-stem"]
+        return holdout, nested, results
+
+    k1, nest1, r1 = load("2026-09-01-probe-12x4-hashtok-k1")
+    k2, nest2, r2 = load("2026-09-01-probe-12x4-hashtok-k2")
+    k3, nest3, r3 = load("2026-09-01-probe-12x4-hashtok-k3")
+    k4, nest4, r4 = load("2026-09-01-probe-12x4-hashtok")
+
+    for holdout, results in ((k1, r1), (k2, r2), (k3, r3), (k4, r4)):
+        assert results["used_keys"] is False
+        assert holdout.used_keys is False
+        assert holdout.used_hash_iv is False
+        assert holdout.used_g_values is False
+        assert holdout.instance == "key-free-hashtok"
+
+    assert r1["context_len"] == 1
+    assert r2["context_len"] == 2
+    assert r3["context_len"] == 3
+    assert r4["context_len"] == 4
+
+    assert k1.n_prompts_marked_above == 5
+    assert k1.n_marked_positive == 22
+    assert k1.n_unmarked_nonpositive == 22
+    assert (nest1["n_marked_above"], nest1["n_unmarked_at_most"]) == (9, 42)
+    assert r1["methods"][0]["binary"]["auc"] < 0.52
+
+    assert k2.n_prompts_marked_above == 9
+    assert k2.n_marked_positive == 27
+    assert k2.n_unmarked_nonpositive == 28
+    assert (nest2["n_marked_above"], nest2["n_unmarked_at_most"]) == (19, 32)
+
+    assert k3.n_prompts_marked_above == 11
+    assert k3.n_marked_positive == 24
+    assert k3.n_unmarked_nonpositive == 36
+    assert (nest3["n_marked_above"], nest3["n_unmarked_at_most"]) == (22, 40)
+
+    assert k4.n_prompts_marked_above == 9
+    assert k4.n_marked_positive == 33
+    assert k4.n_unmarked_nonpositive == 22
+    assert (nest4["n_marked_above"], nest4["n_unmarked_at_most"]) == (22, 30)
+
+    assert k3.n_marked_positive < 29
+    assert k3.n_marked_positive < k4.n_marked_positive
+    assert nest3["n_unmarked_at_most"] > nest4["n_unmarked_at_most"]
+    assert nest3["n_marked_above"] == nest4["n_marked_above"]
+    assert k1.n_prompts_marked_above < k4.n_prompts_marked_above
+    assert k3.n_prompts_marked_above > k4.n_prompts_marked_above
+    assert k3.n_marked_positive < 39
+    assert nest3["n_unmarked_at_most"] < 39
+
+    assert _letter_d2(k1) < 0
+    assert _letter_d2(k2) < 0
+    assert _letter_d2(k3) > 0
+    assert _letter_d2(k4) < 0
+
+
+def test_hashtok_lastk_does_not_transfer_as_an_order_law() -> None:
+    """24→12 last-4 still wins prompt ranking and nested FPR10 recall.
+
+    last-2 file AUC 0.738 is ranking, not isolated classification
+    (nested Youden 15/48 vs last-4 17/48). last-1 nested 18/48 has
+    prompt 7/12 and FPR10 8/48. last-3 nested 11/48 is sparse.
+    Keep context_len=4. Do not sell 18/48 or 0.738 as replacing 29/48.
+    """
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments"
+
+    def load(name: str):
+        d = root / name
+        holdout = holdout_from_json(d / "hashtok" / "holdout.json")
+        results = json.loads((d / "results.json").read_text())
+        return holdout, results
+
+    k1, r1 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-k1")
+    k2, r2 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-k2")
+    k3, r3 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-k3")
+    k4, r4 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8")
+
+    for holdout, results in ((k1, r1), (k2, r2), (k3, r3), (k4, r4)):
+        assert results["used_keys"] is False
+        assert results["used_hash_iv"] is False
+        assert results["used_g_values"] is False
+        assert results["n_train_prompts"] == 24
+        assert results["n_test_prompts"] == 12
+        assert results["overlap_mode"] == "drop-from-train"
+        assert holdout.used_keys is False
+        assert holdout.instance == "key-free-hashtok"
+
+    assert r1["context_len"] == 1
+    assert r2["context_len"] == 2
+    assert r3["context_len"] == 3
+    assert r4["context_len"] == 4
+
+    assert k1.n_prompts_marked_above == 7
+    assert k1.n_marked_positive == 25
+    assert k1.n_unmarked_nonpositive == 35
+    assert _nested_youden(r1, "hashtok") == (18, 45)
+    assert _nested_fpr10(r1, "hashtok") == (8, 46)
+
+    assert k2.n_prompts_marked_above == 10
+    assert k2.n_marked_positive == 29
+    assert k2.n_unmarked_nonpositive == 36
+    assert _nested_youden(r2, "hashtok") == (15, 45)
+    assert r2["methods"][0]["binary"]["auc"] > 0.73
+
+    assert k3.n_prompts_marked_above == 10
+    assert k3.n_marked_positive == 25
+    assert k3.n_unmarked_nonpositive == 34
+    assert _nested_youden(r3, "hashtok") == (11, 47)
+
+    assert k4.n_prompts_marked_above == 11
+    assert k4.n_marked_positive == 29
+    assert k4.n_unmarked_nonpositive == 35
+    assert _nested_youden(r4, "hashtok") == (17, 46)
+    assert _nested_fpr10(r4, "hashtok") == (17, 46)
+
+    assert k4.n_prompts_marked_above > k2.n_prompts_marked_above
+    assert k4.n_prompts_marked_above > k1.n_prompts_marked_above
+    nest4 = _nested_youden(r4, "hashtok")
+    nest2 = _nested_youden(r2, "hashtok")
+    nest3 = _nested_youden(r3, "hashtok")
+    nest1 = _nested_youden(r1, "hashtok")
+    assert nest2[0] < nest4[0]
+    assert nest3[0] < nest4[0]
+    assert nest1[0] < 29
+    assert nest4[0] < 29
+    assert k2.n_marked_positive < 39
+    auc2 = r2["methods"][0]["binary"]["auc"]
+    auc4 = r4["methods"][0]["binary"]["auc"]
+    assert auc2 > auc4
+    assert _letter_d2(k1) < 0
+    assert _letter_d2(k2) < 0
+    assert _letter_d2(k3) < 0
+    assert _letter_d2(k4) < 0
+
 
 

@@ -98,9 +98,13 @@ on that mixer is **34/48 vs 31/48**, nested **28/48 vs 37/48**, AUC
 n=8 is not the best in-domain width **at seed 20260831**; that n=2 win
 is seed-confounded (n=2 spec **21–31/48**). 24→12 nested Youden prefers
 n=8 (**17/48 vs 46/48**) at seed 20260831; that win is also
-seed-confounded (n=2 seed 7 nested **19/48 vs 47/48**). Keep the
-frozen protocol. Do not fish a seed. Do not sell 36/48 or
-31/48. OR with hard
+seed-confounded (n=2 seed 7 nested **19/48 vs 47/48**). Occupancy-free
+last-k at that frozen mixer: in-domain last-1 is chance (**5/12**);
+last-3 prompt **11/12** has t=0 **24/48** (below **29/48**). 24→12
+last-4 still wins prompt ranking and nested FPR10 (**17/48 vs 46/48**);
+last-2 file AUC **0.738** is ranking (nested **15/48**); last-1 nested
+**18/48** has prompt **7/12**. Keep `--context-len 4`. Do not fish a
+seed. Do not sell 36/48, 31/48, 24/48, or 18/48. OR with hard
 last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
 indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
 exist; the unmarked OR cost destroys the combined gate. Do not sell

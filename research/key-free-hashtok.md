@@ -623,6 +623,74 @@ a seed. Do not sell 19/48 or 17/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/).
 
+## Last-k order is not an isolated-file lever
+
+Mixer width and seed are exhausted as occupancy-free levers. The next
+axis is n-gram order (`--context-len`). Same occupancy-free `hashtok`,
+full 128-token files, frozen `n_hashes=8` and seed `20260831`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hashtok --context-len 3 \
+  --out-dir experiments/2026-09-01-probe-12x4-hashtok-k3
+```
+
+In-domain 12×4 leave-one-out:
+
+| context_len | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem |
+|---|---|---|---|---|---|
+| 1 | 5/12 | 0.507 | 22/48 | 22/48 | 9/48 vs 42/48 |
+| 2 | 9/12 | 0.585 | 27/48 | 28/48 | 19/48 vs 32/48 |
+| 3 | **11/12** | 0.666 | 24/48 | **36/48** | **22/48 vs 40/48** |
+| **4 (default)** | 9/12 | 0.664 | **33/48** | 22/48 | 22/48 vs 30/48 |
+
+Last-1 is chance (permutation p = 0.45). Last-3 is the best prompt
+ranking and nested spec, with sparser t=0 marked recall (**24/48** is
+below default **33/48** and below hard last-4 **29/48**). Last-2
+ranking is not a 5% test (p ≈ 0.097). Letter d2 flips positive at
+last-3; that is an order flip like n=16, not the official 5-gram.
+Nested last-3 recall **22/48** copies default last-4. Combined last-3
+t=0 **60/96** is a specificity knob.
+
+JSON: [../experiments/2026-09-01-probe-12x4-hashtok-k1/](../experiments/2026-09-01-probe-12x4-hashtok-k1/),
+[../experiments/2026-09-01-probe-12x4-hashtok-k2/](../experiments/2026-09-01-probe-12x4-hashtok-k2/),
+[../experiments/2026-09-01-probe-12x4-hashtok-k3/](../experiments/2026-09-01-probe-12x4-hashtok-k3/).
+
+## Last-k order does not transfer as a denser detector
+
+Same 24 new 36×4 stems → original 12×4 files, frozen mixer, nested
+Youden / 10% FPR from the 24 training stems.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --methods hashtok --context-len 2 \
+  --out-dir experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k2
+```
+
+| context_len | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden | nested FPR10 |
+|---|---|---|---|---|---|---|
+| 1 | 7/12 | 0.651 | 25/48 | 35/48 | **18/48 vs 45/48** | 8/48 vs 46/48 |
+| 2 | 10/12 | **0.738** | **29/48** | **36/48** | 15/48 vs 45/48 | 13/48 vs 47/48 |
+| 3 | 10/12 | 0.667 | 25/48 | 34/48 | 11/48 vs 47/48 | 12/48 vs 47/48 |
+| **4 (default)** | **11/12** | 0.707 | **29/48** | 35/48 | 17/48 vs 46/48 | **17/48 vs 46/48** |
+
+Last-4 still wins prompt ranking and nested FPR10 recall. Last-2 has
+the best file AUC; that is ranking, not isolated classification
+(nested Youden **15/48** is below last-4 **17/48**). Last-2 t=0 marked
+**29/48** copies last-4 on this split and is **not** the headline hard
+last-4 **29/48**. Last-1 nested-Youden recall **18/48** is the highest
+among the four orders, with collapsed prompt **7/12** and nested FPR10
+**8/48**. In-domain last-3 **11/12** does not transfer (nested **11/48**).
+Letter d2 stays negative on every transfer order. Keep
+`--context-len 4` with `n_hashes=8` and seed `20260831`. Do not sell
+24/48, 18/48 nested, last-3 prompt 11/12, or last-2 AUC **0.738** as
+replacing **29/48** or beating poshits **39/48**.
+
+JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k1/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k1/),
+[../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k2/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k2/),
+[../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k3/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k3/).
+
 ## OR with hard last-4 is complementary TPs, not a detector
 
 Saved 12×4 LOO holdouts, no new GPT-2. Hard last-4 indicate is still

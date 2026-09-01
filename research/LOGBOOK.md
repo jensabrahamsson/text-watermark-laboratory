@@ -969,4 +969,30 @@ prompt 9/12. Letter d2 flips at seed 0. Keep `n_hashes=8` and seed
 `experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok last-k ablation: last-1 is chance
+
+In-domain 12×4 occupancy-free `hashtok` while varying `--context-len`,
+frozen `n_hashes=8` and seed `20260831`. Last-1 is chance (**5/12**,
+AUC **0.507**, **22/48 vs 22/48**, nested **9/48 vs 42/48**). Last-3
+is the best prompt ranking (**11/12**) and nested spec (**22/48 vs
+40/48**), with sparser t=0 marked (**24/48**, below default **33/48**
+and below hard last-4 **29/48**). Last-2 ranking is not a 5% test.
+Letter d2 flips positive at last-3; not the official 5-gram. Keep
+`--context-len 4`. Do not sell 24/48 or last-3 **11/12**. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-k{1,2,3}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok last-k does not transfer as a denser detector
+
+24 new 36×4 stems → original 12×4 files, same frozen mixer. Last-4
+still wins prompt ranking (**11/12**) and nested FPR10 (**17/48 vs
+46/48**). Last-2 has the best file AUC (**0.738**) with nested Youden
+**15/48 vs 45/48**. Last-1 nested-Youden recall **18/48** has prompt
+**7/12** and FPR10 **8/48**. In-domain last-3 **11/12** does not
+transfer (nested **11/48 vs 47/48**). Transfer t=0 29/48 is not the
+headline hard last-4 **29/48**. Keep `--context-len 4`. Do not sell
+18/48 nested or AUC 0.738. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k{1,2,3}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
