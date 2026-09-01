@@ -1508,4 +1508,13 @@ still not finished.
 
 JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
 
+## 2026-09-01 two-grain narrative and mask-k protocol frozen
+
+[narrative.md](narrative.md) and
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) committed at
+SHA `004397c`. Prompt-group ranking stays real; isolated **25/48** stays
+chance-like. Do not write a “key-free detection fails” paper. Do not
+look at 12-LOO `--windows` LRs until this line is on origin. Do not
+write `thesis/`.
+
 ---

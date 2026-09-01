@@ -21,3 +21,4 @@ def test_protocol_mask_names_frozen_windows_before_probe() -> None:
     assert "2026-09-01-probe-12x4-headline-windows" in text
     assert "*(empty until the SHA is named" in text
     assert "Masking *k*=1 is" in text
+    assert "`004397c`" in (ROOT / "research" / "LOGBOOK.md").read_text()
