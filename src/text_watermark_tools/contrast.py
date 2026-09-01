@@ -390,6 +390,7 @@ def run_instance_contrast(
         context_len=context_len,
         fit_prefix=prefix_n or None,
         position_bucket=pos_bucket,
+        rankpath_pos_bucket=rank_bucket if rank_names else None,
         note=CONTRAST_NOTE,
     )
     for name, (scorer, instance) in scorers.items():

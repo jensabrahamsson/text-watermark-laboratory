@@ -203,6 +203,18 @@ without keys, not key recovery. Observed-token `postokhits` on the same
 pile is also **0/48** control `lr>0` (public isolated **16/48**). See
 [research/key-free-tokhits.md](research/key-free-tokhits.md).
 
+Unbucketed prefix-4 rankpath on the same split ranks control with
+unmarked (AUC **0.511**, isolated **6/48**). Opening rankuni does not
+(control **30/48**). See [research/key-free-rankpath.md](research/key-free-rankpath.md).
+
+```bash
+python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --control-dir experiments/2026-08-31-pair-12x4-controlkeys \
+  --fit-prefix 5 --pos-bucket 0 --methods rankpath,rankuni \
+  --out-dir experiments/2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath
+```
+
 ---
 
 ## Run the key-free experiment

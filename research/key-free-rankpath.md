@@ -131,6 +131,75 @@ among decided. Full-file rankpath fallback signs **4/6** leftover zeros
 and 17 of 42 uncovered unmarked files. Combined cascade **38/48**,
 precision 0.691. Mixed AUC 0.822 is not a detector. Do not sell 38/48.
 
+## Instance contrast (not key recovery)
+
+Fit public 36×4 rank-path tables. Score the 12×4 public twins and the
+matching `control-shuffled-30` pile. Same three comparisons as
+[key-free-contrast.md](key-free-contrast.md). `used_keys=false`.
+
+JSON: [../experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/](../experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/),
+[../experiments/2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath/](../experiments/2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath/).
+
+Opening (`--fit-prefix 4 --pos-bucket 1`):
+
+| Method | Comparison | Prompt wins | File AUC | pos `lr>0` | neg `lr≤0` | perm p |
+|---|---|---|---|---|---|---|
+| **rankpath** | public-vs-unmarked | **10/12** | **0.683** | **28/48** | 33/48 | 0.002 |
+| **rankpath** | control-vs-unmarked | 8/12 | **0.498** | 17/48 | 33/48 | 0.42 |
+| **rankpath** | public-vs-control | 9/12 | **0.694** | 28/48 | 31/48 | 0.001 |
+| rankuni | public-vs-unmarked | 8/12 | 0.628 | 29/48 | 25/48 | 0.019 |
+| rankuni | control-vs-unmarked | 9/12 | **0.613** | **30/48** | 25/48 | 0.025 |
+| rankuni | public-vs-control | 5/12 | **0.502** | 29/48 | 18/48 | 0.49 |
+
+Unbucketed prefix-4 (`--fit-prefix 5 --pos-bucket 0`):
+
+| Method | Comparison | Prompt wins | File AUC | pos `lr>0` | neg `lr≤0` | perm p |
+|---|---|---|---|---|---|---|
+| **rankpath** | public-vs-unmarked | **11/12** | **0.759** | **25/48** | **43/48** | 0.00050 |
+| **rankpath** | control-vs-unmarked | 6/12 | **0.511** | **6/48** | 43/48 | 0.27 |
+| **rankpath** | public-vs-control | 9/12 | **0.752** | 25/48 | 42/48 | 0.00050 |
+| rankuni | public-vs-unmarked | 10/12 | 0.653 | 31/48 | 27/48 | 0.005 |
+| rankuni | control-vs-unmarked | 7/12 | 0.557 | 22/48 | 27/48 | 0.17 |
+| rankuni | public-vs-control | 7/12 | 0.594 | 31/48 | 26/48 | 0.034 |
+
+**rankpath tokbackoff** ranks the other instance with unmarked (opening
+AUC 0.498; prefix-4 AUC 0.511). Public vs control matches public vs
+unmarked. Isolated control `lr>0` is **not** the poshits **0/48**:
+opening 17/48, prefix-4 **6/48** (the same 5–6 false-positive rate as
+unmarked). Prefix-4 is the cleaner instance check.
+
+**rankuni** on the opening sees tournament sampling in general
+(control **30/48**, public vs control chance). Do not headline the
+unigram as instance-specific.
+
+Neither outcome recovers keys.
+
+## Prefix-4 cascade fallback (60-stem train)
+
+JSON: [../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/](../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/).
+
+Count tables stay `--fit-prefix 4 --pos-bucket 1`. Fallback is
+unbucketed first-four rank symbols (`--cascade-rankpath-end 4`), not
+the full file.
+
+| Channel | marked>0 | unmarked≤0 |
+|---|---|---|
+| postokbackoff (covered 42/48) | **34/48** | **48/48** |
+| prefix-4 rankpath on leftover zeros | **1/6** | 37/42 |
+| combined t=0 | **35/48** | **43/48** |
+| combined at uncovered FPR10 | 35/48 | 44/48 |
+
+One leftover zero signs (`The printer worked better`). Five unmarked
+FPs at t=0. That is higher precision than opening rankuni (2/6 leftover,
+15 unmarked FPs) and than full-file rankpath (4/6 leftover, 17 unmarked
+FPs). Do not sell 35/48 as beating poshits 39/48.
+
+Recomputing Youden / 10% FPR on *already saved* opening-rankuni leftover
+rows: FPR10 t=0.154 signs 1/6 leftover and 3 unmarked FPs (combined
+35/48 vs 45/48). Full-file leftover FPR10 signs 2/6 with 4 unmarked FPs.
+The high-precision fill-in is a threshold on the uncovered channel, not
+a mixed-magnitude AUC.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff` with
@@ -142,9 +211,12 @@ precision 0.691. Mixed AUC 0.822 is not a detector. Do not sell 38/48.
   first-four rank symbols transfer as ranking **11/12** with isolated
   **25/48 vs 43/48** (5 unmarked FPs). Full-file rank-path is chance.
   It is not a universal detector.
-- Cascade remains an honest two-channel report. On these OOD gates the
-  high-precision count channel is still the one to quote when coverage
-  exists. Full-file rankpath fallback is not a calibrated fill-in.
+- Cascade remains an honest two-channel report. Quote the high-precision
+  count channel when `n_used>0`. When it abstains, use the **opening**
+  rank-path reader, not the full file. Unbucketed prefix-4 is the
+  higher-precision leftover fill-in on the 60-stem gate (1/6 leftover,
+  5 unmarked FPs). Uncovered-only 10% FPR is reported beside t=0.
+  Mixed AUC is not a detector.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**.

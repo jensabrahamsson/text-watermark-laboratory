@@ -144,6 +144,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-probe-12x4-rankpath-full-isolated/` | Unbucketed full-file rank-path, 12×4 LOO | full **8/12** AUC 0.559; prefix-4 **10/12** / 0.718; 16:32 chance |
 | `2026-08-31-transfer-36x4-to-12x4-rankpath-full-isolated/` | Same slices, short → 12×4 | full 6/12; prefix-4 **11/12**, **25/48 vs 43/48** |
 | `2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/` | 60-stem count + full rankpath fallback | 42/34 count; cascade 38/48 (4/6 leftover zeros, 17 FP) |
+| `2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/` | Opening rankpath vs control-shuffled-30 | rankpath control AUC **0.498**, **17/48** `lr>0`; rankuni **30/48** |
+| `2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath/` | Unbucketed prefix-4 rankpath vs control | public **11/12** **25/48 vs 43/48**; control AUC **0.511**, **6/48** |
+| `2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/` | 60-stem count + prefix-4 rankpath fallback | 42/34 count; leftover **1/6**; cascade **35/48 vs 43/48** |
 
 ## What changed across the runs
 

@@ -72,6 +72,10 @@ against negative unmarked LRs are not evidence that control is marked.
 `--methods poshits,postokhits` runs the occupancy-gated reader on the
 same split. Control stays **0/48**. See [key-free-tokhits.md](key-free-tokhits.md).
 
+`--methods rankpath,rankuni` is the unmarked-LM rank-symbol reader.
+Prefix-4 rankpath control `lr>0` is **6/48** (chance ranking). Opening
+rankuni control is **30/48**. See [key-free-rankpath.md](key-free-rankpath.md).
+
 The matched 4-token poshits gate is the same split as
 [key-free-probe.md](key-free-probe.md): train 24 other 36×4 stems, skip
 generated token 0, position bucket 1.
@@ -180,6 +184,14 @@ occupancy; observed-token `postokhits` is **16/48** with precision 1.0
 among decided files, and control stays **0/48** under that reader too.
 Leave-one-of-12-out hard last-4 remains **29/48**. Qwen and DistilGPT2
 transfer remain chance. Tiny nets still do not beat poshits.
+
+Rank-path tables (unmarked-LM rank symbols, not token identity) are a
+different instance check. Unbucketed prefix-4 **rankpath** ranks
+control with unmarked (AUC **0.511**, isolated **6/48** `lr>0`, matching
+the unmarked false-positive rate) while public vs unmarked stays
+**11/12**, AUC **0.759**. Opening rankuni is *not* instance-specific
+(control **30/48**, public vs control AUC **0.502**). See
+[key-free-rankpath.md](key-free-rankpath.md). Not key recovery.
 
 `control_keys()` is a laboratory permutation of the public 30. A genuinely
 independent key sample, or a different generator, is a different

@@ -109,6 +109,14 @@ unmarked files. That 5/6 slice is not a test. Combined 39/48 has
 precision 0.722. Do not sell 39/48 cascade as beating poshits 39/48
 (The-Laplace occupancy, different FPs).
 
+Rank-path leftover fill-in, same 60-stem count tables, not the full
+file. Opening rankuni: **2/6** leftover, 15 unmarked FPs, cascade
+36/48. Full-file rankpath: **4/6** leftover, 17 unmarked FPs, cascade
+38/48. Unbucketed prefix-4 rankpath (`--cascade-rankpath-end 4`):
+**1/6** leftover, 5 unmarked FPs, cascade **35/48 vs 43/48**. Uncovered
+FPR10 on the saved opening-rankuni rows is 1/6 leftover and 3 unmarked
+FPs. Quote the count channel when `n_used>0`. Do not sell 35–38/48.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff`
@@ -120,10 +128,10 @@ precision 0.722. Do not sell 39/48 cascade as beating poshits 39/48
 - Prompt-conditioned geometry is not an isolated-file protocol and
   fails leave-one-prompt-out.
 - Cascade is an honest two-channel report, not a single score.
+  Rank-path fallback uses the opening path (or prefix-N), never the
+  full file. Uncovered-only 10% FPR is reported beside t=0.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel
 openings without token identity are in
-[key-free-rankpath.md](key-free-rankpath.md). Full-file rank-path
-fallback on the 60-stem gate is 38/48 with 17 unmarked FPs; keep the
-opening reader.
+[key-free-rankpath.md](key-free-rankpath.md).

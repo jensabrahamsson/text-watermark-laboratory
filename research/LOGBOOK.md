@@ -532,4 +532,24 @@ JSON: `experiments/2026-08-31-probe-12x4-rankpath-full-isolated/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/`.
 Write-up: [key-free-rankpath.md](key-free-rankpath.md).
 
+## 2026-08-31 rank-path instance contrast and prefix-4 cascade
+
+Public 36×4 rankpath tables vs 12×4 public and `control-shuffled-30`.
+Opening rankpath control ranking is chance (AUC **0.498**); isolated
+control `lr>0` **17/48**. Unbucketed prefix-4 rankpath: public
+**11/12**, AUC **0.759**, **25/48 vs 43/48**; control AUC **0.511**,
+isolated **6/48** (same FP rate as unmarked). Opening rankuni is a
+tournament detector (control **30/48**, public vs control AUC **0.502**).
+Not poshits **0/48**. Not key recovery.
+
+60-stem count plus prefix-4 rankpath fallback: **1/6** leftover zeros,
+5 unmarked FPs, cascade **35/48 vs 43/48**. Higher precision than
+opening rankuni (15 FPs) and full-file rankpath (17 FPs). Do not sell
+35/48.
+
+JSON: `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
 ---

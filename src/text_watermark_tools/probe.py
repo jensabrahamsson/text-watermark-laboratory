@@ -2443,7 +2443,9 @@ def run_probe(
         prompt_context=bool(prompt_context),
         pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names else (),
         rankpath_full=rank_full,
-        rankpath_pos_bucket=rank_bucket if rank_names else None,
+        rankpath_pos_bucket=(
+            rank_bucket if rank_names or fallback in RANKPATH_SPECS else None
+        ),
         cascade_rankpath_end=(
             int(cascade_rankpath_end)
             if cascade_rankpath_end and int(cascade_rankpath_end) > 0
@@ -3296,7 +3298,9 @@ def run_transfer(
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
         rankpath_full=rank_full,
-        rankpath_pos_bucket=rank_bucket if rank_names else None,
+        rankpath_pos_bucket=(
+            rank_bucket if rank_names or fallback in RANKPATH_SPECS else None
+        ),
         cascade_rankpath_end=(
             int(cascade_rankpath_end)
             if cascade_rankpath_end and int(cascade_rankpath_end) > 0

@@ -354,3 +354,60 @@ def test_controlkeys_official_lamp_is_other_instance() -> None:
     assert all(abs(x - 0.5) < 0.04 for x in pubs)
     assert all(m > 0.58 for m in matches)
     assert all(m > p for m, p in zip(matches, pubs, strict=True))
+
+
+def test_prefix4_rankpath_contrast_control_matches_unmarked_fp() -> None:
+    pub = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath",
+        "rankpath-public-vs-unmarked",
+    )
+    ctrl = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath",
+        "rankpath-control-vs-unmarked",
+    )
+    vs = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath",
+        "rankpath-public-vs-control",
+    )
+    uni = _contrast_hold(
+        "2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath",
+        "rankuni-control-vs-unmarked",
+    )
+    assert pub.used_keys is False
+    assert ctrl.used_keys is False
+    assert pub.n_prompts_marked_above == 11
+    assert pub.n_marked_positive == 25
+    assert pub.n_unmarked_nonpositive == 43
+    pub_auc = binary_eval(pub.marked_lrs, pub.unmarked_lrs, n_perm=200, seed=0)
+    ctrl_auc = binary_eval(ctrl.marked_lrs, ctrl.unmarked_lrs, n_perm=200, seed=0)
+    vs_auc = binary_eval(vs.marked_lrs, vs.unmarked_lrs, n_perm=200, seed=0)
+    assert pub_auc.auc > 0.72
+    assert 0.45 < ctrl_auc.auc < 0.58
+    assert vs_auc.auc > 0.70
+    assert ctrl.n_marked_positive == 6
+    assert uni.n_marked_positive == 30
+
+
+def test_prefix4_cascade_leftover_is_high_precision() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4"
+    )
+    data = json.loads((root / "cascade.json").read_text())
+    assert data["used_keys"] is False
+    assert data["fallback"] == "rankpath"
+    assert data["rankpath_end"] == 4
+    assert data["n_count_marked"] == 42
+    assert data["count_marked_above_zero"] == 34
+    assert data["n_fallback_marked"] == 6
+    assert data["fallback_marked_above_zero"] == 1
+    assert data["combined_marked_above_zero"] == 35
+    assert data["combined_unmarked_at_most_zero"] == 43
+    leftover = data["pivot_fallback_marked"]
+    assert len(leftover) == 6
+    signs = {row["opening_text"]: float(row["score"]) > 0.0 for row in leftover}
+    assert signs["The printer worked better"] is True
+    assert signs["The conductor turned and"] is False
