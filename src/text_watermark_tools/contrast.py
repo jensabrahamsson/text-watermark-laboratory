@@ -38,6 +38,7 @@ from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_count_model,
     fit_hashpool_twins,
+    score_hashtok,
     score_hashpool,
     score_sequence,
 )
@@ -257,7 +258,7 @@ def run_instance_contrast(
         pos_model = fit_count_model(
             train, context_len=context_len, position_bucket=pos_bucket
         )
-    if "hashpool" in names:
+    if "hashpool" in names or "hashtok" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
     for model in (count_model, pos_model, hash_model):
         if model is not None and (
@@ -344,6 +345,11 @@ def run_instance_contrast(
             lambda ids, m=hash_model: score_hashpool(ids, m),
             "key-free-hashpool",
         )
+    if "hashtok" in names and hash_model is not None:
+        scorers["hashtok"] = (
+            lambda ids, m=hash_model: score_hashtok(ids, m),
+            "key-free-hashtok",
+        )
     unknown = [
         n
         for n in names
@@ -354,7 +360,7 @@ def run_instance_contrast(
             "unknown contrast methods: "
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
-            "postokhits, postokbackoff, postokbackoff2, hashpool, "
+            "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
             "rankpath, rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )

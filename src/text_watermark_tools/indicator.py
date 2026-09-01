@@ -30,6 +30,7 @@ from text_watermark_tools.transfer import (
     HASHPOOL_KIND,
     SURFACE_KIND,
     peek_tables_kind,
+    score_hashtok_detail,
     score_hashpool_detail,
     score_sequence_detail,
     score_surface,
@@ -407,7 +408,7 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
-        if mode not in ("auto", "hashpool", ""):
+        if mode not in ("auto", "hashpool", "hashtok", ""):
             raise ValueError(
                 f"tables are hashpool; --score-mode {score_mode} does not apply"
             )
@@ -417,10 +418,16 @@ def score_text_from_tables(
             raise ValueError("hashpool tables need a tokenizer")
         model = load_hashpool(path)
         ids = tokenizer(text)["input_ids"]
-        detail = score_hashpool_detail(ids, model)
-        meta = load_tables_meta(path)
-        meta.score_kind = "hashpool"
-        meta.instance = model.instance
+        if mode == "hashtok":
+            detail = score_hashtok_detail(ids, model)
+            meta = load_tables_meta(path)
+            meta.score_kind = "hashtok"
+            meta.instance = "key-free-hashtok"
+        else:
+            detail = score_hashpool_detail(ids, model)
+            meta = load_tables_meta(path)
+            meta.score_kind = "hashpool"
+            meta.instance = model.instance
         meta.n_used = detail.n_used
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
@@ -471,7 +478,8 @@ def score_text_from_tables(
         raise ValueError(
             f"unknown --score-mode {score_mode}; "
             f"choose auto, hard, poshits, postokhits, postokbackoff, "
-            f"postokbackoff2, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
+            f"postokbackoff2, poshitmass, hashpool, hashtok, or one of "
+            f"{sorted(COUNT_SPECS)}"
         )
     spec = COUNT_SPECS[mode]
     return _return_detail(spec, mode, spec.instance)

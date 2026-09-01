@@ -624,6 +624,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     instance = INDICATOR_INSTANCE
     extra_rotate = {
         "hashpool": "rotate_hashpool",
+        "hashtok": "rotate_hashtok",
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
         "hashmix": "rotate_hashmix",
@@ -673,9 +674,9 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashvote, hybrid, surface, poshits, "
-                f"poshitmass, postokhits, postokbackoff, postokbackoff2, "
-                f"or one of "
+                f"choose hard, hashpool, hashtok, hashvote, hybrid, surface, "
+                f"poshits, poshitmass, postokhits, postokbackoff, "
+                f"postokbackoff2, or one of "
                 f"{sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
@@ -1254,10 +1255,11 @@ def build_parser() -> argparse.ArgumentParser:
             "bucketed count tables → poshits, else hard), or "
             "hard/hits/tokhits/tokbackoff/tokbackoff2/poshits/postokhits/"
             "postokbackoff/postokbackoff2/poshitmass/gated/unigram/… "
-            "Hashpool tables ignore count modes. tokhits skips Laplace "
-            "scores for a next token never seen under that context. "
-            "tokbackoff shrinks last-k until an observed next token hits. "
-            "tokbackoff2 stops at last-2."
+            "Hashpool tables ignore count modes except hashtok (skip a hash "
+            "unless the observed next token appeared in that bucket). "
+            "tokhits skips Laplace scores for a next token never seen under "
+            "that context. tokbackoff shrinks last-k until an observed next "
+            "token hits. tokbackoff2 stops at last-2."
         ),
     )
     p_is.add_argument(
@@ -1312,10 +1314,10 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, tokhits, tokbackoff, tokbackoff2, gated, "
-            "shrinkage, mix, hashpool, hashvote, hybrid, surface, poshits, "
-            "postokhits, postokbackoff, postokbackoff2, poshitmass. "
+            "shrinkage, mix, hashpool, hashtok, hashvote, hybrid, surface, "
+            "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
-            "postokbackoff2 modes need --rotate. Still key-free."
+            "postokbackoff2/hashtok modes need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument(
@@ -1353,11 +1355,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--methods",
         default="",
         help=(
-            "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
-            "postokbackoff, postokbackoff2, poshitmass, pospool, first, "
-            "tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, rankhits, "
-            "snapleave, snapupset, snapmiss"
+            "Comma-separated methods: count specs plus hashpool, hashtok, "
+            "hashvote, hybrid, hashmix, surface, stack, logit, poshits, "
+            "postokhits, postokbackoff, postokbackoff2, poshitmass, pospool, "
+            "first, tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, "
+            "rankhits, snapleave, snapupset, snapmiss"
         ),
     )
     p_probe.add_argument(
@@ -1672,7 +1674,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
             "poshits, postokhits, postokbackoff, postokbackoff2, hashpool, "
-            "rankpath, rankuni, rankhits"
+            "hashtok, rankpath, rankuni, rankhits"
         ),
     )
     p_contrast.add_argument("--fit-prefix", type=int, default=0)

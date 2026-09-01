@@ -343,6 +343,27 @@ def test_run_probe_hashpool_on_lab_pairs() -> None:
     assert hp.binary.n_positive == 3
 
 
+def test_run_probe_hashtok_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        context_len=2,
+        methods=("hashpool", "hashtok"),
+        with_hashpool=True,
+        with_pivot=False,
+        n_hashes=4,
+        n_buckets=32,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashpool", "hashtok"]
+    assert run.used_keys is False
+    ht = next(m for m in run.methods if m.name == "hashtok")
+    assert ht.holdout.instance == "key-free-hashtok"
+    assert ht.holdout.score_kind == "hashtok"
+    assert ht.binary.n_positive == 3
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")
@@ -365,14 +386,14 @@ def test_run_transfer_on_lab_pairs_is_key_free() -> None:
         train_dir=str(PAIR),
         test_dir=str(PAIR),
         context_len=2,
-        methods=("hard", "hits", "hashpool", "hybrid", "stack"),
+        methods=("hard", "hits", "hashpool", "hashtok", "hybrid", "stack"),
         overlap_mode="keep",
         n_hashes=4,
         n_buckets=16,
         nested=False,
     )
     names = [m.name for m in run.methods]
-    assert names == ["hard", "hits", "hashpool", "hybrid", "stack"]
+    assert names == ["hard", "hits", "hashpool", "hashtok", "hybrid", "stack"]
     assert run.used_keys is False
     assert run.n_train_prompts == 2
     assert run.n_test_prompts == 1
@@ -380,6 +401,9 @@ def test_run_transfer_on_lab_pairs_is_key_free() -> None:
     hp = next(m for m in run.methods if m.name == "hashpool")
     assert hp.holdout.mode == "transfer"
     assert hp.holdout.instance == "key-free-hashpool"
+    ht = next(m for m in run.methods if m.name == "hashtok")
+    assert ht.holdout.instance == "key-free-hashtok"
+    assert ht.holdout.score_kind == "hashtok"
     assert run.nested is False
     assert all(row.source == "in-sample-youden" for row in run.thresholds)
 

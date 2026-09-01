@@ -166,6 +166,29 @@ def test_cli_indicate_fit_score_hashpool_is_key_free(tmp_path, capsys) -> None:
     assert used is False
     assert meta.instance == "key-free-hashpool"
     assert "lr=" + f"{lr:.6f}" in line
+    rc = main(
+        [
+            "indicate",
+            "score",
+            str(held),
+            "--tables",
+            str(tables),
+            "--score-mode",
+            "hashtok",
+        ]
+    )
+    assert rc == 0
+    tok_line = capsys.readouterr().out.splitlines()[0]
+    assert "instance=key-free-hashtok" in tok_line
+    assert "score_kind=hashtok" in tok_line
+    assert "used_keys=False" in tok_line
+    tok_lr, tok_meta, tok_used = score_text_from_tables(
+        held.read_text(), tables, tokenizer=tok, score_mode="hashtok"
+    )
+    assert tok_used is False
+    assert tok_meta.instance == "key-free-hashtok"
+    assert tok_meta.score_kind == "hashtok"
+    assert "lr=" + f"{tok_lr:.6f}" in tok_line
 
 
 def test_cli_indicate_fit_score_surface_needs_no_tokenizer(tmp_path, capsys) -> None:

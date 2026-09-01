@@ -9,7 +9,10 @@ from text_watermark_tools.transfer import (
     load_hashpool,
     persist_hashpool,
     score_hashmix,
+    score_hashtok,
+    score_hashtok_detail,
     score_hashpool,
+    score_hashpool_detail,
     score_hashpool_vote,
     score_hybrid,
     score_hybrid_detail,
@@ -105,6 +108,29 @@ def test_hashvote_majority_is_key_free() -> None:
     assert score_hashpool_vote([0, 1, 0, 1, 0, 1], model) > 0.0
     assert score_hashpool_vote([0, 2, 0, 2, 0, 2], model) < 0.0
     assert model.used_keys is False
+
+
+def test_hashtok_skips_unseen_next_token_occupancy() -> None:
+    marked = [[0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]
+    model = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    assert model.used_keys is False
+    seen_m = score_hashtok_detail([0, 1, 0, 1], model)
+    pooled_m = score_hashpool_detail([0, 1, 0, 1], model)
+    assert seen_m.n_used == seen_m.n_positions == pooled_m.n_used
+    assert abs(seen_m.lr - pooled_m.lr) < 1e-12
+    assert score_hashtok([0, 1, 0, 1], model) > score_hashtok([0, 2, 0, 2], model)
+    occupancy = score_hashpool_detail([0, 99], model)
+    unseen = score_hashtok_detail([0, 99], model)
+    assert occupancy.n_used == 1
+    assert occupancy.n_positions == 1
+    assert abs(occupancy.lr) > 0.0
+    assert unseen.n_used == 0
+    assert unseen.n_positions == 1
+    assert unseen.lr == 0.0
+    assert score_hashtok([0, 99], model) == 0.0
 
 
 def test_shrinkage_scores_rare_and_common_contexts_without_keys() -> None:

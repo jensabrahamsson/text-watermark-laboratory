@@ -19,6 +19,8 @@ and change only how a finished string is read:
 * shrinkage — credibility-weight each token's log ratio
 * mix — average last-1 and last-k log ratios
 * hashpool — feature-hash the context into shared buckets
+* hashtok — hashpool that skips a hash unless the observed next token
+  appeared in that bucket (occupancy-free; tokhits analog on collisions)
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
@@ -28,7 +30,8 @@ Hash pooling is the one extra fit. It is a stealing-style regulariser:
 contexts that collide in a random hash share a next-token table, so
 held-out prompts can still be scored. It does not reconstruct the
 secret SynthID hash. Frozen hashpool tables can be scored later with
-`indicate score` without a twin.
+`indicate score` without a twin. `hashtok` is a reader on those same
+tables: Laplace occupancy of empty cells cannot vote.
 """
 
 from __future__ import annotations
@@ -734,6 +737,138 @@ def score_hashpool_vote(ids: Sequence[int], model: HashPoolModel) -> float:
     if not signs:
         return 0.0
     return sum(signs) / len(signs)
+
+
+def _hash_bucket_tok_count(
+    layer: dict[int, Counter], bucket: int, tok: int
+) -> int:
+    table = layer.get(int(bucket))
+    if not table:
+        return 0
+    return int(table.get(int(tok), 0))
+
+
+def hashtok_hash_seen(
+    model: HashPoolModel, h: int, bucket: int, tok: int
+) -> bool:
+    """True if this hash bucket produced tok on either training side."""
+    c_m = _hash_bucket_tok_count(model.marked[h], bucket, tok)
+    c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, tok)
+    return c_m + c_u >= 1
+
+
+def hashtok_token_lr(
+    model: HashPoolModel, ctx: tuple[int, ...], tok: int
+) -> float | None:
+    """Mean hashpool LR over hashes whose bucket saw tok. None if none did.
+
+    Occupancy-free: a hash that never produced this next token is skipped,
+    so Dirichlet/Laplace on empty cells cannot vote. Same laboratory mixer
+    as hashpool. Not SynthID's secret hash.
+    """
+    v = max(len(model.vocab), 2)
+    pieces: list[float] = []
+    for h, seed in enumerate(model.seeds):
+        bucket = hash_context(ctx, seed) % model.n_buckets
+        if not hashtok_hash_seen(model, h, bucket, tok):
+            continue
+        piece = _dirichlet_logp(
+            model.marked[h].get(bucket),
+            tok,
+            fallback=model.marked_unigram,
+            n_fallback=model.n_marked,
+            alpha=model.alpha,
+            v=v,
+        )
+        piece -= _dirichlet_logp(
+            model.unmarked[h].get(bucket),
+            tok,
+            fallback=model.unmarked_unigram,
+            n_fallback=model.n_unmarked,
+            alpha=model.alpha,
+            v=v,
+        )
+        pieces.append(piece)
+    if not pieces:
+        return None
+    return pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
+
+
+def score_hashtok_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetail:
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        delta = hashtok_token_lr(model, ctx, int(tok))
+        if delta is None:
+            continue
+        total += delta
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtok(ids: Sequence[int], model: HashPoolModel) -> float:
+    """Hashpool LR using only hashes that saw the observed next token."""
+    return score_hashtok_detail(ids, model).lr
+
+
+def hashtok_trace(ids: Sequence[int], model: HashPoolModel) -> list[dict]:
+    """Per-position observed-token hash collisions. Still no keys."""
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtok trace consulted keys / hash_iv / g-values")
+    rows: list[dict] = []
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        t = int(tok)
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        hashes: list[dict] = []
+        c_m_sum = 0
+        c_u_sum = 0
+        n_seen = 0
+        for h, seed in enumerate(model.seeds):
+            bucket = hash_context(ctx, seed) % model.n_buckets
+            c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
+            c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
+            seen = c_m + c_u >= 1
+            if seen:
+                n_seen += 1
+                c_m_sum += c_m
+                c_u_sum += c_u
+            hashes.append(
+                {
+                    "h": int(h),
+                    "bucket": int(bucket),
+                    "c_m": c_m,
+                    "c_u": c_u,
+                    "seen": seen,
+                }
+            )
+        delta = hashtok_token_lr(model, ctx, t)
+        pool = hashpool_token_lr(model, ctx, t)
+        rows.append(
+            {
+                "i": int(i),
+                "tok": t,
+                "ctx": [int(x) for x in ctx],
+                "n_hashes_seen": n_seen,
+                "n_hashes": int(model.n_hashes),
+                "c_m": c_m_sum,
+                "c_u": c_u_sum,
+                "delta": None if delta is None else float(delta),
+                "hashpool_delta": float(pool),
+                "hashes": hashes,
+            }
+        )
+    return rows
 
 
 def score_hybrid_detail(

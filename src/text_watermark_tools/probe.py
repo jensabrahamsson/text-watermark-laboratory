@@ -45,6 +45,7 @@ from text_watermark_tools.transfer import (
     _count,
     persist_hashpool,
     score_hashmix,
+    score_hashtok,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
@@ -616,6 +617,16 @@ def rotate_hashpool(
     position_bucket: int = 0,
     method_name: str = "hashpool",
 ) -> IndicatorHoldout:
+    reader = str(method_name or "hashpool")
+    if reader == "hashtok":
+        kind = "hashtok"
+        instance = "key-free-hashtok"
+        score_fn = score_hashtok
+    else:
+        kind = "pospool" if position_bucket > 0 else "hashpool"
+        instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
+        score_fn = score_hashpool
+
     def make(train: Sequence[Twin]):
         model = fit_hashpool_twins(
             train,
@@ -625,14 +636,11 @@ def rotate_hashpool(
             position_bucket=position_bucket,
         )
         return (
-            lambda ids, m=model: score_hashpool(ids, m),
+            lambda ids, m=model, s=score_fn: s(ids, m),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
         )
-
-    kind = "pospool" if position_bucket > 0 else "hashpool"
-    instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
     store_name = method_name or kind
     one: dict[int, IndicatorHoldout] = {}
     one_win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -656,6 +664,37 @@ def rotate_hashpool(
         for win, hold in one_win.items():
             window_out.setdefault(win, {})[store_name] = hold
     return ev
+
+
+def rotate_hashtok(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Hashpool reader that skips unseen next tokens (no occupancy Laplace)."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashtok",
+    )
 
 
 def rotate_pos_methods(
@@ -2628,7 +2667,7 @@ def run_probe(
             run.methods.append(summarize_holdout(name, counted[name]))
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
-        or "hybrid" in extras
+        or "hybrid" in extras or "hashtok" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -2683,6 +2722,19 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashvote", vote))
+    if with_hashpool and "hashtok" in extras:
+        ht = rotate_hashtok(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtok", ht))
     if "hybrid" in extras:
         hyb = rotate_hybrid(
             twins,
@@ -3281,7 +3333,8 @@ def run_transfer(
         n in extras for n in ("hybrid", "stack")
     )
     need_hash = any(
-        n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix")
+        n in extras
+        for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix", "hashtok")
     )
     need_surface = "surface" in extras
     store_first = include_first or "first" in count_names
@@ -3305,7 +3358,7 @@ def run_transfer(
             n_buckets=n_buckets,
         )
         if need_hash and any(
-            n in extras for n in ("hashpool", "hashvote", "hybrid", "stack")
+            n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashtok")
         )
         else None
     )
@@ -3397,6 +3450,14 @@ def run_transfer(
             (lambda ids, m=hash_model: score_hashpool_vote(ids, m)),
             "key-free-hashvote",
             "hashvote",
+            "ids",
+        )
+    if "hashtok" in extras:
+        assert hash_model is not None
+        scorers["hashtok"] = (
+            (lambda ids, m=hash_model: score_hashtok(ids, m)),
+            "key-free-hashtok",
+            "hashtok",
             "ids",
         )
     if "hybrid" in extras:
@@ -3885,6 +3946,14 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashtok" in extras:
+            nested_holdouts["hashtok"] = rotate_hashtok(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "surface" in extras:
             nested_holdouts["surface"] = rotate_surface(
                 train,
@@ -4009,13 +4078,13 @@ def print_transfer(run: TransferRun) -> str:
     lines.append("")
     lines.append(
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
-        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2) no observed "
-        "next token under that context. They are abstentions, not sign "
-        "errors. poshits can still score an *unseen* next token after a "
-        "shared context via Laplace; that occupancy artifact is not a "
-        "token preference. tokbackoff shrinks last-k until an observed "
-        "next token hits; tokbackoff2 stops at last-2. Neither is key "
-        "recovery."
+        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok) no "
+        "observed next token under that context (or colliding hash). They "
+        "are abstentions, not sign errors. poshits and hashpool can still "
+        "score an *unseen* next token via Laplace; that occupancy artifact "
+        "is not a token preference. tokbackoff shrinks last-k until an "
+        "observed next token hits; tokbackoff2 stops at last-2. hashtok is "
+        "the hashpool analog of tokhits. None of these is key recovery."
     )
     lines.append("")
     lines.append(
@@ -4143,8 +4212,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         persist_holdout(m.holdout, out_dir / m.name)
     persist_tables = run.shuffle_seed is None
     if persist_tables and run.hash_model is not None:
-        nested_t = _t("hashpool", "nested-youden")
-        in_t = _t("hashpool", "in-sample-youden")
+        nested_t = _t("hashpool", "nested-youden") or _t("hashtok", "nested-youden")
+        in_t = _t("hashpool", "in-sample-youden") or _t("hashtok", "in-sample-youden")
         persist_hashpool(
             run.hash_model,
             out_dir / "tables-hashpool",
