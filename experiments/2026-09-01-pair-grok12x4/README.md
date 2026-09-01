@@ -23,4 +23,4 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-grok12 \
 
 Frozen key-free analysis (do not change flags): see
 [PROTOCOL-isolated-register.md](../../research/PROTOCOL-isolated-register.md).
-Do not look at those LRs until those commands have been run once.
+Lock A nested Youden **16/48 vs 41/48**. Does not replace **25/48**.

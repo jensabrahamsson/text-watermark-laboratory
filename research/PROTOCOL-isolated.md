@@ -259,7 +259,8 @@ JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 
 Register-matched isolated transfer (new Grok-length scenes → original
-12×4) is frozen in [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md)
-and is **not yet run**. Do not look at those LRs until that file's SHA
-is named in [LOGBOOK.md](LOGBOOK.md) and `pair` has finished.
+12×4) is [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md).
+Lock A nested Youden **16/48 vs 41/48** does not beat one-liner lock A
+**23/48** or **25/48**. H-reg-A fails. Occupancy-free coverage **5/48**.
+Do not sell lock C nested **45/48 vs 22/48**.
 

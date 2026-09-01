@@ -1301,4 +1301,24 @@ Do not look at key-free LRs until the frozen analysis commands have
 been run once. Nested Youden on the original 12×4 is the primary
 endpoint. It still does not replace **25/48**.
 
+## 2026-09-01 Grok-register isolated transfer opened
+
+SHA `07ce009` protocol, pair SHA `28cf9f5`. Official first-draw **12/12**.
+`used_keys=false`.
+
+Lock A nested Youden **16/48 vs 41/48** (prompt **5/12**, t=0 **23/48**).
+That is below one-liner lock A **23/48** and does not beat **25/48**.
+H-reg-A fails. Harbour and library now rank; night-bus and ferry-queue
+still lose.
+
+Lock B nested **6/48 vs 47/48**. Occupancy-free postokhits t=0 **5/48**,
+opening coverage **5/48** (0 exact). H-reg-B holds.
+
+Lock C prompt **10/12**, t=0 **22/48**. Nested **45/48 vs 22/48** at a
+negative threshold: do not sell 45/48.
+
+In-family interpolate **11/12**, nested-by-stem **24/48 vs 40/48**.
+Cross-register → 36×4 nested **50/144 vs 115/144**. Isolated-file
+detection is still not finished.
+
 ---

@@ -213,3 +213,47 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
    Do not add a fourth scorer.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Results (opened after the frozen commands)
+
+Official first-draw lamp on the new twins is **12/12**. `used_keys=false`
+on every key-free path below.
+
+| Split | Lock | Prompt | Nested Youden | t=0 marked |
+|---|---|---|---|---|
+| original 12×4 | A interpolate | **5/12** | **16/48 vs 41/48** | **23/48 vs 30/48** |
+| original 12×4 | B opening poshits | 7/12 | **6/48 vs 47/48** | **6/48 vs 47/48** |
+| original 12×4 | C opening rankpath | **10/12** | **45/48 vs 22/48** | **22/48 vs 31/48** |
+| original 12×4 | occupancy-free postokhits | 11/12 | **5/48 vs 47/48** | **5/48 vs 47/48** |
+
+H-reg-A **fails**: lock A nested **16/48** is below one-liner lock A
+**23/48**. Harbour and library now rank; night-bus and ferry-queue still
+lose; medium stems 07–12 mostly lose. Register match is not the missing
+isolated detector.
+
+H-reg-iso **holds**: no nested Youden here beats **25/48**. Lock C nested
+**45/48 vs 22/48** used a negative train threshold (≈ −0.41). Do not
+sell 45/48. Isolated t=0 on rankpath is **22/48**.
+
+H-reg-B **holds**: occupancy-free t=0 **5/48** equals opening coverage
+**5/48** (0 exact 4-token copies; decided 5 TP / 1 FP). Prompt **11/12**
+on postokhits has nine ranking wins with 0 isolated TPs.
+
+H-reg-C: rankpath still ranks **10/12**, as in PROTOCOL-isolated, and is
+not an isolated-file detector at t=0.
+
+In-family interpolate on the new 12: prompt **11/12**, nested-by-stem
+Youden **24/48 vs 40/48**, t=0 **31/48 vs 29/48**. Ranking works
+in-family. That is not **25/48**.
+
+Cross-register interpolate → 36×4: prompt **24/36**, nested
+**50/144 vs 115/144**. Weaker than 100 one-liners → 36×4.
+
+JSON: `experiments/2026-09-01-transfer-grok12x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-grok12x4-to-12x4/`,
+`experiments/2026-09-01-probe-grok12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok12x4-to-36x4-hard-last4/`.
+

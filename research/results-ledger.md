@@ -6,10 +6,9 @@ pre-fix **10/12** / **29/48** stay in historical JSON. Exploratory
 ablations live under [../experiments/README.md](../experiments/README.md).
 The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
 scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
-**99/100**. That does not replace **25/48**. Register-matched Grok-length
-isolated transfer is frozen in
-[PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) and is
-not yet run.
+**99/100**. That does not replace **25/48**. Register-matched Grok-length train is
+[PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md): lock A
+nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails.
 
 ## Locked headlines
 
@@ -22,6 +21,7 @@ not yet run.
 | Confirmatory 100×4 lock A (interpolate last-4) | New prompt groups | **99/100** | Isolated-file detector; not Distil/Qwen |
 | 100×4 lock A nested-by-stem Youden | In-family files | **322/400 vs 338/400** | Out-of-family; not **25/48**; threshold nest on already-OOF scores |
 | 100×4 lock B nested-by-stem Youden | In-family opening | **392/400 vs 382/400** | Occupancy (198/400 unmarked `n_used=0`); not **25/48** |
+| Grok-register → original 12×4 lock A | Nested Youden | **16/48 vs 41/48** | H-reg-A fails; does not beat one-liner **23/48** or **25/48** |
 
 Pre-fix **10/12** / **29/48** counted `(10,)→20` four times at
 `context_len=4`. JSON: `experiments/2026-09-01-blind-12x4-recount-last4/`,
@@ -168,4 +168,33 @@ JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`,
 `experiments/2026-09-01-openings-100x4-to-12x4/`,
 `experiments/2026-09-01-openings-100x4-to-36x4/`.
+
+## Isolated-file transfer (Grok-register → original 12)
+
+Protocol SHA `07ce009`. Pair SHA `28cf9f5`. Same three locks. Official
+first-draw on the new twins is **12/12**. `used_keys=false`.
+
+| Test | Lock | Prompt | Nested Youden | t=0 marked |
+|---|---|---|---|---|
+| original 12×4 | A interpolate | **5/12** | **16/48 vs 41/48** | **23/48 vs 30/48** |
+| original 12×4 | B opening poshits | 7/12 | **6/48 vs 47/48** | **6/48 vs 47/48** |
+| original 12×4 | C opening rankpath | **10/12** | **45/48 vs 22/48** | **22/48 vs 31/48** |
+| original 12×4 | occupancy-free postokhits | 11/12 | **5/48 vs 47/48** | **5/48 vs 47/48** |
+
+H-reg-A fails: lock A nested **16/48** is below one-liner lock A
+**23/48**. Register-matched Grok-length train is not the missing
+isolated detector. H-reg-iso holds: nothing here beats **25/48**.
+Lock C nested **45/48 vs 22/48** used a negative train threshold
+(≈ −0.41). Do not sell 45/48. Occupancy-free t=0 **5/48** equals
+opening coverage **5/48** (0 exact 4-token copies). In-family
+interpolate on the new 12 is prompt **11/12**, nested-by-stem
+**24/48 vs 40/48**. Cross-register → 36×4 nested **50/144 vs 115/144**.
+
+JSON: `experiments/2026-09-01-transfer-grok12x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-grok12x4-to-12x4/`,
+`experiments/2026-09-01-probe-grok12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-grok12x4-to-36x4-hard-last4/`.
 

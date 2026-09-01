@@ -216,8 +216,8 @@ JSON: `experiments/2026-09-01-pair-qwen-100x4/`,
   100×4 nested Youden **322/400** / **392/400** as replacing **25/48**.
   Out-of-family isolated transfer is [PROTOCOL-isolated.md](PROTOCOL-isolated.md).
   Register-matched Grok-length train is
-  [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md); do not
-  run that `pair` until the logbook names its SHA.
+  [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md)
+  (lock A nested **16/48 vs 41/48**, does not beat **25/48**).
 - Key recovery, SynthID `hash_iv`, or reimplementing `detector_mean`.
 - Training a Claude marked/unmarked classifier on the pre-mark corpus.
 - A 7-day Grok interval loop. Claude resample stays Wed/Fri/Sun 04:00.
