@@ -36,6 +36,8 @@ and change only how a finished string is read:
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * tokhybrid — occupancy-free hybrid: tokhits when the exact context and
   next token were seen, else hashtok
+* hashtokgap — hashtok only where tokhits abstains (hashed residual of
+  unseen exact n-grams; occupancy-free)
 * poshashtok — hashtok with a token-position namespace (pospool analog)
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
   (no tokenizer; the reader that can cross generators)
@@ -1291,6 +1293,65 @@ def score_tokhybrid(
     min_count: int = 1,
 ) -> float:
     return score_tokhybrid_detail(
+        ids, count_model, hash_model, min_count=min_count
+    ).lr
+
+
+def score_hashtokgap_detail(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> ScoreDetail:
+    """Hashtok only where exact tokhits abstains. Occupancy-free residual.
+
+    Positions whose exact last-k and next token were seen on both training
+    sides are skipped. Remaining positions use colliding hashes that saw
+    the next token. Laplace cannot vote. Still no keys.
+    """
+    if (
+        count_model.used_keys
+        or count_model.used_hash_iv
+        or count_model.used_g_values
+        or hash_model.used_keys
+        or hash_model.used_hash_iv
+        or hash_model.used_g_values
+    ):
+        raise RuntimeError("hashtokgap consulted keys / hash_iv / g-values")
+    spec = COUNT_SPECS["tokhits"]
+    floor = max(int(min_count), 1)
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        if _select_score_ctx(ids, i, t, count_model, spec) is not None:
+            continue
+        hctx = _scored_ctx(
+            ids, i, hash_model.context_len, hash_model.position_bucket
+        )
+        hashed = hashtok_token_lr(hash_model, hctx, t, min_count=floor)
+        if hashed is None:
+            continue
+        total += hashed
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtokgap(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    return score_hashtokgap_detail(
         ids, count_model, hash_model, min_count=min_count
     ).lr
 

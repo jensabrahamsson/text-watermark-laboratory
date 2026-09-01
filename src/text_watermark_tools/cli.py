@@ -638,6 +638,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
         "tokhybrid": "rotate_tokhybrid",
+        "hashtokgap": "rotate_hashtokgap",
         "poshashtok": "rotate_poshashtok",
         "hashmix": "rotate_hashmix",
         "surface": "rotate_surface",
@@ -696,7 +697,7 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
                 f"choose hard, hashpool, hashtok, hashtoklen, hashtoklen2, "
                 f"hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
                 f"hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
-                f"hashvote, hybrid, tokhybrid, poshashtok, surface, "
+                f"hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
                 f"poshits, poshitmass, postokhits, postokbackoff, "
                 f"postokbackoff2, or one of "
                 f"{sorted(COUNT_SPECS)}",
@@ -1341,11 +1342,11 @@ def build_parser() -> argparse.ArgumentParser:
             "shrinkage, mix, hashpool, hashtok, hashtoklen, hashtoklen2, "
             "hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
-            "hashvote, hybrid, tokhybrid, poshashtok, surface, "
+            "hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
             "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
             "postokbackoff2/hashtok/hashtoklen/hashtoklen2/hashskip/hashskip2/"
-            "hashmask/hashmask2/tokhybrid/poshashtok/"
+            "hashmask/hashmask2/tokhybrid/hashtokgap/poshashtok/"
             "hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
             "hashtoklenbackoff2 modes "
             "need --rotate. Still key-free."
@@ -1389,7 +1390,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Comma-separated methods: count specs plus hashpool, hashtok, "
             "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
             "hashtokbackoff2, hashtoklenbackoff, "
-            "hashtoklenbackoff2, hashvote, hybrid, tokhybrid, poshashtok, hashmix, "
+            "hashtoklenbackoff2, hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, hashmix, "
             "surface, stack, logit, poshits, postokhits, "
             "postokbackoff, postokbackoff2, poshitmass, pospool, "
             "first, tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, "

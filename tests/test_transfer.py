@@ -124,6 +124,52 @@ def test_tokhybrid_skips_occupancy_then_uses_hashtok() -> None:
     )
 
 
+def test_hashtokgap_skips_tokhits_then_uses_hashtok() -> None:
+    from text_watermark_tools.transfer import (
+        score_hashtok_detail,
+        score_hashtokgap,
+        score_hashtokgap_detail,
+    )
+
+    marked = [[0, 1, 0, 1, 0, 1, 0, 1]]
+    unmarked = [[0, 2, 0, 2, 0, 2, 0, 2]]
+    counts = fit_blind(marked, unmarked, context_len=1, backoff=False)
+    hashed = fit_hashpool(
+        marked, unmarked, context_len=1, n_hashes=4, n_buckets=8, seed=7
+    )
+    novel = [0, 9]
+    tokhits = score_sequence_detail(novel, counts, COUNT_SPECS["tokhits"])
+    hybrid = score_hybrid_detail(novel, counts, hashed)
+    gap = score_hashtokgap_detail(novel, counts, hashed)
+    assert tokhits.n_used == 0
+    assert hybrid.n_used == 1
+    assert gap.n_used == 0
+    seen = [0, 1]
+    tokhits_seen = score_sequence_detail(seen, counts, COUNT_SPECS["tokhits"])
+    gap_seen = score_hashtokgap_detail(seen, counts, hashed)
+    hashtok_seen = score_hashtok_detail(seen, hashed)
+    assert tokhits_seen.n_used == 1
+    assert gap_seen.n_used == 0
+    assert hashtok_seen.n_used == 1
+    assert gap_seen.lr != hashtok_seen.lr
+    unseen_ctx = None
+    for ctx_id in range(3, 40):
+        seq = [ctx_id, 1]
+        tok = score_sequence_detail(seq, counts, COUNT_SPECS["tokhits"])
+        hashed_lr = score_hashtok_detail(seq, hashed)
+        if tok.n_used == 0 and hashed_lr.n_used == 1:
+            unseen_ctx = seq
+            break
+    assert unseen_ctx is not None
+    gap_unseen = score_hashtokgap_detail(unseen_ctx, counts, hashed)
+    hashtok_unseen = score_hashtok_detail(unseen_ctx, hashed)
+    assert gap_unseen.n_used == 1
+    assert gap_unseen.lr == hashtok_unseen.lr
+    assert score_hashtokgap(unseen_ctx, counts, hashed) == gap_unseen.lr
+    assert counts.used_keys is False
+    assert hashed.used_keys is False
+
+
 def test_hashvote_majority_is_key_free() -> None:
     marked = [[0, 1, 0, 1, 0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

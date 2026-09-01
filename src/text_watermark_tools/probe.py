@@ -56,6 +56,7 @@ from text_watermark_tools.transfer import (
     score_hashpool_vote,
     score_hybrid,
     score_tokhybrid,
+    score_hashtokgap,
     score_sequence,
     score_surface,
 )
@@ -1305,6 +1306,48 @@ def rotate_tokhybrid(
         model_name=model_name,
         instance="key-free-tokhybrid",
         score_kind="tokhybrid",
+        margin=margin,
+    )
+
+
+def rotate_hashtokgap(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    """Hashtok residual where exact tokhits abstains. Still no keys."""
+
+    def make(train: Sequence[Twin]):
+        counts = fit_count_model(train, context_len=context_len)
+        hashed = fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        used = (
+            counts.used_keys or hashed.used_keys,
+            counts.used_hash_iv or hashed.used_hash_iv,
+            counts.used_g_values or hashed.used_g_values,
+        )
+        return (
+            lambda ids, c=counts, h=hashed: score_hashtokgap(ids, c, h),
+            used[0],
+            used[1],
+            used[2],
+        )
+
+    return rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-hashtokgap",
+        score_kind="hashtokgap",
         margin=margin,
     )
 
@@ -3249,7 +3292,8 @@ def run_probe(
             run.methods.append(summarize_holdout(name, counted[name]))
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
-        or "hybrid" in extras or "tokhybrid" in extras or "hashtok" in extras
+        or "hybrid" in extras or "tokhybrid" in extras or "hashtokgap" in extras
+        or "hashtok" in extras
         or "hashtoklen" in extras
         or "hashtoklen2" in extras or "hashskip" in extras or "hashskip2" in extras
         or "hashmask" in extras or "hashmask2" in extras
@@ -3431,6 +3475,15 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("tokhybrid", thyb))
+    if "hashtokgap" in extras:
+        hgap = rotate_hashtokgap(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokgap", hgap))
     if "hashmix" in extras:
         mix = rotate_hashmix(
             twins,
@@ -4056,7 +4109,7 @@ def run_transfer(
                 "surface, hitmass, poshitmass, first"
             )
     need_counts = bool(count_names) or any(
-        n in extras for n in ("hybrid", "tokhybrid", "stack")
+        n in extras for n in ("hybrid", "tokhybrid", "hashtokgap", "stack")
     )
     need_hash = any(
         n in extras
@@ -4065,6 +4118,7 @@ def run_transfer(
             "hashvote",
             "hybrid",
             "tokhybrid",
+            "hashtokgap",
             "stack",
             "hashmix",
             "hashtok",
@@ -4104,7 +4158,15 @@ def run_transfer(
         )
         if need_hash and any(
             n in extras
-            for n in ("hashpool", "hashvote", "hybrid", "tokhybrid", "stack", "hashtok")
+            for n in (
+                "hashpool",
+                "hashvote",
+                "hybrid",
+                "tokhybrid",
+                "hashtokgap",
+                "stack",
+                "hashtok",
+            )
         )
         else None
     )
@@ -4336,6 +4398,14 @@ def run_transfer(
             (lambda ids, c=count_model, h=hash_model: score_tokhybrid(ids, c, h)),
             "key-free-tokhybrid",
             "tokhybrid",
+            "ids",
+        )
+    if "hashtokgap" in extras:
+        assert count_model is not None and hash_model is not None
+        scorers["hashtokgap"] = (
+            (lambda ids, c=count_model, h=hash_model: score_hashtokgap(ids, c, h)),
+            "key-free-hashtokgap",
+            "hashtokgap",
             "ids",
         )
     if "hashmix" in extras:
@@ -5110,7 +5180,7 @@ def print_transfer(run: TransferRun) -> str:
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
         "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
         "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2/"
-        "tokhybrid/poshashtok) no observed next token under that "
+        "tokhybrid/hashtokgap/poshashtok) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "
@@ -5123,7 +5193,9 @@ def print_transfer(run: TransferRun) -> str:
         "with MASK_TAG (length-k templates). hashtoklen2 / hashskip2 / "
         "hashmask2 skip "
         "singleton hash collisions (min_count=2). hashtok is the hashpool analog of "
-        "tokhits. None of these is key recovery."
+        "tokhits. tokhybrid prefers tokhits then hashtok; hashtokgap is the "
+        "opposite residual (hashtok only where tokhits abstains). "
+        "None of these is key recovery."
     )
     lines.append("")
     lines.append(

@@ -135,6 +135,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "hashskip2" in out
     assert "hashmask" in out
     assert "tokhybrid" in out
+    assert "hashtokgap" in out
     assert "poshashtok" in out
     assert "hashtoklenbackoff" in out
     assert "--cascade-fallback" in out

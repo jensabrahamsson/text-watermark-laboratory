@@ -459,6 +459,26 @@ def test_run_probe_tokhybrid_and_poshashtok_on_lab_pairs() -> None:
     assert pht.holdout.used_keys is False
 
 
+def test_run_probe_hashtokgap_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashtokgap",),
+        with_pivot=False,
+        n_hashes=4,
+        n_buckets=16,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashtokgap"]
+    assert run.used_keys is False
+    gap = run.methods[0]
+    assert gap.holdout.instance == "key-free-hashtokgap"
+    assert gap.holdout.used_keys is False
+    assert gap.holdout.used_hash_iv is False
+    assert gap.holdout.used_g_values is False
+
+
 def test_run_probe_hashmask_on_lab_pairs() -> None:
     twins = load_twins(PAIR)
     run = run_probe(
