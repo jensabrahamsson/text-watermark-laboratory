@@ -76,7 +76,7 @@ python -m text_watermark_tools pair DIR --control-only --n-samples 4 --out-dir e
 python -m text_watermark_tools contrast TRAIN --test-dir TEST --control-dir CONTROL --fit-prefix 4 --pos-bucket 1 --out-dir experiments/contrast
 python -m text_watermark_tools contrast TRAIN --test-dir TEST --control-dir CONTROL --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits
 python -m text_watermark_tools contrast TRAIN --test-dir TEST --control-dir CONTROL --fit-prefix 5 --pos-bucket 0 --methods rankpath,rankuni
-python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --cascade postokbackoff --cascade-fallback rankpath --cascade-rankpath-end 4 --rankpath-pos-bucket 0
+python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --cascade postokbackoff --cascade-fallback rankpath --cascade-rankpath-end 4 --rankpath-pos-bucket 0 --cascade-when positive
 python -m text_watermark_tools probe PAIR --fit-prefix 16 --methods poshits,poshitmass --pos-bucket 4
 python -m text_watermark_tools scrub experiments/pair --out-dir experiments/scrub
 python -m text_watermark_tools iterate FILE.txt --backend qwen --out-dir experiments/iterate
@@ -164,6 +164,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | 60-stem prefix-4 rankpath standalone → 12×4 | **10/12**, **28/48 vs 40/48** (same 68/96 as 24-short) |
 | Prefix-4 rankpath vs control-shuffled-30 | control AUC **0.511**, isolated **6/48** (not poshits 0/48) |
 | 60-stem count + prefix-4 rankpath leftover | **1/6** leftover; cascade **35/48 vs 43/48** |
+| Same rows, `--cascade-when positive` | **40/48 vs 40/48** (8 rankpath FPs; not 39/48) |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
 See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), and [research/key-free-rankpath.md](research/key-free-rankpath.md).

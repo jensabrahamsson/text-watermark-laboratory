@@ -817,6 +817,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
                 if getattr(args, "cascade_rankpath_end", None)
                 else None
             ),
+            cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -860,6 +861,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
             if getattr(args, "cascade_rankpath_end", None)
             else None
         ),
+        cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1377,16 +1379,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--cascade",
         default="",
         help=(
-            "Isolated-file protocol: use this count method when n_used>0, "
-            "else the --cascade-fallback reader. Example: postokbackoff. "
-            "Loads GPT-2."
+            "Isolated-file protocol: use this count method when the "
+            "--cascade-when rule fires, else the --cascade-fallback reader. "
+            "Example: postokbackoff. Loads GPT-2."
         ),
     )
     p_probe.add_argument(
         "--cascade-fallback",
         default="pivot",
         help=(
-            "When --cascade has n_used=0: pivot (LDA), rankpath (tokbackoff "
+            "When --cascade yields: pivot (LDA), rankpath (tokbackoff "
             "on unmarked-LM rank symbols), or rankuni (rank-symbol unigram). "
             "Rank-path fallback uses the opening path, not --rankpath-full. "
             "Default pivot."
@@ -1400,6 +1402,16 @@ def build_parser() -> argparse.ArgumentParser:
             "First N rank symbols for --cascade-fallback rankpath/rankuni. "
             "0 (default) is the --fit-prefix opening. 4 is the unbucketed "
             "prefix-4 reader. Never the full 128-token path. Still no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade-when",
+        default="coverage",
+        help=(
+            "When the count channel yields to --cascade-fallback: coverage "
+            "(n_used>0, default) or positive (count lr>0). positive also "
+            "sends covered-negative files to the rank-path reader. Still "
+            "no keys. Mixed AUC is not a detector."
         ),
     )
     p_probe.add_argument(

@@ -14,6 +14,7 @@ from text_watermark_tools.pivot import (
     parse_pivot_weights,
     persist_pivot,
     pivot_method_name,
+    rebind_cascade_rows,
     score_pivot_lda,
     snap_to_unmarked_argmax,
     summarize_cascade,
@@ -108,6 +109,9 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert cascade_source(0) == "pivot"
     assert cascade_score(1.5, 2, -9.0) == 1.5
     assert cascade_score(1.5, 0, -9.0) == -9.0
+    assert cascade_source(1, "rankpath", count_lr=-2.7, when="positive") == "rankpath"
+    assert cascade_score(-2.7, 1, 0.4, when="positive") == 0.4
+    assert cascade_score(1.2, 1, 0.4, when="positive") == 1.2
     summary = summarize_cascade(
         [
             {
@@ -138,6 +142,36 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert summary["fallback_fpr10"] is not None
     assert summary["combined_at_fallback_fpr10"]["n_marked"] == 2
     assert summary["combined_at_fallback_youden"]["n_unmarked"] == 2
+
+
+def test_rebind_cascade_rows_switches_covered_negatives_to_fallback() -> None:
+    rows = [
+        {
+            "side": "marked",
+            "n_used": 1,
+            "count_lr": -2.0,
+            "pivot_lr": 0.5,
+            "source": "count",
+            "score": -2.0,
+            "stem": "harbour",
+            "sample": 1,
+            "opening_text": "The ferry was so",
+        },
+        {
+            "side": "unmarked",
+            "n_used": 1,
+            "count_lr": -1.0,
+            "pivot_lr": -0.2,
+            "source": "count",
+            "score": -1.0,
+        },
+    ]
+    rebound = rebind_cascade_rows(rows, when="positive", fallback="rankpath")
+    assert rebound[0]["source"] == "rankpath"
+    assert rebound[0]["score"] == 0.5
+    summary = summarize_cascade(rebound, when="positive")
+    assert summary["combined_marked_above_zero"] == 1
+    assert summary["n_count_marked"] == 0
 
 
 def test_format_cascade_does_not_dump_raw_rows() -> None:

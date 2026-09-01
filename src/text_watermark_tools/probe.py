@@ -1831,14 +1831,16 @@ def rotate_cascade(
     fallback: str = "pivot",
     mats=None,
     rankpath_pos_bucket: int | None = None,
+    cascade_when: str = "coverage",
 ) -> tuple[IndicatorHoldout, list[dict]]:
-    """LOO: count LR when n_used>0, else unmarked-LM fallback. Isolated-file."""
+    """LOO: count LR when the cascade-when rule fires, else unmarked-LM fallback."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
         cascade_score,
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
+        parse_cascade_when,
         vectors_from_matrices,
     )
     from text_watermark_tools.rankpath import (
@@ -1852,6 +1854,7 @@ def rotate_cascade(
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
     fallback = parse_cascade_fallback(fallback)
+    when = parse_cascade_when(cascade_when)
     if mats is None:
         if lm is None:
             lm = _load_unmarked_model(generate_device(), model_name=model_name)
@@ -1930,8 +1933,8 @@ def rotate_cascade(
                 rank_model=rank_model,
                 rank_spec=rank_spec,
             )
-            sm = cascade_score(dm.lr, dm.n_used, pm)
-            su = cascade_score(du.lr, du.n_used, pu)
+            sm = cascade_score(dm.lr, dm.n_used, pm, when=when)
+            su = cascade_score(du.lr, du.n_used, pu, when=when)
             _append_pair(parts, held.stem, sample, sm, su)
             opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
             rows.append(
@@ -1942,9 +1945,12 @@ def rotate_cascade(
                     "n_used": dm.n_used,
                     "count_lr": dm.lr,
                     "pivot_lr": pm,
-                    "source": cascade_source(dm.n_used, fallback),
+                    "source": cascade_source(
+                        dm.n_used, fallback, count_lr=dm.lr, when=when
+                    ),
                     "score": sm,
                     "opening_text": opening,
+                    "cascade_when": when,
                 }
             )
             rows.append(
@@ -1955,9 +1961,12 @@ def rotate_cascade(
                     "n_used": du.n_used,
                     "count_lr": du.lr,
                     "pivot_lr": pu,
-                    "source": cascade_source(du.n_used, fallback),
+                    "source": cascade_source(
+                        du.n_used, fallback, count_lr=du.lr, when=when
+                    ),
                     "score": su,
                     "opening_text": "",
+                    "cascade_when": when,
                 }
             )
     ev = _holdout_from_parts(
@@ -1993,6 +2002,7 @@ def transfer_cascade(
     test_mats=None,
     rank_model=None,
     rankpath_pos_bucket: int | None = None,
+    cascade_when: str = "coverage",
 ) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
     """Train count+fallback on one corpus, score the other. Isolated-file cascade."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -2001,6 +2011,7 @@ def transfer_cascade(
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
+        parse_cascade_when,
         vectors_from_matrices,
     )
     from text_watermark_tools.rankpath import (
@@ -2014,6 +2025,7 @@ def transfer_cascade(
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
     fallback = parse_cascade_fallback(fallback)
+    when = parse_cascade_when(cascade_when)
     if lm is None and (train_mats is None or test_mats is None):
         lm = _load_unmarked_model(generate_device(), model_name=model_name)
     tok = load_tokenizer(model_name)
@@ -2091,8 +2103,8 @@ def transfer_cascade(
                     rank_model=rank_model,
                     rank_spec=rank_spec,
                 )
-                sm = cascade_score(dm.lr, dm.n_used, pm)
-                su = cascade_score(du.lr, du.n_used, pu)
+                sm = cascade_score(dm.lr, dm.n_used, pm, when=when)
+                su = cascade_score(du.lr, du.n_used, pu, when=when)
                 _append_pair(parts, twin.stem, sample, sm, su)
                 opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
                 rows.append(
@@ -2103,9 +2115,12 @@ def transfer_cascade(
                         "n_used": dm.n_used,
                         "count_lr": dm.lr,
                         "pivot_lr": pm,
-                        "source": cascade_source(dm.n_used, fallback),
+                        "source": cascade_source(
+                            dm.n_used, fallback, count_lr=dm.lr, when=when
+                        ),
                         "score": sm,
                         "opening_text": opening,
+                        "cascade_when": when,
                     }
                 )
                 rows.append(
@@ -2116,9 +2131,12 @@ def transfer_cascade(
                         "n_used": du.n_used,
                         "count_lr": du.lr,
                         "pivot_lr": pu,
-                        "source": cascade_source(du.n_used, fallback),
+                        "source": cascade_source(
+                            du.n_used, fallback, count_lr=du.lr, when=when
+                        ),
                         "score": su,
                         "opening_text": "",
+                        "cascade_when": when,
                     }
                 )
         fb = fit if fallback == "pivot" else rank_model
@@ -2199,6 +2217,7 @@ class ProbeRun:
     rankpath_pos_bucket: int | None = None
     cascade: dict | None = None
     cascade_rankpath_end: int | None = None
+    cascade_when: str = "coverage"
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
@@ -2264,6 +2283,7 @@ class TransferRun:
     rankpath_pos_bucket: int | None = None
     cascade_fallback: str = "pivot"
     cascade_rankpath_end: int | None = None
+    cascade_when: str = "coverage"
     cascade: dict | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
@@ -2401,6 +2421,7 @@ def run_probe(
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
     cascade_rankpath_end: int | None = None,
+    cascade_when: str = "coverage",
     lm=None,
 ) -> ProbeRun:
     requested = (
@@ -2451,6 +2472,7 @@ def run_probe(
             if cascade_rankpath_end and int(cascade_rankpath_end) > 0
             else None
         ),
+        cascade_when=cascade_when,
     )
     if count_names:
         counted = rotate_count_methods(
@@ -2652,9 +2674,10 @@ def run_probe(
                 fallback=fallback,
                 mats=cascade_mats,
                 rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
+                cascade_when=cascade_when,
             )
             run.methods.append(summarize_holdout("cascade", ev))
-            run.cascade = summarize_cascade(rows)
+            run.cascade = summarize_cascade(rows, when=cascade_when)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
@@ -2702,15 +2725,26 @@ def format_cascade(payload: dict) -> list[str]:
     n_cm = max(int(payload.get("n_count_marked") or 0), 1)
     n_cu = max(int(payload.get("n_count_unmarked") or 0), 1)
     fallback = str(payload.get("fallback") or "pivot")
+    when = str(payload.get("cascade_when") or "coverage")
+    if when == "positive":
+        rule = (
+            f"Cascade: count LR when lr>0, unmarked-LM {fallback} when count "
+            "is nonpositive (zeros and covered negatives). "
+        )
+    else:
+        rule = (
+            f"Cascade: count LR when n_used>0, unmarked-LM {fallback} otherwise. "
+        )
     lines = [
         (
-            f"Cascade: count LR when n_used>0, unmarked-LM {fallback} otherwise. "
-            "Signs at 0 are comparable. Mixed AUC is not a detector. "
+            rule
+            + "Signs at 0 are comparable. Mixed AUC is not a detector. "
             "Not keys, not a universal detector."
         ),
         (
             f"count_method={payload.get('count_method')} "
             f"fallback={fallback} "
+            f"cascade_when={when} "
             f"pivot_weight={payload.get('pivot_weight')} "
             f"prompt_context={payload.get('prompt_context')} "
             f"used_keys={payload.get('used_keys')}"
@@ -2797,6 +2831,7 @@ def print_probe(run: ProbeRun) -> str:
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
             f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
             f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)} "
+            f"cascade_when={getattr(run, 'cascade_when', 'coverage')} "
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
             f"g_values={run.used_g_values}"
@@ -2916,6 +2951,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "rankpath_full": bool(getattr(run, "rankpath_full", False)),
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
         "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
+        "cascade_when": getattr(run, "cascade_when", "coverage"),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -3055,6 +3091,7 @@ def run_transfer(
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
     cascade_rankpath_end: int | None = None,
+    cascade_when: str = "coverage",
     lm=None,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
@@ -3306,6 +3343,7 @@ def run_transfer(
             if cascade_rankpath_end and int(cascade_rankpath_end) > 0
             else None
         ),
+        cascade_when=cascade_when,
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -3616,6 +3654,7 @@ def run_transfer(
                 test_mats=cas_test,
                 rank_model=rank_model if reuse_rank else None,
                 rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
+                cascade_when=cascade_when,
             )
             run.methods.append(summarize_holdout("cascade", test_cas))
             train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)
@@ -3628,7 +3667,7 @@ def run_transfer(
             )
             test_holdouts["cascade"] = test_cas
             train_holdouts["cascade"] = train_cas
-            run.cascade = summarize_cascade(rows)
+            run.cascade = summarize_cascade(rows, when=cascade_when)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
@@ -3744,7 +3783,8 @@ def print_transfer(run: TransferRun) -> str:
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
             f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
-            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)}"
+            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)} "
+            f"cascade_when={getattr(run, 'cascade_when', 'coverage')}"
         ),
         run.note,
         CAVEAT,
@@ -3883,6 +3923,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
         "cascade_fallback": getattr(run, "cascade_fallback", "pivot"),
         "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
+        "cascade_when": getattr(run, "cascade_when", "coverage"),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],

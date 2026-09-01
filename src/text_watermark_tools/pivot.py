@@ -254,16 +254,90 @@ def extract_choice_vector(
     )
 
 
-def cascade_source(n_used: int, fallback: str = "pivot") -> str:
-    """Count tables when they have coverage; fallback reader otherwise."""
-    return "count" if int(n_used) > 0 else str(fallback or "pivot")
+CASCADE_WHEN_COVERAGE = "coverage"
+CASCADE_WHEN_POSITIVE = "positive"
+CASCADE_WHENS = (CASCADE_WHEN_COVERAGE, CASCADE_WHEN_POSITIVE)
 
 
-def cascade_score(count_lr: float, n_used: int, fallback_lr: float) -> float:
+def parse_cascade_when(raw: str | None) -> str:
+    """coverage: count when n_used>0. positive: count only when lr>0."""
+    text = str(raw or CASCADE_WHEN_COVERAGE).strip().lower()
+    if text in ("", "coverage", "zero", "n_used", "n-used"):
+        return CASCADE_WHEN_COVERAGE
+    if text in ("positive", "nonpositive", "unless-positive", "or"):
+        return CASCADE_WHEN_POSITIVE
+    raise ValueError(
+        f"unknown --cascade-when {raw!r}; use coverage or positive"
+    )
+
+
+def cascade_uses_count(
+    n_used: int,
+    count_lr: float = 0.0,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> bool:
+    if parse_cascade_when(when) == CASCADE_WHEN_POSITIVE:
+        return float(count_lr) > 0.0
+    return int(n_used) > 0
+
+
+def cascade_source(
+    n_used: int,
+    fallback: str = "pivot",
+    *,
+    count_lr: float = 0.0,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> str:
+    """Count tables when they fire; fallback reader otherwise."""
+    if cascade_uses_count(n_used, count_lr, when):
+        return "count"
+    return str(fallback or "pivot")
+
+
+def cascade_score(
+    count_lr: float,
+    n_used: int,
+    fallback_lr: float,
+    *,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> float:
     """Threshold-0 sign is comparable; mixed magnitudes are not an AUC."""
-    if int(n_used) > 0:
+    if cascade_uses_count(n_used, count_lr, when):
         return float(count_lr)
     return float(fallback_lr)
+
+
+def rebind_cascade_rows(
+    rows: Sequence[dict],
+    *,
+    when: str,
+    fallback: str | None = None,
+) -> list[dict]:
+    """Reuse saved count_lr / pivot_lr under a different cascade-when rule."""
+    when = parse_cascade_when(when)
+    fb = str(fallback or "")
+    if not fb:
+        for row in rows:
+            src = str(row.get("source") or "")
+            if src and src != "count":
+                fb = src
+                break
+        fb = fb or "pivot"
+    out: list[dict] = []
+    for row in rows:
+        item = dict(row)
+        n_used = int(item.get("n_used") or 0)
+        count_lr = float(item.get("count_lr") or 0.0)
+        pivot_lr = float(item.get("pivot_lr") or 0.0)
+        item["source"] = cascade_source(
+            n_used, fb, count_lr=count_lr, when=when
+        )
+        item["score"] = cascade_score(
+            count_lr, n_used, pivot_lr, when=when
+        )
+        item["cascade_when"] = when
+        out.append(item)
+    return out
 
 
 def _combined_at_fallback_threshold(rows: Sequence[dict], threshold: float) -> dict:
@@ -336,10 +410,17 @@ def _fallback_operating_points(
     }
 
 
-def summarize_cascade(rows: Sequence[dict]) -> dict:
+def summarize_cascade(rows: Sequence[dict], *, when: str | None = None) -> dict:
     """Per-file count/pivot split. Mixed scores are not one ranking."""
     marked = [r for r in rows if r.get("side") == "marked"]
     unmarked = [r for r in rows if r.get("side") == "unmarked"]
+    when_name = parse_cascade_when(
+        when
+        or next(
+            (r.get("cascade_when") for r in rows if r.get("cascade_when")),
+            CASCADE_WHEN_COVERAGE,
+        )
+    )
 
     def _subset(items: Sequence[dict], source: str) -> list[dict]:
         return [r for r in items if r.get("source") == source]
@@ -365,9 +446,21 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
         "used_hash_iv": False,
         "used_g_values": False,
         "fallback": fallback,
+        "cascade_when": when_name,
         "note": (
-            "Count LR when n_used>0 (coverage); unmarked-LM fallback "
-            f"({fallback}) otherwise. Signs at threshold 0 are comparable. "
+            (
+                "Count LR when lr>0; unmarked-LM fallback "
+                f"({fallback}) when count is nonpositive "
+                "(coverage zeros and covered negatives). "
+            )
+            if when_name == CASCADE_WHEN_POSITIVE
+            else (
+                "Count LR when n_used>0 (coverage); unmarked-LM fallback "
+                f"({fallback}) otherwise. "
+            )
+        )
+        + (
+            "Signs at threshold 0 are comparable. "
             "A single AUC on mixed magnitudes is not a detector. "
             "Not keys, not a universal detector."
         ),

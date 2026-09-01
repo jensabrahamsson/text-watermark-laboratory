@@ -584,4 +584,18 @@ JSON: `experiments/2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/`.
 Write-up: [key-free-rankpath.md](key-free-rankpath.md).
 
+## 2026-08-31 cascade-when positive on covered-negative ferry openings
+
+Coverage cascade keeps a negative count LR when `n_used>0`. Eight
+60-stem covered files are harbour / ferry-queue `The ferry was …`
+openings (last-1 `' was'` looks unmarked). Rebound prefix-4 rankpath
+on count-nonpositive files (`--cascade-when positive`), no new GPT-2
+forwards: combined **40/48 vs 40/48** (5 of 8 covered-negatives plus
+the leftover printer zero; 8 unmarked FPs). Count alone stays
+**34/48 vs 48/48**, precision 1.0. Combined accuracy 80/96 vs count
+82/96. Do not sell 40/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
 ---

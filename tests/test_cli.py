@@ -128,6 +128,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "--rankpath" in out
     assert "--cascade-fallback" in out
     assert "--cascade-rankpath-end" in out
+    assert "--cascade-when" in out
     try:
         build_parser().parse_args(["indicate", "holdout", "--help"])
     except SystemExit as exc:

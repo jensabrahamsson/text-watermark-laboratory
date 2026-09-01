@@ -117,6 +117,25 @@ file. Opening rankuni: **2/6** leftover, 15 unmarked FPs, cascade
 FPR10 on the saved opening-rankuni rows is 1/6 leftover and 3 unmarked
 FPs. Quote the count channel when `n_used>0`. Do not sell 35–38/48.
 
+Coverage cascade leaves eight **covered-negative** harbour / ferry
+openings on the count channel (`The ferry was so/over/...`, last-1
+`' was'` looks unmarked). `--cascade-when positive` sends those to
+prefix-4 rankpath as well as the zeros. Rebound from the same saved
+rows, no new GPT-2 forwards:
+
+JSON: [../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/](../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/).
+
+| Rule | marked>0 | unmarked≤0 |
+|---|---|---|
+| count `lr>0` | **34/48** | **48/48** |
+| coverage cascade | 35/48 | 43/48 |
+| **positive-when cascade** | **40/48** | **40/48** |
+
+Five of eight covered-negatives sign, plus one leftover zero. Eight
+unmarked FPs, all rankpath. Combined accuracy **80/96** vs count
+**82/96**. Fallback FPR10 on that residual is combined **39/48 vs 44/48**.
+Do not sell 40/48 or 39/48 as beating poshits **39/48**.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff`
@@ -129,7 +148,11 @@ FPs. Quote the count channel when `n_used>0`. Do not sell 35–38/48.
   fails leave-one-prompt-out.
 - Cascade is an honest two-channel report, not a single score.
   Rank-path fallback uses the opening path (or prefix-N), never the
-  full file. Uncovered-only 10% FPR is reported beside t=0.
+  full file. `--cascade-when coverage` (default) substitutes only at
+  `n_used=0`. `--cascade-when positive` also substitutes covered
+  negatives; on the 60-stem prefix-4 gate that is **40/48 vs 40/48**.
+  Quote the count channel when it is positive. Uncovered-only 10% FPR
+  is reported beside t=0.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel

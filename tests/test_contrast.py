@@ -411,3 +411,41 @@ def test_prefix4_cascade_leftover_is_high_precision() -> None:
     signs = {row["opening_text"]: float(row["score"]) > 0.0 for row in leftover}
     assert signs["The printer worked better"] is True
     assert signs["The conductor turned and"] is False
+
+
+def test_cascade_when_positive_rescues_covered_ferry_negatives() -> None:
+    import json
+
+    from text_watermark_tools.pivot import rebind_cascade_rows, summarize_cascade
+
+    saved = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive"
+        / "cascade.json"
+    )
+    data = json.loads(saved.read_text())
+    assert data["used_keys"] is False
+    assert data["cascade_when"] == "positive"
+    assert data["count_marked_above_zero"] == 34
+    assert data["n_fallback_marked"] == 14
+    assert data["fallback_marked_above_zero"] == 6
+    assert data["combined_marked_above_zero"] == 40
+    assert data["combined_unmarked_at_most_zero"] == 40
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4"
+    )
+    raw = json.loads((root / "cascade.json").read_text())
+    rows = rebind_cascade_rows(raw["rows"], when="positive", fallback="rankpath")
+    summary = summarize_cascade(rows, when="positive")
+    assert summary["combined_marked_above_zero"] == 40
+    rescued = {
+        (row["stem"], row["sample"], row["opening_text"])
+        for row in summary["pivot_fallback_marked"]
+        if float(row["score"]) > 0.0
+    }
+    assert ("01-harbour", 1, "The ferry was so") in rescued
+    assert ("10-office", 4, "The printer worked better") in rescued
+    assert ("06-station", 4, "The conductor turned and") not in rescued

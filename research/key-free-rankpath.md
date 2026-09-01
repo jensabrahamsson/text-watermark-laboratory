@@ -275,7 +275,10 @@ or rankuni 39/48 as beating poshits **39/48** (16 unmarked FPs).
   rank-path reader, not the full file. Unbucketed prefix-4 is the
   higher-precision leftover fill-in on the 60-stem gate (1/6 leftover,
   5 unmarked FPs). Uncovered-only 10% FPR is reported beside t=0.
-  Mixed AUC is not a detector.
+  `--cascade-when positive` also sends covered-negative count files to
+  that leftover reader: **40/48 vs 40/48** on the 60-stem prefix-4 gate
+  (5 of 8 ferry covered-negatives plus 1 leftover zero; 8 unmarked FPs).
+  Combined 80/96 vs count 82/96. Mixed AUC is not a detector.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**.
