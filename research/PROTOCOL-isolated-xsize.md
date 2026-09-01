@@ -199,4 +199,56 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `3bb8430`. Named `fbf2cb5`. `used_keys=false`. Same BPE.
+Already-frozen twins. Local Hugging Face DistilGPT2 and gpt2-medium, not
+a paid API.
+
+Distil→medium probe: [experiments/2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/](../experiments/2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/).
+Distil→medium openings: [experiments/2026-09-01-openings-distil100x4-to-medium12x4/](../experiments/2026-09-01-openings-distil100x4-to-medium12x4/).
+medium→Distil probe: [experiments/2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/](../experiments/2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/).
+medium→Distil openings: [experiments/2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/](../experiments/2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/).
+
+| Reader | Test files | marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|---|
+| Distil→gpt2-medium postokhits | gpt2-medium 12×4 | **20/48** | **48/48** |
+| Distil→gpt2-medium poshits | gpt2-medium 12×4 | **42/48** | **26/48** |
+| Distil→gpt2-medium openings postokhits | gpt2-medium 12×4 | covered **22/48** (exact 4/48) | decided FP 0 |
+| gpt2-medium→Distil postokhits | Distil 12×4 | **3/48** | **47/48** |
+| gpt2-medium→Distil poshits | Distil 12×4 | **11/48** | **39/48** |
+| gpt2-medium→Distil openings postokhits | Distil 12×4 | covered **5/48** (exact 2/48) | decided FP 1 |
+
+H-xsize-cover **holds** on coverage not **48/48**. Distil→gpt2-medium
+coverage is **22/48**. Isolated t=0 is **20/48**, below coverage: two
+covered files have negative observed-token LR. Exact 4-token copies are
+**4/48**. gpt2-medium→Distil coverage is **5/48**. Isolated t=0 is
+**3/48**, below coverage. Exact copies are **2/48**. Recall is bounded
+by opening overlap on each arm; it is not **48/48**.
+
+H-xsize-B **holds**. Distil→gpt2-medium postokhits t=0 is **20/48 vs
+48/48**, which does not beat hard **25/48**. gpt2-medium→Distil
+postokhits t=0 is **3/48 vs 47/48**, which does not beat hard **25/48**.
+Distil→Distil occupancy-free was **16/48** on Distil files.
+gpt2-medium→gpt2-medium was **10/48** on gpt2-medium files. Distil→GPT-2
+was **22/48** on original-12 GPT-2 files. gpt2-medium→GPT-2 was
+**16/48** on original-12 GPT-2 files. Distil→gpt2-medium **20/48** is
+denser than Distil→Distil **16/48** and gpt2-medium→gpt2-medium
+**10/48** on different test files; that is not leftover-15 recall and is
+not leftover-18 recall. Nested Youden Distil→gpt2-medium **46/48 vs
+11/48** is a negative train threshold ≈ −0.003; do not sell 46/48.
+Nested Youden gpt2-medium→Distil **3/48 vs 48/48** at a train threshold
+≈ 1.13. Prompt ranking Distil→gpt2-medium postokhits is **11/12**
+strict with **1 tie** (garden) and four ranking wins with 0 isolated TPs
+(harbour, night-bus, letter, ferry-queue). Historical `>=` would print
+12/12. Prompt ranking gpt2-medium→Distil postokhits is **6/12** strict
+with **6 ties**; historical `>=` would print 12/12. Do not sell
+**20/48**, **22/48**, **11/12**, **12/12**, **3/48**, **5/48**,
+**6/12**, **42/48**, or **46/48**.
+
+H-xsize-iso **holds**. These are Distil 12×4 and gpt2-medium 12×4 files,
+not the original GPT-2 12. Do not apply leftover-15 or leftover-18 GPT-2
+keys here. Do not freeze Distil ∪ gpt2-medium union after peeking. Do not sell Distil→gpt2-medium **20/48**, coverage **22/48**, nested
+**46/48**, gpt2-medium→Distil **3/48**, coverage **5/48**, Distil→Distil
+**16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→GPT-2 **22/48**,
+leftover Distil **3/18**, gpt2-medium→GPT-2 **16/48**, leftover **0/15**,
+leftover official **15/15**, or Qwen→Qwen **31/48** as replacing
+**25/48**. Isolated-file remains open. Do not write `thesis/`.

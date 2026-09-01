@@ -1834,4 +1834,24 @@ Do not freeze Distil ∪ gpt2-medium union in this file. Nothing replaces
 **25/48**. Isolated-file detection is still not finished. Do not write
 `thesis/`.
 
+## 2026-09-01 Distil occupancy-free gpt2-medium transfer opened
+
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md) named `fbf2cb5`.
+Occupancy-free Distil→gpt2-medium postokhits t=0 is **20/48 vs 48/48**
+(coverage **22/48**, exact **4/48**, two covered files have negative LR,
+decided FP 0). Occupancy-free gpt2-medium→Distil postokhits t=0 is
+**3/48 vs 47/48** (coverage **5/48**, exact **2/48**, decided FP 1).
+H-xsize-cover, H-xsize-B, and H-xsize-iso hold. Nested Youden Distil→gpt2-medium
+**46/48 vs 11/48** is a negative train threshold; do not sell 46/48.
+Prompt ranking Distil→gpt2-medium postokhits is **11/12** strict with
+**1 tie**. Prompt ranking gpt2-medium→Distil postokhits is **6/12**
+strict with **6 ties**. Do not sell **20/48**, **22/48**, **11/12**,
+**3/48**, **5/48**, or **6/12** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-medium12x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/`.
+
 ---

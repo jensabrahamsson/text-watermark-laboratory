@@ -469,7 +469,11 @@ occupancy-free t=0 **10/48 vs 48/48**; coverage **13/48**. Do not sell
 **10/48**. Does not replace **25/48**. The remaining occupancy-free
 analog that is not leftover targeting is
 [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md): Distil↔gpt2-medium
-occupancy-free transfer on already-frozen 12×4 twins. Freeze before LRs.
+occupancy-free transfer on already-frozen 12×4 twins. Opened:
+Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
+gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
+sell **20/48** or **3/48**. Does not replace **25/48**. Isolated-file
+remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

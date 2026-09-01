@@ -149,6 +149,9 @@ occupancy-free analog that is not leftover targeting is
 [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): occupancy-free
 t=0 **10/48 vs 48/48** (coverage **13/48**). Distil↔gpt2-medium
 occupancy-free transfer is
-[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Freeze before
-LRs. Do not sell **0/15**, gpt2-medium **16/48**, or
-gpt2-medium→gpt2-medium **10/48**. Do not write `thesis/`.
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Opened:
+Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
+gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
+sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
+**10/48**, Distil→gpt2-medium **20/48**, or gpt2-medium→Distil
+**3/48**. Do not write `thesis/`.

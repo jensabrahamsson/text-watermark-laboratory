@@ -266,6 +266,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-pair-gpt2-medium-12x4/` | gpt2-medium original-12 twins | official first-draw **12/12**; [PROTOCOL-isolated-m12.md](../research/PROTOCOL-isolated-m12.md) |
 | `2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/` | gpt2-medium 100×4 → gpt2-medium 12×4 occupancy-free | postokhits t=0 **10/48 vs 48/48**; prompt **8/12** (3 ties); not **25/48** |
 | `2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/` | Opening-overlap, gpt2-medium → medium 12 | covered **13/48** (exact 10/48); t=0 **10/48**; not **25/48** |
+| `2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/` | Distil 100×4 → gpt2-medium 12×4 occupancy-free | postokhits t=0 **20/48 vs 48/48**; prompt **11/12** (1 tie); not **25/48** |
+| `2026-09-01-openings-distil100x4-to-medium12x4/` | Opening-overlap, Distil → medium 12 | covered **22/48** (exact 4/48); t=0 **20/48**; not **25/48** |
+| `2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/` | gpt2-medium 100×4 → Distil 12×4 occupancy-free | postokhits t=0 **3/48 vs 47/48**; prompt **6/12** (6 ties); not **25/48** |
+| `2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/` | Opening-overlap, gpt2-medium → Distil 12 | covered **5/48** (exact 2/48); t=0 **3/48**; not **25/48** |
 | `2026-09-01-isolated-leftover-18-readers/` | Leftover-18 remaining readers | rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen 89 vs 19; not **25/48** |
 | `2026-09-01-isolated-xgen-leftover-18/` | Distil occupancy-free leftover-18 | leftover **3/18** (office); Distil postokhits **22/48 vs 43/48**; not **25/48** |
 | `2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/` | Distil 100×4 → Distil 12×4 occupancy-free | postokhits **16/48 vs 39/48**; poshits **25/48 vs 25/48**; not **25/48** |
