@@ -3580,3 +3580,75 @@ def test_in_domain_hashtokgap_is_weaker_than_hashtok() -> None:
     assert by_ht[("08-letter", 2)] < 0
     assert by_gap[("08-letter", 2)] == by_ht[("08-letter", 2)]
 
+
+def test_in_domain_hashtok2_reshuffles_hashtok_not_a_singleton_core() -> None:
+    """Full-file min_count=2 is 34/48 vs 21/48, not prefix-5's 10/48 core.
+
+    Lost harbour d2, night-bus d4, station d1; gained night-bus d3,
+    library d1/d2, ferry-queue d4. Nested 19/48 vs 35/48. Letter d2
+    stays negative. Do not sell 34/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok2"
+    )
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    ht2 = holdout_from_json(root / "hashtok2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert ht2.used_keys is False
+    assert ht2.used_hash_iv is False
+    assert ht2.used_g_values is False
+    assert ht2.instance == "key-free-hashtok2"
+    assert ht.n_marked_positive == 33
+    assert ht.n_unmarked_nonpositive == 22
+    assert ht2.n_marked_positive == 34
+    assert ht2.n_unmarked_nonpositive == 21
+    assert ht2.n_prompts_marked_above == 8
+    assert ht.n_prompts_marked_above == 9
+    assert ht2.n_marked_positive < 39
+    assert ht2.n_marked_positive + ht2.n_unmarked_nonpositive == 55
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("hashtok2") == (19, 35)
+    assert nested_stem("hashtok") == (22, 30)
+
+    def pos(holdout) -> set[tuple[str, int]]:
+        return {
+            (s, samp)
+            for s, samp, m in zip(holdout.stems, holdout._samples(), holdout.marked_lrs)
+            if m > 0
+        }
+
+    ht_pos = pos(ht)
+    ht2_pos = pos(ht2)
+    assert ht2_pos - ht_pos == {
+        ("02-night-bus", 3),
+        ("03-library", 1),
+        ("03-library", 2),
+        ("12-ferry-queue", 4),
+    }
+    assert ht_pos - ht2_pos == {
+        ("01-harbour", 2),
+        ("02-night-bus", 4),
+        ("06-station", 1),
+    }
+    by_ht2 = {
+        (s, samp): m
+        for s, samp, m in zip(ht2.stems, ht2._samples(), ht2.marked_lrs)
+    }
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    assert by_ht2[("08-letter", 2)] < 0
+    assert by_ht[("08-letter", 2)] < 0
+    assert by_ht2[("08-letter", 2)] < by_ht[("08-letter", 2)]
+

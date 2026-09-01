@@ -865,4 +865,16 @@ signal. Do not sell 27/48 as replacing 29/48.
 JSON: `experiments/2026-09-01-probe-12x4-hashtokgap/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok2 reshuffles full-file signs (34/48)
+
+In-domain 12×4 LOO. Unbucketed `min_count=2` is **34/48 vs 21/48**,
+nested **19/48 vs 35/48**, prompt **8/12**, AUC 0.602. Not the prefix-5
+hashtoklen2 collapse (10/48 precision 1.0). Lost harbour d2, night-bus
+d4, station d1; gained night-bus d3, library d1/d2, ferry-queue d4.
+Combined t=0 stays 55/96. Letter d2 stays negative. Do not sell 34/48
+as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok2/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
