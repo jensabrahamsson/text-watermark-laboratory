@@ -157,7 +157,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-12x4-fitprefix4-snaprate/` | Table-free opening snap-rate | `snapupset` chance **7/12** AUC **0.501**; `snapmiss` **10/12** **21/48** |
 | `2026-09-01-probe-12x4-prefix4-snaprate/` | Table-free prefix-4 snap-rate | `snapupset` chance **6/12**; `snapmiss` t=0 is 2/48 |
 | `2026-09-01-official-prefix-leftover/` | Official means on leftover 8 (keys, reference) | prefix-16 leftover **8/8 >0.55**, mean 0.627 |
-| `2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/` | 60-stem prefix-8 → 12×4 | postokbackoff **38/48 vs 40/48**; letter d2 still miss |
+| `2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/` | 60-stem prefix-8 → 12×4 | postokbackoff **38/48 vs 40/48**; 20/38 TPs last-1 only |
+| `2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2/` | Same train, last-2+ only | postokbackoff2 **18/48 vs 46/48**; four "rescues" abstain |
 | `2026-09-01-letter-d2-first-ngram/` | Official 5-gram vs isolated/prompt ranks (keys on official) | letter d2 isolated rank **41**, prompt **11**, official **0.733** |
 | `2026-09-01-probe-12x4-fitprefix5-rankpath/` | In-domain prefix-5 rankpath + token-4 window | **11/12**, **30/48 vs 36/48**; fifth-token rankuni **4/12** |
 

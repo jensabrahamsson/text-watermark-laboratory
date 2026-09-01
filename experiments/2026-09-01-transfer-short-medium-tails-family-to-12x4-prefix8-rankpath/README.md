@@ -16,8 +16,10 @@ Not leftover-only cascade. Eight generated tokens, so the first official
 Prefix-4 postokbackoff on this train was **34/48 vs 48/48**, precision
 1.0, combined **82/96**. Prefix-8 adds 4 true positives (station d4,
 letter d3, office d1/d3) and 8 unmarked FPs. Combined **78/96**. Nested
-FPR10 is 38/48 vs 42/48. Do not sell 38/48 as beating poshits **39/48**
-or replacing **29/48**.
+FPR10 is 38/48 vs 42/48. Those four extra TPs are last-1 punctuation,
+not official 5-grams. **20 of 38** TPs are last-1 only.
+`postokbackoff2` on the same window is **18/48 vs 46/48**. Do not sell
+38/48 as beating poshits **39/48** or replacing **29/48**.
 
 Letter d2 (`Now in the second I'm just getting ready for bed.`) stays
 `lr<0` despite official prefix-5 mean **0.733**. That negative is

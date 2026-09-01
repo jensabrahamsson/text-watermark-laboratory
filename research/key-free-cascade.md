@@ -186,9 +186,12 @@ stays `lr<0`. That negative is last-1 `' in' → ' the'` (c_m=2, c_u=8),
 not the official 5-gram. The 5-gram is unseen at last-4/3/2; last-1
 `' second'` never continues with `' I'`. `postokbackoff2` abstains
 (`n_used=0`). Letter d3's prefix-8 rescue is last-1 `',' → ' my'`,
-not `While working on the key`. Prefix-8 rankpath is 30/48 vs 35/48
-and does not beat prefix-4 rankpath. Do not sell 38/48 as beating
-poshits **39/48**.
+not `While working on the key`. All four extra TPs are last-1
+punctuation; **20 of 38** TPs are last-1 only. Prefix-8
+`postokbackoff2` is **18/48 vs 46/48**, precision 0.900 among decided
+([../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2/)).
+Prefix-8 rankpath is 30/48 vs 35/48 and does not beat prefix-4
+rankpath. Do not sell 38/48 or 18/48 as beating poshits **39/48**.
 
 ## What to use
 
@@ -206,12 +209,13 @@ poshits **39/48**.
   `n_used=0`. `--cascade-when positive` also substitutes covered
   negatives; on the 60-stem prefix-4 gate that is **40/48 vs 40/48**.
   Quote the count channel when it is positive. Uncovered-only 10% FPR
-  is reported beside t=0.   Prefix-8 backoff on the same 60-stem train is
-  **38/48 vs 40/48** (4 extra zeros, 8 FPs). Keep prefix-4 when the
-  high-precision abstaining reader is the point. Isolated prefix-5
-  rankpath is **11/12**, **30/48 vs 36/48** and still misses letter
-  d2's official 5-gram (isolated rank 41, prompt rank 11). Keep
-  prefix-4.
+  is reported beside t=0. Prefix-8 backoff on the same 60-stem train is
+  **38/48 vs 40/48** (4 extra zeros, 8 FPs). Those extras are last-1
+  punctuation, not official 5-grams. Prefix-8 `postokbackoff2` is
+  **18/48 vs 46/48**. Keep prefix-4 when the high-precision last-1
+  reader is the point. Isolated prefix-5 rankpath is **11/12**,
+  **30/48 vs 36/48** and still misses letter d2's official 5-gram
+  (isolated rank 41, prompt rank 11). Keep prefix-4.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel

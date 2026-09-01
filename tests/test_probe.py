@@ -14,7 +14,7 @@ from text_watermark_tools.probe import (
     run_transfer,
     shuffle_twin_sides,
 )
-from text_watermark_tools.stats import binary_eval, binomial_sf
+from text_watermark_tools.stats import binary_eval, binomial_sf, coverage_gate
 
 PAIR = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-17-pair"
 HOLD = (
@@ -1936,4 +1936,46 @@ def test_letter_d2_ood_backoff_is_last1_not_the_5gram() -> None:
     assert unmarked["bins"]["miss"] == 7
     assert marked["bins_official_gt_055"]["argmax"] == 10
     assert marked["bins_official_gt_055"]["miss"] == 8
+
+
+def test_prefix8_backoff_extra_tps_are_last1_not_5grams() -> None:
+    import json
+
+    orders = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-letter-d2-first-ngram"
+            / "prefix8-backoff-orders.json"
+        ).read_text()
+    )
+    b2 = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2"
+        / "postokbackoff2"
+        / "holdout.json"
+    )
+    assert orders["used_keys"] is False
+    assert orders["tp_n"] == 38
+    assert orders["tp_only_last1"] == 20
+    rescued = {
+        (r["stem"], r["sample"]): r for r in orders["rescued_prefix4_zeros"]
+    }
+    assert set(rescued) == {
+        ("06-station", 4),
+        ("08-letter", 3),
+        ("10-office", 1),
+        ("10-office", 3),
+    }
+    assert all(r["only_last1"] for r in rescued.values())
+    assert all(r["backoff2_n_used"] == 0 for r in rescued.values())
+    assert orders["letter_d2"]["backoff2_n_used"] == 0
+    assert b2.used_keys is False
+    assert b2.n_prompts_marked_above == 12
+    assert b2.n_marked_positive == 18
+    assert b2.n_unmarked_nonpositive == 46
+    gate = coverage_gate(b2.marked_lrs, b2.unmarked_lrs)
+    assert gate.n_marked_zero == 30
+    assert abs(gate.precision - 0.9) < 1e-9
 

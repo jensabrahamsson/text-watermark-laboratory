@@ -652,6 +652,7 @@ unseen at last-4/3/2; `' second'` never continues with `' I'`.
 `postokbackoff2` abstains. Letter d3's prefix-8 rescue is last-1
 `',' → ' my'`. Isolated token-4 miss rate is 9/48 marked vs 7/48
 unmarked. Officially marked 5-grams include both argmax (10) and miss
-(8).
+(8). Prefix-8 backoff's four extra TPs are last-1 punctuation; **20 of
+38** TPs are last-1 only. `postokbackoff2` is **18/48 vs 46/48**.
 
 ---

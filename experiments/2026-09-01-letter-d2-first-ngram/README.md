@@ -34,10 +34,13 @@ and 8 miss. Unmarked isolated miss is 7/48 vs marked 9/48.
 60-stem prefix-8 `postokbackoff` letter d2 `lr=-0.606` is last-1
 `' in' → ' the'` (2 vs 8), not the 5-gram. The 5-gram is unseen at
 last-4/3/2; `' second'` never continues with `' I'`. `postokbackoff2`
-abstains. Letter d3's rescue is last-1 `',' → ' my'`.
+abstains. Letter d3's rescue is last-1 `',' → ' my'`. All four extra
+prefix-8 TPs are last-1; **20 of 38** TPs are last-1 only.
+`postokbackoff2` is **18/48 vs 46/48**.
 
 JSON: `results.json` (official means use keys; ranks do not),
-`backoff-trace.json` (`used_keys=false`), `fifth-rank-bins.json`.
+`backoff-trace.json` (`used_keys=false`), `fifth-rank-bins.json`,
+`prefix8-backoff-orders.json`.
 In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 
