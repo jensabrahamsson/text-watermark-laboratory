@@ -114,7 +114,7 @@ def test_leftover_union_equals_smt_coverage_leftover_is_18() -> None:
     assert recomputed["n_leftover"] == 18
     assert recomputed["n_union"] != 25
     text = PROTOCOL.read_text()
-    assert "Mixed 100+grok36 added no unique" in text
+    assert "added no unique occupancy-free openings over SMT" in text
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "leftover-20 ∪ short-medium-tails openings opened" in log
     assert "Do not sell union **30/48**" in text
