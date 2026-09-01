@@ -156,6 +156,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/` | 60-stem prefix-4 standalone → 12×4 | **10/12**, **28/48 vs 40/48** (same 68/96 as 24-short) |
 | `2026-09-01-probe-12x4-fitprefix4-snaprate/` | Table-free opening snap-rate | `snapupset` chance **7/12** AUC **0.501**; `snapmiss` **10/12** **21/48** |
 | `2026-09-01-probe-12x4-prefix4-snaprate/` | Table-free prefix-4 snap-rate | `snapupset` chance **6/12**; `snapmiss` t=0 is 2/48 |
+| `2026-09-01-official-prefix-leftover/` | Official means on leftover 8 (keys, reference) | prefix-16 leftover **8/8 >0.55**, mean 0.627 |
+| `2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/` | 60-stem prefix-8 → 12×4 | postokbackoff **38/48 vs 40/48**; letter d2 still miss |
 
 ## What changed across the runs
 

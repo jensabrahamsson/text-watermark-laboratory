@@ -136,6 +136,32 @@ unmarked FPs, all rankpath. Combined accuracy **80/96** vs count
 **82/96**. Fallback FPR10 on that residual is combined **39/48 vs 44/48**.
 Do not sell 40/48 or 39/48 as beating poshits **39/48**.
 
+## Leftover eight are officially marked
+
+The eight positive-when misses are not unmarked openings. Official
+`public-deepmind-30` mean on isolated generated prefixes
+([../experiments/2026-09-01-official-prefix-leftover/](../experiments/2026-09-01-official-prefix-leftover/)):
+
+| prefix | leftover marked | other marked | unmarked |
+|---|---|---|---|
+| 5 (one 5-gram) | 0.637 (6/8 >0.55) | 0.633 | 0.481 |
+| 16 | **0.627, 8/8 >0.55** | 0.626, 40/40 | 0.496, 3/48 |
+| 128 | 0.621, 8/8 | 0.622, 40/40 | 0.500, 0/48 |
+
+Prefix 4 is shorter than `ngram_len=5` and returns no official score.
+Letter d2/d3 prefix-5 means are **0.733 / 0.767**. Office d1/d3 are
+0.500 at five tokens and 0.633 at eight. In-domain opening rankpath
+already signs 7/8; only letter d2 misses. The OOD miss is overlap plus
+one hard 5-gram (`Now in the second I'm just getting ready for bed.`).
+
+60-stem `--fit-prefix 8` postokbackoff
+([../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/))
+covers 4 of 6 prefix-4 zeros (station d4, letter d3, office d1/d3):
+**38/48 vs 40/48**, precision 0.826, AUC **0.818**. Combined **78/96**
+vs prefix-4 count **82/96**. Nested FPR10 38/48 vs 42/48. Letter d2
+stays `lr<0`. Prefix-8 rankpath is 30/48 vs 35/48 and does not beat
+prefix-4 rankpath. Do not sell 38/48 as beating poshits **39/48**.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff`
@@ -152,7 +178,9 @@ Do not sell 40/48 or 39/48 as beating poshits **39/48**.
   `n_used=0`. `--cascade-when positive` also substitutes covered
   negatives; on the 60-stem prefix-4 gate that is **40/48 vs 40/48**.
   Quote the count channel when it is positive. Uncovered-only 10% FPR
-  is reported beside t=0.
+  is reported beside t=0. Prefix-8 backoff on the same 60-stem train is
+  **38/48 vs 40/48** (4 extra zeros, 8 FPs). Keep prefix-4 when the
+  high-precision abstaining reader is the point.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel

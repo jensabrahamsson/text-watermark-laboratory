@@ -1738,3 +1738,85 @@ def test_rotate_snaprate_needs_no_tables_or_keys() -> None:
     assert test_out["snapleave"].used_keys is False
     assert test_out["snapleave"].n_prompts_marked_above == 1
 
+
+def test_leftover_eight_are_officially_marked_at_prefix16() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-official-prefix-leftover"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is True
+    leftover = [r for r in raw["rows"] if r["side"] == "marked" and r["leftover"]]
+    assert len(leftover) == 8
+    means16 = [r["prefixes"]["16"]["mean"] for r in leftover]
+    assert all(m > 0.55 for m in means16)
+    full = [r["prefixes"]["128"]["mean"] for r in leftover]
+    assert min(full) > 0.59
+    other = [
+        r["prefixes"]["16"]["mean"]
+        for r in raw["rows"]
+        if r["side"] == "marked" and not r["leftover"]
+    ]
+    unmarked = [
+        r["prefixes"]["16"]["mean"]
+        for r in raw["rows"]
+        if r["side"] == "unmarked"
+    ]
+    assert abs(sum(means16) / 8 - sum(other) / 40) < 0.02
+    assert sum(unmarked) / 48 < 0.53
+    letter = [
+        r
+        for r in leftover
+        if r["stem"] == "08-letter" and r["sample"] == 2
+    ][0]
+    assert letter["prefixes"]["5"]["mean"] > 0.70
+
+
+def test_prefix8_backoff_rescues_four_zeros_not_letter_d2() -> None:
+    ev = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath"
+        / "postokbackoff"
+        / "holdout.json"
+    )
+    p4 = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4"
+        / "postokbackoff"
+        / "holdout.json"
+    )
+    rank = holdout_from_json(
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    assert ev.used_keys is False
+    assert ev.n_prompts_marked_above == 10
+    assert ev.n_marked_positive == 38
+    assert ev.n_unmarked_nonpositive == 40
+    assert p4.n_marked_positive == 34
+    assert p4.n_unmarked_nonpositive == 48
+    by8 = {
+        (s, samp): m
+        for s, samp, m in zip(ev.stems, ev._samples(), ev.marked_lrs)
+    }
+    assert by8[("06-station", 4)] > 0
+    assert by8[("08-letter", 3)] > 0
+    assert by8[("10-office", 1)] > 0
+    assert by8[("10-office", 3)] > 0
+    assert by8[("08-letter", 2)] <= 0
+    auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
+    assert auc.auc > 0.75
+    # Prefix-8 rankpath does not beat prefix-4 rankpath isolated sign.
+    assert rank.n_marked_positive == 30
+    assert rank.n_unmarked_nonpositive == 35
+

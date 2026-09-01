@@ -614,4 +614,22 @@ JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-snaprate/`,
 `experiments/2026-09-01-probe-12x4-prefix4-snaprate/`.
 Write-up: [key-free-snaprate.md](key-free-snaprate.md).
 
+## 2026-09-01 leftover eight are officially marked
+
+Positive-when cascade misses eight 12×4 files. Official prefix-16 mean
+**0.627**, all eight >0.55, matching the other 40 marked files
+(0.626). Unmarked 0.496 (3/48 >0.55). Prefix 4 cannot be scored
+(`ngram_len=5`). Letter d2/d3 first 5-grams are **0.733 / 0.767**.
+Office d1/d3 are chance at 5 tokens and marked at 8. In-domain opening
+rankpath already signs 7/8.
+
+60-stem prefix-8 postokbackoff: **38/48 vs 40/48**, AUC **0.818**,
+precision 0.826. Rescues station / letter d3 / office ×2. Combined
+78/96 vs prefix-4 count 82/96. Letter d2 stays a miss. Prefix-8
+rankpath 30/48 vs 35/48. Do not sell 38/48 as beating poshits 39/48.
+
+JSON: `experiments/2026-09-01-official-prefix-leftover/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
 ---
