@@ -29,6 +29,34 @@ Christ et al. (2024) prove undetectability for a *different* construction;
 they are not a proof that this lab’s count tables must fail on
 SynthID-Text.
 
+## The impossibility slogan is not this mixin
+
+Two well-cited theorems *sound* like “key-free detection is impossible.”
+They are not a proof about `public-deepmind-30`.
+
+Christ et al. (2024) prove *cryptographic undetectability* for a PRF-based
+scheme: a polynomial-time distinguisher without the key cannot tell
+watermarked from unwatermarked text, even with adaptive queries. That is
+a different construction. This laboratory’s matched twins plus a
+count-table LR *are* a distinguisher. Confirmatory prompt-group ranking
+**99/100** (lock A) is empirical evidence that the public tournament
+instance is not in that regime for this distinguisher class. Isolated
+hard last-4 **25/48** is a different grain (one file versus 0). It does
+not restore the theorem.
+
+Zhang et al. (2024) prove impossibility of *strong* watermarking given a
+quality oracle and a mixing perturbation oracle. That is a
+robustness/removal result: detectability can be destroyed under those
+oracles. It does not say a third party cannot rank *unmodified* marked
+versus unmarked files from paired reference twins.
+
+Language models often collapse those slogans onto any key-free reader.
+This laboratory already saw that collapse as a suggested title of the
+form “Why Key-Free Watermark Detection Fails”
+([narrative.md](narrative.md)). Do not treat that title as a theorem
+about this mixin. Do not claim we know any model’s training mix. Cite
+the papers for what they prove.
+
 ## Keyed theory is not this lab’s isolated-file reader
 
 Omidi et al. (2026) analyse SynthID-Text’s **keyed** scores: mean-score TPR

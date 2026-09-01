@@ -16,6 +16,16 @@ Those are two grains. Collapsing them into a single failure claim
 weakens a result this repository already has, which
 [AGENTS.md](../AGENTS.md) forbids.
 
+That title is the literature slogan, not a measurement. Christ et al.
+(2024) prove cryptographic undetectability for a *different*
+construction. Zhang et al. (2024) prove impossibility of *strong*
+watermarking under quality and perturbation oracles. Neither is a proof
+that count tables must fail on `public-deepmind-30`. Confirmatory
+prompt ranking **99/100** is a distinguisher. Isolated **25/48** does
+not restore either theorem. Placement:
+[related-work.md](related-work.md). Do not write `thesis/` from this
+file.
+
 ## Two grains, not one arc of collapse
 
 ```

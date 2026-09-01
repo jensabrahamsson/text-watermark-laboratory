@@ -40,7 +40,7 @@ Annotation: Inverse-transform and exponential-minimum sampling with a keyed rand
 
 **Christ, M., Gunn, S., & Zamir, O. (2024).** Undetectable watermarks for language models. In *Proceedings of Thirty Seventh Conference on Learning Theory* (PMLR 247, pp. 1125–1139). https://proceedings.mlr.press/v247/christ24a.html
 
-Annotation: Cryptographic undetectability: without the key, watermarked output is computationally indistinguishable from the original model, even under adaptive queries. That is a different object from this lab’s empirical count-table indicator, which *expects* a distributional footprint. Do not cite Christ et al. as evidence that key-free indication is impossible on SynthID-Text; their theorem is about a different construction.
+Annotation: Cryptographic undetectability: without the key, watermarked output is computationally indistinguishable from the original model, even under adaptive queries. That is a different object from this lab’s empirical count-table indicator, which *expects* a distributional footprint. Do not cite Christ et al. as evidence that key-free indication is impossible on SynthID-Text; their theorem is about a different construction. Prompt-group ranking **99/100** on the public mixin is a distinguisher of the kind that theorem forbids for *their* scheme. Isolated **25/48** is a grain, not a restoration of undetectability.
 
 ---
 
@@ -52,7 +52,7 @@ Annotation: Automated API stealing that enables spoofing and scrubbing of KGW-fa
 
 **Zhang, H., Edelman, B. L., Francati, D., Venturi, D., Ateniese, G., & Barak, B. (2024).** Watermarks in the sand: Impossibility of strong watermarking for language models. In *Proceedings of the 41st International Conference on Machine Learning* (PMLR 235, pp. 58851–58880). https://proceedings.mlr.press/v235/zhang24o.html
 
-Annotation: Impossibility of *strong* watermarking given a quality oracle and a mixing perturbation oracle. arXiv **2311.04378**. Earlier notes in this repo wrongly used that id for Jovanović et al. (2024). Zhang et al. do not recover keys from one string, and they do not supply this lab’s isolated-file indicator.
+Annotation: Impossibility of *strong* watermarking given a quality oracle and a mixing perturbation oracle. arXiv **2311.04378**. Earlier notes in this repo wrongly used that id for Jovanović et al. (2024). That is a robustness/removal result, not a proof that key-free ranking of unmodified twins is impossible. Zhang et al. do not recover keys from one string, and they do not supply this lab’s isolated-file indicator. Do not cite them as “detection without keys cannot work.”
 
 **Wu, Q., & Chandrasekaran, V. (2024).** Bypassing LLM watermarks with color-aware substitutions. In *Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)* (pp. 8549–8581). Association for Computational Linguistics. https://doi.org/10.18653/v1/2024.acl-long.464
 
