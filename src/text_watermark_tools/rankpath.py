@@ -22,7 +22,10 @@ Symbols (``top_k`` default 40):
 The first generated token has no unmarked-LM context without a prompt, so
 the isolated-file path scores generated tokens 1… (choice-matrix rows).
 The first *symbol* is therefore a real tournament decision and is scored
-(``include_first=True`` on the symbol sequence).
+(``include_first=True`` on the symbol sequence). ``--rankpath-full`` keeps
+those rows from the unclipped file when count tables use ``--fit-prefix``.
+Matched ``--prefix-lens`` / ``--windows`` slice the same rows (not token
+identity). Unbucketed full-file tables want ``--rankpath-pos-bucket 0``.
 """
 
 from __future__ import annotations
@@ -128,6 +131,51 @@ def symbols_from_matrices(
     top_k: int = TOP_K,
 ) -> dict[tuple[str, int, str], list[int]]:
     return {key: symbols_from_matrix(mat, top_k=top_k) for key, mat in mats.items()}
+
+
+def opening_matrix_end(fit_prefix: int | None, prompt_context: bool) -> int | None:
+    """Choice-matrix rows that match a clipped generated file.
+
+    Isolated generated-only skips token 0, so ``--fit-prefix 4`` is three
+    rank symbols. Prompt context scores every generated token.
+    """
+    if not fit_prefix or int(fit_prefix) <= 0:
+        return None
+    n = int(fit_prefix)
+    if prompt_context:
+        return n
+    return max(n - 1, 0)
+
+
+def slice_matrices(
+    mats: dict[tuple[str, int, str], np.ndarray],
+    start: int = 0,
+    end: int | None = None,
+) -> dict[tuple[str, int, str], np.ndarray]:
+    """Half-open row slice. Rows are unmarked-LM decisions, not token ids."""
+    s = max(int(start), 0)
+    out: dict[tuple[str, int, str], np.ndarray] = {}
+    for key, mat in mats.items():
+        rows = np.asarray(mat, dtype=np.float64)
+        if rows.ndim != 2:
+            rows = np.zeros((0, 6), dtype=np.float64)
+        e = int(rows.shape[0] if end is None else end)
+        out[key] = rows[s:e]
+    return out
+
+
+def slice_symbols(
+    symbols: dict[tuple[str, int, str], list[int]],
+    start: int = 0,
+    end: int | None = None,
+) -> dict[tuple[str, int, str], list[int]]:
+    s = max(int(start), 0)
+    out: dict[tuple[str, int, str], list[int]] = {}
+    for key, ids in symbols.items():
+        seq = list(ids)
+        e = len(seq) if end is None else int(end)
+        out[key] = seq[s:e]
+    return out
 
 
 def parse_cascade_fallback(raw: str | None) -> str:

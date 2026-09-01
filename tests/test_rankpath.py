@@ -133,3 +133,64 @@ def test_persist_transfer_writes_each_pivot_weight(tmp_path) -> None:
     assert np.allclose(loaded_u.weights, fit_u.weights)
     assert np.allclose(loaded_e.weights, fit_e.weights)
     assert not np.allclose(fit_u.weights, fit_e.weights)
+
+
+def test_opening_matrix_end_skips_generated_token_zero() -> None:
+    from text_watermark_tools.rankpath import opening_matrix_end
+
+    assert opening_matrix_end(None, False) is None
+    assert opening_matrix_end(4, False) == 3
+    assert opening_matrix_end(4, True) == 4
+    assert opening_matrix_end(1, False) == 0
+
+
+def test_slice_matrices_is_half_open_rows() -> None:
+    from text_watermark_tools.rankpath import slice_matrices, slice_symbols
+
+    mat = np.arange(24, dtype=np.float64).reshape(4, 6)
+    sliced = slice_matrices({("a", 1, "marked"): mat}, 1, 3)
+    assert sliced[("a", 1, "marked")].shape == (2, 6)
+    assert sliced[("a", 1, "marked")][0, 0] == 6.0
+    assert slice_symbols({("a", 1, "marked"): [1, 2, 3, 4]}, 1, 3)[("a", 1, "marked")] == [
+        2,
+        3,
+    ]
+
+
+def _choice_row(rank_topk: int, in_topk: float = 1.0) -> list[float]:
+    return [0.0, float(rank_topk), float(rank_topk), float(in_topk), 0.0, 1.0]
+
+
+def test_rotate_rankpath_matched_window_finds_late_signal() -> None:
+    from text_watermark_tools.blind import Twin
+    from text_watermark_tools.probe import rotate_rankpath
+
+    early = [_choice_row(1)] * 16
+    late_m = [_choice_row(2)] * 8
+    late_u = [_choice_row(1)] * 8
+    mat_m = np.array(early + late_m, dtype=np.float64)
+    mat_u = np.array(early + late_u, dtype=np.float64)
+    mats = {}
+    twins = []
+    for stem in ("a", "b", "c"):
+        twins.append(Twin(stem, "m", "u", [0, 1], [0, 1]))
+        mats[(stem, 1, "marked")] = mat_m.copy()
+        mats[(stem, 1, "unmarked")] = mat_u.copy()
+    prefix_out: dict = {}
+    window_out: dict = {}
+    rotate_rankpath(
+        twins,
+        methods=("rankuni",),
+        mats=mats,
+        position_bucket=0,
+        prefix_lens=(4,),
+        prefix_out=prefix_out,
+        windows=((16, 24),),
+        window_out=window_out,
+    )
+    pref = prefix_out[4]["rankuni"]
+    win = window_out[(16, 24)]["rankuni"]
+    assert pref.used_keys is False
+    assert win.n_prompts_marked_above == 3
+    assert pref.n_prompts_marked_above <= win.n_prompts_marked_above
+    assert min(win.marked_lrs) > max(win.unmarked_lrs)

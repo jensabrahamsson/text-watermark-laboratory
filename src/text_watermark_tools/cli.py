@@ -512,7 +512,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             symbols,
             [t.stem for t in twins],
             context_len=min(int(args.context_len), 3),
-            position_bucket=int(getattr(args, "pos_bucket", 0) or 0) or 1,
+            position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
         )
         if model.used_keys or model.used_hash_iv or model.used_g_values:
             print("rankpath fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -806,6 +806,12 @@ def cmd_probe(args: argparse.Namespace) -> int:
             cascade=str(getattr(args, "cascade", "") or ""),
             with_rankpath=bool(getattr(args, "rankpath", False)),
             cascade_fallback=str(getattr(args, "cascade_fallback", "pivot") or "pivot"),
+            rankpath_full=bool(getattr(args, "rankpath_full", False)),
+            rankpath_pos_bucket=(
+                int(args.rankpath_pos_bucket)
+                if getattr(args, "rankpath_pos_bucket", None) is not None
+                else None
+            ),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -838,6 +844,12 @@ def cmd_probe(args: argparse.Namespace) -> int:
         cascade=str(getattr(args, "cascade", "") or ""),
         with_rankpath=bool(getattr(args, "rankpath", False)),
         cascade_fallback=str(getattr(args, "cascade_fallback", "pivot") or "pivot"),
+        rankpath_full=bool(getattr(args, "rankpath_full", False)),
+        rankpath_pos_bucket=(
+            int(args.rankpath_pos_bucket)
+            if getattr(args, "rankpath_pos_bucket", None) is not None
+            else None
+        ),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1368,6 +1380,27 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Score unmarked-LM rank-symbol tables (rankpath + rankuni). "
             "Loads GPT-2. Token identity is not used. Still no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--rankpath-full",
+        action="store_true",
+        help=(
+            "Collect rank symbols from the unclipped file even when "
+            "--fit-prefix clips count tables. Prefix and window scores "
+            "are matched slices of that unclipped path (choice-matrix "
+            "rows = generated tokens 1… without prompt context). Still "
+            "no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--rankpath-pos-bucket",
+        type=int,
+        default=None,
+        help=(
+            "Position bucket for rank-symbol tables. Default: same as "
+            "--pos-bucket. 0 is unbucketed (use this for full-file "
+            "rankpath). Not a watermark key."
         ),
     )
     p_probe.add_argument("--n-hashes", type=int, default=8)
