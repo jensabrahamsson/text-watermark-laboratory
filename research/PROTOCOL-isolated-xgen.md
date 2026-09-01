@@ -173,6 +173,8 @@ PY
 - Mixing grok12 into any train.
 - Re-running PROTOCOL-isolated-scale; that protocol is already open.
 - Running lock A interpolate on Distil twins.
+- Distil 100×4 → Distil 12×4 occupancy-free transfer; that is
+  [PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md), not leftover-18.
 - Selling Distil leftover-18 occupancy-free coverage, Distil postokhits
   t=0, leftover official **18/18**, leftover-18 rankpath **12/18**, or
   union **30/48** as replacing **25/48**.

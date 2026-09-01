@@ -190,7 +190,10 @@ Distil occupancy-free leftover-18 on the original 12 is
 Distil occupancy-free t=0 **22/48 vs 43/48** (beats GPT-2 lock B occupancy-free
 **16/48**, not **25/48**); leftover-18 Distil coverage **3/18** (office
 1/3/4). Isolated recall equals Distil opening overlap **23/48**. Do not
-sell Distil **22/48** or leftover Distil **3/18**.
+sell Distil **22/48** or leftover Distil **3/18**. Distil 100×4 → Distil
+12×4 occupancy-free analog is
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) (not leftover-18;
+not lock A).
 
 ## What this freeze refuses
 

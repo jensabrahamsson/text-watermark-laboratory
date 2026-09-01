@@ -27,6 +27,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md) | Leftover-18 rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen **89 vs 19**; not **25/48** |
 | [PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md) | Leftover-18 published key-free readers exhausted; do not re-slice more leftover-18 holdouts |
 | [PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md) | Distil occupancy-free leftover-18 **3/18** (office); Distil postokhits **22/48** beats GPT-2 occupancy-free **16/48**, not **25/48** |
+| [PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) | Distil 100×4 → Distil 12×4 occupancy-free analog of isolated; not leftover-18; not lock A |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

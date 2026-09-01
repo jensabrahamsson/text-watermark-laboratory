@@ -439,7 +439,9 @@ postokhits t=0 **22/48 vs 43/48** beats GPT-2 lock B occupancy-free
 Leftover-18 Distil coverage **3/18** (office 1/3/4); leftover
 occupancy-free **3/18 vs 16/18**. Nested Youden **47/48** is a negative
 threshold. Do not sell Distil 22/48 or leftover Distil 3/18. Does not
-replace **25/48**.
+replace **25/48**. Distil 100×4 → Distil 12×4 occupancy-free analog is
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md) (not leftover-18;
+not lock A).
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

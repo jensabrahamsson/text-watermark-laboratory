@@ -123,4 +123,6 @@ prefix-128 and uses keys. Isolated-file remains open. Distil occupancy-free
 leftover-18 on the original 12 is
 [PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md): leftover-18 Distil
 coverage **3/18** (office 1/3/4); Distil postokhits t=0 **22/48**. Do not
-sell Distil **22/48**. Do not write `thesis/`.
+sell Distil **22/48**. Distil 100×4 → Distil 12×4 occupancy-free is
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md), not a leftover-18
+re-slice. Do not write `thesis/`.
