@@ -35,6 +35,7 @@ Do not weaken that result into vague wording such as "there may be traces". Equa
 - Do not train a Claude marked/unmarked classifier on the pre-mark corpus alone.
 - Do not attempt to infer the keys or SHA-256 IV from a static string; see [research/invertibility.md](research/invertibility.md).
 - Keep secrets out of git and argv: `*-KEY.conf`, `.env`, `.browser-profile/`.
+- Do not call paid chat APIs (Dashscope `qwen-plus`, DeepSeek, OpenAI, and kin). Local Hugging Face generators only, unless Jens explicitly asks. Do not run `iterate --backend qwen` on a cloud or background agent.
 - Do not change existing `PROMPTS` strings in `scripts/collect_claude_premark.py`; add new prompts instead.
 - Do not download DIPPER for the current workflow; see [research/dipper-local.md](research/dipper-local.md).
 
