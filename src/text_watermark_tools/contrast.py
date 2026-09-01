@@ -40,6 +40,7 @@ from text_watermark_tools.transfer import (
     fit_hashpool_twins,
     score_hashtok,
     score_hashskip,
+    score_hashmask,
     score_hashpool,
     score_sequence,
 )
@@ -254,6 +255,7 @@ def run_instance_contrast(
     hash_model = None
     hash_len_model = None
     hash_skip_model = None
+    hash_mask_model = None
     rank_model = None
     if count_names:
         count_model = fit_count_model(train, context_len=context_len)
@@ -271,7 +273,18 @@ def run_instance_contrast(
         hash_skip_model = fit_hashpool_twins(
             train, context_len=context_len, exact_len=True, drop_one=True
         )
-    for model in (count_model, pos_model, hash_model, hash_len_model, hash_skip_model):
+    if "hashmask" in names or "hashmask2" in names:
+        hash_mask_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True, mask_one=True
+        )
+    for model in (
+        count_model,
+        pos_model,
+        hash_model,
+        hash_len_model,
+        hash_skip_model,
+        hash_mask_model,
+    ):
         if model is not None and (
             model.used_keys or model.used_hash_iv or model.used_g_values
         ):
@@ -381,6 +394,16 @@ def run_instance_contrast(
             lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2),
             "key-free-hashskip2",
         )
+    if "hashmask" in names and hash_mask_model is not None:
+        scorers["hashmask"] = (
+            lambda ids, m=hash_mask_model: score_hashmask(ids, m),
+            "key-free-hashmask",
+        )
+    if "hashmask2" in names and hash_mask_model is not None:
+        scorers["hashmask2"] = (
+            lambda ids, m=hash_mask_model: score_hashmask(ids, m, min_count=2),
+            "key-free-hashmask2",
+        )
     unknown = [
         n
         for n in names
@@ -392,7 +415,8 @@ def run_instance_contrast(
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
             "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
-            "hashtoklen, hashtoklen2, hashskip, hashskip2, rankpath, "
+            "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, "
+            "hashmask2, rankpath, "
             "rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )

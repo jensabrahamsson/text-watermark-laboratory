@@ -416,6 +416,8 @@ def score_text_from_tables(
             "hashtoklen2",
             "hashskip",
             "hashskip2",
+            "hashmask",
+            "hashmask2",
             "",
         ):
             raise ValueError(
@@ -433,25 +435,48 @@ def score_text_from_tables(
             "hashtoklen2",
             "hashskip",
             "hashskip2",
+            "hashmask",
+            "hashmask2",
         ):
             drop_one = bool(getattr(model, "drop_one", False))
+            mask_one = bool(getattr(model, "mask_one", False))
             if mode in ("hashskip", "hashskip2") and not drop_one:
                 raise ValueError(
                     "these tables were not fit as drop-one skip-grams; "
                     "refusing score-time hashskip on a different mixer"
+                )
+            if mode in ("hashmask", "hashmask2") and not mask_one:
+                raise ValueError(
+                    "these tables were not fit as MASK-replace templates; "
+                    "refusing score-time hashmask on a different mixer"
                 )
             if mode in ("hashtoklen", "hashtoklen2") and drop_one:
                 raise ValueError(
                     "these tables are drop-one skip-grams; use --score-mode "
                     "hashskip or hashskip2"
                 )
+            if mode in ("hashtoklen", "hashtoklen2") and mask_one:
+                raise ValueError(
+                    "these tables are MASK-replace templates; use --score-mode "
+                    "hashmask or hashmask2"
+                )
             detail = score_hashtok_detail(
                 ids,
                 model,
                 exact_len=True
-                if mode in ("hashtoklen", "hashtoklen2", "hashskip", "hashskip2")
+                if mode
+                in (
+                    "hashtoklen",
+                    "hashtoklen2",
+                    "hashskip",
+                    "hashskip2",
+                    "hashmask",
+                    "hashmask2",
+                )
                 else None,
-                min_count=2 if mode in ("hashtoklen2", "hashskip2") else 1,
+                min_count=2
+                if mode in ("hashtoklen2", "hashskip2", "hashmask2")
+                else 1,
             )
             meta = load_tables_meta(path)
             meta.score_kind = mode
@@ -512,7 +537,7 @@ def score_text_from_tables(
             f"unknown --score-mode {score_mode}; "
             f"choose auto, hard, poshits, postokhits, postokbackoff, "
             f"postokbackoff2, poshitmass, hashpool, hashtok, hashtoklen, "
-            f"hashtoklen2, hashskip, hashskip2, or one of "
+            f"hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, or one of "
             f"{sorted(COUNT_SPECS)}"
         )
     spec = COUNT_SPECS[mode]

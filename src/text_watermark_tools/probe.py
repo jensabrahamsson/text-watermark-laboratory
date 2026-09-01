@@ -50,6 +50,7 @@ from text_watermark_tools.transfer import (
     score_hashmix,
     score_hashtok,
     score_hashskip,
+    score_hashmask,
     score_hashtokbackoff,
     score_hashpool,
     score_hashpool_vote,
@@ -723,12 +724,23 @@ def rotate_hashpool(
 ) -> IndicatorHoldout:
     reader = str(method_name or "hashpool")
     drop_one = reader in ("hashskip", "hashskip2")
-    min_count = 2 if reader in ("hashtoklen2", "hashskip2") else 1
-    if reader in ("hashtok", "hashtoklen", "hashtoklen2", "hashskip", "hashskip2"):
+    mask_one = reader in ("hashmask", "hashmask2")
+    min_count = 2 if reader in ("hashtoklen2", "hashskip2", "hashmask2") else 1
+    if reader in (
+        "hashtok",
+        "hashtoklen",
+        "hashtoklen2",
+        "hashskip",
+        "hashskip2",
+        "hashmask",
+        "hashmask2",
+    ):
         kind = reader
         instance = f"key-free-{reader}"
         if drop_one:
             score_fn = lambda ids, m, k=min_count: score_hashskip(ids, m, min_count=k)
+        elif mask_one:
+            score_fn = lambda ids, m, k=min_count: score_hashmask(ids, m, min_count=k)
         else:
             score_fn = lambda ids, m, k=min_count: score_hashtok(ids, m, min_count=k)
         exact_len = bool(exact_len) or reader in (
@@ -736,6 +748,8 @@ def rotate_hashpool(
             "hashtoklen2",
             "hashskip",
             "hashskip2",
+            "hashmask",
+            "hashmask2",
         )
     else:
         kind = "pospool" if position_bucket > 0 else "hashpool"
@@ -751,6 +765,7 @@ def rotate_hashpool(
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
             drop_one=drop_one,
+            mask_one=mask_one,
         )
         return (
             lambda ids, m=model, s=score_fn: s(ids, m),
@@ -910,6 +925,70 @@ def rotate_hashskip2(
         window_out=window_out,
         position_bucket=position_bucket,
         method_name="hashskip2",
+        exact_len=True,
+    )
+
+
+def rotate_hashmask(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Occupancy-free MASK replace of exact last-k. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashmask",
+        exact_len=True,
+    )
+
+
+def rotate_hashmask2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """MASK replace that skips singleton hash collisions."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashmask2",
         exact_len=True,
     )
 
@@ -2856,6 +2935,7 @@ class TransferRun:
     hash_model: object | None = None
     hash_len_model: object | None = None
     hash_skip_model: object | None = None
+    hash_mask_model: object | None = None
     surface_model: object | None = None
     pos_model: object | None = None
     pos_hash: object | None = None
@@ -3095,6 +3175,7 @@ def run_probe(
         methods is None or "hashpool" in requested or "hashvote" in extras
         or "hybrid" in extras or "hashtok" in extras or "hashtoklen" in extras
         or "hashtoklen2" in extras or "hashskip" in extras or "hashskip2" in extras
+        or "hashmask" in extras or "hashmask2" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -3214,6 +3295,32 @@ def run_probe(
             window_out=window_out if spans else None,
         )
         run.methods.append(summarize_holdout("hashskip2", hsk2))
+    if with_hashpool and "hashmask" in extras:
+        hmk = rotate_hashmask(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashmask", hmk))
+    if with_hashpool and "hashmask2" in extras:
+        hmk2 = rotate_hashmask2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashmask2", hmk2))
     if "hybrid" in extras:
         hyb = rotate_hybrid(
             twins,
@@ -3863,6 +3970,8 @@ def run_transfer(
             "hashtoklen2",
             "hashskip",
             "hashskip2",
+            "hashmask",
+            "hashmask2",
             "hashtokbackoff",
             "hashtokbackoff2",
             "hashtoklenbackoff",
@@ -3916,6 +4025,18 @@ def run_transfer(
             drop_one=True,
         )
         if need_hash and any(n in extras for n in ("hashskip", "hashskip2"))
+        else None
+    )
+    hash_mask_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+            mask_one=True,
+        )
+        if need_hash and any(n in extras for n in ("hashmask", "hashmask2"))
         else None
     )
     mix_model = (
@@ -4000,6 +4121,7 @@ def run_transfer(
         hash_model,
         hash_len_model,
         hash_skip_model,
+        hash_mask_model,
         mix_model,
         mix_len_model,
         surface_model,
@@ -4078,6 +4200,22 @@ def run_transfer(
             (lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2)),
             "key-free-hashskip2",
             "hashskip2",
+            "ids",
+        )
+    if "hashmask" in extras:
+        assert hash_mask_model is not None
+        scorers["hashmask"] = (
+            (lambda ids, m=hash_mask_model: score_hashmask(ids, m)),
+            "key-free-hashmask",
+            "hashmask",
+            "ids",
+        )
+    if "hashmask2" in extras:
+        assert hash_mask_model is not None
+        scorers["hashmask2"] = (
+            (lambda ids, m=hash_mask_model: score_hashmask(ids, m, min_count=2)),
+            "key-free-hashmask2",
+            "hashmask2",
             "ids",
         )
     if "hybrid" in extras:
@@ -4206,6 +4344,7 @@ def run_transfer(
         hash_model=hash_model,
         hash_len_model=hash_len_model,
         hash_skip_model=hash_skip_model,
+        hash_mask_model=hash_mask_model,
         surface_model=surface_model,
         pos_model=pos_model,
         pos_hash=pos_hash,
@@ -4680,6 +4819,22 @@ def run_transfer(
                 n_buckets=n_buckets,
                 model_name=model_name,
             )
+        if "hashmask" in extras:
+            nested_holdouts["hashmask"] = rotate_hashmask(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashmask2" in extras:
+            nested_holdouts["hashmask2"] = rotate_hashmask2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
         if "hashtokbackoff" in extras:
             nested_holdouts["hashtokbackoff"] = rotate_hashtokbackoff(
                 train,
@@ -4834,7 +4989,7 @@ def print_transfer(run: TransferRun) -> str:
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
         "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
         "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
-        "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2) no observed next token under that "
+        "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2) no observed next token under that "
         "context (or colliding hash). They are abstentions, not sign "
         "errors. poshits and hashpool can still score an *unseen* next "
         "token via Laplace; that occupancy artifact is not a token "
@@ -4843,7 +4998,9 @@ def print_transfer(run: TransferRun) -> str:
         "last-2. hashtoklen / hashtoklenbackoff hash only exact last-k "
         "(short prefixes are not mixed into a longer-order table). "
         "hashskip hashes exact last-k with one token dropped (tagged "
-        "skip-grams, not last-(k-1)). hashtoklen2 / hashskip2 skip "
+        "skip-grams, not last-(k-1)). hashmask replaces one last-k token "
+        "with MASK_TAG (length-k templates). hashtoklen2 / hashskip2 / "
+        "hashmask2 skip "
         "singleton hash collisions (min_count=2). hashtok is the hashpool analog of "
         "tokhits. None of these is key recovery."
     )
@@ -5006,7 +5163,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 else "in-sample-youden-hashtoklen"
             ),
         )
-        if run.hash_model is None and getattr(run, "hash_skip_model", None) is None:
+        if run.hash_model is None and getattr(run, "hash_skip_model", None) is None and getattr(run, "hash_mask_model", None) is None:
             persist_hashpool(
                 run.hash_len_model,
                 out_dir / "tables-hashpool",
@@ -5038,6 +5195,26 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 "nested-youden-hashskip"
                 if nested_t is not None
                 else "in-sample-youden-hashskip"
+            ),
+        )
+    if persist_tables and getattr(run, "hash_mask_model", None) is not None:
+        nested_t = _t("hashmask", "nested-youden") or _t(
+            "hashmask2", "nested-youden"
+        )
+        in_t = _t("hashmask", "in-sample-youden") or _t(
+            "hashmask2", "in-sample-youden"
+        )
+        persist_hashpool(
+            run.hash_mask_model,
+            out_dir / "tables-hashmask",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashmask"
+                if nested_t is not None
+                else "in-sample-youden-hashmask"
             ),
         )
     if persist_tables and run.surface_model is not None:

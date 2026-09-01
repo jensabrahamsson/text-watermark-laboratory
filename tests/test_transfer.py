@@ -304,6 +304,74 @@ def test_hashskip_is_tagged_drop_one_not_last_k_minus_one() -> None:
     assert unseen.lr == 0.0
 
 
+def test_hashmask_is_length_k_replace_not_skip() -> None:
+    from text_watermark_tools.transfer import (
+        MASK_TAG,
+        SKIP_TAG,
+        fit_hashpool,
+        hash_context,
+        mask_views,
+        score_hashmask,
+        score_hashtok_detail,
+        skip_views,
+    )
+
+    ctx = (10, 20, 30, 40)
+    views = mask_views(ctx)
+    assert len(views) == 4
+    assert views[0][0] == MASK_TAG
+    assert views[0][1:] == (20, 30, 40)
+    assert len(views[0]) == 4
+    assert views[0] != skip_views(ctx)[0]
+    assert MASK_TAG != SKIP_TAG
+    assert hash_context(views[0], 7) != hash_context((20, 30, 40), 7)
+    marked = [[9, 1, 2, 3, 4], [8, 1, 2, 3, 4]]
+    unmarked = [[9, 1, 2, 3, 5], [8, 1, 2, 3, 5]]
+    mask = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=4,
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        mask_one=True,
+    )
+    skip = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=4,
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        drop_one=True,
+    )
+    exact = fit_hashpool(
+        marked,
+        unmarked,
+        context_len=4,
+        n_hashes=4,
+        n_buckets=256,
+        seed=7,
+        exact_len=True,
+    )
+    held = [0, 1, 2, 3, 4]
+    assert mask.used_keys is False
+    assert mask.mask_one is True
+    assert mask.drop_one is False
+    assert mask.exact_len is True
+    mask_d = score_hashtok_detail(held, mask)
+    exact_d = score_hashtok_detail(held, exact)
+    skip_d = score_hashtok_detail(held, skip)
+    assert exact_d.n_used == 0
+    assert mask_d.n_used == 1
+    assert skip_d.n_used == 1
+    assert mask_d.lr > 0
+    assert score_hashmask(held, mask) > score_hashmask([0, 1, 2, 3, 5], mask)
+    unseen = score_hashtok_detail([0, 1, 2, 3, 99], mask)
+    assert unseen.n_used == 0
+    assert unseen.lr == 0.0
+
+
 def test_hashtok_skips_unseen_next_token_occupancy() -> None:
     marked = [[0, 1, 0, 1, 0, 1]]
     unmarked = [[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2]]

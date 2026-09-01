@@ -30,6 +30,8 @@ and change only how a finished string is read:
   order-k is used only when i >= k
 * hashskip — occupancy-free hashing of exact last-k with one token
   dropped (tagged skip-grams, not last-(k-1) and not Laplace)
+* hashmask — occupancy-free hashing of exact last-k with one token
+  replaced by MASK_TAG (length-k templates, not skip-grams)
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
@@ -72,6 +74,8 @@ _MIX2 = 0x94D049BB133111EB
 MASK64 = 0xFFFFFFFFFFFFFFFF
 # Drop-one skip-gram namespace. Token ids are >= 0; FIRST_TOKEN_CTX is (-1,).
 SKIP_TAG = -3
+# Length-k MASK replace. Distinct from SKIP_TAG; not a watermark key.
+MASK_TAG = -4
 
 
 @dataclass(frozen=True)
@@ -514,6 +518,7 @@ class HashPoolModel:
     position_bucket: int = 0
     exact_len: bool = False
     drop_one: bool = False
+    mask_one: bool = False
 
     @property
     def instance(self) -> str:
@@ -521,6 +526,8 @@ class HashPoolModel:
             return "key-free-surface"
         if self.drop_one:
             return "key-free-hashskip"
+        if self.mask_one:
+            return "key-free-hashmask"
         if self.position_bucket > 0:
             return "key-free-pospool"
         return "key-free-hashpool"
@@ -568,14 +575,49 @@ def skip_views(
     return views
 
 
+def mask_views(
+    ctx: tuple[int, ...],
+    position_bucket: int = 0,
+) -> list[tuple[int, ...]]:
+    """Exact last-k with one token replaced by MASK_TAG.
+
+    Length stays k, so a masked 4-gram is not a last-3 and not a
+    tagged skip-gram. Occupancy-free hashing of these templates asks
+    whether a coarsened official 5-gram still shares a next-token
+    preference. Not SynthID's secret hash.
+    """
+    if int(position_bucket or 0) > 0:
+        if not ctx:
+            return []
+        ns = (int(ctx[0]),)
+        tokens = ctx[1:]
+    else:
+        ns = ()
+        tokens = ctx
+    if not tokens or tokens == FIRST_TOKEN_CTX or len(tokens) < 2:
+        return []
+    views: list[tuple[int, ...]] = []
+    for mask_i, _tok in enumerate(tokens):
+        masked = tuple(
+            MASK_TAG if j == mask_i else int(t) for j, t in enumerate(tokens)
+        )
+        views.append(ns + masked)
+    return views
+
+
 def hashed_ctx_views(
     ctx: tuple[int, ...],
     *,
     position_bucket: int = 0,
     drop_one: bool = False,
+    mask_one: bool = False,
 ) -> list[tuple[int, ...]]:
+    if drop_one and mask_one:
+        raise ValueError("drop-one skip-grams and MASK replace are different mixers")
     if drop_one:
         return skip_views(ctx, position_bucket)
+    if mask_one:
+        return mask_views(ctx, position_bucket)
     return [ctx]
 
 
@@ -590,6 +632,7 @@ def _add_hash_seq(
     position_bucket: int = 0,
     exact_len: bool = False,
     drop_one: bool = False,
+    mask_one: bool = False,
 ) -> int:
     n = 0
     for i, tok in enumerate(ids):
@@ -602,7 +645,10 @@ def _add_hash_seq(
         if exact_len and hash_ctx_len(ctx, position_bucket) != int(context_len):
             continue
         views = hashed_ctx_views(
-            ctx, position_bucket=position_bucket, drop_one=bool(drop_one)
+            ctx,
+            position_bucket=position_bucket,
+            drop_one=bool(drop_one),
+            mask_one=bool(mask_one),
         )
         if not views:
             continue
@@ -626,9 +672,13 @@ def fit_hashpool(
     position_bucket: int = 0,
     exact_len: bool = False,
     drop_one: bool = False,
+    mask_one: bool = False,
 ) -> HashPoolModel:
     drop_one = bool(drop_one)
-    exact_len = bool(exact_len) or drop_one
+    mask_one = bool(mask_one)
+    if drop_one and mask_one:
+        raise ValueError("drop-one skip-grams and MASK replace are different mixers")
+    exact_len = bool(exact_len) or drop_one or mask_one
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
     unmarked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -646,6 +696,7 @@ def fit_hashpool(
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
             drop_one=drop_one,
+            mask_one=mask_one,
         )
     for seq in unmarked_seqs:
         n_u += _add_hash_seq(
@@ -658,6 +709,7 @@ def fit_hashpool(
             position_bucket=position_bucket,
             exact_len=bool(exact_len),
             drop_one=drop_one,
+            mask_one=mask_one,
         )
     vocab = set(marked_uni) | set(unmarked_uni)
     if alphabet == "bytes":
@@ -682,6 +734,7 @@ def fit_hashpool(
         position_bucket=int(position_bucket) if position_bucket > 0 else 0,
         exact_len=bool(exact_len),
         drop_one=drop_one,
+        mask_one=mask_one,
     )
 
 
@@ -696,6 +749,7 @@ def fit_hashpool_twins(
     position_bucket: int = 0,
     exact_len: bool = False,
     drop_one: bool = False,
+    mask_one: bool = False,
 ) -> HashPoolModel:
     return fit_hashpool(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -708,6 +762,7 @@ def fit_hashpool_twins(
         position_bucket=position_bucket,
         exact_len=bool(exact_len),
         drop_one=bool(drop_one),
+        mask_one=bool(mask_one),
     )
 
 
@@ -911,7 +966,7 @@ def score_hashtok_detail(
         raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
     exact = bool(model.exact_len if exact_len is None else exact_len) or bool(
         model.drop_one
-    )
+    ) or bool(model.mask_one)
     floor = max(int(min_count), 1)
     total = 0.0
     n_used = 0
@@ -927,6 +982,7 @@ def score_hashtok_detail(
             ctx,
             position_bucket=model.position_bucket,
             drop_one=bool(model.drop_one),
+            mask_one=bool(model.mask_one),
         )
         pieces: list[float] = []
         for view in views:
@@ -969,6 +1025,20 @@ def score_hashskip(
     return score_hashtok_detail(ids, model, min_count=min_count).lr
 
 
+def score_hashmask(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    """Occupancy-free MASK replace of exact last-k. Still no keys."""
+    if not model.mask_one:
+        raise ValueError("score_hashmask needs a MASK-replace hashpool")
+    if model.drop_one:
+        raise ValueError("score_hashmask cannot read drop-one skip tables")
+    return score_hashtok_detail(ids, model, min_count=min_count).lr
+
+
 def hashtok_trace(
     ids: Sequence[int],
     model: HashPoolModel,
@@ -990,6 +1060,7 @@ def hashtok_trace(
             ctx,
             position_bucket=model.position_bucket,
             drop_one=bool(model.drop_one),
+            mask_one=bool(model.mask_one),
         )
         skip_rows: list[dict] = []
         pieces: list[float] = []
@@ -1055,6 +1126,7 @@ def hashtok_trace(
                 "ctx_len": ctx_n,
                 "exact_ok": ctx_n == int(model.context_len),
                 "drop_one": bool(model.drop_one),
+                "mask_one": bool(model.mask_one),
                 "n_hashes_seen": n_seen,
                 "n_hashes": int(model.n_hashes),
                 "c_m": c_m_sum,
@@ -1447,6 +1519,7 @@ def persist_hashpool(
         "position_bucket": int(model.position_bucket),
         "exact_len": bool(model.exact_len),
         "drop_one": bool(model.drop_one),
+        "mask_one": bool(model.mask_one),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -1506,6 +1579,7 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         position_bucket=int(raw.get("position_bucket") or 0),
         exact_len=bool(raw.get("exact_len") or False),
         drop_one=bool(raw.get("drop_one") or False),
+        mask_one=bool(raw.get("mask_one") or False),
     )
 
 

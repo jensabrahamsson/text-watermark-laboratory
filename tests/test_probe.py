@@ -437,6 +437,22 @@ def test_run_probe_hashtoklen2_and_hashskip2_on_lab_pairs() -> None:
     assert hsk2.holdout.instance == "key-free-hashskip2"
 
 
+def test_run_probe_hashmask_on_lab_pairs() -> None:
+    twins = load_twins(PAIR)
+    run = run_probe(
+        twins,
+        pair_dir=str(PAIR),
+        methods=("hashmask",),
+        with_pivot=False,
+    )
+    names = [m.name for m in run.methods]
+    assert names == ["hashmask"]
+    assert run.used_keys is False
+    hmk = run.methods[0]
+    assert hmk.holdout.instance == "key-free-hashmask"
+    assert hmk.holdout.used_keys is False
+
+
 def test_apply_overlap_drops_shared_stems_from_train_or_test() -> None:
     twins = load_twins(PAIR)
     train, test, dropped = apply_overlap(twins, twins[:1], mode="drop-from-train")
