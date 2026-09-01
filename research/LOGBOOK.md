@@ -1774,4 +1774,21 @@ LRs: Grok-register → original 12 is **2 wins + 9 ties** (the 9 ties have
 zero vs negative unmarked). Isolated t=0 is unchanged. Do not sell the
 old `>=` prompt counts as ranking wins.
 
+## 2026-09-01 gpt2-medium occupancy-free leftover-15 opened
+
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md) named `883532b`.
+Official first-draw lamp on gpt2-medium 100×4 is **100/100**. Occupancy-free
+postokhits t=0 on the original 12 is **16/48 vs 48/48** (equals opening
+coverage **16/48**, exact **14/48**, decided FP 0). Leftover-15 coverage
+is **0/15**. Leftover occupancy-free sign is **0/15 vs 15/15**. H-mgen-cover,
+H-mgen-B, and H-mgen-iso hold. Prompt ranking postokhits is **7/12** strict
+with **5 ties**. Do not sell **16/48**, **0/15**, **7/12**, or official
+**100/100** as replacing **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-pair-gpt2-medium-100x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-12x4/`,
+`experiments/2026-09-01-isolated-mgen-leftover-15/`.
+
 ---

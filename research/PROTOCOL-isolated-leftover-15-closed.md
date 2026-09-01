@@ -131,8 +131,7 @@ H-l15-iso **holds**. Leftover last-4 is **9/15 vs 8/15**. Occupancy-free
 leftover-15 versus Distil and SMT is not a leftover-file detector.
 Isolated-file remains open because leftover-15 unique openings are
 officially watermarked and occupancy-free tables cannot copy them
-without targeting. The remaining occupancy-free question that is not
-leftover targeting and not more unrelated GPT-2 scenes is a larger
-same-BPE generator on the already-frozen 100 prompts
-([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). Do not write
-`thesis/`.
+without targeting. The gpt2-medium analog on the already-frozen 100
+prompts opened leftover coverage **0/15**
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). Do not sell
+**0/15** or gpt2-medium **16/48**. Do not write `thesis/`.

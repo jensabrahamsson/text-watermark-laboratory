@@ -212,4 +212,39 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis commands have been run once)*
+Protocol SHA `cc9c4ca`. Named `883532b`. Official first-draw lamp on
+the gpt2-medium 100×4 twins is **100/100**. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-isolated-mgen-leftover-15/](../experiments/2026-09-01-isolated-mgen-leftover-15/).
+Probe: [experiments/2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits/](../experiments/2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits/).
+Openings: [experiments/2026-09-01-openings-gpt2-medium-100x4-to-12x4/](../experiments/2026-09-01-openings-gpt2-medium-100x4-to-12x4/).
+
+| Reader | Full 48 marked `lr>0` | Unmarked `lr≤0` | Leftover-15 marked `lr>0` | Leftover-15 unmarked `lr≤0` |
+|---|---|---|---|---|
+| gpt2-medium postokhits | **16/48** | **48/48** | **0/15** | **15/15** |
+| gpt2-medium poshits | **39/48** | **41/48** | **9/15** | **12/15** |
+| gpt2-medium openings postokhits | covered **16/48** (exact 14/48) | decided FP 0 | leftover covered **0/15** | leftover uncovered **15/15** |
+
+H-mgen-cover **holds**. gpt2-medium occupancy-free leftover-15 coverage
+is **0/15**, not **15/15**. Accidental gpt2-medium opening overlap did
+not copy leftover-15 unique GPT-2 openings. Remaining leftover-15 is
+still harbour 1–4, library 1–4, station-4, letter 2–3, ferry-queue 1–4.
+Do not target those openings after peeking.
+
+H-mgen-B **holds**. Occupancy-free postokhits t=0 is **16/48 vs 48/48**.
+That equals gpt2-medium opening-atom overlap (**16/48** covered; exact
+**14/48**; decided 16 TP / 0 FP), equals GPT-2 lock B occupancy-free
+**16/48**, stays below Distil occupancy-free **22/48**, and does not
+beat hard **25/48**. Nested Youden **15/48 vs 48/48** used a train
+threshold ≈ 1.13; do not sell 15/48. Prompt ranking on postokhits is
+**7/12** strict, with **5 ties** at 0=0 (harbour, night-bus, letter,
+garden, ferry-queue). Historical `>=` would print 12/12. Do not sell
+**7/12**, **12/12**, **16/48**, or **39/48**.
+
+H-mgen-iso **holds**. Leftover-15 gpt2-medium coverage is **0/15**.
+Occupancy-free leftover sign is **0/15 vs 15/15**. That is not
+leftover-file detection. Official leftover-15 **15/15** uses keys. Do
+not sell leftover official **15/15**, Distil occupancy-free **22/48**,
+leftover Distil **3/18**, Distil→Distil **16/48**, gpt2-medium
+**16/48**, or leftover **0/15** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.

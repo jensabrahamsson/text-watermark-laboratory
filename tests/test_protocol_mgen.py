@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from text_watermark_tools.generate import is_gpt2_name
+from text_watermark_tools.indicator import holdout_from_json
 from text_watermark_tools.leftover import (
     leftover_keys_from_union,
     persist_mgen_leftover,
@@ -64,10 +65,10 @@ def test_protocol_mgen_names_frozen_sources_before_decode() -> None:
     assert "Do **not** target leftover-15" in text
     assert "openings after peeking" in text
     assert 'not "more GPT-2 scenes"' in text
-    assert "*(empty until the SHA is named in LOGBOOK.md" in text
-    assert "H-mgen-cover **holds**" not in text
-    assert "H-mgen-B **holds**" not in text
-    assert "H-mgen-iso **holds**" not in text
+    assert "*(empty until the SHA is named" not in text
+    assert "H-mgen-cover **holds**" in text
+    assert "H-mgen-B **holds**" in text
+    assert "H-mgen-iso **holds**" in text
     assert "`cc9c4ca`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert TEST.is_dir()
     assert UNION15.is_file()
@@ -153,3 +154,73 @@ def test_pair_stem_files_complete_and_persist_row_texts(tmp_path: Path) -> None:
     assert not pair_stem_files_complete(tmp_path, "harbour", 3)
     assert (tmp_path / "harbour-marked-2.txt").read_text() == "marked two\n"
     assert not pair_stem_files_complete(tmp_path, "missing", 1)
+
+
+def test_gpt2_medium_occupancy_free_leftover15_is_zero() -> None:
+    dump = ROOT / "experiments" / "2026-09-01-isolated-mgen-leftover-15"
+    raw = json.loads((dump / "mgen.json").read_text())
+    assert raw["used_keys"] is False
+    assert raw["n_leftover"] == 15
+    by = {row["label"]: row for row in raw["leftover_signs"]}
+    assert by["medium-postokhits"]["marked_above_zero"] == 0
+    assert by["medium-postokhits"]["unmarked_at_most_zero"] == 15
+    cov = raw["openings"]
+    assert cov["n_covered"] == 0
+    assert cov["n_uncovered"] == 15
+    assert cov["n_marked_covered"] == 16
+    assert cov["covered"] == []
+    probe = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits"
+            / "results.json"
+        ).read_text()
+    )
+    assert probe["used_keys"] is False
+    methods = {m["name"]: m for m in probe["methods"]}
+    assert methods["postokhits"]["binary"]["n_positive_above_zero"] == 16
+    assert methods["postokhits"]["binary"]["n_negative_at_most_zero"] == 48
+    assert methods["postokhits"]["binary"]["n_positive_above_zero"] == 16
+    assert methods["postokhits"]["binary"]["n_positive_above_zero"] < 25
+    openings = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-openings-gpt2-medium-100x4-to-12x4"
+            / "coverage.json"
+        ).read_text()
+    )
+    assert openings["used_keys"] is False
+    post = openings["final"]["postokhits"]
+    assert post["n_covered"] == 16
+    assert post["n_exact_opening"] == 14
+    assert post["coverage_gate"]["decided_fp"] == 0
+    ev = holdout_from_json(
+        ROOT
+        / "experiments"
+        / "2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits"
+        / "postokhits"
+        / "holdout.json"
+    )
+    assert ev.n_prompts_marked_above == 7
+    assert ev.n_prompt_ties == 5
+    assert ev.n_prompts_marked_ge == 12
+    pair = json.loads(
+        (ROOT / "experiments" / "2026-09-01-pair-gpt2-medium-100x4" / "results.json").read_text()
+    )
+    wins = sum(
+        1
+        for row in pair["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert pair["model_name"] == "gpt2-medium"
+    assert pair["seed"] == 20260901
+    assert wins == 100
+    text = PROTOCOL.read_text()
+    assert "H-mgen-cover **holds**" in text
+    assert "H-mgen-B **holds**" in text
+    assert "H-mgen-iso **holds**" in text
+    assert "sell leftover official **15/15**" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "gpt2-medium occupancy-free leftover-15 opened" in log

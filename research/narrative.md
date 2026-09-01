@@ -214,8 +214,10 @@ is closed
 Leftover-15 official is **15/15** at prefix-5 and uses keys. Leftover
 last-4 is **9/15 vs 8/15**. Do not sell leftover official **15/15**.
 The remaining occupancy-free generator analog that is not leftover
-targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)
-(gpt2-medium on the already-frozen 100 prompts; freeze before LRs).
+targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
+Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
+48/48**. Do not sell **0/15** or **16/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
 
 ## What this freeze refuses
 
@@ -225,7 +227,7 @@ targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.
