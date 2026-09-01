@@ -28,7 +28,8 @@ is the positive control, not the key-free indicator. Ranking and isolated
 sign disagree on stems: garden is one of nine 12-LOO hard ranking wins
 with no marked file `lr>0`; station, office, and ferry-queue lose ranking
 but hold 5 of 25 isolated TPs. `blind` leave-one-prompt-out now prints
-that split; historical recount JSON stays stem-mean only. Table:
+that split; historical recount JSON stays stem-mean only. Live JSON:
+`experiments/2026-09-01-blind-12x4-ranking-honesty/`. Table:
 `experiments/2026-09-01-ranking-isolated-honesty/`.
 
 ## Mechanistic finding already on the old corpus

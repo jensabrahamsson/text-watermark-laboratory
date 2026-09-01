@@ -1,0 +1,255 @@
+{
+  "n_pairs": 12,
+  "n_marked_wins": 9,
+  "accuracy": 0.75,
+  "n_prompt_wins_without_isolated_tp": 1,
+  "ranking_without_isolated_tp": [
+    "11-garden"
+  ],
+  "n_ranking_losses_with_isolated_tp": 3,
+  "ranking_losses_with_isolated_tp": [
+    "06-station",
+    "10-office",
+    "12-ferry-queue"
+  ],
+  "n_marked_positive_on_ranking_losses": 5,
+  "n_marked_lr_positive": 25,
+  "context_len": 4,
+  "backoff": false,
+  "margin": 0.0,
+  "alpha": 0.5,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "note": "Likelihood ratio from token counts only. Positive marked_lr means the held-out text looks more like the marked train pile. n_marked_wins is prompt-mean ranking, not per-file accuracy. ranking_without_isolated_tp lists ranking wins with no marked file lr>0. Isolated sign is hard lr>0 even when margin is nonzero. No keys / hash_iv / g-values.",
+  "folds": [
+    {
+      "stem": "01-harbour",
+      "marked_lr": 0.005669259625329877,
+      "unmarked_lr": -0.011347888282769893,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -0.02482270144490896,
+        0.04368940086048992,
+        0.016955354665706714,
+        -0.013145015579968167
+      ],
+      "unmarked_file_lrs": [
+        0.05057898484679144,
+        -0.04275572369856334,
+        -0.08733568313389199,
+        0.03412086885458432
+      ],
+      "n_marked_positive": 2
+    },
+    {
+      "stem": "02-night-bus",
+      "marked_lr": -0.01137272628084436,
+      "unmarked_lr": -0.0509713183427507,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -0.04806544509100476,
+        -0.003274798279517024,
+        -0.06608829621264023,
+        0.07193763445978457
+      ],
+      "unmarked_file_lrs": [
+        -0.10285376785561719,
+        0.060022617196460244,
+        -0.08459866581907008,
+        -0.07645545689277577
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "03-library",
+      "marked_lr": 0.006589422304038617,
+      "unmarked_lr": -0.043799976866855696,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        0.0007620390267081567,
+        -0.029743884480540415,
+        0.040663159695060506,
+        0.01467637497492622
+      ],
+      "unmarked_file_lrs": [
+        -0.1045411988143411,
+        -0.09681316787830942,
+        -0.03909581134715946,
+        0.06525027057238719
+      ],
+      "n_marked_positive": 3
+    },
+    {
+      "stem": "04-market",
+      "marked_lr": 0.06019209305169565,
+      "unmarked_lr": 0.020188259214107808,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        0.06128037770972858,
+        0.09876901422970318,
+        -0.01808330210064711,
+        0.09880228236799794
+      ],
+      "unmarked_file_lrs": [
+        0.08179000034133099,
+        -0.06684599330104321,
+        0.04390606601926246,
+        0.021902963796880986
+      ],
+      "n_marked_positive": 3
+    },
+    {
+      "stem": "05-kitchen",
+      "marked_lr": 0.10201178999878864,
+      "unmarked_lr": 0.024889064091508768,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        0.11201642618315236,
+        0.08620320845751707,
+        -0.04021616484326315,
+        0.2500436901977483
+      ],
+      "unmarked_file_lrs": [
+        0.009362077815804275,
+        0.06284132346058648,
+        0.08654850022431572,
+        -0.059195645134671404
+      ],
+      "n_marked_positive": 3
+    },
+    {
+      "stem": "06-station",
+      "marked_lr": -0.0022901957461068344,
+      "unmarked_lr": 0.02553136438217026,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        -0.04428057291579438,
+        -0.035545623810054015,
+        -0.003016229632244169,
+        0.07368164337366523
+      ],
+      "unmarked_file_lrs": [
+        0.055449468222803285,
+        0.03452431470458947,
+        -0.04169161237526248,
+        0.05384328697655077
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "07-rain",
+      "marked_lr": 0.0982232837598383,
+      "unmarked_lr": 0.002275281597364228,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -0.008114772302825318,
+        0.19410681399947755,
+        0.08405337397551334,
+        0.12284771936718761
+      ],
+      "unmarked_file_lrs": [
+        -0.09605016019163289,
+        0.10687972339393358,
+        0.07269587504713834,
+        -0.07442431185998212
+      ],
+      "n_marked_positive": 3
+    },
+    {
+      "stem": "08-letter",
+      "marked_lr": 0.01822310832325379,
+      "unmarked_lr": -0.02820015787810261,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        0.12418633509944102,
+        -0.014921702409861029,
+        -0.0065351488460785485,
+        -0.02983705055048628
+      ],
+      "unmarked_file_lrs": [
+        -0.041836520141217755,
+        0.027181452267224723,
+        -0.09904675348519192,
+        0.0009011898467744974
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "09-workshop",
+      "marked_lr": 0.0891866267654782,
+      "unmarked_lr": 0.07340887075176586,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        0.09235696821385884,
+        0.06756277615782384,
+        0.035764043826401914,
+        0.1610627188638282
+      ],
+      "unmarked_file_lrs": [
+        0.05822514744008496,
+        0.12070341188161589,
+        0.08204270741882566,
+        0.032664216266536907
+      ],
+      "n_marked_positive": 4
+    },
+    {
+      "stem": "10-office",
+      "marked_lr": -0.05241790510227173,
+      "unmarked_lr": 0.019247563741339197,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        -0.10174681709497164,
+        -0.013998422175928782,
+        -0.11845770881354943,
+        0.024531327675362962
+      ],
+      "unmarked_file_lrs": [
+        -0.06076066620507268,
+        0.1729837902445322,
+        0.02890259356882067,
+        -0.0641354626429234
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "11-garden",
+      "marked_lr": -0.02384335416359401,
+      "unmarked_lr": -0.04744373422448077,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -0.013461779609405047,
+        -0.006918912166627413,
+        -0.06081028674580035,
+        -0.01418243813254323
+      ],
+      "unmarked_file_lrs": [
+        -0.03756901935964061,
+        -0.10776597008925247,
+        -0.06303227495444752,
+        0.018592327505417512
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "12-ferry-queue",
+      "marked_lr": -0.011906356141446594,
+      "unmarked_lr": -0.006664904714985609,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        0.03438864406060827,
+        0.039953302914560035,
+        0.01715883692102958,
+        -0.13912620846198426
+      ],
+      "unmarked_file_lrs": [
+        0.03783819964034567,
+        -0.04171126959476259,
+        -0.030463199648524508,
+        0.0076766507429989915
+      ],
+      "n_marked_positive": 3
+    }
+  ]
+}

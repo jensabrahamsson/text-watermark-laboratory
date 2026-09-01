@@ -3,7 +3,8 @@
 Not a new `probe --methods` name. Derived from already-saved holdout
 JSON via `IndicatorHoldout.ranking_without_isolated_tp` and
 `ranking_losses_with_isolated_tp`. The 9/12 producer (`blind`) now
-stores the same per-file split. `used_keys=false`.
+stores the same per-file split. Live JSON:
+`../2026-09-01-blind-12x4-ranking-honesty/`. `used_keys=false`.
 
 Prompt-group ranking and isolated `lr>0` are different grains. This
 table names the stems where they disagree.

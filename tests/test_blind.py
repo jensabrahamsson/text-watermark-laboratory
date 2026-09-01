@@ -443,3 +443,31 @@ def test_persist_blind_eval_writes_ranking_honesty(tmp_path: Path) -> None:
     assert "ranking_without_isolated_tp" not in historical
     assert "marked_file_lrs" not in historical["folds"][0]
 
+
+def test_blind_12x4_ranking_honesty_json_matches_headline() -> None:
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-blind-12x4-ranking-honesty"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["used_keys"] is False
+    assert raw["n_marked_wins"] == 9
+    assert raw["n_marked_lr_positive"] == 25
+    assert raw["ranking_without_isolated_tp"] == ["11-garden"]
+    assert raw["ranking_losses_with_isolated_tp"] == [
+        "06-station",
+        "10-office",
+        "12-ferry-queue",
+    ]
+    assert raw["n_marked_positive_on_ranking_losses"] == 5
+    garden = next(f for f in raw["folds"] if f["stem"] == "11-garden")
+    assert garden["marked_wins"] is True
+    assert garden["n_marked_positive"] == 0
+    assert all(m <= 0.0 for m in garden["marked_file_lrs"])
+    ferry = next(f for f in raw["folds"] if f["stem"] == "12-ferry-queue")
+    assert ferry["marked_wins"] is False
+    assert ferry["n_marked_positive"] == 3
+

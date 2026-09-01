@@ -1284,6 +1284,10 @@ now keeps per-file LRs. Stem-mean ranking is unchanged. New persists
 print `ranking_without_isolated_tp` and `ranking_losses_with_isolated_tp`.
 Historical `experiments/2026-09-01-blind-12x4-recount-last4/` stays
 stem-mean only. Isolated sign stays hard `lr>0` even when `--margin` is
-nonzero. Not a new scorer. Does not replace **25/48**.
+nonzero. Live 12×4 last-4 remeasure wrote
+`experiments/2026-09-01-blind-12x4-ranking-honesty/`: **9/12**, garden
+**0/4**, isolated **25**, ranking losses station/office/ferry-queue
+with **5** TPs. Historical recount JSON unchanged. Not a new scorer.
+Does not replace **25/48**.
 
 ---
