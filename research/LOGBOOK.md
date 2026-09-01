@@ -1592,4 +1592,13 @@ hold. Do not sell union 30/48 or leftover 10/18. Nothing replaces
 
 JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
 
+## 2026-09-01 occupancy-free leftover-18 closed
+
+[PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)
+committed at SHA `afb7668`. Occupancy-free remainder after SMT ∪ mixed
+is leftover **18**. Leftover-18 official prefix-128 is **18/18** by
+subset of leftover-20 **20/20**. Prefix-5 is **16/18**. Do not add
+family-12 paraphrases or target leftover openings after peeking. Do
+not write `thesis/`.
+
 ---

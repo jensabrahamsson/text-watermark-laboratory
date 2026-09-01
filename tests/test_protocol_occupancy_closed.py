@@ -46,6 +46,7 @@ def test_protocol_occupancy_closed_refuses_family12_and_new_trains() -> None:
     assert "H-closed-iso **holds**" in text
     assert "Do not sell leftover official **18/18**" in text
     assert "There is no decode command" in text
+    assert "`afb7668`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_leftover18_official_is_18_of_18_by_subset() -> None:
@@ -67,3 +68,5 @@ def test_leftover18_official_is_18_of_18_by_subset() -> None:
     assert "leftover-18 official is **18/18**" in text
     assert "leftover-18 prefix-5 is **16/18**" in text
     assert "occupancy-free coverage from more unrelated GPT-2" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "occupancy-free leftover-18 closed" in log
