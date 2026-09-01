@@ -1353,11 +1353,10 @@ detection is still not finished.
 
 ## 2026-09-01 interpolate window readout frozen
 
-[PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) committed
-in the same change as this line. Same lock A interpolate tables as
-PROTOCOL-isolated-xreg. Windows `0:4,4:16,16:32,32:64,64:128` on grok12
-and on the original 12. No new scorer. Do not look at window LRs until
-the freeze SHA is named on the next logbook line. Does not replace
-**25/48**. Do not write `thesis/`.
+[PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) committed at
+SHA `7d8759a`. Same lock A interpolate tables as PROTOCOL-isolated-xreg.
+Windows `0:4,4:16,16:32,32:64,64:128` on grok12 and on the original 12.
+No new scorer. Do not look at window LRs until this line is on origin.
+Does not replace **25/48**. Do not write `thesis/`.
 
 ---

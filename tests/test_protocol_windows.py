@@ -19,3 +19,4 @@ def test_protocol_windows_names_frozen_flags() -> None:
     assert "2026-08-17-pair-12x4" in text
     assert "thesis/" in text
     assert "## Results" not in text
+    assert "`7d8759a`" in (ROOT / "research" / "LOGBOOK.md").read_text()
