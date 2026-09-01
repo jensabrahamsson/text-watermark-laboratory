@@ -1455,4 +1455,18 @@ determined from already-opened zeros. Do not look at mixed `probe` /
 mixed `openings` LRs until this line is on origin. Do not sell
 **28/48** as replacing **25/48**. Do not write `thesis/`.
 
+## 2026-09-01 pooled-train isolated transfer opened
+
+SHA `244d23a`. `used_keys=false`. Mixed openings coverage **28/48**
+equals the published set-union (no combo atoms). Occupancy-free
+postokhits t=0 is **26/48 vs 47/48** (two covered letter files are
+negative). Nested interpolate **27/48 vs 39/48**. H-pool-B holds for
+coverage; H-pool-A holds vs grok36-only 26/48. Do not sell 28/48, 26/48,
+or 27/48. Leftover 20 files remain. Nothing replaces **25/48**.
+Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`.
+
 ---

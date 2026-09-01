@@ -299,3 +299,14 @@ sell **28/48** or leftover grok36 interpolate **13/20**. Mixed
 
 JSON: `experiments/2026-09-01-openings-union-100-and-grok36-to-12x4/`.
 
+## Isolated-file pool (mixed 100 + grok36)
+
+Protocol SHA `244d23a`. `used_keys=false`. Mixed openings coverage
+**28/48** equals the published set-union (no combo atoms). Occupancy-free
+t=0 is **26/48 vs 47/48**. Mixed interpolate nested **27/48 vs 39/48**.
+Do not sell 28/48, 26/48, or 27/48. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`.
+

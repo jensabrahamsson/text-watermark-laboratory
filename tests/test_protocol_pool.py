@@ -57,3 +57,38 @@ def test_published_zero_union_is_disjoint_28() -> None:
     text = PROTOCOL.read_text()
     assert "replacing **25/48**" in text
     assert "Do not sell 28/48" in text or "Do **not** sell **28/48**" in text
+
+
+def test_protocol_pool_mixed_coverage_equals_union_not_t0() -> None:
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = ROOT / "experiments"
+    cov = json.loads(
+        (root / "2026-09-01-openings-100plusgrok36-to-12x4" / "coverage.json").read_text()
+    )
+    ev = holdout_from_json(
+        root
+        / "2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free"
+        / "postokhits"
+        / "holdout.json"
+    )
+    nested = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4"
+            / "results.json"
+        ).read_text()
+    )
+    row = next(t for t in nested["thresholds"] if t["source"] == "nested-youden")
+    assert cov["used_keys"] is False
+    assert ev.used_keys is False
+    assert cov["final"]["postokhits"]["n_covered"] == 28
+    assert ev.n_marked_positive == 26
+    assert ev.n_marked_positive != 28
+    assert row["n_marked_above"] == 27
+    assert row["n_marked_above"] >= 26
+    text = PROTOCOL.read_text()
+    assert "H-pool-B **holds for coverage**" in text
+    assert "H-pool-A **holds**" in text
+    assert "H-pool-iso **holds**" in text
+    assert "Do not sell either number" in text or "Do not sell **28/48**" in text

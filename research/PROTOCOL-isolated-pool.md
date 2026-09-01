@@ -148,3 +148,34 @@ python -m text_watermark_tools openings experiments/2026-09-01-pair-100x4 \
    Do not add a fourth scorer.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Results (opened after the frozen commands)
+
+`used_keys=false` on every key-free path below. Protocol SHA `244d23a`.
+
+Mixed openings extra-train coverage on the original 12×4 is **28/48**
+(exact 22/48; 1 unmarked FP). That equals the published set-union.
+No combo atoms. Mixed occupancy-free postokhits t=0 is **26/48 vs
+47/48** (nested Youden **25/48 vs 47/48**). Two covered letter files
+(`08-letter` d1 and d4) have negative observed-token LR, so t=0 is not
+28/48. Prompt ranking **11/12**, with three ranking wins that have 0
+isolated TPs (harbour, library, ferry-queue).
+
+H-pool-B **holds for coverage**: mixed coverage **28/48** equals the
+set-union; no combo atoms. t=0 is **26/48**, not 28/48. Do not sell either number.
+
+H-pool-A **holds**: mixed interpolate nested Youden **27/48 vs 39/48**
+is above grok36-only **26/48**. Prompt **9/12**. t=0 **32/48 vs 31/48**.
+Do not sell 27/48 or 32/48.
+
+H-pool-iso **holds**. Leftover zeros remain the same 20 files
+(`Closing`, `The ferry`, `Now in the second`, `The printer`,
+ferry-queue). Optional grok12 mixed coverage is **40/48**, equal to
+that published union. Isolated observed-token recall is still
+opening-atom overlap. Nothing here replaces **25/48**. Isolated-file
+detection is not finished.
+
+JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`,
+`experiments/2026-09-01-openings-100plusgrok36-to-grok12x4/`.
