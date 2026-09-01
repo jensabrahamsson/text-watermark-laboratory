@@ -23,8 +23,7 @@ def test_protocol_leftover_names_frozen_rankpath_before_probe() -> None:
     assert "thesis/" in text
     assert "Do **not** mix grok12" in text
     assert "2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath" in text
-    log = (ROOT / "research" / "LOGBOOK.md").read_text()
-    assert "PROTOCOL-isolated-leftover.md" in log
+    assert "`7afd049`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_leftover_membership_is_the_mixed_postokhits_zeros() -> None:

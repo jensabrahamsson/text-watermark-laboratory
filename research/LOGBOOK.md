@@ -1472,9 +1472,9 @@ JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
 ## 2026-09-01 leftover-opening rankpath protocol frozen
 
 [PROTOCOL-isolated-leftover.md](PROTOCOL-isolated-leftover.md) committed
-before mixed rankpath `probe`. The 20 mixed postokhits zeros are the
-isolated-file core. Do not look at mixed rankpath LRs until this line
-is on origin. Do not sell leftover signs as replacing **25/48**. Do
-not write `thesis/`.
+at SHA `7afd049`. The 20 mixed postokhits zeros are the isolated-file
+core. Do not look at mixed rankpath LRs until this line is on origin.
+Do not sell leftover signs as replacing **25/48**. Do not write
+`thesis/`.
 
 ---
