@@ -43,6 +43,7 @@ def test_protocol_m12_names_frozen_sources_before_decode() -> None:
     assert "Mixing the new gpt2-medium 12×4 twins into the 100×4 train" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H-m12-cover **holds**" not in text
+    assert "`5be70f3`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert TRAIN.is_dir()
     assert TRAIN_PROMPTS.is_dir()
     assert TEST_PROMPTS.is_dir()

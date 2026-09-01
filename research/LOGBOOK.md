@@ -1791,4 +1791,17 @@ JSON: `experiments/2026-09-01-pair-gpt2-medium-100x4/`,
 `experiments/2026-09-01-openings-gpt2-medium-100x4-to-12x4/`,
 `experiments/2026-09-01-isolated-mgen-leftover-15/`.
 
+## 2026-09-01 gpt2-medium 12×4 occupancy-free freeze
+
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md) committed at SHA
+`5be70f3`. Occupancy-free leftover-15 versus gpt2-medium is **0/15**.
+The remaining analog is gpt2-medium 100×4 tables scoring gpt2-medium
+12×4 files from the original 12 Grok seeds (same BPE; not leftover
+targeting). Hypotheses H-m12-cover, H-m12-B, and H-m12-iso are stated
+before any gpt2-medium→gpt2-medium LRs. Do not look at those LRs until
+the pair, probe, and openings commands have been run once, as written.
+Do not apply leftover-15 keys to gpt2-medium 12 files. Do not target
+leftover-15 openings. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
 ---
