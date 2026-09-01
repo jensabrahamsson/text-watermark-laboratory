@@ -36,9 +36,13 @@ Distil ∪ SMT is opened. The remaining occupancy-free zeros are leftover
 GPT-2 trains did not. Neighborhood paraphrases would target leftover
 stems after peeking. Isolated-file remains open; occupancy-free coverage
 from Distil, SMT, mixed 100+grok36, or more unrelated GPT-2 scenes is
-not the remaining lever. Official leftover-15 uses keys. The remaining
-occupancy-free generator analog is
-[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
+not the remaining lever. Official leftover-15 uses keys. The leftover-15
+gpt2-medium analog on the already-frozen 100 prompts opened leftover
+coverage **0/15**
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
+occupancy-free analog that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
+100×4 → gpt2-medium 12×4.
 
 ## Primary scientific question
 
@@ -92,7 +96,10 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   and leftover-15 mask-*k*.
 - More unrelated GPT-2 occupancy-free scenes for leftover-15.
   gpt2-medium on the already-frozen 100 prompts is
-  [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md), not this file.
+  [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md), opened leftover
+  **0/15**. gpt2-medium 100×4 → gpt2-medium 12×4 is
+  [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md), not leftover
+  targeting.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
 - Re-running PROTOCOL-isolated-scale; that protocol is already open.
@@ -133,5 +140,7 @@ Isolated-file remains open because leftover-15 unique openings are
 officially watermarked and occupancy-free tables cannot copy them
 without targeting. The gpt2-medium analog on the already-frozen 100
 prompts opened leftover coverage **0/15**
-([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). Do not sell
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
+occupancy-free analog that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not sell
 **0/15** or gpt2-medium **16/48**. Do not write `thesis/`.

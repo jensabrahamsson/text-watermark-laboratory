@@ -131,6 +131,8 @@ Qwen 100×4 → Qwen 12×4 occupancy-free is
 postokhits t=0 **31/48 vs 48/48**. Do not sell Qwen→Qwen **31/48**.
 Occupancy-free leftover-15 after Distil ∪ SMT is closed
 ([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
-The remaining occupancy-free generator analog that is not leftover
-targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
+The leftover-15 gpt2-medium analog opened leftover coverage **0/15**
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
+occupancy-free analog that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md).
 Do not write `thesis/`.

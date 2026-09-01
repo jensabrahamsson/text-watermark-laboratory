@@ -247,4 +247,7 @@ leftover-file detection. Official leftover-15 **15/15** uses keys. Do
 not sell leftover official **15/15**, Distil occupancy-free **22/48**,
 leftover Distil **3/18**, Distil→Distil **16/48**, gpt2-medium
 **16/48**, or leftover **0/15** as replacing **25/48**. Isolated-file
-detection is still not finished. Do not write `thesis/`.
+detection is still not finished. The remaining occupancy-free analog
+that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not write
+`thesis/`.

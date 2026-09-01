@@ -213,10 +213,13 @@ is closed
 ([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
 Leftover-15 official is **15/15** at prefix-5 and uses keys. Leftover
 last-4 is **9/15 vs 8/15**. Do not sell leftover official **15/15**.
-The remaining occupancy-free generator analog that is not leftover
-targeting is [PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
+The leftover-15 gpt2-medium analog is
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
 Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
-48/48**. Do not sell **0/15** or **16/48**. Isolated-file detection is
+48/48**. Do not sell **0/15** or **16/48**. The remaining occupancy-free
+analog that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): gpt2-medium
+100×4 → gpt2-medium 12×4. Freeze before LRs. Isolated-file detection is
 still not finished. Do not write `thesis/`.
 
 ## What this freeze refuses

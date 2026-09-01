@@ -122,6 +122,8 @@ interpolate on leftover-18 are
 [PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md).
 Opened: leftover-18 mixed rankpath **12/18 vs 13/18**; interpolate
 **12/18 vs 12/18**; 0:4 unseen **89 vs 19**. Isolated-file remains open.
-The remaining occupancy-free generator analog on leftover-15 is
-[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md). Do not write
+The leftover-15 gpt2-medium analog opened leftover coverage **0/15**
+([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). The remaining
+occupancy-free analog that is not leftover targeting is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Do not write
 `thesis/`.
