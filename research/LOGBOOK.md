@@ -1016,4 +1016,14 @@ draws, 128 tokens, as [PROTOCOL-next.md](PROTOCOL-next.md). Do not
 open key-free LRs until generation and the frozen analysis commands
 have run.
 
+## 2026-09-01 README cut to three headlines
+
+The root README is no longer an ablation dump. Locked claims are
+**10/12**, **36/36**, **29/48**, plus the front-loaded opening. The
+rest of the table lives in [results-ledger.md](results-ledger.md) and
+[../experiments/README.md](../experiments/README.md). Wang et al.
+(2026) stays the closest analog; a later TTP-Detect comparison is a
+shared-data question, not a method race
+([related-work.md](related-work.md)).
+
 ---

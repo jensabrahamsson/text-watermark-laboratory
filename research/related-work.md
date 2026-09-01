@@ -101,6 +101,17 @@ shared benchmark. Isolated hard last-4 remains **29/48**. Opening
 occupancy-free hashing is **24/48** marked `lr>0`, which is below that
 headline. Treat this as an empirical notebook, not a priority claim.
 
+## Later benchmark, not a method race
+
+A useful next comparison with Wang et al. (2026) is not “is our scorer
+smarter?” It is: given **identical** paired reference twins and a
+held-out finished-string corpus, how much of TTP-Detect’s third-party
+discrimination does an embarrassingly simple count/opening LR recover?
+If the simple reader gets a large share of the effect, that is itself
+a result. This repository does not reimplement TTP-Detect. Do not add
+a proxy-model detector on the old 12×4 files. The confirmatory
+measurement is [PROTOCOL-next.md](PROTOCOL-next.md).
+
 ## What this repository adds
 
 A small, fully checked-in instance of **finished-string** key-free

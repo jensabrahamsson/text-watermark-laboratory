@@ -48,3 +48,25 @@ Instance contrast, tokhits, rankpath, cascade, and transfer tables are
 not copied here. Start from [key-free-twins.md](key-free-twins.md) and
 the experiment index. Neighbours of the measurement, with author–year
 citations, are [related-work.md](related-work.md).
+
+## What is scientifically interesting on the old corpus
+
+Ranked for a reader, not for a leaderboard. Later 39/48 and 41/48
+isolated signs are discovery, not headlines.
+
+| Rank | Result | Role |
+|---|---|---|
+| 1 | Front-loaded / opening-token signal | Mechanistic |
+| 2 | Key-free ranking on new prompt families | Core claim |
+| 3 | 36/36 in-domain hits | Learnable footprint |
+| 4 | Control-shuffled-30 instance contrast | Causal check |
+| 5 | Poor GPT-2 → Distil/Qwen transfer | Not a tokenizer detector |
+| 6 | Occupancy / coverage explains inflated recall | Why 39/48 is not 39 tokens |
+| 7 | Opening rankpath 41/48 | Discovery; generator-specific |
+| 8 | Cascades 39/48–40/48 | Do not keep optimizing |
+
+Leave-one-out protects a fit. It does not protect against a researcher
+who tries thirty scorers on the same twelve groups. That is why
+[PROTOCOL-next.md](PROTOCOL-next.md) freezes three readers before a
+new 100×4 corpus is opened.
+
