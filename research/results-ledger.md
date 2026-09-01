@@ -95,7 +95,18 @@ AUC **0.885**; window **16:32** is **89/100**, AUC **0.689**. Early is
 stronger; mid-file is not chance on this corpus. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
 Do not sell lock B **393/400** or lock A **352/400** as replacing
-**25/48**. H3 (Distil/Qwen) is Phase B.
+**25/48**.
+
+## Confirmatory 100×4 Phase B Distil (Qwen still generating)
+
+Official Distil lamp **70/100** (weaker mixin than GPT-2 **100/100**).
+Lock B **89/100** (drop 11 from 100). Lock C **69/100** (drop 27 from
+96). H3 holds on Distil: rankpath drops more. Isolated Distil signs
+(216/400, 164/400) are not **25/48**.
+
+JSON: `experiments/2026-09-01-pair-distil-100x4/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
 
 JSON: `experiments/2026-09-01-probe-100x4-hard-last4/`,
 `experiments/2026-09-01-probe-100x4-opening-poshits/`,

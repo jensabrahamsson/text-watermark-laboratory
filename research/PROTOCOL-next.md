@@ -184,6 +184,13 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
 H3 compares prompt-win *drops* from GPT-2 Phase A (lock B **100/100**,
 lock C **96/100**). Isolated `lr>0` is not H3.
 
+### DistilGPT2 (2026-09-01)
+
+Official first-draw **70/100**. Lock B **89/100** (drop 11). Lock C
+**69/100** (drop 27). Rankpath drops more. Qwen not yet opened.
+
+`used_keys=false`. Do not sell 89/100 or 69/100 as replacing **25/48**.
+
 ## What this protocol refuses
 
 - New hashed / backoff / cascade / learned scorers on 12×4 or 36×4.

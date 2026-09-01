@@ -1104,4 +1104,24 @@ scores exist and the frozen opening probes have run once. H3 is
 rankpath drop vs poshits drop relative to GPT-2 Phase A. Do not run
 lock A on these twins.
 
+## 2026-09-01 Phase B Distil opening locks
+
+Native DistilGPT2, same 100 prompts, seed `20260901`. Official
+first-draw marked > unmarked is **70/100** (weaker lamp than GPT-2
+**100/100**; min marked ≈ 0.433). Mixin on/off remains ground truth.
+
+- **Lock B** opening poshits: **89/100**, AUC **0.713**, isolated
+  **216/400 vs 247/400**
+- **Lock C** opening rankpath: **69/100**, AUC **0.598**, isolated
+  **164/400 vs 270/400**
+
+H3 on Distil so far: rankpath drop from GPT-2 Phase A is **27**
+(96→69); poshits drop is **11** (100→89). Rankpath drops more.
+`--rankpath` extras are not lock C. Do not sell Distil 89/100 or
+69/100 as replacing **25/48**. Qwen pair is still generating.
+
+JSON: `experiments/2026-09-01-pair-distil-100x4/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
+
 ---

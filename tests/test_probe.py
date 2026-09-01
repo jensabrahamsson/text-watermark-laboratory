@@ -1005,6 +1005,46 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
     assert early.n_prompts_marked_above > mid.n_prompts_marked_above
 
 
+def test_pair_distil_100x4_official_is_weaker_than_gpt2() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-pair-distil-100x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["instance"] == "public-deepmind-30"
+    assert raw["model_name"] == "distilgpt2"
+    assert raw["seed"] == 20260901
+    assert len(raw["rows"]) == 100
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 70
+
+
+def test_protocol_next_phase_b_distil_opening_locks() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    poshits = holdout_from_json(
+        root / "2026-09-01-probe-distil-100x4-opening-poshits" / "poshits" / "holdout.json"
+    )
+    rankpath = holdout_from_json(
+        root / "2026-09-01-probe-distil-100x4-opening-rankpath" / "rankpath" / "holdout.json"
+    )
+    assert poshits.used_keys is False
+    assert rankpath.used_keys is False
+    assert poshits.n_prompts == 100
+    assert poshits.n_prompts_marked_above == 89
+    assert rankpath.n_prompts_marked_above == 69
+    # H3 on Distil: rankpath drops more from GPT-2 Phase A than poshits.
+    assert (96 - rankpath.n_prompts_marked_above) > (100 - poshits.n_prompts_marked_above)
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

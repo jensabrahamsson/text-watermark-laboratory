@@ -92,6 +92,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Key-free 12 prompts × 4 draws, last-4 (recount) | **9/12** |
 | Same comparison with margin 0.02 | **10/12** |
 | Confirmatory 100×4 lock A interpolate last-4 | **99/100** (official keyed first-draw **100/100**) |
+| DistilGPT2 100×4 official / lock B / lock C | **70/100** / **89/100** / **69/100** (H3: rankpath drops more) |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

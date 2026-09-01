@@ -207,6 +207,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-100x4-opening-poshits/` | Lock B opening poshits | **100/100**, AUC **0.980**, isolated 393/400 vs 344/400 |
 | `2026-09-01-probe-100x4-opening-rankpath/` | Lock C opening rankpath | **96/100**, AUC **0.822**, isolated 314/400 vs 302/400 |
 | `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | 0:4 **99/100** AUC **0.885**; 16:32 **89/100** AUC **0.689** |
+| `2026-09-01-pair-distil-100x4/` | DistilGPT2 twins, same 100 prompts | Official first-draw **70/100** (weaker lamp than GPT-2 **100/100**) |
+| `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | **89/100**, AUC **0.713**, isolated 216/400 vs 247/400 |
+| `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | **69/100**, AUC **0.598**, isolated 164/400 vs 270/400 |
 
 ## What changed across the runs
 
