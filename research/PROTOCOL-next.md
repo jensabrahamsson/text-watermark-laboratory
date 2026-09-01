@@ -1,0 +1,179 @@
+# Confirmatory protocol (next corpus)
+
+This is a **methods freeze**, not a paper. It exists so the next
+measurement is a prediction about data that has not been opened, rather
+than another scorer on `experiments/2026-08-17-pair-12x4`.
+
+Author–year citations follow [CITING.md](CITING.md). Lab counts
+(10/12, 29/48, 36/36) are this repository's data, not a paper. Closest
+published analog for third-party verification remains Wang et al.
+(2026) TTP-Detect; this protocol is not a priority claim over that work
+([related-work.md](related-work.md)).
+
+Do **not** write `thesis/` from this file.
+
+## Why freeze now
+
+The original key-free last-4 count tables still separate held-out prompt
+groups **10/12** times. Isolated hard sign at 0 is still **29/48**.
+In-domain 36×4 hits is still **36/36**. Those three numbers are the
+locked headlines.
+
+Later readers on the same twins (hashpool, poshits, rankpath, hashtok,
+cascades, mixer width, mixer seed, last-k) are **hypothesis
+generators**. Leave-one-prompt-out protects a fit, not the researcher.
+Occupancy-free last-k at the frozen mixer (`n_hashes=8`, seed
+`20260831`) is the last order axis on that corpus: in-domain last-1 is
+chance; last-3 prompt **11/12** has t=0 **24/48**; 24→12 last-4 still
+wins nested FPR10. That is a negative on isolated-file density, not a
+reason to invent another hashed scorer.
+
+No new `probe --methods` names on the 12×4 / 36×4 twins after this
+file's commit SHA.
+
+## Primary scientific question
+
+Is there a watermark-induced perturbation of the **early conditional
+next-token distribution** that generalizes across new prompts and
+sampling seeds on the public DeepMind GPT-2 mixin?
+
+Not: can another table classify the old 12×4 files.
+
+## Frozen scorers
+
+Three readers, named before any new generation. Exact CLI. No keys,
+`hash_iv`, or g-values.
+
+| Lock | Reader | Command fragment |
+|---|---|---|
+| A | Hard last-4 (historical baseline) | `--methods interpolate --context-len 4` |
+| B | Opening poshits (simple count) | `--methods poshits --fit-prefix 4 --pos-bucket 1` |
+| C | Opening rankpath (rank symbols) | `--rankpath --fit-prefix 4 --pos-bucket 1` |
+
+`interpolate` is the published hard last-4 count table (`indicate`
+holdout `--rotate --context-len 4`). `poshits` is position-bucketed
+last-4 on the first four generated tokens. `rankpath` is the five-symbol
+unmarked-LM rank table on the same opening. Do not add hashtok, hashpool,
+cascades, backoff, or learned combiners to this list after the corpus
+exists.
+
+Official `score` on the new twins is a **positive control** (the mixin
+is on). It is not a key-free endpoint.
+
+## Hypotheses (stated before generation)
+
+- **H1.** On new prompt families, marked mean LR > unmarked mean LR
+  under lock A (prompt-grain paired discrimination).
+- **H2.** Window **0:4** ranks marked above unmarked more strongly than
+  window **16:32** under lock A (`--windows 0:4,16:32` on the same
+  files).
+- **H3.** Lock C (rankpath) is more generator-specific than lock B
+  (opening poshits) when the same prompts are generated with DistilGPT2
+  and Qwen2-1.5B. Phase B; not required to open Phase A.
+
+## Primary endpoint
+
+**Prompt-level paired discrimination** under lock A: number of new
+prompt stems whose marked-group mean LR exceeds the unmarked-group mean
+LR, with no comparison margin.
+
+Report file AUC and permutation p as secondary ranking. Do **not**
+promote isolated `lr > 0` to the primary endpoint. Nested Youden / 10%
+FPR, if reported, are frozen from training stems only.
+
+## Corpus (Phase A)
+
+One hundred **new** English one-line scene prompts, disjoint as strings
+from `experiments/2026-08-17-prompts-36/`. Same register as seeds
+13–36 (one sentence, everyday setting, no instruction to the model).
+
+| Item | Value |
+|---|---|
+| Prompts | `experiments/YYYY-MM-DD-prompts-100/` (committed **before** `pair`) |
+| Generator | GPT-2 + public DeepMind 30 mixin |
+| Draws | `--n-samples 4` |
+| Length | `--max-new-tokens 128` |
+| Seed | `20260901` |
+| Output | `experiments/YYYY-MM-DD-pair-100x4/` |
+
+```bash
+python -m text_watermark_tools pair experiments/YYYY-MM-DD-prompts-100 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260901 \
+  --out-dir experiments/YYYY-MM-DD-pair-100x4
+```
+
+Do not look at key-free LRs until `pair` has written official first-draw
+scores and this protocol's analysis commands have been run once, as
+written.
+
+## Analysis commands (Phase A)
+
+Replace `PAIR` with the pair directory. Do not change flags after the
+first run.
+
+```bash
+python -m text_watermark_tools probe PAIR \
+  --methods interpolate --context-len 4 \
+  --out-dir experiments/YYYY-MM-DD-probe-100x4-hard-last4
+
+python -m text_watermark_tools probe PAIR \
+  --methods poshits --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/YYYY-MM-DD-probe-100x4-opening-poshits
+
+python -m text_watermark_tools probe PAIR \
+  --rankpath --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/YYYY-MM-DD-probe-100x4-opening-rankpath
+
+python -m text_watermark_tools probe PAIR \
+  --methods interpolate --context-len 4 \
+  --windows 0:4,4:16,16:32,32:64 \
+  --out-dir experiments/YYYY-MM-DD-probe-100x4-hard-windows
+```
+
+Official lamp (first draw only, as in the 36×4 README):
+
+```bash
+python -m text_watermark_tools score experiments/YYYY-MM-DD-pair-100x4/NN-marked.txt
+```
+
+H1 is lock A prompt wins. H2 is lock A window 0:4 versus 16:32 (prompt
+wins and file AUC). Isolated `lr>0` may be logged; it is not H1.
+
+## Phase B (same prompts, other generators)
+
+Only after Phase A is checked in. Native DistilGPT2 and native
+Qwen2-1.5B-Instruct, same 100 prompts, `--n-samples 4`, 128 tokens.
+Locks B and C only (opening grain). H3: lock C prompt ranking drops
+more than lock B relative to GPT-2 Phase A. Tokenizer match is not
+treated as a detector ([key-free-contrast.md](key-free-contrast.md)).
+
+## What this protocol refuses
+
+- New hashed / backoff / cascade / learned scorers on 12×4 or 36×4.
+- Fishing `--n-hashes`, mixer `seed`, or `--context-len` after looking
+  at the 100×4 LRs.
+- Selling 39/48, 41/48, 33/48, 24/48, or last-3 **11/12** as replacing
+  **29/48**.
+- Key recovery, SynthID `hash_iv`, or reimplementing `detector_mean`.
+- Training a Claude marked/unmarked classifier on the pre-mark corpus.
+- A 7-day Grok interval loop. Claude resample stays Wed/Fri/Sun 04:00.
+
+## Preregistration mechanic
+
+1. Commit this file (and, in a commit that still precedes `pair`, the
+   100 prompt texts).
+2. That git SHA is the protocol version.
+3. Run `pair`, then the analysis commands above, then append a dated
+   [LOGBOOK.md](LOGBOOK.md) entry with the SHA.
+4. If a command fails, fix the harness and re-run the **same** flags.
+   Do not add a fourth scorer.
+
+Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Read the old numbers
+
+Locked headlines and the ablation index:
+
+- [results-ledger.md](results-ledger.md)
+- [../experiments/README.md](../experiments/README.md)
+- [key-free-twins.md](key-free-twins.md)

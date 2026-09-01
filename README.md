@@ -16,6 +16,8 @@ This repository also contains the ordinary key-based reference scorer, matched-p
 
 Install and run your first measurement: **[HOW-TO.md](HOW-TO.md)**  
 Research notes: **[research/](research/)**  
+Locked headlines vs ablations: **[research/results-ledger.md](research/results-ledger.md)**  
+Next corpus (methods freeze): **[research/PROTOCOL-next.md](research/PROTOCOL-next.md)**  
 Coding-agent instructions: **[AGENTS.md](AGENTS.md)**
 
 ---

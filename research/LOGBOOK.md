@@ -995,4 +995,16 @@ headline hard last-4 **29/48**. Keep `--context-len 4`. Do not sell
 `experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k{1,2,3}/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 confirmatory protocol freeze
+
+Occupancy-free hashing on the old 12×4 / 36×4 twins is closed (width,
+seed, last-k are knobs, not a denser isolated-file detector). Next
+measurement is a frozen prediction on a new 100×4 corpus, not another
+`probe --methods` name. Primary endpoint: prompt-level paired
+discrimination under hard last-4. Opening poshits and opening rankpath
+are the other two locked readers. Isolated `lr>0` is not the primary
+endpoint. Protocol: [PROTOCOL-next.md](PROTOCOL-next.md). Index:
+[results-ledger.md](results-ledger.md). Do not write `thesis/` from
+this freeze.
+
 ---

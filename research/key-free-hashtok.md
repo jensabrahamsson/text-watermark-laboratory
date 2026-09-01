@@ -687,6 +687,10 @@ Letter d2 stays negative on every transfer order. Keep
 24/48, 18/48 nested, last-3 prompt 11/12, or last-2 AUC **0.738** as
 replacing **29/48** or beating poshits **39/48**.
 
+Occupancy-free **order** on this 12×4 / 36×4 corpus is closed, as are
+mixer width and seed. Do not add another hashed scorer here. The next
+measurement is [PROTOCOL-next.md](PROTOCOL-next.md).
+
 JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k1/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k1/),
 [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k2/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k2/),
 [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k3/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k3/).

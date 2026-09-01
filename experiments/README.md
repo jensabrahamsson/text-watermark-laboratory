@@ -18,7 +18,7 @@ fit key-free token/context statistics
 evaluate held-out prompts
 ```
 
-That progression produced the repository's key result: a **key-free indicator for watermark presence**, reaching **10/12** held-out prompts on the 12×4 GPT-2 corpus and **11/12** under the documented 0.02 comparison margin.
+That progression produced the repository's key result: a **key-free indicator for watermark presence**, reaching **10/12** held-out prompts on the 12×4 GPT-2 corpus and **11/12** under the documented 0.02 comparison margin. Isolated hard sign stays **29/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
 
 ## Main runs
 
