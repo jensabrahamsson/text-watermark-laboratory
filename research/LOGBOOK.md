@@ -1374,4 +1374,18 @@ OOD files. Isolated t=0 is chance-like in every slice. H-win-iso holds.
 Does not replace **25/48**. Isolated-file detection is still not
 finished.
 
+## 2026-09-01 interpolate atoms on Grok-register transfer
+
+Same lock A tables as PROTOCOL-isolated-xreg / windows. CLI `atoms`
+(not a new `probe --methods` name). `used_keys=false`. Marked `lr>0`
+**27/48**. Almost all interpolate mass is Witten–Bell backoff on
+unseen next tokens (tail 64:128: 214 seen, 5924 unseen). Window 0:4
+ranks because unmarked Δ is more negative, not because occupancy-free
+openings fire (**0/48**). Observed-token hits: `'The' → ' car'` (n=19)
+and GPT-2 dialogue templates in the tail. Shared continuation 4-grams,
+not a denser isolated-file detector. Do not sell `The car`. Does not
+replace **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
+
 ---

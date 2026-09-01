@@ -164,3 +164,36 @@ does not replace **25/48**. Isolated-file detection is not finished.
 JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
 
+## Decode (opened after the window scores)
+
+The same frozen interpolate tables, decoded with `atoms` (not a new
+`probe --methods` name, not `detector_mean`):
+
+```bash
+python -m text_watermark_tools atoms \
+  experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-last4/tables-counts \
+  --test-dir experiments/2026-09-01-pair-grok12x4 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate
+```
+
+`used_keys=false`. Full-file marked `lr>0` is **27/48**, matching the
+xreg t=0 readout. Almost all interpolate mass is Witten–Bell backoff
+on **unseen** next tokens, not observed last-4 copies:
+
+| Window | Mean marked Δ | Mean unmarked Δ | seen | unseen |
+|---|---|---|---|---|
+| 0:4 | −0.017 | −0.397 | 81 | 207 |
+| 4:16 | −0.096 | 0.003 | 16 | 1136 |
+| 16:32 | 0.040 | −0.002 | 28 | 1508 |
+| 32:64 | 0.085 | −0.114 | 87 | 2985 |
+| 64:128 | 0.056 | −0.086 | 214 | 5924 |
+
+Window **0:4** ranks **7/12** because unmarked Δ is more negative, not
+because occupancy-free openings fire (those remain **0/48**). Observed-
+token atoms that do fire: opening `'The' → ' car'` (n=19), and tail
+GPT-2 paragraph/dialogue templates (`'\n\n" I' → ' am'`,
+`'I turned my' → ' head'`). Shared continuation 4-grams, not a denser
+isolated-file detector. Do not sell `The car` or tail **9/12**. Does
+not replace **25/48**.
+

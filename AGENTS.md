@@ -69,6 +69,7 @@ python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits 
 python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-bucket 1 --methods poshits,postokhits,postokbackoff,postokbackoff2
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --pivot --rankpath --cascade postokbackoff --cascade-fallback rankuni
 python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train OTHER --fit-prefix 4 --pos-bucket 1
+python -m text_watermark_tools atoms TABLES --test-dir TEST --windows 0:4,4:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
 python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil
@@ -112,6 +113,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | 100 families → Grok-register 12×4 lock A nested Youden | **22/48 vs 41/48** (prompt **11/12**; H-xreg-A holds vs 16/48; H-xreg-hard holds vs in-family 24/48; not **25/48**) |
 | Same train, occupancy-free postokhits t=0 | **0/48 vs 48/48** (coverage **5/48**, 0 exact; 10 ranking wins with 0 TP) |
 | 100 families → Grok-register interpolate windows | 0:4 **7/12**; tail 32:64 / 64:128 **9/12**; not front-loaded; not **25/48** |
+| Interpolate atoms, 100→grok12 | almost all mass unseen_next (Witten–Bell backoff); `'The'→' car'` n=19; occupancy-free still **0/48**; not **25/48** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |
@@ -194,7 +196,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Same rows, `--cascade-when positive` | **40/48 vs 40/48** (8 rankpath FPs; not 39/48) |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/PROTOCOL-isolated-windows.md](research/PROTOCOL-isolated-windows.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
 
 ## Code map
 
@@ -212,7 +214,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `probe.py` | Compare scorers; transfer; cascade; nested thresholds; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
 | `contrast.py` | Key-free public vs control-shuffled-30 instance check |
-| `atoms.py` | Decode hits atoms (The-Laplace occupancy vs observed tokens) |
+| `atoms.py` | Decode hits / interpolate last-4 atoms (occupancy vs observed tokens; per-window mean Δ) |
 | `openings.py` | Opening-overlap bound: isolated recall vs train atom coverage |
 | `iterate.py` | Rewrite and re-measure known-marked text |
 | `surrogate.py` / `experiment.py` | Older known-mark rewrite workflow |

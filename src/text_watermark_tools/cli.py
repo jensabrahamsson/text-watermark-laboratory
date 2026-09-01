@@ -313,6 +313,35 @@ def cmd_openings(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_atoms(args: argparse.Namespace) -> int:
+    from text_watermark_tools.atoms import (
+        DEFAULT_ATOM_WINDOWS,
+        dump_interpolate_atoms,
+        persist_interpolate_atoms,
+        print_interpolate_atoms,
+    )
+    from text_watermark_tools.probe import _parse_windows
+
+    raw = str(getattr(args, "windows", "") or "").strip()
+    spans = _parse_windows(raw.split(",") if raw else [])
+    payload = dump_interpolate_atoms(
+        Path(args.tables),
+        Path(args.test_dir),
+        model_name=str(getattr(args, "model", None) or "gpt2"),
+        windows=spans or DEFAULT_ATOM_WINDOWS,
+        top_k=int(getattr(args, "top_k", 20) or 20),
+        store_rows=bool(getattr(args, "store_rows", False)),
+    )
+    if payload["used_keys"] or payload["used_hash_iv"] or payload["used_g_values"]:
+        print("atoms consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_interpolate_atoms(payload))
+    if args.out_dir:
+        persist_interpolate_atoms(payload, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_resample(args: argparse.Namespace) -> int:
     from text_watermark_tools.resample import PREMARK_DIR, LOGBOOK_PATH, EXPERIMENTS
 
@@ -1951,6 +1980,36 @@ def build_parser() -> argparse.ArgumentParser:
     p_open.add_argument("--skip-stem-curve", action="store_true")
     p_open.add_argument("--out-dir", default="")
     p_open.set_defaults(func=cmd_openings)
+
+    p_atoms = sub.add_parser(
+        "atoms",
+        help=(
+            "Decode interpolate last-4 atoms from frozen count tables. "
+            "Not a new scorer, not detector_mean, not key recovery."
+        ),
+        description=(
+            "Load persisted interpolate tables and list per-window mean "
+            "deltas plus the most common observed-token atoms on marked "
+            "test files. Explains where a transfer LR comes from. Not a "
+            "new scorer, not detector_mean, not a universal detector."
+        ),
+    )
+    p_atoms.add_argument("tables", help="tables-counts directory from probe/transfer")
+    p_atoms.add_argument("--test-dir", required=True, help="Twin directory to decode")
+    p_atoms.add_argument("--model", default="gpt2")
+    p_atoms.add_argument(
+        "--windows",
+        default="0:4,4:16,16:32,32:64,64:128",
+        help="Comma-separated half-open token windows",
+    )
+    p_atoms.add_argument("--top-k", type=int, default=20)
+    p_atoms.add_argument(
+        "--store-rows",
+        action="store_true",
+        help="Also persist every per-file atom list (large)",
+    )
+    p_atoms.add_argument("--out-dir", default="")
+    p_atoms.set_defaults(func=cmd_atoms)
     return parser
 
 

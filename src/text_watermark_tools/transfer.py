@@ -484,6 +484,63 @@ def gated_hit_trace(
     return out
 
 
+def interpolate_trace(
+    ids: Sequence[int],
+    model: BlindModel,
+    spec: ScoreSpec | None = None,
+    *,
+    prefix: Sequence[int] = (),
+) -> list[HitAtom]:
+    """Per-position Witten–Bell interpolate atoms. Not a new scorer."""
+    spec = spec or COUNT_SPECS["interpolate"]
+    if spec.kind != "interpolate":
+        raise ValueError("interpolate_trace is for interpolate tables")
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("interpolate trace consulted keys / hash_iv / g-values")
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
+    out: list[HitAtom] = []
+    for i, tok in enumerate(ids):
+        if i == 0 and not score_first:
+            continue
+        if spec.first_only and i > 0:
+            continue
+        t = int(tok)
+        ctx = _select_score_ctx(ids, i, t, model, spec, prefix=prefix)
+        if ctx is None:
+            continue
+        n_m = _count(model.marked, ctx)
+        n_u = _count(model.unmarked, ctx)
+        c_m = _tok_count(model.marked, ctx, t)
+        c_u = _tok_count(model.unmarked, ctx, t)
+        unseen = c_m + c_u < 1
+        log_m = _log_p_mode(
+            model.marked, ctx, t, model=model, kind="interpolate"
+        )
+        log_u = _log_p_mode(
+            model.unmarked, ctx, t, model=model, kind="interpolate"
+        )
+        out.append(
+            HitAtom(
+                i=i,
+                ctx=ctx,
+                tok=t,
+                n_m=n_m,
+                n_u=n_u,
+                c_m=c_m,
+                c_u=c_u,
+                delta=float(log_m - log_u),
+                unseen_next=unseen,
+            )
+        )
+    return out
+
+
 def score_sequence(
     ids: Sequence[int],
     model: BlindModel,

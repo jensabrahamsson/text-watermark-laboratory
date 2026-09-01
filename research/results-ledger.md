@@ -236,3 +236,15 @@ chance-like in every slice. Do not sell tail **9/12**. Does not replace
 JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
 
+## Interpolate atoms (100 one-liners → Grok-register)
+
+Decode of the same lock A tables. Not a new scorer. `used_keys=false`.
+Marked `lr>0` **27/48**. Almost all mass is Witten–Bell backoff
+(`unseen_next`): tail 64:128 is 214 seen vs 5924 unseen. Window 0:4
+ranks because unmarked Δ is more negative (−0.397 vs −0.017), not
+because occupancy-free openings fire (**0/48**). Observed-token atoms:
+`'The' → ' car'` (n=19) and tail GPT-2 paragraph/dialogue templates.
+Do not sell `The car` or tail **9/12**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
+

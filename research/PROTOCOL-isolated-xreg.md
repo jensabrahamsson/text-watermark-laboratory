@@ -207,6 +207,9 @@ negative observed-token LR.
 Window readout of the same interpolate tables is
 [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md): grok12
 lock A **11/12** is not front-loaded (0:4 **7/12**; tail **9/12**).
+The `atoms` decode of those tables shows almost all mass is Witten–Bell
+backoff; occupancy-free openings stay **0/48**; observed-token hits are
+`'The' → ' car'` and GPT-2 dialogue templates. Do not sell `The car`.
 
 Lock C nested **10/48 vs 41/48** is not a detector. Ranking wins with no
 isolated TP: hospital-corridor, chip-shop.
