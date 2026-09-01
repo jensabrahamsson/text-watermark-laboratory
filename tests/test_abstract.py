@@ -37,9 +37,11 @@ def test_abstract_is_the_shop_window() -> None:
     assert "**31/48**" in stock
     assert "**22/48**" in stock
     assert "**16/48**" in stock
+    assert "**33/48**" in stock
     assert "31/48" not in window
     assert "22/48" not in window
     assert "16/48" not in window
+    assert "33/48" not in window
 
 
 def test_readme_abstract_matches_the_window() -> None:
@@ -56,6 +58,7 @@ def test_readme_abstract_matches_the_window() -> None:
     assert "31/48" not in pane
     assert "22/48" not in pane
     assert "16/48" not in pane
+    assert "33/48" not in pane
     assert "research/abstract.md" in pane
     locked = ABSTRACT.read_text()
     window = locked.split("## Shop window", 1)[1].split("## Not in the window", 1)[0]

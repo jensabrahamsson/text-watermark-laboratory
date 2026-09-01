@@ -1709,4 +1709,17 @@ short+medium+tails zeros on the original 12. No new tables. Do not look
 at leftover-after-union counts until this line is on origin. Do not
 write `thesis/`.
 
+## 2026-09-01 Distil ∪ SMT openings union opened
+
+SHA `b1f0c7d`. `used_keys=false`. Distil 100×4 covers **23/48**. SMT
+covers **30/48**. Set-union is **33/48**. Leftover is **15/48**.
+Distil-only covers are office 1/3/4. Leftover last-4 is **9/15 vs
+8/15**. Distil occupancy-free leftover sign is **0/15** marked.
+H-dsmt-cover, H-dsmt-left, and H-dsmt-iso hold. Do not sell union
+33/48 or leftover 9/15. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not target leftover-15 openings
+after peeking.
+
+JSON: `experiments/2026-09-01-openings-union-distil100x4-and-smt-to-12x4/`.
+
 ---

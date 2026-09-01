@@ -447,7 +447,12 @@ Does not replace **25/48**. Qwen 100×4 → Qwen 12×4 occupancy-free analog
 is [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md): Qwen→Qwen
 postokhits t=0 **31/48 vs 48/48**; coverage **37/48**. Cross-corpus
 **31/48** > **25/48** does not replace original-12 GPT-2. Do not sell
-Qwen→Qwen **31/48**. Does not replace **25/48**.
+Qwen→Qwen **31/48**. Does not replace **25/48**. Distil ∪ SMT occupancy-free
+openings on the original 12 is
+[PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md): union **33/48**;
+leftover **15**; last-4 **9/15 vs 8/15**; Distil-only office 1/3/4. Do
+not sell union **33/48** or leftover **9/15**. Does not replace
+**25/48**.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

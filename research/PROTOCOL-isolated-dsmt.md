@@ -151,4 +151,32 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `b1f0c7d`. Named `5cc418e`. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-openings-union-distil100x4-and-smt-to-12x4/](../experiments/2026-09-01-openings-union-distil100x4-and-smt-to-12x4/).
+
+| Train | Covered |
+|---|---|
+| Distil 100×4 postokhits | **23/48** |
+| short+medium+tails postokhits | **30/48** |
+| Intersection | **20/48** |
+| Set-union | **33/48** |
+| Leftover (both zero) | **15/48** |
+
+`covered_a_only` is office 1/3/4: Distil occupancy-free leftover-18
+coverage **3/18** from xgen, now read as Distil-only versus SMT.
+SMT-only covers are night-bus 1–4, letter 1/4, and garden 1–4.
+
+H-dsmt-cover **holds**. `covered_a_only` is not empty.
+
+H-dsmt-left **holds**. Leftover after Distil ∪ SMT is **15** (harbour
+1–4, library 1–4, station-4, letter 2–3, ferry-queue 1–4). 12-LOO hard
+last-4 on that leftover is **9/15 vs 8/15**. Remaining leftover last-4
+is not a leftover-file detector. Distil occupancy-free leftover sign is
+**0/15** marked by construction; unmarked `lr≤0` is **14/15**.
+
+H-dsmt-iso **holds**. Do not sell union **33/48**, Distil **22/48**,
+leftover Distil **3/18**, SMT **30/48**, leftover official **18/18**,
+leftover last-4 **9/15**, Distil→Distil **16/48**, or Qwen→Qwen
+**31/48**. Isolated-file remains open. Do not target leftover-15
+openings after peeking. Do not write `thesis/`.
