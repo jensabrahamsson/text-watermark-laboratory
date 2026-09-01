@@ -1058,4 +1058,14 @@ second-level table refit. JSON:
 100×4 pair is still generating; do not open those LRs until the frozen
 PROTOCOL-next commands run on the corrected readers.
 
+## 2026-09-01 confirmatory 100×4 pair (official lamp)
+
+`pair` on `experiments/2026-09-01-prompts-100/` finished.
+`experiments/2026-09-01-pair-100x4/`: seed `20260901`, four draws,
+128 tokens, GPT-2 + `public-deepmind-30`. Official first-draw marked
+mean > unmarked mean on **100/100** stems (min marked ≈ 0.576, max
+unmarked ≈ 0.519). That is the keyed positive control, not the
+key-free indicator. Frozen PROTOCOL-next probes run next on the
+corrected readers; do not change flags.
+
 ---

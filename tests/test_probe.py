@@ -931,6 +931,30 @@ def test_pair_36x4_official_splits_all_first_draws() -> None:
     assert wins == 36
 
 
+def test_pair_100x4_official_splits_all_first_draws() -> None:
+    import json
+
+    raw = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "experiments"
+            / "2026-09-01-pair-100x4"
+            / "results.json"
+        ).read_text()
+    )
+    assert raw["instance"] == "public-deepmind-30"
+    assert raw["max_new_tokens"] == 128
+    assert raw["model_name"] == "gpt2"
+    assert raw["seed"] == 20260901
+    assert len(raw["rows"]) == 100
+    wins = sum(
+        1
+        for row in raw["rows"]
+        if row["marked"]["mean"] > row["unmarked_gen"]["mean"]
+    )
+    assert wins == 100
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

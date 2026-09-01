@@ -202,6 +202,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-36x4-to-12x4-hashtok-k1/` | 24 new topics → 12×4 hashtok last-1 | **7/12**, nested Youden **18/48 vs 45/48**, nested FPR10 **8/48 vs 46/48**; not last-4 |
 | `2026-09-01-transfer-36x4-to-12x4-hashtok-k2/` | 24 new topics → 12×4 hashtok last-2 | **10/12**, AUC **0.738**, **29/48 vs 36/48**, nested Youden **15/48 vs 45/48**; ranking is not isolated classification |
 | `2026-09-01-prompts-100/` | Confirmatory 100 one-line scenes | Committed before `pair`; disjoint from 36-topic seeds; see PROTOCOL-next.md |
+| `2026-09-01-pair-100x4/` | GPT-2 twins, 100 prompts × 4 draws × 128 tokens | Official first-draw **100/100**; key-free analysis frozen in PROTOCOL-next.md |
 
 ## What changed across the runs
 
