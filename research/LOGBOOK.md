@@ -1529,4 +1529,12 @@ still not finished.
 
 JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
 
+## 2026-09-01 leftover-versus-covered mask-k window split frozen
+
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md)
+committed at SHA `3e30e70`. Leftover membership stays mixed postokhits
+zeros. Primary holdout stays hard 4:128. Do not look at leftover
+versus covered window counts until this line is on origin. Do not sell
+tail **9/12**. Do not write `thesis/`.
+
 ---

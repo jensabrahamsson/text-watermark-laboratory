@@ -21,3 +21,4 @@ def test_protocol_mask_split_names_frozen_sources_before_decode() -> None:
     assert "Do not redefine leftover" in text
     assert "*(empty until the SHA is named" in text
     assert "Do **not** mix grok12" in text
+    assert "`3e30e70`" in (ROOT / "research" / "LOGBOOK.md").read_text()
