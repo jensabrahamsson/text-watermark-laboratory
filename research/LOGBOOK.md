@@ -1731,4 +1731,16 @@ versus Distil is **0/15** by construction. Leftover last-4 is **9/15 vs
 8/15**. Do not target leftover-15 openings. Nothing replaces **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-01 gpt2-medium occupancy-free leftover-15 freeze
+
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md) committed at SHA
+`cc9c4ca`. Occupancy-free leftover-15 is closed for more unrelated GPT-2
+scenes. The remaining analog is gpt2-medium 100×4 on the already-frozen
+100 prompts (same BPE; not leftover targeting). Hypotheses H-mgen-cover,
+H-mgen-B, and H-mgen-iso are stated before any gpt2-medium→12 LRs.
+Do not look at those LRs until the pair, probe, and openings commands
+have been run once, as written. Do not target leftover-15 openings.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---

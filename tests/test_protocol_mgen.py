@@ -68,6 +68,7 @@ def test_protocol_mgen_names_frozen_sources_before_decode() -> None:
     assert "H-mgen-cover **holds**" not in text
     assert "H-mgen-B **holds**" not in text
     assert "H-mgen-iso **holds**" not in text
+    assert "`cc9c4ca`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert TEST.is_dir()
     assert UNION15.is_file()
     assert TRAIN_PROMPTS.is_dir()
