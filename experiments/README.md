@@ -257,6 +257,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-12x4-headline-windows/` | 12-LOO hard/interpolate mask-*k* | hard 0:4 **5/12**, tails **9/12**; interpolate tails **5/12** then **3/12**; not **25/48** |
 | `2026-09-01-isolated-split-windows-leftover-vs-covered/` | Leftover vs covered on mask-*k* hard | 4:128 leftover **11/20 vs 11/20**, covered **16/28**; leftover chance; not **25/48** |
 | `2026-09-01-isolated-leftover-bound/` | Occupancy leftover-20 official+atoms | official **20/20** at 128; leftover 0:4 unseen 99 vs 21; interpolate **13/20**; not **25/48** |
+| `2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/` | Leftover-20 ∪ SMT openings | union **30/48** equals SMT; leftover **18**; last-4 **10/18 vs 10/18**; not **25/48** |
 | `2026-09-01-probe-grok36x4-hard-last4/` | In-family interpolate on new 36 | **35/36**, nested-by-stem **93/144 vs 110/144** |
 
 ## What changed across the runs

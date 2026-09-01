@@ -1580,4 +1580,16 @@ zeros. Short+medium+tails zeros stay that dump. Do not look at
 leftover-after-union counts until this line is on origin. Do not write
 `thesis/`.
 
+## 2026-09-01 leftover-20 ∪ short-medium-tails openings opened
+
+SHA `e5a5f6b`. `used_keys=false`. Union **30/48** equals published SMT
+coverage; mixed 100+grok36 is a subset. SMT-only covers are garden 1/4.
+Leftover after union is **18**. 12-LOO hard last-4 leftover is
+**10/18 vs 10/18**. Mixed occupancy-free leftover sign is **0/18 vs
+18/18** by construction. H-union-smt, H-union-left, and H-union-iso
+hold. Do not sell union 30/48 or leftover 10/18. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
+
 ---

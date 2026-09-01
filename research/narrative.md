@@ -151,16 +151,20 @@ key-free chance is not an unmarked mixin miss. Do not sell official
 
 Whether short+medium+tails openings cover any leftover-20 files is
 [PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md).
-Do not look at leftover-after-union counts until that freeze is named.
+Opened: union **30/48** equals published SMT coverage (mixed 100+grok36
+is a subset). SMT-only covers are garden 1/4. Leftover after union is
+**18**. Leftover last-4 is **10/18 vs 10/18**. Occupancy-free mixed
+leftover sign is 0/18 by construction. Do not sell union **30/48** or
+leftover **10/18**.
 
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.
 - Selling leftover **10/20**, covered **15/28**, leftover window
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
-  interpolate **13/20**, grok12 **39/48**, nested **23/48** /
-  **26/48** / **27/48** / **35/48**, or rankpath **41/48** as replacing
-  **25/48**.
+  interpolate **13/20**, union **30/48**, leftover **10/18**, grok12
+  **39/48**, nested **23/48** / **26/48** / **27/48** / **35/48**, or
+  rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.
 - New `probe --methods` names on the 12×4 / 36×4 twins.

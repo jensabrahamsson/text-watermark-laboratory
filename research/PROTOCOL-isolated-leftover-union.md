@@ -120,8 +120,9 @@ PY
 - Mixing grok12 into any train.
 - Adding family-12 paraphrases of the original 12 after leftover peeking.
 - Changing leftover membership after seeing the union.
-- Selling union coverage, SMT **30/48** / **36/48**, or leftover
-  official **20/20** as replacing **25/48**.
+- Selling union coverage, SMT **30/48** / **36/48**, leftover
+  official **20/20**, leftover interpolate **13/20**, or leftover last-4
+  **10/18** as replacing **25/48**.
 - Targeting new train prompts at leftover openings after peeking.
 - Key recovery, SynthID `hash_iv`, or reimplementing `detector_mean`.
 - Paid chat APIs.
@@ -143,4 +144,34 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `e5a5f6b`. Named `3d8c78d`. `used_keys=false`.
+
+Dump: [experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/](../experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/).
+
+| Train | Covered |
+|---|---|
+| 100plusgrok36 postokhits | **28/48** |
+| short+medium+tails postokhits | **30/48** |
+| Intersection | **28/48** |
+| Set-union | **30/48** |
+| Leftover (both zero) | **18/48** |
+
+`covered_a_only` is empty: mixed 100+grok36 coverage is a subset of
+already-published SMT coverage. Union equals SMT **30/48**.
+
+H-union-smt **holds**. `covered_b_only` is garden-1 and garden-4.
+Short+medium+tails, collected before leftover-20 membership was named,
+covers two of the occupancy leftover 20.
+
+H-union-left **holds**. Leftover after union is **18** (harbour 1–4,
+library 1–4, station-4, letter 2–3, office 1/3/4, ferry-queue 1–4).
+12-LOO hard last-4 on that leftover is **10/18 vs 10/18**. Remaining
+leftover last-4 is not a leftover-file detector. Mixed occupancy-free
+`postokhits` leftover sign is **0/18 vs 18/18** by construction
+(leftover files are zeros of both tables).
+
+H-union-iso **holds**. Do not sell union **30/48**, SMT postokhits
+**30/48**, postokbackoff **36/48**, leftover official **20/20**, leftover
+interpolate **13/20**, or leftover last-4 **10/18**. Mixed 100+grok36
+added no unique occupancy-free openings over SMT. Isolated-file remains
+open. Do not write `thesis/`.

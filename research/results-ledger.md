@@ -18,7 +18,8 @@ versus covered on those tails is
 Occupancy leftover-20 official+atoms bound is
 [PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
 Leftover-20 union with short+medium+tails openings is
-[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md).
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md):
+union **30/48** (equals SMT); leftover **18**; last-4 **10/18 vs 10/18**.
 
 ## Locked headlines
 
@@ -369,4 +370,15 @@ miss. Do not sell official 20/20 or interpolate 13/20. Does not replace
 **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
+
+## Isolated-file leftover-20 ∪ short-medium-tails openings
+
+Protocol SHA `e5a5f6b`. `used_keys=false`. Union **30/48** equals
+published SMT coverage; mixed 100+grok36 is a subset (`covered_a_only`
+empty). SMT-only covers are garden 1/4. Leftover after union is **18**.
+12-LOO hard last-4 leftover is **10/18 vs 10/18**. Mixed occupancy-free
+leftover sign is **0/18 vs 18/18** by construction. Do not sell union
+30/48 or leftover 10/18. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
 
