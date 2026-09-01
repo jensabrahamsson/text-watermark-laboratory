@@ -24,6 +24,7 @@ def test_protocol_xreg_names_frozen_locks_and_dirs() -> None:
     assert "transfer-100x4-to-grok12x4-hard-last4" in text
     assert "thesis/" in text
     assert "## Results" not in text
+    assert "`1ef7330`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 
 def test_protocol_xreg_pair_dirs_exist() -> None:

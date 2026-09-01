@@ -1323,12 +1323,12 @@ detection is still not finished.
 
 ## 2026-09-01 100 one-liners → Grok-register isolated protocol frozen
 
-[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) committed in the
-same change as this line. Same three locks as PROTOCOL-isolated. Train
-is the existing 100×4 one-liners. Test is the existing grok12×4 twins.
-No new `pair`. Do not look at key-free test LRs until the freeze SHA is
-named on the next logbook line and the frozen analysis commands have
-been run once. Nested Youden on grok12×4 is the primary endpoint. It
-does not replace **25/48**. Do not write `thesis/`.
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) committed at SHA
+`1ef7330`. Same three locks as PROTOCOL-isolated. Train is the existing
+100×4 one-liners. Test is the existing grok12×4 twins. No new `pair`.
+Do not look at key-free test LRs until this line is on origin and the
+frozen analysis commands have been run once. Nested Youden on grok12×4
+is the primary endpoint. It does not replace **25/48**. Do not write
+`thesis/`.
 
 ---
