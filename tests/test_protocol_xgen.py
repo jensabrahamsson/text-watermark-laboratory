@@ -39,6 +39,7 @@ def test_protocol_xgen_names_frozen_sources_before_decode() -> None:
     assert "--model distilgpt2" in text
     assert "Do **not** leftover-slice Distil rankpath" in text
     assert "*(empty until the SHA is named" in text
+    assert "`8e33445`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert DISTIL.is_dir()
     assert TEST.is_dir()
     assert UNION.is_file()

@@ -1632,4 +1632,12 @@ is **12/18 vs 13/18**. Interpolate leftover-18 is **12/18 vs 12/18**.
 Last-4 leftover-18 is **10/18 vs 10/18**. Do not re-slice more leftover-18
 holdouts, including leftover-18 mask-*k*. Do not write `thesis/`.
 
+## 2026-09-01 Distil occupancy-free leftover-18 frozen
+
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md)
+committed at SHA `8e33445`. Distil 100×4 tables score the original 12
+GPT-2 files. Leftover membership stays leftover-union leftover-18 keys.
+Do not look at Distil occupancy-free leftover-18 coverage until this
+line is on origin. Do not write `thesis/`.
+
 ---
