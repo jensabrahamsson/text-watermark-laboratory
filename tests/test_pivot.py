@@ -227,3 +227,33 @@ def test_persist_load_pivot_is_key_free(tmp_path) -> None:
     assert parse_pivot_weights("entropy,uniform") == ("entropy", "uniform")
     assert pivot_method_name("lda", "entropy") == "pivot-lda-entropy"
     assert pivot_method_name("lda", "uniform") == "pivot-lda"
+
+
+def test_snap_rate_leave_upset_miss_without_keys() -> None:
+    from text_watermark_tools.pivot import (
+        parse_snaprate_methods,
+        snap_rate_from_matrix,
+        snap_score_from_matrix,
+    )
+
+    # FEATURE_NAMES: logp, rank, rank_topk, in_topk, gap, entropy
+    argmax = np.array([[0.0, 1.0, 1.0, 1.0, 0.0, 1.0]], dtype=np.float64)
+    upset = np.array([[0.0, 3.0, 2.0, 1.0, 0.4, 2.0]], dtype=np.float64)
+    miss = np.array([[0.0, 50.0, 41.0, 0.0, 3.0, 1.0]], dtype=np.float64)
+    mixed = np.vstack([argmax, upset, miss])
+    assert snap_rate_from_matrix(argmax, "leave") == 0.0
+    assert snap_rate_from_matrix(upset, "leave") == 1.0
+    assert snap_rate_from_matrix(miss, "leave") == 1.0
+    assert snap_rate_from_matrix(mixed, "leave") == 2.0 / 3.0
+    assert snap_rate_from_matrix(mixed, "upset") == 0.5
+    assert snap_rate_from_matrix(mixed, "miss") == 1.0 / 3.0
+    assert snap_rate_from_matrix(np.zeros((0, 6)), "leave") == 0.5
+    assert snap_score_from_matrix(argmax, "leave") == -0.5
+    assert snap_score_from_matrix(upset, "upset") == 0.5
+    assert parse_snaprate_methods("snapleave,snapmiss") == ("snapleave", "snapmiss")
+    try:
+        parse_snaprate_methods("snaprank")
+    except ValueError as exc:
+        assert "snaprank" in str(exc)
+    else:
+        raise AssertionError("expected unknown snaprate method")

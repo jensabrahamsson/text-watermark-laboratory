@@ -126,6 +126,7 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "--cascade" in out
     assert "--pivot-weight" in out
     assert "--rankpath" in out
+    assert "--snaprate" in out
     assert "--cascade-fallback" in out
     assert "--cascade-rankpath-end" in out
     assert "--cascade-when" in out

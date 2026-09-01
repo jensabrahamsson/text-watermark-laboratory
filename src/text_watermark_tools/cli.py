@@ -818,6 +818,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
                 else None
             ),
             cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
+            with_snaprate=bool(getattr(args, "snaprate", False)),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -862,6 +863,7 @@ def cmd_probe(args: argparse.Namespace) -> int:
             else None
         ),
         cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
+        with_snaprate=bool(getattr(args, "snaprate", False)),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1354,7 +1356,8 @@ def build_parser() -> argparse.ArgumentParser:
             "Comma-separated methods: count specs plus hashpool, hashvote, "
             "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
             "postokbackoff, postokbackoff2, poshitmass, pospool, first, "
-            "tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, rankhits"
+            "tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, rankhits, "
+            "snapleave, snapupset, snapmiss"
         ),
     )
     p_probe.add_argument(
@@ -1420,6 +1423,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Score unmarked-LM rank-symbol tables (rankpath + rankuni). "
             "Loads GPT-2. Token identity is not used. Still no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--snaprate",
+        action="store_true",
+        help=(
+            "Score table-free unmarked-LM snap rates: snapleave (not argmax), "
+            "snapupset (in-topk not argmax), snapmiss (missed top-k, negative "
+            "control). No twin tables. Loads GPT-2. Still no keys."
         ),
     )
     p_probe.add_argument(

@@ -1575,6 +1575,138 @@ def transfer_pivot(
     return test_out, train_out, fits
 
 
+def _snaprate_holdout_from_twins(
+    twins: Sequence[Twin],
+    mats: dict,
+    *,
+    kind: str,
+    model_name: str,
+    score_kind: str,
+    mode: str,
+) -> IndicatorHoldout:
+    from text_watermark_tools.pivot import snap_score_from_matrix
+
+    parts = _empty_holdout_parts()
+    empty = None
+    for twin in twins:
+        n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            marked = mats.get((twin.stem, sample, "marked"), empty)
+            unmarked = mats.get((twin.stem, sample, "unmarked"), empty)
+            _append_pair(
+                parts,
+                twin.stem,
+                sample,
+                snap_score_from_matrix(marked, kind),
+                snap_score_from_matrix(unmarked, kind),
+            )
+    return _holdout_from_parts(
+        parts,
+        context_len=0,
+        model_name=model_name,
+        instance=f"key-free-{score_kind}",
+        score_kind=score_kind,
+        mode=mode,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+
+
+def rotate_snaprate(
+    twins: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("snapleave", "snapupset", "snapmiss"),
+    mats=None,
+) -> dict[str, IndicatorHoldout]:
+    """Table-free unmarked-LM snap rates. No twin tables, no leave-one-out fit."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        SNAPRATE_METHODS,
+        collect_choice_matrices,
+        parse_snaprate_methods,
+    )
+
+    names = parse_snaprate_methods(methods)
+    if mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        mats = collect_choice_matrices(
+            twins, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    return {
+        name: _snaprate_holdout_from_twins(
+            twins,
+            mats,
+            kind=SNAPRATE_METHODS[name],
+            model_name=model_name,
+            score_kind=name,
+            mode="rotate",
+        )
+        for name in names
+    }
+
+
+def transfer_snaprate(
+    train: Sequence[Twin],
+    test: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("snapleave", "snapupset", "snapmiss"),
+    train_mats=None,
+    test_mats=None,
+) -> tuple[dict[str, IndicatorHoldout], dict[str, IndicatorHoldout]]:
+    """Score train and test with the same table-free snap rates. No fit."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        SNAPRATE_METHODS,
+        collect_choice_matrices,
+        parse_snaprate_methods,
+    )
+
+    names = parse_snaprate_methods(methods)
+    if train_mats is None or test_mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        if train_mats is None:
+            train_mats = collect_choice_matrices(
+                train, lm, top_k=top_k, prompt_context=prompt_context
+            )
+        if test_mats is None:
+            test_mats = collect_choice_matrices(
+                test, lm, top_k=top_k, prompt_context=prompt_context
+            )
+    train_out: dict[str, IndicatorHoldout] = {}
+    test_out: dict[str, IndicatorHoldout] = {}
+    for name in names:
+        kind = SNAPRATE_METHODS[name]
+        train_out[name] = _snaprate_holdout_from_twins(
+            train,
+            train_mats,
+            kind=kind,
+            model_name=model_name,
+            score_kind=name,
+            mode="train",
+        )
+        test_out[name] = _snaprate_holdout_from_twins(
+            test,
+            test_mats,
+            kind=kind,
+            model_name=model_name,
+            score_kind=name,
+            mode="transfer",
+        )
+    return test_out, train_out
+
+
 def rotate_rankpath(
     twins: Sequence[Twin],
     *,
@@ -2406,6 +2538,7 @@ def run_probe(
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
     with_rankpath: bool = False,
+    with_snaprate: bool = False,
     cascade_fallback: str = "pivot",
     n_hashes: int = 8,
     n_buckets: int = 256,
@@ -2432,12 +2565,16 @@ def run_probe(
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
     pos_names = [m for m in requested if m in POS_SPECS]
+    from text_watermark_tools.pivot import SNAPRATE_METHODS
     from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
 
     rank_names = [m for m in requested if m in RANKPATH_SPECS]
     fallback = parse_cascade_fallback(cascade_fallback)
     if with_rankpath and not rank_names:
         rank_names = ["rankpath", "rankuni"]
+    snap_names = [m for m in requested if m in SNAPRATE_METHODS]
+    if with_snaprate and not snap_names:
+        snap_names = list(SNAPRATE_METHODS)
     raw_twins = twins
     if fit_prefix and fit_prefix > 0:
         twins = clip_twins_prefix(twins, int(fit_prefix))
@@ -2462,7 +2599,7 @@ def run_probe(
         position_bucket=pos_bucket,
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
-        pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names else (),
+        pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names or snap_names else (),
         rankpath_full=rank_full,
         rankpath_pos_bucket=(
             rank_bucket if rank_names or fallback in RANKPATH_SPECS else None
@@ -2584,7 +2721,7 @@ def run_probe(
             _store_windows(
                 window_out, {win: {"surface": ev} for win, ev in one_win.items()}
             )
-    if with_pivot or cascade or rank_names:
+    if with_pivot or cascade or rank_names or snap_names:
         from text_watermark_tools.generate import _load_unmarked_model, generate_device
         from text_watermark_tools.pivot import (
             parse_pivot_weights,
@@ -2627,6 +2764,17 @@ def run_probe(
             )
             for name, ev in pivots.items():
                 run.methods.append(summarize_holdout(name, ev))
+        if snap_names:
+            snapped = rotate_snaprate(
+                twins,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                methods=snap_names,
+                mats=opening_mats,
+            )
+            for name in snap_names:
+                run.methods.append(summarize_holdout(name, snapped[name]))
         if rank_names:
             ranked = rotate_rankpath(
                 twins,
@@ -3087,6 +3235,7 @@ def run_transfer(
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
     with_rankpath: bool = False,
+    with_snaprate: bool = False,
     cascade_fallback: str = "pivot",
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
@@ -3111,12 +3260,16 @@ def run_transfer(
     names = list(methods or TRANSFER_DEFAULTS)
     count_names = [n for n in names if n in COUNT_SPECS]
     extras = [n for n in names if n not in COUNT_SPECS]
+    from text_watermark_tools.pivot import SNAPRATE_METHODS
     from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
 
     rank_names = [n for n in names if n in RANKPATH_SPECS]
     fallback = parse_cascade_fallback(cascade_fallback)
     if with_rankpath and not rank_names:
         rank_names = ["rankpath", "rankuni"]
+    snap_names = [n for n in names if n in SNAPRATE_METHODS]
+    if with_snaprate and not snap_names:
+        snap_names = list(SNAPRATE_METHODS)
     if "logit" in extras:
         logit_ready = [n for n in LOGIT_FEATURE_ORDER if n in names]
         if len(logit_ready) < 2:
@@ -3490,7 +3643,7 @@ def run_transfer(
         test_holdouts["logit"] = test_logit
         train_holdouts["logit"] = train_logit
 
-    if with_pivot or cascade or rank_names:
+    if with_pivot or cascade or rank_names or snap_names:
         from text_watermark_tools.generate import _load_unmarked_model, generate_device
         from text_watermark_tools.pivot import (
             parse_pivot_weights,
@@ -3568,6 +3721,37 @@ def run_transfer(
                 )
                 test_holdouts[name] = ev
                 train_holdouts[name] = train_pivots[name]
+        if snap_names:
+            test_snaps, train_snaps = transfer_snaprate(
+                train,
+                test,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                methods=snap_names,
+                train_mats=train_opening,
+                test_mats=test_opening,
+            )
+            used_keys = used_keys or any(ev.used_keys for ev in test_snaps.values())
+            used_hash = used_hash or any(
+                ev.used_hash_iv for ev in test_snaps.values()
+            )
+            used_g = used_g or any(ev.used_g_values for ev in test_snaps.values())
+            for name in snap_names:
+                ev = test_snaps[name]
+                run.methods.append(summarize_holdout(name, ev))
+                train_bin = binary_eval(
+                    train_snaps[name].marked_lrs, train_snaps[name].unmarked_lrs
+                )
+                _append_threshold(
+                    run,
+                    name=name,
+                    source="in-sample-youden",
+                    threshold=train_bin.youden_threshold,
+                    test_ev=ev,
+                )
+                test_holdouts[name] = ev
+                train_holdouts[name] = train_snaps[name]
         rank_model = None
         if rank_names:
             rank_pref: dict[int, dict[str, IndicatorHoldout]] = {}
@@ -3732,6 +3916,10 @@ def run_transfer(
                     methods=rank_names,
                     mats=train_mats,
                 )
+            )
+        if snap_names:
+            nested_holdouts.update(
+                {n: train_holdouts[n] for n in snap_names if n in train_holdouts}
             )
         if (
             "stack" in extras

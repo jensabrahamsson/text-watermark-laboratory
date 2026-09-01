@@ -8,7 +8,7 @@ This module reads that footprint with the public unmarked model (GPT-2 by
 default). It never computes g-values, never reads watermark keys, and never
 calls detector_mean.
 
-Two uses:
+Three uses:
 
 1. Detection. Per-token features (log-prob, rank, gap to argmax, top-k
    entropy) are aggregated and scored with a leave-one-prompt-out linear
@@ -18,6 +18,12 @@ Two uses:
    prefix (no re-decoding) is a key-free scrub. The official scorer is
    then used only as a reference measurement of whether the public mark
    died — the snap itself does not consult it.
+
+3. Table-free snap-rate. The fraction of unmarked-LM rows that leave the
+   argmax (`snapleave`), that upset the argmax inside top-k (`snapupset`),
+   or that miss top-k (`snapmiss`). No twin tables. Score is rate − 0.5
+   so threshold 0 means a majority. `snapmiss` is the negative control:
+   tournament sampling should not push mass outside top-k.
 """
 
 from __future__ import annotations
@@ -46,6 +52,13 @@ ENTROPY_INDEX = FEATURE_NAMES.index("mean_entropy_topk")
 PIVOT_KIND = "key-free-pivot"
 PIVOT_TABLES = "tables.json"
 PIVOT_WEIGHTS = ("uniform", "entropy", "in_topk")
+SNAPRATE_CENTER = 0.5
+SNAPRATE_KINDS = ("leave", "upset", "miss")
+SNAPRATE_METHODS: dict[str, str] = {
+    "snapleave": "leave",
+    "snapupset": "upset",
+    "snapmiss": "miss",
+}
 
 
 @dataclass(frozen=True)
@@ -221,6 +234,68 @@ def aggregate_choice_matrix(
     raise ValueError(
         f"unknown pivot weight {weight!r}; choose {', '.join(PIVOT_WEIGHTS)}"
     )
+
+
+def parse_snaprate_methods(raw: str | Sequence[str] | None) -> tuple[str, ...]:
+    """Method names for table-free snap-rate. Empty → all three."""
+    if raw is None or raw == "":
+        return tuple(SNAPRATE_METHODS)
+    if isinstance(raw, str):
+        parts = [p.strip().lower() for p in raw.split(",") if p.strip()]
+    else:
+        parts = [str(p).strip().lower() for p in raw if str(p).strip()]
+    if not parts:
+        return tuple(SNAPRATE_METHODS)
+    seen: list[str] = []
+    for name in parts:
+        if name not in SNAPRATE_METHODS:
+            raise ValueError(
+                f"unknown snaprate method {name!r}; choose "
+                f"{', '.join(SNAPRATE_METHODS)}"
+            )
+        if name not in seen:
+            seen.append(name)
+    return tuple(seen)
+
+
+def snap_rate_from_matrix(mat: np.ndarray, kind: str = "leave") -> float:
+    """Raw fraction in [0, 1]. Empty matrix is 0.5 (no evidence).
+
+    * leave — chosen token is not the unmarked argmax (upsets + misses)
+    * upset — among in-topk rows, chosen token is not rank 1 (tournament)
+    * miss — chosen token missed the unmarked top-k (negative control)
+    """
+    name = str(kind or "leave").strip().lower()
+    if name not in SNAPRATE_KINDS:
+        raise ValueError(
+            f"unknown snaprate kind {kind!r}; choose {', '.join(SNAPRATE_KINDS)}"
+        )
+    if mat is None or np.asarray(mat).size == 0:
+        return SNAPRATE_CENTER
+    rows = np.asarray(mat, dtype=np.float64)
+    if rows.ndim != 2 or rows.shape[1] < 4:
+        raise ValueError("choice matrix must be [T, 6] unmarked-LM features")
+    in_topk = rows[:, IN_TOPK_INDEX] >= 0.5
+    is_argmax = np.round(rows[:, RANK_TOPK_INDEX]) == 1
+    if name == "leave":
+        return float((~is_argmax).mean())
+    if name == "upset":
+        if not bool(in_topk.any()):
+            return SNAPRATE_CENTER
+        return float((~is_argmax[in_topk]).mean())
+    return float((~in_topk).mean())
+
+
+def snap_score_from_matrix(mat: np.ndarray, kind: str = "leave") -> float:
+    """Centered rate so threshold 0 means a majority. Empty matrix is 0."""
+    return float(snap_rate_from_matrix(mat, kind) - SNAPRATE_CENTER)
+
+
+def snap_scores_from_matrices(
+    mats: dict[tuple[str, int, str], np.ndarray],
+    kind: str = "leave",
+) -> dict[tuple[str, int, str], float]:
+    return {key: snap_score_from_matrix(mat, kind) for key, mat in mats.items()}
 
 
 def extract_choice_matrix(

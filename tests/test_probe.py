@@ -1629,3 +1629,58 @@ def test_qwen_native_opening_rankpath_does_not_match_first_token() -> None:
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
     assert 0.60 < prefix_auc.auc < 0.75
 
+
+def _snap_twin(stem: str) -> object:
+    from text_watermark_tools.blind import Twin
+
+    return Twin(
+        stem=stem,
+        marked_text="m",
+        unmarked_text="u",
+        marked_ids=[0, 1],
+        unmarked_ids=[0, 1],
+        extra_marked_ids=[[0, 2]],
+        extra_unmarked_ids=[[0, 2]],
+    )
+
+
+def test_rotate_snaprate_needs_no_tables_or_keys() -> None:
+    import numpy as np
+
+    from text_watermark_tools.probe import rotate_snaprate, transfer_snaprate
+    from text_watermark_tools.stats import roc_auc
+
+    def _row(rank: float, in_topk: float) -> list[float]:
+        return [0.0, rank, rank, in_topk, 0.0, 1.0]
+
+    twins = [_snap_twin("a"), _snap_twin("b")]
+    mats = {}
+    for stem in ("a", "b"):
+        mats[(stem, 1, "marked")] = np.array([_row(2, 1.0), _row(3, 1.0)])
+        mats[(stem, 1, "unmarked")] = np.array([_row(1, 1.0), _row(1, 1.0)])
+        mats[(stem, 2, "marked")] = np.array([_row(41, 0.0), _row(42, 0.0)])
+        mats[(stem, 2, "unmarked")] = np.array([_row(1, 1.0), _row(1, 1.0)])
+    out = rotate_snaprate(twins, methods=("snapleave", "snapupset", "snapmiss"), mats=mats)
+    assert set(out) == {"snapleave", "snapupset", "snapmiss"}
+    leave = out["snapleave"]
+    assert leave.used_keys is False
+    assert leave.used_hash_iv is False
+    assert leave.used_g_values is False
+    assert leave.n_prompts_marked_above == 2
+    assert min(leave.marked_lrs) > max(leave.unmarked_lrs)
+    assert roc_auc(leave.marked_lrs, leave.unmarked_lrs) == 1.0
+    # Unmarked twins stay greedy. Only the all-miss marked draw signs on snapmiss.
+    assert out["snapmiss"].n_marked_positive == 2
+    assert out["snapmiss"].n_unmarked_nonpositive == 4
+    test_out, train_out = transfer_snaprate(
+        twins[:1],
+        twins[1:],
+        methods=("snapleave",),
+        train_mats=mats,
+        test_mats=mats,
+    )
+    assert train_out["snapleave"].mode == "train"
+    assert test_out["snapleave"].mode == "transfer"
+    assert test_out["snapleave"].used_keys is False
+    assert test_out["snapleave"].n_prompts_marked_above == 1
+

@@ -180,7 +180,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `indicator.py` | Frozen count tables and single-file LR |
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
 | `transfer.py` | Interpolated, gated, hash-pool, and UTF-8 surface scorers |
-| `pivot.py` | Unmarked-LM choice geometry, entropy pooling, argmax snap |
+| `pivot.py` | Unmarked-LM choice geometry, entropy pooling, argmax snap, table-free snap-rate |
 | `rankpath.py` | Five-symbol unmarked-LM rank tables (no token identity) |
 | `probe.py` | Compare scorers; transfer; cascade; nested thresholds; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
