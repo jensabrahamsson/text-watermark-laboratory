@@ -164,3 +164,39 @@ Same-day stays near chance. Between-day ranking is not a GPT-2 artifact.
 Xenova is still the wrong generation of tokenizer. Do not call this a watermark.
 
 ---
+## 2026-08-23 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-08-23` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-23-resample-work`.
+
+---
+## 2026-08-26 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-08-26` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-26-resample-work`.
+
+---
+## 2026-08-28 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-08-28` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-28-resample-work`.
+
+---
+## 2026-08-30 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-08-30` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-30-resample-work`.
+
+---
