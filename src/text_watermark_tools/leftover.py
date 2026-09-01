@@ -1,0 +1,218 @@
+"""Occupancy leftover-20 bounds from published JSON.
+
+Official prefix scores use detector keys (positive control). Interpolate
+atoms on leftover files do not. Neither is a new probe method. Neither
+replaces 25/48.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Sequence
+
+from text_watermark_tools.atoms import DEFAULT_ATOM_WINDOWS, window_atom_summary
+from text_watermark_tools.openings import _zero_keys
+
+
+def leftover_keys_from_coverage(
+    coverage: Path, *, method: str = "postokhits"
+) -> set[tuple[str, int]]:
+    pay = json.loads(Path(coverage).read_text())
+    if pay.get("used_keys"):
+        raise RuntimeError("leftover coverage consulted keys")
+    return _zero_keys(pay, method)
+
+
+def _mean_stats(values: Sequence[float]) -> dict:
+    nums = [float(v) for v in values]
+    n = len(nums)
+    return {
+        "n": n,
+        "mean": (sum(nums) / n) if n else 0.0,
+        "min": min(nums) if nums else None,
+        "max": max(nums) if nums else None,
+        "n_above_055": sum(1 for v in nums if v > 0.55),
+        "n_above_060": sum(1 for v in nums if v > 0.60),
+    }
+
+
+def summarize_occupancy_leftover_official(
+    coverage: Path,
+    official: Path,
+    *,
+    method: str = "postokhits",
+    prefixes: Sequence[str] = ("5", "16", "128"),
+) -> dict:
+    """Re-slice published official prefix scores on occupancy leftover keys.
+
+    This path uses detector keys. It is a positive control, not key-free
+    indication. Leftover membership stays mixed postokhits zeros.
+    """
+    leftover = leftover_keys_from_coverage(coverage, method=method)
+    raw = json.loads(Path(official).read_text())
+    if not raw.get("used_keys"):
+        raise RuntimeError("official leftover bound needs a keyed dump")
+    rows = list(raw.get("rows") or [])
+    marked = [
+        r
+        for r in rows
+        if str(r.get("side") or "") == "marked"
+    ]
+    unmarked = [
+        r
+        for r in rows
+        if str(r.get("side") or "") == "unmarked"
+    ]
+    marked_keys = {(str(r["stem"]), int(r["sample"])) for r in marked}
+    if leftover - marked_keys:
+        raise RuntimeError("leftover keys missing from official dump")
+    prefixes_out = {}
+    for prefix in prefixes:
+        key = str(prefix)
+        left_vals = [
+            float(r["prefixes"][key]["mean"])
+            for r in marked
+            if (str(r["stem"]), int(r["sample"])) in leftover
+        ]
+        cov_vals = [
+            float(r["prefixes"][key]["mean"])
+            for r in marked
+            if (str(r["stem"]), int(r["sample"])) not in leftover
+        ]
+        unmarked_vals = [float(r["prefixes"][key]["mean"]) for r in unmarked]
+        prefixes_out[key] = {
+            "leftover_marked": _mean_stats(left_vals),
+            "covered_marked": _mean_stats(cov_vals),
+            "unmarked": _mean_stats(unmarked_vals),
+        }
+    return {
+        "note": (
+            "Official public-deepmind-30 mean re-sliced on occupancy leftover "
+            "20. Uses detector keys and g-values. Not a key-free reader. "
+            "Does not replace 25/48."
+        ),
+        "used_keys": True,
+        "used_hash_iv": True,
+        "used_g_values": True,
+        "method": method,
+        "n_leftover": len(leftover),
+        "n_covered": len(marked_keys) - len(leftover),
+        "leftover": sorted(
+            [{"stem": s, "sample": n} for s, n in leftover],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "prefixes": prefixes_out,
+    }
+
+
+def summarize_leftover_interpolate_atoms(
+    atoms: dict,
+    leftover: set[tuple[str, int]],
+    *,
+    windows: Sequence[tuple[int, int]] = DEFAULT_ATOM_WINDOWS,
+    top_k: int = 20,
+) -> dict:
+    """Window atom summary restricted to occupancy leftover files.
+
+    Requires per-file atom rows. Not keys. Not a new probe method.
+    """
+    if atoms.get("used_keys") or atoms.get("used_hash_iv") or atoms.get("used_g_values"):
+        raise RuntimeError("leftover atoms consulted keys")
+    rows = [
+        r
+        for r in (atoms.get("rows") or [])
+        if (str(r.get("stem") or ""), int(r.get("sample") or 0)) in leftover
+    ]
+    if not rows:
+        raise RuntimeError("leftover atom summary needs store_rows=True")
+    marked = [r for r in rows if str(r.get("side") or "") == "marked"]
+    return {
+        "note": (
+            "Interpolate last-4 atoms on occupancy leftover files only. "
+            "unseen_next is Witten–Bell backoff. Not keys, not a new probe "
+            "method, not a leftover-file detector. Does not replace 25/48."
+        ),
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "n_rows": len(rows),
+        "n_leftover": len(leftover),
+        "n_marked_lr_positive": sum(
+            1 for r in marked if float(r.get("lr") or 0.0) > 0.0
+        ),
+        "windows": window_atom_summary(rows, windows, top_k=top_k),
+    }
+
+
+def print_leftover_bound(*, official: dict, atoms: dict) -> str:
+    lines = [
+        "# Occupancy leftover-20 bound",
+        "",
+        "Official prefix scores use detector keys (positive control). "
+        "Leftover interpolate atoms do not. Neither replaces 25/48.",
+        "",
+        (
+            f"official_used_keys={official.get('used_keys')} "
+            f"leftover={official.get('n_leftover')} "
+            f"covered={official.get('n_covered')}"
+        ),
+        "",
+        "| prefix | leftover marked mean | >0.55 | covered marked mean | >0.55 | unmarked mean | >0.55 |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for prefix, row in (official.get("prefixes") or {}).items():
+        left = row.get("leftover_marked") or {}
+        cov = row.get("covered_marked") or {}
+        um = row.get("unmarked") or {}
+        lines.append(
+            f"| {prefix} | {left.get('mean'):.4f} | "
+            f"{left.get('n_above_055')}/{left.get('n')} | "
+            f"{cov.get('mean'):.4f} | "
+            f"{cov.get('n_above_055')}/{cov.get('n')} | "
+            f"{um.get('mean'):.4f} | "
+            f"{um.get('n_above_055')}/{um.get('n')} |"
+        )
+    lines.extend(
+        [
+            "",
+            (
+                f"atoms_used_keys={atoms.get('used_keys')} "
+                f"n_rows={atoms.get('n_rows')} "
+                f"leftover marked lr>0={atoms.get('n_marked_lr_positive')}"
+            ),
+            "",
+            "| window | mean marked Δ | mean unmarked Δ | seen | unseen |",
+            "|---|---|---|---|---|",
+        ]
+    )
+    for win in atoms.get("windows") or []:
+        lines.append(
+            f"| {win.get('start')}:{win.get('end')} | "
+            f"{float(win.get('mean_marked_delta') or 0):.4f} | "
+            f"{float(win.get('mean_unmarked_delta') or 0):.4f} | "
+            f"{win.get('n_seen')} | {win.get('n_unseen')} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Official leftover detection uses keys. Leftover atoms are not "
+            "a leftover-file detector. Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_leftover_bound(
+    *,
+    official: dict,
+    atoms: dict,
+    out_dir: Path,
+) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "official.json").write_text(json.dumps(official, indent=2) + "\n")
+    (out_dir / "atoms.json").write_text(json.dumps(atoms, indent=2) + "\n")
+    (out_dir / "results.md").write_text(
+        print_leftover_bound(official=official, atoms=atoms)
+    )

@@ -15,6 +15,8 @@ detection fails” paper. Spatial mask-*k* of the headline 12-LOO scorer
 is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). Leftover
 versus covered on those tails is
 [PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).
+Occupancy leftover-20 official+atoms bound is
+[PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
 
 ## Locked headlines
 

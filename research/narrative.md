@@ -140,6 +140,11 @@ Hard 4:128 leftover is **11/20 vs 11/20**; covered **16/28**. Tail
 Prefix 0:4 isolated **29/48** is **12 leftover + 17 covered**. Do not
 sell leftover **11/20**, covered **16/28**, or window **29/48**.
 
+Whether those leftover-20 files are still officially marked, and
+whether leftover interpolate mass is still backoff, is
+[PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
+Do not look at leftover-20 official means until that freeze is named.
+
 ## What this freeze refuses
 
 - Writing `thesis/` or drafting Loop 3 sections as a paper.

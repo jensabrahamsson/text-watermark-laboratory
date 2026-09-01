@@ -21,6 +21,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [narrative.md](narrative.md) | Two-grain story lock; rejects a “key-free detection fails” title; not `thesis/` |
 | [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) | 12-LOO hard 0:4 **5/12**; tails **9/12**; interpolate front-loaded; not **25/48** |
 | [PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md) | Hard 4:128 leftover **11/20 vs 11/20**, covered **16/28**; tail 9/12 not leftover recall; not **25/48** |
+| [PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md) | Occupancy leftover-20 official+atoms bound; freeze before counts |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
