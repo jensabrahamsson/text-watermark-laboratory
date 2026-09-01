@@ -196,8 +196,10 @@ sell Distil **22/48** or leftover Distil **3/18**. Distil 100×4 → Distil
 Distil→Distil postokhits t=0 **16/48 vs 39/48** equals coverage
 **16/48**; not leftover-18; not **25/48**. Do not sell Distil→Distil
 **16/48**. Qwen 100×4 → Qwen 12×4 occupancy-free analog is
-[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md) (not leftover-18;
-not lock A; not `--include-first`).
+[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md). Opened:
+Qwen→Qwen postokhits t=0 **31/48 vs 48/48**; coverage **37/48**; six
+covered files have negative LR. Cross-corpus **31/48** > **25/48** does
+not replace original-12 GPT-2. Do not sell Qwen→Qwen **31/48**.
 
 ## What this freeze refuses
 
@@ -207,7 +209,7 @@ not lock A; not `--include-first`).
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, Distil→Distil **16/48**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

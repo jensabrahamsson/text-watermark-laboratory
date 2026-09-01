@@ -1687,4 +1687,18 @@ Do not apply leftover-18 GPT-2 keys to Qwen files. Do not look at
 Qwen→Qwen occupancy-free LRs until this line is on origin. Do not
 write `thesis/`.
 
+## 2026-09-01 Qwen occupancy-free Qwen-12 transfer opened
+
+SHA `3c0a5c9`. `used_keys=false`. Local Hugging Face, not Dashscope.
+Qwen occupancy-free postokhits t=0 on Qwen 12×4 is **31/48 vs 48/48**.
+Openings covered **37/48** (exact 12/48). Six covered files have
+negative LR. H-qgen-cover holds on not 48/48. H-qgen-B fails as a raw
+count (**31/48** > **25/48**) across corpora. H-qgen-iso holds: these
+are Qwen files, not original-12 GPT-2. Nested Youden **31/48 vs 48/48**
+at a positive threshold. Do not sell Qwen→Qwen 31/48. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-qwen100x4-to-qwen12x4/`.
+
 ---

@@ -152,4 +152,32 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `3c0a5c9`. Named `c3964ea`. `used_keys=false`. Local
+Hugging Face Qwen, not Dashscope.
+
+Probe: [experiments/2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/](../experiments/2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/).
+Openings: [experiments/2026-09-01-openings-qwen100x4-to-qwen12x4/](../experiments/2026-09-01-openings-qwen100x4-to-qwen12x4/).
+
+| Reader | Qwen 12×4 marked `lr>0` | Unmarked `lr≤0` |
+|---|---|---|
+| Qwen→Qwen postokhits | **31/48** | **48/48** |
+| Qwen→Qwen poshits | **33/48** | **37/48** |
+| Qwen→Qwen openings postokhits | covered **37/48** (exact 12/48) | decided FP 0 |
+
+H-qgen-cover **holds** on coverage not **48/48**. Coverage is **37/48**.
+Isolated t=0 is **31/48**, below coverage: six covered files have
+negative observed-token LR. Recall is bounded by opening overlap on
+this split; it is not equal to **37/48**.
+
+H-qgen-B **fails** as a raw marked count on these Qwen files:
+**31/48** > **25/48**. That is a cross-corpus comparison. Distil→Distil
+occupancy-free was **16/48** on Distil files. Nested Youden postokhits
+**31/48 vs 48/48** at a positive train threshold (≈ 0.022). Unmarked
+t=0 is **48/48**. Decided precision **1.000**.
+
+H-qgen-iso **holds**. These are Qwen 12×4 files, not the original GPT-2
+12. Do not sell Qwen→Qwen **31/48**, coverage **37/48**, nested
+**31/48 vs 48/48**, Qwen poshits **33/48**, Qwen first **12/12**,
+Distil→Distil **16/48**, Distil→GPT-2 **22/48**, leftover-18 Distil
+**3/18**, or leftover official **18/18** as replacing **25/48**.
+Isolated-file remains open. Do not write `thesis/`.

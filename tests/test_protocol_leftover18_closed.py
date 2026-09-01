@@ -51,6 +51,7 @@ def test_protocol_leftover18_closed_refuses_more_holdout_reslices() -> None:
     assert "`cdccae5`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "PROTOCOL-isolated-xgen" in text
     assert "PROTOCOL-isolated-dgen" in text
+    assert "PROTOCOL-isolated-qgen" in text
 
 
 def test_leftover18_published_readers_are_not_leftover_file_detectors() -> None:

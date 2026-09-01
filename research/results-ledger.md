@@ -444,8 +444,10 @@ replace **25/48**. Distil 100×4 → Distil 12×4 occupancy-free analog is
 postokhits t=0 **16/48 vs 39/48** equals coverage **16/48**. Nested
 **48/48** is a negative threshold. Do not sell Distil→Distil **16/48**.
 Does not replace **25/48**. Qwen 100×4 → Qwen 12×4 occupancy-free analog
-is [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md) (not leftover-18;
-not lock A; not `--include-first`).
+is [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md): Qwen→Qwen
+postokhits t=0 **31/48 vs 48/48**; coverage **37/48**. Cross-corpus
+**31/48** > **25/48** does not replace original-12 GPT-2. Do not sell
+Qwen→Qwen **31/48**. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

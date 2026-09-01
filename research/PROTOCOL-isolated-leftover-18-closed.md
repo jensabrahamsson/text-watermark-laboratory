@@ -126,4 +126,7 @@ coverage **3/18** (office 1/3/4); Distil postokhits t=0 **22/48**. Do not
 sell Distil **22/48**. Distil 100×4 → Distil 12×4 occupancy-free is
 [PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md): Distil→Distil
 postokhits t=0 **16/48 vs 39/48**. Do not sell Distil→Distil **16/48**.
+Qwen 100×4 → Qwen 12×4 occupancy-free is
+[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md): Qwen→Qwen
+postokhits t=0 **31/48 vs 48/48**. Do not sell Qwen→Qwen **31/48**.
 Do not write `thesis/`.
