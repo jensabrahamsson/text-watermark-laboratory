@@ -3,8 +3,9 @@
 Official prefix scores use detector keys (positive control). Interpolate
 atoms on leftover files do not. Leftover-18 remaining readers re-slice
 published holdouts. Cross-generator occupancy-free leftover coverage
-uses Distil tables on the original 12. None of that is a new probe
-method. None replaces 25/48.
+uses Distil tables on the original 12. Leftover-15 official is a keyed
+re-slice of the same dump after Distil ∪ SMT. None of that is a new
+probe method. None replaces 25/48.
 """
 
 from __future__ import annotations

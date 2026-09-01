@@ -205,7 +205,11 @@ Distil ∪ SMT occupancy-free openings on the original 12 is
 [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md). Opened:
 union **33/48**; leftover **15**; last-4 **9/15 vs 8/15**; Distil-only
 office 1/3/4. Do not sell union **33/48** or leftover **9/15**. Do not
-target leftover-15 openings after peeking.
+target leftover-15 openings after peeking. Occupancy-free leftover-15
+is closed
+([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
+Leftover-15 official is **15/15** at prefix-5 and uses keys. Leftover
+last-4 is **9/15 vs 8/15**. Do not sell leftover official **15/15**.
 
 ## What this freeze refuses
 
@@ -215,7 +219,7 @@ target leftover-15 openings after peeking.
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

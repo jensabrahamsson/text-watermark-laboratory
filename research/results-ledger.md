@@ -452,6 +452,10 @@ openings on the original 12 is
 [PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md): union **33/48**;
 leftover **15**; last-4 **9/15 vs 8/15**; Distil-only office 1/3/4. Do
 not sell union **33/48** or leftover **9/15**. Does not replace
+**25/48**. Occupancy-free leftover-15 after Distil ∪ SMT is closed
+([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)):
+leftover-15 official **15/15** at prefix-5 (keys); last-4 **9/15 vs
+8/15**. Do not sell leftover official **15/15**. Does not replace
 **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.

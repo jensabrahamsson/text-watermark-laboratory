@@ -179,4 +179,6 @@ H-dsmt-iso **holds**. Do not sell union **33/48**, Distil **22/48**,
 leftover Distil **3/18**, SMT **30/48**, leftover official **18/18**,
 leftover last-4 **9/15**, Distil→Distil **16/48**, or Qwen→Qwen
 **31/48**. Isolated-file remains open. Do not target leftover-15
-openings after peeking. Do not write `thesis/`.
+openings after peeking. Occupancy-free leftover-15 is closed
+([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
+Do not write `thesis/`.

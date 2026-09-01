@@ -129,4 +129,6 @@ postokhits t=0 **16/48 vs 39/48**. Do not sell Distil→Distil **16/48**.
 Qwen 100×4 → Qwen 12×4 occupancy-free is
 [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md): Qwen→Qwen
 postokhits t=0 **31/48 vs 48/48**. Do not sell Qwen→Qwen **31/48**.
+Occupancy-free leftover-15 after Distil ∪ SMT is closed
+([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)).
 Do not write `thesis/`.

@@ -36,6 +36,8 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "PROTOCOL-isolated-dsmt" in text
     assert "union **33/48**" in text
     assert "leftover **9/15**" in text
+    assert "PROTOCOL-isolated-leftover-15-closed" in text
+    assert "Leftover-15 official is **15/15**" in text
     assert "Do not write `thesis/`" in text or "Do **not** write `thesis/`" in text
     assert "`004397c`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
