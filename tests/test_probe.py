@@ -3484,3 +3484,76 @@ def test_in_domain_tokhybrid_copies_hashtok_isolated() -> None:
     assert by_th[("08-letter", 2)] < 0
     assert by_ph[("08-letter", 2)] < 0
 
+
+def test_in_domain_hashtokgap_is_weaker_than_hashtok() -> None:
+    """Hashtok residual of unseen n-grams is a strict subset of hashtok 33/48.
+
+    27/48 vs 21/48; nested 17/48 vs 31/48. Loses harbour d2, kitchen d1,
+    station d1/d2/d3, rain d3; gains none. Letter d2 stays negative. Do
+    not sell 27/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtokgap"
+    )
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    th = holdout_from_json(root / "tokhybrid" / "holdout.json")
+    gap = holdout_from_json(root / "hashtokgap" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert gap.used_keys is False
+    assert gap.used_hash_iv is False
+    assert gap.used_g_values is False
+    assert gap.instance == "key-free-hashtokgap"
+    assert ht.n_marked_positive == th.n_marked_positive == 33
+    assert ht.n_unmarked_nonpositive == th.n_unmarked_nonpositive == 22
+    assert gap.n_marked_positive == 27
+    assert gap.n_unmarked_nonpositive == 21
+    assert gap.n_prompts_marked_above == 8
+    assert ht.n_prompts_marked_above == 9
+    assert th.n_prompts_marked_above == 11
+    assert gap.n_marked_positive < 29
+    assert gap.n_marked_positive + gap.n_unmarked_nonpositive == 48
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("hashtokgap") == (17, 31)
+    assert nested_stem("hashtok") == (22, 30)
+    assert nested_stem("tokhybrid") == (23, 35)
+
+    def pos(holdout) -> set[tuple[str, int]]:
+        return {
+            (s, samp)
+            for s, samp, m in zip(holdout.stems, holdout._samples(), holdout.marked_lrs)
+            if m > 0
+        }
+
+    ht_pos = pos(ht)
+    gap_pos = pos(gap)
+    assert gap_pos < ht_pos
+    assert ht_pos - gap_pos == {
+        ("01-harbour", 2),
+        ("05-kitchen", 1),
+        ("06-station", 1),
+        ("06-station", 2),
+        ("06-station", 3),
+        ("07-rain", 3),
+    }
+    by_gap = {
+        (s, samp): m
+        for s, samp, m in zip(gap.stems, gap._samples(), gap.marked_lrs)
+    }
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    assert by_gap[("08-letter", 2)] < 0
+    assert by_ht[("08-letter", 2)] < 0
+    assert by_gap[("08-letter", 2)] == by_ht[("08-letter", 2)]
+

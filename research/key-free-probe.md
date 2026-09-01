@@ -96,6 +96,8 @@ exist; the unmarked OR cost destroys the combined gate. Do not sell
 33/48 or 39/48 as replacing **29/48**. `tokhybrid` (tokhits, then
 hashtok) copies that isolated 33/48 and lifts prompt ranking to 11/12;
 `poshashtok` nested **14/48 vs 38/48** is a specificity knob.
+`hashtokgap` (hashtok only where tokhits abstains) is **27/48 vs 21/48**,
+nested **17/48 vs 31/48**, a strict subset of hashtok's 33 TPs.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

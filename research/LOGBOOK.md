@@ -852,4 +852,17 @@ d2 stays negative. Do not sell 33/48 or tokhybrid 11/12 as replacing
 JSON: `experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtokgap is weaker than hashtok (27/48)
+
+In-domain 12×4 LOO. Occupancy-free residual (hashtok only where tokhits
+abstains) is **27/48 vs 21/48**, nested **17/48 vs 31/48**, prompt
+**8/12**. True positives are a strict subset of hashtok's 33: loses
+harbour d2, kitchen d1, station d1/d2/d3, rain d3; gains none. Combined
+t=0 is 48/96 (chance). Letter d2 stays negative. Dropping
+tokhits-scorable positions does not isolate a complementary hashed
+signal. Do not sell 27/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtokgap/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
