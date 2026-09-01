@@ -37,8 +37,8 @@ still loses. Do not sell that as reading the official 5-gram.
 
 None of these widths is hits nested **22/48 vs 39/48**, poshits
 **39/48**, or hard last-4 **29/48**. Combined t=0 at n=2 is **65/96**,
-not a calibrated isolated-file detector. Do **not** change the CLI
-default from this in-domain LOO. Do **not** sell 36/48, 35/48, or
-34/48 as replacing **29/48**.
+not a calibrated isolated-file detector. The 24→12 transfer gate
+keeps the CLI default at 8. Do **not** sell 36/48, 35/48, or 34/48 as
+replacing **29/48**.
 
 Write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).

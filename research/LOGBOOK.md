@@ -932,4 +932,17 @@ as replacing **29/48**. JSON:
 `experiments/2026-09-01-probe-12x4-hashtok-nhashes{2,4,16,32}/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok mixer width does not transfer
+
+24 new 36×4 stems → original 12×4 files, occupancy-free `hashtok`.
+Default n=8 wins OOD: **11/12**, **29/48 vs 35/48**, nested Youden
+**17/48 vs 46/48**, nested FPR10 **17/48 vs 46/48**. n=2 is 10/12,
+nested **17/48 vs 44/48**. n=4 is densest t=0 (**31/48**) and nested
+recall (**19/48 vs 41/48**) with the worst nested spec. The in-domain
+n=2 / n=4 win did not transfer. Keep the CLI default at 8. t=0 29/48
+here is not the headline hard last-4 **29/48**. Do not sell 31/48,
+19/48, or 17/48. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes{2,4,8}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---

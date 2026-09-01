@@ -3852,3 +3852,83 @@ def test_hashtok_nhashes_width_ablation_default_is_not_best() -> None:
     assert len(letter_prompt_n16) == 4
     assert sum(letter_prompt_n16) / 4 < sum(unmarked_letter_n16) / 4
 
+
+def test_hashtok_nhashes_width_does_not_transfer() -> None:
+    """24→12 nested Youden prefers default n=8 over in-domain n=2/4.
+
+    n=8: 11/12, 29/48 vs 35/48, nested Youden 17/48 vs 46/48.
+    n=2: 10/12, 29/48 vs 32/48, nested 17/48 vs 44/48.
+    n=4: 9/12, 31/48 vs 30/48, nested 19/48 vs 41/48.
+    Keep the CLI default at 8. t=0 29/48 is not headline 29/48.
+    Do not sell 31/48, 19/48, or 17/48 as replacing 29/48.
+    """
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "experiments"
+
+    def load(name: str):
+        d = root / name
+        holdout = holdout_from_json(d / "hashtok" / "holdout.json")
+        results = json.loads((d / "results.json").read_text())
+        return holdout, results
+
+    n2, r2 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2")
+    n4, r4 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4")
+    n8, r8 = load("2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8")
+
+    for holdout, results in ((n2, r2), (n4, r4), (n8, r8)):
+        assert results["used_keys"] is False
+        assert results["used_hash_iv"] is False
+        assert results["used_g_values"] is False
+        assert results["n_train_prompts"] == 24
+        assert results["n_test_prompts"] == 12
+        assert results["overlap_mode"] == "drop-from-train"
+        assert holdout.used_keys is False
+        assert holdout.instance == "key-free-hashtok"
+
+    assert n2.n_prompts_marked_above == 10
+    assert n2.n_marked_positive == 29
+    assert n2.n_unmarked_nonpositive == 32
+    assert _nested_youden(r2, "hashtok") == (17, 44)
+
+    assert n4.n_prompts_marked_above == 9
+    assert n4.n_marked_positive == 31
+    assert n4.n_unmarked_nonpositive == 30
+    assert _nested_youden(r4, "hashtok") == (19, 41)
+
+    assert n8.n_prompts_marked_above == 11
+    assert n8.n_marked_positive == 29
+    assert n8.n_unmarked_nonpositive == 35
+    assert _nested_youden(r8, "hashtok") == (17, 46)
+
+    assert n8.n_prompts_marked_above > n2.n_prompts_marked_above
+    assert n8.n_prompts_marked_above > n4.n_prompts_marked_above
+    assert n8.n_unmarked_nonpositive > n2.n_unmarked_nonpositive
+    assert n8.n_unmarked_nonpositive > n4.n_unmarked_nonpositive
+    nest8 = _nested_youden(r8, "hashtok")
+    nest2 = _nested_youden(r2, "hashtok")
+    nest4 = _nested_youden(r4, "hashtok")
+    assert nest8[1] > nest2[1]
+    assert nest8[1] > nest4[1]
+    assert n4.n_marked_positive < 39
+    assert nest8[0] < 29
+    letter8 = next(
+        m
+        for s, samp, m in zip(n8.stems, n8._samples(), n8.marked_lrs)
+        if s == "08-letter" and samp == 2
+    )
+    letter2 = next(
+        m
+        for s, samp, m in zip(n2.stems, n2._samples(), n2.marked_lrs)
+        if s == "08-letter" and samp == 2
+    )
+    letter4 = next(
+        m
+        for s, samp, m in zip(n4.stems, n4._samples(), n4.marked_lrs)
+        if s == "08-letter" and samp == 2
+    )
+    assert letter8 < 0
+    assert letter2 < 0
+    assert letter4 < 0
+
+

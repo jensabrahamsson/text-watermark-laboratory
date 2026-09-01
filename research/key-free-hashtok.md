@@ -537,14 +537,44 @@ letter prompt still loses. Do not sell that as reading the official
 5-gram.
 
 This is not hits nested **22/48 vs 39/48**, not poshits **39/48**, and
-not hard last-4 **29/48**. Combined t=0 at n=2 is **65/96**. Keep the
-CLI default at 8 until a transfer gate says otherwise. Do not sell
-36/48, 35/48, or 34/48 as replacing **29/48**.
+not hard last-4 **29/48**. Combined t=0 at n=2 is **65/96**. Do not
+sell 36/48, 35/48, or 34/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes2/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes4/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes16/),
 [../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/](../experiments/2026-09-01-probe-12x4-hashtok-nhashes32/).
+
+## Mixer width does not transfer: keep default n=8
+
+The honest isolated-file gate is nested Youden on 24 new 36×4 stems,
+frozen on the original 12×4 files. Same occupancy-free `hashtok`,
+full-file last-4, `drop-from-train`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --methods hashtok --n-hashes 8 \
+  --out-dir experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8
+```
+
+| n_hashes | Prompt | File AUC | marked>0 | unmarked≤0 | nested Youden | nested FPR10 |
+|---|---|---|---|---|---|---|
+| 2 | 10/12 | 0.704 | 29/48 | 32/48 | 17/48 vs 44/48 | 13/48 vs 46/48 |
+| 4 | 9/12 | 0.679 | **31/48** | 30/48 | **19/48 vs 41/48** | 15/48 vs 46/48 |
+| **8 (default)** | **11/12** | **0.707** | 29/48 | **35/48** | **17/48 vs 46/48** | **17/48 vs 46/48** |
+
+Default n=8 wins prompt ranking, file AUC, t=0 spec, nested Youden
+spec, and nested FPR10 recall. The in-domain n=2 / n=4 win did not
+transfer. Keep the CLI default at 8. t=0 marked 29/48 here is not the
+headline hard last-4 **29/48**. Nested 17/48 is below hits nested
+Youden **26/48 vs 44/48** on this same split. Letter d2 stays
+negative. Do not sell 31/48, 19/48, or 17/48 as beating poshits
+**39/48** or replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes8/),
+[../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes2/),
+[../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4/](../experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes4/).
 
 ## OR with hard last-4 is complementary TPs, not a detector
 
