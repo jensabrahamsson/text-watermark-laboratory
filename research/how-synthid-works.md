@@ -94,3 +94,6 @@ A production implementation can change the keys, tokenizer, context length, hash
 So the public DeepMind scorer is a reference implementation, not a universal detector.
 
 This distinction is what motivates the paired key-free experiments.
+Keyed detection theory, ZK public verifiability, and stealing sit next
+to this measurement in [related-work.md](related-work.md). They do not
+replace `indicate`.

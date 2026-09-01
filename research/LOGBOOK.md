@@ -877,4 +877,27 @@ as replacing 29/48.
 JSON: `experiments/2026-09-01-probe-12x4-hashtok2/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 opening-grain hashtok copies tokhits (24/48)
+
+In-domain 12×4 LOO, `--fit-prefix 4`. Occupancy-free hashing at the
+published opening is sparse like tokhits, not opening rankpath
+**41/48**. tokhits **23/48 vs 48/48** (prompt **12/12**, 25 marked
+zeros). hashtok **24/48 vs 47/48**, nested **23/48 vs 47/48**, prompt
+**12/12**: tokhits ⊂ hashtok; extra TP is letter d3; one unmarked FP
+(kitchen d4). hashtok2 **22/48 vs 48/48** (gains letter d3, loses
+kitchen d4 and rain d1). Letter d2 is zero on all four readers at this
+grain. Do not sell 24/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 related-work note
+
+Recorded keyed vs key-free neighbours so the research notes stay
+current: Omidi et al. arXiv:2603.03410 (SynthID mean/Bayesian theory;
+layer-inflation is a keyed removal study, not implemented here);
+PVMark arXiv:2510.26274 (ZK of keyed detection); TTP-Detect and the
+ETH/SRI probe were already in the root README. Canonical note:
+[related-work.md](related-work.md).
+
 ---

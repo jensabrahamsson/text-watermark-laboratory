@@ -616,3 +616,32 @@ negative. Do not sell 34/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok2/](../experiments/2026-09-01-probe-12x4-hashtok2/).
 
+## Opening-grain hashtok copies tokhits density (24/48)
+
+In-domain 12×4 LOO, matched `--fit-prefix 4`. Opening rankpath on these
+twins is **41/48**. Hashed token identity at the same grain is not that
+dense.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --methods hits,tokhits,hashtok,hashtok2 \
+  --out-dir experiments/2026-09-01-probe-12x4-fitprefix4-hashtok
+```
+
+| Method | Prompt | File AUC | marked>0 | unmarked≤0 | nested-by-stem | precision |
+|---|---|---|---|---|---|---|
+| hits | 9/12 | 0.691 | 23/48 | 48/48 | 23/48 vs 48/48 | 1.000 |
+| tokhits | **12/12** | 0.772 | 23/48 | 48/48 | 23/48 vs 48/48 | 1.000 |
+| **hashtok** | **12/12** | 0.796 | **24/48** | 47/48 | 23/48 vs 47/48 | 0.960 |
+| hashtok2 | **12/12** | 0.729 | 22/48 | 48/48 | 22/48 vs 48/48 | 1.000 |
+
+tokhits: 25/48 marked zeros; decided 23/0. tokhits ⊂ hashtok at t=0.
+Extra hashtok TP: **letter d3 only**. One unmarked FP: kitchen d4.
+Nested Youden drops letter d3 (mean t ≈ 0.065). hashtok2 versus tokhits
+gains letter d3 and loses kitchen d4 and rain d1. Letter **d2 is zero**
+on all four readers (not the full-file negative LR). Opening hashed
+readers copy tokhits density, not rankpath **41/48**. Do not sell
+24/48, 23/48, or tokhits **12/12** as replacing **29/48**.
+
+JSON: [../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/](../experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/).
+

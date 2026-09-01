@@ -52,6 +52,6 @@ Published attacks on statistical watermarks typically exploit many generated sam
 
 The experiments in this repository stay on the inference side: can enough paired observations reveal a usable statistical signature?
 
-Current answer: **yes, at matched/repeated prompt grain; much less reliably for one isolated file.** The key-free opening-token reader is **instance-specific** on this mixin (control-shuffled-30 isolated `lr>0` is **0/48** under 4-token poshits) without recovering keys. See [key-free-contrast.md](key-free-contrast.md).
+Current answer: **yes, at matched/repeated prompt grain; much less reliably for one isolated file.** The key-free opening-token reader is **instance-specific** on this mixin (control-shuffled-30 isolated `lr>0` is **0/48** under 4-token poshits) without recovering keys. See [key-free-contrast.md](key-free-contrast.md). How this measurement sits next to keyed theory, ZK public verifiability, and stealing is [related-work.md](related-work.md).
 
 See [key-free-twins.md](key-free-twins.md).

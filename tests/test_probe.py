@@ -3652,3 +3652,101 @@ def test_in_domain_hashtok2_reshuffles_hashtok_not_a_singleton_core() -> None:
     assert by_ht[("08-letter", 2)] < 0
     assert by_ht2[("08-letter", 2)] < by_ht[("08-letter", 2)]
 
+
+def test_opening_grain_hashtok_copies_tokhits_density() -> None:
+    """Matched prefix-4 occupancy-free hashing is sparse like tokhits.
+
+    tokhits 23/48 vs 48/48 (prompt 12/12); hashtok 24/48 vs 47/48 with
+    extra TP letter d3 only; hashtok2 22/48 vs 48/48. Letter d2 is zero.
+    Nested hashtok 23/48 vs 47/48. Not opening rankpath 41/48. Do not
+    sell 24/48 as replacing 29/48.
+    """
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-fitprefix4-hashtok"
+    )
+    hits = holdout_from_json(root / "hits" / "holdout.json")
+    tok = holdout_from_json(root / "tokhits" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    ht2 = holdout_from_json(root / "hashtok2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    assert results["used_keys"] is False
+    assert results["fit_prefix"] == 4
+    assert ht.used_keys is False
+    assert ht.used_hash_iv is False
+    assert ht.used_g_values is False
+    assert ht.instance == "key-free-hashtok"
+    assert ht2.instance == "key-free-hashtok2"
+    assert tok.instance == "key-free-tokhits"
+    assert hits.n_prompts_marked_above == 9
+    assert tok.n_prompts_marked_above == 12
+    assert ht.n_prompts_marked_above == 12
+    assert ht2.n_prompts_marked_above == 12
+    assert hits.n_marked_positive == 23
+    assert hits.n_unmarked_nonpositive == 48
+    assert tok.n_marked_positive == 23
+    assert tok.n_unmarked_nonpositive == 48
+    assert ht.n_marked_positive == 24
+    assert ht.n_unmarked_nonpositive == 47
+    assert ht2.n_marked_positive == 22
+    assert ht2.n_unmarked_nonpositive == 48
+    assert ht.n_marked_positive < 29
+
+    def nested_stem(name: str) -> tuple[int, int]:
+        method = next(m for m in results["methods"] if m["name"] == name)
+        row = method["nested_stem"]["nested-youden-by-stem"]
+        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
+
+    assert nested_stem("hits") == (23, 48)
+    assert nested_stem("tokhits") == (23, 48)
+    assert nested_stem("hashtok") == (23, 47)
+    assert nested_stem("hashtok2") == (22, 48)
+
+    def pos(holdout) -> set[tuple[str, int]]:
+        return {
+            (s, samp)
+            for s, samp, m in zip(holdout.stems, holdout._samples(), holdout.marked_lrs)
+            if m > 0
+        }
+
+    tok_pos = pos(tok)
+    ht_pos = pos(ht)
+    ht2_pos = pos(ht2)
+    assert tok_pos < ht_pos
+    assert ht_pos - tok_pos == {("08-letter", 3)}
+    assert ht2_pos - tok_pos == {("08-letter", 3)}
+    assert tok_pos - ht2_pos == {("05-kitchen", 4), ("07-rain", 1)}
+
+    by_hits = {
+        (s, samp): m
+        for s, samp, m in zip(hits.stems, hits._samples(), hits.marked_lrs)
+    }
+    by_tok = {
+        (s, samp): m
+        for s, samp, m in zip(tok.stems, tok._samples(), tok.marked_lrs)
+    }
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    by_ht2 = {
+        (s, samp): m
+        for s, samp, m in zip(ht2.stems, ht2._samples(), ht2.marked_lrs)
+    }
+    assert by_hits[("08-letter", 2)] == 0
+    assert by_tok[("08-letter", 2)] == 0
+    assert by_ht[("08-letter", 2)] == 0
+    assert by_ht2[("08-letter", 2)] == 0
+    assert by_ht[("08-letter", 3)] > 0
+    assert by_tok[("08-letter", 3)] == 0
+
+    unmarked_fp = {
+        (s, samp)
+        for s, samp, u in zip(ht.stems, ht._samples(), ht.unmarked_lrs)
+        if u > 0
+    }
+    assert unmarked_fp == {("05-kitchen", 4)}
+
