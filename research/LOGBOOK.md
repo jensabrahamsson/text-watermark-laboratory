@@ -1239,4 +1239,23 @@ H-iso-C: rankpath is more domain-specific than lock B (**11/12** /
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 
+## 2026-09-01 isolated lock C stem losses on the original 12
+
+Readout of the frozen 100→12 rankpath holdout. No new `probe --methods`.
+
+Lock C prompt losses: **letter**, **garden**. Not lock A
+harbour/night-bus/library/ferry-queue. Not 12-LOO hard
+station/office/ferry-queue. Garden is also the 12-LOO opening-rankpath
+miss. Letter is lock B's only miss.
+
+Three ranking wins have **0/4** marked `lr>0`: night-bus, library,
+market. Those stems rank because unmarked LRs are more negative.
+Harbour and ferry-queue, which lock A missed, are 4/4 isolated TPs
+under rankpath (`The ferry` openings). Do not sell union A/B/C t=0
+**42/48** or nested **40/48**. On 36×4 the only prompt loss is library
+(same Closing opening, different draws, still 0/4 marked t=0).
+
+Does not replace **25/48**. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
+
 ---

@@ -219,8 +219,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-100x4-to-36x4-opening-poshits/` | 100 families → 36×4 lock B | **35/36**, nested Youden **134/144 vs 129/144**; occupancy-free **114/144 vs 139/144** |
 | `2026-09-01-openings-100x4-to-12x4/` | Opening-overlap bound, 100→12 | postokhits covered **18/48**, exact **14/48**, decided 16/0 |
 | `2026-09-01-openings-100x4-to-36x4/` | Opening-overlap bound, 100→36 | postokhits covered **117/144**, exact **103/144**, decided 114/5 |
-| `2026-09-01-transfer-100x4-to-12x4-opening-rankpath/` | 100 families → original 12×4 lock C | **10/12**, nested Youden **24/48 vs 41/48** (does not beat **25/48**) |
-| `2026-09-01-transfer-100x4-to-36x4-opening-rankpath/` | 100 families → 36×4 lock C | **35/36**, nested Youden **109/144 vs 117/144** |
+| `2026-09-01-transfer-100x4-to-12x4-opening-rankpath/` | 100 families → original 12×4 lock C | **10/12**, nested Youden **24/48 vs 41/48**; losses letter/garden; 3 ranking wins have 0 isolated TPs |
+| `2026-09-01-transfer-100x4-to-36x4-opening-rankpath/` | 100 families → 36×4 lock C | **35/36**, nested Youden **109/144 vs 117/144**; only miss library |
 
 ## What changed across the runs
 

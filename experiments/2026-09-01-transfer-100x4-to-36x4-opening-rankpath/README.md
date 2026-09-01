@@ -4,8 +4,11 @@ Same frozen rankpath tables/flags as the original-12 transfer, test
 directory `experiments/2026-08-31-pair-36x4`. `used_keys=false`.
 
 Prompt ranking **35/36**. Nested Youden **109/144 vs 117/144**. File AUC
-**0.838**. Isolated t=0 **115/144 vs 112/144**. Same-register overlap, not
-a universal detector. Does not replace **25/48**.
+**0.838**. Isolated t=0 **115/144 vs 112/144**. The one prompt loss is
+library (Closing opening; 0/4 marked t=0), the same family lock C ranks
+without isolated TPs on the original 12. Same-register overlap, not a
+universal detector. Does not replace **25/48**. Stem table:
+`../2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \

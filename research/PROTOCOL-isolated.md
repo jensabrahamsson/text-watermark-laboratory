@@ -185,7 +185,15 @@ the original 12 Grok-prompt files.
 Lock A prompt losses are **harbour, night-bus, library, ferry-queue**
 (not the 12-LOO misses station/office/ferry-queue). Ferry-queue is the
 stable miss: 0/4 marked files above 0. Lock B's only prompt loss is
-**letter**. Stem table:
+**letter**. Lock C prompt losses are **letter** and **garden** (not the
+lock A quartet; not the 12-LOO hard trio). Garden is also the 12-LOO
+opening-rankpath miss. Three lock C ranking wins (**night-bus**,
+**library**, **market**) have **0/4** marked files above 0: 10/12 is
+not ten isolated stems. Lock C recovers harbour and ferry-queue at
+isolated grain (4/4 marked t=0) that lock A missed. Do not sell a
+union of A/B/C (t=0 **42/48**, nested **40/48**). On 36×4 the only
+lock C prompt loss is **library** (Closing opening, different draws,
+still 0/4 marked t=0). Stem table:
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
 
 H-iso-B holds on the original 12: poshits ranks **11/12** ≥ interpolate
@@ -197,9 +205,12 @@ and kin). Do not sell 36/48 as observed-token isolated recall.
 
 H-iso-C holds as domain-specificity: rankpath on the original 12 is
 **10/12**, nested Youden **24/48 vs 41/48**, below lock B **11/12** /
-**36/48**. Isolated **24/48** does not beat **25/48**. On 36×4, lock C
-ranks **35/36** with nested **109/144 vs 117/144** (lock A interpolate
-nested is the same **109/144** marked). JSON:
+**36/48**. Isolated **24/48** does not beat **25/48**. The two prompt
+losses (letter, garden) and the three ranking-without-TP stems
+(night-bus, library, market) are the same honesty point as occupancy:
+prompt ranking is not isolated-file recall. On 36×4, lock C ranks
+**35/36** with nested **109/144 vs 117/144** (lock A interpolate nested
+is the same **109/144** marked); the one miss is library. JSON:
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
 

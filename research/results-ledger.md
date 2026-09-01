@@ -136,11 +136,16 @@ Youden on the test files (train-LOO threshold).
 
 Lock A does not beat **25/48** on the original 12 files. Lock C nested
 Youden **24/48 vs 41/48** does not either; H-iso-C: rankpath is more
-domain-specific than lock B **11/12** / **36/48**. Occupancy-free
-readout of the frozen lock B tables (same fit, postokhits): original
-12×4 **16/48 vs 48/48** (21 occupancy TPs); 36×4 **114/144 vs 139/144**.
+domain-specific than lock B **11/12** / **36/48**. Lock C prompt losses
+are **letter** and **garden** (garden is also the 12-LOO rankpath miss).
+Three of the ten ranking wins have 0 isolated TPs. Do not sell a union
+of A/B/C (**42/48** t=0, **40/48** nested). Occupancy-free readout of
+the frozen lock B tables (same fit, postokhits): original 12×4
+**16/48 vs 48/48** (21 occupancy TPs); 36×4 **114/144 vs 139/144**.
 The 36-topic nested Youden is out-of-family but same one-line register;
 it does not replace **25/48**. Occupancy TPs are not observed-token TPs.
+Stem table:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
 
 Opening-overlap bound (same observed-token tables, not a new scorer):
 12×4 **18/48** covered (decided 16/0); 36×4 **117/144** covered

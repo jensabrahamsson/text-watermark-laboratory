@@ -9,6 +9,9 @@ from text_watermark_tools.stats import (
     permutation_mean_diff_p,
     roc_auc,
     score_ridge_logodds,
+    stem_prompt_losses,
+    stem_ranking_without_isolated_tp,
+    stem_transfer_rows,
     threshold_at_fpr,
     youden_threshold,
 )
@@ -113,6 +116,32 @@ def test_ridge_logodds_separates_two_features() -> None:
     w, b, mu, sd = fit_ridge_logodds(pos, neg, ridge=1.0)
     assert score_ridge_logodds(pos[0], w, b, mu, sd) > 0.0
     assert score_ridge_logodds(neg[0], w, b, mu, sd) < 0.0
+
+
+def test_stem_transfer_rows_groups_holdout_files() -> None:
+    files = [
+        {"file": "01-harbour-marked.txt", "stem": "01-harbour", "lr": 0.4},
+        {"file": "01-harbour-unmarked-gen.txt", "stem": "01-harbour", "lr": -0.2},
+        {"file": "01-harbour-marked-2.txt", "stem": "01-harbour", "lr": 0.4},
+        {"file": "01-harbour-unmarked-gen-2.txt", "stem": "01-harbour", "lr": -0.2},
+        {"file": "11-garden-marked.txt", "stem": "11-garden", "lr": -0.5},
+        {"file": "11-garden-unmarked-gen.txt", "stem": "11-garden", "lr": 0.1},
+        {"file": "11-garden-marked-2.txt", "stem": "11-garden", "lr": -0.5},
+        {"file": "11-garden-unmarked-gen-2.txt", "stem": "11-garden", "lr": 0.1},
+        {"file": "02-night-bus-marked.txt", "stem": "02-night-bus", "lr": -0.1},
+        {"file": "02-night-bus-unmarked-gen.txt", "stem": "02-night-bus", "lr": -0.4},
+        {"file": "02-night-bus-marked-2.txt", "stem": "02-night-bus", "lr": -0.1},
+        {"file": "02-night-bus-unmarked-gen-2.txt", "stem": "02-night-bus", "lr": -0.4},
+    ]
+    rows = stem_transfer_rows(files, nested_threshold=0.0)
+    by = {r["stem"]: r for r in rows}
+    assert by["01-harbour"]["prompt_win"] is True
+    assert by["01-harbour"]["marked_t0"] == 2
+    assert by["11-garden"]["prompt_win"] is False
+    assert by["02-night-bus"]["prompt_win"] is True
+    assert by["02-night-bus"]["marked_t0"] == 0
+    assert stem_prompt_losses(rows) == ["11-garden"]
+    assert stem_ranking_without_isolated_tp(rows) == ["02-night-bus"]
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

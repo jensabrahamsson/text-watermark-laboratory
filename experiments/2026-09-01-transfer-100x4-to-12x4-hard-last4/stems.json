@@ -1,5 +1,5 @@
 {
-  "note": "Stem-level 100-family transfer onto the original 12x4 files. Lock A nested threshold is train-LOO Youden 0.0889. Recount 12-LOO hard misses were station, office, ferry-queue; this transfer's lock A misses are harbour, night-bus, library, ferry-queue. Not keys.",
+  "note": "Stem-level 100-family transfer onto the original 12x4 files. Lock A nested threshold is train-LOO Youden 0.0889. Recount 12-LOO hard misses were station, office, ferry-queue; this transfer's lock A misses are harbour, night-bus, library, ferry-queue. Lock C misses letter and garden (garden is also the 12-LOO rankpath miss; letter is lock B's only miss). Three lock C ranking wins have 0/4 marked t=0. Do not sell a union of A/B/C. Not keys.",
   "used_keys": false,
   "lock_a_nested_threshold": 0.0889202697491125,
   "lock_a": [
@@ -254,5 +254,149 @@
   ],
   "lock_b_losses": [
     "08-letter"
-  ]
+  ],
+  "lock_c_nested_threshold": 0.06366200124876675,
+  "lock_c": [
+    {
+      "stem": "01-harbour",
+      "prompt_win": true,
+      "mean_marked": 0.3867909615560358,
+      "mean_unmarked": -1.1052446134207408,
+      "mean_diff": 1.4920355749767766,
+      "marked_t0": 4,
+      "marked_nested": 4,
+      "n": 4
+    },
+    {
+      "stem": "02-night-bus",
+      "prompt_win": true,
+      "mean_marked": -0.37597864769236067,
+      "mean_unmarked": -1.6924359374218751,
+      "mean_diff": 1.3164572897295144,
+      "marked_t0": 0,
+      "marked_nested": 0,
+      "n": 4
+    },
+    {
+      "stem": "03-library",
+      "prompt_win": true,
+      "mean_marked": -0.37207456568450126,
+      "mean_unmarked": -0.4265421007045977,
+      "mean_diff": 0.054467535020096436,
+      "marked_t0": 0,
+      "marked_nested": 0,
+      "n": 4
+    },
+    {
+      "stem": "04-market",
+      "prompt_win": true,
+      "mean_marked": -0.10878867689158134,
+      "mean_unmarked": -0.9088480105706795,
+      "mean_diff": 0.8000593336790982,
+      "marked_t0": 0,
+      "marked_nested": 0,
+      "n": 4
+    },
+    {
+      "stem": "05-kitchen",
+      "prompt_win": true,
+      "mean_marked": 0.44306326051349293,
+      "mean_unmarked": -1.1588439039886218,
+      "mean_diff": 1.6019071645021148,
+      "marked_t0": 4,
+      "marked_nested": 4,
+      "n": 4
+    },
+    {
+      "stem": "06-station",
+      "prompt_win": true,
+      "mean_marked": 0.48879192508674174,
+      "mean_unmarked": -0.03311227938246368,
+      "mean_diff": 0.5219042044692054,
+      "marked_t0": 3,
+      "marked_nested": 3,
+      "n": 4
+    },
+    {
+      "stem": "07-rain",
+      "prompt_win": true,
+      "mean_marked": 0.33808098792535246,
+      "mean_unmarked": -0.23387764646174408,
+      "mean_diff": 0.5719586343870966,
+      "marked_t0": 3,
+      "marked_nested": 3,
+      "n": 4
+    },
+    {
+      "stem": "08-letter",
+      "prompt_win": false,
+      "mean_marked": -0.8895232009100236,
+      "mean_unmarked": -0.5584854633276095,
+      "mean_diff": -0.33103773758241406,
+      "marked_t0": 0,
+      "marked_nested": 0,
+      "n": 4
+    },
+    {
+      "stem": "09-workshop",
+      "prompt_win": true,
+      "mean_marked": 0.537388210317776,
+      "mean_unmarked": -0.7697429124743087,
+      "mean_diff": 1.3071311227920845,
+      "marked_t0": 4,
+      "marked_nested": 4,
+      "n": 4
+    },
+    {
+      "stem": "10-office",
+      "prompt_win": true,
+      "mean_marked": 0.13719397014992182,
+      "mean_unmarked": -1.1075722977390678,
+      "mean_diff": 1.2447662678889897,
+      "marked_t0": 2,
+      "marked_nested": 2,
+      "n": 4
+    },
+    {
+      "stem": "11-garden",
+      "prompt_win": false,
+      "mean_marked": -0.870424718631362,
+      "mean_unmarked": -0.2533824133227711,
+      "mean_diff": -0.6170423053085908,
+      "marked_t0": 0,
+      "marked_nested": 0,
+      "n": 4
+    },
+    {
+      "stem": "12-ferry-queue",
+      "prompt_win": true,
+      "mean_marked": 0.436426226671142,
+      "mean_unmarked": -0.9022336954047248,
+      "mean_diff": 1.3386599220758668,
+      "marked_t0": 4,
+      "marked_nested": 4,
+      "n": 4
+    }
+  ],
+  "lock_c_losses": [
+    "08-letter",
+    "11-garden"
+  ],
+  "lock_c_ranking_without_isolated_tp": [
+    "02-night-bus",
+    "03-library",
+    "04-market"
+  ],
+  "lock_c_recovers_lock_a_isolated": [
+    "01-harbour",
+    "12-ferry-queue"
+  ],
+  "lock_c_36_losses": [
+    "03-library"
+  ],
+  "twelve_loo_rankpath_losses": [
+    "11-garden"
+  ],
+  "union_t0_marked_do_not_sell": 42,
+  "union_nested_marked_do_not_sell": 40
 }

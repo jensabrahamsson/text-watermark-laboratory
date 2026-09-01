@@ -8,3 +8,5 @@ Prompt ranking **8/12**. Nested Youden (train-LOO threshold)
 **23/48 vs 38/48**. Isolated recall does not beat recounted hard
 **25/48**. Prompt losses: harbour, night-bus, library, ferry-queue
 (see `stems.json`). Ferry-queue marked files are 0/4 above 0.
+The same table now also records lock C (letter, garden) and lock B
+(letter). Do not sell a union of the three locks.

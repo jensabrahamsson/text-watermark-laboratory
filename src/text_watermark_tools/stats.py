@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import math
 import random
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Mapping, Sequence
 
 
 @dataclass(frozen=True)
@@ -465,6 +466,69 @@ def format_coverage_gate(ev: CoverageGate, *, label: str = "") -> str:
         f"fp={ev.decided_fp} tn={ev.decided_tn} "
         f"precision={ev.precision:.3f} decided_acc={ev.decided_accuracy:.3f}"
     )
+
+
+def stem_transfer_rows(
+    files: Sequence[Mapping[str, object]],
+    nested_threshold: float,
+) -> list[dict]:
+    """Group already-saved holdout file LRs by stem.
+
+    Prompt win is mean marked LR > mean unmarked LR. ``marked_t0`` is
+    hard ``lr > 0``. ``marked_nested`` uses the train-LOO Youden
+    threshold passed in. Not a new scorer. Does not consult keys.
+    """
+    by: dict[str, dict[str, list[float]]] = defaultdict(
+        lambda: {"marked": [], "unmarked": []}
+    )
+    for row in files:
+        stem = str(row["stem"])
+        lr = float(row["lr"])
+        name = str(row["file"])
+        side = "unmarked" if "unmarked" in name else "marked"
+        by[stem][side].append(lr)
+    rows: list[dict] = []
+    for stem in sorted(by):
+        marked = by[stem]["marked"]
+        unmarked = by[stem]["unmarked"]
+        if not marked or not unmarked:
+            raise ValueError(f"stem {stem!r} is missing a marked or unmarked side")
+        mean_marked = _mean(marked)
+        mean_unmarked = _mean(unmarked)
+        rows.append(
+            {
+                "stem": stem,
+                "prompt_win": mean_marked > mean_unmarked,
+                "mean_marked": mean_marked,
+                "mean_unmarked": mean_unmarked,
+                "mean_diff": mean_marked - mean_unmarked,
+                "marked_t0": sum(1 for x in marked if x > 0.0),
+                "marked_nested": sum(1 for x in marked if x > nested_threshold),
+                "n": len(marked),
+            }
+        )
+    return rows
+
+
+def stem_prompt_losses(rows: Sequence[Mapping[str, object]]) -> list[str]:
+    """Stems whose marked mean LR does not beat unmarked mean LR."""
+    return [str(r["stem"]) for r in rows if not r["prompt_win"]]
+
+
+def stem_ranking_without_isolated_tp(
+    rows: Sequence[Mapping[str, object]],
+) -> list[str]:
+    """Prompt-ranking wins with no marked file above 0.
+
+    Those stems rank because unmarked LRs are more negative, not because
+    any isolated marked file signs. Do not read prompt wins as isolated
+    recall.
+    """
+    return [
+        str(r["stem"])
+        for r in rows
+        if r["prompt_win"] and int(r["marked_t0"]) == 0
+    ]
 
 
 def binary_eval_to_dict(ev: BinaryEval) -> dict:

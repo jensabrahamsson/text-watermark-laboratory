@@ -266,6 +266,27 @@ accuracy is the same **68/96**. Extra stems add 3 TPs and 3 FPs.
 Nested FPR10 is 11/48 vs 47/48. Do not sell 28/48 as beating **29/48**
 or rankuni 39/48 as beating poshits **39/48** (16 unmarked FPs).
 
+## 100-family tables → original 12 (PROTOCOL-isolated lock C)
+
+Not a new scorer. Frozen `--methods rankpath --fit-prefix 4 --pos-bucket 1`
+on the 100 GPT-2 families, scored on the original 12×4 files.
+
+Prompt ranking **10/12**. Nested Youden **24/48 vs 41/48**. Isolated t=0
+**24/48 vs 40/48**. Does not beat recounted hard **25/48**.
+
+Prompt losses: **letter**, **garden**. Garden is also the 12-LOO
+opening-rankpath miss on these files. Letter is lock B's only miss.
+Lock C recovers harbour and ferry-queue (`The ferry` openings) that
+lock A interpolate missed (4/4 marked t=0). Three ranking wins have
+**0/4** marked files above 0: night-bus, library, market. Those stems
+rank because unmarked LRs are more negative — the rankpath analog of
+occupancy, not isolated-file recall. Do not sell a union of locks A/B/C
+(t=0 **42/48**, nested **40/48**). On the 36-topic pool the only prompt
+loss is library (Closing, different draws, still 0/4 marked t=0).
+
+JSON: [../experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/](../experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/),
+[../experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json](../experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json).
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff` with

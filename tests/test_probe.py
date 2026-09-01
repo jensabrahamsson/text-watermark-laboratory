@@ -16,7 +16,14 @@ from text_watermark_tools.probe import (
     run_transfer,
     shuffle_twin_sides,
 )
-from text_watermark_tools.stats import binary_eval, binomial_sf, coverage_gate
+from text_watermark_tools.stats import (
+    binary_eval,
+    binomial_sf,
+    coverage_gate,
+    stem_prompt_losses,
+    stem_ranking_without_isolated_tp,
+    stem_transfer_rows,
+)
 
 PAIR = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-17-pair"
 HOLD = (
@@ -1284,6 +1291,97 @@ def test_protocol_isolated_lock_a_12x4_losses_are_not_the_loo_trio() -> None:
     assert "10-office" not in stems["lock_a_losses"]
     ferry = next(r for r in stems["lock_a"] if r["stem"] == "12-ferry-queue")
     assert ferry["marked_t0"] == 0
+
+
+def test_protocol_isolated_lock_c_12x4_losses_are_letter_and_garden() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    stems = json.loads(
+        (root / "2026-09-01-transfer-100x4-to-12x4-hard-last4" / "stems.json").read_text()
+    )
+    holdout = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-rankpath"
+            / "rankpath"
+            / "holdout.json"
+        ).read_text()
+    )
+    results = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    nested = _transfer_threshold(results, "rankpath", "nested-youden")
+    rows = stem_transfer_rows(holdout["files"], nested["train_youden"])
+    assert stems["used_keys"] is False
+    assert holdout["used_keys"] is False
+    assert stems["lock_c"] == rows
+    assert stems["lock_c_losses"] == ["08-letter", "11-garden"]
+    assert stems["lock_c_losses"] == stem_prompt_losses(rows)
+    # Not lock A harbour/night-bus/library/ferry-queue, not 12-LOO hard trio.
+    assert "01-harbour" not in stems["lock_c_losses"]
+    assert "12-ferry-queue" not in stems["lock_c_losses"]
+    assert "06-station" not in stems["lock_c_losses"]
+    assert "10-office" not in stems["lock_c_losses"]
+    assert stems["lock_c_ranking_without_isolated_tp"] == [
+        "02-night-bus",
+        "03-library",
+        "04-market",
+    ]
+    assert stems["lock_c_ranking_without_isolated_tp"] == (
+        stem_ranking_without_isolated_tp(rows)
+    )
+    # Three ranking wins have 0 isolated TPs; 10/12 is not 10 isolated stems.
+    assert len(stems["lock_c_ranking_without_isolated_tp"]) == 3
+    assert stems["lock_c_recovers_lock_a_isolated"] == [
+        "01-harbour",
+        "12-ferry-queue",
+    ]
+    harbour = next(r for r in rows if r["stem"] == "01-harbour")
+    ferry = next(r for r in rows if r["stem"] == "12-ferry-queue")
+    assert harbour["marked_t0"] == 4
+    assert ferry["marked_t0"] == 4
+    # Garden is also the 12-LOO opening-rankpath miss.
+    loo = json.loads(
+        (
+            root
+            / "2026-09-01-probe-12x4-recount-opening-rankpath"
+            / "rankpath"
+            / "holdout.json"
+        ).read_text()
+    )
+    loo_rows = stem_transfer_rows(loo["files"], 0.0)
+    assert stems["twelve_loo_rankpath_losses"] == ["11-garden"]
+    assert stem_prompt_losses(loo_rows) == ["11-garden"]
+    pool = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-36x4-opening-rankpath"
+            / "rankpath"
+            / "holdout.json"
+        ).read_text()
+    )
+    pool_results = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-36x4-opening-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    pool_nested = _transfer_threshold(pool_results, "rankpath", "nested-youden")
+    pool_rows = stem_transfer_rows(pool["files"], pool_nested["train_youden"])
+    assert stems["lock_c_36_losses"] == ["03-library"]
+    assert stem_prompt_losses(pool_rows) == ["03-library"]
+    library36 = next(r for r in pool_rows if r["stem"] == "03-library")
+    assert library36["marked_t0"] == 0
+    # Complementarity is not a detector. Do not sell a union of A/B/C.
+    assert stems["union_t0_marked_do_not_sell"] == 42
+    assert stems["union_nested_marked_do_not_sell"] == 40
+    assert stems["union_t0_marked_do_not_sell"] > 25
+    assert nested["n_marked_above"] == 24
+    assert nested["n_marked_above"] < 25
 
 
 def test_protocol_isolated_opening_overlap_matches_occupancy_free() -> None:
