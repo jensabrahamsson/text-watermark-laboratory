@@ -18,7 +18,7 @@ fit key-free token/context statistics
 evaluate held-out prompts
 ```
 
-That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. In-family nested-by-stem Youden on that corpus is **322/400 vs 338/400** (lock A) and **392/400 vs 382/400** (lock B, occupancy). Out-of-family isolated transfer: [../research/PROTOCOL-isolated.md](../research/PROTOCOL-isolated.md). Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
+That progression produced the repository's key result: a **key-free indicator for watermark presence**. After correcting truncated-context overcount, hard last-4 ranks held-out prompt groups **9/12** times, or **10/12** under the documented 0.02 comparison margin. Isolated hard sign is **25/48**. Occupancy-free hashing on this corpus is closed (width, seed, last-k). The pre-fix **10/12** / **29/48** stay in historical JSON; they overweighted openings. Frozen lock A on 100 new GPT-2 families is **99/100**; that does not replace **25/48**. In-family nested-by-stem Youden on that corpus is **322/400 vs 338/400** (lock A) and **392/400 vs 382/400** (lock B, occupancy). Out-of-family isolated transfer: [../research/PROTOCOL-isolated.md](../research/PROTOCOL-isolated.md) (lock A nested Youden **23/48** does not beat **25/48**; occupancy-free **16/48**; opening-overlap **18/48** covered on the original 12). Headlines vs ablations: [../research/results-ledger.md](../research/results-ledger.md). Next corpus Phase B: [../research/PROTOCOL-next.md](../research/PROTOCOL-next.md).
 
 ## Main runs
 
@@ -214,6 +214,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-100x4-to-12x4-opening-poshits/` | 100 families → original 12×4 lock B | **11/12**, nested Youden **36/48 vs 42/48**; occupancy-free **16/48 vs 48/48** |
 | `2026-09-01-transfer-100x4-to-36x4-hard-last4/` | 100 families → 36×4 lock A | **36/36**, nested Youden **109/144 vs 122/144** |
 | `2026-09-01-transfer-100x4-to-36x4-opening-poshits/` | 100 families → 36×4 lock B | **35/36**, nested Youden **134/144 vs 129/144**; occupancy-free **114/144 vs 139/144** |
+| `2026-09-01-openings-100x4-to-12x4/` | Opening-overlap bound, 100→12 | postokhits covered **18/48**, exact **14/48**, decided 16/0 |
+| `2026-09-01-openings-100x4-to-36x4/` | Opening-overlap bound, 100→36 | postokhits covered **117/144**, exact **103/144**, decided 114/5 |
 
 ## What changed across the runs
 

@@ -200,6 +200,28 @@ split. Occupancy-free postokhits on those same tables is **114/144 vs
 139/144**; 20 occupancy marked TPs. Shared observed openings
 (`"This is the"`) are register overlap, not a universal detector.
 
+Opening-overlap bound on the same 100-family observed-token tables
+(not a new `probe --methods` name):
+
+```bash
+python -m text_watermark_tools openings experiments/2026-09-01-pair-100x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 --methods postokhits --skip-stem-curve \
+  --out-dir experiments/2026-09-01-openings-100x4-to-12x4
+
+python -m text_watermark_tools openings experiments/2026-09-01-pair-100x4 \
+  --test-dir experiments/2026-08-31-pair-36x4 \
+  --fit-prefix 4 --pos-bucket 1 --methods postokhits --skip-stem-curve \
+  --out-dir experiments/2026-09-01-openings-100x4-to-36x4
+```
+
+Original 12×4 **18/48** covered (14 exact 4-token copies; decided
+precision 1.000). 36×4 **117/144** covered (103 exact). Isolated
+postokhits t=0 is 16/48 and 114/144: coverage minus a few negative
+observed-token LRs. JSON:
+`experiments/2026-09-01-openings-100x4-to-12x4/`,
+`experiments/2026-09-01-openings-100x4-to-36x4/`.
+
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,

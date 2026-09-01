@@ -1178,4 +1178,20 @@ Lock A 12×4 prompt losses are harbour, night-bus, library, ferry-queue
 only. JSON:
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
 
+## 2026-09-01 opening-overlap bound on the 100-family tables
+
+`openings` `--methods postokhits --skip-stem-curve`. Isolated
+observed-token recall equals train opening coverage.
+
+- Original 12×4: covered **18/48**, exact 4-token **14/48**, decided
+  16 TP / 0 FP. Occupancy-free t=0 **16/48 vs 48/48**.
+- 36×4: covered **117/144**, exact 4-token **103/144**, decided 114 TP
+  / 5 FP. Occupancy-free t=0 **114/144 vs 139/144**.
+
+Zeros on the original 12 are `The ferry` / `Closing` / `The dog` /
+`The printer` openings the 100 one-liners do not produce. Do not sell
+18/48 or 117/144 as replacing **25/48**. JSON:
+`experiments/2026-09-01-openings-100x4-to-12x4/`,
+`experiments/2026-09-01-openings-100x4-to-36x4/`.
+
 ---

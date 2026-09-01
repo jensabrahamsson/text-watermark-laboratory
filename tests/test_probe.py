@@ -1197,6 +1197,45 @@ def test_protocol_isolated_lock_a_12x4_losses_are_not_the_loo_trio() -> None:
     assert ferry["marked_t0"] == 0
 
 
+def test_protocol_isolated_opening_overlap_matches_occupancy_free() -> None:
+    root = Path(__file__).resolve().parents[1] / "experiments"
+    bound12 = json.loads(
+        (root / "2026-09-01-openings-100x4-to-12x4" / "coverage.json").read_text()
+    )
+    bound36 = json.loads(
+        (root / "2026-09-01-openings-100x4-to-36x4" / "coverage.json").read_text()
+    )
+    occ12 = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-12x4-opening-poshits"
+            / "occupancy-free.json"
+        ).read_text()
+    )
+    occ36 = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100x4-to-36x4-opening-poshits"
+            / "occupancy-free.json"
+        ).read_text()
+    )
+    g12 = bound12["final"]["postokhits"]["coverage_gate"]
+    g36 = bound36["final"]["postokhits"]["coverage_gate"]
+    assert bound12["used_keys"] is False
+    assert bound36["used_keys"] is False
+    assert bound12["final"]["postokhits"]["n_covered"] == 18
+    assert bound12["final"]["postokhits"]["n_exact_opening"] == 14
+    assert g12["decided_tp"] == 16
+    assert g12["decided_fp"] == 0
+    assert g12["decided_tp"] == occ12["postokhits_t0_marked_above"]
+    assert bound36["final"]["postokhits"]["n_covered"] == 117
+    assert bound36["final"]["postokhits"]["n_exact_opening"] == 103
+    assert g36["decided_tp"] == 114
+    assert g36["decided_tp"] == occ36["postokhits_t0_marked_above"]
+    # Isolated observed-token recall is opening overlap, not 25/48.
+    assert bound12["final"]["postokhits"]["n_covered"] < 25
+
+
 def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None:
     from text_watermark_tools.stats import nested_threshold_by_stem
 

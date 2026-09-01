@@ -131,8 +131,14 @@ readout of the frozen lock B tables (same fit, postokhits): original
 The 36-topic nested Youden is out-of-family but same one-line register;
 it does not replace **25/48**. Occupancy TPs are not observed-token TPs.
 
+Opening-overlap bound (same observed-token tables, not a new scorer):
+12×4 **18/48** covered (decided 16/0); 36×4 **117/144** covered
+(decided 114/5). Isolated postokhits t=0 matches those decided TPs.
+
 JSON: `experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
 `experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
-`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`,
+`experiments/2026-09-01-openings-100x4-to-12x4/`,
+`experiments/2026-09-01-openings-100x4-to-36x4/`.
 
