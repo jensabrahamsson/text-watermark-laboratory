@@ -332,3 +332,13 @@ leftover. Do not sell 10/20 or 15/28. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
 
+## Headline 12-LOO mask-*k* (hard vs interpolate)
+
+Protocol SHA `004397c`. `used_keys=false`. Hard prefix **0:4** is
+**5/12**; tails **4:128** / **8:128** stay **9/12**. Interpolate tails
+drop to **5/12** then **3/12**. Isolated t=0 stays chance-like. The
+headline hard **9/12** is not an opening-only n-gram artifact. Do not
+sell prefix 10/12 or tail 9/12. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+

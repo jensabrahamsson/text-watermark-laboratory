@@ -121,6 +121,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Opening-coverage union, 100 ∪ grok36 → original 12 | disjoint **28/48** (18+10, leftover 20); mixed coverage **28/48**; t=0 **26/48**; interpolate nested **27/48**; not **25/48** |
 | Mixed rankpath leftover 20 | marked **12/20**, unmarked ≤0 **14/20**; full nested **35/48** includes coverage; not **25/48** |
 | In-domain 25/48 leftover vs covered | leftover **10/20 vs 11/20**, covered **15/28 vs 11/28**; 10+15=25; leftover chance; not **25/48** |
+| Headline 12-LOO mask-*k* | hard 0:4 **5/12**, tails **9/12**; interpolate tails **5/12** then **3/12**; not **25/48** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

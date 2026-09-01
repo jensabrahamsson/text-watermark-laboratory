@@ -128,8 +128,10 @@ rankpath misses are letter-2 (`Now in the second`), office-4, garden
 
 Spatial ablation of the **headline** 12-LOO hard last-4 scorer (mask
 first *k* generated tokens with existing `--windows`) is
-[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). That is Gemini
-Loop 2.1 on the locked reader, not a new method name.
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). Opened: hard
+prefix **0:4** is **5/12**; tails **4:128** and **8:128** stay **9/12**.
+Interpolate is front-loaded; hard is not. Isolated t=0 stays chance-like.
+Do not sell prefix **10/12** or tail **9/12**.
 
 ## What this freeze refuses
 

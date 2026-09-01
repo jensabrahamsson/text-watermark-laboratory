@@ -1517,4 +1517,16 @@ chance-like. Do not write a “key-free detection fails” paper. Do not
 look at 12-LOO `--windows` LRs until this line is on origin. Do not
 write `thesis/`.
 
+## 2026-09-01 headline 12-LOO mask-k windows opened
+
+SHA `004397c`. `used_keys=false`. Hard prefix 0:4 is **5/12**; tails
+4:128 and 8:128 stay **9/12**. Interpolate tails drop to **5/12** then
+**3/12**. Isolated t=0 stays chance-like. H-mask-open and H-mask-tail
+fail for hard. H-mask-iso holds. The headline hard 9/12 is not an
+opening-only n-gram artifact. Do not sell prefix 10/12, isolated 29/48,
+or tail 9/12. Nothing replaces **25/48**. Isolated-file detection is
+still not finished.
+
+JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
 ---

@@ -109,4 +109,32 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `004397c`. `used_keys=false`. Full-file hard remains **9/12**,
+isolated **25/48**.
+
+| Window | Hard prompt | Hard isolated | Interpolate prompt | Interpolate isolated |
+|---|---|---|---|---|
+| 0:2 | **10/12** | 27/48 vs 31/48 | **9/12** | 31/48 vs 31/48 |
+| 0:4 | **5/12** | 29/48 vs 26/48 | **9/12** | 30/48 vs 27/48 |
+| 0:8 | **6/12** | 33/48 vs 25/48 | **8/12** | 31/48 vs 30/48 |
+| 2:128 | **9/12** | 29/48 vs 23/48 | **5/12** | 21/48 vs 25/48 |
+| 4:128 | **9/12** | 27/48 vs 22/48 | **5/12** | 20/48 vs 26/48 |
+| 8:128 | **9/12** | 29/48 vs 23/48 | **3/12** | 19/48 vs 24/48 |
+
+H-mask-open **fails** for hard: prefix 0:4 is **5/12**, not ≥8/12. Interpolate
+0:4 is **9/12** (front-loaded on interpolate only).
+
+H-mask-tail **fails** for hard: 4:128 and 8:128 stay **9/12**. Interpolate
+tails drop to **5/12** then **3/12**.
+
+H-mask-2 **fails as stated** for hard: 0:2 is **stronger** than 0:4
+(10/12 vs 5/12), and 2:128 matches full-file rank. Interpolate 2:128 is
+5/12 vs full-file 7/12.
+
+H-mask-iso **holds**. Isolated t=0 stays chance-like. Do not sell prefix
+10/12, isolated 27/48 / 29/48 / 31/48 / 33/48, or tail **9/12**. The
+headline 12-LOO **hard** 9/12 is not an opening-only n-gram artifact.
+Grok12 `'The'→' car'` is a different split. Isolated-file detection is
+not finished.
+
+JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.

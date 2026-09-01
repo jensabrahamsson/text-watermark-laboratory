@@ -19,7 +19,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-leftover.md](PROTOCOL-isolated-leftover.md) | Mixed opening rankpath leftover **12/20 vs 14/20**; do not sell full **35/48** |
 | [PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md) | In-domain 25/48 = leftover **10/20 vs 11/20** + covered **15/28**; leftover chance; not **25/48** |
 | [narrative.md](narrative.md) | Two-grain story lock; rejects a “key-free detection fails” title; not `thesis/` |
-| [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) | 12-LOO hard/interpolate `--windows` mask-*k*; freeze before LRs |
+| [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) | 12-LOO hard 0:4 **5/12**; tails **9/12**; interpolate front-loaded; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
