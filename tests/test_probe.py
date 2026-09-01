@@ -2003,3 +2003,67 @@ def test_prefix8_backoff_extra_tps_are_last1_not_5grams() -> None:
     assert gate.n_marked_zero == 30
     assert abs(gate.precision - 0.9) < 1e-9
 
+
+def test_prefix5_hashtok_letter_d2_is_occupancy_not_observed() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtok"
+    )
+    hp = holdout_from_json(root / "hashpool" / "holdout.json")
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    tok = holdout_from_json(root / "postokhits" / "holdout.json")
+    trace = json.loads((root / "occupancy-trace.json").read_text())
+    assert hp.used_keys is False
+    assert ht.used_keys is False
+    assert hp.n_prompts_marked_above == 11
+    assert hp.n_marked_positive == 34
+    assert hp.n_unmarked_nonpositive == 34
+    assert ht.n_prompts_marked_above == 9
+    assert ht.n_marked_positive == 30
+    assert ht.n_unmarked_nonpositive == 36
+    assert tok.n_marked_positive == 30
+    hp_pos = {
+        (s, samp)
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+        if m > 0
+    }
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    tok_pos = {
+        (s, samp)
+        for s, samp, m in zip(tok.stems, tok._samples(), tok.marked_lrs)
+        if m > 0
+    }
+    assert ht_pos == tok_pos
+    assert hp_pos - ht_pos == {
+        ("01-harbour", 2),
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("08-letter", 2),
+    }
+    by_hp = {
+        (s, samp): m
+        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
+    }
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+    }
+    assert by_hp[("08-letter", 2)] > 0
+    assert by_ht[("08-letter", 2)] == 0
+    assert trace["used_keys"] is False
+    assert trace["letter_d2"]["hashtok"]["n_used"] == 0
+    fifth = trace["letter_d2"]["fifth_token"]
+    assert fifth["n_hashes_seen"] == 0
+    assert fifth["hashtok_delta"] is None
+    assert fifth["hashpool_delta"] > 0
+    assert all(row["n_hashes_seen"] == 0 for row in trace["letter_d2"]["trace"])
+    assert trace["marked_tp_sets"]["hashtok_equals_postokhits"] is True
+
+

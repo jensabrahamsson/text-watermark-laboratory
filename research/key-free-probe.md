@@ -71,7 +71,10 @@ Prompt-level misses:
 - hashpool: *letter*
 
 `hits` and `hashpool` fail different prompts. That is recorded; it is not a
-claimed 12/12 ensemble.
+claimed 12/12 ensemble. `hashtok` is occupancy-free hashpool (tokhits on
+collisions). On 60-stem prefix-5 it copies postokhits' 30 true positives;
+hashpool's extra four, including letter d2's official 5-gram, are Laplace.
+See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)
 
@@ -519,6 +522,9 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
 
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --method hashpool --out-dir experiments/indicator-gpt2-hashpool
+
+python -m text_watermark_tools indicate score FILE.txt \
+  --tables experiments/indicator-gpt2-hashpool --score-mode hashtok
 
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
   --test-dir experiments/2026-08-17-pair-qwen \

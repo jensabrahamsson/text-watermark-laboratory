@@ -1,0 +1,1010 @@
+{
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "fit_prefix": 5,
+  "n_train_prompts": 60,
+  "note": "60-stem prefix-5 hashpool vs hashtok. hashpool never abstains (occupancy Laplace). hashtok skips hashes whose bucket never produced the observed next token. Not key recovery. Do not sell hashpool 34/48 or hashtok 30/48 as beating poshits 39/48.",
+  "headline": {
+    "hashpool": {
+      "prompt": "11/12",
+      "marked": "34/48",
+      "unmarked": "34/48",
+      "zeros_marked": 0,
+      "zeros_unmarked": 0
+    },
+    "hashtok": {
+      "prompt": "9/12",
+      "marked": "30/48",
+      "unmarked": "36/48",
+      "zeros_marked": 5,
+      "zeros_unmarked": 11
+    },
+    "hybrid": {
+      "prompt": "9/12",
+      "marked": "31/48",
+      "unmarked": "33/48"
+    },
+    "postokhits": {
+      "prompt": "10/12",
+      "marked": "30/48",
+      "unmarked": "45/48",
+      "precision": 0.909
+    },
+    "postokbackoff2": {
+      "prompt": "12/12",
+      "marked": "15/48",
+      "unmarked": "46/48"
+    }
+  },
+  "occupancy_only_marked_tps": [
+    {
+      "stem": "01-harbour",
+      "sample": 2,
+      "hashpool": 0.05910082838051178,
+      "hashtok": -0.23294962467065172,
+      "hybrid": -0.2855746428602508,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "01-harbour",
+      "sample": 3,
+      "hashpool": 0.15239850766412483,
+      "hashtok": -0.2027548542131341,
+      "hybrid": -0.1922769635766377,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "01-harbour",
+      "sample": 4,
+      "hashpool": 0.15239850766412483,
+      "hashtok": -0.2027548542131341,
+      "hybrid": -0.1922769635766377,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "08-letter",
+      "sample": 2,
+      "hashpool": 0.3723159023830483,
+      "hashtok": 0.0,
+      "hybrid": 0.3722779437284523,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    }
+  ],
+  "hashtok_marked_zeros": [
+    {
+      "stem": "06-station",
+      "sample": 4,
+      "hashpool": -0.11364426604927616,
+      "hashtok": 0.0,
+      "postokhits": 0.0
+    },
+    {
+      "stem": "08-letter",
+      "sample": 2,
+      "hashpool": 0.3723159023830483,
+      "hashtok": 0.0,
+      "postokhits": 0.0
+    },
+    {
+      "stem": "10-office",
+      "sample": 1,
+      "hashpool": -0.2111312635487288,
+      "hashtok": 0.0,
+      "postokhits": 0.0
+    },
+    {
+      "stem": "10-office",
+      "sample": 3,
+      "hashpool": -0.2111312635487288,
+      "hashtok": 0.0,
+      "postokhits": 0.0
+    },
+    {
+      "stem": "10-office",
+      "sample": 4,
+      "hashpool": -0.4255662723928052,
+      "hashtok": 0.0,
+      "postokhits": 0.0
+    }
+  ],
+  "leftover8": [
+    {
+      "stem": "01-harbour",
+      "sample": 3,
+      "hashpool": 0.15239850766412483,
+      "hashtok": -0.2027548542131341,
+      "hybrid": -0.1922769635766377,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "01-harbour",
+      "sample": 4,
+      "hashpool": 0.15239850766412483,
+      "hashtok": -0.2027548542131341,
+      "hybrid": -0.1922769635766377,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "06-station",
+      "sample": 4,
+      "hashpool": -0.11364426604927616,
+      "hashtok": 0.0,
+      "hybrid": -0.18366666512301136,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "08-letter",
+      "sample": 2,
+      "hashpool": 0.3723159023830483,
+      "hashtok": 0.0,
+      "hybrid": 0.3722779437284523,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "08-letter",
+      "sample": 3,
+      "hashpool": -0.1761974563247235,
+      "hashtok": -0.1641965758768238,
+      "hybrid": -0.1761974563247235,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "10-office",
+      "sample": 1,
+      "hashpool": -0.2111312635487288,
+      "hashtok": 0.0,
+      "hybrid": -0.281153662622464,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "10-office",
+      "sample": 3,
+      "hashpool": -0.2111312635487288,
+      "hashtok": 0.0,
+      "hybrid": -0.281153662622464,
+      "postokhits": 0.0,
+      "postokbackoff2": 0.0
+    },
+    {
+      "stem": "12-ferry-queue",
+      "sample": 4,
+      "hashpool": -0.4968052420778607,
+      "hashtok": -1.4389052574939707,
+      "hybrid": -0.8414807133186233,
+      "postokhits": -2.6546646567835674,
+      "postokbackoff2": 0.0
+    }
+  ],
+  "letter_d2": {
+    "file": "08-letter-marked-2.txt",
+    "ids": [
+      3844,
+      287,
+      262,
+      1218,
+      314
+    ],
+    "pieces": [
+      "Now",
+      " in",
+      " the",
+      " second",
+      " I"
+    ],
+    "hashpool": {
+      "lr": 0.3723159023830483,
+      "n_used": 4,
+      "n_positions": 4
+    },
+    "hashtok": {
+      "lr": 0.0,
+      "n_used": 0,
+      "n_positions": 4
+    },
+    "holdout_hashpool": 0.3723159023830483,
+    "holdout_hashtok": 0.0,
+    "fifth_token": {
+      "i": 4,
+      "tok": 314,
+      "piece": " I",
+      "ctx_pieces": [
+        "Now",
+        " in",
+        " the",
+        " second"
+      ],
+      "n_hashes_seen": 0,
+      "c_m": 0,
+      "c_u": 0,
+      "hashtok_delta": null,
+      "hashpool_delta": 0.31459757816318157,
+      "hashes": [
+        {
+          "h": 0,
+          "bucket": 234,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 1,
+          "bucket": 45,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 2,
+          "bucket": 187,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 3,
+          "bucket": 118,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 4,
+          "bucket": 61,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 5,
+          "bucket": 196,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 6,
+          "bucket": 111,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        },
+        {
+          "h": 7,
+          "bucket": 190,
+          "c_m": 0,
+          "c_u": 0,
+          "seen": false
+        }
+      ]
+    },
+    "trace": [
+      {
+        "i": 1,
+        "tok": 287,
+        "ctx": [
+          3844
+        ],
+        "n_hashes_seen": 0,
+        "n_hashes": 8,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashpool_delta": 0.00015183461838375045,
+        "hashes": [
+          {
+            "h": 0,
+            "bucket": 215,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 1,
+            "bucket": 159,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 2,
+            "bucket": 45,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 3,
+            "bucket": 145,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 4,
+            "bucket": 195,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 5,
+            "bucket": 111,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 6,
+            "bucket": 31,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 7,
+            "bucket": 87,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          }
+        ],
+        "piece": " in",
+        "ctx_pieces": [
+          "Now"
+        ]
+      },
+      {
+        "i": 2,
+        "tok": 262,
+        "ctx": [
+          3844,
+          287
+        ],
+        "n_hashes_seen": 0,
+        "n_hashes": 8,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashpool_delta": 0.6623796287196004,
+        "hashes": [
+          {
+            "h": 0,
+            "bucket": 83,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 1,
+            "bucket": 46,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 2,
+            "bucket": 201,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 3,
+            "bucket": 53,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 4,
+            "bucket": 62,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 5,
+            "bucket": 31,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 6,
+            "bucket": 19,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 7,
+            "bucket": 225,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          }
+        ],
+        "piece": " the",
+        "ctx_pieces": [
+          "Now",
+          " in"
+        ]
+      },
+      {
+        "i": 3,
+        "tok": 1218,
+        "ctx": [
+          3844,
+          287,
+          262
+        ],
+        "n_hashes_seen": 0,
+        "n_hashes": 8,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashpool_delta": 0.5121345680310273,
+        "hashes": [
+          {
+            "h": 0,
+            "bucket": 223,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 1,
+            "bucket": 104,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 2,
+            "bucket": 89,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 3,
+            "bucket": 185,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 4,
+            "bucket": 4,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 5,
+            "bucket": 85,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 6,
+            "bucket": 187,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 7,
+            "bucket": 44,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          }
+        ],
+        "piece": " second",
+        "ctx_pieces": [
+          "Now",
+          " in",
+          " the"
+        ]
+      },
+      {
+        "i": 4,
+        "tok": 314,
+        "ctx": [
+          3844,
+          287,
+          262,
+          1218
+        ],
+        "n_hashes_seen": 0,
+        "n_hashes": 8,
+        "c_m": 0,
+        "c_u": 0,
+        "delta": null,
+        "hashpool_delta": 0.31459757816318157,
+        "hashes": [
+          {
+            "h": 0,
+            "bucket": 234,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 1,
+            "bucket": 45,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 2,
+            "bucket": 187,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 3,
+            "bucket": 118,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 4,
+            "bucket": 61,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 5,
+            "bucket": 196,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 6,
+            "bucket": 111,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          },
+          {
+            "h": 7,
+            "bucket": 190,
+            "c_m": 0,
+            "c_u": 0,
+            "seen": false
+          }
+        ],
+        "piece": " I",
+        "ctx_pieces": [
+          "Now",
+          " in",
+          " the",
+          " second"
+        ]
+      }
+    ],
+    "note": "All four prefix-5 positions have n_hashes_seen=0. hashpool lr=0.372 is Laplace occupancy, including the official 5-gram Now in the second I. hashtok abstains (n_used=0). hybrid copies hashpool."
+  },
+  "marked_tp_sets": {
+    "hashpool": [
+      [
+        "01-harbour",
+        2
+      ],
+      [
+        "01-harbour",
+        3
+      ],
+      [
+        "01-harbour",
+        4
+      ],
+      [
+        "02-night-bus",
+        1
+      ],
+      [
+        "02-night-bus",
+        2
+      ],
+      [
+        "02-night-bus",
+        3
+      ],
+      [
+        "02-night-bus",
+        4
+      ],
+      [
+        "04-market",
+        1
+      ],
+      [
+        "04-market",
+        2
+      ],
+      [
+        "04-market",
+        3
+      ],
+      [
+        "04-market",
+        4
+      ],
+      [
+        "05-kitchen",
+        1
+      ],
+      [
+        "05-kitchen",
+        2
+      ],
+      [
+        "05-kitchen",
+        3
+      ],
+      [
+        "05-kitchen",
+        4
+      ],
+      [
+        "06-station",
+        1
+      ],
+      [
+        "06-station",
+        2
+      ],
+      [
+        "06-station",
+        3
+      ],
+      [
+        "07-rain",
+        1
+      ],
+      [
+        "07-rain",
+        2
+      ],
+      [
+        "07-rain",
+        3
+      ],
+      [
+        "07-rain",
+        4
+      ],
+      [
+        "08-letter",
+        1
+      ],
+      [
+        "08-letter",
+        2
+      ],
+      [
+        "08-letter",
+        4
+      ],
+      [
+        "09-workshop",
+        1
+      ],
+      [
+        "09-workshop",
+        2
+      ],
+      [
+        "09-workshop",
+        3
+      ],
+      [
+        "09-workshop",
+        4
+      ],
+      [
+        "10-office",
+        2
+      ],
+      [
+        "11-garden",
+        1
+      ],
+      [
+        "11-garden",
+        2
+      ],
+      [
+        "11-garden",
+        3
+      ],
+      [
+        "11-garden",
+        4
+      ]
+    ],
+    "hashtok": [
+      [
+        "02-night-bus",
+        1
+      ],
+      [
+        "02-night-bus",
+        2
+      ],
+      [
+        "02-night-bus",
+        3
+      ],
+      [
+        "02-night-bus",
+        4
+      ],
+      [
+        "04-market",
+        1
+      ],
+      [
+        "04-market",
+        2
+      ],
+      [
+        "04-market",
+        3
+      ],
+      [
+        "04-market",
+        4
+      ],
+      [
+        "05-kitchen",
+        1
+      ],
+      [
+        "05-kitchen",
+        2
+      ],
+      [
+        "05-kitchen",
+        3
+      ],
+      [
+        "05-kitchen",
+        4
+      ],
+      [
+        "06-station",
+        1
+      ],
+      [
+        "06-station",
+        2
+      ],
+      [
+        "06-station",
+        3
+      ],
+      [
+        "07-rain",
+        1
+      ],
+      [
+        "07-rain",
+        2
+      ],
+      [
+        "07-rain",
+        3
+      ],
+      [
+        "07-rain",
+        4
+      ],
+      [
+        "08-letter",
+        1
+      ],
+      [
+        "08-letter",
+        4
+      ],
+      [
+        "09-workshop",
+        1
+      ],
+      [
+        "09-workshop",
+        2
+      ],
+      [
+        "09-workshop",
+        3
+      ],
+      [
+        "09-workshop",
+        4
+      ],
+      [
+        "10-office",
+        2
+      ],
+      [
+        "11-garden",
+        1
+      ],
+      [
+        "11-garden",
+        2
+      ],
+      [
+        "11-garden",
+        3
+      ],
+      [
+        "11-garden",
+        4
+      ]
+    ],
+    "postokhits": [
+      [
+        "02-night-bus",
+        1
+      ],
+      [
+        "02-night-bus",
+        2
+      ],
+      [
+        "02-night-bus",
+        3
+      ],
+      [
+        "02-night-bus",
+        4
+      ],
+      [
+        "04-market",
+        1
+      ],
+      [
+        "04-market",
+        2
+      ],
+      [
+        "04-market",
+        3
+      ],
+      [
+        "04-market",
+        4
+      ],
+      [
+        "05-kitchen",
+        1
+      ],
+      [
+        "05-kitchen",
+        2
+      ],
+      [
+        "05-kitchen",
+        3
+      ],
+      [
+        "05-kitchen",
+        4
+      ],
+      [
+        "06-station",
+        1
+      ],
+      [
+        "06-station",
+        2
+      ],
+      [
+        "06-station",
+        3
+      ],
+      [
+        "07-rain",
+        1
+      ],
+      [
+        "07-rain",
+        2
+      ],
+      [
+        "07-rain",
+        3
+      ],
+      [
+        "07-rain",
+        4
+      ],
+      [
+        "08-letter",
+        1
+      ],
+      [
+        "08-letter",
+        4
+      ],
+      [
+        "09-workshop",
+        1
+      ],
+      [
+        "09-workshop",
+        2
+      ],
+      [
+        "09-workshop",
+        3
+      ],
+      [
+        "09-workshop",
+        4
+      ],
+      [
+        "10-office",
+        2
+      ],
+      [
+        "11-garden",
+        1
+      ],
+      [
+        "11-garden",
+        2
+      ],
+      [
+        "11-garden",
+        3
+      ],
+      [
+        "11-garden",
+        4
+      ]
+    ],
+    "hashtok_equals_postokhits": true,
+    "hashpool_minus_hashtok": [
+      [
+        "01-harbour",
+        2
+      ],
+      [
+        "01-harbour",
+        3
+      ],
+      [
+        "01-harbour",
+        4
+      ],
+      [
+        "08-letter",
+        2
+      ]
+    ]
+  }
+}

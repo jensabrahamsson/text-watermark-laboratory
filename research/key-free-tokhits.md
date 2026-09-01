@@ -384,4 +384,9 @@ unmarked LRs).
   Unbucketed full-file rank-path is chance; a four-symbol prefix transfers
   **11/12 / 25/48 vs 43/48**. They are not 29/48 and not a calibrated
   detector. See [key-free-rankpath.md](key-free-rankpath.md).
+- Feature-hashed contexts (`hashpool`) still score unseen next tokens
+  with Laplace. `hashtok` skips those hashes. On 60-stem prefix-5,
+  hashtok's 30 true positives equal postokhits; hashpool's extra four
+  (including letter d2's official 5-gram) are occupancy. See
+  [key-free-hashtok.md](key-free-hashtok.md).
 - Not a replacement of **10/12**, **29/48**, or **36/36**.

@@ -220,4 +220,6 @@ rankpath. Do not sell 38/48 or 18/48 as beating poshits **39/48**.
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel
 openings without token identity are in
-[key-free-rankpath.md](key-free-rankpath.md).
+[key-free-rankpath.md](key-free-rankpath.md). Hashing the official
+5-gram context does not recover letter d2 without occupancy Laplace;
+see [key-free-hashtok.md](key-free-hashtok.md).

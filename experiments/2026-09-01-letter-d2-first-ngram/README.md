@@ -40,8 +40,10 @@ prefix-8 TPs are last-1; **20 of 38** TPs are last-1 only.
 
 JSON: `results.json` (official means use keys; ranks do not),
 `backoff-trace.json` (`used_keys=false`), `fifth-rank-bins.json`,
-`prefix8-backoff-orders.json`.
-In-domain prefix-5 rankpath:
+`prefix8-backoff-orders.json`, `hashtok-trace.json` (`used_keys=false`).
+60-stem prefix-5 hashpool signs letter d2 at lr=0.372 with **0/8**
+hashes seeing `I`; hashtok abstains. In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
+Hashed occupancy write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).
 
 Write-up: [../../research/key-free-cascade.md](../../research/key-free-cascade.md).
