@@ -173,3 +173,43 @@ python -m text_watermark_tools openings experiments/2026-09-01-pair-100x4 \
    Do not add a fourth scorer.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Results (opened after the frozen commands)
+
+`used_keys=false` on every key-free path below. Official first-draw on
+the Grok twins remains **12/12**.
+
+| Split | Lock | Prompt | Nested Youden | t=0 marked |
+|---|---|---|---|---|
+| grok12×4 | A interpolate | **11/12** | **22/48 vs 41/48** | **27/48 vs 28/48** |
+| grok12×4 | B opening poshits | 10/12 | **36/48 vs 44/48** | **36/48 vs 44/48** |
+| grok12×4 | C opening rankpath | 8/12 | **10/48 vs 41/48** | **10/48 vs 41/48** |
+| grok12×4 | occupancy-free postokhits | 10/12 | **0/48 vs 48/48** | **0/48 vs 48/48** |
+
+H-xreg-A **holds**: lock A nested **22/48** is above Grok-train →
+original 12 lock A **16/48**. More one-liner train mass scores
+Grok-length files better than 12 Grok stems scored the original 12.
+That is still not an isolated detector.
+
+H-xreg-hard **holds**: lock A nested **22/48** is at or below in-family
+nested-by-stem **24/48**. The original 12 are not uniquely cursed.
+Out-of-family isolated fails on Grok-length test files too.
+
+H-xreg-iso **holds**: **22/48** does not replace **25/48**. Do not sell
+prompt **11/12**. Do not sell lock B nested **36/48** (37/48 unmarked
+zeros: occupancy). Do not sell postokhits **10/12** (ten ranking wins
+with 0 isolated TPs).
+
+H-xreg-B **holds**: occupancy-free t=0 **0/48** is bounded by opening
+coverage **5/48** (0 exact 4-token copies). The five covered files have
+negative observed-token LR.
+
+Lock C nested **10/48 vs 41/48** is not a detector. Ranking wins with no
+isolated TP: hospital-corridor, chip-shop.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-100x4-to-grok12x4/`.
+

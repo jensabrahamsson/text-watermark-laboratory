@@ -1331,4 +1331,24 @@ frozen analysis commands have been run once. Nested Youden on grok12×4
 is the primary endpoint. It does not replace **25/48**. Do not write
 `thesis/`.
 
+## 2026-09-01 100 one-liners → Grok-register isolated transfer opened
+
+SHA `1ef7330` protocol. `used_keys=false`. Official first-draw on the
+Grok twins remains **12/12**.
+
+Lock A nested Youden **22/48 vs 41/48** (prompt **11/12**, t=0 **27/48**).
+H-xreg-A holds versus Grok-train → original 12 **16/48**. H-xreg-hard
+holds: 22/48 is at or below in-family nested-by-stem **24/48**. The
+original 12 are not uniquely cursed. Taxi-rank is the ranking loss with
+isolated TPs.
+
+Lock B nested **36/48 vs 44/48** is occupancy (37/48 unmarked zeros).
+Occupancy-free postokhits t=0 **0/48**, opening coverage **5/48** (0
+exact). All ten postokhits ranking wins have 0 isolated TPs. H-xreg-B
+holds.
+
+Lock C prompt **8/12**, nested **10/48 vs 41/48**, t=0 **10/48**.
+H-xreg-iso holds: nothing here replaces **25/48**. Isolated-file
+detection is still not finished.
+
 ---

@@ -232,6 +232,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-openings-grok12x4-to-12x4/` | Opening-overlap, Grok-register → 12 | covered **5/48**, exact **0/48** |
 | `2026-09-01-probe-grok12x4-hard-last4/` | In-family interpolate on new 12 | **11/12**, nested-by-stem **24/48 vs 40/48** |
 | `2026-09-01-transfer-grok12x4-to-36x4-hard-last4/` | Grok-register → 36×4 lock A | **24/36**, nested **50/144 vs 115/144** |
+| `2026-09-01-transfer-100x4-to-grok12x4-hard-last4/` | 100 one-liners → Grok-register lock A | **11/12**, nested **22/48 vs 41/48**; H-xreg-A holds vs 16/48; not **25/48** |
+| `2026-09-01-transfer-100x4-to-grok12x4-opening-poshits/` | Same train, lock B | **10/12**, nested **36/48 vs 44/48** (occupancy) |
+| `2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/` | Same train, lock C | **8/12**, nested **10/48 vs 41/48** |
+| `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 10 ranking wins with 0 TP |
+| `2026-09-01-openings-100x4-to-grok12x4/` | Opening-overlap, 100→Grok-register | covered **5/48**, exact **0/48**; t=0 is 0/48 |
 
 ## What changed across the runs
 

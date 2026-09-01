@@ -198,3 +198,26 @@ JSON: `experiments/2026-09-01-transfer-grok12x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-probe-grok12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-grok12x4-to-36x4-hard-last4/`.
 
+## Isolated-file transfer (100 one-liners → Grok-register 12)
+
+Protocol SHA `1ef7330`. Same three locks. `used_keys=false`.
+
+| Test | Lock | Prompt | Nested Youden | t=0 marked |
+|---|---|---|---|---|
+| grok12×4 | A interpolate | **11/12** | **22/48 vs 41/48** | **27/48 vs 28/48** |
+| grok12×4 | B opening poshits | 10/12 | **36/48 vs 44/48** | **36/48 vs 44/48** |
+| grok12×4 | C opening rankpath | 8/12 | **10/48 vs 41/48** | **10/48 vs 41/48** |
+| grok12×4 | occupancy-free postokhits | 10/12 | **0/48 vs 48/48** | **0/48 vs 48/48** |
+
+H-xreg-A holds versus Grok-train → original 12 **16/48**. H-xreg-hard
+holds: **22/48** is at or below in-family nested-by-stem **24/48**. The
+original 12 are not uniquely cursed. Occupancy-free t=0 **0/48** is
+bounded by opening coverage **5/48**. Do not sell prompt **11/12** or
+lock B **36/48** (occupancy). Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/`,
+`experiments/2026-09-01-openings-100x4-to-grok12x4/`.
+

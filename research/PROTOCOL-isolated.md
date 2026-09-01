@@ -265,6 +265,9 @@ Lock A nested Youden **16/48 vs 41/48** does not beat one-liner lock A
 Do not sell lock C nested **45/48 vs 22/48**.
 
 The reverse split (100 one-liners → Grok-register 12) is
-[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Do not look at
-those test LRs until that freeze is named in [LOGBOOK.md](LOGBOOK.md).
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Lock A nested
+Youden **22/48 vs 41/48** (prompt **11/12**). H-xreg-A holds versus
+Grok-train **16/48**. H-xreg-hard holds versus in-family **24/48**.
+Occupancy-free t=0 **0/48**, coverage **5/48**. Do not sell 11/12 or
+lock B nested **36/48**. Does not replace **25/48**.
 

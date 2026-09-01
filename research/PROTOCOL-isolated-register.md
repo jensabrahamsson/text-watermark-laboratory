@@ -250,8 +250,9 @@ Cross-register interpolate → 36×4: prompt **24/36**, nested
 **50/144 vs 115/144**. Weaker than 100 one-liners → 36×4.
 
 The reverse split (100 one-liners → these Grok-length files) is
-[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Do not look at
-those test LRs until that freeze is named in [LOGBOOK.md](LOGBOOK.md).
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md). Lock A nested
+**22/48 vs 41/48**. H-xreg-hard holds: the original 12 are not uniquely
+cursed. Occupancy-free t=0 **0/48**. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-transfer-grok12x4-to-12x4-hard-last4/`,
 `experiments/2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/`,
