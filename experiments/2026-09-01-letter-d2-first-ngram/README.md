@@ -49,6 +49,10 @@ unmarked only (c_m=0, c_u=2, δ=−1.10). hashtokbackoff lr=0.096
 (`n_used=3`); hashtokbackoff2 lr=0.694 is tokens 1–2 (`Now`→` in` at
 order 3, `Now in`→` the` at order 4), not token 4. The i=1 "order 3"
 hit is a one-token prefix hashed into the order-3 table, not a 3-gram.
+Exact-length `hashtoklen` still abstains (`n_used=0`). Exact backoff2
+lr=0.797 is legal last-2 `'Now in' → ' the'` (i=2, order 2), not token
+4; including last-1 of `I` makes hashtoklenbackoff −0.152.
+`hashtoklen-trace.json` (`used_keys=false`, `exact_len=true`).
 In-domain prefix-5 rankpath:
 [../2026-09-01-probe-12x4-fitprefix5-rankpath/](../2026-09-01-probe-12x4-fitprefix5-rankpath/).
 Hashed occupancy write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).

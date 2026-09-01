@@ -97,8 +97,10 @@ missing continuation.
 - Not key recovery. The mixer is a laboratory splitmix of token ids.
 - Not a reason to replace the 12×4 last-4 headline **10/12** / **29/48**.
 - Not evidence that hashing reads official 5-grams. On this leftover
-  hashpool reads occupancy, and hashed backoff's fifth-token hit is
-  last-1 unmarked.
+  hashpool reads occupancy. Mixed hashed backoff's fifth-token hit is
+  last-1 unmarked, and two of its earlier hits are short prefixes in
+  longer-order tables. Exact-length backoff2 is last-2
+  `'Now in' → ' the'`, still not token 4.
 
 Keep exact `postokhits` when the claim is observed-token preference.
 Keep `hashpool` only if occupancy of empty cells is an acceptable
@@ -195,3 +197,63 @@ hashed orders on this window **hurts** (31/48, 15 FPs) relative to
 plain hashtok. Keep prefix-4 `hashtok` as the occupancy-free hashed
 reader; keep exact `postokbackoff` when overlap precision is the
 point. Do not sell 38/48 or 35/48 as beating poshits **39/48**.
+
+## Exact-length hashing (`hashtoklen`)
+
+`_scored_ctx` returns fewer than k tokens at the start of a string.
+Hashing that short prefix into an order-k table is not a k-gram: it
+collides last-1/last-2 English with real 4-grams in the same buckets.
+On the mixed prefix-5 backoff traces, library ×4 and letter d3 win at
+order 4 on i=3 (`order > i`). Letter d2 backoff2 lr=0.694 is i=1
+order 3 and i=2 order 4, both illegal.
+
+`hashtoklen` / `hashtoklenbackoff` / `hashtoklenbackoff2` fit and
+score only when `len(ctx) == order`. Same laboratory mixer. Still no
+keys. Instance `key-free-hashtoklen` / `key-free-hashtoklenbackoff`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --extra-train experiments/2026-08-31-pair-long12x4 \
+  --extra-train experiments/2026-08-31-pair-tails12x4 \
+  --extra-train experiments/2026-08-31-pair-family12x4 \
+  --fit-prefix 5 --pos-bucket 0 \
+  --methods hashtok,hashtoklen,hashtoklenbackoff,hashtoklenbackoff2,postokbackoff2 \
+  --out-dir experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen
+```
+
+JSON: [../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen/).
+Letter d2 atoms: [../experiments/2026-09-01-letter-d2-first-ngram/hashtoklen-trace.json](../experiments/2026-09-01-letter-d2-first-ngram/hashtoklen-trace.json).
+
+## Prefix-5 isolated files (exact length)
+
+| Method | Prompt wins | File AUC | marked>0 | unmarked≤0 | nested Youden | precision |
+|---|---|---|---|---|---|---|
+| hashtok | 9/12 | 0.761 | **30/48** | 36/48 | 26/48 vs 42/48 | 0.714 |
+| **hashtoklen** | **12/12** | 0.701 | **21/48** | 45/48 | **21/48 vs 45/48** | 0.875 |
+| **hashtoklenbackoff** | 11/12 | 0.822 | **36/48** | 34/48 | **33/48 vs 42/48** | 0.720 |
+| **hashtoklenbackoff2** | 10/12 | 0.769 | **36/48** | 35/48 | **28/48 vs 43/48** | 0.735 |
+| postokbackoff2 | 12/12 | 0.642 | 15/48 | 46/48 | 15/48 vs 46/48 | 0.882 |
+
+`hashtoklen` scores only the official 5-gram slot (i=4). 27 marked
+files abstain. Prompt ranking **12/12** is not isolated-file density.
+
+Letter d2 under exact backoff:
+
+| i | token | winning order | δ | notes |
+|---|---|---|---|---|
+| 1 | ` in` | none | abstain | order 3 no longer eligible (`ctx_len=1`) |
+| 2 | ` the` | **2** | +0.797 | last-2 `'Now in' → ' the'` |
+| 3 | ` second` | none | abstain | all exact orders unseen |
+| 4 | ` I` | **1** | **−1.100** | last-4/3/2 unseen; last-1 unmarked |
+
+hashtoklen `n_used=0`. hashtoklenbackoff `n_used=2`, lr=**−0.152**.
+hashtoklenbackoff2 `n_used=1`, lr=**0.797** from last-2, **not** the
+official 5-gram. Library ×4 survive as a legal last-3
+`'Cl' 'osing' ' is' → ' the'` (i=3, order 3). Letter d3's illegal
+order-4 extra is gone. Office d4 is last-3 `' at'` at i=4.
+
+Nested Youden **33/48 vs 42/48** is the honest isolated-file number
+for exact hashed backoff. Mixed backoff nested **30/48** was the
+short-prefix mixer plus last-1. Do not sell 36/48 or 33/48 as beating
+poshits **39/48** or replacing **29/48**.

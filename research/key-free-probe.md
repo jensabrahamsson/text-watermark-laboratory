@@ -75,7 +75,9 @@ claimed 12/12 ensemble. `hashtok` is occupancy-free hashpool (tokhits on
 collisions). On 60-stem prefix-5 it copies postokhits' 30 true positives;
 hashpool's extra four, including letter d2's official 5-gram, are Laplace.
 `hashtokbackoff` fits per-order hash tables; prefix-5 nested Youden stays
-**30/48**, and letter d2's fifth token is last-1 unmarked. Prefix-4 hashed
+**30/48**, and letter d2's fifth token is last-1 unmarked. Those tables
+also hash short prefixes into longer-order mixers. `hashtoklenbackoff`
+requires exact last-k; nested Youden **33/48**. Prefix-4 hashed
 backoff hurts versus hashtok. See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

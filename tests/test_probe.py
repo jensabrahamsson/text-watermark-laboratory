@@ -2272,3 +2272,107 @@ def test_prefix4_hashtok_beats_hashed_backoff_on_opening() -> None:
     assert _nested_youden(results, "hashpool") == (35, 46)
 
 
+def test_prefix5_hashtoklen_drops_short_prefix_collisions() -> None:
+    import json
+
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen"
+    )
+    atoms = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-letter-d2-first-ngram"
+        / "hashtoklen-trace.json"
+    )
+    ht = holdout_from_json(root / "hashtok" / "holdout.json")
+    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
+    hb = holdout_from_json(root / "hashtoklenbackoff" / "holdout.json")
+    hb2 = holdout_from_json(root / "hashtoklenbackoff2" / "holdout.json")
+    results = json.loads((root / "results.json").read_text())
+    trace = json.loads((root / "exact-order-trace.json").read_text())
+    atoms_trace = json.loads(atoms.read_text())
+    assert ht.used_keys is False
+    assert hl.used_keys is False
+    assert hb.used_keys is False
+    assert trace["exact_len"] is True
+    assert atoms_trace["exact_len"] is True
+    assert ht.n_marked_positive == 30
+    assert hl.n_prompts_marked_above == 12
+    assert hl.n_marked_positive == 21
+    assert hl.n_unmarked_nonpositive == 45
+    assert hb.n_prompts_marked_above == 11
+    assert hb.n_marked_positive == 36
+    assert hb.n_unmarked_nonpositive == 34
+    assert hb2.n_marked_positive == 36
+    assert hb2.n_unmarked_nonpositive == 35
+    assert hl.n_marked_positive < ht.n_marked_positive
+    assert hb.n_marked_positive < 39
+    assert _nested_youden(results, "hashtoklen") == (21, 45)
+    assert _nested_youden(results, "hashtoklenbackoff") == (33, 42)
+    assert _nested_youden(results, "hashtoklenbackoff2") == (28, 43)
+    ht_pos = {
+        (s, samp)
+        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
+        if m > 0
+    }
+    hb_pos = {
+        (s, samp)
+        for s, samp, m in zip(hb.stems, hb._samples(), hb.marked_lrs)
+        if m > 0
+    }
+    hb2_pos = {
+        (s, samp)
+        for s, samp, m in zip(hb2.stems, hb2._samples(), hb2.marked_lrs)
+        if m > 0
+    }
+    extras = hb_pos - ht_pos
+    assert extras == {
+        ("01-harbour", 3),
+        ("01-harbour", 4),
+        ("03-library", 1),
+        ("03-library", 2),
+        ("03-library", 3),
+        ("03-library", 4),
+        ("10-office", 4),
+    }
+    assert ("08-letter", 2) not in extras
+    assert ("08-letter", 3) not in extras
+    assert ("08-letter", 2) in hb2_pos
+    by_hl = {
+        (s, samp): m
+        for s, samp, m in zip(hl.stems, hl._samples(), hl.marked_lrs)
+    }
+    by_hb = {
+        (s, samp): m
+        for s, samp, m in zip(hb.stems, hb._samples(), hb.marked_lrs)
+    }
+    by_hb2 = {
+        (s, samp): m
+        for s, samp, m in zip(hb2.stems, hb2._samples(), hb2.marked_lrs)
+    }
+    assert by_hl[("08-letter", 2)] == 0
+    assert by_hb[("08-letter", 2)] < 0
+    assert by_hb2[("08-letter", 2)] > 0
+    d2 = atoms_trace["letter_d2"]
+    assert d2["ids"] == [3844, 287, 262, 1218, 314]
+    assert d2["hashtoklen"]["n_used"] == 0
+    assert d2["hashtoklenbackoff2"]["n_used"] == 1
+    wins = d2["winning"]
+    assert all(order <= i for i, order, _piece, _delta in wins)
+    assert wins[0][0] == 2 and wins[0][1] == 2 and wins[0][2] == " the"
+    assert wins[1][0] == 4 and wins[1][1] == 1 and wins[1][2] == " I"
+    assert wins[1][3] < 0
+    lib = atoms_trace["library_d1"]
+    assert lib["winning"][0][0] == 3
+    assert lib["winning"][0][1] == 3
+    assert lib["winning"][0][2] == " the"
+    for row in d2["trace"]:
+        if row["order"] is None:
+            continue
+        tried = {t["order"]: t for t in row["tried"]}
+        assert tried[row["order"]]["exact_ok"] is True
+        assert tried[row["order"]]["ctx_len"] == row["order"]
+
+

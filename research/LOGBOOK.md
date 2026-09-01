@@ -698,4 +698,24 @@ JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5
 `experiments/2026-09-01-letter-d2-first-ngram/hashtokbackoff-trace.json`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 exact-length hashing drops short-prefix collisions
+
+`hashtoklen` / `hashtoklenbackoff` hash only when `len(ctx) == order`.
+60-stem prefix-5. hashtoklen **12/12**, **21/48 vs 45/48** (27 marked
+zeros: only the official 5-gram slot). hashtoklenbackoff **11/12**,
+**36/48 vs 34/48**, nested Youden **33/48 vs 42/48**.
+hashtoklenbackoff2 t=0 **36/48 vs 35/48**, nested **28/48 vs 43/48**.
+
+Mixed backoff library ×4 / letter d3 extras were order 4 at i=3
+(`order > i`). Exact length: library survives as last-3
+`'Cl' 'osing' ' is' → ' the'`; letter d3 extra is gone. Letter d2
+hashtoklen `n_used=0`; backoff2 lr=0.797 is last-2 `'Now in' → ' the'`,
+not official `I`; including last-1 of `I` (unmarked) makes
+hashtoklenbackoff −0.152. Do not sell 36/48 or 33/48 as beating
+poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen/`,
+`experiments/2026-09-01-letter-d2-first-ngram/hashtoklen-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
