@@ -288,3 +288,14 @@ JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
 
 Isolated-file detection is not finished. Do not write `thesis/`.
 
+## Isolated-file pool freeze (100 ∪ grok36)
+
+Protocol: [PROTOCOL-isolated-pool.md](PROTOCOL-isolated-pool.md).
+Published occupancy-free zeros on the original 12 are disjoint:
+100 one-liners **18/48**, grok36 **10/48**, union **28/48**, leftover
+**20/48**. That arithmetic is determined before mixed tables. Do not
+sell **28/48** or leftover grok36 interpolate **13/20**. Mixed
+`postokhits` / interpolate LRs are not opened in this entry.
+
+JSON: `experiments/2026-09-01-openings-union-100-and-grok36-to-12x4/`.
+
