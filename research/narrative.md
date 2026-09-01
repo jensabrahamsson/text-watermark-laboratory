@@ -195,7 +195,9 @@ sell Distil **22/48** or leftover Distil **3/18**. Distil 100×4 → Distil
 [PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md). Opened:
 Distil→Distil postokhits t=0 **16/48 vs 39/48** equals coverage
 **16/48**; not leftover-18; not **25/48**. Do not sell Distil→Distil
-**16/48**.
+**16/48**. Qwen 100×4 → Qwen 12×4 occupancy-free analog is
+[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md) (not leftover-18;
+not lock A; not `--include-first`).
 
 ## What this freeze refuses
 
