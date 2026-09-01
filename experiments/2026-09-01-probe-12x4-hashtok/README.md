@@ -30,3 +30,7 @@ and the original indicate. Do **not** sell 33/48 or 35/48 as replacing
 **29/48**.
 
 Write-up: [../../research/key-free-hashtok.md](../../research/key-free-hashtok.md).
+
+OR with hard last-4 indicate is **39/48 vs 12/48**, combined **51/96**,
+worse than indicate **52/96**. Complementary TPs exist; that is not a
+detector. [../2026-09-01-probe-12x4-hashtok-indicate-or/](../2026-09-01-probe-12x4-hashtok-indicate-or/).

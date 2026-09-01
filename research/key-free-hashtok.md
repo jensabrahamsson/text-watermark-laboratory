@@ -507,3 +507,29 @@ or 35/48 as replacing **29/48**.
 
 JSON: [../experiments/2026-09-01-probe-12x4-hashtok/](../experiments/2026-09-01-probe-12x4-hashtok/).
 
+## OR with hard last-4 is complementary TPs, not a detector
+
+Saved 12×4 LOO holdouts, no new GPT-2. Hard last-4 indicate is still
+**29/48 vs 23/48** (combined **52/96**). Occupancy-free full-file
+hashtok is **33/48 vs 22/48**. OR at t=0 (either `lr>0`) is
+**39/48 vs 12/48**, combined **51/96**. That 39 matches poshits on the
+TP side only; 36 unmarked false positives make the combined gate
+**worse** than indicate. Coverage (use the primary LR when it is
+nonzero, else the other channel) is not leftover fill-in:
+postokhits-then-hashtok is **35/48 vs 22/48** (combined **57/96**)
+versus postokhits standalone **24/48 vs 45/48** (**69/96**).
+
+hashtok recovers 10 of 19 indicate misses: harbour d1, night-bus d1,
+market d3, kitchen d3, station d1/d2, office d1, garden d2/d3/d4.
+Indicate recovers 6 of 15 hashtok misses: library d1/d3/d4, market d1,
+station d4, rain d1. Both miss 9 files, including letter d2/d3/d4.
+
+Honest nested fusion on the same LOO scores throws those extra TPs
+away. Leave-one-stem Fisher LDA of indicate+hashtok is **28/48 vs
+27/48** at t=0 and nested-by-stem **21/48 vs 37/48**. Nested Youden on
+`max(indicate, hashtok)` is **21/48 vs 39/48**. Nested 2D Youden OR is
+**37/48 vs 18/48** (still 30 unmarked FPs). Do not sell 39/48. This is
+not a 12/12 ensemble; the published hits+hashpool stack stays **11/12**.
+
+JSON: [../experiments/2026-09-01-probe-12x4-hashtok-indicate-or/](../experiments/2026-09-01-probe-12x4-hashtok-indicate-or/).
+

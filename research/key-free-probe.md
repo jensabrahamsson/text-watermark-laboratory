@@ -89,8 +89,11 @@ is **28/48 vs 40/48** (same as standalone rankpath). `hashmask`
 Youden **19/48 vs 45/48**, worse than hashtoklen; letter d2's official
 slot is two opposing singletons (lr=+0.240), thrown out nested.
 In-domain full-file `hashtok` is **33/48 vs 22/48**, nested-by-stem
-**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). Do not sell
-33/48 as replacing **29/48**.
+**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). OR with hard
+last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
+indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
+exist; the unmarked OR cost destroys the combined gate. Do not sell
+33/48 or 39/48 as replacing **29/48**.
 See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)

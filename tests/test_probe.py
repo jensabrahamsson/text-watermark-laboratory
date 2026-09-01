@@ -2815,79 +2815,6 @@ def test_prefix5_hashtoklen2_is_the_robust_collision_core() -> None:
     assert leftover_hs2_nested == set()
 
 
-def test_in_domain_full_file_hashtok_is_denser_and_noisier() -> None:
-    """Occupancy-free full-file hashing is 33/48 vs 22/48.
-
-    Hashpool stays 35/48 vs 29/48. Nested-by-stem hashtok 22/48 vs 30/48
-    is worse spec than hits 22/48 vs 39/48. Letter d2 stays negative.
-    Do not sell 33/48 as replacing 29/48.
-    """
-    import json
-
-    root = (
-        Path(__file__).resolve().parents[1]
-        / "experiments"
-        / "2026-09-01-probe-12x4-hashtok"
-    )
-    hp = holdout_from_json(root / "hashpool" / "holdout.json")
-    ht = holdout_from_json(root / "hashtok" / "holdout.json")
-    hl = holdout_from_json(root / "hashtoklen" / "holdout.json")
-    hits = holdout_from_json(root / "hits" / "holdout.json")
-    results = json.loads((root / "results.json").read_text())
-    assert results["used_keys"] is False
-    assert hp.used_keys is False
-    assert ht.used_keys is False
-    assert hp.instance == "key-free-hashpool"
-    assert ht.instance == "key-free-hashtok"
-    assert hp.n_marked_positive == 35
-    assert hp.n_unmarked_nonpositive == 29
-    assert ht.n_marked_positive == 33
-    assert ht.n_unmarked_nonpositive == 22
-    assert hl.n_marked_positive == 33
-    assert hl.n_unmarked_nonpositive == 23
-    assert ht.n_prompts_marked_above == 9
-    assert hl.n_prompts_marked_above == 8
-    assert ht.n_marked_positive < 39
-    assert hits.n_marked_positive == 28
-
-    def nested_stem(name: str) -> tuple[int, int]:
-        method = next(m for m in results["methods"] if m["name"] == name)
-        row = method["nested_stem"]["nested-youden-by-stem"]
-        return int(row["n_marked_above"]), int(row["n_unmarked_at_most"])
-
-    assert nested_stem("hits") == (22, 39)
-    assert nested_stem("hashpool") == (23, 36)
-    assert nested_stem("hashtok") == (22, 30)
-    hp_pos = {
-        (s, samp)
-        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
-        if m > 0
-    }
-    ht_pos = {
-        (s, samp)
-        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
-        if m > 0
-    }
-    assert hp_pos - ht_pos == {
-        ("02-night-bus", 3),
-        ("03-library", 2),
-        ("04-market", 1),
-        ("12-ferry-queue", 4),
-    }
-    assert ht_pos - hp_pos == {("02-night-bus", 4), ("04-market", 3)}
-    by_ht = {
-        (s, samp): m
-        for s, samp, m in zip(ht.stems, ht._samples(), ht.marked_lrs)
-    }
-    by_hp = {
-        (s, samp): m
-        for s, samp, m in zip(hp.stems, hp._samples(), hp.marked_lrs)
-    }
-    assert by_ht[("08-letter", 2)] < 0
-    assert by_hp[("08-letter", 2)] < 0
-
-
-
 def test_prefix5_hashmask_is_not_a_nested_leftover_rescue() -> None:
     """MASK replace is denser coverage and worse nested than hashtoklen.
 
@@ -3304,5 +3231,139 @@ def test_in_domain_full_file_hashtok_is_denser_and_noisier() -> None:
     assert by_hp[("08-letter", 2)] < 0
 
 
+def test_in_domain_hashtok_or_indicate_is_not_a_detector() -> None:
+    """OR at t=0 is 39/48 vs 12/48; combined 51/96 worse than indicate.
 
+    Complementary TPs exist. Honest nested LDA/max throw them away.
+    Do not sell 39/48 as beating poshits 39/48 or replacing 29/48.
+    """
+    import json
+
+    from text_watermark_tools.stats import nested_threshold_by_stem
+
+    indicate = holdout_from_json(HOLD)
+    probe = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok"
+    )
+    root = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-probe-12x4-hashtok-indicate-or"
+    )
+    hashtok = holdout_from_json(probe / "hashtok" / "holdout.json")
+    hits = holdout_from_json(probe / "hits" / "holdout.json")
+    postokhits = holdout_from_json(probe / "postokhits" / "holdout.json")
+    raw = json.loads((root / "complement.json").read_text())
+    stacked = rotate_score_stack([indicate, hashtok], model_name="gpt2")
+    saved_stack = holdout_from_json(root / "lda-stack" / "holdout.json")
+
+    assert raw["used_keys"] is False
+    assert indicate.used_keys is False
+    assert hashtok.used_keys is False
+    assert stacked.used_keys is False
+    assert indicate.instance == "key-free-counts"
+    assert hashtok.instance == "key-free-hashtok"
+    assert list(zip(indicate.stems, indicate._samples())) == list(
+        zip(hashtok.stems, hashtok._samples())
+    )
+    assert indicate.n_marked_positive == 29
+    assert indicate.n_unmarked_nonpositive == 23
+    assert hashtok.n_marked_positive == 33
+    or_m = sum(
+        a > 0 or b > 0
+        for a, b in zip(indicate.marked_lrs, hashtok.marked_lrs, strict=True)
+    )
+    or_u = sum(
+        not (a > 0 or b > 0)
+        for a, b in zip(indicate.unmarked_lrs, hashtok.unmarked_lrs, strict=True)
+    )
+    assert or_m == 39
+    assert or_u == 12
+    assert or_m + or_u == 51
+    assert or_m + or_u < indicate.n_marked_positive + indicate.n_unmarked_nonpositive
+    assert raw["headline"]["or_indicate_hashtok_marked"] == 39
+    assert raw["headline"]["or_combined"] == 51
+    assert raw["headline"]["indicate_combined"] == 52
+
+    ind_tp = {
+        (s, samp)
+        for s, samp, m in zip(indicate.stems, indicate._samples(), indicate.marked_lrs)
+        if m > 0
+    }
+    ht_tp = {
+        (s, samp)
+        for s, samp, m in zip(hashtok.stems, hashtok._samples(), hashtok.marked_lrs)
+        if m > 0
+    }
+    marked = set(zip(indicate.stems, indicate._samples(), strict=True))
+    recovers = (marked - ind_tp) & ht_tp
+    assert recovers == {
+        ("01-harbour", 1),
+        ("02-night-bus", 1),
+        ("04-market", 3),
+        ("05-kitchen", 3),
+        ("06-station", 1),
+        ("06-station", 2),
+        ("10-office", 1),
+        ("11-garden", 2),
+        ("11-garden", 3),
+        ("11-garden", 4),
+    }
+    assert (marked - ht_tp) & ind_tp == {
+        ("03-library", 1),
+        ("03-library", 3),
+        ("03-library", 4),
+        ("04-market", 1),
+        ("07-rain", 1),
+        ("06-station", 4),
+    }
+    both_miss = marked - ind_tp - ht_tp
+    assert ("08-letter", 2) in both_miss
+    assert ("08-letter", 3) in both_miss
+    assert ("08-letter", 4) in both_miss
+    assert len(both_miss) == 9
+    by_ind = {
+        (s, samp): m
+        for s, samp, m in zip(indicate.stems, indicate._samples(), indicate.marked_lrs)
+    }
+    by_ht = {
+        (s, samp): m
+        for s, samp, m in zip(hashtok.stems, hashtok._samples(), hashtok.marked_lrs)
+    }
+    assert by_ind[("08-letter", 2)] < 0
+    assert by_ht[("08-letter", 2)] < 0
+
+    def coverage(primary, fallback) -> tuple[int, int]:
+        ms = [
+            p if p != 0.0 else f
+            for p, f in zip(primary.marked_lrs, fallback.marked_lrs, strict=True)
+        ]
+        us = [
+            p if p != 0.0 else f
+            for p, f in zip(primary.unmarked_lrs, fallback.unmarked_lrs, strict=True)
+        ]
+        return sum(s > 0 for s in ms), sum(s <= 0 for s in us)
+
+    cov_m, cov_u = coverage(postokhits, hashtok)
+    assert (cov_m, cov_u) == (35, 22)
+    assert cov_m + cov_u < postokhits.n_marked_positive + postokhits.n_unmarked_nonpositive
+    assert postokhits.n_marked_positive + postokhits.n_unmarked_nonpositive == 69
+    hits_m, hits_u = coverage(hits, hashtok)
+    assert (hits_m, hits_u) == (29, 25)
+
+    assert stacked.n_marked_positive == saved_stack.n_marked_positive == 28
+    assert stacked.n_unmarked_nonpositive == saved_stack.n_unmarked_nonpositive == 27
+    nested = nested_threshold_by_stem(
+        stacked.stems, stacked.marked_lrs, stacked.unmarked_lrs
+    )
+    assert (nested.n_marked_above, nested.n_unmarked_at_most) == (21, 37)
+    assert raw["headline"]["lda_nested_marked"] == 21
+    assert raw["nested_2d_youden"]["indicate_or_hashtok"]["n_marked_positive"] == 37
+    assert raw["nested_2d_youden"]["indicate_or_hashtok"][
+        "n_unmarked_nonpositive"
+    ] == 18
+    assert or_m < 40
+    assert stacked.n_prompts_marked_above == 10
 

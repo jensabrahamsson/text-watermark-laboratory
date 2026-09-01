@@ -826,4 +826,17 @@ Do not sell 33/48 as replacing 29/48.
 JSON: `experiments/2026-09-01-probe-12x4-hashtok/`.
 Write-up: [key-free-hashtok.md](key-free-hashtok.md).
 
+## 2026-09-01 hashtok OR indicate is 39/48 TPs and not a detector
+
+Saved 12×4 LOO scores. Complementary TPs are real: hashtok recovers
+10 of 19 hard last-4 misses; indicate recovers 6 of 15 hashtok misses;
+letter d2/d3/d4 stay misses on both. OR at t=0 is **39/48 vs 12/48**,
+combined **51/96**, worse than indicate **52/96**. Nested LDA of the
+two channels is **21/48 vs 37/48**. Coverage postokhits-then-hashtok
+is **35/48 vs 22/48** (combined 57/96 vs postokhits 69/96). Do not
+sell 39/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok-indicate-or/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
 ---
