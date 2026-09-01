@@ -141,4 +141,34 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results (opened after the frozen command)
 
-*(empty until the SHA is named and the command has been run once)*
+Protocol SHA `f09d0e2`. `used_keys=false`.
+
+Primary 12-LOO hard last-4 (headline **25/48**): leftover marked `lr>0`
+**10/20**, unmarked `lr≤0` **11/20** (9 leftover FPs). Covered marked
+`lr>0` **15/28**, unmarked `lr≤0` **11/28**. The slices add to 25.
+
+H-split-left **holds**. Ten leftover TPs are a non-zero share. Unmarked
+11/20 is not 20/20. Leftover hard last-4 is chance, not a leftover-file
+detector. Leftover TPs and FNs share openings (`Closing is the`,
+`The ferry was so` / `in`). Letter leftover (`Now` / `While`) and
+garden leftover are **0/2**. Ranking-loss TPs (station-4, office-4,
+ferry-queue 1–3) are all leftover and account for the published **5**
+TPs on ranking losses.
+
+H-split-cov **holds**. Fifteen covered TPs sit on files occupancy-free
+pooling later copies (workshop 4/4 with 0 unmarked `lr≤0` among them).
+In-domain isolated sign is not only leftover-file detection.
+
+H-split-iso **holds**. Do not sell leftover **10/20**, covered **15/28**,
+in-domain leftover rankpath **16/20**, mixed leftover rankpath **12/20**,
+or coverage **28/48**. Isolated-file detection is not finished. The
+leftover core that even in-domain opening rankpath misses is letter-2
+(`Now in the second`), office-4, garden 1/4.
+
+Secondary interpolate last-4: leftover **10/20 vs 11/20** (different
+files; harbour leftover 4/4 marked with 0 unmarked `lr≤0`), covered
+**14/28 vs 13/28**. Secondary in-domain opening rankpath: leftover
+**16/20 vs 16/20**, covered **25/28 vs 19/28**.
+
+JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
+

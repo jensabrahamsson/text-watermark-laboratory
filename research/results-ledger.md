@@ -319,3 +319,12 @@ includes covered openings; do not sell 35/48. Does not replace
 
 JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
 
+## Isolated-file leftover vs covered (in-domain 25/48)
+
+Protocol SHA `f09d0e2`. `used_keys=false`. Headline 12-LOO hard last-4
+**25/48** splits leftover **10/20 vs 11/20** and occupancy-covered
+**15/28 vs 11/28**. Leftover last-4 is chance. Ranking-loss TPs are all
+leftover. Do not sell 10/20 or 15/28. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
+

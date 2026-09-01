@@ -36,6 +36,61 @@ def test_protocol_split_names_frozen_sources_before_decode() -> None:
     assert "Do **not** mix grok12" in text
     assert "Do not redefine leftover" in text
     assert "`f09d0e2`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "H-split-left **holds**" in text
+    assert "H-split-cov **holds**" in text
+    assert "H-split-iso **holds**" in text
+    assert "Do not sell leftover **10/20**" in text
+
+
+def test_protocol_split_hard_last4_is_10_and_15_not_25() -> None:
+    dump = (
+        ROOT
+        / "experiments"
+        / "2026-09-01-isolated-split-25-leftover-vs-covered"
+        / "split.json"
+    )
+    raw = json.loads(dump.read_text())
+    assert raw["used_keys"] is False
+    assert raw["n_leftover"] == 20
+    assert raw["n_covered"] == 28
+    left = raw["primary"]["leftover"]
+    cov = raw["primary"]["covered"]
+    assert raw["primary"]["n_marked_above_zero"] == 25
+    assert left["marked_above_zero"] == 10
+    assert left["unmarked_at_most_zero"] == 11
+    assert cov["marked_above_zero"] == 15
+    assert cov["unmarked_at_most_zero"] == 11
+    assert left["marked_above_zero"] + cov["marked_above_zero"] == 25
+    assert left["marked_above_zero"] != 25
+    recomputed = summarize_isolated_coverage_split(COVERAGE, HOLDOUT)
+    assert recomputed["primary"]["leftover"]["marked_above_zero"] == 10
+    assert recomputed["primary"]["covered"]["marked_above_zero"] == 15
+    extra = {row["label"]: row for row in raw["extra"]}
+    rank = extra["12loo-opening-rankpath"]
+    assert rank["leftover"]["marked_above_zero"] == 16
+    assert rank["leftover"]["unmarked_at_most_zero"] == 16
+    interp = extra["12loo-interpolate-last4"]
+    assert interp["leftover"]["marked_above_zero"] == 10
+    assert interp["covered"]["marked_above_zero"] == 14
+    ranking_loss_tps = {
+        ("06-station", 4),
+        ("10-office", 4),
+        ("12-ferry-queue", 1),
+        ("12-ferry-queue", 2),
+        ("12-ferry-queue", 3),
+    }
+    leftover_tps = {(r["stem"], r["sample"]) for r in left["tp"]}
+    assert ranking_loss_tps <= leftover_tps
+    letter_garden = [
+        r
+        for r in left["tp"]
+        if r["stem"] in {"08-letter", "11-garden"}
+    ]
+    assert letter_garden == []
+    text = PROTOCOL.read_text()
+    assert "Leftover hard last-4 is chance" in text
+    assert "Do not sell leftover **10/20**" in text
+    assert "Do not sell leftover **10/20**, covered **15/28**" in text
 
 
 def test_leftover_membership_stays_twenty_mixed_zeros() -> None:

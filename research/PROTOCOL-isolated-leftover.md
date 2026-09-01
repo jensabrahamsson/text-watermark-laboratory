@@ -140,3 +140,7 @@ pooled coverage **28/48**, or interpolate leftover **13/20**. Isolated-file
 detection is not finished.
 
 JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+
+In-domain **25/48** vs leftover is
+[PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md): leftover
+hard last-4 **10/20 vs 11/20**.

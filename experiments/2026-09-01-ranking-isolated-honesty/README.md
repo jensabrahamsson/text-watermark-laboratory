@@ -12,7 +12,9 @@ table names the stems where they disagree.
 **12-LOO hard last-4 (headline 9/12, isolated 25/48).** Garden ranks
 with **0/4** marked files above 0. Station, office, and ferry-queue
 *lose* ranking but still hold **5** of the **25** isolated TPs
-(ferry-queue 3/4). Do not rewrite **9/12** or **25/48**.
+(ferry-queue 3/4). Those five ranking-loss TPs are leftover openings
+under mixed occupancy-free pooling
+(`../2026-09-01-isolated-split-25-leftover-vs-covered/`). Do not rewrite **9/12** or **25/48**.
 
 **100→12 lock C.** Three ranking wins (night-bus, library, market) have
 no isolated TP. Zero isolated TPs on ranking losses. Prompt **10/12**

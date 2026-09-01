@@ -1496,4 +1496,16 @@ not look at leftover-versus-covered TP counts until this line is on
 origin. Do not sell either slice as replacing **25/48**. Do not write
 `thesis/`.
 
+## 2026-09-01 leftover-versus-covered 25/48 split opened
+
+SHA `f09d0e2`. `used_keys=false`. Headline 12-LOO hard last-4 **25/48**
+splits leftover marked `lr>0` **10/20**, unmarked `lr≤0` **11/20**, and
+occupancy-covered **15/28 vs 11/28**. H-split-left, H-split-cov, and
+H-split-iso hold. Leftover last-4 is chance. Ranking-loss TPs are all
+leftover. Letter leftover and garden leftover are 0 TPs. Do not sell
+10/20 or 15/28. Nothing replaces **25/48**. Isolated-file detection is
+still not finished.
+
+JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
+
 ---
