@@ -14,18 +14,33 @@
 \usepackage{multirow}
 \usepackage{array}
 \usepackage{graphicx}
+\usepackage{flafter}
+\usepackage{caption}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{microtype}
+\usepackage{tikz}
 \usepackage[round,authoryear]{natbib}
+\usepackage{url}
+\usepackage{xurl}
 \usepackage{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
+\captionsetup{font=small,labelfont=bf,skip=6pt,justification=raggedright}
+
+\usetikzlibrary{calc,positioning}
 
 \hypersetup{
+    pdftitle={Paired-Reference, Key-Free Indication of a Public SynthID-Text Instance},
+    pdfauthor={Jens Abrahamsson},
+    pdfsubject={Empirical technical report on prompt-group ranking versus isolated-file decisions for public-deepmind-30},
+    pdfkeywords={statistical text watermarking, SynthID-Text, paired-reference auditing, key-free indication, empirical likelihood ratio},
+    pdflang={en},
+    pdfdisplaydoctitle=true,
     colorlinks=true,
-    linkcolor=blue!70!black,
-    citecolor=green!50!black,
-    urlcolor=blue!80!black
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=black,
+    pdfborder={0 0 0}
 }
 
 % =========================================================================
@@ -40,71 +55,70 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\D}{\mathcal{D}}
-\newcommand{\DKL}{D_{\mathrm{KL}}}
 \newcommand{\LLR}{\Lambda}
-\newcommand{\supp}{\mathrm{supp}}
 \newcommand{\Phatm}{\hat{P}_{\mathrm{m}}}
 \newcommand{\Phatu}{\hat{P}_{\mathrm{u}}}
+\newcommand{\Hw}{H_{\mathrm{w}}}
+\newcommand{\Ktop}{K}
+\newcommand{\hist}{h}
 \DeclareMathOperator*{\argmax}{arg\,max}
+
+\clubpenalty=10000
+\widowpenalty=10000
 
 % =========================================================================
 % Front matter
 % =========================================================================
-\title{\textbf{Key-Free Watermark Indication via Empirical Contrast}\\[0.4em]
-\large Prompt-Group Ranking and the Isolated-Text Boundary\\
-on a Public SynthID-Text Instance}
+\title{\texorpdfstring{\textbf{Paired-Reference, Key-Free Indication of a Public SynthID-Text Instance}}{Paired-Reference, Key-Free Indication of a Public SynthID-Text Instance}}
 
 \author{
-    Jens Abrahamsson \\
-    \texttt{https://github.com/jensabrahamsson}
+    Jens Abrahamsson, MSc \\
+    \href{https://github.com/jensabrahamsson}{github.com/jensabrahamsson}
 }
 
 \date{September 2026}
 
 \begin{document}
+\frenchspacing
 \maketitle
 
 % =========================================================================
 \begin{abstract}
-We report an empirical, key-free indicator for the presence of Google
-DeepMind's public SynthID-Text instance (\texttt{public-deepmind-30}).
-The auditor is a \emph{paired marked/unmarked} observer: it holds matched
-twins from the same prompts, not detector keys, hash initialization
-vectors, or $g$-values. That is a strong oracle. It is not detection of
-an arbitrary web document.
+With matched labeled marked and unmarked reference generations, and with
+detector keys withheld at scoring time, empirical next-token count tables
+rank held-out prompt-group means on Google DeepMind's public SynthID-Text
+instance (\texttt{public-deepmind-30}). Exploratory in-domain ranking is
+\textbf{36/36} families (hits reader; file AUC $0.930$). Under a
+predeclared leave-one-family-out protocol on 100 new GPT-2 families, lock~A
+Witten--Bell interpolate ranking is \textbf{99/100} (mean paired difference
+$0.520$; the single miss is stem 088). The corrected original 12-family
+hard-reader diagnostic is \textbf{9/12} group wins.
 
-The result is a two-grain measurement, not a universal detector.
-At the \textbf{population grain} (prompt-group ranking of mean empirical
-log-likelihood ratios), held-out groups rank marked above unmarked
-\textbf{9/12} times on the original 12-prompt leave-one-out hard last-4
-tables (\textbf{10/12} with a $0.02$ comparison margin),
-\textbf{36/36} times for in-domain hits on 36 topics $\times$ 4 draws
-(file AUC $0.930$), and \textbf{99/100} times on a confirmatory lock of
-100 new GPT-2 families. Cross-generator opening tables on those same 100
-prompts rank \textbf{88/100} on DistilGPT-2 (one tie) and
-\textbf{95/100} on Qwen2-1.5B. A ranking win can occur when both group
-means are negative, if the unmarked mean is more negative.
-
-At the \textbf{isolated grain} (one 128-token file, sign of the same
-ratio against zero), hard last-4 on the original 12 is
-\textbf{25/48} (52.1\%; Clopper--Pearson 95\% interval
-$[0.372, 0.667]$, which includes $1/2$). Isolated classification is
-chance-like. Occupancy leftover files on that 12 are
-\textbf{10/20} vs.\ \textbf{11/20} under the same hard reader, while
-the official keyed detector still marks those leftover files
-\textbf{20/20}. Key-free argmax snap on the 48 marked 12$\times$4 files
-moves the official mean from $0.622$ to $0.499$.
-
-The indicator is key-free, not reference-free, and not fully blind.
-It does not recover keys. It does not refute the cryptographic
-undetectability construction of \citet{christ2024undetectable} or the
-strong-watermarking impossibility of \citet{zhang2024sand}. Isolated-file
-research on this mixin is not finished.
+These group successes are not standalone file detection. On the original
+96 files the prespecified zero threshold yields 25 true positives, 23 false
+negatives, 22 true negatives, and 26 false positives: sensitivity
+\textbf{25/48}, specificity \textbf{22/48}, and
+\textbf{47/96} correct decisions ($48.96\%$ balanced accuracy).
+Threshold-free file AUC is $0.590$. The official keyed detector still
+separates leftover files that the empirical reader cannot decide from
+observed tokens. The method is key-free, not reference-free: it requires
+a strong paired oracle on one short-context public instance. It does not
+recover keys, does not classify an unfamiliar web document, and does not
+refute \citet{christ2024undetectable} or \citet{zhang2024sand}.
 \end{abstract}
 
 \noindent\textbf{Keywords:}
-statistical text watermarking, SynthID-Text, key-free indication,
-empirical likelihood ratio, paired-reference auditing.
+statistical text watermarking, SynthID-Text, paired-reference auditing,
+key-free indication, empirical likelihood ratio.
+
+\medskip
+\noindent\textit{How to read this report.}
+Prompt-group ranking (exploratory \textbf{36/36}, lock~A \textbf{99/100},
+corrected original \textbf{9/12}) compares four-draw means.
+Isolated detection is a different task: the prespecified $\tau=0$
+confusion matrix on 96 files (\textbf{47/96} correct).
+\Cref{fig:twograin} is the picture. The auditor is paired-reference, not
+a web-document detector.
 
 % =========================================================================
 \section{Introduction}
@@ -113,217 +127,218 @@ empirical likelihood ratio, paired-reference auditing.
 Statistical watermarks for language models bias next-token sampling with
 a secret keyed function, then test whether a finished string contains
 more of that structure than chance \citep{kirchenbauer2023watermark,
-aaronson2023watermark,dathathri2024synthid}. Google DeepMind's
-SynthID-Text is a tournament member of that family, deployed at scale
-and released as a public reference implementation
+aaronson2023watermark,dathathri2024synthid}. SynthID-Text is a tournament
+member of that family, deployed at scale and released as a public
+reference implementation
 \citep{dathathri2024synthid,deepmind2024synthidcode}. Official detection
-needs the instance keys. If the keys are withheld, third-party
-verification is an open practical question
-\citep{deepmind2024issue22,gloaguen2025blackbox,wang2026ttp}.
+needs the instance keys. Those keys exist in the public reference code;
+this report withholds them from the auditor by design. If a third party
+cannot or will not use the vendor's keys, verification is an open
+practical question \citep{deepmind2024issue22,gloaguen2025blackbox,wang2026ttp}.
 
-This laboratory asks a scoped version of that question:
+This report asks a scoped version of that question, on one public
+instance, under a strong oracle:
 
 \begin{quote}
 \emph{Given matched marked and unmarked generations from the same
-prompts, and no detector keys, can an auditor tell whether this public
-tournament instance is on---as a population ranking of prompt groups,
-and as a classifier of one 128-token file?}
+prompts, and no detector keys at scoring time, can an auditor tell
+whether \texttt{public-deepmind-30} is on---as a ranking of prompt
+groups, and as a decision on one 128-token file?}
 \end{quote}
 
-The two grains must not be collapsed. Prompt-group ranking without keys
-is real on the measured corpora. Isolated 128-token classification at
-threshold zero is not a calibrated detector. A slogan of the form
+The two grains must not be collapsed. On the measured corpora,
+paired-reference group indication can be strong even when a prespecified
+isolated-file threshold is uninformative. A slogan of the form
 ``key-free detection works'' or ``key-free detection fails'' is false
-for this notebook.
+for this measurement.
 
-\subsection{What is new here}
+\subsection{Contribution}
 
 Independent work already asked whether a third party can detect a
-sampling watermark without the vendor's keys
-(\Cref{sec:related}). \citet{gloaguen2025blackbox} test a
-\emph{generator} property with black-box queries.
-\citet{wang2026ttp} verify finished strings from paired
-watermarked/unwatermarked references---the closest published analog of
-the present audit. This repository is a small, fully checked-in instance
-of a cheaper method on DeepMind's public mixin: count-table likelihood
-ratios, leave-one-prompt-out, frozen confirmatory locks, occupancy-free
-readouts, and an honest isolated-file miss.
+sampling watermark without the vendor's keys (\Cref{sec:related}).
+\citet{gloaguen2025blackbox} test a generator property with black-box
+queries. \citet{wang2026ttp} verify finished strings from paired
+watermarked/unwatermarked references---the closest published analog.
+The increment here is a lightweight count-table likelihood-ratio reader
+together with a two-grain measurement on DeepMind's public mixin: group
+ranking can succeed while a prespecified isolated threshold fails.
 
-The contribution, in order, is:
+In order:
 
 \begin{enumerate}[leftmargin=*]
-\item A cheap empirical log-likelihood ratio on matched twins, with no
-keys, \texttt{hash\_iv}, or $g$-values at decision time.
-\item A two-grain measurement on \texttt{public-deepmind-30}:
-population ranking \textbf{9/12}, \textbf{36/36}, lock~A
-\textbf{99/100}; isolated hard sign \textbf{25/48}.
-\item A confirmatory 100-family freeze (lock~A interpolate last-4) and a
-cross-generator check that DistilGPT-2's weaker official lamp
-(\textbf{70/100}) is watermark strength, not only indicator failure.
-\item Ablations that remove two artifacts---truncated-context overcount
-and Laplace occupancy---without erasing prompt-group ranking, and a
-key-free argmax snap that returns official scores to chance.
+\item A paired-reference empirical log-likelihood ratio. Decision-time
+inputs are finished strings. Keys, \texttt{hash\_iv}, $g$-values, and
+the official score are unused.
+\item A two-grain measurement on \texttt{public-deepmind-30}. Exploratory
+in-domain ranking \textbf{36/36}; prospectively specified GPT-2 lock~A
+\textbf{99/100}; corrected original hard-reader diagnostic \textbf{9/12}.
+Isolated zero-threshold decisions on the original set are
+\textbf{47/96} correct (sensitivity \textbf{25/48}).
+\item Cross-generator native refitting on the same 100 prompts:
+DistilGPT-2 lock~B \textbf{88/100} (one tie), Qwen2-1.5B lock~B
+\textbf{95/100}. Rankpath drops more than opening poshits on both
+generators (paired McNemar on GPT-2-win losses).
+\item Artifact controls: a truncated-context overcount correction, an
+occupancy versus observed-token split, and a key-free argmax
+perturbation that returns official scores to chance at a large
+rewrite cost.
 \end{enumerate}
 
-What this is \emph{not}: key recovery; a web-crawler detector; a
-calibrated isolated-file classifier; a production Gemini or Claude
-measurement; a complexity-theoretic distinguisher against
+What this is not: key recovery; a web-crawler detector; a calibrated
+isolated-file classifier; a production Gemini or Claude measurement; a
+complexity-theoretic distinguisher against
 \citet{christ2024undetectable}; a mixing attack against
-\citet{zhang2024sand}.
+\citet{zhang2024sand}; a new watermark construction.
 
-\subsection{Locked headlines}
-
-Unless a number below is labelled as an ablation, it is a locked
-headline of this repository after a truncated-context recount
-(\Cref{sec:overcount}):
-
-\begin{itemize}[leftmargin=*]
-\item Official keyed \texttt{detector\_mean} on the original 12 twins:
-\textbf{12/12}.
-\item Key-free hard last-4, 12-prompt leave-one-out: ranking
-\textbf{9/12} (Clopper--Pearson 95\% $[0.428, 0.945]$, includes $1/2$);
-margin $0.02$ gives \textbf{10/12} ($[0.516, 0.979]$, excludes $1/2$).
-\item Isolated hard sign, same tables: marked $\mathrm{lr}>0$ is
-\textbf{25/48} ($[0.372, 0.667]$); unmarked $\mathrm{lr}\le 0$ is
-\textbf{22/48}. File AUC $0.590$; file-level permutation $p=0.040$
-(descriptive). Binomial $P(\ge 25 \mid n=48, p=1/2)\approx 0.44$.
-\item In-domain hits, 36 topics $\times$ 4 draws: \textbf{36/36} prompt
-wins, file AUC $0.930$, permutation $p\approx 5\times 10^{-4}$.
-\item Confirmatory GPT-2 100$\times$4 lock~A (interpolate last-4):
-\textbf{99/100}. DistilGPT-2 lock~B \textbf{88/100} (1~tie); Qwen2-1.5B
-lock~B \textbf{95/100}. Isolated \textbf{25/48} is not replaced.
-\item Occupancy leftover of those 25 true positives:
-\textbf{10/20} vs.\ \textbf{11/20}; official keyed leftover
-\textbf{20/20}.
-\item Argmax snap on 48 marked files: official mean
-$\mathbf{0.622 \to 0.499}$.
-\end{itemize}
-
-Pre-fix \textbf{10/12} / \textbf{29/48} overcounted truncated openings
-and stay in historical JSON.
+The intended venue is a technical report. The work is a bounded
+empirical note on one public short-context instance, not a flagship
+detection result.
 
 % =========================================================================
 \section{Related Work}
 \label{sec:related}
 
-This laboratory did not invent watermarking, key-free detection, or
-watermark stealing.
+The audit question is not new. \Cref{tab:compare} places this report
+against the closest families. The precise novelty dimension is simple
+empirical count-table auditing under paired labeled references for a
+fixed public instance, without training a proxy model.
 
-\subsection{Sampling watermarks and keyed detection}
+\begin{table}[t]
+\centering
+\small
+\caption{Task-level comparison. ``Not measured'' means this report does
+not provide a shared-benchmark cost. Simpler is not automatically
+cheaper.}
+\label{tab:compare}
+\begin{tabular}{p{0.22\textwidth} p{0.35\textwidth} p{0.35\textwidth}}
+\toprule
+Axis & TTP-Detect \citep{wang2026ttp} & This report \\
+\midrule
+Oracle & Paired watermarked / unwatermarked references & Same: matched twins \\
+Keys at test & Unused & Unused (public keys exist and are withheld) \\
+Fitted object & Proxy model and relative tests & Next-token count tables and $\LLR$ \\
+Training compute & Not reimplemented here & CPU GPT-2 tables; no proxy net \\
+Decision unit & Finished-string tests in that paper & Prompt-group mean and one file \\
+Demonstrated scope & Their corpora and scheme mix & One public SynthID instance \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\citet{kirchenbauer2023watermark} bias sampling with a keyed green list
-and a $z$-test. \citet{aaronson2023watermark} describe a Gumbel /
-exponential-minimum scheme (unpublished talk, cited from
-\citealt{dathathri2024synthid}). \citet{kuditipudi2024robust} give a
-distortion-free inverse-transform construction with alignment detection.
-SynthID-Text is a tournament variant: keyed $g$-values reweight the
-language model's top-$k$, and official detectors average those $g$-values
-\citep{dathathri2024synthid}. This repository's \texttt{score} path is
-the public reference implementation \citep{deepmind2024synthidcode}. We
-do not reimplement \texttt{detector\_mean}.
+\paragraph{Sampling watermarks.}
+\citet{kirchenbauer2023watermark} bias sampling with a keyed green list.
+\citet{kuditipudi2024robust} give a distortion-free inverse-transform
+construction. SynthID-Text reweights the language model's top-$\Ktop$
+with keyed $g$-values \citep{dathathri2024synthid}. This repository's
+\texttt{score} path calls the public \texttt{detector\_mean}; it does
+not reimplement it. \citet{omidi2026synthid} analyse keyed scores. That
+is not the present indicator.
 
-\citet{omidi2026synthid} analyse SynthID-Text's \emph{keyed} scores and
-a layer-inflation removal attack. That object is official $g$-value
-detection with keys. It is not the present indicator, and this laboratory
-does not implement that attack. \citet{han2025synguard} stress SynthID
-with paraphrase, copy-paste, and back-translation. The current workflow
-does not download DIPPER \citep{krishna2023dipper}.
-
-\subsection{Undetectability and strong watermarking}
-
+\paragraph{Undetectability and strong watermarking.}
 \citet{christ2024undetectable} prove cryptographic undetectability for a
-stated PRF-based construction: a polynomial-time algorithm without the
-key cannot distinguish watermarked from unwatermarked text with
-non-negligible advantage, even with adaptive queries. A refutation would
-be a proof error or an efficient distinguisher against \emph{that}
-construction. This laboratory did not instantiate that scheme.
+stated PRF construction. \citet{zhang2024sand} prove impossibility of
+\emph{strong} watermarking given a quality oracle and a mixing oracle.
+This laboratory did not instantiate that scheme and did not run those
+oracles. Lock~A \textbf{99/100} is not a distinguisher against their
+objects. Isolated \textbf{47/96} is a different grain, not a restoration
+of those theorems.
 
-\citet{zhang2024sand} prove impossibility of \emph{strong} watermarking
-given a quality oracle and a mixing perturbation oracle. A refutation
-would be a scheme that remains detectable after those oracles, or a hole
-in that argument. This laboratory did not run those oracles. Official
-keyed leftover detection uses keys and is not a mixing attack.
-
-Those theorems are not a proof that count tables must fail on
-\texttt{public-deepmind-30}, and lock~A \textbf{99/100} is not a
-complexity-theoretic distinguisher against their schemes. Isolated
-\textbf{25/48} is a different grain, not a restoration of those theorems.
-
-\subsection{Stealing, public verifiability, third-party detection}
-
-\citet{jovanovic2024stealing} learn a spoof/remove model from black-box
-API samples. Concurrent stealing and spoofing include
-\citet{wu2024bypassing} and \citet{pang2024nfl}. We do not steal keys,
-train a spoof generator, or invert \texttt{hash\_iv} from a static
-string.
-
-\citet{duan2025pvmark} wrap keyed detectors in a zero-knowledge proof so
-a third party can check that detection ran faithfully. The detector still
-uses the key. That is not this indicator. Google DeepMind's public
-feature request for publicly verifiable detection remains open
+\paragraph{Stealing and public verifiability.}
+\citet{jovanovic2024stealing} learn spoof/remove models from API
+samples. Concurrent stealing includes \citet{wu2024bypassing} and
+\citet{pang2024nfl}. We do not steal keys. \citet{duan2025pvmark} wrap
+keyed detectors in a zero-knowledge proof; the detector still uses the
+key. DeepMind's public-verification request remains open
 \citep{deepmind2024issue22}.
 
-\citet{gloaguen2025blackbox} detect a watermarking \emph{scheme as a
-generator property} with limited black-box queries. SRI Lab
-\citep{gloaguen2024probingsynthid} applied those tests to a local
-SynthID-Text deployment. That is not scoring a finished string against
-count tables.
-
-\citet{wang2026ttp} (TTP-Detect) formulate third-party, key-agnostic
-verification from observable outputs and paired
-watermarked/unwatermarked reference sets. Same audit problem; different
-method (proxy model and relative tests, not count-table LR). This
-notebook is in that second family. It is not a claim to have surpassed
-Wang et al.\ on a shared benchmark, and it does not reimplement
-TTP-Detect.
-
-Anthropic's announced Claude mark remains a future external test
-\citep{anthropic2026watermarknews,anthropic2026watermarkhelp}. Production
-keys are not public. Official \texttt{score} on
-\texttt{public-deepmind-30} cannot read that instance.
+\paragraph{Third-party detection.}
+\citet{gloaguen2025blackbox} detect a watermarking scheme as a generator
+property. SRI Lab applied those tests to a local SynthID deployment
+\citep{gloaguen2024probingsynthid}. That is not scoring a finished
+string against count tables. Anthropic's announced Claude mark is a
+future external test \citep{anthropic2026watermarknews}; production
+keys are not public, and \texttt{score} on \texttt{public-deepmind-30}
+cannot read that instance.
 
 % =========================================================================
 \section{Preliminaries and Threat Model}
 \label{sec:prelim}
 
+\subsection{Notation}
+
+\Cref{tab:notation} is used throughout. Implementation field \texttt{lr}
+equals $\LLR$. Token slices $[a{:}b)$ are half-open generated-token
+index intervals. Unless stated, history preceding a slice remains
+visible only in the absolute-history protocol
+(\Cref{sec:windows}).
+
+\begin{table}[t]
+\centering
+\small
+\caption{Reserved symbols. Older laboratory notes used $k$ for top-$k$,
+count-table history, and mask length; that collision is retired here.}
+\label{tab:notation}
+\begin{tabular}{cl}
+\toprule
+Symbol & Meaning \\
+\midrule
+$\V$ & Generator tokenizer vocabulary \\
+$V_{\mathrm{obs}}$ & Lidstone / Witten--Bell support (cardinality of the observed-token union) \\
+$\Ktop$ & Language-model top-$\Ktop$ (40 in this laboratory) \\
+$\Hw$ & Watermark hash history: $\mathtt{ngram\_len}-1=4$ \\
+$\hist$ & Count-table history length (default 4) \\
+$\tau$ & Isolated-file decision threshold (headline $\tau=0$) \\
+$m$ & Number of leading scored positions masked in an ablation \\
+$M$ & Draws per prompt family (4) \\
+$T$ & Generated tokens per file (128) \\
+$\LLR(x)$ & Mean empirical log-likelihood ratio of file $x$ \\
+$D_p$ & Prompt-level paired difference of group means \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{SynthID-Text on the public instance}
 
-Let $\V$ be the generator vocabulary. An autoregressive model supplies
-$P_0(x_t \mid x_{<t})$. SynthID-Text does not insert hidden characters.
-It biases which token is sampled \citep{dathathri2024synthid}.
+An autoregressive model supplies $P_0(x_t \mid x_{<t})$. SynthID-Text
+does not insert hidden characters. It biases which token is sampled
+\citep{dathathri2024synthid}.
 
-The public reference configuration used here is
-\texttt{public-deepmind-30}: $\mathtt{ngram\_len}=5$ (context length
-$H=4$), 30 public keys, $\mathtt{context\_history\_size}=1024$. The
-implementation hashes the recent context with a linear congruential
-generator. Trust the code for $g$-values: 12 LCG mixes, then
-$(\mathrm{hash} \gg 30) \bmod 2$. The mixin's docstring (``lowest three
-bits'') does not match that implementation. $g$-values are binary, not
-continuous scores in $[0,1]$.
+The public reference configuration is \texttt{public-deepmind-30}:
+$\mathtt{ngram\_len}=5$, hence watermark hash history $\Hw=4$; 30 public
+keys; $\mathtt{context\_history\_size}=1024$. The implementation hashes
+the recent context with a linear congruential generator. Trust the code
+for $g$-values: 12 LCG mixes, then $(\mathrm{hash} \gg 30) \bmod 2$.
+The mixin's docstring (``lowest three bits'') does not match that
+implementation. $g$-values are binary.
 
-Only the language model's top-$k$ candidates are reweighted
-($k=40$ in this laboratory; temperature $1.0$). Repeated context hashes
-are masked so they do not add repeated evidence. The first $H$ generated
-tokens cannot form a complete scored context.
+Only the language model's top-$\Ktop$ candidates are reweighted
+($\Ktop=40$; temperature $1.0$). Repeated context hashes are masked so
+they do not add repeated evidence. The first $\Hw$ generated tokens
+cannot form a complete \emph{official} scored 5-gram.
 
 The official mean detector averages unmasked $g$-values of observed
-tokens. Under unmarked text, $\E[g]=1/2$. With the matching keys,
-tournament winners push the mean above $1/2$ (empirically about $0.62$ on
-the original 12 marked twins; \Cref{tab:official_12}). Distortion-freeness
-in expectation over random keys is a claim of the scheme
-\citep{dathathri2024synthid}, not a theorem proved in this notebook. A
-deployed instance fixes one key set.
+tokens. Under unmarked generation from this fixed instance,
+$\E[g]=1/2$ over hash outputs along the string. Distortion-freeness in
+expectation over \emph{random keys} is a claim of the scheme
+\citep{dathathri2024synthid}, not a theorem proved here. A deployed
+instance fixes one key set.
+
+\Cref{tab:official_12} is the keyed positive control on the original 12
+prompts (first draw). The \texttt{Prompt} column is
+\texttt{detector\_mean} of the prompt string itself. The prompt is not
+stamped; those scores sit near $1/2$. Every marked continuation sits
+well above $0.55$; unmarked continuations stay near $1/2$. The cutoff
+$0.55$ is a laboratory convenience for counting keyed positives. It is
+not a published DeepMind decision rule.
 
 \begin{table}[t]
 \centering
 \small
 \caption{Official keyed \texttt{detector\_mean} on the original 12
-GPT-2 prompt pairs (first draw). Positive control; uses keys. Every
-marked file sits well above $0.55$; unmarked stays near $1/2$.}
+GPT-2 prompt pairs (first draw). Positive control; uses keys.}
 \label{tab:official_12}
 \begin{tabular}{lccc}
 \toprule
-Stem & Prompt & Unmarked & Marked \\
+Stem & Prompt string & Unmarked gen. & Marked gen. \\
 \midrule
 harbour      & 0.500 & 0.508 & 0.621 \\
 night-bus    & 0.498 & 0.496 & 0.633 \\
@@ -358,146 +373,324 @@ It holds a paired training corpus of finished strings
 = \bigl\{(p_i, x_{i,j}^{(m)}, x_{i,j}^{(u)})\bigr\}
 \]
 across $N$ prompt families and $M$ draws per family. It does
-\emph{not} have the instance keys, \texttt{hash\_iv}, $g$-value tables,
-or the official scoring oracle at decision time. Official
+\emph{not} use the instance keys, \texttt{hash\_iv}, $g$-value tables,
+or the official scoring oracle at decision time. The keys are public in
+the reference implementation and are withheld by design. Official
 \texttt{score} is a positive control that the mixin is on, not the
 contribution.
 \end{definition}
 
-This is a strong oracle. A reviewer who writes ``you needed marked and
-unmarked training pairs'' is describing the threat model correctly. It
-is a legitimate audit setting (before/after, or a lab that can toggle
-the mixin). It is not ``one stranger's file, no corpus, no keys.''
-The method is \textbf{key-free}. It is \textbf{not reference-free} and
-\textbf{not fully blind}. In this repository, \texttt{blind} means
+This is a strong oracle: a laboratory that can toggle the mixin, or a
+before/after collection of matched outputs. The method is
+\textbf{key-free}. It is \textbf{not reference-free} and \textbf{not
+fully blind}. In this repository, \texttt{blind} means
 leave-one-prompt-out on those twins.
+
+Marked and unmarked draws are \emph{prompt-matched}, not seed-paired.
+For family offset $r$ and draw $j$, marked and unmarked files use
+distinct \texttt{torch.manual\_seed} values
+(\Cref{sec:generation}). Do not treat a marked/unmarked pair as a
+shared sampling stream.
 
 \subsection{Two evaluation grains}
 
-Let $\LLR(x)$ be the empirical mean log-likelihood ratio of
-\Cref{sec:method}.
-
-\paragraph{Task 1: prompt-group ranking (population grain).}
+\paragraph{Task 1: prompt-group ranking.}
 For a held-out prompt $p$ with $M$ marked and $M$ unmarked draws, declare
 a win if
 \begin{equation}
+D_p
+=
 \frac{1}{M}\sum_{j=1}^{M} \LLR\bigl(x_{p,j}^{(m)}\bigr)
->
-\frac{1}{M}\sum_{j=1}^{M} \LLR\bigl(x_{p,j}^{(u)}\bigr).
+-
+\frac{1}{M}\sum_{j=1}^{M} \LLR\bigl(x_{p,j}^{(u)}\bigr)
+> 0.
 \label{eq:ranking}
 \end{equation}
-Ties are not awarded. Both means may be negative: a win then means the
-unmarked group is \emph{more negative}, not that any marked file is
+Ties ($D_p=0$) are not awarded. Both means may be negative: a win then
+means the unmarked group is more negative, not that any marked file is
 positive.
 
-\paragraph{Task 2: isolated-file sign (single-text grain).}
+\paragraph{Task 2: isolated-file decision.}
 For one file $x$ of $T=128$ generated tokens,
 \begin{equation}
-\hat y(x) = \mathbf{1}\{\LLR(x)>0\}.
+\hat y(x) = \mathbf{1}\{\LLR(x)>\tau\},
+\qquad \tau=0 \text{ unless named as post hoc.}
 \label{eq:isolated}
 \end{equation}
-No twin is shown at test time. Threshold $0$ is not a Youden threshold
-fit on the same stem.
+No twin is shown at test time. The headline isolated result uses the
+prespecified $\tau=0$, not a Youden threshold \citep{youden1950index}
+fit on the same stem. The primary isolated statistic is the $2\times 2$
+confusion matrix and the balanced accuracy
+$({\mathrm{TP}}+{\mathrm{TN}})/96$ on the original set.
 
-The independent unit for ranking inference is the prompt family.
-Leave-one-prompt-out tables share training mass, so families are weakly
-dependent. File-level permutation and binomial $p$-values are
-descriptive \citep{clopper1934binomial}. Exact McNemar tests on
-discordant prompt-family signs are clustered descriptions of
-already-opened scores, not a second freeze \citep{mcnemar1947sampling}.
+The independent ranking unit is the prompt family. Leave-one-prompt-out
+tables share training mass, so families are weakly dependent.
+Clopper--Pearson intervals \citep{clopper1934binomial} on win counts
+are descriptive under an independent Bernoulli model that the design
+only approximates. File-level label-shuffle permutation $p$-values
+\citep{ernst2004permutation} ignore pairing and clustering; they are
+descriptive. Exact McNemar tests on discordant prompt-family signs
+\citep{mcnemar1947sampling} are clustered descriptions of already-opened
+scores, not a second freeze.
+
+\paragraph{Declared operating criteria.}
+The primary group endpoint is the prompt-family win count of
+\eqref{eq:ranking}. The primary isolated endpoint is balanced accuracy
+at the prespecified $\tau=0$, reported with the full $2\times 2$
+matrix. Sensitivity, specificity, and precision are companions of that
+matrix, not substitutes for it. File AUC \citep{fawcett2006roc} is a
+secondary, threshold-free ranking statistic; it does not test whether
+$\tau=0$ is calibrated. For abstaining readers, coverage and
+conditional performance on files with $n>0$ are reported separately:
+$n=0$ is not counted as a confident negative.
+
+The 12, 36, and 100 prompt sets are designed collections, not random
+draws from a stated population. Intervals describe a hypothetical
+repeated-sampling process on those fixed prompts and the laboratory
+generator, not inference to English at large.
 
 % =========================================================================
 \section{Method}
 \label{sec:method}
 
 \subsection{Paired generation}
+\label{sec:generation}
 
-All twins use Hugging Face generators with the public mixin
-(\texttt{min\_new\_tokens}=\texttt{max\_new\_tokens}=$128$, temperature
-$1.0$, top-$k=40$). Marked and unmarked files for a prompt share the
-prompt string and differ by whether the mixin is on. Control-key files,
-when used, are a laboratory shuffle of the public 30
-(\texttt{control-shuffled-30}), not a second vendor.
+All twins use Hugging Face generators with the public mixin.
+Length is matched: both \texttt{min\_new\_tokens} and
+\texttt{max\_new\_tokens} equal 128. Temperature is $1.0$, top-$\Ktop=40$,
+and the pad token equals EOS. Prompts are plain strings; Qwen2-Instruct
+is not wrapped in a chat template. EOS does not truncate early: every
+file has 128 new tokens.
 
-Corpora used in the locked tables:
+Seed allocation for family offset $r$, $M=4$, base seed $s$:
+marked draw $j\in\{0,1,2,3\}$ uses $s + (2M+2)r + 2j$; unmarked draw
+$j$ uses one more. Marked and unmarked never share a seed.
+
+Default Hub identifiers: \texttt{gpt2}, \texttt{distilgpt2},
+\texttt{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not pinned at
+generation time. \texttt{transformers==4.57.6}. SynthID-Text is the
+public reference package installed with \texttt{pip install -e \ldots
+--no-deps}. Exact frozen dumps and commands are in \Cref{app:artifacts}.
+
+Corpora used in the headline tables:
 
 \begin{itemize}[leftmargin=*]
-\item Original 12 Grok-length scene prompts, GPT-2, 4 draws
-(12$\times$4). Headline 12-LOO.
-\item 36 in-domain GPT-2 topics $\times$ 4 draws (36$\times$4).
+\item Original 12 scene prompts (Grok-length: one everyday scene each),
+GPT-2, 4 draws. Headline 12-LOO hard reader, after the truncated-context
+recount.
+\item 36 in-domain GPT-2 topics $\times$ 4 draws. Exploratory hits
+reader.
 \item 100 new English one-line scene prompts, disjoint as strings from
-the 36, seed \texttt{20260901} (100$\times$4). Confirmatory lock.
+the 36, seed \texttt{20260901}. Prospective lock~A/B/C.
 \item The same 100 prompts on DistilGPT-2 and Qwen2-1.5B-Instruct
-(Phase~B). Lock~A interpolate was not run on those twins.
+(Phase~B). Native tables per generator. Lock~A interpolate was not run
+on those twins.
 \end{itemize}
-
-GPT-2 Medium occupancy-free analogs exist and are reported as such
-(\Cref{sec:medium}). Prompt-group locks A/B/C were not run on Medium.
 
 \subsection{Empirical mean log-likelihood ratio}
 
-Fit two next-token count tables on the training twins, context length
-$k=4$ unless noted. Generated token $0$ is skipped by default (no
-complete last-4 context without the prompt). Smoothing is Lidstone with
-$\alpha=0.5$, not add-one Laplace. For a context $c$ and token $y$,
+Fit two next-token count tables on the training twins. Generated token
+$0$ is skipped by default (no nonempty last-$\hist$ context without the
+prompt). Prompt tokens are not available as context unless
+\texttt{prompt-context} is named. Smoothing is Lidstone with
+$\alpha=0.5$ \citep{lidstone1920note}. For a context $c$ and token $y$,
 \begin{equation}
 \hat P(y \mid c)
-= \frac{C(c,y)+\alpha}{\sum_{y'} C(c,y') + \alpha V},
+= \frac{C(c,y)+\alpha}{\sum_{y'} C(c,y') + \alpha V_{\mathrm{obs}}},
 \label{eq:lidstone}
 \end{equation}
-falling back to the unigram when $c$ is unseen (\texttt{hard}). The
-file score is the \emph{mean} per scored position, not a sum:
+where $V_{\mathrm{obs}}$ is the size of the union of next tokens observed in the marked
+and unmarked training unigrams, not $|\V|$. Logs are natural. If a
+context is seen in one table and unseen in the other, the unseen side
+uses unigram Lidstone (hard) or Witten--Bell backoff (interpolate).
+
+The file score is the \emph{mean} per scored position:
 \begin{equation}
 \LLR(x)
 = \frac{1}{n}\sum_{t \in \mathcal{I}(x)}
 \log \frac{\Phatm(x_t \mid c_t)}{\Phatu(x_t \mid c_t)},
 \label{eq:llr}
 \end{equation}
-where $\mathcal{I}(x)$ are scored generated indices and $n=|\mathcal{I}(x)|$.
-Hats are essential: the auditor never observes the true $P_w$.
+where $\mathcal{I}(x)$ are scored generated indices and
+$n=|\mathcal{I}(x)|$. If $n=0$, $\LLR(x)=0$. For the headline hard
+reader that assignment is a numerical convention, not an abstention
+state: after skipping token 0, every 128-token file has $n>0$. Hats are
+essential: the auditor never observes $P_w$. Equation~\eqref{eq:llr}
+has the Neyman--Pearson likelihood-ratio form
+\citep{neyman1933most}, with estimated rather than known conditionals;
+it is not claimed to be an optimal test of $P_w$ versus $P_0$.
 
-\paragraph{Readers.}
-\texttt{hard} uses \eqref{eq:lidstone} with unigram fallback.
-\texttt{hits} scores only last-4 grams observed in both training piles.
-\texttt{poshits} namespaces counts by position bucket.
-\texttt{postokhits} scores a position only if the next token was observed
-under that context (occupancy-free; else the position abstains).
-\texttt{interpolate} uses Witten--Bell backoff through shorter contexts.
-\texttt{rankpath} replaces token identity with a five-symbol unmarked-LM
-rank (miss top-$k$, or rank $1$--$4$ inside top-$k$). Hash pooling in
-this repository is a laboratory splitmix of token ids. It is not
-SynthID's secret hash and not the stealing attack of
-\citet{jovanovic2024stealing}.
+At generated index $i$, the scored context is the up-to-$\hist$ previous
+\emph{generated} tokens. Window $[0{:}4)$ therefore contains indices
+$\{0,1,2,3\}$; with token 0 skipped, three events remain, with context
+lengths $1,2,3$ rather than a full last-4. That is why $[0{:}4)$ is an
+opening measurement rather than four complete $\hist=4$ events.
+
+Fitting stores each real suffix length $1,\ldots,\min(\hist,i)$ once.
+An earlier bug stored a truncated opening $\hist$ times
+(\Cref{sec:overcount}).
+
+\subsection{Readers}
+\label{sec:readers}
+
+\paragraph{hard.}
+Equation~\eqref{eq:lidstone} at the longest available context, with
+unigram fallback if that key is empty. Primary original-12 diagnostic.
+
+\paragraph{hits.}
+Score a position only if the exact last-$\hist$ context was observed in
+\emph{both} training piles; else skip it. Exploratory 36-topic ranking
+reader.
+
+\paragraph{poshits.}
+Namespace counts by position bucket $i // B$. Lock~B uses
+\texttt{fit-prefix}${}=4$ and $B=1$, so each of the first four generated
+tokens has its own table.
+
+\paragraph{postokhits.}
+As poshits, but a position contributes only if the observed next token
+occurred under that namespaced context (occupancy-free). Positions may
+abstain. If every position abstains, $n=0$ and $\LLR=0$; coverage and
+conditional performance are reported separately and zeros are not
+treated as confident negatives.
+
+\paragraph{interpolate (lock~A).}
+Witten--Bell interpolation \citep{witten1991zero}. Let $n_c$ be the
+count mass of context $c$ and $r_c$ the number of distinct next tokens.
+If $c$ is unseen or $n_c=0$, recurse to the shortened suffix. Otherwise
+\[
+\hat P(y\mid c)
+=
+\frac{n_c}{n_c+r_c}\cdot \frac{C(c,y)}{n_c}
++
+\frac{r_c}{n_c+r_c}\cdot \hat P(y\mid c^{-}),
+\]
+with $c^{-}$ the context with the oldest token dropped, and with
+Lidstone unigram at the empty context. Probabilities are clipped below
+at $10^{-18}$ before the log. Unseen next tokens are therefore scored by
+backoff: interpolate nested recall is not occupancy-free recall.
+
+\paragraph{rankpath (lock~C).}
+Replace token identity with a five-symbol unmarked-LM rank alphabet on
+the unmarked top-$\Ktop=40$:
+symbol 0 if the chosen token misses top-$\Ktop$;
+1 if rank 1 (argmax);
+2 if ranks 2--3;
+3 if ranks 4--10;
+4 if ranks 11--40.
+Those five bins partition $\{0\}\cup\{1,\ldots,40\}$. Isolated rankpath
+skips generated token 0 (no unmarked-LM context without the prompt), so
+\texttt{fit-prefix}${}=4$ yields three rank symbols. Rankpath uses
+observed-token backoff on the symbol sequence
+(\texttt{include\_first} on symbols). It needs the unmarked language
+model at scoring time and still does not use keys.
+
+Hash pooling is a laboratory splitmix of token ids. It is not SynthID's
+secret hash and is not used in the headline tables.
 
 \paragraph{Occupancy.}
 If a context is seen in training but the evaluation next token is not,
 add-$\alpha$ still assigns a nonzero log ratio from the two occupancy
-denominators. That occupancy mass is not an observed-token hit.
-\texttt{postokhits} removes it. Witten--Bell interpolate can still score
-unseen next tokens by backoff; nested interpolate recall is therefore
-not occupancy-free recall.
+denominators. That mass is not an observed-token hit.
+\texttt{postokhits} removes it.
 
-\subsection{Validation}
+\subsection{Windows}
+\label{sec:windows}
 
-Leave-one-prompt-out: tables for family $p$ are fit on all other
-families. Nested Youden-by-stem, when reported, chooses a threshold on
-the other families' already-held-out scores. That is a threshold nest,
-not second-level nested cross-validation. Primary isolated headline
-uses $t=0$, not Youden. Prompt ranking uses strict $>$
-(\Cref{eq:ranking}).
-
-\subsection{Confirmatory locks and hypotheses}
-\label{sec:hypotheses}
-
-Before generating the 100 new GPT-2 families, three readers were named:
+Slice $[a{:}b)$ denotes generated indices $i$ with $a\le i<b$. Two
+implementations exist.
 
 \begin{itemize}[leftmargin=*]
-\item \textbf{Lock A.} Interpolate last-4 (\texttt{--methods interpolate
---context-len 4}).
-\item \textbf{Lock B.} Opening poshits (\texttt{--methods poshits
---fit-prefix 4 --pos-bucket 1}).
-\item \textbf{Lock C.} Opening rankpath (\texttt{--rankpath
---fit-prefix 4 --pos-bucket 1}).
+\item \emph{Reindexed.} The slice is copied out as a new string. Token 0
+of that substring is skipped, and contexts do not include tokens before
+$a$. The first committed H2 dump used this behaviour.
+\item \emph{Absolute.} The full string is retained. Only indices in
+$[a{:}b)$ are averaged; preceding tokens remain as context. Later
+probes refuse to reindex a window as a new sequence.
+\end{itemize}
+
+H2 reports both. The reindexed dump is not overwritten.
+
+\subsection{Leave-one-family-out}
+\label{sec:loo}
+
+For each family $p$, tables are fit on all other families and the $2M$
+held-out files of $p$ are scored. That is the evaluation topology of
+\textbf{9/12}, \textbf{36/36}, \textbf{99/100}, Distil
+\textbf{88/100}, and Qwen \textbf{95/100}. Pseudocode is
+\Cref{alg:loo}.
+
+\begin{figure}[t]
+\centering
+\small
+\begin{minipage}{0.92\textwidth}
+\textbf{Algorithm 1} (leave-one-family-out ranking and isolated scores).\\
+\textbf{Input:} families $p=1,\ldots,N$, $M$ marked and $M$ unmarked
+files each; reader $R$.\\
+\textbf{for} $p=1$ to $N$ \textbf{do}\\
+\quad Fit $\Phatm,\Phatu$ with $R$ on all families except $p$.\\
+\quad Score $\LLR(x_{p,j}^{(m)})$ and $\LLR(x_{p,j}^{(u)})$ for
+$j=1,\ldots,M$.\\
+\quad Ranking win if $D_p>0$ (\Cref{eq:ranking}).\\
+\quad Isolated label $\hat y(x)=\mathbf{1}\{\LLR(x)>0\}$ (hard
+headline).\\
+\textbf{end for}
+\end{minipage}
+\caption{Tables for family $p$ never contain $p$'s own files. They do
+contain every other family. Shared training mass induces weak
+dependence among the $N$ wins.}
+\label{alg:loo}
+\end{figure}
+
+This is a frozen \emph{algorithm and evaluation protocol}, not a frozen fitted detector.
+Lock~A \textbf{99/100} is leave-one-family-out on the 100 new families after the reader definition was locked.
+It is not application of tables fit on the original 12.
+
+\paragraph{Nested Youden is post hoc.}
+A later readout chooses, for family $p$, a Youden threshold on the other
+families' already-held-out scores \citep{youden1950index}. Those other
+scores were produced by models that trained on $p$: when family $q\neq p$
+was scored, its leave-one-out tables included $p$. The threshold for $p$
+therefore sees mass from $p$. The procedure is a threshold nest, not
+second-level nested cross-validation, and is not an unbiased held-out
+classifier (\Cref{fig:youden}). Isolated headlines use $\tau=0$. Nested
+Youden counts stay out of detector-performance comparisons.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\scriptsize, node distance=0.55cm]
+  \node[draw, align=center, inner sep=4pt] (fit)
+    {Fit tables for family $q$\\on all families except $q$\\(includes $p$)};
+  \node[draw, align=center, inner sep=4pt, right=1.15cm of fit] (score)
+    {Score held-out files of $q$};
+  \node[draw, align=center, inner sep=4pt, fill=red!8, below=0.55cm of score] (tau)
+    {Choose $\tau_p$ from those $q\neq p$ scores};
+  \draw[->] (fit) -- (score);
+  \draw[->] (score) -- (tau);
+  \node[align=left, anchor=west, text width=5.6cm] at (0,-2.35)
+    {Unbiased nested evaluation would remove $p$ before \emph{any} fitting
+    or threshold selection. This laboratory did not run that procedure.};
+\end{tikzpicture}
+\caption{Nested Youden leakage. Outer-test family $p$ can influence the
+scores used to pick $\tau_p$. Headline isolated decisions do not use
+this threshold.}
+\label{fig:youden}
+\end{figure}
+
+\subsection{Confirmatory locks}
+\label{sec:hypotheses}
+
+Before generating the 100 new GPT-2 families, three readers were named
+(protocol SHA \texttt{7001489}; prompts committed in \texttt{294dba5}):
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Lock A.} Interpolate last-4
+(\texttt{--methods interpolate --context-len 4}).
+\item \textbf{Lock B.} Opening poshits
+(\texttt{--methods poshits --fit-prefix 4 --pos-bucket 1}).
+\item \textbf{Lock C.} Opening rankpath
+(\texttt{--rankpath --fit-prefix 4 --pos-bucket 1}).
 \end{itemize}
 
 \begin{hypothesis}[H1]
@@ -508,227 +701,423 @@ On new GPT-2 prompt families, lock~A prompt ranking
 
 \begin{hypothesis}[H2]
 \label{hyp:h2}
-Under lock~A, window $0{:}4$ ranks more families than window
-$16{:}32$ (opening sufficient in-domain).
+Under lock~A, window $[0{:}4)$ ranks more families than window
+$[16{:}32)$ (opening sufficient in-domain).
 \end{hypothesis}
 
 \begin{hypothesis}[H3]
 \label{hyp:h3}
 Lock~C (rankpath) is more generator-specific than lock~B (opening
-poshits): on DistilGPT-2 and Qwen2-1.5B, rankpath prompt-win drop from
-GPT-2 Phase~A exceeds the poshits drop.
+poshits): on DistilGPT-2 and Qwen2-1.5B, the number of GPT-2 ranking
+wins lost under native refitting is larger for rankpath than for
+poshits.
 \end{hypothesis}
 
-H1--H3 are predictions about prompt ranking. Isolated $\mathrm{lr}>0$
-is logged and is not H1. Phase~B does not run lock~A.
+H1--H3 are predictions about prompt ranking. Isolated $\tau=0$ is
+logged and is not H1. Phase~B does not run lock~A. Phase~B tables are
+\emph{native}: Distil tables are fit on Distil twins, Qwen tables on
+Qwen twins. H3 therefore measures variation in within-generator
+learnability, not frozen GPT-2 transfer.
+
+\Cref{tab:protocol} records the topology of every headline.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Train / test topology. ``Prospective'' means the reader and
+flags were named before the evaluation corpus was generated. Clopper--Pearson
+intervals in later tables are descriptive.}
+\label{tab:protocol}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{1.6cm}@{}}
+\toprule
+Result & Status & Tables fit on & Threshold & Unit \\
+\midrule
+12 hard 9/12 & Exploratory; locked after recount & Other 11 of the original 12 & ranking $>$ & prompt \\
+12 hard isolated & Same tables & Same & $\tau=0$ (prespecified) & file \\
+36 hits 36/36 & Exploratory LOO & Other 35 of the 36 & ranking $>$ & prompt \\
+GPT-2 lock A 99/100 & Prospective protocol; LOO refit & Other 99 of the new 100 & ranking $>$ & prompt \\
+Distil/Qwen B, C & Prospective flags; native LOO & Other 99 of that generator's 100 & ranking $>$ & prompt \\
+Keyed 12/12, 100/100, 70/100 & Positive control (keys) & none (no count table) & first-draw marked mean $>$ unmarked mean of official detector & prompt, first draw \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent No headline hyperparameter was selected on its evaluation
+corpus. Reader flags were frozen in protocol SHA \texttt{7001489}
+before the 100-family generation. Isolated headlines use $\tau=0$, not
+a threshold fit on the scored files.
+
+\subsection{A named non-inferiority margin (demoted)}
+\label{sec:margin}
+
+A laboratory robustness switch declares a ranking win when
+$\bar\LLR_{\mathrm{m}}+0.02>\bar\LLR_{\mathrm{u}}$, i.e.\ $D_p>-0.02$.
+On the original 12 this moves ferry-queue and yields 10/12. That rule is
+not the Bernoulli trial of \Cref{eq:ranking}. Under a symmetric
+no-effect distribution, $P(D_p>-0.02)$ exceeds $1/2$, so a
+Clopper--Pearson interval around 10/12 that excludes $1/2$ does not
+establish above-chance performance under the margin. The $0.02$
+tolerance was not a pre-registered primary endpoint of lock~A. It is
+reported only as a descriptive sensitivity analysis and is absent from
+the abstract.
 
 % =========================================================================
 \section{Why a Fixed Key Can Leave a Trace}
 \label{sec:math}
 
-Why should unkeyed counts separate twins if the scheme is
-distortion-free in expectation over keys? The following is a sketch,
-not a tight theorem. Empirical $\LLR$ uses $\Phatm$ and $\Phatu$, not
-$P_w$.
+The following is a mechanism sketch, not a tight theorem. Empirical
+$\LLR$ uses $\Phatm$ and $\Phatu$, not $P_w$.
 
-A random-key expectation $\E_g[P_w(\cdot \mid c)]=P_0(\cdot \mid c)$
-does not imply that one fixed instance is identical to $P_0$. Tournament
-sampling on a fixed $g$-table reweights top-$k$ in a context-dependent
-way. Repeated draws from the same prompt therefore reuse short contexts
-($H=4$ on this mixin), and empirical next-token frequencies can differ
-between marked and unmarked piles even though no key is recovered.
+Let $G$ be a random key and $g^*$ the deployed instance. Distortion-freeness
+in expectation over keys does not imply equality for one reused key:
+\begin{equation}
+\E_{G}[P_{G}(\cdot\mid c)] = P_0(\cdot\mid c)
+\quad\not\Rightarrow\quad
+P_{g^*}(\cdot\mid c) = P_0(\cdot\mid c).
+\label{eq:fixed}
+\end{equation}
+Tournament sampling on a fixed $g$-table reweights top-$\Ktop$ in a
+context-dependent way. Repeated draws from the same prompt reuse short
+contexts ($\Hw=4$ on this mixin). Matched samples can therefore produce
+$\Phatm\neq\Phatu$ on occupied contexts without revealing the key.
 
-Let $\Delta_p$ be the prompt contrast \eqref{eq:ranking}. If the $2M$
-draws are independent and per-draw $\LLR$ has finite variance, then
-$\mathrm{Var}(\Delta_p)$ scales as $O(1/M)$. That is the population
-grain: $M=4$ already reduces noise relative to one file. We do not
-claim an exponential Hoeffding bound, and we do not claim a
-signal-to-noise formula that would make isolated $T=128$ classification
-impossible in general.
+Conditionally on the fitted tables, the within-family contrast satisfies
+\[
+\mathrm{Var}\!\left(D_p \mid \Phatm,\Phatu\right)
+=
+O(1/M)
+\]
+if the $2M$ draws are independent with finite per-file variance. That
+statement is not unconditional: all held-out scores share estimated
+tables. We do not claim an exponential Hoeffding bound, and we do not
+claim that isolated $T=128$ classification is impossible in general.
 
-On one held-out 128-token string, most last-4 contexts are unseen under
-leave-one-prompt-out. \texttt{hard} then falls back to a unigram;
-\texttt{hits} and \texttt{postokhits} abstain. Isolated sign at $0$ then
-tracks a few overlapping openings, occupancy artifacts, or backoff, not
-a recovered payload. That is an empirical bound on this mixin and these
-tables, not a proof that every key-free distinguisher fails.
+\paragraph{Scaling hypotheses, not production facts.}
+As $\Hw$ grows, exact held-out context overlap should fall and sample
+demand should rise. As $\Ktop$ grows, observations per context-token
+outcome spread more thinly. Lower-order Witten--Bell backoff may retain
+a coarser signal that is no longer a reused 4-gram footprint. Which
+failure mode dominates on a longer-context or structurally different
+mixin is untested. That is the primary external-validity experiment
+(\Cref{sec:next}).
 
 Christ et al.\ and Zhang et al.\ apply to different constructions and
-oracles (\Cref{sec:related}). Isolated \textbf{25/48} is compatible with
-a weak single-file test. Population ranking of matched twins is outside
-their single-challenge games as stated. Neither sentence is a theorem
-about tournament sampling in their sense.
+oracles (\Cref{sec:related}). Isolated chance accuracy at $\tau=0$ is
+compatible with a weak single-file test. Population ranking of matched
+twins is outside their single-challenge games as stated. Neither
+sentence is a theorem about tournament sampling in their sense.
 
 % =========================================================================
 \section{Results}
 \label{sec:results}
 
+\Cref{fig:twograin} is the paper's central picture: four marked and four
+unmarked file scores per original stem, group means, and the zero
+threshold. Garden wins the group comparison with no marked file above
+zero. Station, office, and ferry-queue lose the group comparison and
+still contribute five isolated true positives.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[x=0.92cm,y=7.4cm,font=\scriptsize]
+  % axes
+  \draw[gray!70,thin] (0,0) -- (12.4,0);
+  \node[gray!70,anchor=east] at (-0.12,0) {$\tau=0$};
+  \draw[->] (0,-0.15) -- (0,0.27);
+  \node[anchor=south,rotate=90] at (-1.15,0.06) {file $\LLR$};
+  \foreach \y/\lab in {-0.10/-0.10,0.10/0.10,0.20/0.20} {
+    \draw[gray!40] (0,\y) -- (12.4,\y);
+    \node[anchor=east] at (-0.12,\y) {\lab};
+  }
+  \foreach \x/\lab in {0.5/harb.,1.5/night,2.5/libr.,3.5/mark.,4.5/kitc.,5.5/stat.,6.5/rain,7.5/lett.,8.5/work.,9.5/off.,10.5/gard.,11.5/ferry} {
+    \node[anchor=east,rotate=50] at (\x,-0.165) {\lab};
+  }
+  % ranking-loss stems that still hold isolated TPs
+  \fill[red!12] (5.02,-0.15) rectangle (5.98,0.265);
+  \fill[red!12] (9.02,-0.15) rectangle (9.98,0.265);
+  \fill[red!12] (11.02,-0.15) rectangle (11.98,0.265);
+  % harbour
+  \foreach \y in {-0.0248,0.0437,0.017,-0.0131} \fill[blue!70!black] (0.35,\y) circle (1.15pt);
+  \foreach \y in {0.0506,-0.0428,-0.0873,0.0341} \draw[black] (0.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (0.18,0.0057) -- (0.82,0.0057);
+  \draw[black,line width=0.7pt] (0.18,-0.0113) -- (0.82,-0.0113);
+  % night-bus
+  \foreach \y in {-0.0481,-0.0033,-0.0661,0.0719} \fill[blue!70!black] (1.35,\y) circle (1.15pt);
+  \foreach \y in {-0.1029,0.06,-0.0846,-0.0765} \draw[black] (1.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (1.18,-0.0114) -- (1.82,-0.0114);
+  \draw[black,line width=0.7pt] (1.18,-0.0510) -- (1.82,-0.0510);
+  % library
+  \foreach \y in {0.0008,-0.0297,0.0407,0.0147} \fill[blue!70!black] (2.35,\y) circle (1.15pt);
+  \foreach \y in {-0.1045,-0.0968,-0.0391,0.0653} \draw[black] (2.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (2.18,0.0066) -- (2.82,0.0066);
+  \draw[black,line width=0.7pt] (2.18,-0.0438) -- (2.82,-0.0438);
+  % market
+  \foreach \y in {0.0613,0.0988,-0.0181,0.0988} \fill[blue!70!black] (3.35,\y) circle (1.15pt);
+  \foreach \y in {0.0818,-0.0668,0.0439,0.0219} \draw[black] (3.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (3.18,0.0602) -- (3.82,0.0602);
+  \draw[black,line width=0.7pt] (3.18,0.0202) -- (3.82,0.0202);
+  % kitchen
+  \foreach \y in {0.112,0.0862,-0.0402,0.25} \fill[blue!70!black] (4.35,\y) circle (1.15pt);
+  \foreach \y in {0.0094,0.0628,0.0865,-0.0592} \draw[black] (4.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (4.18,0.1020) -- (4.82,0.1020);
+  \draw[black,line width=0.7pt] (4.18,0.0249) -- (4.82,0.0249);
+  % station
+  \foreach \y in {-0.0443,-0.0355,-0.003,0.0737} \fill[blue!70!black] (5.35,\y) circle (1.15pt);
+  \foreach \y in {0.0554,0.0345,-0.0417,0.0538} \draw[black] (5.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (5.18,-0.0023) -- (5.82,-0.0023);
+  \draw[black,line width=0.7pt] (5.18,0.0255) -- (5.82,0.0255);
+  % rain
+  \foreach \y in {-0.0081,0.1941,0.0841,0.1228} \fill[blue!70!black] (6.35,\y) circle (1.15pt);
+  \foreach \y in {-0.0961,0.1069,0.0727,-0.0744} \draw[black] (6.65,\y) circle (1.15pt);
+  \draw[black,line width=0.7pt] (6.18,0.0023) -- (6.82,0.0023);
+  \draw[blue!70!black,line width=0.7pt] (6.18,0.0982) -- (6.82,0.0982);
+  % letter
+  \foreach \y in {0.1242,-0.0149,-0.0065,-0.0298} \fill[blue!70!black] (7.35,\y) circle (1.15pt);
+  \foreach \y in {-0.0418,0.0272,-0.099,0.0009} \draw[black] (7.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (7.18,0.0182) -- (7.82,0.0182);
+  \draw[black,line width=0.7pt] (7.18,-0.0282) -- (7.82,-0.0282);
+  % workshop
+  \foreach \y in {0.0924,0.0676,0.0358,0.1611} \fill[blue!70!black] (8.35,\y) circle (1.15pt);
+  \foreach \y in {0.0582,0.1207,0.082,0.0327} \draw[black] (8.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (8.18,0.0892) -- (8.82,0.0892);
+  \draw[black,line width=0.7pt] (8.18,0.0734) -- (8.82,0.0734);
+  % office
+  \foreach \y in {-0.1017,-0.014,-0.1185,0.0245} \fill[blue!70!black] (9.35,\y) circle (1.15pt);
+  \foreach \y in {-0.0608,0.173,0.0289,-0.0641} \draw[black] (9.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (9.18,-0.0524) -- (9.82,-0.0524);
+  \draw[black,line width=0.7pt] (9.18,0.0192) -- (9.82,0.0192);
+  % garden
+  \fill[yellow!25] (10.02,-0.15) rectangle (10.98,0.265);
+  \foreach \y in {-0.0135,-0.0069,-0.0608,-0.0142} \fill[blue!70!black] (10.35,\y) circle (1.15pt);
+  \foreach \y in {-0.0376,-0.1078,-0.063,0.0186} \draw[black] (10.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (10.18,-0.0238) -- (10.82,-0.0238);
+  \draw[black,line width=0.7pt] (10.18,-0.0474) -- (10.82,-0.0474);
+  % ferry
+  \foreach \y in {0.0344,0.04,0.0172,-0.1391} \fill[blue!70!black] (11.35,\y) circle (1.15pt);
+  \foreach \y in {0.0378,-0.0417,-0.0305,0.0077} \draw[black] (11.65,\y) circle (1.15pt);
+  \draw[blue!70!black,line width=0.7pt] (11.18,-0.0119) -- (11.82,-0.0119);
+  \draw[black,line width=0.7pt] (11.18,-0.0067) -- (11.82,-0.0067);
+\end{tikzpicture}\\[0.35em]
+{\scriptsize\textcolor{blue!70!black}{$\bullet$ marked file}\quad
+$\circ$ unmarked file\quad
+short bars: group means.\\
+Yellow (garden): ranking win, $0/4$ marked files above $\tau$.\quad
+Rose (station, office, ferry-queue): ranking loss with isolated TPs.}
+\caption{Original 12 families, 12-LOO hard last-4. Group ranking uses
+the two bars; isolated decisions use the zero line. Garden:
+negative--negative ranking win, $0/4$ marked files above $\tau$.
+Station, office, and ferry-queue lose ranking and still contribute five
+isolated true positives.}
+\label{fig:twograin}
+\end{figure}
+
 \subsection{Headline two-grain comparison}
 
 \Cref{tab:headline} is the main pane. Official keyed detection is the
-positive control. Population ranking is the key-free claim. Isolated
-sign is the honest miss.
+positive control, with a different decision unit from the key-free
+locks (\Cref{tab:protocol}). Group ranking is the key-free claim.
+Isolated $\tau=0$ is the full confusion matrix, not sensitivity alone.
 
 \begin{table}[t]
 \centering
-\small
-\caption{Locked headlines. Population grain: prompt-group ranking
-\eqref{eq:ranking}. Isolated grain: $\mathrm{lr}>0$ at $t=0$.
-Clopper--Pearson 95\% intervals invert the binomial
-\citep{clopper1934binomial}. File-level $p$-values are descriptive.}
+\footnotesize
+\caption{Locked headlines. Descriptive Clopper--Pearson 95\% intervals
+invert the binomial \citep{clopper1934binomial} and ignore shared
+tables. File AUC permutation is a 2000-shuffle label permutation on
+files \citep{ernst2004permutation}, conservative $+1/(n_{\mathrm{perm}}+1)$,
+and is not a clustered test. Isolated TP/TN is marked $\LLR>0$ /
+unmarked $\LLR\le 0$ at $\tau=0$. Precision is $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$.}
 \label{tab:headline}
-\begin{tabular}{p{0.42\textwidth} c c c}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm} c c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.4cm}@{}}
 \toprule
-Protocol & Keys? & Grain & Result \\
+Protocol & Keys & Unit & Ranking or control & Isolated $\tau=0$ \\
 \midrule
-Official \texttt{detector\_mean}, original 12
-  & yes & file & \textbf{12/12} \\
+Official mean, original 12 (first draw)
+  & yes & prompt & 12/12 & --- \\
 \midrule
-\multicolumn{4}{l}{\emph{Population (prompt-group ranking)}} \\
-12-LOO hard last-4 (recount)
-  & no & group & \textbf{9/12} \\
-\quad 95\% CI
-  &  &  & $[0.428, 0.945]$ \\
-Same LRs, margin $0.02$
-  & no & group & \textbf{10/12} \\
-\quad 95\% CI
-  &  &  & $[0.516, 0.979]$ \\
+\multicolumn{5}{l}{\emph{Key-free prompt-group ranking}} \\
+12-LOO hard last-4
+  & no & prompt & \textbf{9/12} $[0.428,0.945]$ & TP/TN 25/22 \\
 Hits, 36$\times$4 LOO
-  & no & group & \textbf{36/36}, AUC $0.930$ \\
-GPT-2 100$\times$4 lock~A
-  & no & group & \textbf{99/100} \\
-DistilGPT-2 100$\times$4 lock~B
-  & no & group & \textbf{88/100} (1 tie) \\
-Qwen2-1.5B 100$\times$4 lock~B
-  & no & group & \textbf{95/100} \\
+  & no & prompt & \textbf{36/36} $[0.903,1.000]$; AUC $0.930$ & 136/72 \\
+GPT-2 100$\times$4 lock~A LOO
+  & no & prompt & \textbf{99/100} $[0.946,1.000]$; AUC $0.898$ & 352/290 \\
+DistilGPT-2 lock~B native LOO
+  & no & prompt & \textbf{88/100} $[0.800,0.936]$ (1 tie) & --- \\
+Qwen2-1.5B lock~B native LOO
+  & no & prompt & \textbf{95/100} $[0.887,0.984]$ & --- \\
 \midrule
-\multicolumn{4}{l}{\emph{Isolated (single file, $t=0$)}} \\
-12-LOO hard last-4 marked $\mathrm{lr}>0$
-  & no & file & \textbf{25/48} \\
-\quad 95\% CI
-  &  &  & $[0.372, 0.667]$ \\
-Same, unmarked $\mathrm{lr}\le 0$
-  & no & file & \textbf{22/48} \\
-100$\to$ original 12 lock~A nested Youden
-  & no & file & \textbf{23/48} vs.\ 38/48 \\
+\multicolumn{5}{l}{\emph{Isolated original 12, hard last-4, $\tau=0$}} \\
+Confusion matrix
+  & no & file & --- & TP 25, FN 23, TN 22, FP 26 \\
+Sensitivity / specificity
+  & no & file & --- & 25/48 $[0.372,0.667]$, 22/48 $[0.314,0.608]$ \\
+Precision
+  & no & file & --- & 25/51 $[0.348,0.634]$ \\
+Balanced accuracy (primary isolated)
+  & no & file & \textbf{47/96} ($48.96\%$) $[0.386,0.594]$ & --- \\
+Prompt-clustered BA permutation
+  & no & file & stem-flip $p=0.703$ & chance under the clustered null \\
+File AUC
+  & no & file & $0.590$ (file-shuffle perm.\ $p=0.040$) & not a $\tau=0$ test \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Hard last-4 \textbf{9/12} includes $1/2$ in its interval; the
-$0.02$-margin \textbf{10/12} does not. That is why both are reported.
-Isolated \textbf{25/48} includes $1/2$. Mean marked LR on those 48 files
-is $+0.023$; mean unmarked is $-0.002$; file AUC $0.590$. The
-distributions overlap.
+Hard last-4 \textbf{9/12} includes $1/2$ in its descriptive interval.
+Isolated balanced accuracy \textbf{47/96} also includes $1/2$. Mean
+marked $\LLR$ on those 48 files is $+0.023$; mean unmarked is $-0.002$.
+The distributions overlap. Precision at $\tau=0$ is $25/51$
+($[0.348,0.634]$). A prompt-clustered sign-flip of marked/unmarked
+group labels within each stem (20{,}000 draws, conservative
+$(n_{\ge}+1)/(N+1)$) yields $p=0.703$ for balanced accuracy at least as
+large as $47/96$; a within-stem $4/4$ reshuffle yields $p=0.672$.
+Zero-threshold accuracy is chance under those clustered nulls. A weakly
+informative score can still have AUC above $0.5$: AUC asks whether
+marked files tend to rank above unmarked files across thresholds
+\citep{fawcett2006roc}; the file-shuffle AUC permutation $p=0.040$ does
+not test whether threshold zero is calibrated. The defensible isolated
+statement is: \emph{the prespecified zero threshold does not yield
+useful isolated-file decisions on this set; threshold-free file ranking
+is weak (AUC $0.590$) and requires independent confirmation.}
 
 \subsection{Ranking and isolated sign disagree on stems}
 \label{sec:stems}
 
-Prompt ranking is not per-file accuracy. \Cref{tab:stems} lists every
-original-12 family under 12-LOO hard last-4. Garden ranks with
-\textbf{0/4} marked files above zero: both means are negative, and
-unmarked is more negative ($-0.0474$ vs.\ $-0.0238$). Station, office, and
-ferry-queue \emph{lose} ranking but hold 5 of the 25 isolated true
-positives (ferry-queue $3/4$).
+\Cref{tab:stems} lists every original-12 family. Night-bus is a second
+negative--negative ranking win. The population grain can succeed without
+any isolated file testing positive.
 
 \begin{table}[t]
 \centering
 \small
-\caption{12-LOO hard last-4 stem means (leave-one-prompt-out). A ranking
-win is marked mean $>$ unmarked mean. Isolated TP: marked files with
-$\mathrm{lr}>0$. Garden is the ranking win with no isolated TP.}
+\caption{12-LOO hard last-4 stem means. Isolated TP: marked files with
+$\LLR>0$. Isolated TN: unmarked files with $\LLR\le 0$.}
 \label{tab:stems}
-\begin{tabular}{l r r c c}
+\begin{tabular}{l r r c c c}
 \toprule
-Stem & Marked mean & Unmarked mean & Rank win? & Isolated TP \\
+Stem & Marked mean & Unmarked mean & Win? & TP & TN \\
 \midrule
-harbour       & $+0.0057$ & $-0.0113$ & yes & 2/4 \\
-night-bus     & $-0.0114$ & $-0.0510$ & yes & 1/4 \\
-library       & $+0.0066$ & $-0.0438$ & yes & 3/4 \\
-market        & $+0.0602$ & $+0.0202$ & yes & 3/4 \\
-kitchen       & $+0.1020$ & $+0.0249$ & yes & 3/4 \\
-station       & $-0.0023$ & $+0.0255$ & no  & 1/4 \\
-rain          & $+0.0982$ & $+0.0023$ & yes & 3/4 \\
-letter        & $+0.0182$ & $-0.0282$ & yes & 1/4 \\
-workshop      & $+0.0892$ & $+0.0734$ & yes & 4/4 \\
-office        & $-0.0524$ & $+0.0192$ & no  & 1/4 \\
-garden        & $-0.0238$ & $-0.0474$ & yes & 0/4 \\
-ferry-queue   & $-0.0119$ & $-0.0067$ & no  & 3/4 \\
+harbour       & $+0.0057$ & $-0.0113$ & yes & 2/4 & 2/4 \\
+night-bus     & $-0.0114$ & $-0.0510$ & yes & 1/4 & 3/4 \\
+library       & $+0.0066$ & $-0.0438$ & yes & 3/4 & 3/4 \\
+market        & $+0.0602$ & $+0.0202$ & yes & 3/4 & 1/4 \\
+kitchen       & $+0.1020$ & $+0.0249$ & yes & 3/4 & 1/4 \\
+station       & $-0.0023$ & $+0.0255$ & no  & 1/4 & 1/4 \\
+rain          & $+0.0982$ & $+0.0023$ & yes & 3/4 & 2/4 \\
+letter        & $+0.0182$ & $-0.0282$ & yes & 1/4 & 2/4 \\
+workshop      & $+0.0892$ & $+0.0734$ & yes & 4/4 & 0/4 \\
+office        & $-0.0524$ & $+0.0192$ & no  & 1/4 & 2/4 \\
+garden        & $-0.0238$ & $-0.0474$ & yes & 0/4 & 3/4 \\
+ferry-queue   & $-0.0119$ & $-0.0067$ & no  & 3/4 & 2/4 \\
 \midrule
-Prompt wins / isolated TP
-  & \multicolumn{2}{c}{} & \textbf{9/12} & \textbf{25/48} \\
+Total
+  &  &  & \textbf{9/12} & \textbf{25/48} & \textbf{22/48} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Night-bus is a second example of a negative--negative ranking win. The
-population grain can succeed without any isolated file testing positive.
-
-\subsection{In-domain 36$\times$4}
+\subsection{\texorpdfstring{In-domain 36$\times$4}{In-domain 36x4}}
 
 Hits on 36 topics $\times$ 4 draws, leave-one-prompt-out, ranks
-\textbf{36/36} (file AUC $0.930$; permutation $p\approx 0.0005$).
-Isolated marked $\mathrm{lr}>0$ on that reader is $136/144$, but unmarked
-$\mathrm{lr}\le 0$ is only $72/144$: many unmarked files are also
-positive, and ranking succeeds because marked means are larger (mean
-difference $1.27$). That isolated count is in-domain hits, not the
-original-12 hard headline \textbf{25/48}.
+\textbf{36/36} (file AUC $0.930$; descriptive file-level permutation
+$p\approx 0.0005$). Isolated $\tau=0$ on that reader is $136/144$
+marked and only $72/144$ unmarked at or below zero: many unmarked files
+are also positive, and ranking succeeds because marked means are larger
+(mean difference $1.27$). That isolated operating point is not the
+original-12 hard headline.
 
 A 16-token prefix already ranks \textbf{34/36} (AUC $0.916$). Window
-$0{:}4$ matches that ranking (\textbf{34/36}, AUC $0.917$). Window
-$16{:}32$ is near chance (\textbf{22/36}, AUC $0.549$). On this corpus
-an opening is sufficient for in-domain ranking. Matching mixin
-\texttt{ngram\_len}${}=5$ (context length 5) does not beat last-4.
+$[0{:}4)$ matches that ranking (\textbf{34/36}, AUC $0.917$). Window
+$[16{:}32)$ is near chance (\textbf{22/36}, AUC $0.549$). On this corpus
+an opening is sufficient for in-domain ranking. Count-table history
+$\hist=5$ (one token longer than watermark history $\Hw=4$) does not
+beat $\hist=4$ (hits 35/36, AUC $0.912$). Those two lengths are
+different objects: $\mathtt{ngram\_len}=5$ is the mixin's 5-gram;
+$\hist=5$ is a longer next-token table.
 
 \subsection{Confirmatory 100 GPT-2 families}
 \label{sec:lock}
 
 Protocol freeze before generation; analysis flags unchanged after the
-first run. Official first-draw keyed score on the new twins is
-\textbf{100/100} (mixin on).
+first run. Official first-draw keyed comparison (marked
+\texttt{detector\_mean} $>$ unmarked, one file each) is
+\textbf{100/100} (descriptive interval $[0.964,1.000]$). Minimum marked
+mean $\approx 0.576$; maximum unmarked mean $\approx 0.519$.
+
+Lock~A leave-one-family-out interpolate ranking is \textbf{99/100}.
+\Cref{fig:locka} shows the 100 paired differences $D_p$. Mean $D_p$ is
+$0.520$ (median $0.504$). Every win has $D_p\ge 0.133$; three wins lie
+in $[0.13,0.20)$. The miss, stem 088, has $D_p=-0.238$. Reporting only
+99 signs would hide that most wins are large. One win has both group
+means negative.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\scriptsize]
+  \draw[->] (0,0) -- (16.2,0) node[right] {$D_p$};
+  \draw[->] (0,0) -- (0,22) node[above] {families};
+  \foreach \i/\c in {0/1,1/0,2/0,3/0,4/3,5/12,6/16,7/17,8/19,9/12,10/9,11/6,12/2,13/2,14/1} {
+    \fill[blue!50!black,opacity=0.85] (\i,0) rectangle (\i+1,\c);
+  }
+  \draw[red!70!black,thick] (3,0) -- (3,21);
+  \node[red!70!black,anchor=south] at (3,21.2) {0};
+  \node[anchor=south,font=\tiny] at (0.5,1.35) {088};
+  \foreach \x/\lab in {0/-0.3,3/0,6/0.3,9/0.6,12/0.9,15/1.2}
+    \node at (\x,-1.6) {\lab};
+  \node[anchor=west] at (4,20) {99 wins; one miss in $[-0.3,-0.2)$.};
+\end{tikzpicture}
+\caption{Lock~A prompt-level paired differences $D_p$ on 100 GPT-2
+families (leave-one-family-out interpolate). Bins of width $0.1$. The
+mass sits well to the right of zero.}
+\label{fig:locka}
+\end{figure}
 
 \begin{table}[t]
 \centering
 \small
-\caption{Confirmatory 100$\times$4 GPT-2 Phase~A. Isolated
-$\mathrm{lr}>0$ is secondary and in-family; it does not replace
-\textbf{25/48}.}
+\caption{Confirmatory 100$\times$4 GPT-2 Phase~A, leave-one-family-out.
+Isolated $\tau=0$ counts are in-family and use a different operating
+point from the original-12 hard matrix. Nested Youden is post hoc
+(\Cref{sec:loo}).}
 \label{tab:lock}
 \begin{tabular}{l l c c c}
 \toprule
-Lock & Reader & Prompt wins & File AUC & Isolated $>$0 \\
+Lock & Reader & Prompt wins & File AUC & Isolated TP/TN at $\tau=0$ \\
 \midrule
-A & interpolate last-4 & \textbf{99/100} & 0.898 & 352/400 vs.\ 290/400 \\
-B & opening poshits    & \textbf{100/100} & 0.980 & 393/400 vs.\ 344/400 \\
-C & opening rankpath   & \textbf{96/100} & 0.822 & 314/400 vs.\ 302/400 \\
+A & interpolate last-4 & \textbf{99/100} & 0.898 & 352/290 \\
+B & opening poshits    & \textbf{100/100} & 0.980 & 393/344 \\
+C & opening rankpath   & \textbf{96/100} & 0.822 & 314/302 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-H1 holds: lock~A misses stem 088 only. Nested-by-stem Youden on lock~A
-is $322/400$ vs.\ $338/400$ (in-family; a threshold nest on already
-out-of-fold scores). Lock~B nested Youden is $392/400$ vs.\ $382/400$,
-with occupancy (198/400 unmarked files have $n_{\mathrm{used}}=0$).
-Those file counts are not \textbf{25/48}.
+H1 holds. Nested-by-stem Youden on lock~A is $322/400$ vs.\ $338/400$.
+Lock~B nested Youden is $392/400$ vs.\ $382/400$, with occupancy
+(198/400 unmarked files have $n_{\mathrm{used}}=0$). Those file counts
+are not an isolated-file detector on the original 12.
 
-\subsection{Cross-generator Phase B and H3}
+\subsection{Cross-generator Phase B}
 \label{sec:h3}
 
-Same 100 prompts, native DistilGPT-2 and Qwen2-1.5B-Instruct. Locks B
-and C only.
+Same 100 prompts, native DistilGPT-2 and Qwen2-1.5B-Instruct tables.
+Locks B and C only. \Cref{tab:cross} separates the keyed first-draw
+control from key-free four-draw ranking.
 
 \begin{table}[t]
 \centering
 \small
-\caption{Prompt-group ranking on 100 matched families. Distil official
-\textbf{70/100} is a weaker mixin, not only an indicator gap. Lock~A
-was not run on Distil or Qwen. Historical JSON printed Distil 89/100
-and 69/100 under a non-strict comparison; locked counts treat the tie
-as not a win.}
+\caption{Two different endpoints. Keyed column: first-draw official
+\texttt{detector\_mean}, marked mean $>$ unmarked mean (one file each).
+Lock B/C: four-draw empirical-$\LLR$ ranking. Distil keyed 70/100 is a
+lower official pass rate on that control, not a standalone measure of
+``watermark strength.'' Historical JSON printed Distil 89/100 and
+69/100 under a non-strict comparison; locked counts treat a tie as not
+a win.}
 \label{tab:cross}
 \begin{tabular}{l c c c}
 \toprule
-Generator (100$\times$4) & Official keyed & Lock B poshits & Lock C rankpath \\
+Generator (100 families) & Keyed first-draw & Lock B poshits & Lock C rankpath \\
 \midrule
 GPT-2 (Phase~A)     & 100/100 & 100/100 & 96/100 \\
 DistilGPT-2         & 70/100  & \textbf{88/100} (1 tie) & 68/100 (1 tie) \\
@@ -737,253 +1126,317 @@ Qwen2-1.5B-Instruct & 100/100 & \textbf{95/100} & 84/100 \\
 \end{tabular}
 \end{table}
 
-Relative to GPT-2 Phase~A, Distil lock~B drops 12 wins (ties not
-awarded) and lock~C drops 28; Qwen lock~B drops 5 and lock~C drops 12.
-H3 holds on both generators: rankpath drops more than poshits.
-Isolated Distil and Qwen signs (216/400, 333/400, \ldots) are not
-\textbf{25/48}.
+Distil keyed means: marked $\approx 0.559$, unmarked $\approx 0.496$;
+minimum marked $\approx 0.433$. First-draw Distil \textbf{70/100} is
+marked mean $>$ unmarked mean (six exact ties, not awarded). On this
+sample the same 70 families are the ones with marked mean $>0.55$; that
+coincidence is not a reason to equate the two rules. Qwen keyed means:
+marked $\approx 0.580$, unmarked $\approx 0.500$. Five Qwen marked files
+sit at or below $0.55$ and still beat their unmarked twins, so the two
+keyed rules diverge there. Ground truth for key-free probes remains
+mixin on/off, not the keyed pass rate.
 
-On the original 12, DistilGPT-2 in-domain hits is \textbf{9/12} (AUC
-$0.705$) with official \textbf{12/12}. Native Distil opening rankpath is
-chance (\textbf{8/12}, AUC $0.579$). GPT-2 36$\times$4 hits transferred
-to Distil 12$\times$4 is \textbf{5/12} (AUC $0.462$) despite a shared
-BPE. Qwen in-domain hits is \textbf{8/12} (AUC $0.602$); Qwen first-token
-opening is \textbf{12/12} (AUC $0.901$), which native rankpath does not
-copy (\textbf{8/12}, AUC $0.590$). GPT-2 learned scorers transferred to
-Distil/Qwen are chance. Count tables are not a tokenizer-universal
-isolated detector.
+H3 as a paired drop contrast, using prompts as the unit. A drop is a
+GPT-2 ranking win that is not a win under native refitting (ties count
+as non-wins). Distil lock~B loses 12 GPT-2 wins and gains none (net
+$100\to 88$). Distil lock~C loses 31 GPT-2 wins and gains 3 (net
+$96\to 68$). Of those Distil losses, 6 prompts drop only on B, 25 only
+on C, and 6 on both. Exact one-sided McNemar
+$P(X\ge 25\mid \mathrm{Bin}(31,1/2))\approx 0.00044$.
+Qwen lock~B loses 5 and gains none (net $100\to 95$); lock~C loses 15
+and gains 3 (net $96\to 84$). Qwen B-only drops 2, C-only 12, both 3;
+$P(X\ge 12\mid \mathrm{Bin}(14,1/2))\approx 0.0065$. Rankpath loses more
+GPT-2 wins than poshits on both generators. This is a post-open
+clustered description of already-opened scores, not a second freeze.
+Lock~B starts at 100/100 and lock~C at 96/100 on GPT-2, so raw
+percentage-point drops also differ by ceiling.
+
+Count tables are not a tokenizer-universal isolated detector. GPT-2
+learned scorers transferred to Distil/Qwen are chance. Native Distil
+opening rankpath on the original 12 is chance (\textbf{8/12}, AUC
+$0.579$) even though Distil official first-draw on those 12 is
+\textbf{12/12}.
 
 \subsection{Leftover versus covered isolated true positives}
 \label{sec:leftover}
 
-Mixed occupancy-free tables from 100 one-liners $\cup$ 36 Grok-length
-families cover 28 of the original 48 files; 20 files remain zeros
-(leftover). That leftover set is defined by later pooling, not by
-12-LOO training overlap. Crossing it with the headline 25 isolated TPs
-gives \Cref{tab:split}.
+The leftover split is the cleanest evidence that group indication and
+standalone file reading are different capabilities. Mixed occupancy-free
+tables from the 100 one-liners and 36 Grok-length families cover 28 of
+the original 48 files; 20 files remain zeros (leftover). Crossing that
+set with the headline 25 isolated true positives gives \Cref{tab:split}.
 
 \begin{table}[t]
 \centering
 \small
-\caption{Headline 25 isolated TPs split by mixed occupancy-free
-coverage (100$\cup$grok36). Leftover last-4 is chance. The slices add
-to 25. Neither slice replaces \textbf{25/48}. Ranking-loss TPs
-(station-4, office-4, ferry-queue 1--3) are all leftover.}
+\caption{Headline isolated $\tau=0$ split by mixed occupancy-free
+opening coverage. Leftover last-4 is chance. Official keyed leftover
+marked files are still above $0.55$ (\textbf{20/20}). Ranking-loss TPs
+(station, office, ferry-queue) are all leftover.}
 \label{tab:split}
-\begin{tabular}{l c c c}
+\begin{tabular}{l c c c c}
 \toprule
-Slice & Files & Marked $\mathrm{lr}>0$ & Unmarked $\mathrm{lr}\le 0$ \\
+Slice & $n$ & TP ($\LLR>0$) & TN ($\LLR\le 0$) & Keyed marked $>0.55$ \\
 \midrule
-Occupancy-covered & 28 & \textbf{15/28} & 11/28 \\
-Leftover (unseen openings) & 20 & \textbf{10/20} & \textbf{11/20} \\
+Occupancy-covered & 28 & 15/28 & 11/28 & 28/28 \\
+Leftover (unseen openings) & 20 & 10/20 & 11/20 & \textbf{20/20} \\
 \midrule
-Original 12$\times$4 combined & 48 & \textbf{25/48} & \textbf{22/48} \\
+Original 12$\times$4 & 48 & 25/48 & 22/48 & 48/48 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Official keyed mean on leftover-20 marked files is $0.624$,
-\textbf{20/20} above $0.55$ (covered-28: $0.620$, 28/28; unmarked:
-$0.500$, 0/48). Prefix-5 leftover is 18/20 (the two misses are office-1
-and office-3 at $0.500$ on one 5-gram; both are marked by prefix-16).
-Leftover key-free chance is not ``the mixin missed these files.''
+Official keyed mean on leftover-20 marked files is $0.624$. Leftover
+key-free chance is not ``the mixin missed these files.'' The keyed
+detector can still succeed where the empirical reader has no useful
+zero-threshold signal.
 
-Mixed opening rankpath on leftover-20 is 12/20 vs.\ 14/20. After a later
-union with short+medium+tails openings, leftover-18 mixed rankpath is
-12/18 vs.\ 13/18 and interpolate 12/18 vs.\ 12/18. Those leftover-only
-readers are chance-like and are not sold as replacing \textbf{25/48}.
-
-Opening-atom overlap of 100 one-liners onto the original 12 is a
-different bound: covered \textbf{18/48} (exact 14/48; decided 16 TP /
-0~FP). Occupancy-free \texttt{postokhits} isolated recall equals that
-coverage. It is not an explanation of the in-domain 25 TPs, and it is
-not \textbf{25/48}.
-
-\subsection{Out-of-family isolated transfer}
-
-Frozen lock~A tables from 100 one-liners score the original 12$\times$4
-at nested Youden \textbf{23/48} vs.\ 38/48 (prompt 8/12). That does not
-beat \textbf{25/48}. Lock~B opening poshits ranks 11/12 with nested
-36/48 vs.\ 42/48 (33/48 unmarked zeros). Occupancy-free readout of those
-same tables is \textbf{16/48} vs.\ 48/48 (21 occupancy TPs). Lock~C
-nested Youden is 24/48 vs.\ 41/48 (prompt 10/12; losses letter and
-garden; three ranking wins have 0 isolated TPs).
-
-On the 36-topic pool (same one-line register), lock~A nested Youden is
-109/144 vs.\ 122/144 (prompt \textbf{36/36}). Occupancy-free lock~B is
-114/144 vs.\ 139/144. Opening coverage is 117/144. Same-register
-transfer is not isolated-file detection on the original 12.
-
-Register-matched Grok-length train $\to$ original 12 lock~A nested is
-16/48 vs.\ 41/48 (prompt 5/12), which does not beat one-liner 23/48 or
-\textbf{25/48}. Reverse 100$\to$Grok-register 12 lock~A nested is 22/48
-vs.\ 41/48; occupancy-free is 0/48. The original 12 are not uniquely
-cursed.
+Further leftover unions, Distil occupancy-free transfer, and mask-$m$
+tails are catalogued in \Cref{app:catalog}. They refine the same
+boundary; they do not change the headline two-grain claim.
 
 % =========================================================================
-\section{Ablations, Artifacts, and Scrubbing}
+\section{Ablations and Mechanistic Perturbation}
 \label{sec:ablations}
 
 \subsection{Truncated-context overcount}
 \label{sec:overcount}
 
-Early logs stored every order $1..k$ even when fewer tokens existed, so
-\texttt{fit\_table([[10,20]], context\_len=4)} counted $(10,)\to 20$
-four times. After storing each real suffix once, hard last-4 ranking
-moved from 10/12 to \textbf{9/12} and isolated sign from 29/48 to
-\textbf{25/48}. Prompt ranking survived. Hits on the recounted twins is
-\textbf{10/12} (AUC $0.718$). In-domain 36$\times$4 hits stayed
-\textbf{36/36}. Pre-fix JSON is historical.
+Early logs stored every order $1,\ldots,\hist$ even when fewer tokens existed,
+so a one-token opening was counted $\hist$ times. After storing each
+real suffix once, hard last-4 ranking moved from 10/12 to \textbf{9/12}
+and isolated sensitivity from 29/48 to \textbf{25/48}. Prompt ranking
+survived. Pre-fix JSON is historical.
 
 \subsection{Occupancy versus observed tokens}
 
-On the 4-token new-topic gate, poshits isolated $t=0$ is 39/48 vs.\
-41/48. Occupancy-free \texttt{postokhits} on that split is 16/48, with
-decided precision 1.000: The-Laplace true positives become zeros.
-36$\times$4 LOO poshits $t=0$ is 131/144 vs.\ 132/144; postokhits is
-122/144 vs.\ 132/144 (nine of the poshits TPs were occupancy). Isolated
-observed-token recall on named opening readers equals train opening-atom
-overlap. That identity does not create a denser isolated-file detector.
+On a 4-token new-topic gate, poshits isolated $\tau=0$ is 39/48 vs.\
+41/48. Occupancy-free \texttt{postokhits} is 16/48, with decided
+precision 1.000 when $n_{\mathrm{used}}>0$. Isolated observed-token
+recall on named opening readers equals train opening-atom overlap. That
+identity does not create a denser isolated-file detector. Comparing
+marked recall alone with 25/48 is not a sufficient evaluation rule: a
+low-recall, high-specificity abstaining reader is a different operating
+point.
 
-\subsection{H2 windows (reindexed vs.\ absolute)}
-\label{sec:h2}
+\subsection{H2 windows}
 
-H2 asked whether lock~A window $0{:}4$ outranks $16{:}32$ on the 100
-GPT-2 families. The committed first dump scored each window as a
-\emph{reindexed} substring: $0{:}4$ \textbf{99/100} (AUC $0.885$),
-$16{:}32$ \textbf{89/100} (AUC $0.689$). An absolute-history remasure
-that keeps preceding tokens as context gives $0{:}4$ \textbf{99/100}
-(AUC $0.885$) and $16{:}32$ \textbf{87/100} (AUC $0.695$). Opening still
-outranks mid-file in-family. Absolute 16:32 did not rise versus
-reindexed 89/100. The reindexed dump is not overwritten.
+H2 asked whether lock~A window $[0{:}4)$ outranks $[16{:}32)$ on the 100
+GPT-2 families. Reindexed: $[0{:}4)$ \textbf{99/100} (AUC $0.885$),
+$[16{:}32)$ \textbf{89/100} (AUC $0.689$). Absolute-history:
+$[0{:}4)$ \textbf{99/100} (AUC $0.885$), $[16{:}32)$ \textbf{87/100}
+(AUC $0.695$). Opening still outranks mid-file in-family. Post-open
+paired McNemar on the absolute windows is $86/13/1/0$ (both / opening
+only / mid only / neither);
+$P(X\ge 13\mid \mathrm{Bin}(14,1/2))\approx 0.00092$. That is not a
+second freeze.
 
-Post-open paired prompt-family McNemar on the absolute windows is
-$86/13/1/0$ (both / 0:4 only / 16:32 only / neither). One-sided
-$P(X\ge 13 \mid \mathrm{Bin}(14,1/2))\approx 0.00092$
-\citep{mcnemar1947sampling}. That is not a second freeze. Unpaired
-interval overlap is not the H2 test. Isolated \textbf{25/48} is a
-different grain.
+Out-of-family, the same interpolate tables are not front-loaded on
+Grok-length files (reindexed $[0{:}4)$ is 7/12; tails 9/12).
 
-Out-of-family, the same interpolate tables are \emph{not} front-loaded
-on Grok-length files (reindexed $0{:}4$ is 7/12; tails 32:64 and 64:128
-are 9/12). Absolute-history remasure: grok12 $0{:}4$ stays 7/12; 32:64
-rises to 10/12 versus reindexed 9/12; 64:128 stays 9/12. Original 12
-absolute $0{:}4$ is 9/12 vs.\ $16{:}32$ 6/12. Absolute 10/12 is not
-sold as a headline.
-
-\subsection{Mask-$k$ of the headline hard scorer}
-
-Masking the first scored tokens of 12-LOO hard last-4 does not destroy
-prompt ranking: tails $4{:}128$ and $8{:}128$ stay \textbf{9/12}, while
-prefix $0{:}4$ is only \textbf{5/12}. Interpolate tails drop to 5/12
-then 3/12. Headline hard \textbf{9/12} is not an opening-only $n$-gram
-artifact. Isolated $t=0$ stays chance-like in every slice. Hard $4{:}128$
-leftover is 11/20 vs.\ 11/20; covered 16/28. Tail 9/12 is
-occupancy-covered ranking, not leftover-file recall.
-
-\subsection{Control-key instance contrast}
-
-Text sampled with \texttt{control-shuffled-30} scores near $0.50$ on the
-public keys (mean of 48 file means $0.501$) and near $0.62$ on the
-matching control keys ($0.624$). Key-free opening poshits trained on
-public twins assign $\mathrm{lr}>0$ to \textbf{0/48} control files.
-Public vs.\ control still ranks \textbf{12/12} (AUC $0.906$). The
-count-table reader is instance-specific without recovering keys.
-Control-vs-unmarked AUC $0.510$ is the honest ranking; prompt wins
-against negative unmarked LRs are not evidence that control looks
-marked.
-
-A later in-domain lock~A with control-as-marked 12$\times$4 versus the
-original unmarked pile ranks 7/12 (isolated 30/48 vs.\ 25/48). That
-protocol is not a matched \texttt{pair()} run (seeds 20260931 vs.\ 0),
-and the 30 isolated positives are control-key files, not the original
-public marked 12. The count 30/48 is not sold as replacing
-\textbf{25/48}.
-
-\subsection{Argmax-snap scrubbing}
+\subsection{Argmax perturbation}
 \label{sec:scrub}
 
-Tournament sampling only reweights the unmarked top-$k$. Snapping each
-generated token to the unmarked argmax, using original prefixes, is a
-key-free removal attempt. It needs the unmarked language model, not the
-keys. It is a statistical scrub, not a fluent rewrite.
-
-On all 48 marked 12$\times$4 files, official mean moves
-$\mathbf{0.6216 \to 0.4994}$. An unmarked control stays near half
-($0.508 \to 0.487$). About 60--90 of 128 tokens flip. Binary
-\texttt{snapupset} (in-top-$k$ but not argmax) is chance as a
-\emph{detector} (opening 7/12, AUC $0.501$, marked/unmarked upset rates
-$0.649$ vs.\ $0.653$). Scrub still kills the official mean because it
-changes \emph{which} tokens occupy those non-argmax slots, and the
-public detector reads $g$-values on the chosen ids.
-
-\subsection{GPT-2 Medium occupancy-free analog}
-\label{sec:medium}
-
-GPT-2 Medium (355M, same BPE) was generated in the laboratory.
-Prompt-group locks A/B/C were not run (Phase~B refused lock~A on Distil;
-the Medium freeze stayed occupancy-free). Official first-draw lamp on
-Medium 100$\times$4 twins is \textbf{100/100}. Occupancy-free leftover-15
-coverage on the original GPT-2 12 is \textbf{0/15}; Medium$\to$GPT-2
-\texttt{postokhits} $t=0$ is 16/48 vs.\ 48/48. Medium$\to$Medium 12
-occupancy-free $t=0$ is 10/48 vs.\ 48/48 (coverage 13/48).
-Distil$\leftrightarrow$Medium occupancy-free $t=0$ is 20/48 vs.\ 48/48
-and 3/48 vs.\ 47/48. None of those counts replaces \textbf{25/48}.
+Tournament sampling only reweights the unmarked top-$\Ktop$. Snapping
+each generated token to the unmarked argmax, using original prefixes,
+is a key-free \emph{mechanistic perturbation}. It needs the unmarked
+language model, not the keys. About 60--90 of 128 tokens flip. On all 48
+marked original-12 files, official mean moves $0.6216\to 0.4994$. The
+procedure is not a fluent rewrite, not self-consistent regeneration,
+and not a practical removal attack.
 
 % =========================================================================
 \section{Limitations}
 \label{sec:limits}
 
-\texttt{public-deepmind-30} is a short-context ($H=4$) public demo, not a
-proprietary production key. Population ranking needs matched draws per
-prompt. Isolated classification of one 128-token file at $t=0$ is
-chance-like; this paper does not claim a key-free single-file detector.
+The public instance is a short-context ($\Hw=4$) demo, not a proprietary
+production key. Group ranking needs matched draws per prompt. Isolated
+classification of one 128-token file at $\tau=0$ is chance-like on the
+original set. File AUC $0.590$ is weak and was not a confirmatory
+endpoint.
 
 The auditor is strong: marked and unmarked twins, finished strings, a
-toggleable mixin. That is not web-text detection. Closest published
-finished-string analog is \citet{wang2026ttp}; this repository does not
-reimplement TTP-Detect on a shared new corpus.
+toggleable mixin. Closest published finished-string analog is
+\citet{wang2026ttp}; this repository does not reimplement TTP-Detect on
+a shared corpus and does not measure wall-clock cost.
 
-DistilGPT-2 official \textbf{70/100} means cross-architecture numbers
-are not pure indicator tests. Rankpath is generator-specific (H3).
-Learned GPT-2 scorers do not transfer to Distil or Qwen.
+Nested Youden is not fully nested. The $0.02$ margin is not a valid
+chance test. Prompt sets are designed, not sampled from a stated
+population. Lock~A \textbf{99/100} is prospectively specified
+leave-one-family-out, not evaluation of one frozen fitted table on a
+later corpus. Distil keyed 70/100 is a first-draw official comparison,
+not the four-draw key-free endpoint. Isolated balanced accuracy at
+$\tau=0$ is not distinguishable from chance under a prompt-clustered
+sign-flip.
 
-Leftover \textbf{10/20} vs.\ \textbf{11/20} and official leftover
-\textbf{20/20} are ablations of the isolated miss. They do not replace
-\textbf{25/48}. Occupancy-free opening overlap (\texttt{Closing},
-\texttt{The car}) is not a recovered SynthID payload.
+How count-table coverage scales with longer watermark history is
+unknown. Production Gemini and Anthropic keys were not measured.
+Multi-key replication of the public mixin is not started. Isolated-file
+research is not finished.
 
-The $\psi$-style tournament formula sometimes written for order
-statistics is not a line-by-line match to DeepMind's implementation;
-this paper does not use it as a proof. Empirical $\LLR$ uses hats.
-Sketches in \Cref{sec:math} are not tight concentration theorems.
+% =========================================================================
+\section{A Locked Next Experiment}
+\label{sec:next}
 
-Production Gemini and Anthropic keys were not measured. DIPPER paraphrase
-was not run. Multi-key replication of the public mixin is not started.
-Isolated-file research is not finished.
+Editorial revision cannot raise the venue ceiling by itself. The
+highest-value next measurement is one preregistered replication of the
+same two-grain protocol on either a materially longer watermark context
+or a structurally different local mixin, locked before generation.
+
+The lock should fix the items in \Cref{tab:nextlock}. Report
+exact-context occupancy as a mechanistic intermediate. If group ranking
+survives when short-context reuse drops, the work begins to support a
+transferable audit method. If it collapses, the public instance's
+reusable 4-gram footprint is a boundary of the result. Either outcome
+contributes more than fitting additional readers to the original 12
+families.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Preregistered next measurement (not yet run). Both grains are
+reported. No reader is selected after inspecting the new evaluation
+corpus.}
+\label{tab:nextlock}
+\begin{tabular}{ll}
+\toprule
+Locked before generation & Value \\
+\midrule
+Mixin / $\Hw$ & longer history, or a different local mixin \\
+Generator / tokenizer & named Hub id and revision \\
+Prompt frame & designed $N$ families, stated construction rule \\
+Reference size & $N\times M$ matched twins, $T=128$ \\
+Reader & interpolate last-$\hist$ (lock~A analog) \\
+Fold topology & Algorithm~1 leave-one-family-out \\
+Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
+Primary group metric & $D_p$ magnitudes and win count \\
+Primary isolated metric & $\tau=0$ matrix, balanced accuracy, AUC \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % =========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-On Google DeepMind's public SynthID-Text instance, a paired
-marked/unmarked auditor can rank held-out prompt groups without detector
-keys (\textbf{9/12}, \textbf{36/36}, confirmatory \textbf{99/100}). The
-same tables do not classify one 128-token file at threshold zero
-(\textbf{25/48}; 95\% interval includes $1/2$). Ranking wins can be
-``unmarked more negative.'' Leftover isolated files remain officially
-marked (\textbf{20/20}) while key-free last-4 on that slice is chance
-(\textbf{10/20} vs.\ \textbf{11/20}). Argmax snap returns official
-scores from about $0.62$ to $0.50$ without keys.
+With matched labeled marked/unmarked reference generations and no
+detector keys at scoring time, empirical count-table auditors rank
+marked prompt-group means above unmarked means in 36/36 exploratory
+in-domain families and 99/100 prospectively generated same-register
+GPT-2 families under a predeclared leave-one-family-out protocol. The
+corrected original hard-reader diagnostic is 9/12. On the original 96
+individual files, the prespecified zero threshold yields 25/48
+sensitivity, 22/48 specificity, precision 25/51, and 47/96 correct
+decisions, while threshold-free file AUC is 0.590. Prompt-clustered
+permutation of balanced accuracy is consistent with chance. Official
+keyed leftover detection remains 20/20 where the empirical reader is
+chance.
 
-That is a two-grain empirical indication on a public mixin, under a
-strong oracle. It is not a universal detector, not key recovery, and not
-a refutation of \citet{christ2024undetectable} or \citet{zhang2024sand}.
+These results establish paired-reference indication at the group grain
+for one public SynthID-Text instance. They do not establish calibrated
+standalone indication on an unfamiliar file, a universal key-free
+detector, key recovery, or a refutation of
+\citet{christ2024undetectable} or \citet{zhang2024sand}. The unresolved
+external-validity question is whether the paired-reference signal
+survives a longer-context or different watermarking mixin.
+
 Code and frozen JSON:
-\texttt{https://github.com/jensabrahamsson/text-watermark-laboratory}.
+\url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
 
 % =========================================================================
+\appendix
+\section{Artifact identifiers and commands}
+\label{app:artifacts}
+
+\paragraph{Software.}
+Python $\ge 3.10$; \texttt{transformers==4.57.6}; CPU JAX for official
+\texttt{detector\_mean}; SynthID-Text public checkout installed with
+\texttt{pip install -e \ldots --no-deps}. Hugging Face ids:
+\texttt{gpt2}, \texttt{distilgpt2}, \texttt{Qwen/Qwen2-1.5B-Instruct}.
+Hub commit SHAs were not recorded at generation time.
+
+\paragraph{Chronology (confirmatory 100).}
+Protocol freeze SHA \texttt{7001489}. Prompts
+\path{experiments/2026-09-01-prompts-100/} committed in
+\texttt{294dba5} before \texttt{pair}. Pair SHA \texttt{bf98c92}.
+Analysis-code SHA \texttt{bbc802e} (truncated-context recount). Flags
+were not changed after the first run.
+
+\paragraph{Headline commands.}
+{\raggedright\scriptsize
+\texttt{python -m text\_watermark\_tools probe PAIR12 --methods hard --context-len 4}\\
+\texttt{python -m text\_watermark\_tools probe PAIR36 --methods hits}\\
+\texttt{python -m text\_watermark\_tools pair experiments/2026-09-01-prompts-100}\\
+\texttt{\hspace{1em}--n-samples 4 --max-new-tokens 128 --seed 20260901}\\
+\texttt{python -m text\_watermark\_tools probe experiments/2026-09-01-pair-100x4}\\
+\texttt{\hspace{1em}--methods interpolate --context-len 4}\\
+\par}
+
+Distil/Qwen Phase~B replace the model flag and run locks B and C only
+(\texttt{--methods poshits --fit-prefix 4 --pos-bucket 1};
+\texttt{--rankpath --fit-prefix 4 --pos-bucket 1}).
+
+\paragraph{Frozen result files.}
+SHA-256 prefixes (first 16 hex digits) identify the JSON dumps.
+Original-12 hard: \path{experiments/2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json}
+(\texttt{e4f758305b631761}; $9/12$, $25/48$ vs $22/48$, AUC $0.590$).
+Lock~A interpolate: \path{experiments/2026-09-01-probe-100x4-hard-last4/interpolate/holdout.json}
+(\texttt{de0f0c5738729e87}).
+GPT-2 lock~B poshits: \path{experiments/2026-09-01-probe-100x4-opening-poshits/poshits/holdout.json}
+(\texttt{aca0f852266c6b41}).
+Distil lock~B: \path{experiments/2026-09-01-probe-distil-100x4-opening-poshits/poshits/holdout.json}
+(\texttt{37834c2f0e45856c}).
+Qwen lock~B: \path{experiments/2026-09-01-probe-qwen-100x4-opening-poshits/poshits/holdout.json}
+(\texttt{5b7e3c00264561f8}).
+Stem honesty: \path{experiments/2026-09-01-ranking-isolated-honesty/}.
+
+\paragraph{Internal labels, on first use in the repository.}
+\emph{Grok-length}: original 12 scene prompts, comparable length to a
+short narrative seed. \emph{Stem}: prompt-family id.
+\emph{Opening-atom overlap}: an evaluation next-token that already
+occurred under the same short context in training.
+
+\section{Additional transfer catalog}
+\label{app:catalog}
+
+These measurements are real and checked in. They are not headlines.
+
+\paragraph{Out-of-family lock A on the original 12.}
+Tables from the 100 one-liners, nested Youden (post hoc)
+$23/48$ vs.\ $38/48$ (prompt $8/12$). Occupancy-free postokhits at
+$\tau=0$ is $16/48$ vs.\ $48/48$. Opening coverage is $18/48$.
+Low-recall, high-specificity readers can have higher balanced accuracy
+than 47/96 without being a better prespecified detector: thresholds,
+dependence, and abstentions differ. They are not substituted for the
+hard $\tau=0$ matrix.
+
+\paragraph{Same-register 36.}
+100$\to$36 lock~A nested Youden $109/144$ vs.\ $122/144$ (prompt
+$36/36$). Same register, not isolated detection on the original 12.
+
+\paragraph{Register mismatch.}
+Grok-length train $\to$ original 12 lock~A nested $16/48$ vs.\ $41/48$.
+Reverse 100$\to$Grok-register 12 lock~A nested $22/48$ vs.\ $41/48$;
+occupancy-free $0/48$. The original 12 are not a unique failure set.
+
+\paragraph{Mask-$m$.}
+Masking the first scored tokens of 12-LOO hard last-4 does not destroy
+prompt ranking: tails $[4{:}128)$ and $[8{:}128)$ stay $9/12$, while
+prefix $[0{:}4)$ is $5/12$. Isolated $\tau=0$ stays chance-like in
+every slice. Hard $[4{:}128)$ leftover is $11/20$ vs.\ $11/20$.
+
+\paragraph{Control keys.}
+Text sampled with \texttt{control-shuffled-30} scores near $0.50$ on the
+public keys (mean of 48 file means $0.501$) and near $0.62$ on the
+matching control keys ($0.624$). Key-free opening poshits trained on
+public twins assign $\LLR>0$ to $0/48$ control files. Public vs.\
+control still ranks $12/12$ (AUC $0.906$). The reader is
+instance-specific without recovering keys.
+
+% =========================================================================
+{\raggedright\sloppy\interlinepenalty=10000
 \bibliographystyle{plainnat}
 \bibliography{references}
+}
 
 \end{document}
