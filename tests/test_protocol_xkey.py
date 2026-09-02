@@ -31,8 +31,8 @@ def test_protocol_xkey_names_frozen_sources_before_decode() -> None:
     assert "2026-09-02-probe-12x4-control-as-marked-hard-last4" in text
     assert "--methods interpolate --context-len 4" in text
     assert "materialize_control_as_marked" in text
-        assert "20260931" in text
-        assert "seed **0**" in text
+    assert "20260931" in text
+    assert "seed **0**" in text
     assert "Not a matched `pair()`" in text or "not a matched `pair()`" in text
     assert "Do **not** mix grok12" in text
     assert "thesis/" in text
