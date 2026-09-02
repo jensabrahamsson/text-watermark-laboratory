@@ -60,7 +60,7 @@ def test_protocol_register_lock_a_nested_does_not_beat_one_liner_or_25() -> None
         if t["source"] == "nested-youden"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 5
+    assert ev.n_prompts_marked_ge == 5
     assert ev.n_marked_positive == 23
     assert row["n_marked_above"] == 16
     assert row["n_unmarked_at_most"] == 41
@@ -97,8 +97,11 @@ def test_protocol_register_occupancy_free_equals_opening_coverage() -> None:
     assert covered == 5
     assert cov["final"]["postokhits"]["n_exact_opening"] == 0
     assert row["n_marked_above"] == 5
-    assert ev.n_prompt_wins_without_isolated_tp == 9
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompt_wins_without_isolated_tp == 0
+    assert len(ev.ranking_ties_without_isolated_tp) == 9
+    assert ev.n_prompt_ties == 9
+    assert ev.n_prompts_marked_above == 2
+    assert ev.n_prompts_marked_ge == 11
 
 
 def test_protocol_register_rankpath_nested_is_not_a_detector() -> None:
@@ -122,7 +125,7 @@ def test_protocol_register_rankpath_nested_is_not_a_detector() -> None:
         if t["source"] == "nested-youden"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 22
     assert ev.n_marked_positive < 25
     assert row["n_marked_above"] == 45

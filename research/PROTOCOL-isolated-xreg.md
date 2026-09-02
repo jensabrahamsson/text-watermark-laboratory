@@ -197,8 +197,9 @@ Out-of-family isolated fails on Grok-length test files too.
 
 H-xreg-iso **holds**: **22/48** does not replace **25/48**. Do not sell
 prompt **11/12**. Do not sell lock B nested **36/48** (37/48 unmarked
-zeros: occupancy). Do not sell postokhits **10/12** (ten ranking wins
-with 0 isolated TPs).
+zeros: occupancy). Do not sell postokhits **10/12** (historical `>=`
+count: 4 ranking wins with 0 isolated TPs, all marked occupancy-zero vs
+negative unmarked, plus 6 occupancy 0=0 ties).
 
 H-xreg-B **holds**: occupancy-free t=0 **0/48** is bounded by opening
 coverage **5/48** (0 exact 4-token copies). The five covered files have

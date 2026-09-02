@@ -320,4 +320,4 @@ JSON: [../experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/](../ex
   Combined 80/96 vs count 82/96. Mixed AUC is not a detector.
 
 Still not keys. Still not a universal detector. Do not replace
-**10/12**, **29/48**, or **36/36**.
+recounted **9/12**, **25/48**, or **36/36**.

@@ -1,12 +1,19 @@
 """AUC, permutation, and binomial helpers for key-free scores."""
 
 from text_watermark_tools.stats import (
+    CLUSTERED_INFERENCE_NOTE,
+    FILE_LEVEL_INFERENCE_NOTE,
     binary_eval,
+    binary_eval_to_dict,
     binomial_sf,
+    clopper_pearson,
     counts_at_threshold,
     fit_ridge_logodds,
+    mcnemar_exact_p,
     nested_threshold_by_stem,
+    paired_prompt_sign_table,
     permutation_mean_diff_p,
+    permutation_prompt_sign_p,
     roc_auc,
     score_ridge_logodds,
     stem_marked_positive_on_ranking_losses,
@@ -44,6 +51,72 @@ def test_binomial_ten_of_twelve_is_below_five_percent() -> None:
     assert binomial_sf(6, 12, 0.5) > 0.3
 
 
+def test_clopper_pearson_isolated_twenty_five_includes_half() -> None:
+    lo, hi = clopper_pearson(25, 48)
+    assert abs(lo - 0.3718701677416545) < 1e-6
+    assert abs(hi - 0.6671336637863312) < 1e-6
+    assert lo <= 0.5 <= hi
+    nine_lo, nine_hi = clopper_pearson(9, 12)
+    assert nine_lo <= 0.5 <= nine_hi
+    ten_lo, ten_hi = clopper_pearson(10, 12)
+    assert ten_lo > 0.5
+    assert ten_hi < 1.0
+    abs99_lo, abs99_hi = clopper_pearson(99, 100)
+    assert abs99_lo > 0.5
+    assert abs99_hi < 1.0
+    mid_lo, mid_hi = clopper_pearson(87, 100)
+    assert mid_lo > 0.5
+    assert mid_hi < 1.0
+    # Paired windows share families. Non-overlap of these intervals is
+    # not a test of 0:4 versus 16:32.
+    assert abs99_lo > mid_hi
+    zero_lo, zero_hi = clopper_pearson(0, 10)
+    assert zero_lo == 0.0
+    assert 0.0 < zero_hi < 0.4
+    all_lo, all_hi = clopper_pearson(10, 10)
+    assert all_hi == 1.0
+    assert 0.6 < all_lo < 1.0
+
+
+def test_mcnemar_exact_p_on_thirteen_versus_one() -> None:
+    one, two = mcnemar_exact_p(13, 1)
+    assert one == binomial_sf(13, 14, 0.5)
+    assert abs(one - 15 / 16384) < 1e-15
+    assert abs(two - 2 * one) < 1e-15
+    assert mcnemar_exact_p(0, 0) == (1.0, 1.0)
+
+
+def test_paired_prompt_sign_table_counts_discordant_wins() -> None:
+    stems = ["a", "a", "b", "b", "c", "c", "d", "d"]
+    marked_a = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0]
+    unmarked_a = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    marked_b = [1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0]
+    unmarked_b = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    table = paired_prompt_sign_table(
+        stems,
+        marked_a,
+        unmarked_a,
+        stems,
+        marked_b,
+        unmarked_b,
+        n_perm=200,
+        seed=0,
+    )
+    assert table.n_stems == 4
+    assert table.both_win == 2
+    assert table.only_a == 1
+    assert table.only_b == 1
+    assert table.both_lose == 0
+    assert table.n_discordant == 2
+    assert table.mcnemar_one_sided_p == binomial_sf(1, 2, 0.5)
+    assert CLUSTERED_INFERENCE_NOTE in table.note
+    try:
+        clopper_pearson(3, 2)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError")
+
+
 def test_permutation_p_is_small_when_means_differ() -> None:
     p = permutation_mean_diff_p(
         [1.0, 1.1, 0.9, 1.2],
@@ -62,6 +135,37 @@ def test_permutation_p_is_large_when_labels_are_noise() -> None:
         seed=1,
     )
     assert p > 0.2
+
+
+def test_prompt_sign_p_is_small_when_every_stem_separates() -> None:
+    stems = ["a", "a", "b", "b", "c", "c", "d", "d", "e", "e", "f", "f"]
+    marked = [1.0, 1.1, 0.9, 1.2, 0.8, 1.0, 1.3, 1.1, 0.7, 0.9, 1.0, 1.2]
+    unmarked = [0.0, -0.1, 0.05, -0.2, 0.0, -0.05, -0.2, 0.0, -0.1, 0.1, -0.3, 0.0]
+    p = permutation_prompt_sign_p(stems, marked, unmarked, n_perm=500, seed=0)
+    assert p < 0.05
+
+
+def test_file_level_p_values_are_labelled_descriptive() -> None:
+    ev = binary_eval([1.0, 0.5], [-0.2, 0.0], n_perm=50, seed=0)
+    payload = binary_eval_to_dict(ev)
+    assert "descriptive" in payload["permutation_p_note"]
+    assert "prompt family" in payload["permutation_p_note"]
+    assert FILE_LEVEL_INFERENCE_NOTE in payload["binomial_p_note"]
+
+
+def test_coverage_gate_can_use_n_used_instead_of_lr_magnitude() -> None:
+    from text_watermark_tools.stats import coverage_gate
+
+    gate = coverage_gate(
+        [0.4, 0.0],
+        [0.1, -0.2],
+        marked_used=[0, 1],
+        unmarked_used=[0, 1],
+    )
+    assert gate.n_marked_zero == 1
+    assert gate.n_unmarked_zero == 1
+    assert gate.decided_tp == 0
+    assert gate.n_marked_decided == 1
 
 
 def test_youden_picks_a_separating_threshold() -> None:

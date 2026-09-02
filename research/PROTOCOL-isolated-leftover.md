@@ -116,3 +116,31 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
    flags. Do not add a second scorer.
 
 Human merge of PR #2 / PR #3 is out of scope for this file.
+
+## Results (opened after the frozen command)
+
+Protocol SHA `7afd049`. `used_keys=false`.
+
+Leftover 20 (primary): mixed rankpath marked `lr>0` **12/20**, unmarked
+`lr≤0` **14/20** (6 leftover FPs). Library leftover is **0/4**. Harbour
+and ferry-queue leftover are **4/4** marked with unmarked FPs on those
+stems. Office leftover is **3/3** both sides.
+
+H-left-C **holds**. 12/20 with 6 leftover FPs is not a calibrated
+isolated-file detector. 12/20 is not **25/48**.
+
+Full 48 (secondary): prompt **10/12**, t=0 **35/48 vs 38/48**, nested
+Youden **35/48 vs 38/48**. Library ranks with 0 isolated TPs. H-left-full
+**fails as a raw nested count** (35>25). That 35/48 includes the 28
+covered openings plus leftover geometry. It is not leftover recall.
+Do not sell **35/48**.
+
+H-left-iso **holds**. Do not sell leftover **12/20**, full **35/48**,
+pooled coverage **28/48**, or interpolate leftover **13/20**. Isolated-file
+detection is not finished.
+
+JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+
+In-domain **25/48** vs leftover is
+[PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md): leftover
+hard last-4 **10/20 vs 11/20**.

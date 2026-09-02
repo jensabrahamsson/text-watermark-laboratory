@@ -22,9 +22,16 @@ from text_watermark_tools.blind import (
     likelihood_ratio,
     load_twins,
     pair_marked_wins,
+    pair_outcome,
 )
 from text_watermark_tools.score import load_tokenizer
-from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_binary_eval
+from text_watermark_tools.stats import (
+    FILE_LEVEL_INFERENCE_NOTE,
+    binary_eval,
+    binary_eval_to_dict,
+    format_binary_eval,
+    permutation_prompt_sign_p,
+)
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     HASHPOOL_KIND,
@@ -162,28 +169,40 @@ class IndicatorHoldout:
             buckets.setdefault(stem, []).append((m, u))
         return buckets
 
-    @property
-    def n_prompts_marked_above(self) -> int:
-        """Mean LR per prompt, then marked (+margin) ≥ unmarked. Same grain as blind."""
-        n = 0
-        for pairs in self._stem_pairs().values():
-            marked_mean = sum(m for m, _ in pairs) / len(pairs)
-            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
-            if pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
-                n += 1
-        return n
-
-    def _stem_rank_isolated(self) -> list[tuple[str, bool, int]]:
-        rows: list[tuple[str, bool, int]] = []
+    def _stem_rank_isolated(self) -> list[tuple[str, str, int]]:
+        rows: list[tuple[str, str, int]] = []
         for stem, pairs in sorted(self._stem_pairs().items()):
             marked_mean = sum(m for m, _ in pairs) / len(pairs)
             unmarked_mean = sum(u for _, u in pairs) / len(pairs)
-            win = pair_marked_wins(
+            outcome = pair_outcome(
                 marked_mean, unmarked_mean, margin=self.margin
             )
             n_tp = sum(1 for m, _ in pairs if m > 0.0)
-            rows.append((stem, win, n_tp))
+            rows.append((stem, outcome, n_tp))
         return rows
+
+    @property
+    def n_prompts_marked_above(self) -> int:
+        """Prompt families whose marked mean strictly exceeds unmarked mean."""
+        return sum(1 for _s, outcome, _n in self._stem_rank_isolated() if outcome == "win")
+
+    @property
+    def n_prompt_ties(self) -> int:
+        return sum(1 for _s, outcome, _n in self._stem_rank_isolated() if outcome == "tie")
+
+    @property
+    def n_prompt_losses(self) -> int:
+        return sum(1 for _s, outcome, _n in self._stem_rank_isolated() if outcome == "loss")
+
+    @property
+    def n_prompts_marked_ge(self) -> int:
+        """Historical ranking used ``marked >= unmarked`` (ties counted as wins).
+
+        Frozen persist before ``strict-gt`` wrote this number as
+        ``n_prompts_marked_above``. Distil lock B/C stay on the strict
+        count (**88** / **68**), not this alias.
+        """
+        return self.n_prompts_marked_above + self.n_prompt_ties
 
     @property
     def ranking_without_isolated_tp(self) -> list[str]:
@@ -194,11 +213,28 @@ class IndicatorHoldout:
         any isolated marked file signs. Do not read prompt wins as isolated
         recall.
         """
-        return [stem for stem, win, n_tp in self._stem_rank_isolated() if win and n_tp == 0]
+        return [
+            stem
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "win" and n_tp == 0
+        ]
 
     @property
     def n_prompt_wins_without_isolated_tp(self) -> int:
         return len(self.ranking_without_isolated_tp)
+
+    @property
+    def ranking_ties_without_isolated_tp(self) -> list[str]:
+        """Prompt-ranking ties with no marked file ``lr > 0``.
+
+        Occupancy-free 0=0 stem means land here. Notes that called these
+        ranking wins with 0 isolated TPs were counting ties as wins.
+        """
+        return [
+            stem
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "tie" and n_tp == 0
+        ]
 
     @property
     def ranking_losses_with_isolated_tp(self) -> list[str]:
@@ -206,27 +242,34 @@ class IndicatorHoldout:
 
         Isolated TPs on a ranking loss do not make the prompt-group
         comparison. Ferry-queue on 12-LOO hard last-4 is the type case.
+        Ties are not losses.
         """
         return [
             stem
-            for stem, win, n_tp in self._stem_rank_isolated()
-            if (not win) and n_tp > 0
+            for stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "loss" and n_tp > 0
         ]
 
     @property
     def n_marked_positive_on_ranking_losses(self) -> int:
         return sum(
             n_tp
-            for _stem, win, n_tp in self._stem_rank_isolated()
-            if not win
+            for _stem, outcome, n_tp in self._stem_rank_isolated()
+            if outcome == "loss"
         )
 
     def ranking_payload(self) -> dict:
         hide = self.ranking_without_isolated_tp
+        ties_hide = self.ranking_ties_without_isolated_tp
         loss_tp = self.ranking_losses_with_isolated_tp
         return {
+            "n_prompt_wins": self.n_prompts_marked_above,
+            "n_prompt_wins_ge": self.n_prompts_marked_ge,
+            "n_prompt_ties": self.n_prompt_ties,
+            "n_prompt_losses": self.n_prompt_losses,
             "n_prompt_wins_without_isolated_tp": len(hide),
             "ranking_without_isolated_tp": hide,
+            "ranking_ties_without_isolated_tp": ties_hide,
             "n_ranking_losses_with_isolated_tp": len(loss_tp),
             "ranking_losses_with_isolated_tp": loss_tp,
             "n_marked_positive_on_ranking_losses": (
@@ -312,15 +355,18 @@ def persist_indicator(
     decision_threshold: float | None = None,
     decision_source: str = "",
     fit_prefix: int = 0,
+    score_kind: str | None = None,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist an indicator that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     bucket = int(getattr(model, "position_bucket", 0) or 0)
+    stored = str(score_kind or ("poshits" if bucket > 0 else "hard"))
     payload = {
         "kind": "key-free-indicator",
         "instance": "key-free-poshits" if bucket > 0 else INDICATOR_INSTANCE,
+        "score_kind": stored,
         "model_name": model_name,
         "pair_dir": pair_dir,
         "n_train_prompts": n_train_prompts,
@@ -376,7 +422,10 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         n_train_prompts=int(raw.get("n_train_prompts") or 0),
         kind=str(raw.get("kind") or "key-free-indicator"),
         instance=str(raw.get("instance") or INDICATOR_INSTANCE),
-        score_kind="hard",
+        score_kind=str(
+            raw.get("score_kind")
+            or ("poshits" if int(raw.get("position_bucket") or 0) > 0 else "hard")
+        ),
         decision_threshold=(
             float(raw["decision_threshold"])
             if raw.get("decision_threshold") is not None
@@ -394,7 +443,10 @@ def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
     raw = json.loads(path.read_text())
     kind = str(raw.get("kind") or "")
     instance = str(raw.get("instance") or INDICATOR_INSTANCE)
-    if kind == HASHPOOL_KIND:
+    stored = str(raw.get("score_kind") or "").strip()
+    if stored:
+        score_kind = stored
+    elif kind == HASHPOOL_KIND:
         score_kind = "hashpool"
     elif kind == SURFACE_KIND:
         score_kind = "surface"
@@ -562,6 +614,11 @@ def score_text_from_tables(
         )
     ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], tables_payload(path))
     bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
+    stored_kind = str(tables_payload(path).get("score_kind") or "").strip()
+    if mode in ("auto", "") and stored_kind and stored_kind not in ("auto",):
+        mode = stored_kind
+    elif mode in ("auto", ""):
+        mode = "poshits" if bucketed else "hard"
 
     def _return_detail(spec, score_kind: str, instance: str):
         detail = score_sequence_detail(ids, model, spec)
@@ -571,7 +628,7 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
 
-    if mode == "poshits" or (mode in ("auto", "") and bucketed):
+    if mode == "poshits":
         # Isolated-file auto matches lock B's poshits LR, but occupancy
         # Laplace (context seen, observed next token unseen) is not
         # coverage. n_observed is tokhits n_used; decision ABSTAINs
@@ -782,6 +839,9 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"n_files={ev.n_files} "
             f"marked_above_unmarked={ev.n_marked_above_unmarked} "
             f"prompts_marked_above={ev.n_prompts_marked_above} "
+            f"prompts_marked_ge={ev.n_prompts_marked_ge} "
+            f"prompt_ties={ev.n_prompt_ties} "
+            f"prompt_losses={ev.n_prompt_losses} "
             f"ranking_without_isolated_tp="
             f"{ev.n_prompt_wins_without_isolated_tp}/"
             f"{ev.n_prompts_marked_above} "
@@ -792,6 +852,8 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"margin={ev.margin:g} context_len={ev.context_len} "
             f"score_kind={ev.score_kind} "
             f"auc={stats.auc:.3f} perm_p={stats.permutation_p:.4g} "
+            f"(file-level, descriptive) "
+            f"prompt_sign_p={permutation_prompt_sign_p(ev.stems, ev.marked_lrs, ev.unmarked_lrs):.4g} "
             f"used_keys={ev.used_keys} hash_iv={ev.used_hash_iv} "
             f"g_values={ev.used_g_values} instance={instance}"
         ),
@@ -801,11 +863,12 @@ def print_holdout(ev: IndicatorHoldout) -> str:
     for stem, sample, m, u in zip(
         ev.stems, ev._samples(), ev.marked_lrs, ev.unmarked_lrs, strict=True
     ):
-        flag = (
-            "marked_higher"
-            if pair_marked_wins(m, u, margin=ev.margin)
-            else "unmarked_higher"
-        )
+        outcome = pair_outcome(m, u, margin=ev.margin)
+        flag = {
+            "win": "marked_higher",
+            "loss": "unmarked_higher",
+            "tie": "tie",
+        }[outcome]
         marked_name = _twin_file(stem, "marked", sample)
         unmarked_name = _twin_file(stem, "unmarked", sample)
         lines.append(f"{marked_name}: lr={m:.6f} instance={instance}")
@@ -862,8 +925,12 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "n_files": ev.n_files,
         "n_marked_above_unmarked": ev.n_marked_above_unmarked,
         "n_prompts_marked_above": ev.n_prompts_marked_above,
+        "n_prompts_marked_ge": ev.n_prompts_marked_ge,
+        "n_prompt_ties": ev.n_prompt_ties,
+        "n_prompt_losses": ev.n_prompt_losses,
         "n_prompt_wins_without_isolated_tp": ev.n_prompt_wins_without_isolated_tp,
         "ranking_without_isolated_tp": ev.ranking_without_isolated_tp,
+        "ranking_ties_without_isolated_tp": ev.ranking_ties_without_isolated_tp,
         "n_ranking_losses_with_isolated_tp": len(ev.ranking_losses_with_isolated_tp),
         "ranking_losses_with_isolated_tp": ev.ranking_losses_with_isolated_tp,
         "n_marked_positive_on_ranking_losses": ev.n_marked_positive_on_ranking_losses,
@@ -877,6 +944,11 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "model_name": ev.model_name,
         "instance": ev.instance or INDICATOR_INSTANCE,
         "score_kind": ev.score_kind,
+        "comparison": "strict-gt",
+        "prompt_sign_p": permutation_prompt_sign_p(
+            ev.stems, ev.marked_lrs, ev.unmarked_lrs
+        ),
+        "inference_note": FILE_LEVEL_INFERENCE_NOTE,
         "binary": binary_eval_to_dict(binary_eval(ev.marked_lrs, ev.unmarked_lrs)),
         "caveat": CAVEAT,
         "files": [],

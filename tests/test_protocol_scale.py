@@ -93,7 +93,7 @@ def test_protocol_scale_lock_a_grok12_beats_xreg_not_25() -> None:
     )
     row = next(t for t in nested["thresholds"] if t["source"] == "nested-youden")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 39
     assert row["n_marked_above"] == 36
     assert row["n_unmarked_at_most"] == 39
@@ -160,7 +160,7 @@ def test_protocol_scale_lock_a_original_12_beats_n12_not_25() -> None:
         (root / "2026-09-01-openings-grok36x4-to-12x4" / "coverage.json").read_text()
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert row["n_marked_above"] == 26
     assert row["n_unmarked_at_most"] == 33
     assert row["n_marked_above"] > 16

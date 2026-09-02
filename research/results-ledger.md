@@ -8,7 +8,31 @@ The next measurement is [PROTOCOL-next.md](PROTOCOL-next.md), not another
 scorer on the old 12×4 twins. Phase A on 100 new GPT-2 families: lock A
 **99/100**. That does not replace **25/48**. Register-matched Grok-length train is
 [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md): lock A
-nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails.
+nested Youden **16/48 vs 41/48** does not beat **25/48**. H-reg-A fails. The two-grain story lock is
+[narrative.md](narrative.md): prompt-group ranking is real; isolated
+`lr>0` is not a calibrated detector. Do not write a “key-free
+detection fails” paper. This laboratory did not refute Christ et al.
+(2024) or Zhang et al. (2024). Those papers are not a proof that this
+mixin’s count tables must fail
+([related-work.md](related-work.md); [CITING.md](CITING.md)). Spatial mask-*k* of the headline 12-LOO scorer
+is [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md). Leftover
+versus covered on those tails is
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md).
+Occupancy leftover-20 official+atoms bound is
+[PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md).
+Leftover-20 union with short+medium+tails openings is
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md):
+union **30/48** (equals SMT); leftover **18**; last-4 **10/18 vs 10/18**.
+Occupancy-free leftover-18 is closed for more unrelated GPT-2 scenes
+([PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)).
+Leftover-18 mixed rankpath and grok36 interpolate are
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md):
+rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen
+**89 vs 19**. Leftover-18 published key-free readers are closed
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
+Distil occupancy-free leftover-18 on the original 12 is
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md): Distil postokhits
+t=0 **22/48 vs 43/48**; leftover-18 Distil **3/18** (office 1/3/4).
 
 ## Locked headlines
 
@@ -101,9 +125,17 @@ Official first-draw keyed score **100/100**. Key-free flags unchanged.
 | B | opening poshits prefix-4 | **100/100** | **0.980** | 393/400 vs 344/400 |
 | C | opening rankpath | **96/100** | **0.822** | 314/400 vs 302/400 |
 
-H1 holds (lock A prompt ranking). H2 holds: window **0:4** is **99/100**,
-AUC **0.885**; window **16:32** is **89/100**, AUC **0.689**. Early is
-stronger; mid-file is not chance on this corpus. Isolated `lr>0` is
+H1 holds (lock A prompt ranking). H2’s committed JSON is a **reindexed**
+window measurement: **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**,
+AUC **0.689**. Absolute-history remasure
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): **0:4** **99/100**,
+AUC **0.885**; **16:32** **87/100**, AUC **0.695**. Opening still
+outranks mid-file under real prefix. Absolute 16:32 did not rise versus
+reindexed **89/100**. Post-open paired prompt-family McNemar on those
+absolute windows is **86 / 13 / 1 / 0** (one-sided ≈ 0.00092); that is
+not a second freeze. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]**
+includes ½. Unpaired interval overlap is not the H2 test. Do **not**
+overwrite the reindexed dump. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
 Do not sell lock B **393/400**, lock A **352/400**, or nested-by-stem
 **322/400** / **392/400** as replacing **25/48**. Those are in-family.
@@ -114,8 +146,9 @@ Out-of-family isolated transfer is frozen in
 ## Confirmatory 100×4 Phase B Distil and Qwen
 
 Official Distil lamp **70/100** (weaker mixin than GPT-2 **100/100**).
-Lock B **89/100** (drop 11 from 100). Lock C **69/100** (drop 27 from
-96). Isolated Distil signs (216/400, 164/400) are not **25/48**.
+Lock B **88/100** with **1 tie** (drop 12 from 100; historical persist
+printed 89/100). Lock C **68/100** with **1 tie** (drop 28 from
+96; historical persist printed 69/100). Isolated Distil signs (216/400, 164/400) are not **25/48**.
 
 Official Qwen lamp **100/100** (local Hugging Face, mixin on). Lock B
 **95/100** (drop 5). Lock C **84/100** (drop 12). H3 holds on both
@@ -309,4 +342,158 @@ Do not sell 28/48, 26/48, or 27/48. Does not replace **25/48**.
 JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
 `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
 `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`.
+
+## Isolated-file leftover rankpath (mixed lock C)
+
+Protocol SHA `7afd049`. `used_keys=false`. Leftover 20: marked `lr>0`
+**12/20**, unmarked `lr≤0` **14/20**. Full nested **35/48 vs 38/48**
+includes covered openings; do not sell 35/48. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+
+## Isolated-file leftover vs covered (in-domain 25/48)
+
+Protocol SHA `f09d0e2`. `used_keys=false`. Headline 12-LOO hard last-4
+**25/48** splits leftover **10/20 vs 11/20** and occupancy-covered
+**15/28 vs 11/28**. Leftover last-4 is chance. Ranking-loss TPs are all
+leftover. Do not sell 10/20 or 15/28. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
+
+## Headline 12-LOO mask-*k* (hard vs interpolate)
+
+Protocol SHA `004397c`. `used_keys=false`. Hard prefix **0:4** is
+**5/12**; tails **4:128** / **8:128** stay **9/12**. Interpolate tails
+drop to **5/12** then **3/12**. Isolated t=0 stays chance-like. The
+headline hard **9/12** is not an opening-only n-gram artifact. Do not
+sell prefix 10/12 or tail 9/12. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
+## Isolated-file leftover vs covered (mask-*k* hard windows)
+
+Protocol SHA `3e30e70`. `used_keys=false`. Hard **4:128** leftover
+**11/20 vs 11/20**, occupancy-covered **16/28 vs 11/28**. Leftover tail
+is chance. Tail prompt **9/12** is not leftover-file recall. Prefix
+0:4 isolated **29/48** is **12 leftover + 17 covered**. Do not sell
+11/20, 16/28, window 29/48, or tail 9/12. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
+
+## Occupancy leftover-20 bound (official + leftover atoms)
+
+Protocol SHA `802186e`. Official `used_keys=true`. Leftover-20 full-file
+mean **0.624**, **20/20** above 0.55 (covered **0.620**, 28/28). Prefix-5
+**18/20** (office-1/3 at 0.500 on one 5-gram). Leftover interpolate 0:4
+seen 21 vs unseen **99**; seen mass is `'Cl'→'osing'`; leftover
+`lr>0` **13/20**. Leftover key-free chance is not an unmarked mixin
+miss. Do not sell official 20/20 or interpolate 13/20. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
+
+## Isolated-file leftover-20 ∪ short-medium-tails openings
+
+Protocol SHA `e5a5f6b`. `used_keys=false`. Union **30/48** equals
+published SMT coverage; mixed 100+grok36 is a subset (`covered_a_only`
+empty). SMT-only covers are garden 1/4. Leftover after union is **18**.
+12-LOO hard last-4 leftover is **10/18 vs 10/18**. Mixed occupancy-free
+leftover sign is **0/18 vs 18/18** by construction. Do not sell union
+30/48 or leftover 10/18. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
+
+## Occupancy-free leftover-18 closed
+
+Protocol [PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md).
+No new decode. Leftover-18 official prefix-128 is **18/18** by subset
+of leftover-20 **20/20**. Prefix-5 is **16/18** (office-1/3 remain).
+Published disjoint-topic GPT-2 occupancy-free trains are exhausted for
+leftover-18. Do not add family-12 paraphrases or target leftover
+openings after peeking. Do not sell leftover official 18/18. Does not
+replace **25/48**.
+
+JSON: leftover-18 keys in
+`experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`,
+official arithmetic from
+`experiments/2026-09-01-isolated-leftover-bound/`.
+
+## Leftover-18 remaining readers (mixed rankpath + grok36 interpolate)
+
+Protocol SHA `5621544`. `used_keys=false`. Leftover-18 mixed rankpath
+**12/18 vs 13/18**. Grok36 interpolate **12/18 vs 12/18**. 12-LOO hard
+last-4 check **10/18 vs 10/18**. Leftover-18 interpolate 0:4 seen 19 vs
+unseen **89**; seen mass is `'Cl'→'osing'`. Garden leftover had 0 mixed
+rankpath TPs and 1 interpolate TP. Do not sell leftover-18 rankpath
+12/18 or leftover-18 interpolate 12/18. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
+
+## Leftover-18 published readers closed
+
+Protocol SHA `cdccae5`
+([PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)).
+No new decode. Leftover-18 occupancy-free is **0/18** by construction.
+Mixed rankpath **12/18 vs 13/18**. Interpolate **12/18 vs 12/18**; 0:4
+unseen **89 vs 19**. Last-4 **10/18 vs 10/18**. Official **18/18** uses
+keys. Do not re-slice more leftover-18 holdouts as leftover-file
+detection. Does not replace **25/48**.
+
+## Distil occupancy-free leftover-18 (PROTOCOL-isolated-xgen)
+
+Protocol SHA `8e33445`. `used_keys=false`. Distil occupancy-free
+postokhits t=0 **22/48 vs 43/48** beats GPT-2 lock B occupancy-free
+**16/48** and does not beat **25/48**. Openings covered **23/48**.
+Leftover-18 Distil coverage **3/18** (office 1/3/4); leftover
+occupancy-free **3/18 vs 16/18**. Nested Youden **47/48** is a negative
+threshold. Do not sell Distil 22/48 or leftover Distil 3/18. Does not
+replace **25/48**. Distil 100×4 → Distil 12×4 occupancy-free analog is
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md): Distil→Distil
+postokhits t=0 **16/48 vs 39/48** equals coverage **16/48**. Nested
+**48/48** is a negative threshold. Do not sell Distil→Distil **16/48**.
+Does not replace **25/48**. Qwen 100×4 → Qwen 12×4 occupancy-free analog
+is [PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md): Qwen→Qwen
+postokhits t=0 **31/48 vs 48/48**; coverage **37/48**. Cross-corpus
+**31/48** > **25/48** does not replace original-12 GPT-2. Do not sell
+Qwen→Qwen **31/48**. Does not replace **25/48**. Distil ∪ SMT occupancy-free
+openings on the original 12 is
+[PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md): union **33/48**;
+leftover **15**; last-4 **9/15 vs 8/15**; Distil-only office 1/3/4. Do
+not sell union **33/48** or leftover **9/15**. Does not replace
+**25/48**. Occupancy-free leftover-15 after Distil ∪ SMT is closed
+([PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)):
+leftover-15 official **15/15** at prefix-5 (keys); last-4 **9/15 vs
+8/15**. Do not sell leftover official **15/15**. Does not replace
+**25/48**. The leftover-15 gpt2-medium analog is
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md).
+Opened: leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs
+48/48**. Do not sell **0/15** or **16/48**. Does not replace **25/48**.
+gpt2-medium 100×4 → gpt2-medium 12×4 occupancy-free is
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md). Opened:
+occupancy-free t=0 **10/48 vs 48/48**; coverage **13/48**. Do not sell
+**10/48**. Does not replace **25/48**. The remaining occupancy-free
+analog that is not leftover targeting is
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md): Distil↔gpt2-medium
+occupancy-free transfer on already-frozen 12×4 twins. Opened:
+Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
+gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
+sell **20/48** or **3/48**. Does not replace **25/48**. Absolute-history
+H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md):
+0:4 **99/100** vs 16:32 **87/100**; reindexed 16:32 was **89/100**.
+Post-open paired McNemar is **86 / 13 / 1 / 0**. Isolated **25/48**
+Clopper–Pearson **[0.372, 0.667]** includes ½. Do
+not sell **99/100** or **87/100**. Isolated-file remains open. Second-key
+lock A is opened ([PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
+interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso **fails**
+as a raw count). Absolute-history OOD windows are opened
+([PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
+original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
+**10/12** or **30/48**. Reindexed dumps stay. The remaining honesty
+item that is not leftover targeting is 12-LOO mask-*k* absolute
+remasure of [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md)
+(those dumps stay reindexed). Isolated-file remains open.
+
+JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

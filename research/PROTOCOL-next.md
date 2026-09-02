@@ -8,7 +8,7 @@ isolated-file transfer of these same three readers is
 
 Author–year citations follow [CITING.md](CITING.md). Lab counts after the truncated-context recount are **9/12**, **25/48**,
 and **36/36**. Pre-fix **10/12** / **29/48** stay in historical JSON.
-Closest published analog for third-party verification remains Wang et al.
+Closest published finished-string paired-reference analog for third-party verification remains Wang et al.
 (2026) TTP-Detect; this protocol is not a priority claim over that work
 ([related-work.md](related-work.md)).
 
@@ -188,10 +188,13 @@ lock C **96/100**). Isolated `lr>0` is not H3.
 
 ### DistilGPT2 (2026-09-01)
 
-Official first-draw **70/100**. Lock B **89/100** (drop 11). Lock C
-**69/100** (drop 27). Rankpath drops more. Qwen opened below.
+Official first-draw **70/100**. Lock B **88/100** with **1 tie** (drop 12
+from GPT-2 **100/100** when ties are not awarded). Lock C **68/100** with
+**1 tie** (drop 28 from **96/100**). Rankpath drops more. Historical
+JSON still prints 89/100 and 69/100 under the old non-strict comparison;
+do not rewrite that LOGBOOK entry. Qwen opened below.
 
-`used_keys=false`. Do not sell 89/100 or 69/100 as replacing **25/48**.
+`used_keys=false`. Do not sell 88/100, 68/100, 89/100, or 69/100 as replacing **25/48**.
 
 ### Qwen2-1.5B-Instruct (2026-09-01)
 
@@ -248,16 +251,17 @@ Locked headlines and the ablation index:
 ## Phase A outcome (2026-09-01)
 
 Protocol SHA `7001489`. Prompts committed in `294dba5`. Pair committed
-in `bf98c92`. Official first-draw keyed score **100/100**. Frozen
+in `bf98c92`. Analysis-code SHA `bbc802e` (truncated-context recount).
+Official first-draw keyed score **100/100**. Frozen
 commands above were run once, flags unchanged.
 
 | Hypothesis | Result |
 |---|---|
-| H1 lock A prompt ranking | **99/100** (stem 088 misses). File AUC **0.898**, permutation p < 0.001. Isolated 352/400 vs 290/400 is secondary. |
-| H2 window 0:4 vs 16:32 | **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Early is stronger. Mid-file is not chance. Out-of-family onto Grok-length files the same interpolate tables are **not** front-loaded (0:4 **7/12**; tail **9/12**; [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md)). |
+| H1 lock A prompt ranking | **99/100** (stem 088 misses). File AUC **0.898**, permutation p < 0.001 (file-level, descriptive). Isolated 352/400 vs 290/400 is secondary. |
+| H2 window 0:4 vs 16:32 | **Reindexed** substring scorers: **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**, AUC **0.689**. Absolute-history remasure [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): **0:4** **99/100**, AUC **0.885**; **16:32** **87/100**, AUC **0.695**. Opening still outranks mid-file. Absolute 16:32 did not rise versus reindexed **89/100**. Post-open paired McNemar is **86 / 13 / 1 / 0** (not a second freeze). Isolated **25/48** Clopper–Pearson includes ½. Do **not** overwrite this dump. Do **not** rewrite the first-run flags above. Prefix-4 still shows an opening is **sufficient** in-domain. Out-of-family onto Grok-length files the same interpolate tables are **not** front-loaded (reindexed 0:4 **7/12**; tail **9/12**; [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md)). Absolute-history remasure [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md): grok12 0:4 **7/12** (equals reindexed); 32:64 **10/12** (rose versus reindexed **9/12**); 64:128 **9/12**. Original 12 0:4 **9/12** vs 16:32 **6/12**; 64:128 fell 8→6. Do **not** sell absolute **10/12**. Do **not** overwrite the reindexed dumps. |
 | Lock B opening poshits | **100/100**, AUC **0.980** |
 | Lock C opening rankpath | **96/100**, AUC **0.822** |
-| H3 Distil/Qwen | Distil official **70/100**, B **89/100** (drop 11), C **69/100** (drop 27). Qwen official **100/100**, B **95/100** (drop 5), C **84/100** (drop 12). Rankpath drops more on both. |
+| H3 Distil/Qwen | Distil official **70/100**, B **88/100** (1 tie; drop 12), C **68/100** (1 tie; drop 28). Qwen official **100/100**, B **95/100** (drop 5), C **84/100** (drop 12). Rankpath drops more on both. |
 
 `--rankpath` also scored default count methods. Lock C is rankpath
 **96/100**, not hashpool/hard 100/100 from that same run. Do not sell

@@ -33,6 +33,7 @@ def test_protocol_windows_names_frozen_flags() -> None:
     assert "H-win-12 **holds**" in text
     assert "H-win-iso **holds**" in text
     assert "2026-09-01-atoms-100x4-to-grok12x4-interpolate" in text
+    assert "PROTOCOL-isolated-windows-absolute" in text
     assert "thesis/" in text
     assert "`7d8759a`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 

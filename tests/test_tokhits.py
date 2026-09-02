@@ -169,7 +169,7 @@ def test_postokhits_ood_is_observed_token_only() -> None:
     ev = holdout_from_json(root / "postokhits" / "holdout.json")
     g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 16
     assert ev.n_unmarked_nonpositive == 48
     assert g.n_marked_zero == 32
@@ -180,7 +180,7 @@ def test_postokhits_ood_is_observed_token_only() -> None:
     assert g.decided_tn == 4
     assert g.precision == 1.0
     pos = holdout_from_json(root / "poshits" / "holdout.json")
-    assert pos.n_prompts_marked_above == 12
+    assert pos.n_prompts_marked_ge == 12
     assert pos.n_marked_positive == 39
 
 
@@ -198,8 +198,8 @@ def test_postokhits_36x4_loo_keeps_most_in_domain_hits() -> None:
     tok = holdout_from_json(root / "postokhits" / "holdout.json")
     assert pos.used_keys is False
     assert tok.used_keys is False
-    assert pos.n_prompts_marked_above == 34
-    assert tok.n_prompts_marked_above == 34
+    assert pos.n_prompts_marked_ge == 34
+    assert tok.n_prompts_marked_ge == 34
     assert pos.n_marked_positive == 131
     assert tok.n_marked_positive == 122
     assert pos.n_unmarked_nonpositive == 132
@@ -280,7 +280,7 @@ def test_medium_length_postokhits_ood_is_nineteen_with_perfect_precision() -> No
     ev = holdout_from_json(root / "postokhits" / "holdout.json")
     g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 19
     assert ev.n_unmarked_nonpositive == 48
     assert g.n_marked_zero == 29
@@ -290,7 +290,7 @@ def test_medium_length_postokhits_ood_is_nineteen_with_perfect_precision() -> No
     assert g.precision == 1.0
     pos = holdout_from_json(root / "poshits" / "holdout.json")
     pg = coverage_gate(pos.marked_lrs, pos.unmarked_lrs)
-    assert pos.n_prompts_marked_above == 8
+    assert pos.n_prompts_marked_ge == 8
     assert pg.n_marked_zero == 9
     assert pg.decided_fn == 20
 
@@ -308,7 +308,7 @@ def test_combined_short_plus_medium_postokhits_is_twenty() -> None:
     ev = holdout_from_json(root / "postokhits" / "holdout.json")
     g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 20
     assert ev.n_unmarked_nonpositive == 48
     assert g.n_marked_zero == 28
@@ -367,7 +367,7 @@ def test_postokbackoff_copies_postokhits_on_short_train_ood() -> None:
     tok = holdout_from_json(root / "postokhits" / "holdout.json")
     g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 16
     assert tok.n_marked_positive == 16
     assert ev.n_unmarked_nonpositive == 48
@@ -390,7 +390,7 @@ def test_medium_postokbackoff_adds_two_harbour_files() -> None:
     tok = holdout_from_json(root / "postokhits" / "holdout.json")
     g = coverage_gate(back.marked_lrs, back.unmarked_lrs)
     assert back.used_keys is False
-    assert back.n_prompts_marked_above == 12
+    assert back.n_prompts_marked_ge == 12
     assert tok.n_marked_positive == 19
     assert back.n_marked_positive == 21
     assert back.n_unmarked_nonpositive == 48
@@ -419,7 +419,7 @@ def test_combined_postokbackoff_is_twenty_two() -> None:
     )
     ev = holdout_from_json(root / "postokbackoff" / "holdout.json")
     g = coverage_gate(ev.marked_lrs, ev.unmarked_lrs)
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 22
     assert g.decided_fp == 0
     assert g.precision == 1.0
@@ -441,7 +441,7 @@ def test_postokbackoff_36x4_loo_does_not_add_marked_hits() -> None:
     assert back.n_marked_positive == 122
     assert tok.n_unmarked_nonpositive == 132
     assert back.n_unmarked_nonpositive == 131
-    assert back.n_prompts_marked_above == 34
+    assert back.n_prompts_marked_ge == 34
 
 
 def test_postokbackoff_contrast_control_never_positive() -> None:
@@ -465,7 +465,7 @@ def test_postokbackoff_contrast_control_never_positive() -> None:
         / "postokbackoff-public-vs-control"
         / "holdout.json"
     )
-    assert vs.n_prompts_marked_above == 12
+    assert vs.n_prompts_marked_ge == 12
 
 
 def test_tails12_pair_official_lamp_and_after_opening() -> None:
@@ -508,7 +508,7 @@ def test_tail_transplant_postokhits_covers_night_bus_and_garden() -> None:
     g = coverage_gate(tok.marked_lrs, tok.unmarked_lrs)
     gb = coverage_gate(back.marked_lrs, back.unmarked_lrs)
     assert tok.used_keys is False
-    assert tok.n_prompts_marked_above == 12
+    assert tok.n_prompts_marked_ge == 12
     assert tok.n_marked_positive == 10
     assert back.n_marked_positive == 23
     assert g.decided_fp == 0
@@ -539,8 +539,8 @@ def test_combined_tails_postokbackoff_is_thirty_six() -> None:
     tok = holdout_from_json(root / "postokhits" / "holdout.json")
     back = holdout_from_json(root / "postokbackoff" / "holdout.json")
     g = coverage_gate(back.marked_lrs, back.unmarked_lrs)
-    assert tok.n_prompts_marked_above == 12
-    assert back.n_prompts_marked_above == 12
+    assert tok.n_prompts_marked_ge == 12
+    assert back.n_prompts_marked_ge == 12
     assert tok.n_marked_positive == 30
     assert back.n_marked_positive == 36
     assert back.n_unmarked_nonpositive == 48

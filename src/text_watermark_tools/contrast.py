@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Sequence
@@ -117,12 +118,106 @@ def collect_control_matrices(
     return out
 
 
-def clip_control_draws(draws: Sequence[ControlDraw], n: int) -> list[ControlDraw]:
+def clip_control_draws(
+    draws: Sequence[ControlDraw], n: int, *, tokenizer=None
+) -> list[ControlDraw]:
+    """Keep the first n tokens. Rewrite text when a tokenizer is set."""
     if n <= 0:
         return list(draws)
-    return [
-        ControlDraw(d.stem, d.sample, list(d.ids[:n]), d.text) for d in draws
-    ]
+    out: list[ControlDraw] = []
+    for d in draws:
+        ids = list(d.ids[:n])
+        text = d.text
+        if tokenizer is not None:
+            text = (
+                tokenizer.decode(
+                    ids,
+                    skip_special_tokens=True,
+                    clean_up_tokenization_spaces=False,
+                )
+                if ids
+                else ""
+            )
+        out.append(ControlDraw(d.stem, d.sample, ids, text))
+    return out
+
+
+def control_gen_to_marked_name(name: str) -> str | None:
+    """Map *-control-gen*.txt onto the *-marked*.txt names load_twins reads."""
+    m = CONTROL_RE.fullmatch(name)
+    if not m:
+        return None
+    stem, idx = m.group(1), int(m.group(2) or 1)
+    if idx == 1:
+        return f"{stem}-marked.txt"
+    return f"{stem}-marked-{idx}.txt"
+
+
+CONTROL_AS_MARKED_NOTE = (
+    "Copies *-control-gen*.txt to *-marked*.txt so load_twins can read a "
+    "second-key instance. Unmarked files are the original public 12×4 "
+    "unmarked pile. Control seed 20260931; unmarked seed 0. Not a matched "
+    "pair() run. Not key recovery. Official public lamp on these control "
+    "files is chance (~0.501); matching control keys ~0.624."
+)
+
+
+def materialize_control_as_marked(
+    control_dir: Path,
+    unmarked_dir: Path,
+    out_dir: Path,
+    *,
+    expected_n: int = 48,
+) -> dict:
+    """Build a pair dir: control-gen as marked, original unmarked as unmarked.
+
+    No new generation. No keys. Does not score files.
+    """
+    control_dir = Path(control_dir)
+    unmarked_dir = Path(unmarked_dir)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    n_marked = 0
+    for path in sorted(control_dir.glob("*-control-gen*.txt")):
+        new_name = control_gen_to_marked_name(path.name)
+        if new_name is None:
+            continue
+        shutil.copy2(path, out_dir / new_name)
+        n_marked += 1
+    n_unmarked = 0
+    for path in sorted(unmarked_dir.glob("*-unmarked-gen*.txt")):
+        shutil.copy2(path, out_dir / path.name)
+        n_unmarked += 1
+    n_prompt = 0
+    for path in sorted(unmarked_dir.glob("*-prompt.txt")):
+        shutil.copy2(path, out_dir / path.name)
+        n_prompt += 1
+    if n_marked != expected_n or n_unmarked != expected_n:
+        raise ValueError(
+            f"control-as-marked copy counts marked={n_marked} "
+            f"unmarked={n_unmarked}; expected {expected_n} each"
+        )
+    if n_prompt != 12:
+        raise ValueError(f"control-as-marked copy found {n_prompt} prompts")
+    readme = out_dir / "README.md"
+    if not readme.exists():
+        readme.write_text(
+            "# Control-as-marked 12×4 (constructed, not a new pair)\n\n"
+            f"{CONTROL_AS_MARKED_NOTE}\n\n"
+            "Sources:\n\n"
+            f"- control: `{control_dir.as_posix()}`\n"
+            f"- unmarked / prompts: `{unmarked_dir.as_posix()}`\n\n"
+            "Protocol: [research/PROTOCOL-isolated-xkey.md]"
+            "(../../research/PROTOCOL-isolated-xkey.md).\n"
+        )
+    return {
+        "n_marked": n_marked,
+        "n_unmarked": n_unmarked,
+        "n_prompt": n_prompt,
+        "out_dir": str(out_dir),
+        "note": CONTROL_AS_MARKED_NOTE,
+        "used_keys": False,
+    }
 
 
 def _holdout_from_scores(
@@ -238,9 +333,12 @@ def run_instance_contrast(
     )
     prefix_n = int(fit_prefix) if fit_prefix and fit_prefix > 0 else 0
     if prefix_n:
-        train = clip_twins_prefix(train, prefix_n)
-        test = clip_twins_prefix(test, prefix_n)
-        control_draws = clip_control_draws(control_draws, prefix_n)
+        tok = load_tokenizer(model_name)
+        train = clip_twins_prefix(train, prefix_n, tokenizer=tok)
+        test = clip_twins_prefix(test, prefix_n, tokenizer=tok)
+        control_draws = clip_control_draws(
+            control_draws, prefix_n, tokenizer=tok
+        )
     if len(train) < 1:
         raise ValueError("instance contrast left no training prompts")
     if len(test) < 1:
@@ -724,6 +822,7 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
             pair_dir=run.train_dir,
             n_train_prompts=run.transfer.n_train_prompts if run.transfer is not None else 0,
             spec_name="rankpath",
+            fit_prefix=int(run.fit_prefix or 0),
         )
     body = "# Key-free instance contrast\n\n" + print_contrast(run) + "\n"
     (out_dir / "README.md").write_text(body)

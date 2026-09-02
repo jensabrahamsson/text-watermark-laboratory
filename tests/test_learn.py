@@ -156,10 +156,10 @@ def test_learned_ood_gate_does_not_beat_poshits() -> None:
     assert hashlog.used_keys is False
     assert tokmlp.used_keys is False
     assert charcnn.used_keys is False
-    assert hashlog.n_prompts_marked_above == 7
-    assert tokmlp.n_prompts_marked_above == 8
-    assert charcnn.n_prompts_marked_above == 7
-    assert poshits.n_prompts_marked_above == 12
+    assert hashlog.n_prompts_marked_ge == 7
+    assert tokmlp.n_prompts_marked_ge == 8
+    assert charcnn.n_prompts_marked_ge == 7
+    assert poshits.n_prompts_marked_ge == 12
     h_auc = binary_eval(hashlog.marked_lrs, hashlog.unmarked_lrs, n_perm=200, seed=0)
     t_auc = binary_eval(tokmlp.marked_lrs, tokmlp.unmarked_lrs, n_perm=200, seed=0)
     c_auc = binary_eval(charcnn.marked_lrs, charcnn.unmarked_lrs, n_perm=200, seed=0)
@@ -188,9 +188,9 @@ def test_hashlog_twelve_prompt_loo_is_not_the_ood_gate() -> None:
     loo = _hold("2026-08-31-learn-12x4-fitprefix4", "hashlog")
     ood = _hold("2026-08-31-learn-36x4-to-12x4-fitprefix4", "hashlog")
     poshits = _hold("2026-08-31-probe-12x4-fitprefix4-pos1", "poshits")
-    assert loo.n_prompts_marked_above == 11
-    assert ood.n_prompts_marked_above == 7
-    assert poshits.n_prompts_marked_above == 9
+    assert loo.n_prompts_marked_ge == 11
+    assert ood.n_prompts_marked_ge == 7
+    assert poshits.n_prompts_marked_ge == 9
     assert poshits.n_marked_positive == 23
     assert poshits.n_unmarked_nonpositive == 48
 
@@ -199,8 +199,8 @@ def test_qwen_include_first_hashlog_ranks_but_is_not_first_token_table() -> None
     learned = _hold("2026-08-31-learn-qwen-12x4-fitprefix4-include-first", "hashlog")
     first = _hold("2026-08-31-probe-qwen-12x4-fitprefix4-pos1", "first")
     assert learned.used_keys is False
-    assert learned.n_prompts_marked_above == 12
-    assert first.n_prompts_marked_above == 12
+    assert learned.n_prompts_marked_ge == 12
+    assert first.n_prompts_marked_ge == 12
     learned_auc = binary_eval(learned.marked_lrs, learned.unmarked_lrs, n_perm=200, seed=0)
     first_auc = binary_eval(first.marked_lrs, first.unmarked_lrs, n_perm=200, seed=0)
     assert learned_auc.auc > 0.75
@@ -210,6 +210,6 @@ def test_qwen_include_first_hashlog_ranks_but_is_not_first_token_table() -> None
 def test_tokmlp_shuffle_collapses() -> None:
     ev = _hold("2026-08-31-learn-36x4-to-12x4-shuffle", "tokmlp")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 5
+    assert ev.n_prompts_marked_ge == 5
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.55

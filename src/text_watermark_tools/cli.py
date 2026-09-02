@@ -409,6 +409,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             model_name=args.model,
         )
     else:
+        out = Path(args.out_dir) if args.out_dir else None
         run = run_pairs(
             prompts,
             max_new_tokens=args.max_new_tokens,
@@ -416,6 +417,8 @@ def cmd_pair(args: argparse.Namespace) -> int:
             also_control_keys=bool(args.also_control_keys),
             model_name=args.model,
             n_samples=int(args.n_samples),
+            resume_dir=out,
+            persist_dir=out,
         )
     print(print_pair_run(run))
     if args.out_dir:
@@ -425,7 +428,8 @@ def cmd_pair(args: argparse.Namespace) -> int:
 
 
 def cmd_indicate_fit(args: argparse.Namespace) -> int:
-    twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
+    tok = load_tokenizer(args.model)
+    twins = load_twins(Path(args.pair_dir), tokenizer=tok)
     method = str(getattr(args, "method", "counts") or "counts")
     raw_prefix = getattr(args, "fit_prefix", None)
     raw_bucket = getattr(args, "pos_bucket", None)
@@ -433,7 +437,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         method, fit_prefix=raw_prefix, pos_bucket=raw_bucket
     )
     if fit_prefix > 0:
-        twins = [t.clip_prefix(fit_prefix) for t in twins]
+        twins = [t.clip_prefix(fit_prefix, tokenizer=tok) for t in twins]
     if method == "hashpool":
         from text_watermark_tools.transfer import fit_hashpool_twins, persist_hashpool
 
@@ -1229,8 +1233,8 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.0,
         help=(
-            "Count a hit if marked_lr + margin >= unmarked_lr "
-            "(0 = strict; 0.02 is a soft bar)"
+            "Count a win if marked_lr + margin > unmarked_lr "
+            "(equality is a tie, not a win; 0 = strict; 0.02 is a named robustness bar)"
         ),
     )
     p_blind.add_argument(
@@ -1298,7 +1302,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Clip each twin to the first N generated tokens before fitting. "
             "Default 4 for --method rankpath (the opening model); 0 (full "
-            "file) otherwise. 0 means no clip."
+            "file) otherwise. 0 means no clip. Token ids are sliced; the "
+            "generator tokenizer rewrites UTF-8 strings from those ids."
         ),
     )
     p_fit.add_argument("--n-hashes", type=int, default=8)
@@ -1387,8 +1392,8 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.0,
         help=(
-            "Count a hit if marked_lr + margin >= unmarked_lr; "
-            "one-file sign uses lr > -margin (0 = strict)"
+            "Count a win if marked_lr + margin > unmarked_lr "
+            "(equality is a tie; one-file sign uses lr > -margin; 0 = strict)"
         ),
     )
     p_ih.add_argument(
@@ -1628,7 +1633,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=0,
         help=(
             "If >0, clip every draw to the first N tokens before fit and "
-            "score (matched prefix protocol, not fit-full/score-prefix)"
+            "score (matched prefix protocol, not fit-full/score-prefix). "
+            "The generator tokenizer rewrites UTF-8 strings from the "
+            "clipped ids so surface matches the prefix."
         ),
     )
     p_probe.add_argument(
@@ -1729,7 +1736,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--fit-prefix",
         type=int,
         default=0,
-        help="If >0, clip every draw to the first N tokens before fit and score",
+        help=(
+            "If >0, clip every draw to the first N tokens before fit and "
+            "score. The generator tokenizer rewrites UTF-8 strings from "
+            "the clipped ids."
+        ),
     )
     p_learn.add_argument(
         "--pos-bucket",

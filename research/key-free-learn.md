@@ -182,7 +182,7 @@ Proves, on this public mixin and these twins:
 Does not prove: that no neural net can ever beat these tables; that the
 lab has a universal detector; that Claude is marked.
 
-Do not replace the published headlines **10/12**, **29/48**, or **36/36**.
+Do not replace the recounted headlines **9/12**, **25/48**, or **36/36**.
 Do not call any of these a universal detector.
 
 The next original question after this negative net result is instance

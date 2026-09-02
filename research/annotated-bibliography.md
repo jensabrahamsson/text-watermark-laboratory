@@ -8,7 +8,8 @@ Narrative: [related-work.md](related-work.md).
 
 This is not a review of every sampling watermark. It is the set of sources
 the notes actually rely on or must distinguish themselves from. Headlines
-in this repository stay **10/12**, **29/48**, and **36/36**.
+in this repository stay **9/12**, **25/48**, and **36/36**. Pre-fix
+**10/12** / **29/48** stay in historical JSON.
 
 ---
 
@@ -16,7 +17,7 @@ in this repository stay **10/12**, **29/48**, and **36/36**.
 
 **Dathathri, S., See, A., Ghaisas, S., Huang, P.-S., McAdam, R., Welbl, J., Bachani, V., Kaskasoli, A., Stanforth, R., Matejovicova, T., Hayes, J., Vyas, N., Al Merey, M., Brown-Cohen, J., Bunel, R., Balle, B., Cemgil, T., Ahmed, Z., Stacpoole, K., Shumailov, I., Baetu, C., Gowal, S., Hassabis, D., & Kohli, P. (2024).** Scalable watermarking for identifying large language model outputs. *Nature, 634*(8035), 818–823. https://doi.org/10.1038/s41586-024-08025-4
 
-Annotation: Archival description of SynthID-Text: tournament sampling, g-values, mean / weighted-mean / Bayesian detectors, and a production Gemini experiment. This repository’s `score` path is the public reference implementation of that scheme (`public-deepmind-30`). Do not reimplement `detector_mean`. The paper is keyed detection. It is not a key-free isolated-file classifier and does not replace **29/48**.
+Annotation: Archival description of SynthID-Text: tournament sampling, g-values, mean / weighted-mean / Bayesian detectors, and a production Gemini experiment. This repository’s `score` path is the public reference implementation of that scheme (`public-deepmind-30`). Do not reimplement `detector_mean`. The paper is keyed detection. It is not a key-free isolated-file classifier and does not replace **25/48**.
 
 **Google DeepMind. (2024).** SynthID-Text reference implementation [Computer software]. https://github.com/google-deepmind/synthid-text
 
@@ -40,7 +41,7 @@ Annotation: Inverse-transform and exponential-minimum sampling with a keyed rand
 
 **Christ, M., Gunn, S., & Zamir, O. (2024).** Undetectable watermarks for language models. In *Proceedings of Thirty Seventh Conference on Learning Theory* (PMLR 247, pp. 1125–1139). https://proceedings.mlr.press/v247/christ24a.html
 
-Annotation: Cryptographic undetectability: without the key, watermarked output is computationally indistinguishable from the original model, even under adaptive queries. That is a different object from this lab’s empirical count-table indicator, which *expects* a distributional footprint. Do not cite Christ et al. as evidence that key-free indication is impossible on SynthID-Text; their theorem is about a different construction.
+Annotation: Cryptographic undetectability: without the key, watermarked output is computationally indistinguishable from the original model, even under adaptive queries. That is a different object from this lab’s empirical count-table indicator. Do not cite Christ et al. as evidence that key-free indication is impossible on SynthID-Text; their theorem is about a different construction. This laboratory did **not** refute Christ et al. (2024): it did not instantiate that scheme and did not exhibit a distinguisher against it. Lock A **99/100** is a scoped measurement on `public-deepmind-30` GPT-2 twins, not a proof that their construction is detectable. Isolated **25/48** is a different grain, not a restoration of their theorem.
 
 ---
 
@@ -52,7 +53,7 @@ Annotation: Automated API stealing that enables spoofing and scrubbing of KGW-fa
 
 **Zhang, H., Edelman, B. L., Francati, D., Venturi, D., Ateniese, G., & Barak, B. (2024).** Watermarks in the sand: Impossibility of strong watermarking for language models. In *Proceedings of the 41st International Conference on Machine Learning* (PMLR 235, pp. 58851–58880). https://proceedings.mlr.press/v235/zhang24o.html
 
-Annotation: Impossibility of *strong* watermarking given a quality oracle and a mixing perturbation oracle. arXiv **2311.04378**. Earlier notes in this repo wrongly used that id for Jovanović et al. (2024). Zhang et al. do not recover keys from one string, and they do not supply this lab’s isolated-file indicator.
+Annotation: Impossibility of *strong* watermarking given a quality oracle and a mixing perturbation oracle. arXiv **2311.04378**. Earlier notes in this repo wrongly used that id for Jovanović et al. (2024). This laboratory did **not** refute Zhang et al. (2024): it did not run those oracles. Official leftover-18 **18/18** at prefix-128 uses keys and is not a mixing attack. Their result is not a proof that key-free ranking of unmodified twins is impossible, and they do not supply this lab’s isolated-file indicator. Do not cite them as “detection without keys cannot work.” Do not write that this lab disproved them.
 
 **Wu, Q., & Chandrasekaran, V. (2024).** Bypassing LLM watermarks with color-aware substitutions. In *Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)* (pp. 8549–8581). Association for Computational Linguistics. https://doi.org/10.18653/v1/2024.acl-long.464
 
@@ -84,7 +85,7 @@ Annotation: Applies Gloaguen et al. (2025) to a local SynthID-Text deployment. S
 
 **Wang, Z., Ren, Y., Cao, Y., Fang, F., Li, X., & Guo, L. (2026).** Rethinking LLM watermark detection in black-box settings: A non-intrusive third-party framework. In *Findings of the Association for Computational Linguistics: ACL 2026* (pp. 19773–19790). Association for Computational Linguistics. https://doi.org/10.18653/v1/2026.findings-acl.990
 
-Annotation: TTP-Detect: third-party, key-agnostic verification from observable outputs and paired watermarked/unwatermarked references. Same *audit problem* as this lab, a different method (proxy model + relative hypothesis tests). Closest published analog of `indicate`. This repository is a small checked-in instance of finished-string count-table indication on the public mixin, not TTP-Detect, and not a claim to have surpassed Wang et al. (2026).
+Annotation: TTP-Detect: third-party, key-agnostic verification from observable outputs and paired watermarked/unwatermarked references. Same *audit problem* as this lab, a different method (proxy model + relative hypothesis tests). Closest published finished-string paired-reference analog of `indicate`. This repository is a small checked-in instance of finished-string count-table indication on the public mixin, not TTP-Detect, and not a claim to have surpassed Wang et al. (2026).
 
 **Duan, H., Xiang, L., & Zhang, X. (2025).** PVMark: Enabling public verifiability for LLM watermarking schemes [Preprint]. arXiv. https://arxiv.org/abs/2510.26274
 
@@ -111,3 +112,15 @@ Annotation: Primary sources for Anthropic’s announced mark (“a version of”
 **Google DeepMind. (2024).** Publicly verifiable detection (Issue 22) [GitHub issue]. https://github.com/google-deepmind/synthid-text/issues/22
 
 Annotation: Feature request for publicly verifiable detection. Confirms that the public reference detector is still keyed.
+
+---
+
+## Clustered tests (not watermark papers)
+
+**Clopper, C. J., & Pearson, E. S. (1934).** The use of confidence or fiducial limits illustrated in the case of the binomial. *Biometrika, 26*(4), 404–413. https://doi.org/10.1093/biomet/26.4.404
+
+Annotation: Exact binomial interval used on already-opened *k*/*n* counts. Isolated **25/48** is **[0.372, 0.667]** and includes ½. This is not a theorem about SynthID-Text.
+
+**McNemar, Q. (1947).** Note on the sampling error of the difference between correlated proportions or percentages. *Psychometrika, 12*(2), 153–157. https://doi.org/10.1007/BF02295996
+
+Annotation: Exact binomial test on discordant paired binary outcomes. Absolute-history H2 uses it on prompt-family ranking wins (0:4 versus 16:32: **86 / 13 / 1 / 0**). The families are weakly dependent under leave-one-prompt-out; this is not a second freeze and not **25/48**.

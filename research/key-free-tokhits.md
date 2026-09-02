@@ -322,7 +322,8 @@ zeros. Nested Youden: 16/48 vs 48/48, spec **1.000**.
 
 Do **not** sell 16/48 as beating 39/48. Quote both: 39/48 includes
 occupancy Laplace; 16/48 is observed next-token only, precision 1.0 on
-this gate. The 29/48 last-4 isolated-file headline is unchanged.
+this gate. The recounted **25/48** last-4 isolated-file headline is unchanged.
+Pre-fix **29/48** overcounted truncated openings.
 
 ## In-domain 36×4 LOO
 

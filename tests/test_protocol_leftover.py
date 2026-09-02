@@ -41,3 +41,44 @@ def test_leftover_membership_is_the_mixed_postokhits_zeros() -> None:
     assert "Closing is the" in text
     assert "The ferry" in text
     assert "Do not redefine leftover" in text
+
+
+def test_protocol_leftover_mixed_rankpath_is_not_25() -> None:
+    import json
+    from text_watermark_tools.indicator import holdout_from_json
+
+    root = ROOT / "experiments"
+    leftover = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath"
+            / "leftover.json"
+        ).read_text()
+    )
+    ev = holdout_from_json(
+        root
+        / "2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath"
+        / "rankpath"
+        / "holdout.json"
+    )
+    nested = json.loads(
+        (
+            root
+            / "2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath"
+            / "results.json"
+        ).read_text()
+    )
+    row = next(t for t in nested["thresholds"] if t["source"] == "nested-youden")
+    assert leftover["used_keys"] is False
+    assert ev.used_keys is False
+    assert leftover["leftover"]["n"] == 20
+    assert leftover["leftover"]["marked_above_zero"] == 12
+    assert leftover["leftover"]["unmarked_at_most_zero"] == 14
+    assert leftover["leftover"]["marked_above_zero"] != 25
+    assert ev.n_marked_positive == 35
+    assert row["n_marked_above"] == 35
+    text = PROTOCOL.read_text()
+    assert "H-left-C **holds**" in text
+    assert "H-left-iso **holds**" in text
+    assert "Do not sell **35/48**" in text
+    assert "12/20 is not **25/48**" in text

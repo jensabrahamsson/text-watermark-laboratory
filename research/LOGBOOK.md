@@ -1513,4 +1513,492 @@ core. Do not look at mixed rankpath LRs until this line is on origin.
 Do not sell leftover signs as replacing **25/48**. Do not write
 `thesis/`.
 
+## 2026-09-01 leftover-opening rankpath opened
+
+SHA `7afd049`. `used_keys=false`. Leftover 20 mixed rankpath marked
+`lr>0` **12/20**, unmarked `lr≤0` **14/20**. Library leftover **0/4**.
+H-left-C holds. Full nested **35/48 vs 38/48** fails H-left-full as a
+raw count; do not sell 35/48 (it includes covered openings). Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/`.
+
+## 2026-09-01 leftover-versus-covered 25/48 split frozen
+
+[PROTOCOL-isolated-split.md](PROTOCOL-isolated-split.md) committed at
+SHA `f09d0e2`. Leftover membership stays the mixed postokhits zeros
+(20 files). Primary holdout stays 12-LOO hard last-4 (**25/48**). Do
+not look at leftover-versus-covered TP counts until this line is on
+origin. Do not sell either slice as replacing **25/48**. Do not write
+`thesis/`.
+
+## 2026-09-01 leftover-versus-covered 25/48 split opened
+
+SHA `f09d0e2`. `used_keys=false`. Headline 12-LOO hard last-4 **25/48**
+splits leftover marked `lr>0` **10/20**, unmarked `lr≤0` **11/20**, and
+occupancy-covered **15/28 vs 11/28**. H-split-left, H-split-cov, and
+H-split-iso hold. Leftover last-4 is chance. Ranking-loss TPs are all
+leftover. Letter leftover and garden leftover are 0 TPs. Do not sell
+10/20 or 15/28. Nothing replaces **25/48**. Isolated-file detection is
+still not finished.
+
+JSON: `experiments/2026-09-01-isolated-split-25-leftover-vs-covered/`.
+
+## 2026-09-01 two-grain narrative and mask-k protocol frozen
+
+[narrative.md](narrative.md) and
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) committed at
+SHA `004397c`. Prompt-group ranking stays real; isolated **25/48** stays
+chance-like. Do not write a “key-free detection fails” paper. Do not
+look at 12-LOO `--windows` LRs until this line is on origin. Do not
+write `thesis/`.
+
+## 2026-09-01 headline 12-LOO mask-k windows opened
+
+SHA `004397c`. `used_keys=false`. Hard prefix 0:4 is **5/12**; tails
+4:128 and 8:128 stay **9/12**. Interpolate tails drop to **5/12** then
+**3/12**. Isolated t=0 stays chance-like. H-mask-open and H-mask-tail
+fail for hard. H-mask-iso holds. The headline hard 9/12 is not an
+opening-only n-gram artifact. Do not sell prefix 10/12, isolated 29/48,
+or tail 9/12. Nothing replaces **25/48**. Isolated-file detection is
+still not finished.
+
+JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
+## 2026-09-01 leftover-versus-covered mask-k window split frozen
+
+[PROTOCOL-isolated-mask-split.md](PROTOCOL-isolated-mask-split.md)
+committed at SHA `3e30e70`. Leftover membership stays mixed postokhits
+zeros. Primary holdout stays hard 4:128. Do not look at leftover
+versus covered window counts until this line is on origin. Do not sell
+tail **9/12**. Do not write `thesis/`.
+
+## 2026-09-01 leftover-versus-covered mask-k window split opened
+
+SHA `3e30e70`. `used_keys=false`. Hard 4:128 leftover marked `lr>0`
+**11/20**, unmarked `lr≤0` **11/20**, occupancy-covered **16/28 vs
+11/28**. H-wsplit-tail, H-wsplit-open, and H-wsplit-iso hold. Leftover
+tail is chance. Tail **9/12** is not leftover-file recall. Prefix 0:4
+isolated **29/48** is **12 leftover + 17 covered**. Do not sell 11/20,
+16/28, window 29/48, or tail 9/12. Nothing replaces **25/48**.
+Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-split-windows-leftover-vs-covered/`.
+
+## 2026-09-01 occupancy leftover-20 bound frozen
+
+[PROTOCOL-isolated-leftover-bound.md](PROTOCOL-isolated-leftover-bound.md)
+committed at SHA `802186e`. Leftover membership stays mixed postokhits
+zeros. Official prefixes stay the published keyed dump. Interpolate
+tables stay grok36 lock A. Do not look at leftover-20 official means
+or leftover-only atom windows until this line is on origin. Do not
+write `thesis/`.
+
+## 2026-09-01 occupancy leftover-20 bound opened
+
+SHA `802186e`. Official `used_keys=true`. Leftover-20 full-file mean
+**0.624**, **20/20** above 0.55 (covered **0.620**, 28/28). Prefix-5
+**18/20** (office-1 and office-3 at 0.500 on one 5-gram; both marked by
+prefix-16). Leftover interpolate atoms 0:4 seen 21 vs unseen **99**;
+seen mass is `'Cl'→'osing'`; leftover marked `lr>0` **13/20**.
+H-bound-lamp, H-bound-open, H-bound-atom, and H-bound-iso hold.
+Leftover key-free chance is not an unmarked mixin miss. Do not sell
+official 20/20, interpolate 13/20, or Closing. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-leftover-bound/`.
+
+## 2026-09-01 leftover-20 ∪ short-medium-tails openings frozen
+
+[PROTOCOL-isolated-leftover-union.md](PROTOCOL-isolated-leftover-union.md)
+committed at SHA `e5a5f6b`. Leftover membership stays mixed postokhits
+zeros. Short+medium+tails zeros stay that dump. Do not look at
+leftover-after-union counts until this line is on origin. Do not write
+`thesis/`.
+
+## 2026-09-01 leftover-20 ∪ short-medium-tails openings opened
+
+SHA `e5a5f6b`. `used_keys=false`. Union **30/48** equals published SMT
+coverage; mixed 100+grok36 is a subset. SMT-only covers are garden 1/4.
+Leftover after union is **18**. 12-LOO hard last-4 leftover is
+**10/18 vs 10/18**. Mixed occupancy-free leftover sign is **0/18 vs
+18/18** by construction. H-union-smt, H-union-left, and H-union-iso
+hold. Do not sell union 30/48 or leftover 10/18. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/`.
+
+## 2026-09-01 occupancy-free leftover-18 closed
+
+[PROTOCOL-isolated-occupancy-closed.md](PROTOCOL-isolated-occupancy-closed.md)
+committed at SHA `afb7668`. Occupancy-free remainder after SMT ∪ mixed
+is leftover **18**. Leftover-18 official prefix-128 is **18/18** by
+subset of leftover-20 **20/20**. Prefix-5 is **16/18**. Do not add
+family-12 paraphrases or target leftover openings after peeking. Do
+not write `thesis/`.
+
+## 2026-09-01 leftover-18 remaining readers frozen
+
+[PROTOCOL-isolated-leftover-18.md](PROTOCOL-isolated-leftover-18.md)
+committed at SHA `5621544`. Leftover membership stays leftover-union
+leftover-18 keys. Mixed rankpath and grok36 interpolate stay those
+dumps. Do not look at leftover-18 rankpath or leftover-18 interpolate
+counts until this line is on origin. Do not write `thesis/`.
+
+## 2026-09-01 leftover-18 remaining readers opened
+
+SHA `5621544`. `used_keys=false`. Leftover-18 mixed rankpath **12/18 vs
+13/18**. Grok36 interpolate **12/18 vs 12/18**. 12-LOO hard last-4 check
+**10/18 vs 10/18**. Leftover-18 interpolate 0:4 seen 19 vs unseen **89**;
+seen mass is `'Cl'→'osing'`. Garden leftover had 0 mixed rankpath TPs
+and 1 interpolate TP. H-left18-C, H-left18-A, and H-left18-iso hold.
+Do not sell leftover-18 rankpath 12/18 or leftover-18 interpolate 12/18.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished.
+
+JSON: `experiments/2026-09-01-isolated-leftover-18-readers/`.
+
+## 2026-09-01 leftover-18 published key-free readers closed
+
+[PROTOCOL-isolated-leftover-18-closed.md](PROTOCOL-isolated-leftover-18-closed.md)
+committed at SHA `cdccae5`. Leftover-18 published key-free readers
+(occupancy-free, mixed rankpath, grok36 interpolate, 12-LOO hard last-4)
+are exhausted for leftover-file detection. Mixed rankpath leftover-18
+is **12/18 vs 13/18**. Interpolate leftover-18 is **12/18 vs 12/18**.
+Last-4 leftover-18 is **10/18 vs 10/18**. Do not re-slice more leftover-18
+holdouts, including leftover-18 mask-*k*. Do not write `thesis/`.
+
+## 2026-09-01 Distil occupancy-free leftover-18 frozen
+
+[PROTOCOL-isolated-xgen.md](PROTOCOL-isolated-xgen.md)
+committed at SHA `8e33445`. Distil 100×4 tables score the original 12
+GPT-2 files. Leftover membership stays leftover-union leftover-18 keys.
+Do not look at Distil occupancy-free leftover-18 coverage until this
+line is on origin. Do not write `thesis/`.
+
+## 2026-09-01 Distil occupancy-free leftover-18 opened
+
+SHA `8e33445`. `used_keys=false`. Distil occupancy-free postokhits t=0
+on the original 12 is **22/48 vs 43/48**. That beats GPT-2 lock B
+occupancy-free **16/48 vs 48/48** and does not beat **25/48**. Openings
+covered **23/48**. Leftover-18 Distil coverage is **3/18** (office 1/3/4);
+leftover occupancy-free sign **3/18 vs 16/18**. Remaining leftover-15 is
+harbour, library, station-4, letter 2–3, ferry-queue. H-xgen-cover holds.
+H-xgen-B fails versus 16/48. H-xgen-iso holds. Do not sell Distil 22/48
+or leftover Distil 3/18. Nothing replaces **25/48**. Isolated-file
+detection is still not finished.
+
+JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`,
+`experiments/2026-09-01-transfer-distil100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-12x4/`.
+
+## 2026-09-01 Distil occupancy-free Distil-12 transfer frozen
+
+[PROTOCOL-isolated-dgen.md](PROTOCOL-isolated-dgen.md)
+committed at SHA `6bb95a6`. Distil 100×4 tables score Distil 12×4 files.
+Not leftover-18. Do not apply leftover-18 GPT-2 keys to Distil files.
+Do not look at Distil→Distil occupancy-free LRs until this line is on
+origin. Do not write `thesis/`.
+
+## 2026-09-01 Distil occupancy-free Distil-12 transfer opened
+
+SHA `6bb95a6`. `used_keys=false`. Distil occupancy-free postokhits t=0
+on Distil 12×4 is **16/48 vs 39/48**. Openings covered **16/48** (exact
+9/48). That equals opening-atom overlap and does not beat **25/48**.
+Distil→GPT-2 occupancy-free **22/48** used different test files.
+H-dgen-cover, H-dgen-B, and H-dgen-iso hold. Nested Youden **48/48** is
+a negative train threshold; do not sell 48/48. Distil poshits **25/48 vs
+25/48** includes occupancy. Do not sell Distil→Distil 16/48. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-distil12x4/`.
+
+## 2026-09-01 Qwen occupancy-free Qwen-12 transfer frozen
+
+[PROTOCOL-isolated-qgen.md](PROTOCOL-isolated-qgen.md)
+committed at SHA `3c0a5c9`. Qwen 100×4 tables score Qwen 12×4 files.
+Not leftover-18. Native tokenizer. No lock A. No `--include-first`.
+Do not apply leftover-18 GPT-2 keys to Qwen files. Do not look at
+Qwen→Qwen occupancy-free LRs until this line is on origin. Do not
+write `thesis/`.
+
+## 2026-09-01 Qwen occupancy-free Qwen-12 transfer opened
+
+SHA `3c0a5c9`. `used_keys=false`. Local Hugging Face, not Dashscope.
+Qwen occupancy-free postokhits t=0 on Qwen 12×4 is **31/48 vs 48/48**.
+Openings covered **37/48** (exact 12/48). Six covered files have
+negative LR. H-qgen-cover holds on not 48/48. H-qgen-B fails as a raw
+count (**31/48** > **25/48**) across corpora. H-qgen-iso holds: these
+are Qwen files, not original-12 GPT-2. Nested Youden **31/48 vs 48/48**
+at a positive threshold. Do not sell Qwen→Qwen 31/48. Nothing replaces
+**25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-qwen100x4-to-qwen12x4/`.
+
+## 2026-09-01 Distil ∪ SMT openings union frozen
+
+[PROTOCOL-isolated-dsmt.md](PROTOCOL-isolated-dsmt.md)
+committed at SHA `b1f0c7d`. Distil 100×4 occupancy-free zeros and
+short+medium+tails zeros on the original 12. No new tables. Do not look
+at leftover-after-union counts until this line is on origin. Do not
+write `thesis/`.
+
+## 2026-09-01 Distil ∪ SMT openings union opened
+
+SHA `b1f0c7d`. `used_keys=false`. Distil 100×4 covers **23/48**. SMT
+covers **30/48**. Set-union is **33/48**. Leftover is **15/48**.
+Distil-only covers are office 1/3/4. Leftover last-4 is **9/15 vs
+8/15**. Distil occupancy-free leftover sign is **0/15** marked.
+H-dsmt-cover, H-dsmt-left, and H-dsmt-iso hold. Do not sell union
+33/48 or leftover 9/15. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not target leftover-15 openings
+after peeking.
+
+JSON: `experiments/2026-09-01-openings-union-distil100x4-and-smt-to-12x4/`.
+
+## 2026-09-01 leftover-15 occupancy-free closed
+
+[PROTOCOL-isolated-leftover-15-closed.md](PROTOCOL-isolated-leftover-15-closed.md)
+committed at SHA `570a5c6`. Leftover-15 official is **15/15** at
+prefix-5 from the published keyed dump. Occupancy-free leftover-15
+versus Distil is **0/15** by construction. Leftover last-4 is **9/15 vs
+8/15**. Do not target leftover-15 openings. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-01 gpt2-medium occupancy-free leftover-15 freeze
+
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md) committed at SHA
+`cc9c4ca`. Occupancy-free leftover-15 is closed for more unrelated GPT-2
+scenes. The remaining analog is gpt2-medium 100×4 on the already-frozen
+100 prompts (same BPE; not leftover targeting). Hypotheses H-mgen-cover,
+H-mgen-B, and H-mgen-iso are stated before any gpt2-medium→12 LRs.
+Do not look at those LRs until the pair, probe, and openings commands
+have been run once, as written. Do not target leftover-15 openings.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
+## 2026-09-01 manuscript position and Distil strict recount
+
+Locked [threat-model.md](threat-model.md): the auditor is **key-free,
+not reference-free, not fully blind**. The notebook is a **strong
+empirical** measurement, interesting to the field; it is **not
+field-defining** and **not a finished conference paper**. The honest
+next artifact is a workshop, artifact, or focused empirical report with
+the two-grain sentence first. Do not write `thesis/` from that lock.
+
+Strict prompt ranking is `marked_lr + margin > unmarked_lr`. Equality is
+a **tie**, not a win. Distil lock B/C historical persist still prints
+**89/100** and **69/100**. Recomputed from the same LRs: **88 wins + 1
+tie** and **68 wins + 1 tie**. H3 still holds (drops 12 and 28 from
+GPT-2 Phase A). Do not rewrite the Phase B LOGBOOK entry. Do not sell
+88/100 or 68/100 as replacing **25/48**. PROTOCOL-next H2 remains a
+**reindexed** window measurement until an absolute-history rerun.
+
+File-level permutation and binomial p-values are descriptive. The
+inferential unit is the prompt family.
+
+JSON unchanged: `experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
+
+Occupancy-free postokhits notes that said “ranking wins with 0 isolated
+TPs” mixed true ranking wins with 0=0 ties. Strict recount from the same
+LRs: Grok-register → original 12 is **2 wins + 9 ties** (the 9 ties have
+0 isolated TPs; the 2 wins do not). 100 one-liners → Grok-register is
+**4 wins + 6 ties** (all four wins have 0 isolated TPs: marked occupancy
+zero vs negative unmarked). Isolated t=0 is unchanged. Do not sell the
+old `>=` prompt counts as ranking wins.
+
+## 2026-09-01 gpt2-medium occupancy-free leftover-15 opened
+
+[PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md) named `883532b`.
+Official first-draw lamp on gpt2-medium 100×4 is **100/100**. Occupancy-free
+postokhits t=0 on the original 12 is **16/48 vs 48/48** (equals opening
+coverage **16/48**, exact **14/48**, decided FP 0). Leftover-15 coverage
+is **0/15**. Leftover occupancy-free sign is **0/15 vs 15/15**. H-mgen-cover,
+H-mgen-B, and H-mgen-iso hold. Prompt ranking postokhits is **7/12** strict
+with **5 ties**. Do not sell **16/48**, **0/15**, **7/12**, or official
+**100/100** as replacing **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-pair-gpt2-medium-100x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-12x4/`,
+`experiments/2026-09-01-isolated-mgen-leftover-15/`.
+
+## 2026-09-01 gpt2-medium 12×4 occupancy-free freeze
+
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md) committed at SHA
+`5be70f3`. Occupancy-free leftover-15 versus gpt2-medium is **0/15**.
+The remaining analog is gpt2-medium 100×4 tables scoring gpt2-medium
+12×4 files from the original 12 Grok seeds (same BPE; not leftover
+targeting). Hypotheses H-m12-cover, H-m12-B, and H-m12-iso are stated
+before any gpt2-medium→gpt2-medium LRs. Do not look at those LRs until
+the pair, probe, and openings commands have been run once, as written.
+Do not apply leftover-15 keys to gpt2-medium 12 files. Do not target
+leftover-15 openings. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-01 gpt2-medium occupancy-free medium-12 transfer opened
+
+[PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md) named `3610cef`.
+Official first-draw lamp on gpt2-medium 12×4 is **12/12**. Occupancy-free
+postokhits t=0 on those files is **10/48 vs 48/48** (coverage **13/48**,
+exact **10/48**, three covered files have negative LR, decided FP 0).
+H-m12-cover, H-m12-B, and H-m12-iso hold. Prompt ranking postokhits is
+**8/12** strict with **3 ties**. Do not sell **10/48**, **13/48**,
+**8/12**, or official **12/12** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-pair-gpt2-medium-12x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/`.
+
+## 2026-09-01 Distil↔gpt2-medium occupancy-free freeze
+
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md) committed at SHA
+`3bb8430`. gpt2-medium→gpt2-medium occupancy-free is already **10/48**.
+The remaining analog is Distil 100×4 tables scoring gpt2-medium 12×4
+files and gpt2-medium 100×4 tables scoring Distil 12×4 files (same BPE;
+already-frozen twins; not leftover targeting). Hypotheses H-xsize-cover,
+H-xsize-B, and H-xsize-iso are stated before any Distil↔gpt2-medium LRs.
+Do not look at those LRs until the probe and openings commands have been
+run once, as written. Do not apply leftover-15 or leftover-18 keys to
+Distil 12 or gpt2-medium 12 files. Do not target leftover-15 openings.
+Do not freeze Distil ∪ gpt2-medium union in this file. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+## 2026-09-01 Distil occupancy-free gpt2-medium transfer opened
+
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md) named `fbf2cb5`.
+Occupancy-free Distil→gpt2-medium postokhits t=0 is **20/48 vs 48/48**
+(coverage **22/48**, exact **4/48**, two covered files have negative LR,
+decided FP 0). Occupancy-free gpt2-medium→Distil postokhits t=0 is
+**3/48 vs 47/48** (coverage **5/48**, exact **2/48**, decided FP 1).
+H-xsize-cover, H-xsize-B, and H-xsize-iso hold. Nested Youden Distil→gpt2-medium
+**46/48 vs 11/48** is a negative train threshold; do not sell 46/48.
+Prompt ranking Distil→gpt2-medium postokhits is **11/12** strict with
+**1 tie**. Prompt ranking gpt2-medium→Distil postokhits is **6/12**
+strict with **6 ties**. Do not sell **20/48**, **22/48**, **11/12**,
+**3/48**, **5/48**, or **6/12** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-distil100x4-to-medium12x4/`,
+`experiments/2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/`,
+`experiments/2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/`.
+
+## 2026-09-01 absolute-history H2 remasure freeze
+
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) committed at SHA
+`89cb62d`. PROTOCOL-next H2 is still a reindexed window measurement
+(0:4 **99/100** vs 16:32 **89/100**). Occupancy-free leftover-15 and
+Distil↔gpt2-medium occupancy-free are already opened. The remaining
+confirmatory honesty remasure is absolute `score_span` on the same
+100×4 interpolate windows, without overwriting the reindexed dump.
+Hypotheses H2-abs, H2-abs-acc, and H2-abs-iso are stated before any
+absolute-history window LRs. Do not look at those LRs until the probe
+command has been run once, as written. Do not add a scorer. Do not
+overwrite `experiments/2026-09-01-probe-100x4-hard-windows/`. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
+## 2026-09-01 absolute-history H2 remasure opened
+
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) named `450658c`.
+Absolute-history lock A interpolate window **0:4** ranks **99/100**
+(AUC **0.885**, isolated 372/400 vs 272/400). Window **16:32** ranks
+**87/100** (AUC **0.695**, isolated 267/400 vs 240/400). H2-abs, H2-abs-acc,
+and H2-abs-iso hold. Absolute 0:4 equals the reindexed opening. Absolute
+16:32 did **not** rise versus reindexed **89/100**. `used_keys=false`.
+Do not overwrite the reindexed dump. Do not sell **99/100**, **87/100**,
+isolated **372/400**, or isolated **267/400** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-probe-100x4-hard-windows-absolute/`.
+Reindexed (keep): `experiments/2026-09-01-probe-100x4-hard-windows/`.
+
+## 2026-09-02 paired prompt-family H2 readout
+
+Post-open clustered description of the already-opened absolute H2
+holdouts. Not a second freeze. Not a new scorer. Prompt family is the
+unit. 0:4 versus 16:32 is **86 / 13 / 1 / 0**. Exact one-sided McNemar
+P(X ≥ 13 | Bin(14, ½)) ≈ **0.00092**. Clopper–Pearson 95% on isolated
+**25/48** is **[0.372, 0.667]** and includes ½; on **9/12** includes ½;
+on absolute **87/100** is **[0.788, 0.929]** and excludes ½. Unpaired
+interval overlap is not the H2 test. Do not sell McNemar **0.00092**,
+**93/100** gap signs, **99/100**, or **87/100** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-02 second-key in-domain lock A freeze
+
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) committed at SHA
+`d25e495`. Occupancy-free leftover-15, Distil↔gpt2-medium occupancy-free,
+and absolute-history H2 are already opened. The remaining honesty item
+that is not leftover targeting is whether lock A interpolate last-4 still
+ranks held-out prompt groups when the marked side is control-shuffled-30
+against the original unmarked pile. Seeds **20260931** vs **0**. Not a
+matched `pair()` run. Complementary to instance contrast. Hypotheses
+H-xkey-A, H-xkey-iso, and H-xkey-seed are stated before any
+control-as-marked interpolate LRs. Do not look at those LRs until the
+probe command has been run once, as written. Do not add a scorer.
+`--fit-prefix` now rewrites UTF-8 strings from clipped ids. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
+## 2026-09-02 second-key in-domain lock A opened
+
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) named `9ec3b0c`.
+Leave-one-prompt-out interpolate last-4 on control-as-marked 12×4 ranks
+**7/12** (AUC **0.590**, isolated **30/48 vs 25/48**). H-xkey-A and
+H-xkey-seed hold. H-xkey-iso **fails** as a raw count (**30/48** >
+**25/48**). These are control-shuffled-30 files, not the original public
+marked 12. Clopper–Pearson 95% on **7/12** is **[0.277, 0.848]** and
+includes ½; on **30/48** is **[0.474, 0.760]** and includes ½.
+`used_keys=false`. Seeds **20260931** vs **0**. Not a matched `pair()`
+run. Nested Youden **33/48 vs 20/48** is a negative threshold; do not
+sell 33/48. Do not sell **7/12** or **30/48** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-02-probe-12x4-control-as-marked-hard-last4/`.
+
+---
+
+## 2026-09-02 absolute-history OOD windows freeze
+
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md)
+committed at SHA `1504cb4`. Second-key lock A, occupancy-free leftover-15,
+Distil↔gpt2-medium occupancy-free, and in-family absolute H2 are already
+opened. The remaining honesty item that is not leftover targeting is
+whether 100→grok12 interpolate windows still put tail **9/12** above
+opening **7/12** when mid-file 4-grams keep their real prefix. Reindexed
+dumps stay. Hypotheses H-win-abs-open, H-win-abs-mid, H-win-abs-12, and
+H-win-abs-iso are stated before any absolute transfer window LRs. Do
+not look at those LRs until the two probe commands have been run once,
+as written. Do not add a scorer. Do not overwrite the reindexed dumps.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
+## 2026-09-02 absolute-history OOD windows remasure opened
+
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md)
+named `b32ea50`. Same flags as PROTOCOL-isolated-windows. New out-dirs.
+`used_keys=false`. Grok12 absolute 0:4 is **7/12** (equals reindexed);
+32:64 **10/12** (rose versus reindexed **9/12**); 64:128 **9/12**.
+Original 12 absolute 0:4 is **9/12** (equals reindexed) and outranks
+16:32 **6/12**; 64:128 fell 8→6. H-win-abs-open, H-win-abs-mid,
+H-win-abs-12, and H-win-abs-iso hold. Clopper–Pearson 95% on grok
+32:64 **10/12** is **[0.516, 0.979]** and excludes ½; n=12 is still
+small. Isolated t=0 stays chance-like. Do not sell absolute **10/12**,
+**7/12**, orig window **25/48**, or reindexed tail **9/12** as
+replacing **25/48**. Do not overwrite the reindexed dumps. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/`,
+`experiments/2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/`.
+Reindexed (keep): `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
+
 ---

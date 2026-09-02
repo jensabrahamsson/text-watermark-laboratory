@@ -15,6 +15,7 @@ from text_watermark_tools.blind import (
     likelihood_ratio,
     load_twins,
     pair_marked_wins,
+    pair_outcome,
     persist_blind_eval,
     print_blind_eval,
 )
@@ -45,6 +46,31 @@ def test_margin_turns_a_close_miss_into_a_hit() -> None:
     assert pair_marked_wins(-0.05, 0.02, margin=0.015) is False
 
 
+def test_pair_outcome_treats_equality_as_a_tie() -> None:
+    assert pair_outcome(0.0, 0.0) == "tie"
+    assert pair_marked_wins(0.0, 0.0) is False
+    assert pair_outcome(0.1, 0.0) == "win"
+    assert pair_outcome(0.0, 0.1) == "loss"
+    assert pair_outcome(0.01, 0.03, margin=0.02) == "tie"
+
+
+def test_score_span_keeps_absolute_history() -> None:
+    # Marked history (10,11,12)→99; unmarked likes a sliced (99,)→88.
+    marked = [[10, 11, 12, 99, 88]]
+    unmarked = [[99, 88, 88, 88, 88]]
+    model = fit_blind(marked * 8, unmarked * 8, context_len=3)
+    ids = marked[0]
+    assert _scored_ctx(ids, 3, 3, 0) == (10, 11, 12)
+    assert _scored_ctx(ids[3:5], 1, 3, 0) == (99,)
+    with_history = likelihood_ratio(ids, model, score_span=(3, 5))
+    reindexed = likelihood_ratio(ids[3:5], model)
+    assert with_history != reindexed
+    # A one-token window is scored at its absolute index; a sliced
+    # singleton is skipped as generated token 0.
+    assert likelihood_ratio(ids, model, score_span=(3, 4)) != 0.0
+    assert likelihood_ratio(ids[3:4], model) == 0.0
+
+
 def test_clip_twins_keeps_the_first_n_draws() -> None:
     twin = Twin(
         stem="x",
@@ -67,6 +93,67 @@ def test_clip_twins_keeps_the_first_n_draws() -> None:
     assert len(two.marked_seqs()) == 2
     four = clip_twins([twin], 4)[0]
     assert len(four.marked_seqs()) == 4
+
+
+def test_clip_prefix_without_tokenizer_keeps_full_text() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="full marked string",
+        unmarked_text="full unmarked string",
+        marked_ids=[10, 11, 12, 13],
+        unmarked_ids=[20, 21, 22, 23],
+        extra_marked_ids=[[30, 31, 32, 33]],
+        extra_unmarked_ids=[[40, 41, 42, 43]],
+        extra_marked_text=["full extra marked"],
+        extra_unmarked_text=["full extra unmarked"],
+        prompt_text="the prompt",
+    )
+    clipped = twin.clip_prefix(2)
+    assert clipped.marked_ids == [10, 11]
+    assert clipped.unmarked_ids == [20, 21]
+    assert clipped.extra_marked_ids == [[30, 31]]
+    assert clipped.extra_unmarked_ids == [[40, 41]]
+    assert clipped.marked_text == "full marked string"
+    assert clipped.unmarked_text == "full unmarked string"
+    assert clipped.extra_marked_text == ["full extra marked"]
+    assert clipped.extra_unmarked_text == ["full extra unmarked"]
+    assert clipped.prompt_text == "the prompt"
+
+
+class _FakeTok:
+    def decode(
+        self,
+        ids,
+        skip_special_tokens=True,
+        clean_up_tokenization_spaces=False,
+    ):
+        assert skip_special_tokens is True
+        assert clean_up_tokenization_spaces is False
+        return "[" + ",".join(str(i) for i in ids) + "]"
+
+
+def test_clip_prefix_rewrites_text_from_clipped_ids() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="full marked string",
+        unmarked_text="full unmarked string",
+        marked_ids=[10, 11, 12, 13],
+        unmarked_ids=[20, 21, 22, 23],
+        extra_marked_ids=[[30, 31, 32, 33]],
+        extra_unmarked_ids=[[40, 41, 42, 43]],
+        extra_marked_text=["full extra marked"],
+        extra_unmarked_text=["full extra unmarked"],
+        prompt_text="the prompt",
+        prompt_ids=[1, 2],
+    )
+    clipped = twin.clip_prefix(2, tokenizer=_FakeTok())
+    assert clipped.marked_ids == [10, 11]
+    assert clipped.marked_text == "[10,11]"
+    assert clipped.unmarked_text == "[20,21]"
+    assert clipped.extra_marked_text == ["[30,31]"]
+    assert clipped.extra_unmarked_text == ["[40,41]"]
+    assert clipped.prompt_text == "the prompt"
+    assert clipped.prompt_ids == [1, 2]
 
 
 def test_clip_twins_rejects_zero_draws() -> None:
@@ -232,6 +319,21 @@ def test_load_twins_groups_extra_marked_samples(tmp_path: Path) -> None:
     assert twins[0].stem == "harbour"
     assert len(twins[0].marked_seqs()) == 2
     assert len(twins[0].unmarked_seqs()) == 2
+
+
+def test_load_twins_rejects_asymmetric_extra_draws(tmp_path: Path) -> None:
+    (tmp_path / "harbour-marked.txt").write_text("alpha marked")
+    (tmp_path / "harbour-unmarked-gen.txt").write_text("alpha unmarked")
+    (tmp_path / "harbour-marked-2.txt").write_text("beta marked")
+    (tmp_path / "harbour-unmarked-gen-3.txt").write_text("gamma unmarked")
+    try:
+        load_twins(tmp_path)
+    except ValueError as exc:
+        msg = str(exc)
+        assert "asymmetric" in msg
+        assert "harbour" in msg
+    else:
+        raise AssertionError("missing unmarked-gen-2 must not silently pair draw 2 with 3")
 
 
 def test_load_twins_from_lab_pair_dir() -> None:

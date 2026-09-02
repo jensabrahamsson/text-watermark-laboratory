@@ -161,7 +161,9 @@ def dump_opening_atoms(
         raise RuntimeError("atom dump consulted keys / hash_iv / g-values")
     tokenizer = load_tokenizer(model_name)
     twins = clip_twins_prefix(
-        load_twins(test_dir, tokenizer=tokenizer), int(fit_prefix)
+        load_twins(test_dir, tokenizer=tokenizer),
+        int(fit_prefix),
+        tokenizer=tokenizer,
     )
     spec = POSHITS_SPEC if model.position_bucket else COUNT_SPECS["hits"]
     skip = POSTOKHITS_SPEC if model.position_bucket else COUNT_SPECS["tokhits"]

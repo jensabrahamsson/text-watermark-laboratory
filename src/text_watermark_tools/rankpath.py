@@ -277,10 +277,14 @@ def score_rankpath_detail(
     model: BlindModel,
     *,
     spec: ScoreSpec | None = None,
+    prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
 ):
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("rankpath consulted keys / hash_iv / g-values")
-    return score_sequence_detail(ids, model, spec or RANKPATH_SPEC)
+    return score_sequence_detail(
+        ids, model, spec or RANKPATH_SPEC, prefix=prefix, score_span=score_span
+    )
 
 
 def score_rankpath(
@@ -288,8 +292,14 @@ def score_rankpath(
     model: BlindModel,
     *,
     spec: ScoreSpec | None = None,
+    prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
 ) -> float:
-    return float(score_rankpath_detail(ids, model, spec=spec).lr)
+    return float(
+        score_rankpath_detail(
+            ids, model, spec=spec, prefix=prefix, score_span=score_span
+        ).lr
+    )
 
 
 def persist_rankpath(

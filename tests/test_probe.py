@@ -44,7 +44,7 @@ def test_published_12x4_holdout_is_ten_of_twelve_and_has_auc() -> None:
     assert ev.used_g_values is False
     assert ev.n_prompts == 12
     assert ev.n_files == 96
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 29
     assert ev.n_unmarked_nonpositive == 23
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=500, seed=0)
@@ -66,7 +66,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
     assert hard.used_hash_iv is False
     assert hard.used_g_values is False
     assert hard.n_prompts == 12
-    assert hard.n_prompts_marked_above == 9
+    assert hard.n_prompts_marked_ge == 9
     assert hard.n_marked_positive == 25
     assert hard.n_unmarked_nonpositive == 22
     stats = binary_eval(hard.marked_lrs, hard.unmarked_lrs, n_perm=500, seed=0)
@@ -78,7 +78,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
     interpolate = holdout_from_json(
         root / "2026-09-01-probe-12x4-recount-hard-last4" / "interpolate" / "holdout.json"
     )
-    assert interpolate.n_prompts_marked_above == 7
+    assert interpolate.n_prompts_marked_ge == 7
 
     blind = json.loads(
         (root / "2026-09-01-blind-12x4-recount-last4" / "results.json").read_text()
@@ -92,7 +92,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
     hits = holdout_from_json(
         root / "2026-09-01-probe-12x4-recount-hits" / "hits" / "holdout.json"
     )
-    assert hits.n_prompts_marked_above == 10
+    assert hits.n_prompts_marked_ge == 10
     assert hits.n_marked_positive == 28
     hits_stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
     assert hits_stats.auc > 0.70
@@ -103,7 +103,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
         / "poshits"
         / "holdout.json"
     )
-    assert poshits.n_prompts_marked_above == 9
+    assert poshits.n_prompts_marked_ge == 9
     assert poshits.n_marked_positive == 23
 
     rank = holdout_from_json(
@@ -112,7 +112,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
         / "rankpath"
         / "holdout.json"
     )
-    assert rank.n_prompts_marked_above == 11
+    assert rank.n_prompts_marked_ge == 11
     assert rank.n_marked_positive == 41
     assert rank.n_unmarked_nonpositive == 35
 
@@ -120,7 +120,7 @@ def test_recount_hard_last4_drops_the_opening_overcount() -> None:
         root / "2026-09-01-probe-36x4-recount-hits" / "hits" / "holdout.json"
     )
     assert hits36.n_prompts == 36
-    assert hits36.n_prompts_marked_above == 36
+    assert hits36.n_prompts_marked_ge == 36
     hits36_stats = binary_eval(
         hits36.marked_lrs, hits36.unmarked_lrs, n_perm=200, seed=0
     )
@@ -336,7 +336,7 @@ def test_hashpool_12x4_isolated_sign_is_thirty_five_of_forty_eight() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompts_marked_ge == 11
     assert ev.n_marked_positive == 35
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.70
@@ -347,8 +347,8 @@ def test_hits_12x4_auc_beats_hard_counts() -> None:
     root = Path(__file__).resolve().parents[1] / "experiments" / "2026-08-31-probe-12x4"
     hits = holdout_from_json(root / "hits" / "holdout.json")
     hard = holdout_from_json(root / "hard" / "holdout.json")
-    assert hits.n_prompts_marked_above == 11
-    assert hard.n_prompts_marked_above == 10
+    assert hits.n_prompts_marked_ge == 11
+    assert hard.n_prompts_marked_ge == 10
     assert hits.used_keys is False
     h = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
     d = binary_eval(hard.marked_lrs, hard.unmarked_lrs, n_perm=200, seed=0)
@@ -387,7 +387,7 @@ def test_hashpool_36_topics_is_thirty_one_of_thirty_six() -> None:
     )
     assert ev.used_keys is False
     assert ev.n_prompts == 36
-    assert ev.n_prompts_marked_above == 31
+    assert ev.n_prompts_marked_ge == 31
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.85
 
@@ -401,7 +401,7 @@ def test_hashpool_qwen_is_ten_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.70
 
@@ -689,7 +689,7 @@ def test_transfer_36_to_12x4_hits_isolated_is_thirty_nine_of_forty_eight() -> No
     assert hits.mode == "transfer"
     assert hits.n_prompts == 12
     assert hits.n_marked_positive == 39
-    assert hashed.n_prompts_marked_above == 11
+    assert hashed.n_prompts_marked_ge == 11
     stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.75
     assert binomial_sf(39, 48, 0.5) < 1e-5
@@ -705,7 +705,7 @@ def test_transfer_12x4_to_36_hits_ranks_all_new_topics() -> None:
     )
     assert ev.used_keys is False
     assert ev.n_prompts == 24
-    assert ev.n_prompts_marked_above == 24
+    assert ev.n_prompts_marked_ge == 24
     assert ev.n_marked_positive == 24
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.95
@@ -859,7 +859,7 @@ def test_surface_12x4_loo_is_ten_of_twelve() -> None:
     )
     assert ev.used_keys is False
     assert ev.instance == "key-free-surface"
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.55
     assert stats.permutation_p < 0.05
@@ -881,12 +881,12 @@ def test_gpt2_to_qwen_same_topic_hits_ranks_eleven_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompts_marked_ge == 11
     assert ev.n_marked_positive == 1
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.70
     # Token hashpool does not follow the probe-BPE hits ranking across generators.
-    assert hashed.n_prompts_marked_above == 7
+    assert hashed.n_prompts_marked_ge == 7
     hash_stats = binary_eval(hashed.marked_lrs, hashed.unmarked_lrs, n_perm=200, seed=0)
     assert hash_stats.auc < 0.60
 
@@ -900,7 +900,7 @@ def test_new_topics_gpt2_to_qwen_is_chance() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 6
+    assert ev.n_prompts_marked_ge == 6
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc < 0.60
 
@@ -914,7 +914,7 @@ def test_qwen_in_domain_surface_is_nine_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 9
+    assert ev.n_prompts_marked_ge == 9
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.60
 
@@ -975,7 +975,7 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
     assert lock_a.used_hash_iv is False
     assert lock_a.used_g_values is False
     assert lock_a.n_prompts == 100
-    assert lock_a.n_prompts_marked_above == 99
+    assert lock_a.n_prompts_marked_ge == 99
     assert lock_a.n_marked_positive == 352
     lock_a_probe = json.loads(
         (root / "2026-09-01-probe-100x4-hard-last4" / "results.json").read_text()
@@ -996,7 +996,7 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
         root / "2026-09-01-probe-100x4-opening-poshits" / "poshits" / "holdout.json"
     )
     assert lock_b.used_keys is False
-    assert lock_b.n_prompts_marked_above == 100
+    assert lock_b.n_prompts_marked_ge == 100
     lock_b_probe = json.loads(
         (root / "2026-09-01-probe-100x4-opening-poshits" / "results.json").read_text()
     )
@@ -1013,7 +1013,7 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
         root / "2026-09-01-probe-100x4-opening-rankpath" / "rankpath" / "holdout.json"
     )
     assert lock_c.used_keys is False
-    assert lock_c.n_prompts_marked_above == 96
+    assert lock_c.n_prompts_marked_ge == 96
 
     early = holdout_from_json(
         root
@@ -1029,8 +1029,8 @@ def test_protocol_next_phase_a_locks_on_100x4() -> None:
         / "interpolate"
         / "holdout.json"
     )
-    assert early.n_prompts_marked_above == 99
-    assert mid.n_prompts_marked_above == 89
+    assert early.n_prompts_marked_ge == 99
+    assert mid.n_prompts_marked_ge == 89
     early_stats = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
     mid_stats = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
     assert early_stats.auc > mid_stats.auc
@@ -1071,8 +1071,12 @@ def test_protocol_next_phase_b_distil_opening_locks() -> None:
     assert poshits.used_keys is False
     assert rankpath.used_keys is False
     assert poshits.n_prompts == 100
-    assert poshits.n_prompts_marked_above == 89
-    assert rankpath.n_prompts_marked_above == 69
+    assert poshits.n_prompts_marked_above == 88
+    assert poshits.n_prompt_ties == 1
+    assert poshits.n_prompts_marked_ge == 89
+    assert rankpath.n_prompts_marked_above == 68
+    assert rankpath.n_prompt_ties == 1
+    assert rankpath.n_prompts_marked_ge == 69
     assert poshits.n_marked_positive == 216
     assert poshits.n_unmarked_nonpositive == 247
     # H3 on Distil: rankpath drops more from GPT-2 Phase A than poshits.
@@ -1113,8 +1117,8 @@ def test_protocol_next_phase_b_qwen_opening_locks() -> None:
     assert poshits.used_keys is False
     assert rankpath.used_keys is False
     assert poshits.n_prompts == 100
-    assert poshits.n_prompts_marked_above == 95
-    assert rankpath.n_prompts_marked_above == 84
+    assert poshits.n_prompts_marked_ge == 95
+    assert rankpath.n_prompts_marked_ge == 84
     assert poshits.n_marked_positive == 333
     assert poshits.n_unmarked_nonpositive == 308
     assert rankpath.n_marked_positive == 275
@@ -1399,7 +1403,7 @@ def test_lock_c_holdout_exposes_ranking_without_isolated_tp() -> None:
         (root / "2026-09-01-transfer-100x4-to-12x4-hard-last4" / "stems.json").read_text()
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 24
     assert ev.ranking_without_isolated_tp == [
         "02-night-bus",
@@ -1510,7 +1514,7 @@ def test_probe_36x4_hits_ranks_all_prompts_and_nested_gate_is_balanced() -> None
     assert ev.used_keys is False
     assert ev.n_prompts == 36
     assert ev.n_files == 288
-    assert ev.n_prompts_marked_above == 36
+    assert ev.n_prompts_marked_ge == 36
     assert ev.n_marked_positive == 134
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.92
@@ -1533,11 +1537,11 @@ def test_transfer_36x4_to_12x4_hits_is_twelve_of_twelve() -> None:
     logit = holdout_from_json(root / "logit" / "holdout.json")
     assert hits.used_keys is False
     assert hits.mode == "transfer"
-    assert hits.n_prompts_marked_above == 12
+    assert hits.n_prompts_marked_ge == 12
     assert hits.n_marked_positive == 42
     stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.78
-    assert logit.n_prompts_marked_above == 12
+    assert logit.n_prompts_marked_ge == 12
     logit_stats = binary_eval(
         logit.marked_lrs, logit.unmarked_lrs, n_perm=200, seed=0
     )
@@ -1559,9 +1563,9 @@ def test_probe_36x4_draw_ablation_lifts_hits_with_extra_draws() -> None:
     two = holdout_from_json(root / "2026-08-31-probe-36x4-draws2" / "hits" / "holdout.json")
     four = holdout_from_json(root / "2026-08-31-probe-36x4" / "hits" / "holdout.json")
     assert one.used_keys is False
-    assert one.n_prompts_marked_above == 30
-    assert two.n_prompts_marked_above == 33
-    assert four.n_prompts_marked_above == 36
+    assert one.n_prompts_marked_ge == 30
+    assert two.n_prompts_marked_ge == 33
+    assert four.n_prompts_marked_ge == 36
     assert one.n_files == 72
     assert two.n_files == 144
     assert four.n_files == 288
@@ -1582,7 +1586,7 @@ def test_transfer_12x4_to_36x4_nested_hits_fpr10_is_balanced() -> None:
     hits = holdout_from_json(root / "hits" / "holdout.json")
     assert hits.used_keys is False
     assert hits.n_prompts == 24
-    assert hits.n_prompts_marked_above == 24
+    assert hits.n_prompts_marked_ge == 24
     assert hits.n_files == 192
     stats = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=400, seed=0)
     assert stats.auc > 0.90
@@ -1634,8 +1638,8 @@ def test_qwen_12x4_hits_does_not_match_gpt2_extra_draw_lift() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 8
-    assert hashed.n_prompts_marked_above == 7
+    assert ev.n_prompts_marked_ge == 8
+    assert hashed.n_prompts_marked_ge == 7
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert 0.55 < stats.auc < 0.70
 
@@ -1656,8 +1660,8 @@ def test_gpt2_to_new_qwen_sample_does_not_replicate_eleven_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 5
-    assert one.n_prompts_marked_above == 6
+    assert ev.n_prompts_marked_ge == 5
+    assert one.n_prompts_marked_ge == 6
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc < 0.45
 
@@ -1678,13 +1682,13 @@ def test_prefix16_36x4_hits_is_front_loaded_and_key_free() -> None:
         / "holdout.json"
     )
     assert early.used_keys is False
-    assert early.n_prompts_marked_above == 34
+    assert early.n_prompts_marked_ge == 34
     assert early.n_marked_positive == 129
     early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
     assert early_auc.auc > 0.90
-    assert full.n_prompts_marked_above == 36
+    assert full.n_prompts_marked_ge == 36
     assert full.n_marked_positive == 134
-    assert published.n_prompts_marked_above == 36
+    assert published.n_prompts_marked_ge == 36
     assert published.n_marked_positive == 134
     from text_watermark_tools.stats import nested_threshold_by_stem
 
@@ -1703,7 +1707,7 @@ def test_ood_prefix16_hits_ranks_eleven_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompts_marked_ge == 11
     assert ev.n_marked_positive == 40
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc > 0.70
@@ -1720,7 +1724,7 @@ def test_context_len_5_on_36x4_does_not_beat_last_four() -> None:
     k4 = holdout_from_json(root / "2026-08-31-probe-36x4" / "hits" / "holdout.json")
     assert k5.used_keys is False
     assert k5.context_len == 5
-    assert k5.n_prompts_marked_above == 35
+    assert k5.n_prompts_marked_ge == 35
     k5_auc = binary_eval(k5.marked_lrs, k5.unmarked_lrs, n_perm=200, seed=0).auc
     k4_auc = binary_eval(k4.marked_lrs, k4.unmarked_lrs, n_perm=200, seed=0).auc
     assert k5_auc < k4_auc
@@ -1739,9 +1743,9 @@ def test_gpt2_36x4_to_new_qwen_is_chance() -> None:
     assert hits.used_keys is False
     assert hashed.used_keys is False
     assert surface.used_keys is False
-    assert hits.n_prompts_marked_above == 6
-    assert hashed.n_prompts_marked_above == 3
-    assert surface.n_prompts_marked_above == 6
+    assert hits.n_prompts_marked_ge == 6
+    assert hashed.n_prompts_marked_ge == 3
+    assert surface.n_prompts_marked_ge == 6
     hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0).auc
     assert hits_auc < 0.55
 
@@ -1755,7 +1759,7 @@ def test_gpt2_surface_to_new_qwen_is_chance() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 7
+    assert ev.n_prompts_marked_ge == 7
     assert ev.n_marked_positive == 5
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert stats.auc < 0.60
@@ -1777,18 +1781,18 @@ def test_window_0_16_matches_prefix_and_mid_window_is_weak() -> None:
     )
     assert early.used_keys is False
     assert mid.used_keys is False
-    assert early.n_prompts_marked_above == 34
+    assert early.n_prompts_marked_ge == 34
     assert early.n_marked_positive == 129
-    assert prefix.n_prompts_marked_above == 34
+    assert prefix.n_prompts_marked_ge == 34
     early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
     mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
     tail_auc = binary_eval(tail.marked_lrs, tail.unmarked_lrs, n_perm=200, seed=0)
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
     assert abs(early_auc.auc - prefix_auc.auc) < 1e-9
     assert early_auc.auc > 0.90
-    assert mid.n_prompts_marked_above == 22
+    assert mid.n_prompts_marked_ge == 22
     assert mid_auc.auc < 0.60
-    assert tail.n_prompts_marked_above == 29
+    assert tail.n_prompts_marked_ge == 29
     assert tail_auc.auc > 0.65
 
 
@@ -1810,19 +1814,19 @@ def test_poshits_36x4_keeps_recall_and_lifts_specificity() -> None:
     assert poshits.used_keys is False
     assert fit16.used_keys is False
     assert loo12.used_keys is False
-    assert hits.n_prompts_marked_above == 36
-    assert poshits.n_prompts_marked_above == 34
+    assert hits.n_prompts_marked_ge == 36
+    assert poshits.n_prompts_marked_ge == 34
     assert poshits.n_marked_positive == 134
     assert poshits.n_unmarked_nonpositive == 97
     assert poshits.n_unmarked_nonpositive > hits.n_unmarked_nonpositive
     pos_auc = binary_eval(poshits.marked_lrs, poshits.unmarked_lrs, n_perm=200, seed=0)
     assert pos_auc.auc > 0.90
-    assert fit16.n_prompts_marked_above == 34
+    assert fit16.n_prompts_marked_ge == 34
     assert fit16.n_marked_positive == 132
     assert fit16.n_unmarked_nonpositive == 112
     fit_auc = binary_eval(fit16.marked_lrs, fit16.unmarked_lrs, n_perm=200, seed=0)
     assert fit_auc.auc > 0.92
-    assert loo12.n_prompts_marked_above == 10
+    assert loo12.n_prompts_marked_ge == 10
     assert loo12.n_marked_positive == 24
     from text_watermark_tools.stats import nested_threshold_by_stem
 
@@ -1850,15 +1854,15 @@ def test_ood_poshits_and_fit_prefix_raise_file_auc() -> None:
     assert hits.used_keys is False
     assert poshits.used_keys is False
     assert fit16.used_keys is False
-    assert hits.n_prompts_marked_above == 12
-    assert poshits.n_prompts_marked_above == 10
+    assert hits.n_prompts_marked_ge == 12
+    assert poshits.n_prompts_marked_ge == 10
     assert poshits.n_marked_positive == 39
     assert poshits.n_unmarked_nonpositive == 31
     pos_auc = binary_eval(poshits.marked_lrs, poshits.unmarked_lrs, n_perm=200, seed=0)
     hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
     assert pos_auc.auc > 0.80
     assert pos_auc.auc > hits_auc.auc
-    assert fit16.n_prompts_marked_above == 11
+    assert fit16.n_prompts_marked_ge == 11
     assert fit16.n_unmarked_nonpositive == 31
     fit_auc = binary_eval(fit16.marked_lrs, fit16.unmarked_lrs, n_perm=200, seed=0)
     assert fit_auc.auc > 0.80
@@ -1891,14 +1895,14 @@ def test_fit_prefix_poshits_bucket4_beats_unbucketed_matched_prefix() -> None:
     )
     assert pos.used_keys is False
     assert ood.used_keys is False
-    assert pos.n_prompts_marked_above == 34
+    assert pos.n_prompts_marked_ge == 34
     assert pos.n_marked_positive == 133
     assert pos.n_unmarked_nonpositive == 114
     pos_auc = binary_eval(pos.marked_lrs, pos.unmarked_lrs, n_perm=200, seed=0)
     hits_auc = binary_eval(hits.marked_lrs, hits.unmarked_lrs, n_perm=200, seed=0)
     assert pos_auc.auc > 0.93
     assert pos_auc.auc > hits_auc.auc
-    assert ood.n_prompts_marked_above == 11
+    assert ood.n_prompts_marked_ge == 11
     assert ood.n_unmarked_nonpositive == 33
     ood_auc = binary_eval(ood.marked_lrs, ood.unmarked_lrs, n_perm=200, seed=0)
     assert ood_auc.auc > 0.80
@@ -1918,8 +1922,8 @@ def test_ood_window_16_32_hits_is_near_chance() -> None:
     early = holdout_from_json(root / "window-0-16" / "hits" / "holdout.json")
     mid = holdout_from_json(root / "window-16-32" / "hits" / "holdout.json")
     assert early.used_keys is False
-    assert early.n_prompts_marked_above == 11
-    assert mid.n_prompts_marked_above == 8
+    assert early.n_prompts_marked_ge == 11
+    assert mid.n_prompts_marked_ge == 8
     early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
     mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
     assert early_auc.auc > 0.70
@@ -2003,7 +2007,7 @@ def test_poshitmass_matched_prefix_beats_poshits_auc() -> None:
         root / "2026-08-31-probe-36x4-fitprefix16-poshitmass" / "poshits" / "holdout.json"
     )
     assert mass.used_keys is False
-    assert mass.n_prompts_marked_above == 34
+    assert mass.n_prompts_marked_ge == 34
     assert mass.n_marked_positive == 133
     assert mass.n_unmarked_nonpositive == 114
     mass_auc = binary_eval(mass.marked_lrs, mass.unmarked_lrs, n_perm=200, seed=0)
@@ -2023,7 +2027,7 @@ def test_finest_bucket_balances_in_domain_t0() -> None:
     b1 = holdout_from_json(root / "bucket-1" / "poshits" / "holdout.json")
     b2 = holdout_from_json(root / "bucket-2" / "poshits" / "holdout.json")
     assert b1.used_keys is False
-    assert b1.n_prompts_marked_above == 34
+    assert b1.n_prompts_marked_ge == 34
     assert b1.n_marked_positive == 132
     assert b1.n_unmarked_nonpositive == 132
     auc = binary_eval(b1.marked_lrs, b1.unmarked_lrs, n_perm=200, seed=0)
@@ -2047,7 +2051,7 @@ def test_ood_bucket1_poshits_is_twelve_of_twelve_and_balanced() -> None:
     )
     ev = holdout_from_json(root / "poshits" / "holdout.json")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 39
     assert ev.n_unmarked_nonpositive == 41
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
@@ -2084,7 +2088,7 @@ def test_ood_poshitmass_nested_fpr10_matches_nested_stem() -> None:
     )
     ev = holdout_from_json(root / "poshitmass" / "holdout.json")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 11
+    assert ev.n_prompts_marked_ge == 11
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc > 0.82
     table = json.loads((root / "results.json").read_text())
@@ -2106,7 +2110,7 @@ def test_12x4_matched_prefix_bucket1_is_not_the_hard_isolated_gate() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 9
+    assert ev.n_prompts_marked_ge == 9
     assert ev.n_marked_positive == 23
     assert ev.n_unmarked_nonpositive == 48
     # Leave-one-of-12-out is not the published 29/48 hard sign.
@@ -2122,7 +2126,7 @@ def test_qwen_matched_prefix_poshits_bucket1_is_chance() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 8
+    assert ev.n_prompts_marked_ge == 8
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.60
 
@@ -2138,10 +2142,10 @@ def test_opening_four_tokens_match_sixteen_token_prefix_ranking() -> None:
     mid = holdout_from_json(root / "window-4-16" / "hits" / "holdout.json")
     late = holdout_from_json(root / "window-16-32" / "hits" / "holdout.json")
     assert early.used_keys is False
-    assert early.n_prompts_marked_above == 34
-    assert prefix.n_prompts_marked_above == 34
-    assert mid.n_prompts_marked_above == 29
-    assert late.n_prompts_marked_above == 22
+    assert early.n_prompts_marked_ge == 34
+    assert prefix.n_prompts_marked_ge == 34
+    assert mid.n_prompts_marked_ge == 29
+    assert late.n_prompts_marked_ge == 22
     early_auc = binary_eval(early.marked_lrs, early.unmarked_lrs, n_perm=200, seed=0)
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
     mid_auc = binary_eval(mid.marked_lrs, mid.unmarked_lrs, n_perm=200, seed=0)
@@ -2162,7 +2166,7 @@ def test_matched_four_token_poshits_ood_nested_youden_matches_t0() -> None:
     )
     ev = holdout_from_json(root / "poshits" / "holdout.json")
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 39
     assert ev.n_unmarked_nonpositive == 41
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
@@ -2182,7 +2186,7 @@ def test_matched_four_token_poshits_ood_nested_youden_matches_t0() -> None:
         / "poshits"
         / "holdout.json"
     )
-    assert in_domain.n_prompts_marked_above == 34
+    assert in_domain.n_prompts_marked_ge == 34
     assert in_domain.n_marked_positive == 131
     assert in_domain.n_unmarked_nonpositive == 132
 
@@ -2196,7 +2200,7 @@ def test_last1_four_token_ood_matches_last4_poshits_gate() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 39
     assert ev.n_unmarked_nonpositive == 41
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
@@ -2208,7 +2212,7 @@ def test_last1_four_token_ood_matches_last4_poshits_gate() -> None:
         / "first"
         / "holdout.json"
     )
-    assert first.n_prompts_marked_above == 6
+    assert first.n_prompts_marked_ge == 6
 
 
 def test_include_first_hurts_the_four_token_ood_gate() -> None:
@@ -2220,7 +2224,7 @@ def test_include_first_hurts_the_four_token_ood_gate() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 9
+    assert ev.n_prompts_marked_ge == 9
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.80
     in_domain = holdout_from_json(
@@ -2230,7 +2234,7 @@ def test_include_first_hurts_the_four_token_ood_gate() -> None:
         / "poshits"
         / "holdout.json"
     )
-    assert in_domain.n_prompts_marked_above == 35
+    assert in_domain.n_prompts_marked_ge == 35
 
 
 def test_prompt_context_ood_ranks_without_isolated_recall() -> None:
@@ -2242,7 +2246,7 @@ def test_prompt_context_ood_ranks_without_isolated_recall() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
+    assert ev.n_prompts_marked_ge == 12
     assert ev.n_marked_positive == 13
     assert ev.n_unmarked_nonpositive == 48
 
@@ -2263,8 +2267,8 @@ def test_qwen_first_token_opening_is_twelve_of_twelve() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 12
-    assert hits.n_prompts_marked_above == 7
+    assert ev.n_prompts_marked_ge == 12
+    assert hits.n_prompts_marked_ge == 7
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc > 0.85
     xfer = holdout_from_json(
@@ -2274,7 +2278,7 @@ def test_qwen_first_token_opening_is_twelve_of_twelve() -> None:
         / "poshits"
         / "holdout.json"
     )
-    assert xfer.n_prompts_marked_above == 8
+    assert xfer.n_prompts_marked_ge == 8
     xfer_auc = binary_eval(xfer.marked_lrs, xfer.unmarked_lrs, n_perm=200, seed=0)
     assert xfer_auc.auc < 0.65
 
@@ -2305,7 +2309,7 @@ def test_distilgpt2_official_splits_and_gpt2_hits_do_not_transfer() -> None:
         / "holdout.json"
     )
     assert in_domain.used_keys is False
-    assert in_domain.n_prompts_marked_above == 9
+    assert in_domain.n_prompts_marked_ge == 9
     xfer = holdout_from_json(
         Path(__file__).resolve().parents[1]
         / "experiments"
@@ -2313,7 +2317,7 @@ def test_distilgpt2_official_splits_and_gpt2_hits_do_not_transfer() -> None:
         / "hits"
         / "holdout.json"
     )
-    assert xfer.n_prompts_marked_above == 5
+    assert xfer.n_prompts_marked_ge == 5
     auc = binary_eval(xfer.marked_lrs, xfer.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.55
 
@@ -2342,12 +2346,12 @@ def test_distilgpt2_native_rankpath_is_chance() -> None:
     )
     assert opening.used_keys is False
     assert prefix.used_keys is False
-    assert opening.n_prompts_marked_above == 8
+    assert opening.n_prompts_marked_ge == 8
     assert opening.n_marked_positive == 28
     assert opening.n_unmarked_nonpositive == 32
-    assert prefix.n_prompts_marked_above == 7
+    assert prefix.n_prompts_marked_ge == 7
     assert prefix.n_marked_positive == 23
-    assert uni.n_prompts_marked_above == 5
+    assert uni.n_prompts_marked_ge == 5
     opening_auc = binary_eval(opening.marked_lrs, opening.unmarked_lrs, n_perm=200, seed=0)
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
     assert opening_auc.auc < 0.65
@@ -2363,7 +2367,7 @@ def test_gpt2_rankpath_on_distil_tokens_is_not_a_distil_reader() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 9
+    assert ev.n_prompts_marked_ge == 9
     assert ev.n_marked_positive == 21
     assert ev.n_unmarked_nonpositive == 34
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
@@ -2394,10 +2398,10 @@ def test_stem60_prefix4_rankpath_matches_short_combined_accuracy() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 28
     assert ev.n_unmarked_nonpositive == 40
-    assert uni.n_prompts_marked_above == 11
+    assert uni.n_prompts_marked_ge == 11
     assert uni.n_marked_positive == 39
     assert uni.n_unmarked_nonpositive == 32
     assert short.n_marked_positive == 25
@@ -2424,10 +2428,10 @@ def test_qwen_native_opening_rankpath_does_not_match_first_token() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 8
+    assert ev.n_prompts_marked_ge == 8
     assert ev.n_marked_positive == 24
     assert ev.n_unmarked_nonpositive == 32
-    assert first.n_prompts_marked_above == 12
+    assert first.n_prompts_marked_ge == 12
     auc = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     first_auc = binary_eval(first.marked_lrs, first.unmarked_lrs, n_perm=200, seed=0)
     assert auc.auc < 0.70
@@ -2440,7 +2444,7 @@ def test_qwen_native_opening_rankpath_does_not_match_first_token() -> None:
         / "holdout.json"
     )
     assert prefix.used_keys is False
-    assert prefix.n_prompts_marked_above == 9
+    assert prefix.n_prompts_marked_ge == 9
     assert prefix.n_marked_positive == 25
     assert prefix.n_unmarked_nonpositive == 33
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
@@ -2458,7 +2462,7 @@ def test_opening_snapupset_is_chance() -> None:
     assert ev.used_keys is False
     assert ev.used_hash_iv is False
     assert ev.used_g_values is False
-    assert ev.n_prompts_marked_above == 7
+    assert ev.n_prompts_marked_ge == 7
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
     assert 0.45 < stats.auc < 0.55
     assert stats.permutation_p > 0.2
@@ -2487,7 +2491,7 @@ def test_opening_snapmiss_ranks_and_is_not_isolated() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 21
     assert ev.n_unmarked_nonpositive == 41
     stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs, n_perm=200, seed=0)
@@ -2496,7 +2500,7 @@ def test_opening_snapmiss_ranks_and_is_not_isolated() -> None:
     # Majority leave-argmax is not a detector. Prefix-4 upset stays chance.
     assert leave.n_marked_positive == 48
     assert leave.n_unmarked_nonpositive == 7
-    assert prefix.n_prompts_marked_above == 6
+    assert prefix.n_prompts_marked_ge == 6
     prefix_auc = binary_eval(prefix.marked_lrs, prefix.unmarked_lrs, n_perm=200, seed=0)
     assert 0.45 < prefix_auc.auc < 0.55
 
@@ -2537,7 +2541,7 @@ def test_rotate_snaprate_needs_no_tables_or_keys() -> None:
     assert leave.used_keys is False
     assert leave.used_hash_iv is False
     assert leave.used_g_values is False
-    assert leave.n_prompts_marked_above == 2
+    assert leave.n_prompts_marked_ge == 2
     assert min(leave.marked_lrs) > max(leave.unmarked_lrs)
     assert roc_auc(leave.marked_lrs, leave.unmarked_lrs) == 1.0
     # Unmarked twins stay greedy. Only the all-miss marked draw signs on snapmiss.
@@ -2553,7 +2557,7 @@ def test_rotate_snaprate_needs_no_tables_or_keys() -> None:
     assert train_out["snapleave"].mode == "train"
     assert test_out["snapleave"].mode == "transfer"
     assert test_out["snapleave"].used_keys is False
-    assert test_out["snapleave"].n_prompts_marked_above == 1
+    assert test_out["snapleave"].n_prompts_marked_ge == 1
 
 
 def test_leftover_eight_are_officially_marked_at_prefix16() -> None:
@@ -2617,7 +2621,7 @@ def test_prefix8_backoff_rescues_four_zeros_not_letter_d2() -> None:
         / "holdout.json"
     )
     assert ev.used_keys is False
-    assert ev.n_prompts_marked_above == 10
+    assert ev.n_prompts_marked_ge == 10
     assert ev.n_marked_positive == 38
     assert ev.n_unmarked_nonpositive == 40
     assert p4.n_marked_positive == 34
@@ -2702,10 +2706,10 @@ def test_prefix5_rankpath_does_not_beat_prefix4_or_rescue_letter_d2() -> None:
         / "holdout.json"
     )
     assert p5.used_keys is False
-    assert p5.n_prompts_marked_above == 11
+    assert p5.n_prompts_marked_ge == 11
     assert p5.n_marked_positive == 30
     assert p5.n_unmarked_nonpositive == 36
-    assert p4.n_prompts_marked_above == 12
+    assert p4.n_prompts_marked_ge == 12
     assert p4.n_marked_positive == 41
     by5 = {
         (s, samp): lr
@@ -2716,7 +2720,7 @@ def test_prefix5_rankpath_does_not_beat_prefix4_or_rescue_letter_d2() -> None:
     auc4 = binary_eval(p4.marked_lrs, p4.unmarked_lrs, n_perm=200, seed=0)
     assert auc5.auc < auc4.auc
     assert fifth.used_keys is False
-    assert fifth.n_prompts_marked_above == 4
+    assert fifth.n_prompts_marked_ge == 4
     fifth_auc = binary_eval(fifth.marked_lrs, fifth.unmarked_lrs, n_perm=200, seed=0)
     assert fifth_auc.auc < 0.50
 
@@ -2789,7 +2793,7 @@ def test_prefix8_backoff_extra_tps_are_last1_not_5grams() -> None:
     assert all(r["backoff2_n_used"] == 0 for r in rescued.values())
     assert orders["letter_d2"]["backoff2_n_used"] == 0
     assert b2.used_keys is False
-    assert b2.n_prompts_marked_above == 12
+    assert b2.n_prompts_marked_ge == 12
     assert b2.n_marked_positive == 18
     assert b2.n_unmarked_nonpositive == 46
     gate = coverage_gate(b2.marked_lrs, b2.unmarked_lrs)
@@ -2811,10 +2815,10 @@ def test_prefix5_hashtok_letter_d2_is_occupancy_not_observed() -> None:
     trace = json.loads((root / "occupancy-trace.json").read_text())
     assert hp.used_keys is False
     assert ht.used_keys is False
-    assert hp.n_prompts_marked_above == 11
+    assert hp.n_prompts_marked_ge == 11
     assert hp.n_marked_positive == 34
     assert hp.n_unmarked_nonpositive == 34
-    assert ht.n_prompts_marked_above == 9
+    assert ht.n_prompts_marked_ge == 9
     assert ht.n_marked_positive == 30
     assert ht.n_unmarked_nonpositive == 36
     assert tok.n_marked_positive == 30
@@ -2897,7 +2901,7 @@ def test_prefix5_hashtokbackoff_letter_d2_fifth_is_last1_unmarked() -> None:
     assert atoms_trace["used_keys"] is False
     assert ht.n_marked_positive == 30
     assert ht.n_unmarked_nonpositive == 36
-    assert hb.n_prompts_marked_above == 10
+    assert hb.n_prompts_marked_ge == 10
     assert hb.n_marked_positive == 38
     assert hb.n_unmarked_nonpositive == 35
     assert hb2.n_marked_positive == 36
@@ -3005,13 +3009,13 @@ def test_prefix4_hashtok_beats_hashed_backoff_on_opening() -> None:
     assert ht.used_keys is False
     assert hb.used_keys is False
     assert results["fit_prefix"] == 4
-    assert hp.n_prompts_marked_above == 10
+    assert hp.n_prompts_marked_ge == 10
     assert hp.n_marked_positive == 38
     assert hp.n_unmarked_nonpositive == 37
-    assert ht.n_prompts_marked_above == 10
+    assert ht.n_prompts_marked_ge == 10
     assert ht.n_marked_positive == 35
     assert ht.n_unmarked_nonpositive == 39
-    assert hb.n_prompts_marked_above == 10
+    assert hb.n_prompts_marked_ge == 10
     assert hb.n_marked_positive == 31
     assert hb.n_unmarked_nonpositive == 33
     assert hb2.n_marked_positive == 31
@@ -3052,10 +3056,10 @@ def test_prefix5_hashtoklen_drops_short_prefix_collisions() -> None:
     assert trace["exact_len"] is True
     assert atoms_trace["exact_len"] is True
     assert ht.n_marked_positive == 30
-    assert hl.n_prompts_marked_above == 12
+    assert hl.n_prompts_marked_ge == 12
     assert hl.n_marked_positive == 21
     assert hl.n_unmarked_nonpositive == 45
-    assert hb.n_prompts_marked_above == 11
+    assert hb.n_prompts_marked_ge == 11
     assert hb.n_marked_positive == 36
     assert hb.n_unmarked_nonpositive == 34
     assert hb2.n_marked_positive == 36
@@ -3235,7 +3239,7 @@ def test_prefix4_hashtoklen_never_fires_on_a_four_token_prefix() -> None:
     assert hl.used_keys is False
     assert hl.n_marked_positive == 0
     assert hl.n_unmarked_nonpositive == 48
-    assert hl.n_prompts_marked_above == 12
+    assert hl.n_prompts_marked_ge == 12
     hl_bin = next(m for m in results["methods"] if m["name"] == "hashtoklen")["binary"]
     ht_bin = next(m for m in results["methods"] if m["name"] == "hashtok")["binary"]
     assert hl_bin["auc"] == 0.5
@@ -3346,7 +3350,7 @@ def test_prefix5_hashskip_is_denser_at_zero_and_worse_nested() -> None:
     assert tables["drop_one"] is True
     assert tables["exact_len"] is True
     assert tables["used_keys"] is False
-    assert hs.n_prompts_marked_above == 8
+    assert hs.n_prompts_marked_ge == 8
     assert hs.n_marked_positive == 25
     assert hs.n_unmarked_nonpositive == 35
     assert hl.n_marked_positive == 21
@@ -3557,7 +3561,7 @@ def test_prefix5_hashmask_is_not_a_nested_leftover_rescue() -> None:
     assert tables["used_keys"] is False
     assert hm.instance == "key-free-hashmask"
     assert hm2.instance == "key-free-hashmask2"
-    assert hm.n_prompts_marked_above == 11
+    assert hm.n_prompts_marked_ge == 11
     assert hm.n_marked_positive == 21
     assert hm.n_unmarked_nonpositive == 42
     assert hl.n_marked_positive == 21
@@ -3893,8 +3897,8 @@ def test_in_domain_full_file_hashtok_is_denser_and_noisier() -> None:
     assert ht.n_unmarked_nonpositive == 22
     assert hl.n_marked_positive == 33
     assert hl.n_unmarked_nonpositive == 23
-    assert ht.n_prompts_marked_above == 9
-    assert hl.n_prompts_marked_above == 8
+    assert ht.n_prompts_marked_ge == 9
+    assert hl.n_prompts_marked_ge == 8
     assert ht.n_marked_positive < 39
     assert hits.n_marked_positive == 28
 
@@ -4069,7 +4073,7 @@ def test_in_domain_hashtok_or_indicate_is_not_a_detector() -> None:
         "n_unmarked_nonpositive"
     ] == 18
     assert or_m < 40
-    assert stacked.n_prompts_marked_above == 10
+    assert stacked.n_prompts_marked_ge == 10
 
 
 def test_in_domain_tokhybrid_copies_hashtok_isolated() -> None:
@@ -4098,8 +4102,8 @@ def test_in_domain_tokhybrid_copies_hashtok_isolated() -> None:
     assert ph.instance == "key-free-poshashtok"
     assert ht.n_marked_positive == th.n_marked_positive == 33
     assert ht.n_unmarked_nonpositive == th.n_unmarked_nonpositive == 22
-    assert th.n_prompts_marked_above == 11
-    assert ht.n_prompts_marked_above == 9
+    assert th.n_prompts_marked_ge == 11
+    assert ht.n_prompts_marked_ge == 9
     assert ph.n_marked_positive == 28
     assert ph.n_unmarked_nonpositive == 25
     assert hy.n_marked_positive == 35
@@ -4174,9 +4178,9 @@ def test_in_domain_hashtokgap_is_weaker_than_hashtok() -> None:
     assert ht.n_unmarked_nonpositive == th.n_unmarked_nonpositive == 22
     assert gap.n_marked_positive == 27
     assert gap.n_unmarked_nonpositive == 21
-    assert gap.n_prompts_marked_above == 8
-    assert ht.n_prompts_marked_above == 9
-    assert th.n_prompts_marked_above == 11
+    assert gap.n_prompts_marked_ge == 8
+    assert ht.n_prompts_marked_ge == 9
+    assert th.n_prompts_marked_ge == 11
     assert gap.n_marked_positive < 29
     assert gap.n_marked_positive + gap.n_unmarked_nonpositive == 48
 
@@ -4246,8 +4250,8 @@ def test_in_domain_hashtok2_reshuffles_hashtok_not_a_singleton_core() -> None:
     assert ht.n_unmarked_nonpositive == 22
     assert ht2.n_marked_positive == 34
     assert ht2.n_unmarked_nonpositive == 21
-    assert ht2.n_prompts_marked_above == 8
-    assert ht.n_prompts_marked_above == 9
+    assert ht2.n_prompts_marked_ge == 8
+    assert ht.n_prompts_marked_ge == 9
     assert ht2.n_marked_positive < 39
     assert ht2.n_marked_positive + ht2.n_unmarked_nonpositive == 55
 
@@ -4321,10 +4325,10 @@ def test_opening_grain_hashtok_copies_tokhits_density() -> None:
     assert ht.instance == "key-free-hashtok"
     assert ht2.instance == "key-free-hashtok2"
     assert tok.instance == "key-free-tokhits"
-    assert hits.n_prompts_marked_above == 9
-    assert tok.n_prompts_marked_above == 12
-    assert ht.n_prompts_marked_above == 12
-    assert ht2.n_prompts_marked_above == 12
+    assert hits.n_prompts_marked_ge == 9
+    assert tok.n_prompts_marked_ge == 12
+    assert ht.n_prompts_marked_ge == 12
+    assert ht2.n_prompts_marked_ge == 12
     assert hits.n_marked_positive == 23
     assert hits.n_unmarked_nonpositive == 48
     assert tok.n_marked_positive == 23
@@ -4440,30 +4444,30 @@ def test_hashtok_nhashes_width_ablation_default_is_not_best() -> None:
         assert holdout.used_g_values is False
         assert holdout.instance == "key-free-hashtok"
 
-    assert n2.n_prompts_marked_above == 11
+    assert n2.n_prompts_marked_ge == 11
     assert n2.n_marked_positive == 34
     assert n2.n_unmarked_nonpositive == 31
     assert (nest2["n_marked_above"], nest2["n_unmarked_at_most"]) == (28, 37)
     assert res2["methods"][0]["binary"]["auc"] > 0.76
 
-    assert n4.n_prompts_marked_above == 11
+    assert n4.n_prompts_marked_ge == 11
     assert n4.n_marked_positive == 36
     assert n4.n_unmarked_nonpositive == 30
     assert (nest4["n_marked_above"], nest4["n_unmarked_at_most"]) == (35, 30)
 
     ht8 = next(m for m in res8["methods"] if m["name"] == "hashtok")
-    assert n8.n_prompts_marked_above == 9
+    assert n8.n_prompts_marked_ge == 9
     assert n8.n_marked_positive == 33
     assert n8.n_unmarked_nonpositive == 22
     assert (nest8["n_marked_above"], nest8["n_unmarked_at_most"]) == (22, 30)
     assert ht8["binary"]["auc"] < res2["methods"][0]["binary"]["auc"]
 
-    assert n16.n_prompts_marked_above == 11
+    assert n16.n_prompts_marked_ge == 11
     assert n16.n_marked_positive == 36
     assert n16.n_unmarked_nonpositive == 22
     assert (nest16["n_marked_above"], nest16["n_unmarked_at_most"]) == (29, 24)
 
-    assert n32.n_prompts_marked_above == 10
+    assert n32.n_prompts_marked_ge == 10
     assert n32.n_marked_positive == 30
     assert n32.n_unmarked_nonpositive == 26
     assert (nest32["n_marked_above"], nest32["n_unmarked_at_most"]) == (21, 38)
@@ -4481,7 +4485,7 @@ def test_hashtok_nhashes_width_ablation_default_is_not_best() -> None:
     assert letter8 < 0
     assert letter16 > 0
     assert letter32 < 0
-    assert n16.n_prompts_marked_above == 11
+    assert n16.n_prompts_marked_ge == 11
     letter_prompt_n16 = [
         m for s, m in zip(n16.stems, n16.marked_lrs) if s == "08-letter"
     ]
@@ -4525,17 +4529,17 @@ def test_hashtok_nhashes_width_does_not_transfer() -> None:
         assert holdout.used_keys is False
         assert holdout.instance == "key-free-hashtok"
 
-    assert n2.n_prompts_marked_above == 10
+    assert n2.n_prompts_marked_ge == 10
     assert n2.n_marked_positive == 29
     assert n2.n_unmarked_nonpositive == 32
     assert _nested_youden(r2, "hashtok") == (17, 44)
 
-    assert n4.n_prompts_marked_above == 9
+    assert n4.n_prompts_marked_ge == 9
     assert n4.n_marked_positive == 31
     assert n4.n_unmarked_nonpositive == 30
     assert _nested_youden(r4, "hashtok") == (19, 41)
 
-    assert n8.n_prompts_marked_above == 11
+    assert n8.n_prompts_marked_ge == 11
     assert n8.n_marked_positive == 29
     assert n8.n_unmarked_nonpositive == 35
     assert _nested_youden(r8, "hashtok") == (17, 46)
@@ -4700,7 +4704,7 @@ def test_hashtok_transfer_seed_win_is_not_a_width_law() -> None:
     assert n2s7["nested_marked"] < 39
     hold = holdout_from_json(root / "n2-seed7" / "hashtok" / "holdout.json")
     assert hold.used_hash_iv is False
-    assert hold.n_prompts_marked_above == 9
+    assert hold.n_prompts_marked_ge == 9
 
 
 def _letter_d2(holdout) -> float:
@@ -4756,23 +4760,23 @@ def test_hashtok_lastk_in_domain_is_not_an_order_law() -> None:
     assert r3["context_len"] == 3
     assert r4["context_len"] == 4
 
-    assert k1.n_prompts_marked_above == 5
+    assert k1.n_prompts_marked_ge == 5
     assert k1.n_marked_positive == 22
     assert k1.n_unmarked_nonpositive == 22
     assert (nest1["n_marked_above"], nest1["n_unmarked_at_most"]) == (9, 42)
     assert r1["methods"][0]["binary"]["auc"] < 0.52
 
-    assert k2.n_prompts_marked_above == 9
+    assert k2.n_prompts_marked_ge == 9
     assert k2.n_marked_positive == 27
     assert k2.n_unmarked_nonpositive == 28
     assert (nest2["n_marked_above"], nest2["n_unmarked_at_most"]) == (19, 32)
 
-    assert k3.n_prompts_marked_above == 11
+    assert k3.n_prompts_marked_ge == 11
     assert k3.n_marked_positive == 24
     assert k3.n_unmarked_nonpositive == 36
     assert (nest3["n_marked_above"], nest3["n_unmarked_at_most"]) == (22, 40)
 
-    assert k4.n_prompts_marked_above == 9
+    assert k4.n_prompts_marked_ge == 9
     assert k4.n_marked_positive == 33
     assert k4.n_unmarked_nonpositive == 22
     assert (nest4["n_marked_above"], nest4["n_unmarked_at_most"]) == (22, 30)
@@ -4830,24 +4834,24 @@ def test_hashtok_lastk_does_not_transfer_as_an_order_law() -> None:
     assert r3["context_len"] == 3
     assert r4["context_len"] == 4
 
-    assert k1.n_prompts_marked_above == 7
+    assert k1.n_prompts_marked_ge == 7
     assert k1.n_marked_positive == 25
     assert k1.n_unmarked_nonpositive == 35
     assert _nested_youden(r1, "hashtok") == (18, 45)
     assert _nested_fpr10(r1, "hashtok") == (8, 46)
 
-    assert k2.n_prompts_marked_above == 10
+    assert k2.n_prompts_marked_ge == 10
     assert k2.n_marked_positive == 29
     assert k2.n_unmarked_nonpositive == 36
     assert _nested_youden(r2, "hashtok") == (15, 45)
     assert r2["methods"][0]["binary"]["auc"] > 0.73
 
-    assert k3.n_prompts_marked_above == 10
+    assert k3.n_prompts_marked_ge == 10
     assert k3.n_marked_positive == 25
     assert k3.n_unmarked_nonpositive == 34
     assert _nested_youden(r3, "hashtok") == (11, 47)
 
-    assert k4.n_prompts_marked_above == 11
+    assert k4.n_prompts_marked_ge == 11
     assert k4.n_marked_positive == 29
     assert k4.n_unmarked_nonpositive == 35
     assert _nested_youden(r4, "hashtok") == (17, 46)

@@ -1,0 +1,489 @@
+{
+  "note": "Isolated-file observed-token recall equals opening-atom overlap with train. Exact 4-token copy is a lower bound. Not keys, not hash_iv, not g-values, not a universal detector.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "model_name": "Qwen/Qwen2-1.5B-Instruct",
+  "fit_prefix": 4,
+  "position_bucket": 1,
+  "include_first": false,
+  "context_len": 4,
+  "groups": [
+    "2026-09-01-pair-qwen-100x4"
+  ],
+  "n_test_stems": 12,
+  "methods": [
+    "postokhits"
+  ],
+  "curve": [
+    {
+      "upto": "2026-09-01-pair-qwen-100x4",
+      "n_train_stems": 100,
+      "n_train_openings": 157,
+      "methods": {
+        "postokhits": {
+          "n_covered": 37,
+          "n_exact_opening": 12,
+          "n_last1_only": 33,
+          "n_last1_later": 0,
+          "n_train_openings": 157,
+          "coverage_gate": {
+            "n_marked": 48,
+            "n_unmarked": 48,
+            "n_marked_zero": 11,
+            "n_unmarked_zero": 36,
+            "n_marked_decided": 37,
+            "n_unmarked_decided": 12,
+            "decided_tp": 31,
+            "decided_fn": 6,
+            "decided_fp": 0,
+            "decided_tn": 12,
+            "precision": 1.0,
+            "decided_accuracy": 0.8775510204081632,
+            "recall_including_zeros": 0.6458333333333334
+          },
+          "zero_openings": [
+            "01-harbour-1: **Chapter 5",
+            "01-harbour-2: **THE STAG",
+            "01-harbour-3: **THE STAG",
+            "01-harbour-4: **Chapter 5",
+            "02-night-bus-1: What are the main",
+            "02-night-bus-3: What are the main",
+            "02-night-bus-4: What are the main",
+            "06-station-1: He nodded, then",
+            "06-station-3: He got off,",
+            "08-letter-1: The truth will not",
+            "08-letter-2: The truth is,"
+          ]
+        }
+      }
+    }
+  ],
+  "stem_curve": [],
+  "final": {
+    "postokhits": {
+      "n_covered": 37,
+      "n_exact_opening": 12,
+      "n_last1_only": 33,
+      "n_last1_later": 0,
+      "n_train_openings": 157,
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 11,
+        "n_unmarked_zero": 36,
+        "n_marked_decided": 37,
+        "n_unmarked_decided": 12,
+        "decided_tp": 31,
+        "decided_fn": 6,
+        "decided_fp": 0,
+        "decided_tn": 12,
+        "precision": 1.0,
+        "decided_accuracy": 0.8775510204081632,
+        "recall_including_zeros": 0.6458333333333334
+      },
+      "zeros": [
+        {
+          "stem": "01-harbour",
+          "sample": 1,
+          "opening_text": "**Chapter 5",
+          "nearest": [
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " "
+                ]
+              },
+              "next": "5",
+              "n_m": 1,
+              "n_u": 20,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 2,
+          "opening_text": "**THE STAG",
+          "nearest": []
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 3,
+          "opening_text": "**THE STAG",
+          "nearest": []
+        },
+        {
+          "stem": "01-harbour",
+          "sample": 4,
+          "opening_text": "**Chapter 5",
+          "nearest": [
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " "
+                ]
+              },
+              "next": "5",
+              "n_m": 1,
+              "n_u": 20,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 1,
+          "opening_text": "What are the main",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "What"
+                ]
+              },
+              "next": " are",
+              "n_m": 34,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " are"
+                ]
+              },
+              "next": " the",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " the"
+                ]
+              },
+              "next": " main",
+              "n_m": 71,
+              "n_u": 11,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 3,
+          "opening_text": "What are the main",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "What"
+                ]
+              },
+              "next": " are",
+              "n_m": 34,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " are"
+                ]
+              },
+              "next": " the",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " the"
+                ]
+              },
+              "next": " main",
+              "n_m": 71,
+              "n_u": 11,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "02-night-bus",
+          "sample": 4,
+          "opening_text": "What are the main",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "What"
+                ]
+              },
+              "next": " are",
+              "n_m": 34,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " are"
+                ]
+              },
+              "next": " the",
+              "n_m": 0,
+              "n_u": 2,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " the"
+                ]
+              },
+              "next": " main",
+              "n_m": 71,
+              "n_u": 11,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 1,
+          "opening_text": "He nodded, then",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "He"
+                ]
+              },
+              "next": " nodded",
+              "n_m": 138,
+              "n_u": 18,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  ","
+                ]
+              },
+              "next": " then",
+              "n_m": 2,
+              "n_u": 7,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "06-station",
+          "sample": 3,
+          "opening_text": "He got off,",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "He"
+                ]
+              },
+              "next": " got",
+              "n_m": 138,
+              "n_u": 18,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 2,
+              "order": 1,
+              "ctx": {
+                "i": 2,
+                "tokens": [
+                  " got"
+                ]
+              },
+              "next": " off",
+              "n_m": 0,
+              "n_u": 1,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 1,
+          "opening_text": "The truth will not",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " truth",
+              "n_m": 64,
+              "n_u": 72,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        },
+        {
+          "stem": "08-letter",
+          "sample": 2,
+          "opening_text": "The truth is,",
+          "nearest": [
+            {
+              "i": 1,
+              "order": 1,
+              "ctx": {
+                "i": 1,
+                "tokens": [
+                  "The"
+                ]
+              },
+              "next": " truth",
+              "n_m": 64,
+              "n_u": 72,
+              "c_m": 0,
+              "c_u": 0,
+              "support": true,
+              "seen_next": false,
+              "would_hit": false
+            },
+            {
+              "i": 3,
+              "order": 1,
+              "ctx": {
+                "i": 3,
+                "tokens": [
+                  " is"
+                ]
+              },
+              "next": ",",
+              "n_m": 0,
+              "n_u": 3,
+              "c_m": 0,
+              "c_u": 0,
+              "support": false,
+              "seen_next": false,
+              "would_hit": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d."
+}

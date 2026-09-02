@@ -237,7 +237,9 @@ sell 45/48. Isolated t=0 on rankpath is **22/48**.
 
 H-reg-B **holds**: occupancy-free t=0 **5/48** equals opening coverage
 **5/48** (0 exact 4-token copies; decided 5 TP / 1 FP). Prompt **11/12**
-on postokhits has nine ranking wins with 0 isolated TPs.
+on postokhits is **2 strict wins + 9 occupancy-free 0=0 ties**. Historical
+persist counted those ties as ranking wins with 0 isolated TPs. Strict
+ranking wins with 0 isolated TPs: **0**.
 
 H-reg-C: rankpath still ranks **10/12**, as in PROTOCOL-isolated, and is
 not an isolated-file detector at t=0.

@@ -69,8 +69,11 @@ from text_watermark_tools.blind import (
     _ctx,
     _log_prob,
     _scored_ctx,
+    clip_ctx_order,
     fit_blind,
     likelihood_ratio,
+    score_index_range,
+    shorten_ctx,
 )
 
 # Deterministic 64-bit constants (splitmix / golden ratio). Not watermark keys.
@@ -254,23 +257,38 @@ def _witten_bell_p(
     *,
     alpha: float,
     v: int,
+    namespaced: bool = False,
 ) -> float:
     n_uni = max(table.n_tokens, 1)
     p_uni = (table.unigram.get(tok, 0) + alpha) / (n_uni + alpha * v)
     if not ctx:
         return p_uni
     bucket = table.counts.get(ctx)
+    shorter = shorten_ctx(ctx, namespaced=namespaced)
     if not bucket:
-        return _witten_bell_p(table, ctx[1:], tok, alpha=alpha, v=v)
+        if shorter is None:
+            return p_uni
+        return _witten_bell_p(
+            table, shorter, tok, alpha=alpha, v=v, namespaced=namespaced
+        )
     n = int(sum(bucket.values()))
     r = len(bucket)
     c = int(bucket.get(tok, 0))
     if n <= 0:
-        return _witten_bell_p(table, ctx[1:], tok, alpha=alpha, v=v)
+        if shorter is None:
+            return p_uni
+        return _witten_bell_p(
+            table, shorter, tok, alpha=alpha, v=v, namespaced=namespaced
+        )
     stay = n / (n + r)
-    return stay * (c / n) + (1.0 - stay) * _witten_bell_p(
-        table, ctx[1:], tok, alpha=alpha, v=v
+    fallback = (
+        p_uni
+        if shorter is None
+        else _witten_bell_p(
+            table, shorter, tok, alpha=alpha, v=v, namespaced=namespaced
+        )
     )
+    return stay * (c / n) + (1.0 - stay) * fallback
 
 
 def _log_p_mode(
@@ -283,26 +301,35 @@ def _log_p_mode(
     order: int | None = None,
 ) -> float:
     v = _vocab_size(model)
+    namespaced = int(getattr(model, "position_bucket", 0) or 0) > 0
     if kind == "unigram":
         return _log_prob(
             table, (), tok, alpha=model.alpha, v=v, backoff=False
         )
     if kind == "interpolate":
-        p = _witten_bell_p(table, ctx, tok, alpha=model.alpha, v=v)
+        p = _witten_bell_p(
+            table, ctx, tok, alpha=model.alpha, v=v, namespaced=namespaced
+        )
         return math.log(max(p, 1e-18))
-    use_ctx = ctx if order is None else _ctx_from_full(ctx, order)
+    use_ctx = ctx if order is None else clip_ctx_order(
+        ctx, order, namespaced=namespaced
+    )
     backoff = kind == "backoff" or model.backoff
     return _log_prob(
-        table, use_ctx, tok, alpha=model.alpha, v=v, backoff=backoff
+        table,
+        use_ctx,
+        tok,
+        alpha=model.alpha,
+        v=v,
+        backoff=backoff,
+        namespaced=namespaced,
     )
 
 
-def _ctx_from_full(ctx: tuple[int, ...], order: int) -> tuple[int, ...]:
-    if order <= 0:
-        return ()
-    if len(ctx) <= order:
-        return ctx
-    return ctx[-order:]
+def _ctx_from_full(
+    ctx: tuple[int, ...], order: int, *, namespaced: bool = False
+) -> tuple[int, ...]:
+    return clip_ctx_order(ctx, order, namespaced=namespaced)
 
 
 def score_sequence_detail(
@@ -311,6 +338,7 @@ def score_sequence_detail(
     spec: ScoreSpec | None = None,
     *,
     prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     spec = spec or ScoreSpec()
     if model.used_keys or model.used_hash_iv or model.used_g_values:
@@ -328,6 +356,7 @@ def score_sequence_detail(
                 first_only=spec.first_only,
             ),
             prefix=prefix,
+            score_span=score_span,
         )
         if inner.n_positions <= 0:
             return inner
@@ -347,6 +376,7 @@ def score_sequence_detail(
                     first_only=spec.first_only,
                 ),
                 prefix=prefix,
+                score_span=score_span,
             )
             for order in orders
             if 1 <= order <= model.context_len
@@ -376,7 +406,8 @@ def score_sequence_detail(
     weight_sum = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
+        tok = ids[i]
         if i == 0 and not score_first:
             continue
         if spec.first_only and i > 0:
@@ -547,8 +578,11 @@ def score_sequence(
     spec: ScoreSpec | None = None,
     *,
     prefix: Sequence[int] = (),
+    score_span: tuple[int, int] | None = None,
 ) -> float:
-    return score_sequence_detail(ids, model, spec, prefix=prefix).lr
+    return score_sequence_detail(
+        ids, model, spec, prefix=prefix, score_span=score_span
+    ).lr
 
 
 def splitmix64(x: int) -> int:
@@ -1052,13 +1086,19 @@ def hashpool_token_lr(model: HashPoolModel, ctx: tuple[int, ...], tok: int) -> f
     return piece / max(model.n_hashes, 1)
 
 
-def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDetail:
+def score_hashpool_detail(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    score_span: tuple[int, int] | None = None,
+) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashpool consulted keys / hash_iv / g-values")
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
+        tok = ids[i]
         if i == 0:
             continue
         n_positions += 1
@@ -1070,16 +1110,27 @@ def score_hashpool_detail(ids: Sequence[int], model: HashPoolModel) -> ScoreDeta
     return ScoreDetail(total / n_used, n_used, n_positions)
 
 
-def score_hashpool(ids: Sequence[int], model: HashPoolModel) -> float:
-    return score_hashpool_detail(ids, model).lr
+def score_hashpool(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    score_span: tuple[int, int] | None = None,
+) -> float:
+    return score_hashpool_detail(ids, model, score_span=score_span).lr
 
 
-def score_hashpool_vote(ids: Sequence[int], model: HashPoolModel) -> float:
+def score_hashpool_vote(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    score_span: tuple[int, int] | None = None,
+) -> float:
     """Mean sign of per-token hashpool LRs. Threshold 0 is a majority vote."""
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashpool consulted keys / hash_iv / g-values")
     signs: list[float] = []
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
+        tok = ids[i]
         if i == 0:
             continue
         ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
@@ -1168,6 +1219,7 @@ def score_hashtok_detail(
     *,
     exact_len: bool | None = None,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
@@ -1178,7 +1230,8 @@ def score_hashtok_detail(
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
+        tok = ids[i]
         if i == 0:
             continue
         n_positions += 1
@@ -1213,10 +1266,15 @@ def score_hashtok(
     *,
     exact_len: bool | None = None,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     """Hashpool LR using only hashes that saw the observed next token."""
     return score_hashtok_detail(
-        ids, model, exact_len=exact_len, min_count=min_count
+        ids,
+        model,
+        exact_len=exact_len,
+        min_count=min_count,
+        score_span=score_span,
     ).lr
 
 
@@ -1225,11 +1283,14 @@ def score_hashskip(
     model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
     if not model.drop_one:
         raise ValueError("score_hashskip needs a drop-one hashpool")
-    return score_hashtok_detail(ids, model, min_count=min_count).lr
+    return score_hashtok_detail(
+        ids, model, min_count=min_count, score_span=score_span
+    ).lr
 
 
 def score_hashmask(
@@ -1237,13 +1298,16 @@ def score_hashmask(
     model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     """Occupancy-free MASK replace of exact last-k. Still no keys."""
     if not model.mask_one:
         raise ValueError("score_hashmask needs a MASK-replace hashpool")
     if model.drop_one:
         raise ValueError("score_hashmask cannot read drop-one skip tables")
-    return score_hashtok_detail(ids, model, min_count=min_count).lr
+    return score_hashtok_detail(
+        ids, model, min_count=min_count, score_span=score_span
+    ).lr
 
 
 def hashtok_trace(
@@ -1377,6 +1441,7 @@ def score_hybrid_detail(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     """Exact shared n-grams when both sides saw them; hashpool otherwise.
 
@@ -1394,11 +1459,11 @@ def score_hybrid_detail(
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
         if i == 0:
             continue
         n_positions += 1
-        t = int(tok)
+        t = int(ids[i])
         ctx = _ctx(ids, i, count_model.context_len)
         n_m = _count(count_model.marked, ctx)
         n_u = _count(count_model.unmarked, ctx)
@@ -1426,9 +1491,10 @@ def score_hybrid(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     return score_hybrid_detail(
-        ids, count_model, hash_model, min_count=min_count
+        ids, count_model, hash_model, min_count=min_count, score_span=score_span
     ).lr
 
 
@@ -1438,6 +1504,7 @@ def score_tokhybrid_detail(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     """Exact tokhits when both sides saw the n-gram and next token; else hashtok.
 
@@ -1458,11 +1525,11 @@ def score_tokhybrid_detail(
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
         if i == 0:
             continue
         n_positions += 1
-        t = int(tok)
+        t = int(ids[i])
         ctx = _select_score_ctx(ids, i, t, count_model, spec)
         if ctx is not None:
             log_m = _log_p_mode(
@@ -1493,9 +1560,10 @@ def score_tokhybrid(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     return score_tokhybrid_detail(
-        ids, count_model, hash_model, min_count=min_count
+        ids, count_model, hash_model, min_count=min_count, score_span=score_span
     ).lr
 
 
@@ -1505,6 +1573,7 @@ def score_hashtokgap_detail(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     """Hashtok only where exact tokhits abstains. Occupancy-free residual.
 
@@ -1526,11 +1595,11 @@ def score_hashtokgap_detail(
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
         if i == 0:
             continue
         n_positions += 1
-        t = int(tok)
+        t = int(ids[i])
         if _select_score_ctx(ids, i, t, count_model, spec) is not None:
             continue
         hctx = _scored_ctx(
@@ -1552,9 +1621,10 @@ def score_hashtokgap(
     hash_model: HashPoolModel,
     *,
     min_count: int = 1,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     return score_hashtokgap_detail(
-        ids, count_model, hash_model, min_count=min_count
+        ids, count_model, hash_model, min_count=min_count, score_span=score_span
     ).lr
 
 
@@ -1608,14 +1678,19 @@ def fit_hashmix_twins(
     )
 
 
-def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
+def score_hashmix(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    score_span: tuple[int, int] | None = None,
+) -> float:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("hashmix consulted keys / hash_iv / g-values")
     if not model.orders:
         return 0.0
     total = 0.0
     for order in model.orders:
-        total += score_hashpool(ids, model.models[order])
+        total += score_hashpool(ids, model.models[order], score_span=score_span)
     return total / len(model.orders)
 
 
@@ -1685,6 +1760,7 @@ def score_hashtokbackoff_detail(
     *,
     min_order: int = 1,
     exact_len: bool | None = None,
+    score_span: tuple[int, int] | None = None,
 ) -> ScoreDetail:
     """Longest per-order hashtok hit. Not occupancy hashpool, not SynthID.
 
@@ -1704,11 +1780,11 @@ def score_hashtokbackoff_detail(
     total = 0.0
     n_used = 0
     n_positions = 0
-    for i, tok in enumerate(ids):
+    for i in score_index_range(len(ids), score_span):
         if i == 0:
             continue
         n_positions += 1
-        t = int(tok)
+        t = int(ids[i])
         hit: float | None = None
         for order in orders:
             pool = model.models[int(order)]
@@ -1735,9 +1811,10 @@ def score_hashtokbackoff(
     *,
     min_order: int = 1,
     exact_len: bool | None = None,
+    score_span: tuple[int, int] | None = None,
 ) -> float:
     return score_hashtokbackoff_detail(
-        ids, model, min_order=min_order, exact_len=exact_len
+        ids, model, min_order=min_order, exact_len=exact_len, score_span=score_span
     ).lr
 
 

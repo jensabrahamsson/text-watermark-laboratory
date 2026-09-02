@@ -82,6 +82,83 @@ def _score_to_dict(score: OfficialScore) -> dict:
     }
 
 
+def pair_stem_files_complete(out_dir: Path, stem: str, n_samples: int) -> bool:
+    """True when marked/unmarked draws for this stem are already on disk."""
+    if n_samples < 1:
+        return False
+    out_dir = Path(out_dir)
+    needed = [
+        out_dir / f"{stem}-marked.txt",
+        out_dir / f"{stem}-unmarked-gen.txt",
+    ]
+    for i in range(2, n_samples + 1):
+        needed.append(out_dir / f"{stem}-marked-{i}.txt")
+        needed.append(out_dir / f"{stem}-unmarked-gen-{i}.txt")
+    return all(p.is_file() and p.stat().st_size > 0 for p in needed)
+
+
+def persist_pair_row_texts(row: PairRow, out_dir: Path) -> None:
+    """Write one stem's prompt and twin files. Does not rewrite results.json."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{row.stem}-prompt.txt").write_text(row.prompt.rstrip() + "\n")
+    if row.unmarked_text:
+        (out_dir / f"{row.stem}-unmarked-gen.txt").write_text(
+            row.unmarked_text.strip() + "\n"
+        )
+    if row.marked_text:
+        (out_dir / f"{row.stem}-marked.txt").write_text(row.marked_text.strip() + "\n")
+    for i, (txt, _sc) in enumerate(row.extra_marked, start=2):
+        (out_dir / f"{row.stem}-marked-{i}.txt").write_text(txt.strip() + "\n")
+    for i, (txt, _sc) in enumerate(row.extra_unmarked, start=2):
+        (out_dir / f"{row.stem}-unmarked-gen-{i}.txt").write_text(txt.strip() + "\n")
+    if (
+        row.alt_text
+        and row.alt_score_public is not None
+        and row.alt_score_matching is not None
+    ):
+        (out_dir / f"{row.stem}-control-gen.txt").write_text(row.alt_text.strip() + "\n")
+        for i, (txt, _pub, _match) in enumerate(row.extra_control, start=2):
+            (out_dir / f"{row.stem}-control-gen-{i}.txt").write_text(txt.strip() + "\n")
+
+
+def load_pair_row_from_files(
+    out_dir: Path,
+    stem: str,
+    prompt: str,
+    tokenizer,
+    *,
+    n_samples: int,
+) -> PairRow:
+    """Rebuild a row from already-written twins. Re-scores; does not regenerate."""
+    out_dir = Path(out_dir)
+    text = prompt if prompt.endswith("\n") else prompt + "\n"
+    marked = (out_dir / f"{stem}-marked.txt").read_text()
+    unmarked = (out_dir / f"{stem}-unmarked-gen.txt").read_text()
+    extra_marked: list[tuple[str, OfficialScore]] = []
+    extra_unmarked: list[tuple[str, OfficialScore]] = []
+    for i in range(2, n_samples + 1):
+        extra_m = (out_dir / f"{stem}-marked-{i}.txt").read_text()
+        extra_u = (out_dir / f"{stem}-unmarked-gen-{i}.txt").read_text()
+        extra_marked.append(
+            (extra_m, official_score_text(extra_m, tokenizer=tokenizer))
+        )
+        extra_unmarked.append(
+            (extra_u, official_score_text(extra_u, tokenizer=tokenizer))
+        )
+    return PairRow(
+        stem=stem,
+        prompt=text,
+        prompt_score=official_score_text(text, tokenizer=tokenizer),
+        marked_text=marked,
+        marked_score=official_score_text(marked, tokenizer=tokenizer),
+        unmarked_text=unmarked,
+        unmarked_score=official_score_text(unmarked, tokenizer=tokenizer),
+        extra_marked=extra_marked,
+        extra_unmarked=extra_unmarked,
+    )
+
+
 def run_pairs(
     prompts: list[tuple[str, str]],
     *,
@@ -94,22 +171,37 @@ def run_pairs(
     also_control_keys: bool = False,
     model_name: str | None = None,
     n_samples: int = 1,
+    resume_dir: Path | None = None,
+    persist_dir: Path | None = None,
 ) -> PairRun:
     """For each prompt: score the prompt, then generate unmarked and marked twins.
 
     When `also_control_keys` is set, a third twin is sampled with
     `control_keys()` (not a `-marked.txt` name — `blind` must not pick it up).
     Score uses the same tokenizer as the generator.
+    When `resume_dir` has complete stem files, those stems are re-scored
+    instead of regenerated. When `persist_dir` is set, each stem's texts
+    are written as soon as the row exists.
     """
     if n_samples < 1:
         raise ValueError("n_samples must be >= 1")
     name = model_name or "gpt2"
     tok = tokenizer or load_tokenizer(name)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
-    if marked_model is None:
-        marked_model = _load_marked_model(device, model_name=name)
-    if unmarked_model is None:
-        unmarked_model = _load_unmarked_model(device, model_name=name)
+    resume = Path(resume_dir) if resume_dir is not None else None
+    persist = Path(persist_dir) if persist_dir is not None else None
+    if persist is not None:
+        persist.mkdir(parents=True, exist_ok=True)
+    remaining = [
+        (stem, prompt)
+        for stem, prompt in prompts
+        if resume is None or not pair_stem_files_complete(resume, stem, n_samples)
+    ]
+    if remaining:
+        if marked_model is None:
+            marked_model = _load_marked_model(device, model_name=name)
+        if unmarked_model is None:
+            unmarked_model = _load_unmarked_model(device, model_name=name)
     alt_key_list = control_keys() if also_control_keys else None
     if also_control_keys and alt_model is None:
         alt_model = _load_marked_model(device, keys=alt_key_list, model_name=name)
@@ -117,6 +209,14 @@ def run_pairs(
     rows: list[PairRow] = []
     for offset, (stem, prompt) in enumerate(prompts):
         text = prompt if prompt.endswith("\n") else prompt + "\n"
+        if resume is not None and pair_stem_files_complete(resume, stem, n_samples):
+            row = load_pair_row_from_files(
+                resume, stem, text, tok, n_samples=n_samples
+            )
+            rows.append(row)
+            if persist is not None:
+                persist_pair_row_texts(row, persist)
+            continue
         prompt_score = official_score_text(text, tokenizer=tok)
         stride = 2 * n_samples + 2
         marked_gen: Generation = generate_text(
@@ -202,6 +302,8 @@ def run_pairs(
                 extra_unmarked=extra_unmarked,
             )
         )
+        if persist is not None:
+            persist_pair_row_texts(rows[-1], persist)
     return PairRun(
         rows=rows,
         max_new_tokens=max_new_tokens,
@@ -356,19 +458,7 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
         "|---|---|---|---|---|---|---|",
     ]
     for row in run.rows:
-        (out_dir / f"{row.stem}-prompt.txt").write_text(row.prompt.rstrip() + "\n")
-        if row.unmarked_text:
-            (out_dir / f"{row.stem}-unmarked-gen.txt").write_text(
-                row.unmarked_text.strip() + "\n"
-            )
-        if row.marked_text:
-            (out_dir / f"{row.stem}-marked.txt").write_text(row.marked_text.strip() + "\n")
-        for i, (txt, _sc) in enumerate(row.extra_marked, start=2):
-            (out_dir / f"{row.stem}-marked-{i}.txt").write_text(txt.strip() + "\n")
-        for i, (txt, _sc) in enumerate(row.extra_unmarked, start=2):
-            (out_dir / f"{row.stem}-unmarked-gen-{i}.txt").write_text(
-                txt.strip() + "\n"
-            )
+        persist_pair_row_texts(row, out_dir)
         rec: dict = {
             "stem": row.stem,
             "prompt": _score_to_dict(row.prompt_score),
@@ -382,17 +472,11 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
             and row.alt_score_public is not None
             and row.alt_score_matching is not None
         ):
-            (out_dir / f"{row.stem}-control-gen.txt").write_text(
-                row.alt_text.strip() + "\n"
-            )
             rec["control_gen_public"] = _score_to_dict(row.alt_score_public)
             rec["control_gen_matching"] = _score_to_dict(row.alt_score_matching)
             pub_s = f"{row.alt_score_public.mean:.6f}"
             match_s = f"{row.alt_score_matching.mean:.6f}"
-            for i, (txt, pub, match) in enumerate(row.extra_control, start=2):
-                (out_dir / f"{row.stem}-control-gen-{i}.txt").write_text(
-                    txt.strip() + "\n"
-                )
+            for i, (_txt, pub, match) in enumerate(row.extra_control, start=2):
                 rec.setdefault("extra_control", []).append(
                     {
                         "sample": i,

@@ -206,10 +206,13 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-100x4-hard-last4/` | Lock A interpolate last-4 | **99/100**, AUC **0.898**, isolated 352/400 vs 290/400 (miss stem 088) |
 | `2026-09-01-probe-100x4-opening-poshits/` | Lock B opening poshits | **100/100**, AUC **0.980**, isolated 393/400 vs 344/400 |
 | `2026-09-01-probe-100x4-opening-rankpath/` | Lock C opening rankpath | **96/100**, AUC **0.822**, isolated 314/400 vs 302/400 |
-| `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | 0:4 **99/100** AUC **0.885**; 16:32 **89/100** AUC **0.689** |
+| `2026-09-01-probe-100x4-hard-windows/` | Lock A interpolate windows | reindexed 0:4 **99/100** AUC **0.885**; reindexed 16:32 **89/100** AUC **0.689** |
+| `2026-09-01-probe-100x4-hard-windows-absolute/` | Absolute-history H2 remasure | 0:4 **99/100** AUC **0.885**; 16:32 **87/100** AUC **0.695**; paired McNemar **86/13/1/0**; not **25/48** |
+| `2026-09-02-pair-12x4-control-as-marked/` | Constructed second-key twins (control-gen as marked) | Seeds 20260931 vs 0; not a matched `pair()` run |
+| `2026-09-02-probe-12x4-control-as-marked-hard-last4/` | Second-key lock A interpolate last-4 | **7/12**, isolated **30/48 vs 25/48**, AUC **0.590**; H-xkey-iso fails as a raw count; not **25/48** |
 | `2026-09-01-pair-distil-100x4/` | DistilGPT2 twins, same 100 prompts | Official first-draw **70/100** (weaker lamp than GPT-2 **100/100**) |
-| `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | **89/100**, AUC **0.713**, isolated 216/400 vs 247/400 |
-| `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | **69/100**, AUC **0.598**, isolated 164/400 vs 270/400 |
+| `2026-09-01-probe-distil-100x4-opening-poshits/` | Distil lock B | persist **89/100**; strict `>` recount **88 wins + 1 tie**, AUC **0.713**, isolated 216/400 vs 247/400 |
+| `2026-09-01-probe-distil-100x4-opening-rankpath/` | Distil lock C | persist **69/100**; strict `>` recount **68 wins + 1 tie**, AUC **0.598**, isolated 164/400 vs 270/400 |
 | `2026-09-01-pair-qwen-100x4/` | Qwen2-1.5B twins, same 100 prompts | Official first-draw **100/100** (local HF; mixin on) |
 | `2026-09-01-probe-qwen-100x4-opening-poshits/` | Qwen lock B | **95/100**, AUC **0.873**, isolated 333/400 vs 308/400 |
 | `2026-09-01-probe-qwen-100x4-opening-rankpath/` | Qwen lock C | **84/100**, AUC **0.706**, isolated 275/400 vs 259/400 |
@@ -228,17 +231,19 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-grok12x4-to-12x4-hard-last4/` | Grok-register → original 12×4 lock A | **5/12**, nested **16/48 vs 41/48**; H-reg-A fails |
 | `2026-09-01-transfer-grok12x4-to-12x4-opening-poshits/` | Same train, lock B | **7/12**, nested **6/48 vs 47/48** |
 | `2026-09-01-transfer-grok12x4-to-12x4-opening-rankpath/` | Same train, lock C | **10/12**, t=0 **22/48**; nested 45/48 vs 22/48 is not a detector |
-| `2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/` | Same tables, postokhits | t=0 **5/48 vs 47/48**; 9 ranking wins with 0 TP |
+| `2026-09-01-transfer-grok12x4-to-12x4-occupancy-free/` | Same tables, postokhits | t=0 **5/48 vs 47/48**; 9 occupancy-free 0=0 ties (not ranking wins) |
 | `2026-09-01-openings-grok12x4-to-12x4/` | Opening-overlap, Grok-register → 12 | covered **5/48**, exact **0/48** |
 | `2026-09-01-probe-grok12x4-hard-last4/` | In-family interpolate on new 12 | **11/12**, nested-by-stem **24/48 vs 40/48** |
 | `2026-09-01-transfer-grok12x4-to-36x4-hard-last4/` | Grok-register → 36×4 lock A | **24/36**, nested **50/144 vs 115/144** |
 | `2026-09-01-transfer-100x4-to-grok12x4-hard-last4/` | 100 one-liners → Grok-register lock A | **11/12**, nested **22/48 vs 41/48**; H-xreg-A holds vs 16/48; not **25/48** |
 | `2026-09-01-transfer-100x4-to-grok12x4-opening-poshits/` | Same train, lock B | **10/12**, nested **36/48 vs 44/48** (occupancy) |
 | `2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/` | Same train, lock C | **8/12**, nested **10/48 vs 41/48** |
-| `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 10 ranking wins with 0 TP |
+| `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 4 ranking wins with 0 TP, 6 occupancy 0=0 ties |
 | `2026-09-01-openings-100x4-to-grok12x4/` | Opening-overlap, 100→Grok-register | covered **5/48**, exact **0/48**; t=0 is 0/48 |
-| `2026-09-01-transfer-100x4-to-grok12x4-hard-windows/` | Same interpolate, token windows | 0:4 **7/12**; tail 32:64 and 64:128 **9/12**; not **25/48** |
-| `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split |
+| `2026-09-01-transfer-100x4-to-grok12x4-hard-windows/` | Same interpolate, token windows | 0:4 **7/12**; tail 32:64 and 64:128 **9/12**; reindexed; not **25/48** |
+| `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split; reindexed |
+| `2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/` | Same interpolate, absolute history | 0:4 **7/12**; 32:64 **10/12** (rose vs **9/12**); 64:128 **9/12**; not **25/48** |
+| `2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/` | 100→original 12 absolute windows | 0:4 **9/12**; 16:32 **6/12**; 64:128 fell 8→6; not **25/48** |
 | `2026-09-01-atoms-100x4-to-grok12x4-interpolate/` | Decode lock A interpolate atoms | backoff mass; `'The'→' car'` n=19; occupancy-free **0/48**; not **25/48** |
 | `2026-09-01-prompts-grok36/` | 36 Grok-length scene seeds | Frozen before `pair`; see PROTOCOL-isolated-scale |
 | `2026-09-01-pair-grok36x4/` | GPT-2 twins, 36 Grok-length × 4 | Official first-draw **36/36** |
@@ -252,6 +257,30 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-openings-100plusgrok36-to-12x4/` | Mixed extra-train openings | coverage **28/48** = union; leftover 20 |
 | `2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/` | Mixed postokhits | t=0 **26/48 vs 47/48**; two covered letter files negative |
 | `2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/` | Mixed interpolate | nested **27/48 vs 39/48**; not **25/48** |
+| `2026-09-01-transfer-100plusgrok36-to-12x4-opening-rankpath/` | Mixed lock C on leftover 20 | leftover **12/20 vs 14/20**; full **35/48** not leftover; not **25/48** |
+| `2026-09-01-isolated-split-25-leftover-vs-covered/` | Decode 25/48 on leftover vs covered | leftover **10/20 vs 11/20**, covered **15/28**; leftover chance; not **25/48** |
+| `2026-09-01-probe-12x4-headline-windows/` | 12-LOO hard/interpolate mask-*k* | hard 0:4 **5/12**, tails **9/12**; interpolate tails **5/12** then **3/12**; not **25/48** |
+| `2026-09-01-isolated-split-windows-leftover-vs-covered/` | Leftover vs covered on mask-*k* hard | 4:128 leftover **11/20 vs 11/20**, covered **16/28**; leftover chance; not **25/48** |
+| `2026-09-01-isolated-leftover-bound/` | Occupancy leftover-20 official+atoms | official **20/20** at 128; leftover 0:4 unseen 99 vs 21; interpolate **13/20**; not **25/48** |
+| `2026-09-01-openings-union-100plusgrok36-and-smt-to-12x4/` | Leftover-20 ∪ SMT openings | union **30/48** equals SMT; leftover **18**; last-4 **10/18 vs 10/18**; not **25/48** |
+| `2026-09-01-openings-union-distil100x4-and-smt-to-12x4/` | Distil ∪ SMT openings | union **33/48**; leftover **15**; last-4 **9/15 vs 8/15**; Distil-only office; not **25/48** |
+| `2026-09-01-pair-gpt2-medium-100x4/` | gpt2-medium twins, same 100 prompts | official first-draw **100/100**; [PROTOCOL-isolated-mgen.md](../research/PROTOCOL-isolated-mgen.md) |
+| `2026-09-01-transfer-gpt2-medium-100x4-to-12x4-opening-poshits/` | gpt2-medium → original 12 occupancy-free | postokhits t=0 **16/48 vs 48/48**; prompt **7/12** (5 ties); not **25/48** |
+| `2026-09-01-openings-gpt2-medium-100x4-to-12x4/` | Opening-overlap, gpt2-medium → 12 | covered **16/48** (exact 14/48); leftover-15 **0/15**; not **25/48** |
+| `2026-09-01-isolated-mgen-leftover-15/` | Leftover-15 gpt2-medium slice | leftover coverage **0/15**; leftover sign **0/15 vs 15/15**; not **25/48** |
+| `2026-09-01-pair-gpt2-medium-12x4/` | gpt2-medium original-12 twins | official first-draw **12/12**; [PROTOCOL-isolated-m12.md](../research/PROTOCOL-isolated-m12.md) |
+| `2026-09-01-transfer-gpt2-medium-100x4-to-medium12x4-opening-poshits/` | gpt2-medium 100×4 → gpt2-medium 12×4 occupancy-free | postokhits t=0 **10/48 vs 48/48**; prompt **8/12** (3 ties); not **25/48** |
+| `2026-09-01-openings-gpt2-medium-100x4-to-medium12x4/` | Opening-overlap, gpt2-medium → medium 12 | covered **13/48** (exact 10/48); t=0 **10/48**; not **25/48** |
+| `2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits/` | Distil 100×4 → gpt2-medium 12×4 occupancy-free | postokhits t=0 **20/48 vs 48/48**; prompt **11/12** (1 tie); not **25/48** |
+| `2026-09-01-openings-distil100x4-to-medium12x4/` | Opening-overlap, Distil → medium 12 | covered **22/48** (exact 4/48); t=0 **20/48**; not **25/48** |
+| `2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/` | gpt2-medium 100×4 → Distil 12×4 occupancy-free | postokhits t=0 **3/48 vs 47/48**; prompt **6/12** (6 ties); not **25/48** |
+| `2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/` | Opening-overlap, gpt2-medium → Distil 12 | covered **5/48** (exact 2/48); t=0 **3/48**; not **25/48** |
+| `2026-09-01-isolated-leftover-18-readers/` | Leftover-18 remaining readers | rankpath **12/18 vs 13/18**; interpolate **12/18 vs 12/18**; 0:4 unseen 89 vs 19; not **25/48** |
+| `2026-09-01-isolated-xgen-leftover-18/` | Distil occupancy-free leftover-18 | leftover **3/18** (office); Distil postokhits **22/48 vs 43/48**; not **25/48** |
+| `2026-09-01-transfer-distil100x4-to-distil12x4-opening-poshits/` | Distil 100×4 → Distil 12×4 occupancy-free | postokhits **16/48 vs 39/48**; poshits **25/48 vs 25/48**; not **25/48** |
+| `2026-09-01-openings-distil100x4-to-distil12x4/` | Distil→Distil opening overlap | covered **16/48** (exact 9/48); equals t=0; not **25/48** |
+| `2026-09-01-transfer-qwen100x4-to-qwen12x4-opening-poshits/` | Qwen 100×4 → Qwen 12×4 occupancy-free | postokhits **31/48 vs 48/48**; poshits **33/48 vs 37/48**; not **25/48** |
+| `2026-09-01-openings-qwen100x4-to-qwen12x4/` | Qwen→Qwen opening overlap | covered **37/48** (exact 12/48); t=0 **31/48**; not **25/48** |
 | `2026-09-01-probe-grok36x4-hard-last4/` | In-family interpolate on new 36 | **35/36**, nested-by-stem **93/144 vs 110/144** |
 
 ## What changed across the runs
