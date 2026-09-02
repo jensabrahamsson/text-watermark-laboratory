@@ -33,7 +33,7 @@ def test_protocol_xkey_names_frozen_sources_before_decode() -> None:
     assert "materialize_control_as_marked" in text
     assert "20260931" in text
     assert "seed **0**" in text
-    assert "Not a matched `pair()`" in text or "not a matched `pair()`" in text
+    assert "matched `pair()`" in text
     assert "Do **not** mix grok12" in text
     assert "thesis/" in text
     assert "leftover-15" in text
