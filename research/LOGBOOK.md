@@ -1896,4 +1896,20 @@ interval overlap is not the H2 test. Do not sell McNemar **0.00092**,
 **93/100** gap signs, **99/100**, or **87/100** as replacing **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-02 second-key in-domain lock A freeze
+
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) committed at SHA
+`d25e495`. Occupancy-free leftover-15, Distil↔gpt2-medium occupancy-free,
+and absolute-history H2 are already opened. The remaining honesty item
+that is not leftover targeting is whether lock A interpolate last-4 still
+ranks held-out prompt groups when the marked side is control-shuffled-30
+against the original unmarked pile. Seeds **20260931** vs **0**. Not a
+matched `pair()` run. Complementary to instance contrast. Hypotheses
+H-xkey-A, H-xkey-iso, and H-xkey-seed are stated before any
+control-as-marked interpolate LRs. Do not look at those LRs until the
+probe command has been run once, as written. Do not add a scorer.
+`--fit-prefix` now rewrites UTF-8 strings from clipped ids. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
 ---

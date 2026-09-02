@@ -41,6 +41,7 @@ def test_protocol_xkey_names_frozen_sources_before_decode() -> None:
     assert "key-free-contrast.md" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H-xkey-A **holds**" not in text
+    assert "`d25e495`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert CONTROL.is_dir()
     assert UNMARKED.is_dir()
     assert PAIR.is_dir()
