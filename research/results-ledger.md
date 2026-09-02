@@ -127,9 +127,11 @@ Official first-draw keyed score **100/100**. Key-free flags unchanged.
 
 H1 holds (lock A prompt ranking). H2’s committed JSON is a **reindexed**
 window measurement: **0:4** **99/100**, AUC **0.885**; **16:32** **89/100**,
-AUC **0.689**. Until an absolute-history rerun, that is “the reindexed
-opening scorer beat the reindexed mid-file scorer,” not a claim that the
-signal does not accumulate. Isolated `lr>0` is
+AUC **0.689**. Until the absolute-history remasure in
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) is opened, that is
+“the reindexed opening scorer beat the reindexed mid-file scorer,” not a
+claim that the signal does not accumulate. Do **not** overwrite that
+dump. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
 Do not sell lock B **393/400**, lock A **352/400**, or nested-by-stem
 **322/400** / **392/400** as replacing **25/48**. Those are in-family.
@@ -472,7 +474,10 @@ analog that is not leftover targeting is
 occupancy-free transfer on already-frozen 12×4 twins. Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
-sell **20/48** or **3/48**. Does not replace **25/48**. Isolated-file
+sell **20/48** or **3/48**. Does not replace **25/48**. The remaining
+confirmatory remasure that is not leftover targeting is
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): absolute-history H2
+on the already-frozen 100×4 interpolate windows. Isolated-file
 remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.

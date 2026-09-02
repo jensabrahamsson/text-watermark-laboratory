@@ -54,6 +54,7 @@ def test_protocol_leftover15_closed_refuses_targeting() -> None:
     assert "PROTOCOL-isolated-mgen" in text
     assert "PROTOCOL-isolated-m12" in text
     assert "PROTOCOL-isolated-xsize" in text
+    assert "PROTOCOL-h2-absolute" in text
     assert "`570a5c6`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 
 

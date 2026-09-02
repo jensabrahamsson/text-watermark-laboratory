@@ -55,6 +55,7 @@ def test_protocol_leftover18_closed_refuses_more_holdout_reslices() -> None:
     assert "PROTOCOL-isolated-mgen" in text
     assert "PROTOCOL-isolated-m12" in text
     assert "PROTOCOL-isolated-xsize" in text
+    assert "PROTOCOL-h2-absolute" in text
 
 
 def test_leftover18_published_readers_are_not_leftover_file_detectors() -> None:

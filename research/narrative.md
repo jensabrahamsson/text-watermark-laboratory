@@ -226,8 +226,11 @@ targeting is
 occupancy-free transfer on already-frozen 12×4 twins. Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
-sell **20/48** or **3/48**. Isolated-file detection is
-still not finished. Do not write `thesis/`.
+sell **20/48** or **3/48**. The remaining confirmatory remasure that is
+not leftover targeting is
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): absolute-history H2
+on the already-frozen 100×4 interpolate windows. Isolated-file detection
+is still not finished. Do not write `thesis/`.
 
 ## What this freeze refuses
 

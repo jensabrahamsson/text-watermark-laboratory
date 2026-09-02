@@ -67,6 +67,7 @@ def test_protocol_xsize_names_frozen_sources_before_decode() -> None:
     assert "Do **not** apply leftover-15 or leftover-18" in text
     assert "Do **not** target leftover-15" in text
     assert "Distil ∪ gpt2-medium" in text
+    assert "PROTOCOL-h2-absolute" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
     assert "H-xsize-cover **holds**" in text
     assert "H-xsize-B **holds**" in text

@@ -42,9 +42,11 @@ coverage **0/15**
 ([PROTOCOL-isolated-mgen.md](PROTOCOL-isolated-mgen.md)). gpt2-medium
 100×4 → gpt2-medium 12×4 occupancy-free is
 [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): t=0 **10/48 vs
-48/48**. The remaining occupancy-free analog that is not leftover
-targeting is [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md):
-Distil↔gpt2-medium occupancy-free transfer on already-frozen 12×4 twins.
+48/48**. Distil↔gpt2-medium occupancy-free transfer is opened in
+[PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md).
+The remaining confirmatory remasure that is not leftover targeting is
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): absolute-history H2
+on the already-frozen 100×4 interpolate windows.
 
 ## Primary scientific question
 
@@ -103,6 +105,8 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md), not leftover
   targeting. Distil↔gpt2-medium occupancy-free transfer is
   [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md), not leftover
+  targeting. Absolute-history H2 remasure is
+  [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md), not leftover
   targeting.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
@@ -151,7 +155,9 @@ t=0 **10/48 vs 48/48** (coverage **13/48**). Distil↔gpt2-medium
 occupancy-free transfer is
 [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
-gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
+gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). The
+remaining confirmatory remasure is
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md). Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, or gpt2-medium→Distil
 **3/48**. Do not write `thesis/`.
