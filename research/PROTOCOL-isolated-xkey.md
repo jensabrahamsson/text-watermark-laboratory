@@ -70,7 +70,8 @@ occupancy-free postokhits on this constructed pair after peeking.
 
 - **H-xkey-A.** Interpolate last-4 prompt ranking is strictly above
   **6/12** (strict `>`). Seed mismatch (control **20260931**, unmarked
-  **0**) may lower it versus public-key **9/12**. File AUC is secondary.
+  seed **0**) may lower it versus public-key **9/12**. File AUC is
+  secondary.
 - **H-xkey-iso.** Isolated t=0 (`n_positive_above_zero` / 48) does not
   beat hard **25/48**. Report Clopper–Pearson 95% on that isolated count
   and on the prompt-win count. Do not sell the isolated count as
