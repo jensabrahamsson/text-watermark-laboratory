@@ -39,6 +39,7 @@ def test_protocol_h2abs_names_frozen_sources_before_decode() -> None:
     assert "thesis/" in text
     assert "leftover-15" in text
     assert "PROTOCOL-isolated-xkey" in text
+    assert "PROTOCOL-isolated-windows-absolute" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
     assert "H2-abs **holds**" in text
     assert "H2-abs-acc **holds**" in text

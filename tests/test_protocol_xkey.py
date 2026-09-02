@@ -41,6 +41,7 @@ def test_protocol_xkey_names_frozen_sources_before_decode() -> None:
     assert "leftover-15" in text
     assert "Distil ∪ gpt2-medium" in text
     assert "key-free-contrast.md" in text
+    assert "PROTOCOL-isolated-windows-absolute" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
     assert "H-xkey-A **holds**" in text
     assert "H-xkey-iso **fails**" in text

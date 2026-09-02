@@ -253,9 +253,11 @@ leftover Distil **3/18**, gpt2-medium→GPT-2 **16/48**, leftover **0/15**,
 leftover official **15/15**, or Qwen→Qwen **31/48** as replacing
 **25/48**. Isolated-file remains open. Absolute-history H2 is opened in
 [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
-16:32 **87/100**. The remaining honesty item that is not leftover
-targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
-in-domain lock A on control-as-marked 12×4 versus the original unmarked
-pile. Opened: interpolate **7/12**, isolated **30/48 vs 25/48**.
-H-xkey-iso **fails** as a raw count. Do not sell **30/48**. Isolated-file
-remains open. Do not write `thesis/`.
+16:32 **87/100**. Second-key in-domain lock A is opened in
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): interpolate
+**7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails** as a raw
+count. Do not sell **30/48**. The remaining honesty item that is not leftover
+targeting is [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+absolute-history remasure of 100→grok12 interpolate windows. Reindexed
+dumps stay (0:4 **7/12**; tail **9/12**). Do not overwrite them.
+Isolated-file remains open. Do not write `thesis/`.

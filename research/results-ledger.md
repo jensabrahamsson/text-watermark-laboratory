@@ -485,10 +485,12 @@ Post-open paired McNemar is **86 / 13 / 1 / 0**. Isolated **25/48**
 Clopper–Pearson **[0.372, 0.667]** includes ½. Do
 not sell **99/100** or **87/100**. Isolated-file remains open. The
 remaining honesty item that is not leftover targeting is
-[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
-on control-as-marked 12×4 versus the original unmarked pile. Opened:
-interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails**
-as a raw count. Do not sell **30/48**. Isolated-file remains open.
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+absolute-history remasure of 100→grok12 interpolate windows. Second-key
+lock A is opened ([PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
+interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso **fails**
+as a raw count). Reindexed dumps stay (0:4 **7/12**; tail **9/12**).
+Do not overwrite them. Do not sell **30/48**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

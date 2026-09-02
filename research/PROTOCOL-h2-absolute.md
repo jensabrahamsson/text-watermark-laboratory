@@ -230,10 +230,13 @@ This readout defends the frozen 99 > 87 comparison as a within-family
 opening-versus-mid split, and it defends isolated **25/48** as
 compatible with chance. It does not replace **25/48**. Do not sell
 McNemar **0.00092**, **93/100** gap signs, **99/100**, or **87/100** as
-replacing **25/48**. Isolated-file detection is still not finished. The
-remaining honesty item that is not leftover targeting is
-[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
-on control-shuffled-30 12×4 treated as marked against the original
-unmarked pile. Opened: interpolate **7/12**, isolated **30/48 vs 25/48**.
-H-xkey-iso **fails** as a raw count. Do not sell **30/48**. Isolated-file
-detection is still not finished. Do not write `thesis/`.
+replacing **25/48**. Isolated-file detection is still not finished. Second-key
+in-domain lock A is opened in
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): interpolate
+**7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails** as a raw
+count. Do not sell **30/48**. The remaining honesty item that is not leftover
+targeting is [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+absolute-history remasure of the 100→grok12 interpolate windows that this
+file cited as already not front-loaded. Reindexed dumps stay (0:4 **7/12**;
+tail **9/12**). Do not overwrite them. Isolated-file detection is still not
+finished. Do not write `thesis/`.

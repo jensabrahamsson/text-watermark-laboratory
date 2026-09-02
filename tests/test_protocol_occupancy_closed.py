@@ -56,6 +56,7 @@ def test_protocol_occupancy_closed_refuses_family12_and_new_trains() -> None:
     assert "There is no decode command" in text
     assert "`afb7668`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "PROTOCOL-isolated-xkey" in text
+    assert "PROTOCOL-isolated-windows-absolute" in text
 
 
 def test_leftover18_official_is_18_of_18_by_subset() -> None:

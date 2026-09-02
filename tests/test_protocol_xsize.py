@@ -69,6 +69,7 @@ def test_protocol_xsize_names_frozen_sources_before_decode() -> None:
     assert "Distil ∪ gpt2-medium" in text
     assert "PROTOCOL-h2-absolute" in text
     assert "PROTOCOL-isolated-xkey" in text
+    assert "PROTOCOL-isolated-windows-absolute" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
     assert "H-xsize-cover **holds**" in text
     assert "H-xsize-B **holds**" in text

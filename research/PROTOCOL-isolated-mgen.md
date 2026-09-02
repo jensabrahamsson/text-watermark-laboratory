@@ -251,8 +251,10 @@ detection is still not finished. Distil↔gpt2-medium occupancy-free
 transfer is [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md):
 Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**. Absolute-history
 H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
-**99/100** vs 16:32 **87/100**. The remaining honesty item that is not leftover
-targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md).
-Opened: interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso
-**fails** as a raw count. Do not sell **30/48**.
+**99/100** vs 16:32 **87/100**. Second-key in-domain lock A is opened in
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md). Opened:
+interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails**
+as a raw count. Do not sell **30/48**. The remaining honesty item that
+is not leftover targeting is
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md).
 Do not write `thesis/`.

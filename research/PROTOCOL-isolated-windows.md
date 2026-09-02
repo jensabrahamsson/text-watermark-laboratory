@@ -161,6 +161,11 @@ and **16:32** ranks **6/12**. Front-loaded transfer is register-specific.
 H-win-iso **holds**. Isolated t=0 is chance-like in every slice. This
 does not replace **25/48**. Isolated-file detection is not finished.
 
+Absolute-history remasure of these transfer windows is
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md).
+Do **not** overwrite these dumps. Do **not** rewrite the first-run flags
+above.
+
 JSON: `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
 
