@@ -1,18 +1,34 @@
 # Deep Review of "Key-Free Watermark Indication via Empirical Contrast"
 
 - **Review date:** 2026-09-03
-- **Recommendation:** Major revision
-- **Scope:** The review is deliberately limited to the report itself: the rendered 14-page PDF, `paper/main.tex`, and `paper/references.bib`. I did not inspect implementation code, experiment dumps, protocol notes, repository history, or external sources. Consequently, statements about reproducibility mean "reproducible from the report alone," and literature claims are assessed for framing and internal use rather than independently fact-checked.
+- **Recommendation:** Major revision as a technical report; below the current top-tier main-track bar
+- **Informal top-tier venue calibration:** 5/10 - credible and unusually careful research note, but not currently a breakthrough-level main-track or oral contribution
+- **Scope:** The review is deliberately limited to the report itself: the rendered 14-page PDF, `paper/main.tex`, and `paper/references.bib`. I did not inspect implementation code, experiment dumps, protocol notes, repository history, or external literature. Subsequent author-supplied reader feedback was used only to sharpen the editorial priorities and proposed next experiment; it is not treated as independent factual evidence. Consequently, statements about reproducibility mean "reproducible from the report alone," and literature claims are assessed for framing and internal use rather than independently fact-checked.
 
 ## Executive assessment
 
-The report contains a real and potentially useful empirical contribution: under a strong paired-reference audit setting, a key-free count-table score can rank marked prompt groups above matched unmarked prompt groups on the measured public SynthID-Text instance. The most persuasive evidence is not the original 9/12 result but the prospectively described 100-family result, provided that its training and evaluation topology is clarified. The report is also unusually candid about what the result is not. It repeatedly distinguishes key-free from reference-free, group ranking from isolated-file classification, one public key set from production systems, and empirical behavior from a cryptographic theorem. That restraint is a substantial strength.
+The report contains a real and potentially useful empirical contribution: under a strong paired-reference audit setting, a key-free count-table score can rank marked prompt groups above matched unmarked prompt groups on the measured public SynthID-Text instance. The most effective headline is the contrast between grains: exploratory in-domain group ranking reaches 36/36 and the prospectively described GPT-2 lock reaches 99/100, while the original isolated zero-threshold decision gives 25/48 sensitivity, 22/48 specificity, and 47/96 correct decisions. The corrected original 9/12 result should remain visible as the honest small-set diagnostic, but it should not carry the main evidential burden. The 100-family result is more persuasive, provided that its training and evaluation topology is clarified.
+
+This contrast is not merely a positive result followed by a limitation. It is the paper's central finding: **paired-reference, key-free indication at the prompt-group level is not the same task as reading watermark presence from an unfamiliar individual file.** The leftover analysis makes the distinction particularly sharp because the official keyed detector can still succeed where the empirical reader has no useful zero-threshold signal. The report is also unusually candid about what the result is not. It distinguishes key-free from reference-free, group ranking from isolated-file classification, one public key set from production systems, and empirical behavior from a cryptographic theorem. That restraint is a substantial strength.
 
 The paper is not ready in its current form because several central quantities are interpreted or documented too loosely. The isolated-file headline uses marked recall (25/48) as if it were the primary classification statistic, although the same report gives 22/48 true negatives and a file AUC of 0.590. At the stated zero threshold, the complete confusion matrix implies 47/96 correct decisions, or 48.96% accuracy and balanced accuracy, while the AUC describes a different, threshold-free question. Those facts can coexist, but the paper does not yet explain the distinction cleanly enough. Likewise, the 0.02 comparison margin is not defined in the method, and a binomial interval around 10/12 cannot be compared to a 0.5 null without deriving the null success probability under the margin rule.
 
 The second major weakness is reproducibility. The report does not say unambiguously which corpus fits each count table, whether the 100-family "confirmatory" result is a frozen-model test or leave-one-family-out refitting within the new 100 families, how Phase B tables are trained, how zero-used-token files are scored, or how the headline Witten-Bell interpolation is computed. These are not supplementary details: they determine what 99/100 and the isolated counts mean.
 
-My recommendation is therefore **major revision, not rejection**. The report already has a defensible central result. The necessary changes would sharpen that result rather than weaken it: define the audit topology, use full classification metrics, demote or recalibrate the margin analysis, specify the primary reader mathematically, and separate prospectively locked evidence from exploratory ablations.
+My recommendation for the technical report is therefore **major revision, not rejection**. The report already has a defensible central result. The necessary changes would sharpen that result rather than weaken it: organize the narrative around the two-grain contrast, define the audit topology, use full classification metrics, demote or recalibrate the margin analysis, specify the primary reader mathematically, explain why the public instance's short context makes count-table reuse plausible, and separate prospectively locked evidence from exploratory ablations.
+
+That recommendation is calibrated to the work as a technical report or focused empirical note. Against a top-field main-conference bar, the assessment is less favorable. Careful locking, artifact accounting, corrected counts, and retained negative results make the measurement believable; they do not by themselves supply a new watermarking mechanism, broad multi-instance validation, or a theorem that changes the known boundary. The report's own related-work section shows that third-party and paired-reference detection are already established questions. The incremental scientific step is a lightweight count-table reader and an unusually clear empirical separation between group and file grains on one public short-context instance. That is valuable, but limited.
+
+## Venue-calibrated significance
+
+The manuscript should distinguish four axes that are currently easy to conflate:
+
+1. **Credibility:** high for a repository-scale empirical study, because corrections, locks, artifacts, failure slices, and negative outcomes are visible.
+2. **Novelty:** limited to moderate, because the audit question already exists in the cited literature and the paper offers a simpler empirical reader rather than a new watermark construction or detection paradigm.
+3. **Generality:** currently low, because the central evidence comes from one public demo instance with short history and a strong labeled paired-reference oracle.
+4. **Scientific significance:** real but bounded; the two-grain result is a useful caution and measurement result, not yet a field-shifting detection result.
+
+On that basis, an informal score around **5/10 against a top-tier venue standard** is reasonable: strong craftsmanship and a credible research note, but not presently the scale, mechanism, or theory contribution expected of a flagship oral. This rating should not be read as a judgment that the measurements are poor. It means that evidential hygiene raises confidence in the stated result without automatically raising the size of the scientific advance.
 
 ## The contribution as the report currently defines it
 
@@ -41,9 +57,13 @@ The report plainly states that the auditor requires marked and unmarked training
 
 ### 3. Negative and inconvenient results are retained
 
-The report does not hide the corrected 9/12 and 25/48 results, the pre-fix overcount, the chance-like leftover slice, weak transfer cases, the Distil keyed-control weakness, or the fact that multi-key replication has not begun. This is good scientific practice and gives the report credibility.
+The report does not hide the corrected 9/12 and 25/48 results, the pre-fix overcount, the chance-like leftover slice, weak transfer cases, the Distil keyed-control weakness, or the fact that multi-key replication has not begun. In particular, correcting 10/12 to 9/12 and 29/48 to 25/48, exposing occupancy-induced zeros, and placing leftover key-free failure beside keyed success demonstrate unusually good research hygiene. The argmax perturbation is likewise reported with its severe text-change cost rather than advertised as a practical removal attack. This is good scientific practice and gives the report credibility.
 
-### 4. Several internal numerical checks are correct
+### 4. Prospective locking strengthens the large-family evidence
+
+Subject to the unresolved fold-topology question, freezing the analysis protocol before generating the 100-family corpus is more scientifically valuable than adding more post hoc readers to the original 12 families. The prospectively stated H3 prediction also turns the larger rankpath drop on both Distil and Qwen into a meaningful observation about generator sensitivity, even though the current raw-drop analysis still needs a formal paired test. The paper should make this chronology prominent and auditable.
+
+### 5. Several internal numerical checks are correct
 
 I recomputed the following solely from values printed in the report:
 
@@ -61,7 +81,7 @@ I recomputed the following solely from values printed in the report:
 
 The printed Clopper-Pearson intervals also match exact binomial inversion to the shown precision: 9/12 gives [0.428142, 0.945139], 10/12 gives [0.515862, 0.979137], and 25/48 gives [0.371870, 0.667134]. The numerical problem is therefore not arithmetic; it is which estimand and null model those intervals are being asked to support.
 
-### 5. The rendered report is visually sound
+### 6. The rendered report is visually sound
 
 All 14 pages render cleanly. Tables fit the text block, mathematical symbols are legible, fonts are embedded, page numbering is consistent, links are readable, and I found no clipping, overlap, missing glyphs, unresolved citations, or broken cross-references. The typography is already above the level of a typical internal lab note.
 
@@ -258,6 +278,54 @@ Because this is a public-key reference implementation, the threat model should e
 
 **Required revision:** Add an artifact appendix with immutable version identifiers, a corpus manifest, exact commands, and a one-page protocol chronology. Define every internal label on first use.
 
+### 10. The short-context mechanism is plausible but its boundary is not yet testable
+
+**Where:** Sections 3.1, 5, 6.3, 7.3, and 8.
+
+The public instance uses a short watermark history, and the empirical reader uses short next-token contexts. That makes exact or partial context reuse across matched generations plausible: a fixed watermark instance can repeatedly alter conditional next-token frequencies in contexts that the count tables see again. This is the most concrete explanation for why the method works here.
+
+The report does not take the next necessary step and explain how the mechanism should scale. As history length grows, the occupied context space becomes sparser and exact held-out overlap should fall rapidly; as the candidate set broadens, observations per context-token outcome are spread more thinly. Lower-order backoff may retain a signal, but then the method is measuring a different, coarser effect. These are hypotheses, not established production behavior, and the paper should say which failure mode it expects to dominate. Merely stating that the public instance is not Gemini does not give the reader a model of what would probably change in a longer-context or structurally different watermark.
+
+Section 5 currently sits awkwardly between intuition and theory. Its indispensable statement is simple:
+
+\[
+\mathbb{E}_{G}[P_G(\cdot\mid c)] = P_0(\cdot\mid c)
+\quad\not\Rightarrow\quad
+P_{g^*}(\cdot\mid c) = P_0(\cdot\mid c)
+\]
+
+for a repeatedly reused fixed instance \(g^*\). Consequently, matched samples can in principle produce \(\widehat P_m \ne \widehat P_u\) on reused contexts without revealing the key. The remainder needs either a real sample-complexity argument that accounts for fitted-table uncertainty and context occupancy or relocation to an appendix as a clearly labeled intuition. The current \(O(1/M)\) sketch does not by itself explain the observed effect.
+
+**Required revision:** State the fixed-instance argument compactly, connect it explicitly to observed context reuse, candidate-set size, backoff, and training-sample requirements, and label the resulting scaling claims as hypotheses. Make a preregistered longer-context or different-mixin replication the primary external-validity test.
+
+### 11. The closest paired-reference comparison is positioned too defensively
+
+**Where:** Section 2.4.
+
+The report identifies Wang et al.'s TTP-Detect as addressing the same broad third-party, key-agnostic audit problem with paired marked and unmarked references. That is the closest task-level comparator in the report, yet the manuscript mainly says that it did not reimplement or surpass that work. The positive distinction should be stated just as clearly: this report uses empirical count tables and a likelihood-ratio reader rather than training a proxy model and applying relative tests.
+
+If the intended advantage is lower cost or operational simplicity, quantify it. A useful comparison would include trainable parameter count, required accelerator time, number of labeled reference generations, wall-clock fitting time, memory, inference cost, and whether the method must be retrained for each generator or watermark instance. Without those measurements, call the method simpler rather than cheaper. No shared benchmark means that effectiveness claims must remain separate.
+
+**Required revision:** Add a compact comparison table for oracle access, fitted object, training compute, inference unit, output grain, and demonstrated scope. Follow it with one direct novelty sentence: the contribution is a lightweight count-table realization of paired-reference key-free indication, together with evidence that its group-level success does not imply isolated-file detection.
+
+### 12. Research hygiene cannot carry the novelty claim by itself
+
+**Where:** Abstract, Sections 1, 2, 7, and 8.
+
+The locks, correction history, artifact analyses, leftover slices, and restraint in interpretation are major reasons to trust the report. They answer "should the reader believe this measurement?" They do not answer the separate top-tier question "how far does this move the field?"
+
+On the evidence currently presented, the scientific increment remains narrow:
+
+- the paired-reference, third-party audit question already appears in the report's cited literature;
+- the method is evaluated primarily on a public short-context demo instance;
+- the strongest outcome is group ranking under a strong labeled reference oracle;
+- the prespecified isolated-file threshold is not useful on the original set;
+- no new watermark construction, key-recovery result, general detector, or theoretical boundary is established.
+
+The paper should not inflate any of these points. It should instead claim the contribution it genuinely has: a simpler empirical reader, a prospectively locked same-instance demonstration, a careful map of artifacts and occupancy, and evidence that group-level indication can coexist with isolated-file failure. That package can make a strong technical note. It is unlikely to clear a flagship novelty bar without a new axis of evidence.
+
+**Required revision:** State the novelty and venue ambition explicitly. If the target remains a technical report, prioritize clarity and reproducibility. If the target is a top-tier main track, add a genuinely new axis - preferably the preregistered longer-context or different-mixin experiment, accompanied by a direct cost/effectiveness comparison - rather than further analysis of the original 12 families.
+
 ## Secondary scientific and editorial issues
 
 ### The paper is too defensive in places
@@ -269,7 +337,7 @@ The repeated caveats are valuable, but phrases such as "A reviewer who writes...
 - "the original 12 are not uniquely cursed" -> "the failure is not confined to the original 12-family set";
 - "official lamp" -> "official keyed score above the prespecified threshold".
 
-The report can be candid without sounding adversarial.
+The report can be candid without sounding adversarial. State the scope boundary once in the abstract, once in the threat model, and once in the conclusion, then let standardized table columns carry it elsewhere. Repeating variants of "does not replace 25/48" after nearly every result obscures rather than strengthens the central distinction.
 
 ### The main narrative is obscured by too many protocol fragments
 
@@ -278,8 +346,8 @@ Sections 6.6 through 7.7 contain many denominators, corpus unions, thresholds, a
 Keep the core paper centered on:
 
 1. the threat model;
-2. strict 12-LOO group versus file behavior;
-3. the prospectively generated 100-family lock;
+2. the 36/36 in-domain and prospectively generated 99/100 group-level evidence;
+3. the corrected original-12 group-versus-file diagnostic, including the full isolated confusion matrix;
 4. one cross-generator test;
 5. one artifact/control table.
 
@@ -317,15 +385,15 @@ This would reduce the risk that readers initially interpret the work as standalo
 
 ### Abstract
 
-The abstract is admirably specific but overloaded with metrics. It should state the evaluation topology of 99/100, replace the isolated sensitivity-only framing with the full zero-threshold result, and demote the 0.02 margin unless its null is fixed. The argmax result is secondary and can move out of the abstract if space is needed.
+The abstract is admirably specific but overloaded with metrics. It should lead with one deliberate contrast: 36/36 exploratory in-domain and 99/100 prospectively specified group ranking versus the complete 47/96 zero-threshold isolated result. The corrected 9/12 original set should remain visible as the small initial diagnostic rather than lead the efficacy story. State the evaluation topology of 99/100, replace sensitivity-only framing with the full zero-threshold result, and demote the 0.02 margin unless its null is fixed. The argmax result is secondary and can move out of the abstract if space is needed.
 
 ### Introduction
 
-The research question is clear. The phrase "Prompt-group ranking without keys is real" should be tied to "on these measured corpora and one public instance" in the same sentence. The contribution list should distinguish exploratory, corrective, and confirmatory evidence.
+The research question is clear. Make the two-grain distinction the organizing thesis rather than one caveat among many: paired-reference group indication can be strong even when standalone file decisions at the prespecified threshold are uninformative. The phrase "Prompt-group ranking without keys is real" should be tied to "on these measured corpora and one public instance" in the same sentence. The contribution list should distinguish exploratory, corrective, and confirmatory evidence.
 
 ### Related Work
 
-The scope boundaries are thoughtful. The section should identify the precise novelty dimension in one sentence: inexpensive empirical count-table auditing under paired labeled references for a fixed public instance. Avoid spending more text on what the paper did not refute than on how its closest empirical comparator differs.
+The scope boundaries are thoughtful. The section should identify the precise novelty dimension in one sentence: simple empirical count-table auditing under paired labeled references for a fixed public instance, without proxy-model training. Wang et al. should be treated as the closest task-level comparator, with the method and cost differences made explicit. Use "lower-cost" only if training and inference costs are actually measured. Avoid spending more text on what the paper did not refute than on how its closest empirical comparator differs.
 
 ### Preliminaries and Threat Model
 
@@ -337,11 +405,11 @@ This section requires the largest expansion. It currently defines the simplest r
 
 ### Why a Fixed Key Can Leave a Trace
 
-The intuition is good and appropriately labeled a sketch. Recast the variance statement conditionally on fitted tables and around within-pair differences. Also separate two mechanisms: repeated context overlap permits direct empirical memorization, while unigram or Witten-Bell backoff can propagate broader distributional shifts. The current paragraph blends them.
+The section contains the right intuition but is not yet persuasive as theory. Its main-text core can be one tight argument: equality in expectation over random keys does not imply equality for one reused fixed key, so repeated short contexts can yield different empirical marked and unmarked next-token tables without key recovery. Recast any variance statement conditionally on fitted tables and around within-pair differences. Separate direct repeated-context overlap from broader unigram or Witten-Bell backoff effects, and explain why a longer history should reduce exact coverage and increase sample demand. If the paper cannot provide that sharper account, move the variance sketch to an appendix rather than letting it carry theoretical weight it does not have.
 
 ### Results
 
-The stem table is excellent. The 100-family section needs effect magnitudes and uncertainty, not only win counts. The cross-generator section needs a formal paired comparison and a clear native-versus-transfer definition. The isolated section should lead with the full confusion matrix and distinguish fixed-threshold accuracy from AUC.
+The stem table is excellent. Lead the group-level evidence with 36/36 and the prospectively locked 99/100, but place the isolated 47/96 decision result immediately beside them so the paper cannot be read as claiming a universal detector. Preserve 9/12 as the corrected original diagnostic. The 100-family section needs effect magnitudes and uncertainty, not only win counts. The cross-generator section needs a formal paired comparison and a clear native-versus-transfer definition. The isolated section should lead with the full confusion matrix and distinguish fixed-threshold accuracy from AUC. Elevate the leftover result: keyed success alongside key-free blindness is the clearest evidence that group indication and standalone file reading are different capabilities.
 
 ### Ablations, Artifacts, and Scrubbing
 
@@ -349,11 +417,11 @@ The overcount correction is important and belongs in the main text. The remainin
 
 ### Limitations
 
-This section is strong but arrives after several claims that need the same qualification earlier. Add explicit limitations for the 0.02 margin, non-fully-nested Youden thresholds, fixed prompt sets, lack of a frozen fitted detector test, and the distinction between sensitivity and complete classifier performance.
+This section is strong but arrives after several claims that need the same qualification earlier. Add explicit limitations for the 0.02 margin, non-fully-nested Youden thresholds, fixed prompt sets, lack of a frozen fitted detector test, the distinction between sensitivity and complete classifier performance, and the unknown scaling of count-table coverage beyond the short-context public instance.
 
 ### Conclusion
 
-The conclusion should retain the strong positive group-level result. It should replace "the same tables do not classify" with a precise zero-threshold statement and acknowledge the weak threshold-free AUC. It should also say whether 99/100 is frozen-model evaluation or prospectively specified leave-one-family-out evaluation.
+The conclusion should retain the strong positive group-level result and name the two-grain distinction as the contribution. It should replace "the same tables do not classify" with a precise zero-threshold statement and acknowledge the weak threshold-free AUC. It should also say whether 99/100 is frozen-model evaluation or prospectively specified leave-one-family-out evaluation. End with the unresolved external-validity question: does the paired-reference signal survive a longer-context or different watermarking mixin?
 
 ## Visual and production review
 
@@ -368,16 +436,29 @@ The PDF is clean and readable, with these smaller production issues:
 
 None of these is a blocking layout defect.
 
+## Most informative next experiment
+
+The highest-value next experiment is one preregistered replication of the same two-grain protocol on either a materially longer watermark context or a structurally different local watermarking mixin. It should be locked before generation, not selected after inspecting another set of outcomes from the original 12 families.
+
+The lock should fix the watermark configuration, generator and tokenizer, prompt-sampling frame, reference-set size, count-table histories and backoff, fold topology, number of draws per group, zero/abstention rule, primary group metric, and primary isolated-file metric. The two endpoints should then be reported side by side:
+
+1. prompt-family paired differences and group wins;
+2. an isolated-file confusion matrix, balanced accuracy, AUC, and coverage where applicable.
+
+Also report exact-context and backoff occupancy as mechanistic intermediates. If group ranking survives when short-context reuse drops, the work begins to support a general audit method. If it collapses, that is equally informative: it identifies the public instance's short reusable context as a boundary of the result. Either outcome contributes more than fitting additional readers or unions to the same original 12 families. Editorial revision alone can make the current note clearer and more rigorous; evidence on this new axis is what could materially raise its venue ceiling.
+
 ## Prioritized revision plan
 
 ### Priority 0 - required before scientific submission
 
-1. Replace sensitivity-only isolated claims with the full confusion matrix and a declared primary metric.
-2. Define or demote the 0.02 margin analysis and remove the unsupported comparison to a 0.5 null.
-3. State the complete train/validation/test topology for every headline, especially 99/100 and Phase B.
-4. Specify Witten-Bell interpolation, score-zero/abstention behavior, and rankpath exactly.
-5. Resolve the context-length contradiction and notation collisions.
-6. Reframe nested Youden results as post hoc unless fully nested evaluation is run.
+1. Recast the abstract, introduction, and conclusion around strong paired-reference group indication versus failed prespecified isolated-file decisions.
+2. Replace sensitivity-only isolated claims with the full confusion matrix and a declared primary metric.
+3. Define or demote the 0.02 margin analysis and remove the unsupported comparison to a 0.5 null.
+4. State the complete train/validation/test topology for every headline, especially 99/100 and Phase B.
+5. Specify Witten-Bell interpolation, score-zero/abstention behavior, and rankpath exactly.
+6. Resolve the context-length contradiction and notation collisions.
+7. Reframe nested Youden results as post hoc unless fully nested evaluation is run.
+8. Tighten Section 5 to the fixed-instance argument and a defensible conditional variance statement, or move the sketch to an appendix.
 
 ### Priority 1 - needed for a strong empirical paper
 
@@ -386,6 +467,8 @@ None of these is a blocking layout defect.
 3. Separate keyed file controls from key-free group endpoints.
 4. Add immutable artifact identifiers, prompts, models, seeds, and commands.
 5. Add a two-grain score figure and a standardized protocol/result table.
+6. Quantify the computational and data-cost contrast with Wang et al. rather than merely disclaiming a shared benchmark.
+7. Preregister the longer-context or different-mixin replication before collecting its evaluation corpus.
 
 ### Priority 2 - editorial polish
 
@@ -398,10 +481,12 @@ None of these is a blocking layout defect.
 
 Assuming the apparent leave-one-family-out interpretation of the 100-family experiment is correct, the report's central claim could be stated as:
 
-> With matched labeled marked/unmarked reference generations and no detector keys at scoring time, an empirical count-table auditor ranks marked prompt-group means above unmarked means in 9/12 exploratory original families and 99/100 prospectively generated same-register GPT-2 families under a predeclared leave-one-family-out protocol. On the original 96 individual files, the prespecified zero threshold yields 25/48 sensitivity, 22/48 specificity, and 47/96 balanced accuracy, while threshold-free file AUC is 0.590. These results establish group-level paired-reference indication for one public SynthID-Text instance, not a calibrated standalone detector or a universal key-free detector.
+> With matched labeled marked/unmarked reference generations and no detector keys at scoring time, empirical count-table auditors rank marked prompt-group means above unmarked means in 36/36 exploratory in-domain families and 99/100 prospectively generated same-register GPT-2 families under a predeclared leave-one-family-out protocol; the corrected original hard-reader diagnostic is 9/12. On the original 96 individual files, the prespecified zero threshold yields 25/48 sensitivity, 22/48 specificity, and 47/96 correct decisions (48.96% balanced accuracy), while threshold-free file AUC is 0.590. These results establish paired-reference indication at the group grain for one public SynthID-Text instance. They do not establish calibrated standalone indication on an unfamiliar file or a universal key-free detector.
 
 This wording preserves the positive result, states the negative result using the correct classification unit, and makes the strong oracle visible.
 
 ## Final recommendation
 
-**Major revision.** The report's central scientific observation is worth preserving and publishing: prompt-group ranking can remain strong under a key-free but paired-reference audit even when a prespecified isolated-file threshold fails. The current manuscript already understands that conceptual distinction. Its main task now is to make the statistical estimands, fold topology, and primary reader as precise as the narrative caveats. Once those points are corrected, the work will be substantially more credible, easier to reproduce, and harder to misread as either a universal detector or a null result.
+**Major revision as a technical report; below the present top-tier main-track bar.** The report's central scientific observation is worth preserving and publishing: prompt-group ranking can remain strong under a key-free but paired-reference audit even when a prespecified isolated-file threshold fails. The current manuscript already understands that conceptual distinction; it should now trust it enough to make it the organizing claim instead of repeating defensive disclaimers. Its main task is to make the statistical estimands, fold topology, primary reader, and short-context mechanism as precise as the experimental record.
+
+Those revisions would make the work substantially more credible, reproducible, and difficult to misread, but they would not alone turn it into a breakthrough-level contribution. The current paper is strongest as a rigorous empirical note: high research hygiene, a lightweight reader, and a bounded but informative negative result. A locked replication on a longer-context or different mixin, ideally with a direct cost/effectiveness comparison to the closest paired-reference approach, is the clearest test of whether this becomes a transferable method rather than a well-characterized property of the public short-context instance.
