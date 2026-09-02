@@ -57,6 +57,8 @@ def test_protocol_winabs_names_frozen_sources_before_decode() -> None:
     assert "PROTOCOL-isolated-mask" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H-win-abs-open **holds**" not in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "`1504cb4`" in log
     assert TRAIN.is_dir()
     assert GROK.is_dir()
     assert ORIG.is_dir()

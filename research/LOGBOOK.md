@@ -1933,12 +1933,12 @@ JSON: `experiments/2026-09-02-probe-12x4-control-as-marked-hard-last4/`.
 ## 2026-09-02 absolute-history OOD windows freeze
 
 [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md)
-frozen. Second-key lock A, occupancy-free leftover-15, Distil↔gpt2-medium
-occupancy-free, and in-family absolute H2 are already opened. The
-remaining honesty item that is not leftover targeting is whether
-100→grok12 interpolate windows still put tail **9/12** above opening
-**7/12** when mid-file 4-grams keep their real prefix. Reindexed dumps
-stay. Hypotheses H-win-abs-open, H-win-abs-mid, H-win-abs-12, and
+committed at SHA `1504cb4`. Second-key lock A, occupancy-free leftover-15,
+Distil↔gpt2-medium occupancy-free, and in-family absolute H2 are already
+opened. The remaining honesty item that is not leftover targeting is
+whether 100→grok12 interpolate windows still put tail **9/12** above
+opening **7/12** when mid-file 4-grams keep their real prefix. Reindexed
+dumps stay. Hypotheses H-win-abs-open, H-win-abs-mid, H-win-abs-12, and
 H-win-abs-iso are stated before any absolute transfer window LRs. Do
 not look at those LRs until the two probe commands have been run once,
 as written. Do not add a scorer. Do not overwrite the reindexed dumps.
