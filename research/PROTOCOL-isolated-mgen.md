@@ -249,6 +249,6 @@ leftover Distil **3/18**, Distil→Distil **16/48**, gpt2-medium
 **16/48**, or leftover **0/15** as replacing **25/48**. Isolated-file
 detection is still not finished. Distil↔gpt2-medium occupancy-free
 transfer is [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md):
-Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**. The remaining
-confirmatory remasure is [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md).
-Do not write `thesis/`.
+Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**. Absolute-history
+H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
+**99/100** vs 16:32 **87/100**. Do not write `thesis/`.

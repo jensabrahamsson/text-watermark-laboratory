@@ -1869,4 +1869,19 @@ overwrite `experiments/2026-09-01-probe-100x4-hard-windows/`. Nothing
 replaces **25/48**. Isolated-file detection is still not finished. Do
 not write `thesis/`.
 
+## 2026-09-01 absolute-history H2 remasure opened
+
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) named `450658c`.
+Absolute-history lock A interpolate window **0:4** ranks **99/100**
+(AUC **0.885**, isolated 372/400 vs 272/400). Window **16:32** ranks
+**87/100** (AUC **0.695**, isolated 267/400 vs 240/400). H2-abs, H2-abs-acc,
+and H2-abs-iso hold. Absolute 0:4 equals the reindexed opening. Absolute
+16:32 did **not** rise versus reindexed **89/100**. `used_keys=false`.
+Do not overwrite the reindexed dump. Do not sell **99/100**, **87/100**,
+isolated **372/400**, or isolated **267/400** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-01-probe-100x4-hard-windows-absolute/`.
+Reindexed (keep): `experiments/2026-09-01-probe-100x4-hard-windows/`.
+
 ---

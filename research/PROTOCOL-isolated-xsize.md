@@ -251,5 +251,6 @@ keys here. Do not freeze Distil ∪ gpt2-medium union after peeking. Do not sell
 **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→GPT-2 **22/48**,
 leftover Distil **3/18**, gpt2-medium→GPT-2 **16/48**, leftover **0/15**,
 leftover official **15/15**, or Qwen→Qwen **31/48** as replacing
-**25/48**. Isolated-file remains open. The remaining confirmatory remasure
-is [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md). Do not write `thesis/`.
+**25/48**. Isolated-file remains open. Absolute-history H2 is opened in
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
+16:32 **87/100**. Do not write `thesis/`.

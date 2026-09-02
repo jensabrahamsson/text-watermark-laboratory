@@ -44,9 +44,9 @@ coverage **0/15**
 [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md): t=0 **10/48 vs
 48/48**. Distil↔gpt2-medium occupancy-free transfer is opened in
 [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md).
-The remaining confirmatory remasure that is not leftover targeting is
-[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): absolute-history H2
-on the already-frozen 100×4 interpolate windows.
+Absolute-history H2 is opened in
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
+16:32 **87/100**. Isolated-file remains open.
 
 ## Primary scientific question
 
@@ -155,9 +155,9 @@ t=0 **10/48 vs 48/48** (coverage **13/48**). Distil↔gpt2-medium
 occupancy-free transfer is
 [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
-gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). The
-remaining confirmatory remasure is
-[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md). Do not
+gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Absolute-history
+H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
+**99/100** vs 16:32 **87/100**. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
-**10/48**, Distil→gpt2-medium **20/48**, or gpt2-medium→Distil
-**3/48**. Do not write `thesis/`.
+**10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
+**3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

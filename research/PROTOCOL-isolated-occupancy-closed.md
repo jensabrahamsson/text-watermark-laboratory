@@ -129,6 +129,7 @@ occupancy-free analog that is not leftover targeting is
 t=0 **10/48 vs 48/48**. Distil↔gpt2-medium occupancy-free transfer is
 [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md). Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48**; gpt2-medium→Distil t=0
-**3/48 vs 47/48**. The remaining confirmatory remasure is
-[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md). Do not sell
-**10/48**, **20/48**, or **3/48**. Do not write `thesis/`.
+**3/48 vs 47/48**. Absolute-history H2 is opened in
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
+16:32 **87/100**. Do not sell
+**10/48**, **20/48**, **3/48**, or H2 **87/100**. Do not write `thesis/`.

@@ -133,4 +133,42 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `89cb62d`. Named `450658c`. `used_keys=false`. In-family
+leave-one-prompt-out on `experiments/2026-09-01-pair-100x4/`. Same flags
+as PROTOCOL-next H2. New out-dir. The reindexed dump is unchanged.
+
+Dump: [experiments/2026-09-01-probe-100x4-hard-windows-absolute/](../experiments/2026-09-01-probe-100x4-hard-windows-absolute/).
+Reindexed (keep): [experiments/2026-09-01-probe-100x4-hard-windows/](../experiments/2026-09-01-probe-100x4-hard-windows/).
+
+| Window | Absolute prompt | Absolute AUC | Absolute t=0 | Reindexed prompt | Reindexed AUC |
+|---|---|---|---|---|---|
+| 0:4 | **99/100** | **0.885** | 372/400 vs 272/400 | **99/100** | **0.885** |
+| 4:16 | 94/100 | 0.803 | 314/400 vs 226/400 | 95/100 | 0.775 |
+| 16:32 | **87/100** | **0.695** | 267/400 vs 240/400 | **89/100** | **0.689** |
+| 32:64 | 85/100 | 0.680 | 255/400 vs 243/400 | 84/100 | 0.671 |
+
+Full-file interpolate is still **99/100**, AUC **0.898**, isolated
+352/400 vs 290/400, nested **322/400 vs 338/400**. Window 0:4 equals
+the reindexed opening: no preceding generated tokens. `n_prompt_ties`
+is 0 on every absolute window. Nested Youden 0:4 **361/400 vs 311/400**;
+16:32 **215/400 vs 313/400**.
+
+H2-abs **holds**. Absolute 0:4 ranks **99/100** prompt families; 16:32
+ranks **87/100**. Strict `>` holds. An opening is still sufficient
+in-domain. Absolute history does not reverse that comparison.
+
+H2-abs-acc **holds**. Absolute 16:32 **87/100** is not a chance ranking.
+It did **not** rise versus reindexed **89/100**. File AUC 0.695 versus
+0.689. Keeping real prefix did not accumulate mid-file prompt ranking
+above the reindexed scorer. Isolated 16:32 t=0 is **267/400 vs 240/400**;
+that is not leftover-file detection and not isolated-file detection on
+the original 12.
+
+H2-abs-iso **holds**. Do not sell absolute 0:4 **99/100**, absolute
+16:32 **87/100**, isolated 0:4 **372/400**, isolated 16:32 **267/400**,
+reindexed **99/100** vs **89/100**, lock A **99/100**, nested
+**322/400**, Distil→gpt2-medium **20/48**, gpt2-medium→gpt2-medium
+**10/48**, occupancy-free **16/48**, or official **100/100** as replacing
+**25/48**. Do not overwrite the reindexed dump. Do not rewrite
+PROTOCOL-next’s first-run flags. Isolated-file detection is still not
+finished. Do not write `thesis/`.

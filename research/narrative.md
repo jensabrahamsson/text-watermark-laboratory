@@ -226,11 +226,11 @@ targeting is
 occupancy-free transfer on already-frozen 12×4 twins. Opened:
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
-sell **20/48** or **3/48**. The remaining confirmatory remasure that is
-not leftover targeting is
-[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): absolute-history H2
-on the already-frozen 100×4 interpolate windows. Isolated-file detection
-is still not finished. Do not write `thesis/`.
+sell **20/48** or **3/48**. Absolute-history H2 is opened in
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
+16:32 **87/100**; reindexed 16:32 was **89/100**. Do not sell **99/100**
+or **87/100**. Isolated-file detection is still not finished. Do not
+write `thesis/`.
 
 ## What this freeze refuses
 
@@ -240,7 +240,7 @@ is still not finished. Do not write `thesis/`.
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.
