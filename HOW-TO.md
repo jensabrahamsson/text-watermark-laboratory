@@ -22,7 +22,7 @@ It uses the published keys and DeepMind's detector.
 
 It does **not** use the watermark keys, `hash_iv`, or g-values.
 
-This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment it separates held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. On individual files the signal is substantially weaker: **29/48** held-out marked files have `lr > 0`.
+This is one of the main research results of the project: we have built a **key-free watermark indicator**. On the current 12-prompt × 4-draw experiment the original last-4 count tables separate held-out prompt groups **10/12** times, or **11/12** with a 0.02 comparison margin. Scoring only shared 4-grams (`hits`) reaches **11/12** with no margin (AUC **0.737**). Hash pooling reaches **11/12** and **35/48** isolated marked files with `lr > 0`. On the original hard scorer, individual files are weaker: **29/48** held-out marked files have `lr > 0`. Four draws on 36 GPT-2 topics lift in-domain hits to **36/36** (AUC **0.934**); a nested-by-stem Youden on those LRs is **119/144** vs **134/144**. Train 12×4 and score 96 new-topic 36×4 files: nested hits 10% FPR is **83/96** vs **85/96**. None of that is a universal yes/no.
 
 Use `score` when you have the relevant public reference instance. Use `indicate` when you are exploring the key-free signal.
 
@@ -181,6 +181,28 @@ control-shuffled-30 ≈ 0.50
 
 This is a useful sanity check that the measured bias follows the correct key set.
 
+`contrast` asks the same question of the **key-free** reader. Fit public
+marked/unmarked tables. Score `*-control-gen.txt` sampled with
+`control-shuffled-30`. See [research/key-free-contrast.md](research/key-free-contrast.md).
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \
+  --out-dir experiments/2026-08-31-pair-12x4-controlkeys
+
+python -m text_watermark_tools contrast experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --control-dir experiments/2026-08-31-pair-12x4-controlkeys \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4
+```
+
+On that 4-token poshits gate, control isolated `lr>0` is **0/48**. Public
+vs control ranks **12/12** (AUC **0.906**). That is instance-specificity
+without keys, not key recovery. Observed-token `postokhits` on the same
+pile is also **0/48** control `lr>0` (public isolated **16/48**). See
+[research/key-free-tokhits.md](research/key-free-tokhits.md).
+
 ---
 
 ## Run the key-free experiment
@@ -229,16 +251,96 @@ python -m text_watermark_tools indicate score path/to/text.txt \
   --tables experiments/indicator-gpt2
 ```
 
-The output contains `lr`, a log-likelihood ratio.
+The output contains `lr`, a log-likelihood ratio, and `n_used` (how many
+positions had table coverage).
 
 - positive `lr`: more similar to the learned marked distribution
 - negative `lr`: more similar to the learned unmarked distribution
+- `n_used=0` / `decision=ABSTAIN`: no overlapping atom; this is not
+  “unmarked”. Observed-token tables cannot score a novel opening.
+  See [research/key-free-cascade.md](research/key-free-cascade.md).
 
-That is a genuine indicator signal, but its calibration depends on the training corpus. The current one-file distributions overlap, so do not turn the sign of one LR into a universal yes/no claim.
+Hashpool tables (the 35/48 isolated reader) are a different persist:
 
-The strongest evidence currently comes from matched/repeated prompt groups, where the indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin.
+```bash
+python -m text_watermark_tools indicate fit \
+  experiments/2026-08-17-pair-12x4 \
+  --method hashpool \
+  --out-dir experiments/indicator-gpt2-hashpool
 
-See [research/key-free-twins.md](research/key-free-twins.md).
+python -m text_watermark_tools indicate score path/to/text.txt \
+  --tables experiments/indicator-gpt2-hashpool
+```
+
+Count tables also accept `--score-mode hits` (shared 4-grams only). Nested
+out-of-family hashpool tables, with a train-only `decision_threshold`, are in
+`experiments/2026-08-31-transfer-nested-36-to-12x4/tables-hashpool/`.
+
+Tiny key-free learned scorers (`hashlog`, `tokmlp`, `charcnn`) use the same
+twins and grains. They do not use keys. They are not a universal detector.
+See [research/key-free-learn.md](research/key-free-learn.md).
+
+```bash
+python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --fit-prefix 4 --pos-bucket 1 \
+  --out-dir experiments/learn-36x4-to-12x4
+```
+
+`contrast` is documented with the shuffled-key control above and in
+[research/key-free-contrast.md](research/key-free-contrast.md).
+
+UTF-8 surface tables need no tokenizer:
+
+```bash
+python -m text_watermark_tools indicate fit \
+  experiments/2026-08-17-pair-36 \
+  --method surface \
+  --out-dir experiments/indicator-gpt2-surface
+
+python -m text_watermark_tools indicate score path/to/text.txt \
+  --tables experiments/indicator-gpt2-surface
+```
+
+That is a genuine indicator signal, but its calibration depends on the training corpus. Leave-one-of-12-out hard last-4 still overlaps at threshold 0 (**29/48**). Hits trained on other topics marks **39/48** of those same 12×4 files. Nested hashpool Youden on that split is **33/48** marked and **34/48** unmarked. Do not turn the sign of one LR into a universal yes/no claim.
+
+`contrast` is a different grain: the same 4-token poshits tables assign
+`lr>0` to **0/48** control-shuffled-30 files and still rank public vs
+control **12/12**. See [research/key-free-contrast.md](research/key-free-contrast.md).
+
+The strongest *prompt-group* evidence currently comes from matched/repeated prompts, where the original hard indicator reaches **10/12**, or **11/12** under the documented 0.02 comparison margin. `hits` and `hashpool` reach **11/12** with no margin. `indicate holdout --score-mode hashpool` leave-one-outs the hash buckets.
+
+`indicate holdout` also prints a single-file **AUC** and a label-permutation p-value. The published 29/48 sign at threshold 0 is not a 5% binomial test; ranking of the same LRs is the fairer isolated-file summary.
+
+See [research/key-free-twins.md](research/key-free-twins.md) and [research/key-free-probe.md](research/key-free-probe.md).
+
+---
+
+## Compare key-free scorers (`probe`)
+
+Count tables are not the only way to read paired twins. `probe` leave-one-prompt-outs several key-free scorers on the same corpus and reports prompt-grain wins plus single-file AUC:
+
+```bash
+python -m text_watermark_tools probe \
+  experiments/2026-08-17-pair-12x4 \
+  --out-dir experiments/probe
+```
+
+`--pivot` adds an unmarked-LM choice-geometry probe (loads GPT-2; slower; still no watermark keys). `--rankpath` fits five-symbol tables on those same unmarked-LM ranks (no token identity); `--cascade-fallback rankuni` uses the rank unigram when count tables abstain. `--pivot-weight entropy` pools near-ties; `--cascade postokbackoff` uses the count LR when `n_used>0` and the fallback otherwise (signs at 0 are comparable; mixed AUC is not a detector). `--extra-train DIR` adds train twins on `--test-dir` transfer. `--score-mode` on `indicate holdout` selects one count scorer (`interpolate`, `gated`, `mix`, `hashpool`, `surface`, …). `--test-dir` on `probe` fits one twin directory and scores another (out-of-family transfer). `--shuffle-labels` is a negative control. Nested Youden / 10% FPR thresholds come from leave-one-prompt-out on the training stems only. `--max-draws N` keeps the first N marked/unmarked draws per stem (draw-count ablation). `--prefix-lens 16,32,64,96,128` scores token prefixes as isolated-file curves (in-domain 16 tokens already ranks **34/36**). `--windows 0:16,16:32,32:64,64:128` scores disjoint slices so later tokens are not mixed with the prefix. `--fit-prefix 16` clips every draw *before fit and score* (matched prefix; not the same as scoring a prefix of a full-file table). `--methods poshits,poshitmass,pospool --pos-bucket 16` namespaces last-4 counts by token position so early 4-grams do not share a bucket with the tail. `--coverage` reports the leave-one-out share of last-k contexts seen on both training sides, by token window; that is why the 4-gram reader is front-loaded. `poshitmass` is coverage-weighted hits on those same bucketed tables. Nested Youden / 10% FPR from leave-one-prompt-out on the *training* stems now includes poshits/poshitmass. `--include-first` also scores generated token 0 (the published reader skips it). `--prompt-context` uses `*-prompt.txt` as last-k so token 0 sees the mixin prompt; isolated `indicate score` of a lone file cannot do that. `--methods first` is token 0 alone. Leave-one-out `probe` also reports **nested-youden-by-stem**: a threshold fitted on other prompts' already-held-out LRs, then applied to this prompt.
+
+These methods do not reconstruct keys. Hash pooling is a random feature-hash of contexts, not SynthID’s secret hash. `surface` hashes UTF-8 bytes of the raw string. On the 12×4 corpus, `hits` and `hashpool` both reach **11/12** prompt groups; hashpool’s isolated sign is **35/48**. Trained on 24 other topics, hits marks **39/48** of the 12×4 files (AUC 0.769); nested hashpool Youden is **33/48** vs **34/48**. Four training draws lift that ranking to **12/12** and **42/48** at t=0 (nested hits Youden 26/48 vs 44/48). Train 12×4, score 96 new-topic 36×4 files: nested hits 10% FPR **83/96** vs **85/96**. A 16-token prefix of the 36×4 twins already ranks **34/36** in-domain (AUC 0.916); matching mixin `ngram_len=5` does not beat last-4. A matched 16-token fit lifts unmarked ≤0 to **112/144** in-domain (AUC 0.929) and OOD file AUC to **0.818**. Position-bucketed hits keep 134/144 marked at t=0 on 36×4 with unmarked ≤0 **97/144**, and raise OOD file AUC to **0.811**. `--coverage` shows why the reader is front-loaded: token index 1 is **96.9%** shared last-1. Scoring only **0:4** already ranks **34/36** (AUC **0.917**). A matched 4-token fit with `--pos-bucket 1` balances in-domain t=0 at **131/144 vs 132/144**, and on 24 other topics ranks 12×4 **12/12** (AUC **0.873**, isolated **39/48 vs 41/48**, nested Youden matching t=0). That 39/48 includes The-Laplace occupancy; `--methods poshits,postokhits` keeps only next tokens seen in train (**16/48**, precision 1.0 among decided files). Twelve medium-length new topics lift that observed-token isolated recall to **19/48** (20/48 with the short one-liners); the nine After / Closing / Now / While zeros remain. `--methods postokbackoff` shrinks last-k until an observed next token hits: **21/48** on the medium train, **22/48** combined; it copies **16/48** on the short one-liner gate. `postokbackoff2` will not shrink below last-2: that core is **13/48** on every train set in the opening-overlap curve (24 short, +medium, +tails). `python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train …` reports that isolated recall equals train atom overlap. Unbucketed last-1 copies 36/48 with 3 unmarked FPs. `--include-first` on postokhits is a first-token unigram (43/48, 10 FP). Last-1 on those four tokens copies that OOD gate. Mixing token 0 into hits hurts it (9/12). Qwen's in-domain opening is first-token **12/12** (AUC **0.901**); hits without token 0 is 7/12. DistilGPT2 is officially 12/12; GPT-2 tables do not transfer across the shared tokenizer (hits 5/12, AUC 0.462). That GPT-2 isolated-file gate does not appear under leave-one-of-12-out (9/12) and does not transfer to Qwen. GPT-2 36×4 → new Qwen stays at chance. Witten–Bell interpolation did not help on 12×4. Opening-only unmarked-LM geometry (4 generated tokens, no prompt) is stronger in-domain than the published 128-token pivot (10/12, AUC 0.672, 27/48 vs 17/48) and does not transfer as a calibrated OOD isolated-file reader; prompt-conditioned opening LDA is worse than chance under leave-one-prompt-out. `indicate score` prints `decision=ABSTAIN` when `n_used=0`. Rank-path tables on the same 4-token openings reach in-domain **12/12 / 41/48** and OOD **10/12 / 28/48**; they are not 29/48 and not a calibrated detector. Unbucketed full-file rank-path is chance (8/12); a matched prefix of four rank symbols transfers **11/12** with isolated **25/48 vs 43/48**. `--rankpath-full` keeps rank symbols from the unclipped file when count tables use `--fit-prefix`. See [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-cascade.md](research/key-free-cascade.md), and [research/key-free-rankpath.md](research/key-free-rankpath.md).
+
+## Key-free argmax snap (`scrub`)
+
+Tournament sampling only reweights the unmarked model’s top-k. Snapping each token to that argmax, using the original prefixes, is a key-free scrub. Official `score` afterwards is a reference check, not part of the snap:
+
+```bash
+python -m text_watermark_tools scrub \
+  experiments/2026-08-17-pair-12x4 \
+  --out-dir experiments/scrub
+```
+
+This is not a fluent rewriter. It asks whether the public mark dies when tournament “upsets” are removed. On the 12×4 marked twins the official mean went **0.622 → 0.499**.
 
 ---
 

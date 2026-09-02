@@ -1,0 +1,178 @@
+{
+  "pair_dir": "experiments/2026-08-31-pair-distilgpt2-12x4",
+  "model_name": "distilgpt2",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "max_draws": null,
+  "prefix_lens": [],
+  "windows": [],
+  "fit_prefix": null,
+  "position_bucket": 16,
+  "include_first": false,
+  "prompt_context": false,
+  "note": "Key-free scorer comparison. Not detector_mean. Not Claude. AUC is single-file ranking; prompt wins are the 10/12 grain. nested-youden-by-stem is a threshold chosen on other prompt families' already-held-out LRs, not a global peek at the same stem. coverage.json is leave-one-out shared last-k fraction by position; it explains a front-loaded reader, not a keyed detector.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "hits",
+      "instance": "key-free-hits",
+      "score_kind": "hits",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 35,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.7052951388888888,
+        "mean_positive": 1.1859881446382896,
+        "mean_negative": -0.03398224879548895,
+        "mean_diff": 1.2199703934337787,
+        "n_positive_above_zero": 33,
+        "n_negative_at_most_zero": 27,
+        "permutation_p": 0.0009995002498750624,
+        "binomial_p_above_zero": 0.006641640781122504,
+        "youden_threshold": 0.028346569154435564,
+        "youden_sensitivity": 0.6041666666666666,
+        "youden_specificity": 0.8125,
+        "youden_j": 0.4166666666666665,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 29,
+          "n_unmarked_at_most": 38,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.6041666666666666,
+          "specificity": 0.7916666666666666,
+          "mean_threshold": 0.027700662864239334,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 21,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4375,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 1.0364067549815967,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    },
+    {
+      "name": "hashpool",
+      "instance": "key-free-hashpool",
+      "score_kind": "hashpool",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 36,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.75390625,
+        "mean_positive": 0.020680562427647146,
+        "mean_negative": -0.01870522856971446,
+        "mean_diff": 0.03938579099736161,
+        "n_positive_above_zero": 27,
+        "n_negative_at_most_zero": 39,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 0.2354395068108559,
+        "youden_threshold": -0.003941400957749055,
+        "youden_sensitivity": 0.6458333333333334,
+        "youden_specificity": 0.7708333333333334,
+        "youden_j": 0.41666666666666674,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 27,
+          "n_unmarked_at_most": 35,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5625,
+          "specificity": 0.7291666666666666,
+          "mean_threshold": -0.002101598165072197,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 24,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.009194985608451969,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    },
+    {
+      "name": "poshits",
+      "instance": "key-free-poshits",
+      "score_kind": "poshits",
+      "n_prompt_wins": 10,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 36,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6050347222222222,
+        "mean_positive": 1.4491396529038998,
+        "mean_negative": -0.00734164570901998,
+        "mean_diff": 1.4564812986129199,
+        "n_positive_above_zero": 27,
+        "n_negative_at_most_zero": 25,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 0.2354395068108559,
+        "youden_threshold": 0.02657579858361281,
+        "youden_sensitivity": 0.4166666666666667,
+        "youden_specificity": 0.9583333333333334,
+        "youden_j": 0.375,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 20,
+          "n_unmarked_at_most": 45,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4166666666666667,
+          "specificity": 0.9375,
+          "mean_threshold": 0.026569419236098273,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 20,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4166666666666667,
+          "specificity": 0.875,
+          "mean_threshold": 0.022489694503624886,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    }
+  ],
+  "prefixes": [],
+  "window_scores": [],
+  "has_coverage": false
+}

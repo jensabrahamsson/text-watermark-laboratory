@@ -1,0 +1,33 @@
+{
+  "source": "experiments/2026-08-31-probe-36",
+  "methods": [
+    "hits",
+    "hashpool"
+  ],
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "n_prompt_wins": 32,
+  "n_prompts": 36,
+  "n_marked_positive": 27,
+  "n_unmarked_nonpositive": 34,
+  "binary": {
+    "n_positive": 36,
+    "n_negative": 36,
+    "auc": 0.8896604938271605,
+    "mean_positive": 0.02809114426594996,
+    "mean_negative": -0.02866755974045239,
+    "mean_diff": 0.056758704006402344,
+    "n_positive_above_zero": 27,
+    "n_negative_at_most_zero": 34,
+    "permutation_p": 0.0004997501249375312,
+    "binomial_p_above_zero": 0.001966586511116475,
+    "youden_threshold": 0.004835513208591301,
+    "youden_sensitivity": 0.75,
+    "youden_specificity": 0.9722222222222222,
+    "youden_j": 0.7222222222222223,
+    "n_perm": 2000
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "note": "Leave-one-prompt LDA on saved hits+hashpool file scores. Not a new fit."
+}

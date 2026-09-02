@@ -17,7 +17,10 @@ QWEN_MODEL = "Qwen/Qwen2-1.5B-Instruct"
 
 
 def is_gpt2_name(model_name: Optional[str]) -> bool:
-    return model_name in (None, "", MODEL_NAME, "gpt2")
+    if model_name in (None, "", MODEL_NAME, "gpt2"):
+        return True
+    name = (model_name or "").lower().rsplit("/", 1)[-1]
+    return name == "distilgpt2" or name.startswith("gpt2")
 
 
 def generate_device() -> torch.device:

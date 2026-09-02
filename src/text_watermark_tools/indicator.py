@@ -24,6 +24,16 @@ from text_watermark_tools.blind import (
     pair_marked_wins,
 )
 from text_watermark_tools.score import load_tokenizer
+from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_binary_eval
+from text_watermark_tools.transfer import (
+    COUNT_SPECS,
+    HASHPOOL_KIND,
+    SURFACE_KIND,
+    peek_tables_kind,
+    score_hashpool_detail,
+    score_sequence_detail,
+    score_surface,
+)
 
 INDICATOR_INSTANCE = "key-free-counts"
 TABLES_NAME = "tables.json"
@@ -38,6 +48,13 @@ class IndicatorMeta:
     model_name: str
     pair_dir: str
     n_train_prompts: int
+    kind: str = "key-free-indicator"
+    instance: str = INDICATOR_INSTANCE
+    score_kind: str = "hard"
+    decision_threshold: float | None = None
+    decision_source: str = ""
+    n_used: int | None = None
+    n_positions: int | None = None
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -61,6 +78,8 @@ class IndicatorHoldout:
     samples: list[int] | None = None
     mode: str = "hold"
     margin: float = 0.0
+    instance: str = INDICATOR_INSTANCE
+    score_kind: str = "hard"
 
     def _samples(self) -> list[int]:
         if self.samples is None:
@@ -142,15 +161,34 @@ def fit_indicator(
     context_len: int = 4,
     alpha: float = DEFAULT_ALPHA,
     backoff: bool = False,
+    position_bucket: int = 0,
+    include_first: bool = False,
+    prompt_context: bool = False,
 ) -> BlindModel:
     if not twins:
         raise ValueError("need at least one twin prompt to fit the indicator")
+    from text_watermark_tools.transfer import fit_count_model
+
+    if prompt_context or include_first:
+        model = fit_count_model(
+            twins,
+            context_len=context_len,
+            alpha=alpha,
+            position_bucket=position_bucket,
+            include_first=include_first,
+            prompt_context=prompt_context,
+        )
+        model.backoff = backoff
+        return model
     return fit_blind(
         [ids for t in twins for ids in t.marked_seqs()],
         [ids for t in twins for ids in t.unmarked_seqs()],
         context_len=context_len,
         alpha=alpha,
         backoff=backoff,
+        position_bucket=position_bucket,
+        include_first=include_first,
+        prompt_context=prompt_context,
     )
 
 
@@ -161,20 +199,26 @@ def persist_indicator(
     model_name: str = "gpt2",
     pair_dir: str = "",
     n_train_prompts: int = 0,
+    decision_threshold: float | None = None,
+    decision_source: str = "",
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist an indicator that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    bucket = int(getattr(model, "position_bucket", 0) or 0)
     payload = {
         "kind": "key-free-indicator",
-        "instance": INDICATOR_INSTANCE,
+        "instance": "key-free-poshits" if bucket > 0 else INDICATOR_INSTANCE,
         "model_name": model_name,
         "pair_dir": pair_dir,
         "n_train_prompts": n_train_prompts,
         "context_len": model.context_len,
         "alpha": model.alpha,
         "backoff": model.backoff,
+        "position_bucket": bucket,
+        "include_first": bool(getattr(model, "include_first", False)),
+        "prompt_context": bool(getattr(model, "prompt_context", False)),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -183,6 +227,9 @@ def persist_indicator(
         "unmarked": _dump_table(model.unmarked),
         "caveat": CAVEAT,
     }
+    if decision_threshold is not None:
+        payload["decision_threshold"] = float(decision_threshold)
+        payload["decision_source"] = str(decision_source or "unspecified")
     path = out_dir / TABLES_NAME
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     return path
@@ -207,13 +254,55 @@ def load_indicator(tables_dir: Path) -> tuple[BlindModel, IndicatorMeta]:
         used_keys=False,
         used_hash_iv=False,
         used_g_values=False,
+        position_bucket=int(raw.get("position_bucket") or 0),
+        include_first=bool(raw.get("include_first", False)),
+        prompt_context=bool(raw.get("prompt_context", False)),
     )
     meta = IndicatorMeta(
         model_name=str(raw.get("model_name") or "gpt2"),
         pair_dir=str(raw.get("pair_dir") or ""),
         n_train_prompts=int(raw.get("n_train_prompts") or 0),
+        kind=str(raw.get("kind") or "key-free-indicator"),
+        instance=str(raw.get("instance") or INDICATOR_INSTANCE),
+        score_kind="hard",
+        decision_threshold=(
+            float(raw["decision_threshold"])
+            if raw.get("decision_threshold") is not None
+            else None
+        ),
+        decision_source=str(raw.get("decision_source") or ""),
     )
     return model, meta
+
+
+def load_tables_meta(tables_dir: Path) -> IndicatorMeta:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / TABLES_NAME
+    raw = json.loads(path.read_text())
+    kind = str(raw.get("kind") or "")
+    instance = str(raw.get("instance") or INDICATOR_INSTANCE)
+    if kind == HASHPOOL_KIND:
+        score_kind = "hashpool"
+    elif kind == SURFACE_KIND:
+        score_kind = "surface"
+    elif kind == "key-free-pivot":
+        score_kind = "pivot-lda"
+    elif kind == "key-free-rankpath":
+        score_kind = "rankpath"
+    else:
+        score_kind = "hard"
+    threshold = raw.get("decision_threshold")
+    return IndicatorMeta(
+        model_name=str(raw.get("model_name") or "gpt2"),
+        pair_dir=str(raw.get("pair_dir") or ""),
+        n_train_prompts=int(raw.get("n_train_prompts") or 0),
+        kind=kind,
+        instance=instance,
+        score_kind=score_kind,
+        decision_threshold=float(threshold) if threshold is not None else None,
+        decision_source=str(raw.get("decision_source") or ""),
+    )
 
 
 def score_text(text: str, model: BlindModel, *, tokenizer) -> float:
@@ -222,17 +311,206 @@ def score_text(text: str, model: BlindModel, *, tokenizer) -> float:
     return likelihood_ratio(ids, model)
 
 
+def score_text_from_tables(
+    text: str,
+    tables_dir: Path,
+    *,
+    tokenizer=None,
+    score_mode: str = "auto",
+) -> tuple[float, IndicatorMeta, bool]:
+    """Score one string from frozen count, hashpool, or surface tables.
+
+    Returns (lr, meta, used_keys). Hashpool/surface tables ignore count modes.
+    Surface tables do not need a tokenizer.
+    """
+    path = Path(tables_dir)
+    kind = peek_tables_kind(path)
+    mode = (score_mode or "auto").strip().lower()
+    if kind == SURFACE_KIND:
+        if mode not in ("auto", "surface", ""):
+            raise ValueError(
+                f"tables are surface; --score-mode {score_mode} does not apply"
+            )
+        from text_watermark_tools.transfer import load_hashpool
+
+        model = load_hashpool(path)
+        lr = score_surface(text, model)
+        meta = load_tables_meta(path)
+        meta.score_kind = "surface"
+        meta.instance = model.instance
+        return lr, meta, bool(model.used_keys)
+    if kind == "key-free-pivot":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.pivot import (
+            extract_choice_vector,
+            load_pivot,
+            score_pivot_lda,
+        )
+
+        fit, raw = load_pivot(path)
+        if bool(raw.get("prompt_context")):
+            raise ValueError(
+                "these pivot tables were fit with prompt context; indicate "
+                "score of a lone file cannot reconstruct the prompt. Score "
+                "pair twins with probe --pivot --prompt-context instead."
+            )
+        if tokenizer is None:
+            raise ValueError("pivot tables need a tokenizer")
+        name = str(raw.get("model_name") or "gpt2")
+        lm = _load_unmarked_model(generate_device(), model_name=name)
+        ids = tokenizer(text)["input_ids"]
+        vec = extract_choice_vector(
+            ids,
+            lm,
+            top_k=int(raw.get("top_k") or 40),
+            weight=str(raw.get("weight") or "uniform"),
+        )
+        lr = score_pivot_lda(vec, fit)
+        meta = load_tables_meta(path)
+        meta.score_kind = "pivot-lda"
+        meta.instance = str(raw.get("instance") or "key-free-pivot-lda")
+        meta.n_used = int(vec.size > 0)
+        meta.n_positions = None
+        return lr, meta, bool(fit.used_keys)
+    if kind == "key-free-rankpath":
+        from text_watermark_tools.generate import _load_unmarked_model, generate_device
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS,
+            load_rankpath,
+            score_rankpath_detail,
+            symbols_from_token_ids,
+        )
+
+        model, raw = load_rankpath(path)
+        if bool(raw.get("prompt_context")):
+            raise ValueError(
+                "these rankpath tables were fit with prompt context; indicate "
+                "score of a lone file cannot reconstruct the prompt."
+            )
+        if tokenizer is None:
+            raise ValueError("rankpath tables need a tokenizer")
+        name = str(raw.get("model_name") or "gpt2")
+        lm = _load_unmarked_model(generate_device(), model_name=name)
+        ids = tokenizer(text)["input_ids"]
+        symbols = symbols_from_token_ids(
+            ids, lm, top_k=int(raw.get("top_k") or 40)
+        )
+        spec_name = str(raw.get("spec_name") or "rankpath")
+        spec = RANKPATH_SPECS.get(spec_name, RANKPATH_SPECS["rankpath"])
+        if mode in RANKPATH_SPECS:
+            spec = RANKPATH_SPECS[mode]
+        detail = score_rankpath_detail(symbols, model, spec=spec)
+        meta = load_tables_meta(path)
+        meta.score_kind = spec_name if mode in ("auto", "", spec_name) else mode
+        meta.instance = spec.instance
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+    if kind == HASHPOOL_KIND:
+        if mode not in ("auto", "hashpool", ""):
+            raise ValueError(
+                f"tables are hashpool; --score-mode {score_mode} does not apply"
+            )
+        from text_watermark_tools.transfer import load_hashpool
+
+        if tokenizer is None:
+            raise ValueError("hashpool tables need a tokenizer")
+        model = load_hashpool(path)
+        ids = tokenizer(text)["input_ids"]
+        detail = score_hashpool_detail(ids, model)
+        meta = load_tables_meta(path)
+        meta.score_kind = "hashpool"
+        meta.instance = model.instance
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+    if kind != "key-free-indicator":
+        raise ValueError(f"unknown indicator tables kind {kind!r} in {path}")
+    if tokenizer is None:
+        raise ValueError("count tables need a tokenizer")
+    model, meta = load_indicator(path)
+    if bool(getattr(model, "prompt_context", False)):
+        raise ValueError(
+            "these tables were fit with prompt context; indicate score of a "
+            "lone file cannot reconstruct the prompt. Score pair twins with "
+            "probe --prompt-context instead."
+        )
+    ids = tokenizer(text)["input_ids"]
+    bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
+
+    def _return_detail(spec, score_kind: str, instance: str):
+        detail = score_sequence_detail(ids, model, spec)
+        meta.score_kind = score_kind
+        meta.instance = instance
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+
+    if mode == "poshits" or (mode in ("auto", "") and bucketed):
+        return _return_detail(COUNT_SPECS["hits"], "poshits", "key-free-poshits")
+    if mode == "poshitmass":
+        return _return_detail(COUNT_SPECS["hitmass"], "poshitmass", "key-free-poshitmass")
+    if mode == "postokhits":
+        return _return_detail(COUNT_SPECS["tokhits"], "postokhits", "key-free-postokhits")
+    if mode == "postokbackoff":
+        return _return_detail(
+            COUNT_SPECS["tokbackoff"], "postokbackoff", "key-free-postokbackoff"
+        )
+    if mode == "postokbackoff2":
+        return _return_detail(
+            COUNT_SPECS["tokbackoff2"], "postokbackoff2", "key-free-postokbackoff2"
+        )
+    if mode in ("auto", "hard", ""):
+        detail = score_sequence_detail(ids, model, COUNT_SPECS["hard"])
+        meta.score_kind = "hard"
+        meta.instance = INDICATOR_INSTANCE
+        meta.n_used = detail.n_used
+        meta.n_positions = detail.n_positions
+        return detail.lr, meta, bool(model.used_keys)
+    if mode not in COUNT_SPECS:
+        raise ValueError(
+            f"unknown --score-mode {score_mode}; "
+            f"choose auto, hard, poshits, postokhits, postokbackoff, "
+            f"postokbackoff2, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
+        )
+    spec = COUNT_SPECS[mode]
+    return _return_detail(spec, mode, spec.instance)
+
+
 def format_indicator(
     label: str,
     lr: float,
     *,
     n_tokens: int,
     used_keys: bool,
+    instance: str = INDICATOR_INSTANCE,
+    score_kind: str = "hard",
+    threshold: float | None = None,
+    decision_source: str = "",
+    n_used: int | None = None,
+    n_positions: int | None = None,
 ) -> str:
+    extra = ""
+    if n_used is not None:
+        extra += f" n_used={int(n_used)}"
+        if n_positions is not None:
+            extra += f" n_positions={int(n_positions)}"
+    if threshold is not None:
+        if n_used is not None and int(n_used) == 0:
+            decision = "ABSTAIN"
+        else:
+            decision = "marked" if lr > threshold else "unmarked"
+        src = f" source={decision_source}" if decision_source else ""
+        extra += (
+            f" threshold={threshold:.6f} decision={decision}{src} "
+            f"not_a_universal_detector=true"
+        )
+    elif n_used is not None and int(n_used) == 0:
+        extra += " decision=ABSTAIN not_a_universal_detector=true"
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
-        f"instance={INDICATOR_INSTANCE} used_keys={used_keys} "
-        f"not_detector_mean=true {CAVEAT}"
+        f"instance={instance} score_kind={score_kind} used_keys={used_keys} "
+        f"not_detector_mean=true{extra} {CAVEAT}"
     )
 
 
@@ -291,6 +569,9 @@ def rotate_holdout(
     backoff: bool = False,
     model_name: str = "gpt2",
     margin: float = 0.0,
+    score_fn=None,
+    instance: str = INDICATOR_INSTANCE,
+    score_kind: str = "hard",
 ) -> IndicatorHoldout:
     """Leave one prompt out: fit the rest, score each held file alone.
 
@@ -315,9 +596,10 @@ def rotate_holdout(
         marked_seqs = held.marked_seqs()
         unmarked_seqs = held.unmarked_seqs()
         n = min(len(marked_seqs), len(unmarked_seqs))
+        scorer = score_fn or likelihood_ratio
         for i in range(n):
-            marked_lrs.append(likelihood_ratio(marked_seqs[i], model))
-            unmarked_lrs.append(likelihood_ratio(unmarked_seqs[i], model))
+            marked_lrs.append(scorer(marked_seqs[i], model))
+            unmarked_lrs.append(scorer(unmarked_seqs[i], model))
             stems.append(held.stem)
             samples.append(i + 1)
     return IndicatorHoldout(
@@ -332,10 +614,14 @@ def rotate_holdout(
         samples=samples,
         mode="rotate",
         margin=margin,
+        instance=instance,
+        score_kind=score_kind,
     )
 
 
 def print_holdout(ev: IndicatorHoldout) -> str:
+    stats = binary_eval(ev.marked_lrs, ev.unmarked_lrs)
+    instance = ev.instance or INDICATOR_INSTANCE
     lines = [
         (
             f"indicate holdout mode={ev.mode} n_prompts={ev.n_prompts} "
@@ -345,9 +631,12 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"marked_lr_positive={ev.n_marked_positive} "
             f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
             f"margin={ev.margin:g} context_len={ev.context_len} "
+            f"score_kind={ev.score_kind} "
+            f"auc={stats.auc:.3f} perm_p={stats.permutation_p:.4g} "
             f"used_keys={ev.used_keys} hash_iv={ev.used_hash_iv} "
-            f"g_values={ev.used_g_values} instance={INDICATOR_INSTANCE}"
+            f"g_values={ev.used_g_values} instance={instance}"
         ),
+        format_binary_eval(stats, label="single-file"),
         CAVEAT,
     ]
     for stem, sample, m, u in zip(
@@ -360,8 +649,8 @@ def print_holdout(ev: IndicatorHoldout) -> str:
         )
         marked_name = _twin_file(stem, "marked", sample)
         unmarked_name = _twin_file(stem, "unmarked", sample)
-        lines.append(f"{marked_name}: lr={m:.6f} instance={INDICATOR_INSTANCE}")
-        lines.append(f"{unmarked_name}: lr={u:.6f} instance={INDICATOR_INSTANCE}")
+        lines.append(f"{marked_name}: lr={m:.6f} instance={instance}")
+        lines.append(f"{unmarked_name}: lr={u:.6f} instance={instance}")
         lines.append(f"{stem}#{sample}: {flag}")
     return "\n".join(lines)
 
@@ -400,6 +689,8 @@ def holdout_from_json(path: Path, *, margin: float | None = None) -> IndicatorHo
         samples=samples,
         mode=str(raw.get("mode") or "hold"),
         margin=applied,
+        instance=str(raw.get("instance") or INDICATOR_INSTANCE),
+        score_kind=str(raw.get("score_kind") or "hard"),
     )
 
 
@@ -420,7 +711,9 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "used_g_values": ev.used_g_values,
         "context_len": ev.context_len,
         "model_name": ev.model_name,
-        "instance": INDICATOR_INSTANCE,
+        "instance": ev.instance or INDICATOR_INSTANCE,
+        "score_kind": ev.score_kind,
+        "binary": binary_eval_to_dict(binary_eval(ev.marked_lrs, ev.unmarked_lrs)),
         "caveat": CAVEAT,
         "files": [],
     }

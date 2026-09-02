@@ -1,0 +1,113 @@
+{
+  "train_dir": "experiments/2026-08-17-pair-12x4",
+  "test_dir": "experiments/2026-08-31-pair-qwen-12x4",
+  "n_train_prompts": 12,
+  "n_test_prompts": 12,
+  "dropped_stems": [
+    "01-harbour",
+    "02-night-bus",
+    "03-library",
+    "04-market",
+    "05-kitchen",
+    "06-station",
+    "07-rain",
+    "08-letter",
+    "09-workshop",
+    "10-office",
+    "11-garden",
+    "12-ferry-queue"
+  ],
+  "overlap_mode": "keep",
+  "model_name": "gpt2",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "nested": false,
+  "shuffle_seed": null,
+  "surface_context_len": 8,
+  "note": "Train on one twin directory, score the other. Shared prompt stems are dropped as overlap_mode says. In-sample Youden is optimistic. nested-youden / nested-fpr10 come from leave-one-prompt-out on training stems only, then frozen on the test files. Not detector_mean. Not Claude. Not key recovery.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "hits",
+      "instance": "key-free-hits",
+      "score_kind": "hits",
+      "n_prompt_wins": 6,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 6,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 12,
+        "n_negative": 12,
+        "auc": 0.4548611111111111,
+        "mean_positive": 0.2254737740555387,
+        "mean_negative": 0.16719732719642733,
+        "mean_diff": 0.058276446859111375,
+        "n_positive_above_zero": 1,
+        "n_negative_at_most_zero": 7,
+        "permutation_p": 0.31134432783608196,
+        "binomial_p_above_zero": 0.999755859375,
+        "youden_threshold": -0.04250935179658377,
+        "youden_sensitivity": 0.8333333333333334,
+        "youden_specificity": 0.3333333333333333,
+        "youden_j": 0.16666666666666674,
+        "n_perm": 2000
+      }
+    },
+    {
+      "name": "hashpool",
+      "instance": "key-free-hashpool",
+      "score_kind": "hashpool",
+      "n_prompt_wins": 7,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 7,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 12,
+        "n_negative": 12,
+        "auc": 0.5069444444444444,
+        "mean_positive": -0.0007317954028777286,
+        "mean_negative": -0.002853248888804068,
+        "mean_diff": 0.0021214534859263397,
+        "n_positive_above_zero": 5,
+        "n_negative_at_most_zero": 7,
+        "permutation_p": 0.3523238380809595,
+        "binomial_p_above_zero": 0.80615234375,
+        "youden_threshold": -0.019591496162619133,
+        "youden_sensitivity": 1.0,
+        "youden_specificity": 0.25,
+        "youden_j": 0.25,
+        "n_perm": 2000
+      }
+    }
+  ],
+  "thresholds": [
+    {
+      "name": "hits",
+      "train_youden": 0.0,
+      "n_marked_above": 1,
+      "n_unmarked_at_most": 7,
+      "n_marked": 12,
+      "n_unmarked": 12,
+      "sensitivity": 0.08333333333333333,
+      "specificity": 0.5833333333333334,
+      "source": "in-sample-youden"
+    },
+    {
+      "name": "hashpool",
+      "train_youden": 0.0,
+      "n_marked_above": 5,
+      "n_unmarked_at_most": 7,
+      "n_marked": 12,
+      "n_unmarked": 12,
+      "sensitivity": 0.4166666666666667,
+      "specificity": 0.5833333333333334,
+      "source": "in-sample-youden"
+    }
+  ]
+}

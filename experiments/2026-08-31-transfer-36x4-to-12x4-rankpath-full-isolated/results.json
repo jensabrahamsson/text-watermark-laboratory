@@ -1,0 +1,1086 @@
+{
+  "train_dir": "/workspace/experiments/2026-08-31-pair-36x4",
+  "test_dir": "/workspace/experiments/2026-08-17-pair-12x4",
+  "n_train_prompts": 24,
+  "n_test_prompts": 12,
+  "dropped_stems": [
+    "01-harbour",
+    "02-night-bus",
+    "03-library",
+    "04-market",
+    "05-kitchen",
+    "06-station",
+    "07-rain",
+    "08-letter",
+    "09-workshop",
+    "10-office",
+    "11-garden",
+    "12-ferry-queue"
+  ],
+  "overlap_mode": "drop-from-train",
+  "model_name": "gpt2",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "nested": true,
+  "shuffle_seed": null,
+  "surface_context_len": 8,
+  "prefix_lens": [
+    4,
+    16,
+    32,
+    64,
+    128
+  ],
+  "windows": [
+    "0:16",
+    "16:32",
+    "32:64",
+    "64:128"
+  ],
+  "fit_prefix": null,
+  "position_bucket": 0,
+  "include_first": false,
+  "prompt_context": false,
+  "pivot_weights": [
+    "uniform"
+  ],
+  "rankpath_full": true,
+  "rankpath_pos_bucket": 0,
+  "cascade_fallback": "pivot",
+  "note": "Train on one twin directory, score the other. Shared prompt stems are dropped as overlap_mode says. In-sample Youden is optimistic. nested-youden / nested-fpr10 come from leave-one-prompt-out on training stems only, then frozen on the test files. Not detector_mean. Not Claude. Not key recovery.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "rankpath",
+      "instance": "key-free-rankpath",
+      "score_kind": "rankpath",
+      "n_prompt_wins": 6,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 27,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5342881944444444,
+        "mean_positive": -0.0033699422873208003,
+        "mean_negative": -0.005732018066778875,
+        "mean_diff": 0.002362075779458075,
+        "n_positive_above_zero": 24,
+        "n_negative_at_most_zero": 26,
+        "permutation_p": 0.36231884057971014,
+        "binomial_p_above_zero": 0.5572832513567434,
+        "youden_threshold": 0.013725629892216571,
+        "youden_sensitivity": 0.4166666666666667,
+        "youden_specificity": 0.7708333333333334,
+        "youden_j": 0.1875,
+        "n_perm": 2000
+      },
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 48,
+        "n_unmarked_decided": 48,
+        "decided_tp": 24,
+        "decided_fn": 24,
+        "decided_fp": 22,
+        "decided_tn": 26,
+        "precision": 0.5217391304347826,
+        "decided_accuracy": 0.5208333333333334,
+        "recall_including_zeros": 0.5
+      }
+    },
+    {
+      "name": "rankuni",
+      "instance": "key-free-rankuni",
+      "score_kind": "rankuni",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 32,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5967881944444444,
+        "mean_positive": 0.0029556056915934635,
+        "mean_negative": 0.0019010443497647583,
+        "mean_diff": 0.0010545613418287052,
+        "n_positive_above_zero": 41,
+        "n_negative_at_most_zero": 17,
+        "permutation_p": 0.05697151424287856,
+        "binomial_p_above_zero": 3.1202042194422575e-07,
+        "youden_threshold": 0.0,
+        "youden_sensitivity": 0.8541666666666666,
+        "youden_specificity": 0.3541666666666667,
+        "youden_j": 0.20833333333333326,
+        "n_perm": 2000
+      },
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 48,
+        "n_unmarked_decided": 48,
+        "decided_tp": 41,
+        "decided_fn": 7,
+        "decided_fp": 31,
+        "decided_tn": 17,
+        "precision": 0.5694444444444444,
+        "decided_accuracy": 0.6041666666666666,
+        "recall_including_zeros": 0.8541666666666666
+      }
+    }
+  ],
+  "thresholds": [
+    {
+      "name": "rankpath",
+      "train_youden": 0.006744359399260526,
+      "n_marked_above": 23,
+      "n_unmarked_at_most": 31,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.4791666666666667,
+      "specificity": 0.6458333333333334,
+      "source": "in-sample-youden"
+    },
+    {
+      "name": "rankuni",
+      "train_youden": -0.0007588533801393192,
+      "n_marked_above": 44,
+      "n_unmarked_at_most": 11,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.9166666666666666,
+      "specificity": 0.22916666666666666,
+      "source": "in-sample-youden"
+    },
+    {
+      "name": "rankpath",
+      "train_youden": 0.007744045166707133,
+      "n_marked_above": 22,
+      "n_unmarked_at_most": 33,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.4583333333333333,
+      "specificity": 0.6875,
+      "source": "nested-youden"
+    },
+    {
+      "name": "rankpath",
+      "train_youden": 0.028951422576595588,
+      "n_marked_above": 9,
+      "n_unmarked_at_most": 42,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.1875,
+      "specificity": 0.875,
+      "source": "nested-fpr10"
+    },
+    {
+      "name": "rankuni",
+      "train_youden": 0.0031299141123661083,
+      "n_marked_above": 25,
+      "n_unmarked_at_most": 29,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.5208333333333334,
+      "specificity": 0.6041666666666666,
+      "source": "nested-youden"
+    },
+    {
+      "name": "rankuni",
+      "train_youden": 0.002873322161854362,
+      "n_marked_above": 26,
+      "n_unmarked_at_most": 29,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.5416666666666666,
+      "specificity": 0.6041666666666666,
+      "source": "nested-fpr10"
+    }
+  ],
+  "prefixes": [
+    {
+      "prefix_tokens": 4,
+      "name": "rankpath",
+      "n_prompt_wins": 11,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.7591145833333334,
+        "mean_positive": -0.062176473039364306,
+        "mean_negative": -0.7207591481940985,
+        "mean_diff": 0.6585826751547341,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 43,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": -0.144187032457365,
+        "youden_sensitivity": 0.625,
+        "youden_specificity": 0.875,
+        "youden_j": 0.5,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 30,
+          "n_unmarked_at_most": 41,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.625,
+          "specificity": 0.8541666666666666,
+          "mean_threshold": -0.1486830525859501,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 25,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5208333333333334,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.08593675950234608,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 4,
+      "name": "rankuni",
+      "n_prompt_wins": 10,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6525607638888888,
+        "mean_positive": 0.06681911142800392,
+        "mean_negative": -0.06693388844396328,
+        "mean_diff": 0.1337529998719672,
+        "n_positive_above_zero": 31,
+        "n_negative_at_most_zero": 27,
+        "permutation_p": 0.004997501249375313,
+        "binomial_p_above_zero": 0.02973168762688516,
+        "youden_threshold": 0.08060478697302154,
+        "youden_sensitivity": 0.5,
+        "youden_specificity": 0.7708333333333334,
+        "youden_j": 0.2708333333333335,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 19,
+          "n_unmarked_at_most": 29,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3958333333333333,
+          "specificity": 0.6041666666666666,
+          "mean_threshold": 0.04584466898451508,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 15,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3125,
+          "specificity": 0.875,
+          "mean_threshold": 0.1850026468202333,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 16,
+      "name": "rankpath",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6215277777777778,
+        "mean_positive": -0.08952626140251867,
+        "mean_negative": -0.20508392449970306,
+        "mean_diff": 0.11555766309718439,
+        "n_positive_above_zero": 18,
+        "n_negative_at_most_zero": 40,
+        "permutation_p": 0.010494752623688156,
+        "binomial_p_above_zero": 0.9702683123731148,
+        "youden_threshold": -0.0652126696461381,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8125,
+        "youden_j": 0.27083333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 19,
+          "n_unmarked_at_most": 38,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3958333333333333,
+          "specificity": 0.7916666666666666,
+          "mean_threshold": -0.05366619549808934,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 13,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.2708333333333333,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.06872672450321889,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 16,
+      "name": "rankuni",
+      "n_prompt_wins": 7,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5583767361111112,
+        "mean_positive": -0.0034504989193222513,
+        "mean_negative": -0.010589032224147706,
+        "mean_diff": 0.007138533304825454,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 30,
+        "permutation_p": 0.17691154422788605,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": 0.0,
+        "youden_sensitivity": 0.5208333333333334,
+        "youden_specificity": 0.625,
+        "youden_j": 0.14583333333333348,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 27,
+          "n_unmarked_at_most": 22,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5625,
+          "specificity": 0.4583333333333333,
+          "mean_threshold": -0.008689116383134922,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 7,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.14583333333333334,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.03752060854991329,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 32,
+      "name": "rankpath",
+      "n_prompt_wins": 5,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5503472222222222,
+        "mean_positive": -0.031320985583365886,
+        "mean_negative": -0.04632990115268797,
+        "mean_diff": 0.015008915569322087,
+        "n_positive_above_zero": 21,
+        "n_negative_at_most_zero": 31,
+        "permutation_p": 0.25337331334332835,
+        "binomial_p_above_zero": 0.8438365962633654,
+        "youden_threshold": 0.004009654421648264,
+        "youden_sensitivity": 0.4166666666666667,
+        "youden_specificity": 0.75,
+        "youden_j": 0.16666666666666674,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 18,
+          "n_unmarked_at_most": 34,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.375,
+          "specificity": 0.7083333333333334,
+          "mean_threshold": 0.006149272224962531,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 9,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.1875,
+          "specificity": 0.875,
+          "mean_threshold": 0.08305698528837031,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 32,
+      "name": "rankuni",
+      "n_prompt_wins": 8,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5887586805555556,
+        "mean_positive": 0.005403265374618802,
+        "mean_negative": 0.00037780212676317575,
+        "mean_diff": 0.005025463247855627,
+        "n_positive_above_zero": 32,
+        "n_negative_at_most_zero": 23,
+        "permutation_p": 0.08695652173913043,
+        "binomial_p_above_zero": 0.01465247336026465,
+        "youden_threshold": 0.010027906177249274,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.7708333333333334,
+        "youden_j": 0.22916666666666674,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 22,
+          "n_unmarked_at_most": 34,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4583333333333333,
+          "specificity": 0.7083333333333334,
+          "mean_threshold": 0.008636209649927439,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 5,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.10416666666666667,
+          "specificity": 0.875,
+          "mean_threshold": 0.02172107014562029,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 64,
+      "name": "rankpath",
+      "n_prompt_wins": 5,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5316840277777778,
+        "mean_positive": -0.015319102508209906,
+        "mean_negative": -0.016707708608432233,
+        "mean_diff": 0.0013886061002223275,
+        "n_positive_above_zero": 22,
+        "n_negative_at_most_zero": 31,
+        "permutation_p": 0.4607696151924038,
+        "binomial_p_above_zero": 0.7645604931891441,
+        "youden_threshold": 0.017666709849902307,
+        "youden_sensitivity": 0.3958333333333333,
+        "youden_specificity": 0.8125,
+        "youden_j": 0.20833333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 19,
+          "n_unmarked_at_most": 37,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3958333333333333,
+          "specificity": 0.7708333333333334,
+          "mean_threshold": 0.016613244900513125,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 5,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.10416666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.056498718463692116,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 64,
+      "name": "rankuni",
+      "n_prompt_wins": 10,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6488715277777778,
+        "mean_positive": 0.0047429188329611875,
+        "mean_negative": 0.0021713860558097366,
+        "mean_diff": 0.002571532777151451,
+        "n_positive_above_zero": 41,
+        "n_negative_at_most_zero": 16,
+        "permutation_p": 0.01899050474762619,
+        "binomial_p_above_zero": 3.1202042194422575e-07,
+        "youden_threshold": 0.002767402505490693,
+        "youden_sensitivity": 0.6666666666666666,
+        "youden_specificity": 0.6666666666666666,
+        "youden_j": 0.33333333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 29,
+          "n_unmarked_at_most": 32,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.6041666666666666,
+          "specificity": 0.6666666666666666,
+          "mean_threshold": 0.0029553367827870464,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 3,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.0625,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.011292840697389903,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 128,
+      "name": "rankpath",
+      "n_prompt_wins": 6,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5342881944444444,
+        "mean_positive": -0.0033699422873208003,
+        "mean_negative": -0.005732018066778875,
+        "mean_diff": 0.002362075779458075,
+        "n_positive_above_zero": 24,
+        "n_negative_at_most_zero": 26,
+        "permutation_p": 0.36231884057971014,
+        "binomial_p_above_zero": 0.5572832513567434,
+        "youden_threshold": 0.013725629892216571,
+        "youden_sensitivity": 0.4166666666666667,
+        "youden_specificity": 0.7708333333333334,
+        "youden_j": 0.1875,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 20,
+          "n_unmarked_at_most": 36,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4166666666666667,
+          "specificity": 0.75,
+          "mean_threshold": 0.013697078253637827,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 6,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.125,
+          "specificity": 0.875,
+          "mean_threshold": 0.03420215219804055,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "prefix_tokens": 128,
+      "name": "rankuni",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5967881944444444,
+        "mean_positive": 0.0029556056915934635,
+        "mean_negative": 0.0019010443497647583,
+        "mean_diff": 0.0010545613418287052,
+        "n_positive_above_zero": 41,
+        "n_negative_at_most_zero": 17,
+        "permutation_p": 0.05697151424287856,
+        "binomial_p_above_zero": 3.1202042194422575e-07,
+        "youden_threshold": 0.0,
+        "youden_sensitivity": 0.8541666666666666,
+        "youden_specificity": 0.3541666666666667,
+        "youden_j": 0.20833333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 39,
+          "n_unmarked_at_most": 17,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.8125,
+          "specificity": 0.3541666666666667,
+          "mean_threshold": 0.00018390115565363529,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 6,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.125,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.006027487240546539,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    }
+  ],
+  "window_scores": [
+    {
+      "start": 0,
+      "end": 16,
+      "name": "rankpath",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6215277777777778,
+        "mean_positive": -0.08952626140251867,
+        "mean_negative": -0.20508392449970306,
+        "mean_diff": 0.11555766309718439,
+        "n_positive_above_zero": 18,
+        "n_negative_at_most_zero": 40,
+        "permutation_p": 0.010494752623688156,
+        "binomial_p_above_zero": 0.9702683123731148,
+        "youden_threshold": -0.0652126696461381,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8125,
+        "youden_j": 0.27083333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 19,
+          "n_unmarked_at_most": 38,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3958333333333333,
+          "specificity": 0.7916666666666666,
+          "mean_threshold": -0.05366619549808934,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 13,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.2708333333333333,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.06872672450321889,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 0,
+      "end": 16,
+      "name": "rankuni",
+      "n_prompt_wins": 7,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5583767361111112,
+        "mean_positive": -0.0034504989193222513,
+        "mean_negative": -0.010589032224147706,
+        "mean_diff": 0.007138533304825454,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 30,
+        "permutation_p": 0.17691154422788605,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": 0.0,
+        "youden_sensitivity": 0.5208333333333334,
+        "youden_specificity": 0.625,
+        "youden_j": 0.14583333333333348,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 27,
+          "n_unmarked_at_most": 22,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5625,
+          "specificity": 0.4583333333333333,
+          "mean_threshold": -0.008689116383134922,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 7,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.14583333333333334,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.03752060854991329,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 16,
+      "end": 32,
+      "name": "rankpath",
+      "n_prompt_wins": 5,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.4709201388888889,
+        "mean_positive": -0.012532138269381968,
+        "mean_negative": 0.003950440821885537,
+        "mean_diff": -0.016482579091267505,
+        "n_positive_above_zero": 21,
+        "n_negative_at_most_zero": 25,
+        "permutation_p": 0.6866566716641679,
+        "binomial_p_above_zero": 0.8438365962633654,
+        "youden_threshold": 0.20235457087252076,
+        "youden_sensitivity": 0.125,
+        "youden_specificity": 0.9166666666666666,
+        "youden_j": 0.04166666666666652,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 8,
+          "n_unmarked_at_most": 30,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.16666666666666666,
+          "specificity": 0.625,
+          "mean_threshold": 0.10913102740100873,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 6,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.125,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.20086815767760427,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 16,
+      "end": 32,
+      "name": "rankuni",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5618489583333334,
+        "mean_positive": 0.007393597031455218,
+        "mean_negative": -0.0003316041877899022,
+        "mean_diff": 0.00772520121924512,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 26,
+        "permutation_p": 0.11144427786106946,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": -0.01256207764887176,
+        "youden_sensitivity": 0.7083333333333334,
+        "youden_specificity": 0.4791666666666667,
+        "youden_j": 0.1875,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 34,
+          "n_unmarked_at_most": 21,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.7083333333333334,
+          "specificity": 0.4375,
+          "mean_threshold": -0.012770350246675508,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 9,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.1875,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.03706964497374324,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 32,
+      "end": 64,
+      "name": "rankpath",
+      "n_prompt_wins": 6,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.4791666666666667,
+        "mean_positive": -0.011421482027655257,
+        "mean_negative": -0.0045480963159175766,
+        "mean_diff": -0.00687338571173768,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 23,
+        "permutation_p": 0.63968015992004,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": -0.04218370563151769,
+        "youden_sensitivity": 0.7083333333333334,
+        "youden_specificity": 0.3541666666666667,
+        "youden_j": 0.0625,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 30,
+          "n_unmarked_at_most": 13,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.625,
+          "specificity": 0.2708333333333333,
+          "mean_threshold": -0.04230746206823991,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 3,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.0625,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.09991888178393526,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 32,
+      "end": 64,
+      "name": "rankuni",
+      "n_prompt_wins": 4,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.4607204861111111,
+        "mean_positive": 1.514468165004066e-05,
+        "mean_negative": 0.0014377214243287634,
+        "mean_diff": -0.0014225767426787228,
+        "n_positive_above_zero": 25,
+        "n_negative_at_most_zero": 19,
+        "permutation_p": 0.7741129435282359,
+        "binomial_p_above_zero": 0.4427167486432566,
+        "youden_threshold": 0.014556570690536282,
+        "youden_sensitivity": 0.0625,
+        "youden_specificity": 0.9791666666666666,
+        "youden_j": 0.04166666666666652,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 5,
+          "n_unmarked_at_most": 35,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.10416666666666667,
+          "specificity": 0.7291666666666666,
+          "mean_threshold": 0.010030313928016262,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 6,
+          "n_unmarked_at_most": 42,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.125,
+          "specificity": 0.875,
+          "mean_threshold": 0.01148594810653515,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 64,
+      "end": 128,
+      "name": "rankpath",
+      "n_prompt_wins": 7,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.5677083333333334,
+        "mean_positive": 0.012790069742003099,
+        "mean_negative": -0.0007050876307303533,
+        "mean_diff": 0.013495157372733452,
+        "n_positive_above_zero": 27,
+        "n_negative_at_most_zero": 28,
+        "permutation_p": 0.09395302348825588,
+        "binomial_p_above_zero": 0.2354395068108559,
+        "youden_threshold": 0.0021770462151463467,
+        "youden_sensitivity": 0.5416666666666666,
+        "youden_specificity": 0.625,
+        "youden_j": 0.16666666666666652,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 24,
+          "n_unmarked_at_most": 28,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.5,
+          "specificity": 0.5833333333333334,
+          "mean_threshold": 0.0033189237297511953,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 6,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.125,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.06743219967297938,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 64,
+      "end": 128,
+      "name": "rankuni",
+      "n_prompt_wins": 5,
+      "n_prompts": 12,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.4921875,
+        "mean_positive": 0.0008609882244194059,
+        "mean_negative": 0.0011117956832268222,
+        "mean_diff": -0.00025080745880741624,
+        "n_positive_above_zero": 30,
+        "n_negative_at_most_zero": 21,
+        "permutation_p": 0.6511744127936032,
+        "binomial_p_above_zero": 0.055701445530509375,
+        "youden_threshold": 0.0037732071334267052,
+        "youden_sensitivity": 0.22916666666666666,
+        "youden_specificity": 0.8541666666666666,
+        "youden_j": 0.08333333333333326,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 13,
+          "n_unmarked_at_most": 29,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.2708333333333333,
+          "specificity": 0.6041666666666666,
+          "mean_threshold": 0.0023831473646889626,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 3,
+          "n_unmarked_at_most": 41,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.0625,
+          "specificity": 0.8541666666666666,
+          "mean_threshold": 0.006286072831012828,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    }
+  ]
+}

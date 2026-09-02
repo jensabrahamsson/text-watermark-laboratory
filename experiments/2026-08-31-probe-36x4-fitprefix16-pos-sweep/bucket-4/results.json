@@ -1,0 +1,72 @@
+{
+  "pair_dir": "/workspace/experiments/2026-08-31-pair-36x4",
+  "model_name": "gpt2",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "max_draws": null,
+  "prefix_lens": [],
+  "windows": [],
+  "fit_prefix": 16,
+  "position_bucket": 4,
+  "note": "Key-free scorer comparison. Not detector_mean. Not Claude. AUC is single-file ranking; prompt wins are the 10/12 grain. nested-youden-by-stem is a threshold chosen on other prompt families' already-held-out LRs, not a global peek at the same stem. coverage.json is leave-one-out shared last-k fraction by position; it explains a front-loaded reader, not a keyed detector.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "poshits",
+      "instance": "key-free-poshits",
+      "score_kind": "poshits",
+      "n_prompt_wins": 34,
+      "n_prompts": 36,
+      "n_marked_above_unmarked": 137,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 144,
+        "n_negative": 144,
+        "auc": 0.9365837191358025,
+        "mean_positive": 2.956121863078108,
+        "mean_negative": -0.5942479561425746,
+        "mean_diff": 3.5503698192206827,
+        "n_positive_above_zero": 133,
+        "n_negative_at_most_zero": 114,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 4.563711176571338e-28,
+        "youden_threshold": 0.0035461030067498456,
+        "youden_sensitivity": 0.9166666666666666,
+        "youden_specificity": 0.8888888888888888,
+        "youden_j": 0.8055555555555554,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 122,
+          "n_unmarked_at_most": 127,
+          "n_marked": 144,
+          "n_unmarked": 144,
+          "sensitivity": 0.8472222222222222,
+          "specificity": 0.8819444444444444,
+          "mean_threshold": 0.027612147840941324,
+          "n_stems": 36,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 126,
+          "n_unmarked_at_most": 128,
+          "n_marked": 144,
+          "n_unmarked": 144,
+          "sensitivity": 0.875,
+          "specificity": 0.8888888888888888,
+          "mean_threshold": 0.05658692732073015,
+          "n_stems": 36,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    }
+  ],
+  "prefixes": [],
+  "window_scores": [],
+  "has_coverage": false
+}

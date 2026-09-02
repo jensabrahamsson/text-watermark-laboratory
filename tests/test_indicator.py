@@ -8,6 +8,7 @@ from text_watermark_tools.indicator import (
     INDICATOR_INSTANCE,
     IndicatorHoldout,
     fit_indicator,
+    format_indicator,
     holdout_from_json,
     holdout_single_text,
     load_indicator,
@@ -15,6 +16,7 @@ from text_watermark_tools.indicator import (
     persist_indicator,
     rotate_holdout,
     score_text,
+    score_text_from_tables,
 )
 from text_watermark_tools.blind import load_twins
 from text_watermark_tools.score import load_tokenizer
@@ -83,6 +85,7 @@ def test_cli_indicate_score_is_stable_and_key_free(tmp_path, capsys) -> None:
     assert "instance=key-free-counts" in line
     assert "used_keys=False" in line
     assert "not_detector_mean=true" in line
+    assert "n_used=" in line
     assert CAVEAT in first
 
 
@@ -118,6 +121,88 @@ def test_cli_indicate_holdout_scores_each_file_alone(tmp_path, capsys) -> None:
     assert len(ev.marked_lrs) == 2
     assert len(ev.unmarked_lrs) == 2
     assert (out / "holdout.json").is_file()
+
+
+def test_cli_indicate_fit_score_hashpool_is_key_free(tmp_path, capsys) -> None:
+    tables = tmp_path / "hashpool"
+    rc = main(
+        [
+            "indicate",
+            "fit",
+            str(PAIR),
+            "--out-dir",
+            str(tables),
+            "--method",
+            "hashpool",
+            "--context-len",
+            "2",
+            "--n-hashes",
+            "4",
+            "--n-buckets",
+            "32",
+        ]
+    )
+    assert rc == 0
+    fit_out = capsys.readouterr().out
+    assert "instance=key-free-hashpool" in fit_out
+    assert "used_keys=False" in fit_out
+    held = PAIR / "03-library-marked.txt"
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    first = capsys.readouterr().out
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    second = capsys.readouterr().out
+    assert first == second
+    line = first.splitlines()[0]
+    assert "lr=" in line
+    assert "instance=key-free-hashpool" in line
+    assert "score_kind=hashpool" in line
+    assert "used_keys=False" in line
+    tok = load_tokenizer("gpt2")
+    lr, meta, used = score_text_from_tables(
+        held.read_text(), tables, tokenizer=tok, score_mode="auto"
+    )
+    assert used is False
+    assert meta.instance == "key-free-hashpool"
+    assert "lr=" + f"{lr:.6f}" in line
+
+
+def test_cli_indicate_fit_score_surface_needs_no_tokenizer(tmp_path, capsys) -> None:
+    tables = tmp_path / "surface"
+    rc = main(
+        [
+            "indicate",
+            "fit",
+            str(PAIR),
+            "--out-dir",
+            str(tables),
+            "--method",
+            "surface",
+            "--surface-context-len",
+            "4",
+            "--n-hashes",
+            "4",
+            "--n-buckets",
+            "32",
+        ]
+    )
+    assert rc == 0
+    fit_out = capsys.readouterr().out
+    assert "instance=key-free-surface" in fit_out
+    assert "alphabet=bytes" in fit_out
+    held = PAIR / "03-library-marked.txt"
+    rc = main(["indicate", "score", str(held), "--tables", str(tables)])
+    assert rc == 0
+    line = capsys.readouterr().out.splitlines()[0]
+    assert "instance=key-free-surface" in line
+    assert "score_kind=surface" in line
+    assert "used_keys=False" in line
+    lr, meta, used = score_text_from_tables(held.read_text(), tables)
+    assert used is False
+    assert meta.instance == "key-free-surface"
+    assert meta.score_kind == "surface"
+    assert "lr=" + f"{lr:.6f}" in line
 
 
 def test_cli_indicate_rotate_scores_each_prompt_file_alone(capsys) -> None:
@@ -194,3 +279,32 @@ def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     soft = holdout_from_json(tmp_path / "holdout.json", margin=0.015)
     assert soft.n_marked_above_unmarked == 2
     assert soft.margin == 0.015
+
+
+def test_format_indicator_abstains_when_coverage_is_zero() -> None:
+    line = format_indicator(
+        "file.txt",
+        0.0,
+        n_tokens=4,
+        used_keys=False,
+        n_used=0,
+        n_positions=3,
+        threshold=0.0,
+        decision_source="nested-youden-poshits",
+    )
+    assert "n_used=0" in line
+    assert "n_positions=3" in line
+    assert "decision=ABSTAIN" in line
+    assert "decision=unmarked" not in line
+    assert "used_keys=False" in line
+    covered = format_indicator(
+        "file.txt",
+        0.2,
+        n_tokens=4,
+        used_keys=False,
+        n_used=2,
+        n_positions=3,
+        threshold=0.0,
+    )
+    assert "decision=marked" in covered
+    assert "decision=ABSTAIN" not in covered

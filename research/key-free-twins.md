@@ -14,8 +14,70 @@ Current results:
 | Key-free, 12 prompts × 1 draw | **8/12** |
 | Key-free, 12 prompts × 4 draws, last-4 | **10/12** |
 | Same LRs with 0.02 comparison margin | **11/12** |
+| Key-free `hits` (shared 4-grams only) | **11/12**, AUC **0.737** |
+| Key-free hashpool | **11/12**, isolated **35/48** |
+| Key-free hashpool, 36 GPT-2 topics | **31/36**, AUC **0.877** |
+| Key-free hashpool, Qwen 12×1 | **10/12**, isolated **11/12** |
+| Key-free hits, train 24 other topics → 12×4 files | isolated **39/48**, AUC **0.769** |
+| Nested hashpool Youden on that split | **33/48** marked, **34/48** unmarked |
+| Key-free hits, 24×4 new stems → 12×4 | **12/12** ranking, isolated **42/48**, AUC **0.793** |
+| Nested hits Youden, 4-draw train | **26/48** vs **44/48** |
+| Nested hits FPR10, 12×4 → 36×4 | **83/96** vs **85/96** |
+| Key-free hits, 36 topics × 4 draws LOO | **36/36**, AUC **0.934**; nested-by-stem **119/144** vs **134/144** |
+| Key-free hits, first 16 tokens, 36×4 | **34/36**, AUC **0.916** |
+| Key-free hits, matched 16-token fit, 36×4 | **34/36**, AUC **0.929**; unmarked ≤0 **112/144** |
+| Key-free poshits (bucket=16), 36×4 | **34/36**, AUC **0.925**; t=0 spec **97/144** |
+| Key-free hits, tokens 16–32 only, 36×4 | **22/36**, AUC **0.549** |
+| Key-free hits, matched 16-token 24×4 → 12×4 | **11/12**, AUC **0.818**; nested-by-stem 39/48 vs 36/48 |
+| Key-free poshits, 24×4 → 12×4 | **10/12**, AUC **0.811**; nested-by-stem 37/48 vs 35/48 |
+| Key-free poshits, matched 16-token bucket 4, 36×4 | **34/36**, AUC **0.937**; unmarked ≤0 **114/144** |
+| Key-free hits, tokens 0:4 only, 36×4 | **34/36**, AUC **0.917** (matches 0:16) |
+| Key-free poshits, matched 4-token bucket 1, 36×4 | **34/36**, AUC **0.935**; t=0 **131/144 vs 132/144** |
+| Same reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| Key-free postokhits on that OOD gate | **12/12**, isolated **16/48**, decided precision **1.000** |
+| Same postokhits, 36×4 LOO | 34/36, AUC 0.912; t=0 **122/144 vs 132/144** |
+| Key-free postokhits, 12 medium scenes → 12×4 | **12/12**, isolated **19/48**, decided precision **1.000** |
+| Same plus 24 short one-liners | **12/12**, isolated **20/48**, decided precision **1.000** |
+| Key-free postokbackoff, 12 medium scenes → 12×4 | **12/12**, isolated **21/48**, decided precision **1.000** |
+| Key-free postokbackoff plus 24 short one-liners | **12/12**, isolated **22/48**, decided precision **1.000** |
+| Key-free postokhits, tail-matched train → 12×4 | **12/12**, isolated **30/48**, decided precision **1.000** |
+| Key-free postokbackoff, short+medium+tails → 12×4 | **12/12**, isolated **36/48**, AUC **0.888**, decided precision **1.000** |
+| Key-free postokbackoff2 on that combined train | **13/48** last-2+ core (unchanged from 24 short stems) |
+| Opening-overlap bound, same twins | Isolated recall = train atom overlap; two short stems already cover 13/48 |
+| Unbucketed tokbackoff on that combined train | **36/48** marked, **3** unmarked FP, precision 0.923 |
+| `--include-first` postokhits on that combined train | **43/48** marked, **10** unmarked FP (first-token unigram) |
+| Neighborhood paraphrases, 12 scenes × 4 | Official lamp **12/12**; no Closing/Now/While/The ferry openings |
+| Same plus short+medium+tails → 12×4 | postokbackoff **42/48**, last-2+ **15/48**, precision **1.000** |
+| Key-free last-1, matched 4-token 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| `--include-first` on that 4-token OOD gate | 9/12, AUC 0.719 |
+| Qwen 12×4 first-token opening | **12/12**, AUC **0.901** |
+| DistilGPT2 12×4 official / in-domain hits | **12/12** / **9/12**, AUC 0.705 |
+| GPT-2 36×4 → DistilGPT2 (same BPE) | hits **5/12**, AUC **0.462** |
+| Key-free tokmlp, 4-token 24×4 → 12×4 | 8/12, AUC 0.714 (does not beat poshits **0.873**) |
+| Key-free hashlog on that OOD gate | 7/12, AUC 0.606 |
+| GPT-2 learned scorers → Distil / Qwen | chance (charcnn Qwen AUC 0.496) |
+| Key-free poshits vs control-shuffled-30, 4-token 24×4 → 12×4 | **0/48** control `lr>0`; public vs control **12/12**, AUC **0.906** |
+| Key-free postokhits vs control-shuffled-30, same split | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
+| Key-free postokbackoff vs control-shuffled-30, same split | **0/48** control `lr>0`; public vs control **12/12**, AUC 0.667 |
+| Official lamp, 12×4 control-key twins | public **0.501**; matching **0.624** |
+| Key-free last-k coverage, 36×4 LOO | 0:16 shared **13.7%** (i=1–2); full last-4 from i=4 ~4% |
+| Key-free poshitmass, matched 16-token bucket 4 | **34/36**, AUC **0.943**; unmarked ≤0 **114/144** |
+| Key-free poshits, matched 16-token bucket 1, 36×4 | **34/36**, AUC **0.938**; t=0 **132/144 vs 132/144** |
+| Same 16-token reader, 24×4 → 12×4 | **12/12**, AUC **0.873**; t=0 **39/48 vs 41/48** |
+| Mixin last-5 vs last-4, 36×4 hits | **35/36**, AUC **0.912** (does not beat last-4) |
+| UTF-8 surface, 12×4 leave-one-out | **10/12**, AUC **0.602** |
+| Same-topic GPT-2 hits → Qwen 12×1 | **11/12** paired; isolated `lr>0` **1/12** |
+| New Qwen 12×4 sample, same prompts, GPT-2 hits | **5/12** (first-draw **6/12**); does not replicate 11/12 |
+| Qwen 12×4 in-domain hits, Qwen tokenizer | **8/12**, AUC **0.602** |
+| New GPT-2 topics → Qwen | chance |
+| New topics GPT-2 36×4 → new Qwen 12×4 | hits **6/12**, AUC 0.445 |
+| Key-free hits, train 12×4 → 24 new topics | **24/24** ranking, AUC **0.986** (unmarked ≤0 only 14/24) |
+| Nested freqhits Youden on the reverse split | **23/24** and **23/24** |
+| 50% train-label shuffle, isolated sign | hits **19/48**, hashpool **20/48** |
 | Qwen2-1.5B twins, last-2 | **10/12** |
-| Single held-out marked file, `lr > 0` | **29/48** |
+| Single held-out marked file, hard `lr > 0` | **29/48** |
+
+The 10/12 last-4 count table is unchanged. Stronger readers of the same twins, out-of-family transfer, and a key-free argmax snap are in [key-free-probe.md](key-free-probe.md). Instance contrast against `control-shuffled-30` is in [key-free-contrast.md](key-free-contrast.md). Occupancy Laplace versus observed next tokens, tokbackoff, and the opening-overlap bound are in [key-free-tokhits.md](key-free-tokhits.md). Opening-only unmarked-LM geometry and coverage-then-pivot ABSTAIN are in [key-free-cascade.md](key-free-cascade.md). Rank-symbol tables that score novel openings without token identity are in [key-free-rankpath.md](key-free-rankpath.md).
 
 That is enough to establish a useful statistical signal under the tested conditions. It is not enough to treat every isolated paragraph as reliably classifiable.
 
@@ -95,7 +157,9 @@ At 700 new tokens per prompt, last-1 gives **6/12**. Longer text by itself does 
 
 ### More topics alone
 
-Thirty-six different prompts at 256 tokens reach **22/36** at last-1. More topical variety also does not automatically strengthen the signal.
+Thirty-six different prompts at 256 tokens reach **22/36** at last-1. Hard last-4 on the same corpus is **20/36**. More topical variety does not automatically strengthen the **hard** scorer.
+
+Coverage-gated and hash-pool readers of those same 36 twins reach **30–31/36** (AUC 0.88). The topics were carrying signal; unigram fallback was burying it. See [key-free-probe.md](key-free-probe.md).
 
 ### Repeated draws from the same prompts
 
@@ -152,6 +216,13 @@ What works best today is:
 - a generator and sampling setup sufficiently similar to the learned corpus.
 
 What remains difficult is one arbitrary isolated text with no matched context.
+
+`indicate holdout` now prints a single-file AUC and a permutation test on the
+same LRs. Further scorers (coverage gating, hash pooling, unmarked-LM choice
+geometry) and a key-free argmax snap are measured in
+[key-free-probe.md](key-free-probe.md). `hits` reaches **11/12** and AUC
+**0.737**; hashpool reaches **11/12** and isolated **35/48**. They still do
+not use the detector keys.
 
 ## Why this matters for unknown production keys
 
