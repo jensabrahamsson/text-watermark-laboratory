@@ -1,0 +1,31 @@
+text-watermark-laboratory paper compile log
+date: 2026-09-02
+host: macos
+working directory: paper/
+
+Command: make
+
+which latexmk: not found (Makefile falls through to pdflatex)
+which pdflatex: not found
+which bibtex: not found
+which xelatex: not found
+which lualatex: not found
+which tectonic: not found
+
+make output:
+/bin/sh: pdflatex: command not found
+make: *** [main.pdf] Error 127
+
+Common MacTeX paths also missing:
+  /Library/TeX/texbin/pdflatex
+  /usr/local/texlive/2025/bin/universal-darwin/pdflatex
+  /usr/local/texlive/2024/bin/universal-darwin/pdflatex
+  $HOME/Library/TinyTeX/bin/universal-darwin/pdflatex
+
+Result: PDF not produced. Sources in this directory are still the
+manuscript: main.tex, references.bib, Makefile, README.md.
+
+To compile later (TeX Live / MacTeX / Overleaf):
+  make
+or
+  pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
