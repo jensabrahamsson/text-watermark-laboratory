@@ -200,7 +200,6 @@ Not a Claude detector. Not a watermark claim.
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-08-30-resample-work`.
 
 ---
-
 ## 2026-08-31 key-free probe and argmax snap
 
 Same 12×4 GPT-2 twins. No keys. `used_keys=false`.
@@ -2000,5 +1999,15 @@ JSON: `experiments/2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/`
 `experiments/2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/`.
 Reindexed (keep): `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
 `experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
+
+---
+
+## 2026-09-02 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-09-02` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-02-resample-work`.
 
 ---
