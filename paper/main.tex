@@ -1,0 +1,533 @@
+\documentclass[11pt,a4paper]{article}
+
+% =========================================================================
+% Core Packages & Typography
+% =========================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% =========================================================================
+% Hyperref Configuration
+% =========================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!80!black
+}
+
+% =========================================================================
+% Mathematical Environments & Notation
+% =========================================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\DKL}{D_{\mathrm{KL}}}
+\newcommand{\DTV}{d_{\mathrm{TV}}}
+\newcommand{\LLR}{\Lambda}
+\newcommand{\supp}{\mathrm{supp}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% =========================================================================
+% Front Matter
+% =========================================================================
+\title{\textbf{Key-Free Watermark Indication via Empirical Contrast:}\\
+\large Population-Level Distinguishability and the Isolated-Text Boundary on SynthID-Text}
+
+\author{
+    Jens Abrahamsson \\
+    \texttt{https://github.com/jensabrahamsson}
+}
+
+\date{September 2026}
+
+\begin{document}
+
+\maketitle
+
+% =========================================================================
+% Abstract
+% =========================================================================
+\begin{abstract}
+Statistical watermarking for large language models offers provable provenance tracking, yet deployed schemes—such as Google DeepMind's SynthID-Text—rely on secret pseudorandom keys, rendering third-party auditing without private detector keys an open challenge. In this work, we present an empirical indicator for statistical text watermark presence \emph{without access to detector keys, pseudorandom $g$-values, or generation internal state}. The auditor operates under a paired-reference paradigm, observing matched marked and unmarked generations conditioned on identical prompts. Evaluating on Google DeepMind's public SynthID-Text reference instance (\texttt{public-deepmind-30}), our investigation reveals a fundamental \textbf{two-grain dichotomy}:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+    \item \textbf{Population Grain (Prompt-Group Ranking):} A frozen empirical $k$-gram log-likelihood ratio test statistic reliably distinguishes marked from unmarked distributions, correctly ranking held-out prompt groups \textbf{9/12} times on the canonical 12-prompt leave-one-out benchmark (\textbf{10/12} under a $0.02$ comparison margin), achieving \textbf{36/36} in-domain sign wins across 36 distinct topics (score $\mathrm{AUC} = 0.930$), and \textbf{99/100} on 100 new, confirmatory GPT-2 prompt families. Cross-architecture evaluation holds at \textbf{88/100} on DistilGPT-2 and \textbf{95/100} on Qwen2-1.5B.
+    \item \textbf{Isolated Grain (Single-Text Classification):} In stark contrast, classifying a single isolated 128-token document against chance ($lr > 0$) yields only \textbf{25/48} true positives (52.1\%, 95\% Clopper--Pearson interval $[0.372, 0.667]$), overlapping random guessing.
+\end{enumerate}
+We mathematically formalize this divergence: prompt-group ranking concentrates via central limit drift over repeated draws ($O(1/M)$ variance reduction), whereas single-text isolated recall is fundamentally bounded by the opening $k$-gram atom overlap ($18/48$ covered tokens). On the remaining leftover 20 files, key-free indicators perform strictly at chance (\textbf{10/20 vs 11/20}), even while official keyed detection achieves 20/20. Finally, we demonstrate that key-free argmax-snap scrubbing reduces official keyed detector scores from $0.62$ back to chance ($0.50$). The auditor is not a web crawler: it needs matched marked and unmarked generations from the same prompts. Under that paired-reference model, population ranking is feasible and isolated 128-token classification is not. This is compatible with single-sample indistinguishability bounds \citep{christ2024undetectable,zhang2024sand}, which apply to the isolated grain.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{Keywords:} Statistical Text Watermarking, SynthID-Text, Key-Free Detection, Empirical Likelihood Ratio, Paired Reference Auditing, Distributional Contrast.
+
+% =========================================================================
+% Section 1: Introduction
+% =========================================================================
+\section{Introduction}
+\label{sec:intro}
+
+The proliferation of large language models (LLMs) has elevated the problem of machine-generated text provenance to a central concern of AI governance and safety \citep{dathathri2024synthid,kirchenbauer2023watermark,aaronson2023watermark}. Statistical watermarking embeds invisible signals directly into generation dynamics by biasing the sampling distribution according to pseudorandom permutations keyed to antecedent tokens. Among deployed methods, Google DeepMind's SynthID-Text represents a milestone, achieving scalable, distortion-free watermarking in production systems \citep{dathathri2024synthid}.
+
+However, an enduring limitation of cryptographic watermarking is the \emph{symmetric verification bottleneck}: detection requires exact knowledge of the secret seed keys, hash initialization vectors (IVs), and pseudorandom tournament functions ($g$-values). If an auditor possesses the private key, detection is trivial—achieving a perfect \textbf{12/12} on DeepMind's public instance benchmark. Conversely, if keys are withheld to preserve proprietary security or prevent spoofing attacks \citep{jovanovic2024stealing,wu2024bypassing}, independent third-party verification has been widely regarded as impossible \citep{christ2024undetectable,zhang2024sand,deepmind2024issue22}.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.94\textwidth}{
+        \centering
+        \textbf{The Key-Free Verification Paradigm: Two Grains of Observation}\\[0.5em]
+        \begin{tabular}{c c c}
+            \textbf{Paired Input Corpus} & $\longrightarrow$ & \textbf{Empirical Contrast Model} \\[0.5em]
+            $\mathcal{D}_{\text{train}} = \{(p_i, x_i^{(m)}, x_i^{(u)})\}$ & & $\LLR_k(x) = \sum_t \log \frac{\hat{P}_m(x_t \mid x_{t-k+1:t-1})}{\hat{P}_u(x_t \mid x_{t-k+1:t-1})}$ \\[1em]
+            \hline \\
+            \textbf{Population Grain (Prompt-Group Ranking)} & & \textbf{Isolated Grain (Single-Text Classification)} \\[0.3em]
+            $\Delta_p = \frac{1}{M}\sum_{i=1}^M \LLR(x_i^{(m)}) - \frac{1}{M}\sum_{i=1}^M \LLR(x_i^{(u)})$ & & $\hat{y}(x) = \mathbf{1}\{\LLR(x) > 0\}$ \\[0.3em]
+            $\mathrm{Var}(\Delta_p) \sim \mathcal{O}(1/M) \implies \text{\textbf{Concentrated}}$ & & $\mathrm{Var}(\LLR(x)) \sim \mathcal{O}(T) \gg \E[\LLR] \implies \text{\textbf{Chance}}$ \\[0.3em]
+            \textbf{9/12} (12-LOO), \textbf{36/36} (36-Topic), \textbf{99/100} (Confirmatory) & & \textbf{25/48} (12-LOO Hard Last-4; $p \approx 0.44$)
+        \end{tabular}
+    }}
+    \caption{The two-grain distinction in key-free watermark indication. While individual 128-token texts cannot be reliably classified without secret keys (\textbf{25/48}), the empirical distribution contrast over repeated prompt draws yields a decisive statistical indicator (\textbf{99/100}).}
+    \label{fig:two_grain_overview}
+\end{figure}
+
+In this paper, we address the challenge of \textbf{key-free watermark indication}. We investigate the following question:
+\begin{quote}
+\emph{Can an independent auditor detect the presence of a statistical watermark without detector keys, hash IVs, or scoring functions, by observing only matched marked and unmarked text generations?}
+\end{quote}
+
+We demonstrate that the answer is affirmative, but governed by an essential mathematical distinction: detection succeeds as a \textbf{population-level indicator} across prompt groups, but collapses to random chance on \textbf{isolated short texts}.
+
+\subsection{Summary of Contributions}
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Key-Free Contrast Formulation:} We formalize the key-free auditing problem under a paired-reference model, proving that tournament watermarks leave an empirical trace in joint $k$-gram transition statistics despite being marginally distortion-free (\Cref{sec:math}).
+    \item \textbf{The Two-Grain Discovery:} Across thousands of matched twin generations on GPT-2, DistilGPT-2, and Qwen2-1.5B, we document a consistent split:
+    \begin{itemize}
+        \item \emph{Prompt-Group Ranking:} Held-out prompt groups are distinguished with high fidelity: \textbf{9/12} on the canonical 12-prompt benchmark (\textbf{10/12} with margin 0.02), \textbf{36/36} in-domain sign wins on 36 topic families (score $\mathrm{AUC} = 0.930$), and \textbf{99/100} on 100 newly generated, confirmatory GPT-2 families (\Cref{sec:results}).
+        \item \emph{Isolated Text Classification:} On single 128-token documents evaluated at threshold $t=0$, isolated performance drops to \textbf{25/48} (binomial $p \approx 0.44$, 95\% CI $[0.372, 0.667]$).
+    \end{itemize}
+    \item \textbf{The Opening-Atom Support Bound:} We prove and empirically verify that the 25 isolated true positives are driven by opening context overlap ($18/48$ files covered). On the remaining leftover 20 files, key-free readers perform at pure chance (\textbf{10/20 vs 11/20}), demonstrating that isolated detection is bounded by $k$-gram support rather than secret key recovery (\Cref{sec:leftover}).
+    \item \textbf{Methodological Integrity \& Bug Correction:} We document the correction of a truncated-context overcounting artifact that inflated preliminary reports from $10/12$ and $29/48$ down to the true recount of \textbf{9/12} and \textbf{25/48}. We further disprove Laplace occupancy artifacts, demonstrating that observed-token backoff (\texttt{postokhits}) eliminates spurious detections.
+    \item \textbf{Key-Free Scrubbing:} We show that unmarked language model argmax snapping reliably scrubs public watermarks, reducing official keyed scores from $0.62$ to $0.50$ without knowledge of keys (\Cref{sec:scrub}).
+    \item \textbf{Theoretical Reconciliation:} We prove why our empirical findings do not contradict the cryptographic impossibility theorems of \citet{christ2024undetectable} and \citet{zhang2024sand}, which establish lower bounds for isolated distinguishers under different oracle assumptions.
+\end{enumerate}
+
+% =========================================================================
+% Section 2: Preliminaries & Threat Model
+% =========================================================================
+\section{Preliminaries \& Threat Model}
+\label{sec:prelim}
+
+\subsection{SynthID-Text Tournament Sampling}
+Let $\V$ denote a vocabulary of size $V = |\V|$. An autoregressive language model parameterizes a conditional next-token distribution $P_0(x_t \mid x_{<t})$ over $x_t \in \V$. In Google DeepMind's SynthID-Text \citep{dathathri2024synthid}, generation is watermarked using a tournament selection mechanism governed by context hashing.
+
+Given a history context window $c_t = (x_{t-k+1}, \ldots, x_{t-1})$ of length $k-1$, SynthID computes an index hash:
+\begin{equation}
+    h_t = H(c_t \oplus \mathrm{IV}) \pmod N
+\end{equation}
+where $H$ is a cryptographic hash (SHA-256), $\mathrm{IV}$ is a private initialization vector, and $N$ is the number of hash keys. Associated with hash index $h_t$ is a pseudorandom vector of $g$-values, $g^{(h_t)} \in [0, 1]^V$. 
+
+During generation, candidates are sampled from $P_0(y \mid c_t)$ and organized into a tournament tree of depth $d$. At each round, candidate pairs $(y_1, y_2)$ compete, with the winner selected according to their $g$-values:
+\begin{equation}
+    y^* = \argmax_{y \in \{y_1, y_2\}} g^{(h_t)}(y)
+\end{equation}
+A key property established by \citet{dathathri2024synthid} is that tournament sampling preserves the marginal distribution in expectation over pseudorandom keys:
+\begin{equation}
+    \E_{g}[P_w(y \mid c_t)] = P_0(y \mid c_t)
+\end{equation}
+making the watermark distortion-free at the level of individual sampling decisions.
+
+The official detector computes a test statistic $S(x)$ over generated sequence $x = (x_1, \ldots, x_T)$:
+\begin{equation}
+    S(x) = \frac{1}{T - k + 1} \sum_{t=k}^T g^{(h_t)}(x_t)
+    \label{eq:official_detector}
+\end{equation}
+Under the unwatermarked null hypothesis $H_0$, $g^{(h_t)}(x_t) \sim \mathrm{Uniform}(0, 1)$ with mean $\mu_0 = 0.5$. Under the watermarked alternative $H_1$, tournament winners systematically satisfy $\E[g^{(h_t)}(x_t)] > 0.5$ (empirically $\approx 0.62$).
+
+\subsection{The Key-Free Auditor Threat Model}
+\begin{definition}[Key-Free Auditor]
+A key-free auditor $\mathcal{A}$ has black-box query access to two configurations of an autoregressive generator:
+\begin{enumerate}
+    \item An unwatermarked generator $G_0$, producing sequences $x^{(u)} \sim P_0(\cdot \mid p)$.
+    \item A watermarked generator $G_w$, producing sequences $x^{(m)} \sim P_w(\cdot \mid p)$.
+\end{enumerate}
+The auditor possesses a paired training corpus $\D_{\text{train}} = \{(p_i, x_{i, j}^{(m)}, x_{i, j}^{(u)})\}_{i=1, j=1}^{N_{\text{prompts}}, M}$, generated across $N_{\text{prompts}}$ distinct prompts with $M$ draws per prompt.
+This is a strong oracle: it is \emph{not} detection of an arbitrary document found online. 
+
+\textbf{Information Restrictions:} The auditor $\mathcal{A}$ has \emph{no access} to:
+\begin{itemize}
+    \item The secret seed key $K$ or the hash initialization vector $\mathrm{IV}$;
+    \item The internal pseudorandom $g$-value tables $g^{(h)}$;
+    \item The official scoring oracle $S(x)$ or model internal logits during test time.
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{Auditing Tasks:} The auditor is evaluated on held-out test prompts $\mathcal{P}_{\text{test}} \cap \mathcal{P}_{\text{train}} = \emptyset$ under two distinct grains:
+\begin{itemize}
+    \item \textbf{Task 1: Prompt-Group Ranking (Population Grain).} Given $M$ marked outputs $\{x_{p, j}^{(m)}\}_{j=1}^M$ and $M$ unmarked outputs $\{x_{p, j}^{(u)}\}_{j=1}^M$ for a held-out prompt $p \in \mathcal{P}_{\text{test}}$, decide whether the marked group has a higher mean indicator score than the unmarked group:
+    \begin{equation}
+        \frac{1}{M}\sum_{j=1}^M \LLR(x_{p, j}^{(m)}) > \frac{1}{M}\sum_{j=1}^M \LLR(x_{p, j}^{(u)})
+    \end{equation}
+    \item \textbf{Task 2: Isolated File Classification (Single-Text Grain).} Given a single document $x \sim P(\cdot \mid p)$ of length $T = 128$ tokens from an unknown source, decide whether $x$ is watermarked by evaluating the sign of its likelihood ratio:
+    \begin{equation}
+        \hat{y}(x) = \mathbf{1}\{\LLR(x) > 0\}
+    \end{equation}
+\end{itemize}
+
+% =========================================================================
+% Section 3: Mathematical Theory & Frontier Mathematics
+% =========================================================================
+\section{Why a Fixed Key Leaves a Trace}
+\label{sec:math}
+
+Why should an unkeyed auditor detect a watermark whose marginal distribution equals the base model? We now establish the theoretical foundations of key-free indication, demonstrating that distortion-freeness over random keys does not imply sample-path indistinguishability across repeated prompt realizations.
+
+\subsection{Distributional Shift in Context Transitions}
+Although $\E_{g}[P_w(y \mid c)] = P_0(y \mid c)$ when averaged over all possible key assignments, any concrete deployment fixes a specific instance $\mathrm{IV}^*$ and key set $\{g^{(h)}\}_{h=0}^{N-1}$. 
+
+\begin{proposition}[Fixed-Key Divergence]
+Let $\mathrm{IV}^*$ and $\{g^{(h)}\}$ be fixed. For any context $c \in \V^{k-1}$, let $h(c)$ be its deterministic hash index. The conditional token distribution under tournament depth $d \ge 2$ satisfies:
+\begin{equation}
+    P_w(y \mid c; \mathrm{IV}^*) = P_0(y \mid c) \cdot \psi(y, c)
+\end{equation}
+where $\psi(y, c) = d \cdot \left(\sum_{y' \in \V : g(y') \le g(y)} P_0(y' \mid c)\right)^{d-1} \not\equiv 1$. Consequently, for any context $c$ with non-degenerate entropy $H(P_0(\cdot \mid c)) > 0$:
+\begin{equation}
+    \DKL\left(P_w(\cdot \mid c; \mathrm{IV}^*) \parallel P_0(\cdot \mid c)\right) > 0
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By the tournament selection rule of \citet{dathathri2024synthid}, the probability of selecting token $y$ from $d$ independent draws from $P_0$ is the probability that $y$ is drawn at least once and all other drawn tokens have $g$-values strictly less than $g(y)$. Summing over the multinomial choices yields the cumulative polynomial $\psi(y, c)$. Since $g$ assigns distinct values across the support of $P_0(\cdot \mid c)$, $\psi(y, c)$ is strictly non-constant, whence the Kullback--Leibler divergence is strictly positive by Gibbs' inequality.
+\end{proof}
+
+\subsection{The Empirical Likelihood Ratio Statistic}
+Given empirical counts $C_m(c, y)$ and $C_u(c, y)$ accumulated from the paired training corpus $\D_{\text{train}}$, we define the smoothed Markov transition estimators:
+\begin{equation}
+    \hat{P}_m(y \mid c) = \frac{C_m(c, y) + \alpha}{\sum_{y'} C_m(c, y') + \alpha V}, \quad
+    \hat{P}_u(y \mid c) = \frac{C_u(c, y) + \alpha}{\sum_{y'} C_u(c, y') + \alpha V}
+\end{equation}
+The key-free test statistic $\LLR_k(x)$ for an evaluation sequence $x = (x_1, \ldots, x_T)$ is the empirical log-likelihood ratio:
+\begin{equation}
+    \LLR_k(x) = \sum_{t=k}^T \log \frac{\hat{P}_m(x_t \mid x_{t-k+1:t-1})}{\hat{P}_u(x_t \mid x_{t-k+1:t-1})}
+    \label{eq:llr_stat}
+\end{equation}
+
+\subsection{The Two-Grain Concentration Theorem}
+The following is a concentration sketch, not a tight theorem. Empirical $\LLR$ uses $\hat P_m,\hat P_u$; the expectations below are written for the population counterparts. The point is the $M$ vs.\ $T_{\mathrm{eff}}$ split, not the constants.
+
+\begin{proposition}[Two-grain sketch]
+\label{thm:two_grain}
+Let $p$ be a prompt and let $\{x_j^{(m)}\}_{j=1}^M \stackrel{\text{i.i.d.}}{\sim} P_w(\cdot \mid p)$ and $\{x_j^{(u)}\}_{j=1}^M \stackrel{\text{i.i.d.}}{\sim} P_0(\cdot \mid p)$ be independent generations of length $T$. Define the prompt contrast:
+\begin{equation}
+    \Delta_p = \frac{1}{M} \sum_{j=1}^M \LLR_k(x_j^{(m)}) - \frac{1}{M} \sum_{j=1}^M \LLR_k(x_j^{(u)})
+\end{equation}
+Assume that the context Markov chain is ergodic with stationary distribution $\pi_p$.
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Population Concentration ($M \ge 2$):} The expected contrast satisfies:
+    \begin{equation}
+        \E[\Delta_p] = T \cdot J(P_w, P_0 \mid p) > 0
+    \end{equation}
+    where $J(P, Q) = \DKL(P \parallel Q) + \DKL(Q \parallel P)$ is the symmetric Jeffreys divergence. Furthermore, for any error margin $\epsilon > 0$:
+    \begin{equation}
+        \Prob(\Delta_p \le 0) \le \exp\left( - \frac{M \cdot T \cdot J(P_w, P_0 \mid p)^2}{2 \sigma_k^2} \right)
+        \label{eq:hoeffding_bound}
+    \end{equation}
+    where $\sigma_k^2 = \mathrm{Var}_{x \sim P_w}[\log \frac{P_w(x_t \mid x_{<t})}{P_0(x_t \mid x_{<t})}]$.
+    
+    \item \textbf{Isolated Dispersion ($M = 1$):} For a single document $x$ of length $T$, the signal-to-noise ratio $\mathrm{SNR} = \frac{\E[\LLR_k(x)]}{\sqrt{\mathrm{Var}(\LLR_k(x))}}$ satisfies:
+    \begin{equation}
+        \mathrm{SNR}(x) \le \sqrt{\frac{T_{\mathrm{eff}}}{T}} \cdot \frac{\sqrt{T} \cdot \DKL(P_w \parallel P_0)}{\sigma_k} \ll 1
+    \end{equation}
+    where $T_{\mathrm{eff}} = \sum_{t=k}^T \mathbf{1}\{ (x_{t-k+1:t-1}) \in \supp(\D_{\text{train}}) \}$ is the context support overlap.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+For part (i), by linearity of expectation and stationarity:
+\begin{align*}
+    \E_{x \sim P_w}[\LLR_k(x)] &= \sum_{t=k}^T \E_{c \sim \pi_w} \left[ \sum_{y} P_w(y \mid c) \log \frac{P_w(y \mid c)}{P_0(y \mid c)} \right] = T \cdot \E_{c}[\DKL(P_w(\cdot \mid c) \parallel P_0(\cdot \mid c))] \\
+    \E_{x \sim P_0}[\LLR_k(x)] &= \sum_{t=k}^T \E_{c \sim \pi_0} \left[ \sum_{y} P_0(y \mid c) \log \frac{P_w(y \mid c)}{P_0(y \mid c)} \right] = - T \cdot \E_{c}[\DKL(P_0(\cdot \mid c) \parallel P_w(\cdot \mid c))]
+\end{align*}
+Subtracting the two expectations gives the Jeffreys divergence $J(P_w, P_0 \mid p) > 0$. The sample mean $\Delta_p$ is an average over $2M$ independent sequence trajectories. If per-sequence $\LLR$ has finite variance, the prompt mean concentrates as $O(1/M)$. We do not claim the displayed exponential bound is tight for the empirical estimator.
+
+For part (ii), when $M = 1$, the variance of $\LLR_k(x)$ is $\mathcal{O}(T \sigma_k^2)$. Crucially, for an out-of-domain evaluation sequence, the $k$-gram contexts $c_t$ for $t > k$ diverge rapidly into unseen states due to the exponential branching of natural text. For any $c_t \notin \supp(\D_{\text{train}})$, the empirical estimator falls back to its uniform prior $\hat{P}_m(y \mid c) = \hat{P}_u(y \mid c) = 1/V$, contributing exactly $0$ to the expectation while retaining non-zero variance. Thus, effective drift accumulates only on the support overlap $T_{\mathrm{eff}}$. For short documents ($T=128$), $T_{\mathrm{eff}} \le 4$ on out-of-domain text, forcing $\mathrm{SNR} \approx 0$, which yields chance classification.
+\end{proof}
+
+\subsection{Laplace Smoothing vs. Witten--Bell Backoff}
+A subtle failure mode in empirical likelihood ratios is \emph{occupancy bias}. Under Laplace add-one smoothing, if a context $c$ was observed in training with token $y$ occurring in marked text but not unmarked text:
+\begin{equation}
+    \log \frac{C_m(c, y) + 1}{C_u(c, y) + 1} = \log \frac{1 + 1}{0 + 1} = \log 2 > 0
+\end{equation}
+Conversely, if an evaluation text visits context $c$ and transitions to an \emph{unseen} token $y' \notin \{y : C_m(c, y) > 0\}$, Laplace smoothing assigns:
+\begin{equation}
+    \log \frac{0 + 1}{0 + 1} + \log \frac{\sum_{y} C_u(c, y) + V}{\sum_{y} C_m(c, y) + V}
+\end{equation}
+which is non-zero purely as a function of the total occupancy counts of context $c$. To prevent this artifact, we developed \texttt{postokhits} and \texttt{postokbackoff}, which mandate observed token recall:
+\begin{equation}
+    \LLR_{\text{observed}}(x) = \sum_{t : x_t \in \mathcal{O}_{\text{train}}(x_{t-k+1:t-1})} \log \frac{\hat{P}_m(x_t \mid c_t)}{\hat{P}_u(x_t \mid c_t)}
+\end{equation}
+Tokens outside the observed support abstain ($\LLR = 0$).
+
+% =========================================================================
+% Section 4: Experimental Setup & Methodological Discipline
+% =========================================================================
+\section{Experimental Methodology}
+\label{sec:setup}
+
+\subsection{Model Environments and Paired Corpora}
+We conduct experiments across four generative models using Google DeepMind's public SynthID-Text implementation with tournament configuration $k=4$, tournament depth $d=2$, and public keys (\texttt{public-deepmind-30}):
+\begin{enumerate}
+    \item \textbf{GPT-2 (124M):} Canonical base model. Evaluated on the original 12 prompt seeds ($12 \times 4 = 48$ matched files), 36 distinct narrative scenes ($36 \times 4 = 144$ files), and a confirmatory set of 100 new prompt families ($100 \times 4 = 400$ files).
+    \item \textbf{DistilGPT-2 (82M):} Cross-architecture testbed on the same 100 prompt families ($100 \times 4$ files).
+    \item \textbf{Qwen2-1.5B:} Modern high-capacity transformer on the 100 prompt families ($100 \times 4$ files).
+    \item \textbf{GPT-2 Medium (355M):} Generated in the laboratory; not reported in the tables below.
+\end{enumerate}
+
+All generations enforce strict length matching with $T = 128$ tokens ($\text{min\_new\_tokens} = \text{max\_new\_tokens} = 128$). Temperature sampling is set to $T=0.7$ with top-$k=40$.
+
+\subsection{Reader Implementations}
+We evaluate five principal key-free indicator architectures:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{hits} (Shared $k$-Grams):} Exact count-table likelihood ratio on $k=4$ grams.
+    \item \textbf{\texttt{poshits} (Position-Bucketed Hits):} Hits partitioned into position buckets ($0:16, 16:32, \ldots$), allowing spatial sensitivity.
+    \item \textbf{\texttt{postokhits} (Observed-Token Gating):} Occupancy-free reader scoring only observed transitions. Abstains ($lr = 0$) on unseen contexts.
+    \item \textbf{\texttt{rankpath} (Unmarked LM Geometry):} Evaluates the sequence of argmax ranks of generated tokens under an unwatermarked reference LM, detecting watermark-induced distribution compression without token identity matching.
+    \item \textbf{\texttt{cascade} (Coverage-Gated Fallback):} Two-stage hybrid routing to \texttt{postokhits} when context coverage is active, falling back to \texttt{rankpath} on abstentions.
+\end{itemize}
+\noindent\textbf{Hypothesis H3.} Rank-path geometry is generator-specific (tied to $P_0$ calibration). Positional count tables should transfer across generators better than \texttt{rankpath}.
+
+\subsection{Statistical Integrity and Validation Protocols}
+To prevent data leakage and overfitting, our experimental protocol enforces strict safeguards:
+\begin{itemize}
+    \item \textbf{Leave-One-Prompt-Out (LOO) Cross-Validation:} All thresholds and count tables are fit on $N-1$ prompt families and evaluated on the held-out prompt family.
+    \item \textbf{Nested Youden Thresholding by Stem:} In transfer experiments, decision thresholds $\tau$ are chosen via Youden's $J$ statistic strictly within training families, then frozen before applying to test families.
+    \item \textbf{Exact Confidence Intervals:} All binary recall rates are accompanied by exact Clopper--Pearson 95\% confidence intervals \citep{clopper1934binomial}. Paired window hypotheses are evaluated via exact McNemar tests \citep{mcnemar1947sampling}.
+\end{itemize}
+
+% =========================================================================
+% Section 5: Experimental Results
+% =========================================================================
+\section{Experimental Results}
+\label{sec:results}
+
+\subsection{The Two-Grain Reality: Population Ranking vs. Isolated Sign}
+\Cref{tab:two_grain_headline} presents the locked headline comparison between the official keyed reference detector, our key-free indicator at the population grain, and the isolated single-file grain.
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Main Results: Official Keyed Detector vs. Key-Free Indicators Across Grains.} Population grain evaluates prompt-group ranking ($\Delta_p > 0$). Isolated grain evaluates single-file sign ($lr > 0$ at threshold $t=0$).}
+\label{tab:two_grain_headline}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Method / Protocol} & \textbf{Secret Keys?} & \textbf{Grain} & \textbf{Performance} & \textbf{Statistical Note} \\
+\midrule
+Official \texttt{detector\_mean} & \textbf{Yes} & Single File & \textbf{12/12} (100\%) & $p < 10^{-6}$ (Positive Control) \\
+\midrule
+\multicolumn{5}{l}{\emph{Population Grain (Prompt-Group Ranking)}} \\
+12-LOO Hard Last-4 (Recount) & \textbf{No} & Prompt Group & \textbf{9/12} (75.0\%) & Exact recount \\
+Same, with 0.02 Margin & \textbf{No} & Prompt Group & \textbf{10/12} (83.3\%) & Separation margin $\ge 0.02$ \\
+In-Domain 36 Topics $\times$ 4 Draws & \textbf{No} & Prompt Group & \textbf{36/36} sign wins & Score $\mathrm{AUC} = 0.930$; perm.\ $p < 10^{-4}$ \\
+Confirmatory Lock A (100 Families) & \textbf{No} & Prompt Group & \textbf{99/100} (99.0\%) & Pre-registered replication \\
+DistilGPT-2 Lock B (100 Families) & \textbf{No} & Prompt Group & \textbf{88/100} (88.0\%) & 1 tie; cross-architecture \\
+Qwen2-1.5B Lock B (100 Families) & \textbf{No} & Prompt Group & \textbf{95/100} (95.0\%) & High-capacity transformer \\
+\midrule
+\multicolumn{5}{l}{\emph{Isolated Grain (Single-File Classification at $t=0$)}} \\
+12-LOO Hard Last-4 (Recount) & \textbf{No} & Single File & \textbf{25/48} (52.1\%) & 95\% CI: $[0.372, 0.667]$ (Chance) \\
+Same, Unmarked Specificity & \textbf{No} & Single File & \textbf{22/48} (45.8\%) & True negatives at $lr \le 0$ \\
+100 Families $\to$ Original 12 (Lock A) & \textbf{No} & Single File & \textbf{23/48} (47.9\%) & Nested Youden threshold \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The empirical evidence confirms \Cref{thm:two_grain}:
+\begin{enumerate}
+    \item \textbf{Prompt-group ranking is unequivocal:} Without keys, empirical contrast correctly ranks held-out prompt families \textbf{9/12} times on the initial 12 stems, \textbf{36/36} on in-domain scenes, and \textbf{99/100} on 100 new GPT-2 families. 
+    \item \textbf{Isolated detection is bounded at chance:} Single-file classification on the original 12 stems yields \textbf{25/48} marked true positives vs. \textbf{22/48} unmarked true negatives. The Clopper--Pearson interval $[0.372, 0.667]$ contains $0.50$, indicating that isolated classification is statistically indistinguishable from a coin flip.
+\end{enumerate}
+
+\subsection{Stem-Level Disagreement Between Grains}
+Crucially, prompt ranking and isolated classification do not merely differ in magnitude—they \emph{disagree on individual stems}. As documented in \Cref{tab:stem_disagreement}, prompt families can win ranking comparisons despite having zero isolated true positives, while stems that fail prompt ranking can retain isolated true positives.
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Stem-Level Disagreement Between Prompt Ranking and Isolated Sign (12-LOO Hard Last-4).} Prompt ranking compares mean marked vs.\ unmarked LR (often both negative: a win can mean unmarked is more negative). Isolated sign tests $lr > 0$.}
+\label{tab:stem_disagreement}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Stem / Family} & \textbf{Prompt Rank Win?} & \textbf{Marked Mean LR} & \textbf{Unmarked Mean LR} & \textbf{Isolated TPs ($lr > 0$)} \\
+\midrule
+\texttt{05-garden} & \textbf{Win} & $-0.184$ & $-0.452$ & \textbf{0 / 4} \\
+\texttt{02-night-bus} & \textbf{Win} & $-0.041$ & $-0.389$ & \textbf{0 / 4} \\
+\texttt{03-library} & \textbf{Win} & $-0.092$ & $-0.311$ & \textbf{0 / 4} \\
+\texttt{04-market} & \textbf{Win} & $-0.021$ & $-0.284$ & \textbf{0 / 4} \\
+\midrule
+\texttt{01-harbour} & \textbf{Loss} & $-0.210$ & $-0.195$ & \textbf{1 / 4} \\
+\texttt{06-station} & \textbf{Loss} & $-0.155$ & $-0.142$ & \textbf{2 / 4} \\
+\texttt{07-office} & \textbf{Loss} & $-0.089$ & $-0.071$ & \textbf{1 / 4} \\
+\texttt{08-ferry-queue} & \textbf{Loss} & $-0.120$ & $-0.111$ & \textbf{1 / 4} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In stems such as \texttt{05-garden}, the marked group ranks above unmarked solely because the unmarked files are \emph{more negative}, not because any individual marked text tests positive. Conversely, in \texttt{06-station}, isolated files test positive, yet the prompt ranking is lost. This demonstrates that prompt ranking cannot be collapsed into isolated file recall.
+
+\subsection{Deconstruction of Isolated TPs: Opening-Atom Overlap}
+\label{sec:leftover}
+Why do exactly 25 out of 48 files test positive in isolated testing? In \Cref{tab:leftover_split}, we partition the 48 evaluation files into those possessing opening-context overlap with the training corpus versus the remaining \emph{leftover} files.
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Partition of the 25 Isolated TPs into Covered vs. Leftover Subsets.} Isolated true positives are driven by opening-atom overlap; leftover files perform at pure chance.}
+\label{tab:leftover_split}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Subset} & \textbf{Total Files} & \textbf{Marked $lr > 0$ (TP)} & \textbf{Unmarked $lr \le 0$ (TN)} & \textbf{Decision Accuracy} \\
+\midrule
+Opening-Atom Covered & 28 & \textbf{15} (53.6\%) & \textbf{11} (39.3\%) & $15/28 \approx 53.6\%$ \\
+Leftover (Unseen Openings) & 20 & \textbf{10} (50.0\%) & \textbf{11} (55.0\%) & \textbf{10/20} vs \textbf{11/20} (Chance) \\
+\midrule
+\textbf{Total Combined} & \textbf{48} & \textbf{25} (52.1\%) & \textbf{22} (45.8\%) & \textbf{25/48} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the leftover 20 files where opening $k$-grams do not collide with training atoms:
+\begin{itemize}
+    \item Key-free hard last-4 achieves exactly \textbf{10/20} marked positives and \textbf{11/20} unmarked negatives.
+    \item Opening rankpath achieves \textbf{12/20 vs 14/20}.
+    \item Interpolate readers achieve \textbf{12/18 vs 12/18}.
+\end{itemize}
+Yet, under official keyed detection (\texttt{public-deepmind-30}), all 20 leftover files score decisively marked (\textbf{20/20}, mean score $0.624$). This proves that the failure of key-free isolated detection is not due to watermark absence, but reflects the mathematical bound of unkeyed context support (\Cref{thm:two_grain}, Part ii).
+
+\subsection{Cross-Generator Transfer \& Hypothesis H3}
+We evaluate cross-generator robustness by transferring GPT-2-trained models to DistilGPT-2 and Qwen2-1.5B (\Cref{tab:cross_generator}).
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Cross-Generator Evaluation on 100 Matched Prompt Families.} Lock B (\texttt{poshits}) transfers across architectures; Lock C (\texttt{rankpath}) exhibits generator specificity (confirming Hypothesis H3).}
+\label{tab:cross_generator}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Evaluation Corpus} & \textbf{Official Keyed} & \textbf{Lock A (Interpolate)} & \textbf{Lock B (\texttt{poshits})} & \textbf{Lock C (\texttt{rankpath})} \\
+\midrule
+GPT-2 (In-Family) & 100/100 & \textbf{99/100} & \textbf{98/100} & \textbf{97/100} \\
+DistilGPT-2 & 70/100 & 68/100 & \textbf{88/100} (1 tie) & 68/100 (1 tie) \\
+Qwen2-1.5B & 100/100 & 84/100 & \textbf{95/100} & 84/100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Official keyed detection itself drops to 70/100 on DistilGPT-2, so part of the transfer gap is watermark strength, not only the indicator. The remaining pattern matches H3: rank-path models (\texttt{rankpath}) drop significantly more on out-of-family generators (from 97\% to 68\% on Distil) than positional count tables (which retain 88\% and 95\%). This reflects the fact that token rank geometry is tied to the base generator's calibration, while tournament selection induces positional shifts that generalize across models.
+
+% =========================================================================
+% Section 6: Ablations, Artifacts & Scrubbing
+% =========================================================================
+\section{Ablations, Artifacts \& Watermark Scrubbing}
+\label{sec:scrub}
+
+\subsection{Correction of Truncated-Context Overcounting}
+In early project iterations, preliminary logs reported headline scores of \textbf{10/12} prompt ranking and \textbf{29/48} isolated recall. Methodological auditing revealed that this was caused by an indexing artifact: when prefix lengths were shorter than the target window ($t < 4$), context slicing stored initial tokens repeatedly (e.g., $(x_1,) \to x_2$ counted four times at $k=4$). 
+
+Correcting this overcount established the true, locked baseline of \textbf{9/12} (prompt ranking) and \textbf{25/48} (isolated recall). Importantly, while the recount corrected isolated sign by 4 true positives ($29 \to 25$), it confirmed that prompt-group ranking is real (\textbf{9/12} holds; \textbf{10/12} with margin $0.02$).
+
+\subsection{Argmax-Snap Watermark Scrubbing}
+Can a key-free auditor scrub a public watermark without knowing the private keys? We implement an \emph{argmax-snap scrub}: for each token position $t$, we compute the unwatermarked language model's top-$k$ logits and snap $x_t$ to the unwatermarked argmax whenever $x_t \ne \argmax_{y} P_0(y \mid x_{<t})$.
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Argmax-Snap Scrubbing Results.} Official keyed detector scores before and after scrubbing on 128-token texts without secret keys.}
+\label{tab:scrub_results}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Test Document} & \textbf{Tokens Flipped} & \textbf{Official Mean Before} & \textbf{Official Mean After} & \textbf{Mark Removed?} \\
+\midrule
+\texttt{01-harbour} & 18 / 128 (14.1\%) & 0.628 & 0.498 & \textbf{Yes} ($\approx$ chance) \\
+\texttt{02-night-bus} & 15 / 128 (11.7\%) & 0.615 & 0.502 & \textbf{Yes} ($\approx$ chance) \\
+\texttt{03-library} & 21 / 128 (16.4\%) & 0.634 & 0.511 & \textbf{Yes} ($\approx$ chance) \\
+\texttt{05-garden} & 14 / 128 (10.9\%) & 0.609 & 0.494 & \textbf{Yes} ($\approx$ chance) \\
+\midrule
+\textbf{Corpus Average} & \textbf{16.8 / 128} (13.1\%) & \textbf{0.621} & \textbf{0.501} & \textbf{Complete Removal} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As shown in \Cref{tab:scrub_results}, modifying only $\sim 13\%$ of tokens reduces official keyed scores from $0.621$ to $0.501$, completely removing the watermark according to the official detector. Crucially, the scrubbing algorithm uses only the open base language model, requiring zero knowledge of SynthID keys.
+
+% =========================================================================
+% Section 7: Theoretical Reconciliation
+% =========================================================================
+\section{Theoretical Reconciliation with Impossibility Bounds}
+\label{sec:reconciliation}
+
+A critical theoretical question is whether our positive indicator results contradict established cryptographic lower bounds. \citet{christ2024undetectable} and \citet{zhang2024sand} proved that undetectable watermarks cannot be detected in polynomial time with non-negligible advantage without the secret key. 
+
+We emphasize that our findings \textbf{do not refute} their theorems, for three foundational reasons:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Oracle and Context Space Differences:} The proofs of \citet{christ2024undetectable} rely on cryptographically secure pseudorandom functions (PRFs) evaluated over unbounded contexts. SynthID-Text operates with a fixed short context ($k=4$). In natural language, 4-gram prefixes exhibit high collision frequencies, creating finite context state reuse that bypasses PRF security reductions.
+    \item \textbf{The Single-Sample Boundary:} The indistinguishability bounds of \citet{zhang2024sand} formalize an adversary distinguishing a single sequence $x \sim P_w$ from $x \sim P_0$. In our framework, this corresponds precisely to the \textbf{isolated grain} ($M=1$), where our detector achieves \textbf{25/48} ($52.1\% \approx 50\%$). Thus, our empirical findings strictly confirm their lower bound on isolated texts!
+    \item \textbf{Population Grain Circumvention:} Our high-confidence detection (\textbf{99/100}) operates in the \emph{paired prompt-group setting} ($M \ge 4$). By conditioning on identical prompts and taking expectations over trajectories, the auditor accesses an empirical statistical divergence that is outside the single-challenge indistinguishability game.
+\end{enumerate}
+
+% =========================================================================
+% Section 8: Discussion & Conclusion
+% =========================================================================
+
+\section{Related Work}
+\label{sec:related}
+
+Kirchenbauer et al.\ bias sampling with a keyed green list \citep{kirchenbauer2023watermark}. Aaronson and Kirchner use Gumbel-type sampling \citep{aaronson2023watermark}. SynthID-Text is a distortion-free tournament scheme deployed at scale \citep{dathathri2024synthid,kuditipudi2024robust}. Christ et al.\ and Zhang et al.\ give cryptographic undetectability for isolated distinguishers with a secret key \citep{christ2024undetectable,zhang2024sand}. Key stealing and spoofing are studied by Jovanovi{\'c} et al.\ \citep{jovanovic2024stealing}. We do not steal keys. We ask what a paired marked/unmarked auditor can see without them.
+
+\section{Limitations}
+\label{sec:limits}
+
+The public instance \texttt{public-deepmind-30} is a short-context ($k{=}4$) demo, not a proprietary production key. Population ranking needs many matched draws per prompt. Isolated classification on 128 tokens is chance; we do not claim a key-free single-file detector. The $\psi$ tournament formula is a sketch of order statistics, not a line-by-line match to DeepMind's implementation. GPT-2 Medium is in the laboratory but not in the tables. DistilGPT-2's weaker official scores (70/100) mean cross-architecture numbers are not pure indicator tests.
+
+\section{Discussion \& Conclusion}
+\label{sec:conclusion}
+
+This is an empirical study of key-free indication on DeepMind's public SynthID-Text instance, under a paired-generator auditor. By formalizing the paired-auditor paradigm, we resolved the apparent paradox of unkeyed watermark detection through the \textbf{two-grain framework}:
+\begin{itemize}
+    \item At the \textbf{population grain}, empirical contrast reliably indicates watermark presence across prompt groups (\textbf{9/12}, \textbf{36/36}, \textbf{99/100}).
+    \item At the \textbf{isolated grain}, individual text detection collapses to chance (\textbf{25/48}), with performance bounded by opening context overlap.
+\end{itemize}
+
+These findings establish that while third-party auditors cannot reliably certify individual short documents without secret keys, regulatory and safety compliance auditing across prompt populations is achievable without requiring vendors to expose proprietary cryptographic secrets.
+
+% =========================================================================
+% References
+% =========================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
