@@ -27,6 +27,7 @@ def test_protocol_h2abs_names_frozen_sources_before_decode() -> None:
     assert "leftover-15" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
     assert "H2-abs **holds**" not in text
+    assert "`89cb62d`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert PAIR.is_dir()
     assert REINDEXED.is_dir()
     assert PROMPTS.is_dir()

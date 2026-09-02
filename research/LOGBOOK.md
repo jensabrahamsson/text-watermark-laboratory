@@ -1854,4 +1854,19 @@ JSON: `experiments/2026-09-01-transfer-distil100x4-to-medium12x4-opening-poshits
 `experiments/2026-09-01-transfer-gpt2-medium-100x4-to-distil12x4-opening-poshits/`,
 `experiments/2026-09-01-openings-gpt2-medium-100x4-to-distil12x4/`.
 
+## 2026-09-01 absolute-history H2 remasure freeze
+
+[PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) committed at SHA
+`89cb62d`. PROTOCOL-next H2 is still a reindexed window measurement
+(0:4 **99/100** vs 16:32 **89/100**). Occupancy-free leftover-15 and
+Distil↔gpt2-medium occupancy-free are already opened. The remaining
+confirmatory honesty remasure is absolute `score_span` on the same
+100×4 interpolate windows, without overwriting the reindexed dump.
+Hypotheses H2-abs, H2-abs-acc, and H2-abs-iso are stated before any
+absolute-history window LRs. Do not look at those LRs until the probe
+command has been run once, as written. Do not add a scorer. Do not
+overwrite `experiments/2026-09-01-probe-100x4-hard-windows/`. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
 ---
