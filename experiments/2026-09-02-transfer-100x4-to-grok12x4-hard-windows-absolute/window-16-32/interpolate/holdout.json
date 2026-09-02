@@ -1,0 +1,633 @@
+{
+  "mode": "transfer",
+  "n_prompts": 12,
+  "n_files": 96,
+  "n_marked_above_unmarked": 25,
+  "n_prompts_marked_above": 7,
+  "n_prompts_marked_ge": 7,
+  "n_prompt_ties": 0,
+  "n_prompt_losses": 5,
+  "n_prompt_wins_without_isolated_tp": 0,
+  "ranking_without_isolated_tp": [],
+  "ranking_ties_without_isolated_tp": [],
+  "n_ranking_losses_with_isolated_tp": 5,
+  "ranking_losses_with_isolated_tp": [
+    "106-boxing-gym",
+    "108-registry-office",
+    "109-scrapyard",
+    "110-chip-shop",
+    "112-taxi-rank"
+  ],
+  "n_marked_positive_on_ranking_losses": 9,
+  "n_marked_lr_positive": 23,
+  "n_unmarked_lr_nonpositive": 23,
+  "margin": 0.0,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "context_len": 4,
+  "model_name": "gpt2",
+  "instance": "key-free-interpolate",
+  "score_kind": "interpolate@w16-32",
+  "comparison": "strict-gt",
+  "prompt_sign_p": 0.3148425787106447,
+  "inference_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+  "binary": {
+    "n_positive": 48,
+    "n_negative": 48,
+    "auc": 0.5034722222222222,
+    "mean_positive": 0.040272877711114756,
+    "mean_negative": -0.0016014365161846275,
+    "mean_diff": 0.04187431422729938,
+    "n_positive_above_zero": 23,
+    "n_negative_at_most_zero": 23,
+    "permutation_p": 0.3423288355822089,
+    "binomial_p_above_zero": 0.6672670939616907,
+    "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "youden_threshold": 0.46202673401033434,
+    "youden_sensitivity": 0.20833333333333334,
+    "youden_specificity": 0.8958333333333334,
+    "youden_j": 0.10416666666666674,
+    "n_perm": 2000
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "files": [
+    {
+      "file": "101-service-station-marked.txt",
+      "lr": -0.029304019439779727,
+      "stem": "101-service-station",
+      "sample": 1
+    },
+    {
+      "file": "101-service-station-unmarked-gen.txt",
+      "lr": -0.1554159613910575,
+      "stem": "101-service-station",
+      "sample": 1
+    },
+    {
+      "file": "101-service-station-marked-2.txt",
+      "lr": 0.4738329194272181,
+      "stem": "101-service-station",
+      "sample": 2
+    },
+    {
+      "file": "101-service-station-unmarked-gen-2.txt",
+      "lr": -0.038341639520215715,
+      "stem": "101-service-station",
+      "sample": 2
+    },
+    {
+      "file": "101-service-station-marked-3.txt",
+      "lr": 0.3545039719235649,
+      "stem": "101-service-station",
+      "sample": 3
+    },
+    {
+      "file": "101-service-station-unmarked-gen-3.txt",
+      "lr": -0.39797927259514465,
+      "stem": "101-service-station",
+      "sample": 3
+    },
+    {
+      "file": "101-service-station-marked-4.txt",
+      "lr": -0.6545918663419955,
+      "stem": "101-service-station",
+      "sample": 4
+    },
+    {
+      "file": "101-service-station-unmarked-gen-4.txt",
+      "lr": 0.02944373407586076,
+      "stem": "101-service-station",
+      "sample": 4
+    },
+    {
+      "file": "102-car-boot-marked.txt",
+      "lr": -0.4649489825475814,
+      "stem": "102-car-boot",
+      "sample": 1
+    },
+    {
+      "file": "102-car-boot-unmarked-gen.txt",
+      "lr": -0.6090058527264102,
+      "stem": "102-car-boot",
+      "sample": 1
+    },
+    {
+      "file": "102-car-boot-marked-2.txt",
+      "lr": 0.31025698778404814,
+      "stem": "102-car-boot",
+      "sample": 2
+    },
+    {
+      "file": "102-car-boot-unmarked-gen-2.txt",
+      "lr": -0.08219067279411844,
+      "stem": "102-car-boot",
+      "sample": 2
+    },
+    {
+      "file": "102-car-boot-marked-3.txt",
+      "lr": 0.23803891746070385,
+      "stem": "102-car-boot",
+      "sample": 3
+    },
+    {
+      "file": "102-car-boot-unmarked-gen-3.txt",
+      "lr": 0.4436405650817823,
+      "stem": "102-car-boot",
+      "sample": 3
+    },
+    {
+      "file": "102-car-boot-marked-4.txt",
+      "lr": -0.27921726331668845,
+      "stem": "102-car-boot",
+      "sample": 4
+    },
+    {
+      "file": "102-car-boot-unmarked-gen-4.txt",
+      "lr": -0.6132300492672227,
+      "stem": "102-car-boot",
+      "sample": 4
+    },
+    {
+      "file": "103-bowling-alley-marked.txt",
+      "lr": -0.3753965177872947,
+      "stem": "103-bowling-alley",
+      "sample": 1
+    },
+    {
+      "file": "103-bowling-alley-unmarked-gen.txt",
+      "lr": 0.33577542602300187,
+      "stem": "103-bowling-alley",
+      "sample": 1
+    },
+    {
+      "file": "103-bowling-alley-marked-2.txt",
+      "lr": -0.050430346024829875,
+      "stem": "103-bowling-alley",
+      "sample": 2
+    },
+    {
+      "file": "103-bowling-alley-unmarked-gen-2.txt",
+      "lr": 0.24387615896179085,
+      "stem": "103-bowling-alley",
+      "sample": 2
+    },
+    {
+      "file": "103-bowling-alley-marked-3.txt",
+      "lr": 1.408855986673482,
+      "stem": "103-bowling-alley",
+      "sample": 3
+    },
+    {
+      "file": "103-bowling-alley-unmarked-gen-3.txt",
+      "lr": 0.6121502622293011,
+      "stem": "103-bowling-alley",
+      "sample": 3
+    },
+    {
+      "file": "103-bowling-alley-marked-4.txt",
+      "lr": 0.8493838253477508,
+      "stem": "103-bowling-alley",
+      "sample": 4
+    },
+    {
+      "file": "103-bowling-alley-unmarked-gen-4.txt",
+      "lr": -0.3313379008175854,
+      "stem": "103-bowling-alley",
+      "sample": 4
+    },
+    {
+      "file": "104-hospital-corridor-marked.txt",
+      "lr": -0.1983507093968395,
+      "stem": "104-hospital-corridor",
+      "sample": 1
+    },
+    {
+      "file": "104-hospital-corridor-unmarked-gen.txt",
+      "lr": -0.6152204328039594,
+      "stem": "104-hospital-corridor",
+      "sample": 1
+    },
+    {
+      "file": "104-hospital-corridor-marked-2.txt",
+      "lr": 0.04771789125818959,
+      "stem": "104-hospital-corridor",
+      "sample": 2
+    },
+    {
+      "file": "104-hospital-corridor-unmarked-gen-2.txt",
+      "lr": 0.1990554561838646,
+      "stem": "104-hospital-corridor",
+      "sample": 2
+    },
+    {
+      "file": "104-hospital-corridor-marked-3.txt",
+      "lr": 0.31983770601514505,
+      "stem": "104-hospital-corridor",
+      "sample": 3
+    },
+    {
+      "file": "104-hospital-corridor-unmarked-gen-3.txt",
+      "lr": 0.010089792487397387,
+      "stem": "104-hospital-corridor",
+      "sample": 3
+    },
+    {
+      "file": "104-hospital-corridor-marked-4.txt",
+      "lr": 0.9282526584368342,
+      "stem": "104-hospital-corridor",
+      "sample": 4
+    },
+    {
+      "file": "104-hospital-corridor-unmarked-gen-4.txt",
+      "lr": -0.1367127635993715,
+      "stem": "104-hospital-corridor",
+      "sample": 4
+    },
+    {
+      "file": "105-charity-shop-marked.txt",
+      "lr": -0.4427723247459214,
+      "stem": "105-charity-shop",
+      "sample": 1
+    },
+    {
+      "file": "105-charity-shop-unmarked-gen.txt",
+      "lr": -0.37391138346038416,
+      "stem": "105-charity-shop",
+      "sample": 1
+    },
+    {
+      "file": "105-charity-shop-marked-2.txt",
+      "lr": -0.11099663799822061,
+      "stem": "105-charity-shop",
+      "sample": 2
+    },
+    {
+      "file": "105-charity-shop-unmarked-gen-2.txt",
+      "lr": -0.6599200414314039,
+      "stem": "105-charity-shop",
+      "sample": 2
+    },
+    {
+      "file": "105-charity-shop-marked-3.txt",
+      "lr": 1.8237187969795743,
+      "stem": "105-charity-shop",
+      "sample": 3
+    },
+    {
+      "file": "105-charity-shop-unmarked-gen-3.txt",
+      "lr": 0.6430987490459847,
+      "stem": "105-charity-shop",
+      "sample": 3
+    },
+    {
+      "file": "105-charity-shop-marked-4.txt",
+      "lr": 0.32130831157532846,
+      "stem": "105-charity-shop",
+      "sample": 4
+    },
+    {
+      "file": "105-charity-shop-unmarked-gen-4.txt",
+      "lr": 0.120593817378738,
+      "stem": "105-charity-shop",
+      "sample": 4
+    },
+    {
+      "file": "106-boxing-gym-marked.txt",
+      "lr": -1.3067203259896778,
+      "stem": "106-boxing-gym",
+      "sample": 1
+    },
+    {
+      "file": "106-boxing-gym-unmarked-gen.txt",
+      "lr": 0.15468895465856541,
+      "stem": "106-boxing-gym",
+      "sample": 1
+    },
+    {
+      "file": "106-boxing-gym-marked-2.txt",
+      "lr": 0.13662618390174036,
+      "stem": "106-boxing-gym",
+      "sample": 2
+    },
+    {
+      "file": "106-boxing-gym-unmarked-gen-2.txt",
+      "lr": 0.28294677447336514,
+      "stem": "106-boxing-gym",
+      "sample": 2
+    },
+    {
+      "file": "106-boxing-gym-marked-3.txt",
+      "lr": -0.2641534964825624,
+      "stem": "106-boxing-gym",
+      "sample": 3
+    },
+    {
+      "file": "106-boxing-gym-unmarked-gen-3.txt",
+      "lr": -0.23679119797811826,
+      "stem": "106-boxing-gym",
+      "sample": 3
+    },
+    {
+      "file": "106-boxing-gym-marked-4.txt",
+      "lr": 0.917011644998375,
+      "stem": "106-boxing-gym",
+      "sample": 4
+    },
+    {
+      "file": "106-boxing-gym-unmarked-gen-4.txt",
+      "lr": 0.17696295405199342,
+      "stem": "106-boxing-gym",
+      "sample": 4
+    },
+    {
+      "file": "107-campsite-marked.txt",
+      "lr": -0.15494592651099615,
+      "stem": "107-campsite",
+      "sample": 1
+    },
+    {
+      "file": "107-campsite-unmarked-gen.txt",
+      "lr": 0.05984119205494323,
+      "stem": "107-campsite",
+      "sample": 1
+    },
+    {
+      "file": "107-campsite-marked-2.txt",
+      "lr": -0.23393377092238865,
+      "stem": "107-campsite",
+      "sample": 2
+    },
+    {
+      "file": "107-campsite-unmarked-gen-2.txt",
+      "lr": 0.05060288901015375,
+      "stem": "107-campsite",
+      "sample": 2
+    },
+    {
+      "file": "107-campsite-marked-3.txt",
+      "lr": -0.5578018641287833,
+      "stem": "107-campsite",
+      "sample": 3
+    },
+    {
+      "file": "107-campsite-unmarked-gen-3.txt",
+      "lr": -0.29318528482962736,
+      "stem": "107-campsite",
+      "sample": 3
+    },
+    {
+      "file": "107-campsite-marked-4.txt",
+      "lr": 0.49277526156950135,
+      "stem": "107-campsite",
+      "sample": 4
+    },
+    {
+      "file": "107-campsite-unmarked-gen-4.txt",
+      "lr": -0.7266564491257397,
+      "stem": "107-campsite",
+      "sample": 4
+    },
+    {
+      "file": "108-registry-office-marked.txt",
+      "lr": -0.14025205500450544,
+      "stem": "108-registry-office",
+      "sample": 1
+    },
+    {
+      "file": "108-registry-office-unmarked-gen.txt",
+      "lr": -0.24392545220952247,
+      "stem": "108-registry-office",
+      "sample": 1
+    },
+    {
+      "file": "108-registry-office-marked-2.txt",
+      "lr": 0.5158613099440432,
+      "stem": "108-registry-office",
+      "sample": 2
+    },
+    {
+      "file": "108-registry-office-unmarked-gen-2.txt",
+      "lr": -0.036458254387787936,
+      "stem": "108-registry-office",
+      "sample": 2
+    },
+    {
+      "file": "108-registry-office-marked-3.txt",
+      "lr": -0.36322908651937136,
+      "stem": "108-registry-office",
+      "sample": 3
+    },
+    {
+      "file": "108-registry-office-unmarked-gen-3.txt",
+      "lr": 0.3770310364815238,
+      "stem": "108-registry-office",
+      "sample": 3
+    },
+    {
+      "file": "108-registry-office-marked-4.txt",
+      "lr": 0.16281318401073208,
+      "stem": "108-registry-office",
+      "sample": 4
+    },
+    {
+      "file": "108-registry-office-unmarked-gen-4.txt",
+      "lr": 0.18871052045489561,
+      "stem": "108-registry-office",
+      "sample": 4
+    },
+    {
+      "file": "109-scrapyard-marked.txt",
+      "lr": 0.48021399131961173,
+      "stem": "109-scrapyard",
+      "sample": 1
+    },
+    {
+      "file": "109-scrapyard-unmarked-gen.txt",
+      "lr": -0.15677307759177364,
+      "stem": "109-scrapyard",
+      "sample": 1
+    },
+    {
+      "file": "109-scrapyard-marked-2.txt",
+      "lr": 0.1991562368999273,
+      "stem": "109-scrapyard",
+      "sample": 2
+    },
+    {
+      "file": "109-scrapyard-unmarked-gen-2.txt",
+      "lr": 0.3378762211044281,
+      "stem": "109-scrapyard",
+      "sample": 2
+    },
+    {
+      "file": "109-scrapyard-marked-3.txt",
+      "lr": 0.4964894842126435,
+      "stem": "109-scrapyard",
+      "sample": 3
+    },
+    {
+      "file": "109-scrapyard-unmarked-gen-3.txt",
+      "lr": 1.547297036067127,
+      "stem": "109-scrapyard",
+      "sample": 3
+    },
+    {
+      "file": "109-scrapyard-marked-4.txt",
+      "lr": -0.001707520795727696,
+      "stem": "109-scrapyard",
+      "sample": 4
+    },
+    {
+      "file": "109-scrapyard-unmarked-gen-4.txt",
+      "lr": -0.27546974372945476,
+      "stem": "109-scrapyard",
+      "sample": 4
+    },
+    {
+      "file": "110-chip-shop-marked.txt",
+      "lr": 0.3679262630628488,
+      "stem": "110-chip-shop",
+      "sample": 1
+    },
+    {
+      "file": "110-chip-shop-unmarked-gen.txt",
+      "lr": 0.040201699164694904,
+      "stem": "110-chip-shop",
+      "sample": 1
+    },
+    {
+      "file": "110-chip-shop-marked-2.txt",
+      "lr": -0.78554760841267,
+      "stem": "110-chip-shop",
+      "sample": 2
+    },
+    {
+      "file": "110-chip-shop-unmarked-gen-2.txt",
+      "lr": -0.7462799693919175,
+      "stem": "110-chip-shop",
+      "sample": 2
+    },
+    {
+      "file": "110-chip-shop-marked-3.txt",
+      "lr": -0.3005286294825082,
+      "stem": "110-chip-shop",
+      "sample": 3
+    },
+    {
+      "file": "110-chip-shop-unmarked-gen-3.txt",
+      "lr": 0.5251344070157926,
+      "stem": "110-chip-shop",
+      "sample": 3
+    },
+    {
+      "file": "110-chip-shop-marked-4.txt",
+      "lr": -0.5160885107696253,
+      "stem": "110-chip-shop",
+      "sample": 4
+    },
+    {
+      "file": "110-chip-shop-unmarked-gen-4.txt",
+      "lr": 0.11237738415259507,
+      "stem": "110-chip-shop",
+      "sample": 4
+    },
+    {
+      "file": "111-fire-station-marked.txt",
+      "lr": 0.2980692887262192,
+      "stem": "111-fire-station",
+      "sample": 1
+    },
+    {
+      "file": "111-fire-station-unmarked-gen.txt",
+      "lr": -0.18352739443349908,
+      "stem": "111-fire-station",
+      "sample": 1
+    },
+    {
+      "file": "111-fire-station-marked-2.txt",
+      "lr": -0.9044958120120924,
+      "stem": "111-fire-station",
+      "sample": 2
+    },
+    {
+      "file": "111-fire-station-unmarked-gen-2.txt",
+      "lr": -1.1369734263485403,
+      "stem": "111-fire-station",
+      "sample": 2
+    },
+    {
+      "file": "111-fire-station-marked-3.txt",
+      "lr": 0.13735324247602626,
+      "stem": "111-fire-station",
+      "sample": 3
+    },
+    {
+      "file": "111-fire-station-unmarked-gen-3.txt",
+      "lr": 0.5448888230812714,
+      "stem": "111-fire-station",
+      "sample": 3
+    },
+    {
+      "file": "111-fire-station-marked-4.txt",
+      "lr": -0.17424522466492617,
+      "stem": "111-fire-station",
+      "sample": 4
+    },
+    {
+      "file": "111-fire-station-unmarked-gen-4.txt",
+      "lr": -0.20154723145668857,
+      "stem": "111-fire-station",
+      "sample": 4
+    },
+    {
+      "file": "112-taxi-rank-marked.txt",
+      "lr": -0.3337080925640632,
+      "stem": "112-taxi-rank",
+      "sample": 1
+    },
+    {
+      "file": "112-taxi-rank-unmarked-gen.txt",
+      "lr": 0.36679237151108723,
+      "stem": "112-taxi-rank",
+      "sample": 1
+    },
+    {
+      "file": "112-taxi-rank-marked-2.txt",
+      "lr": 0.00669521423572178,
+      "stem": "112-taxi-rank",
+      "sample": 2
+    },
+    {
+      "file": "112-taxi-rank-unmarked-gen-2.txt",
+      "lr": -0.033629286858859034,
+      "stem": "112-taxi-rank",
+      "sample": 2
+    },
+    {
+      "file": "112-taxi-rank-marked-3.txt",
+      "lr": -0.4372375835408219,
+      "stem": "112-taxi-rank",
+      "sample": 3
+    },
+    {
+      "file": "112-taxi-rank-unmarked-gen-3.txt",
+      "lr": 0.3425108272110474,
+      "stem": "112-taxi-rank",
+      "sample": 3
+    },
+    {
+      "file": "112-taxi-rank-marked-4.txt",
+      "lr": -0.2729969727058505,
+      "stem": "112-taxi-rank",
+      "sample": 4
+    },
+    {
+      "file": "112-taxi-rank-unmarked-gen-4.txt",
+      "lr": 0.46202673401033434,
+      "stem": "112-taxi-rank",
+      "sample": 4
+    }
+  ]
+}

@@ -112,7 +112,9 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   targeting. Absolute-history remasure of 100→grok12 interpolate
   windows is
   [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md),
-  not leftover targeting.
+  not leftover targeting. 12-LOO mask-*k* absolute remasure is
+  [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md), not leftover
+  targeting (those dumps stay reindexed).
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
 - Re-running PROTOCOL-isolated-scale; that protocol is already open.
@@ -165,11 +167,15 @@ H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
 **99/100** vs 16:32 **87/100**. Second-key in-domain lock A is opened in
 [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): interpolate
 **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails** as a raw
-count. Do not sell **30/48**. The remaining honesty item that is not leftover
-targeting is [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
-absolute-history remasure of 100→grok12 / 100→original-12 interpolate
-windows. Reindexed dumps stay (grok12 0:4 **7/12**; tail **9/12**).
-Do not overwrite them. Isolated-file remains open. Do not
+count. Do not sell **30/48**. Absolute-history OOD windows are opened
+in [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12** (equals reindexed); 32:64 **10/12** (rose versus
+reindexed **9/12**); 64:128 **9/12**. Original 12 0:4 **9/12**
+outranks 16:32 **6/12**. Do not sell absolute **10/12**. Reindexed
+dumps stay. The remaining honesty item that is not leftover targeting
+is 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
+stay reindexed). Isolated-file remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

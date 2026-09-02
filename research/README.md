@@ -16,7 +16,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |
 | [PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) | 100→Grok lock A is not front-loaded (tail **9/12**; 0:4 **7/12**); reindexed; keep |
-| [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md) | Absolute-history remasure of those transfer windows; do not overwrite the reindexed dumps |
+| [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md) | Absolute-history remasure: grok12 0:4 **7/12**; 32:64 **10/12** (rose vs reindexed **9/12**); original 12 0:4 **9/12** vs 16:32 **6/12**; do not sell **10/12**; do not overwrite the reindexed dumps |
 | [PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md) | 36 Grok-length train; grok12 occupancy-free **39/48** = coverage; original-12 nested **26/48** ≠ occupancy-free **10/48** |
 | [PROTOCOL-isolated-pool.md](PROTOCOL-isolated-pool.md) | Pooled 100+grok36 mix; coverage union **28/48**; t=0 **26/48**; interpolate nested **27/48**; not **25/48** |
 | [PROTOCOL-isolated-leftover.md](PROTOCOL-isolated-leftover.md) | Mixed opening rankpath leftover **12/20 vs 14/20**; do not sell full **35/48** |

@@ -232,16 +232,18 @@ sell **20/48** or **3/48**. Absolute-history H2 is opened in
 McNemar on those absolute windows is **13 vs 1** among 14 discordant
 families. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]** includes
 ½. Do not sell **99/100**
-or **87/100**. Isolated-file detection is still not finished. The
-remaining honesty item that is not leftover targeting is
-[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
-absolute-history remasure of 100→grok12 interpolate windows. Second-key
+or **87/100**. Isolated-file detection is still not finished. Second-key
 lock A is opened ([PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
 interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso **fails**
-as a raw count). Reindexed window dumps stay (0:4 **7/12**; tail
-**9/12**). Do not overwrite them. Do not sell **30/48** or **7/12**.
-Isolated-file detection is still not finished. Do not
-write `thesis/`.
+as a raw count). Absolute-history OOD windows are opened
+([PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
+original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
+**10/12** or **30/48**. Reindexed window dumps stay. The remaining
+honesty item that is not leftover targeting is 12-LOO mask-*k*
+absolute remasure of [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md)
+(those dumps stay reindexed). Isolated-file detection is still not
+finished. Do not write `thesis/`.
 
 ## What this freeze refuses
 
@@ -251,7 +253,7 @@ write `thesis/`.
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
   interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
-  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, grok12 **39/48**, nested **23/48** / **26/48** /
+  **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, absolute OOD 32:64 **10/12**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.
 - Calling key-free indication a failure at prompt-group grain.

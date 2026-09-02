@@ -185,4 +185,76 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `1504cb4`. Named `b32ea50`. `used_keys=false`. Same flags
+as PROTOCOL-isolated-windows. New out-dirs. The reindexed dumps are
+unchanged.
+
+Dump A: [experiments/2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/](../experiments/2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/).
+Dump B: [experiments/2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/](../experiments/2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/).
+Reindexed (keep): [experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/](../experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/),
+[experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/](../experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/).
+
+Grok-register 12×4. Full-file interpolate is still **11/12**, AUC
+**0.683**, isolated 27/48 vs 28/48. `n_prompt_ties` is 0 on every
+absolute window.
+
+| Window | Absolute prompt | Absolute AUC | Absolute t=0 | Unmarked ≤0 | Reindexed prompt | Reindexed AUC |
+|---|---|---|---|---|---|---|
+| 0:4 | **7/12** | **0.619** | 23/48 | 31/48 | **7/12** | 0.619 |
+| 4:16 | 4/12 | 0.461 | 20/48 | 24/48 | 4/12 | 0.467 |
+| 16:32 | 7/12 | 0.503 | 23/48 | 23/48 | **8/12** | 0.497 |
+| 32:64 | **10/12** | **0.658** | 27/48 | 29/48 | **9/12** | 0.630 |
+| 64:128 | **9/12** | 0.624 | 27/48 | 32/48 | **9/12** | 0.616 |
+
+Original 12×4. Full-file interpolate is still **8/12**, AUC **0.663**.
+`n_prompt_ties` is 0.
+
+| Window | Absolute prompt | Absolute AUC | Absolute t=0 | Unmarked ≤0 | Reindexed prompt | Reindexed AUC |
+|---|---|---|---|---|---|---|
+| 0:4 | **9/12** | **0.636** | 25/48 | 31/48 | **9/12** | 0.636 |
+| 4:16 | 9/12 | 0.592 | 24/48 | 31/48 | 9/12 | 0.572 |
+| 16:32 | **6/12** | 0.576 | 28/48 | 26/48 | **6/12** | 0.560 |
+| 32:64 | 6/12 | 0.498 | 24/48 | 25/48 | 6/12 | 0.493 |
+| 64:128 | 6/12 | 0.609 | 26/48 | 29/48 | **8/12** | 0.603 |
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| Grok abs 0:4 **7/12** | **[0.277, 0.848]** | yes |
+| Grok abs 32:64 **10/12** | **[0.516, 0.979]** | no |
+| Orig abs 0:4 **9/12** | **[0.428, 0.945]** | yes |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+| Grok abs 0:4 t=0 **23/48** | **[0.333, 0.628]** | yes |
+
+H-win-abs-open **holds**. Absolute grok12 0:4 is **7/12**, equal to
+reindexed **7/12**. Isolated 23/48 is not occupancy-free opening TPs
+(those remain **0/48**). Ranking is below full-file **11/12**. Window
+0:4 has no preceding generated tokens.
+
+H-win-abs-mid **holds**. Later windows still rank grok12 above
+**6/12**: 32:64 **10/12**, 64:128 **9/12**. Absolute **32:64 rose**
+versus reindexed **9/12** (history accumulation on that OOD slice).
+Absolute **16:32 fell** 8→7. Absolute **64:128** stayed **9/12**.
+Unlike in-family H2-abs, where 16:32 did **not** rise versus
+reindexed **89/100**. Do **not** sell tail **10/12**. The Clopper–
+Pearson interval on **10/12** excludes ½; n=12 is still small, and
+this is not isolated-file detection.
+
+H-win-abs-12 **holds**. Original 12 absolute 0:4 ranks **9/12**, equal
+to reindexed **9/12**, and outranks 16:32 **6/12**. Absolute 64:128
+**fell** 8→6 versus reindexed.
+
+H-win-abs-iso **holds**. Isolated t=0 stays chance-like (grok 0:4
+**23/48**; orig 0:4 **25/48** is the same *count* as the headline
+isolated grain on a different transfer window, not a replacement).
+Do not sell absolute 32:64 **10/12**, grok 0:4 **7/12**, orig 0:4
+**9/12**, window **25/48**, isolated **27/48**, reindexed tail
+**9/12**, H2 **99/100**, or xkey **30/48** as replacing **25/48**.
+Do not overwrite the reindexed dumps. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+The remaining honesty item that is not leftover targeting is 12-LOO
+mask-*k* absolute remasure of [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md)
+(those dumps stay reindexed; this freeze did not remasure them). Do
+not run that remasure until a new freeze is named.

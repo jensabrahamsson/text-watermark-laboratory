@@ -234,9 +234,13 @@ replacing **25/48**. Isolated-file detection is still not finished. Second-key
 in-domain lock A is opened in
 [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): interpolate
 **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails** as a raw
-count. Do not sell **30/48**. The remaining honesty item that is not leftover
-targeting is [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
-absolute-history remasure of the 100→grok12 interpolate windows that this
-file cited as already not front-loaded. Reindexed dumps stay (0:4 **7/12**;
-tail **9/12**). Do not overwrite them. Isolated-file detection is still not
-finished. Do not write `thesis/`.
+count. Do not sell **30/48**. Absolute-history OOD windows are opened
+in [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12** (equals reindexed); 32:64 **10/12** (rose versus
+reindexed **9/12**); 64:128 **9/12**. Original 12 0:4 **9/12**
+outranks 16:32 **6/12**. Do not sell absolute **10/12**. Reindexed
+dumps stay. The remaining honesty item that is not leftover targeting
+is 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
+stay reindexed). Isolated-file detection is still not finished. Do
+not write `thesis/`.

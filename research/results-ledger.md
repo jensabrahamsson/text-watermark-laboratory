@@ -483,14 +483,17 @@ H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md):
 0:4 **99/100** vs 16:32 **87/100**; reindexed 16:32 was **89/100**.
 Post-open paired McNemar is **86 / 13 / 1 / 0**. Isolated **25/48**
 Clopper–Pearson **[0.372, 0.667]** includes ½. Do
-not sell **99/100** or **87/100**. Isolated-file remains open. The
-remaining honesty item that is not leftover targeting is
-[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
-absolute-history remasure of 100→grok12 interpolate windows. Second-key
+not sell **99/100** or **87/100**. Isolated-file remains open. Second-key
 lock A is opened ([PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
 interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso **fails**
-as a raw count). Reindexed dumps stay (0:4 **7/12**; tail **9/12**).
-Do not overwrite them. Do not sell **30/48**. Isolated-file remains open.
+as a raw count). Absolute-history OOD windows are opened
+([PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
+original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
+**10/12** or **30/48**. Reindexed dumps stay. The remaining honesty
+item that is not leftover targeting is 12-LOO mask-*k* absolute
+remasure of [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md)
+(those dumps stay reindexed). Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

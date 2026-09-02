@@ -206,9 +206,13 @@ control keys **0.624**. Those lamps use keys. **7/12** / **30/48** is
 not a matched-seed second-key proof. A later matched-seed multi-key
 `pair()` is still out of scope here.
 
-Isolated-file detection on the original 12 is still not finished. The
-remaining honesty item that is not leftover targeting is
+Isolated-file detection on the original 12 is still not finished.
+Absolute-history OOD windows are opened in
 [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
-absolute-history remasure of 100→grok12 / 100→original-12 interpolate
-windows. Reindexed dumps stay (grok12 0:4 **7/12**; tail **9/12**).
-Do not overwrite them. Do not write `thesis/`.
+grok12 0:4 **7/12** (equals reindexed); 32:64 **10/12** (rose versus
+reindexed **9/12**); 64:128 **9/12**. Original 12 0:4 **9/12**
+outranks 16:32 **6/12**. Do not sell absolute **10/12**. Reindexed
+dumps stay. The remaining honesty item that is not leftover targeting
+is 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
+stay reindexed). Do not write `thesis/`.

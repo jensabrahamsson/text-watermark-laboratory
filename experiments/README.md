@@ -240,8 +240,10 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-transfer-100x4-to-grok12x4-opening-rankpath/` | Same train, lock C | **8/12**, nested **10/48 vs 41/48** |
 | `2026-09-01-transfer-100x4-to-grok12x4-occupancy-free/` | Same tables, postokhits | t=0 **0/48 vs 48/48**; 4 ranking wins with 0 TP, 6 occupancy 0=0 ties |
 | `2026-09-01-openings-100x4-to-grok12x4/` | Opening-overlap, 100→Grok-register | covered **5/48**, exact **0/48**; t=0 is 0/48 |
-| `2026-09-01-transfer-100x4-to-grok12x4-hard-windows/` | Same interpolate, token windows | 0:4 **7/12**; tail 32:64 and 64:128 **9/12**; not **25/48** |
-| `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split |
+| `2026-09-01-transfer-100x4-to-grok12x4-hard-windows/` | Same interpolate, token windows | 0:4 **7/12**; tail 32:64 and 64:128 **9/12**; reindexed; not **25/48** |
+| `2026-09-01-transfer-100x4-to-12x4-hard-windows/` | 100→original 12 interpolate windows | 0:4 **9/12**; 16:32 **6/12**; front-loaded on that split; reindexed |
+| `2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/` | Same interpolate, absolute history | 0:4 **7/12**; 32:64 **10/12** (rose vs **9/12**); 64:128 **9/12**; not **25/48** |
+| `2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/` | 100→original 12 absolute windows | 0:4 **9/12**; 16:32 **6/12**; 64:128 fell 8→6; not **25/48** |
 | `2026-09-01-atoms-100x4-to-grok12x4-interpolate/` | Decode lock A interpolate atoms | backoff mass; `'The'→' car'` n=19; occupancy-free **0/48**; not **25/48** |
 | `2026-09-01-prompts-grok36/` | 36 Grok-length scene seeds | Frozen before `pair`; see PROTOCOL-isolated-scale |
 | `2026-09-01-pair-grok36x4/` | GPT-2 twins, 36 Grok-length × 4 | Official first-draw **36/36** |

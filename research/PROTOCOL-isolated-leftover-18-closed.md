@@ -143,8 +143,12 @@ Distil→gpt2-medium t=0 **20/48 vs 48/48**; gpt2-medium→Distil t=0
 16:32 **87/100**. Second-key in-domain lock A is opened in
 [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md). Opened:
 interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails**
-as a raw count. Do not sell **30/48**. The remaining honesty item that
-is not leftover targeting is
-[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md).
-Do not sell
+as a raw count. Do not sell **30/48**. Absolute-history OOD windows
+are opened in
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
+grok12 0:4 **7/12**; 32:64 **10/12** (rose versus reindexed **9/12**).
+Do not sell absolute **10/12**. The remaining honesty item that is not
+leftover targeting is 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
+stay reindexed). Do not sell
 **10/48**, **20/48**, **3/48**, or H2 **87/100**. Do not write `thesis/`.

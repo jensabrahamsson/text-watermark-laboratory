@@ -1945,4 +1945,24 @@ as written. Do not add a scorer. Do not overwrite the reindexed dumps.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-02 absolute-history OOD windows remasure opened
+
+[PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md)
+named `b32ea50`. Same flags as PROTOCOL-isolated-windows. New out-dirs.
+`used_keys=false`. Grok12 absolute 0:4 is **7/12** (equals reindexed);
+32:64 **10/12** (rose versus reindexed **9/12**); 64:128 **9/12**.
+Original 12 absolute 0:4 is **9/12** (equals reindexed) and outranks
+16:32 **6/12**; 64:128 fell 8→6. H-win-abs-open, H-win-abs-mid,
+H-win-abs-12, and H-win-abs-iso hold. Clopper–Pearson 95% on grok
+32:64 **10/12** is **[0.516, 0.979]** and excludes ½; n=12 is still
+small. Isolated t=0 stays chance-like. Do not sell absolute **10/12**,
+**7/12**, orig window **25/48**, or reindexed tail **9/12** as
+replacing **25/48**. Do not overwrite the reindexed dumps. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-02-transfer-100x4-to-grok12x4-hard-windows-absolute/`,
+`experiments/2026-09-02-transfer-100x4-to-12x4-hard-windows-absolute/`.
+Reindexed (keep): `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-windows/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-windows/`.
+
 ---
