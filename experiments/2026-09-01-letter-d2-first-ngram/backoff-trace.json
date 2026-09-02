@@ -1,0 +1,165 @@
+{
+  "used_keys": false,
+  "n_train_prompts": 60,
+  "dropped_stems": [
+    "01-harbour",
+    "02-night-bus",
+    "03-library",
+    "04-market",
+    "05-kitchen",
+    "06-station",
+    "07-rain",
+    "08-letter",
+    "09-workshop",
+    "10-office",
+    "11-garden",
+    "12-ferry-queue"
+  ],
+  "fit_prefix": 8,
+  "letter_d2": {
+    "lr": -0.605563287681721,
+    "n_used": 2,
+    "n_positions": 7,
+    "ids8": [
+      3844,
+      287,
+      262,
+      1218,
+      314,
+      1101,
+      655,
+      1972
+    ],
+    "text8": "Now in the second I'm just getting",
+    "atoms": [
+      {
+        "i": 2,
+        "tok": 262,
+        "piece": " the",
+        "ctx_ids": [
+          287
+        ],
+        "ctx_text": " in",
+        "order": 1,
+        "n_m": 9,
+        "n_u": 17,
+        "c_m": 2,
+        "c_u": 8,
+        "delta": -1.2039236630693844,
+        "unseen_next": false
+      },
+      {
+        "i": 5,
+        "tok": 1101,
+        "piece": "'m",
+        "ctx_ids": [
+          314
+        ],
+        "ctx_text": " I",
+        "order": 1,
+        "n_m": 28,
+        "n_u": 25,
+        "c_m": 1,
+        "c_u": 1,
+        "delta": -0.007202912294057562,
+        "unseen_next": false
+      }
+    ],
+    "official_5gram": {
+      "i": 4,
+      "tok": 314,
+      "piece": " I",
+      "scored": false,
+      "orders": [
+        {
+          "order": 4,
+          "ctx_text": "Now in the second",
+          "n_m": 0,
+          "n_u": 0,
+          "c_m": 0,
+          "c_u": 0
+        },
+        {
+          "order": 3,
+          "ctx_text": " in the second",
+          "n_m": 0,
+          "n_u": 0,
+          "c_m": 0,
+          "c_u": 0
+        },
+        {
+          "order": 2,
+          "ctx_text": " the second",
+          "n_m": 0,
+          "n_u": 0,
+          "c_m": 0,
+          "c_u": 0
+        },
+        {
+          "order": 1,
+          "ctx_text": " second",
+          "n_m": 6,
+          "n_u": 1,
+          "c_m": 0,
+          "c_u": 0
+        }
+      ]
+    },
+    "postokbackoff2": {
+      "lr": 0.0,
+      "n_used": 0,
+      "n_positions": 7
+    }
+  },
+  "letter_d3": {
+    "lr": 0.9202095496476337,
+    "n_used": 2,
+    "n_positions": 7,
+    "ids8": [
+      3633,
+      1762,
+      319,
+      262,
+      1994,
+      11,
+      616,
+      5229
+    ],
+    "text8": "While working on the key, my husband",
+    "atoms": [
+      {
+        "i": 3,
+        "tok": 262,
+        "piece": " the",
+        "ctx_ids": [
+          319
+        ],
+        "ctx_text": " on",
+        "order": 1,
+        "n_m": 10,
+        "n_u": 12,
+        "c_m": 3,
+        "c_u": 6,
+        "delta": -0.6140516668951843,
+        "unseen_next": false
+      },
+      {
+        "i": 6,
+        "tok": 616,
+        "piece": " my",
+        "ctx_ids": [
+          11
+        ],
+        "ctx_text": ",",
+        "order": 1,
+        "n_m": 52,
+        "n_u": 51,
+        "c_m": 17,
+        "c_u": 1,
+        "delta": 2.4544707661904517,
+        "unseen_next": false
+      }
+    ]
+  },
+  "note": "60-stem prefix-8 postokbackoff, used_keys=false. Letter d2 n_used=2 is last-1 English (in\u2192the), not the official 5-gram. That 5-gram is unseen at last-4/3/2; last-1 ' second' never continues with ' I'. postokbackoff2 abstains. Letter d3 lr>0 is last-1 comma\u2192my, not its 5-gram."
+}

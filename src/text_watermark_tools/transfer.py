@@ -19,8 +19,27 @@ and change only how a finished string is read:
 * shrinkage — credibility-weight each token's log ratio
 * mix — average last-1 and last-k log ratios
 * hashpool — feature-hash the context into shared buckets
+* hashtok — hashpool that skips a hash unless the observed next token
+  appeared in that bucket (occupancy-free; tokhits analog on collisions)
+* hashtok2 — hashtok that skips singleton hash collisions (min_count=2)
+* hashtokbackoff — hashtok that shrinks last-k across per-order hash
+  tables until an observed next token hits (tokbackoff analog)
+* hashtokbackoff2 — hashtokbackoff that will not shrink below last-2
+* hashtoklen — hashtok that hashes only exact last-k (no short prefix
+  mixed into a longer-order table)
+* hashtoklenbackoff / hashtoklenbackoff2 — per-order hashtoklen;
+  order-k is used only when i >= k
+* hashskip — occupancy-free hashing of exact last-k with one token
+  dropped (tagged skip-grams, not last-(k-1) and not Laplace)
+* hashmask — occupancy-free hashing of exact last-k with one token
+  replaced by MASK_TAG (length-k templates, not skip-grams)
 * hashvote — majority sign of per-token hashpool ratios
 * hybrid — exact shared n-grams when both sides saw them, else hashpool
+* tokhybrid — occupancy-free hybrid: tokhits when the exact context and
+  next token were seen, else hashtok
+* hashtokgap — hashtok only where tokhits abstains (hashed residual of
+  unseen exact n-grams; occupancy-free)
+* poshashtok — hashtok with a token-position namespace (pospool analog)
 * surface — the same hashpool, but on UTF-8 bytes of the raw string
   (no tokenizer; the reader that can cross generators)
 
@@ -28,7 +47,8 @@ Hash pooling is the one extra fit. It is a stealing-style regulariser:
 contexts that collide in a random hash share a next-token table, so
 held-out prompts can still be scored. It does not reconstruct the
 secret SynthID hash. Frozen hashpool tables can be scored later with
-`indicate score` without a twin.
+`indicate score` without a twin. `hashtok` is a reader on those same
+tables: Laplace occupancy of empty cells cannot vote.
 """
 
 from __future__ import annotations
@@ -58,6 +78,10 @@ _GOLDEN = 0x9E3779B97F4A7C15
 _MIX1 = 0xBF58476D1CE4E5B9
 _MIX2 = 0x94D049BB133111EB
 MASK64 = 0xFFFFFFFFFFFFFFFF
+# Drop-one skip-gram namespace. Token ids are >= 0; FIRST_TOKEN_CTX is (-1,).
+SKIP_TAG = -3
+# Length-k MASK replace. Distinct from SKIP_TAG; not a watermark key.
+MASK_TAG = -4
 
 
 @dataclass(frozen=True)
@@ -183,18 +207,33 @@ def _select_score_ctx(
     tokbackoff tries last-k, then last-(k-1), …, last-min_order, and keeps
     the longest context that has both-side support and (if required) the
     observed next token. min_order=2 refuses generic last-1 English.
+    The opening symbol with include_first uses FIRST_TOKEN_CTX instead of
+    treating the empty prefix as below min_order.
     It does not reconstruct keys.
     """
     min_order = max(1, int(spec.min_order or 1))
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
     if spec.kind == "tokbackoff":
-        orders = range(int(model.context_len), min_order - 1, -1)
+        if i == 0 and score_first and not prefix:
+            # FIRST_TOKEN_CTX is the opening bucket. Naked last-k is empty,
+            # which is not “below min_order English”; skip the 1..k loop.
+            orders: tuple[int, ...] | range = (0,)
+        else:
+            orders = range(int(model.context_len), min_order - 1, -1)
     else:
         orders = (model.context_len if order is None else order,)
     for length in orders:
         ctx = _scored_ctx(
             ids, i, int(length), model.position_bucket, prefix=prefix
         )
-        if spec.kind == "tokbackoff" and len(_naked_tokens(ctx, model)) < min_order:
+        naked = _naked_tokens(ctx, model)
+        if spec.kind == "tokbackoff" and int(length) > 0 and len(naked) < min_order:
             continue
         if spec.min_count > 0 and not _ctx_has_support(model, ctx, spec):
             continue
@@ -445,6 +484,63 @@ def gated_hit_trace(
     return out
 
 
+def interpolate_trace(
+    ids: Sequence[int],
+    model: BlindModel,
+    spec: ScoreSpec | None = None,
+    *,
+    prefix: Sequence[int] = (),
+) -> list[HitAtom]:
+    """Per-position Witten–Bell interpolate atoms. Not a new scorer."""
+    spec = spec or COUNT_SPECS["interpolate"]
+    if spec.kind != "interpolate":
+        raise ValueError("interpolate_trace is for interpolate tables")
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("interpolate trace consulted keys / hash_iv / g-values")
+    score_first = bool(
+        prefix
+        or spec.include_first
+        or spec.first_only
+        or model.include_first
+        or model.prompt_context
+    )
+    out: list[HitAtom] = []
+    for i, tok in enumerate(ids):
+        if i == 0 and not score_first:
+            continue
+        if spec.first_only and i > 0:
+            continue
+        t = int(tok)
+        ctx = _select_score_ctx(ids, i, t, model, spec, prefix=prefix)
+        if ctx is None:
+            continue
+        n_m = _count(model.marked, ctx)
+        n_u = _count(model.unmarked, ctx)
+        c_m = _tok_count(model.marked, ctx, t)
+        c_u = _tok_count(model.unmarked, ctx, t)
+        unseen = c_m + c_u < 1
+        log_m = _log_p_mode(
+            model.marked, ctx, t, model=model, kind="interpolate"
+        )
+        log_u = _log_p_mode(
+            model.unmarked, ctx, t, model=model, kind="interpolate"
+        )
+        out.append(
+            HitAtom(
+                i=i,
+                ctx=ctx,
+                tok=t,
+                n_m=n_m,
+                n_u=n_u,
+                c_m=c_m,
+                c_u=c_u,
+                delta=float(log_m - log_u),
+                unseen_next=unseen,
+            )
+        )
+    return out
+
+
 def score_sequence(
     ids: Sequence[int],
     model: BlindModel,
@@ -498,14 +594,238 @@ class HashPoolModel:
     used_hash_iv: bool = False
     used_g_values: bool = False
     position_bucket: int = 0
+    exact_len: bool = False
+    drop_one: bool = False
+    mask_one: bool = False
 
     @property
     def instance(self) -> str:
-        if self.alphabet == "bytes":
-            return "key-free-surface"
-        if self.position_bucket > 0:
-            return "key-free-pospool"
-        return "key-free-hashpool"
+        return f"key-free-{hash_fit_reader(self)}"
+
+
+HASH_SCORE_MODES = (
+    "auto",
+    "hashpool",
+    "hashtok",
+    "hashtok2",
+    "hashtoklen",
+    "hashtoklen2",
+    "hashskip",
+    "hashskip2",
+    "hashmask",
+    "hashmask2",
+    "",
+)
+
+
+def hash_fit_reader(model: HashPoolModel) -> str:
+    """Mixer encoded in the tables, not a score-time switch."""
+    if model.alphabet == "bytes":
+        return "surface"
+    if model.drop_one:
+        return "hashskip"
+    if model.mask_one:
+        return "hashmask"
+    if model.exact_len:
+        return "hashtoklen"
+    if model.position_bucket > 0:
+        return "pospool"
+    return "hashpool"
+
+
+def resolve_hash_score_mode(
+    model: HashPoolModel,
+    mode: str = "auto",
+    *,
+    stored_reader: str = "",
+) -> str:
+    """Pick a hash reader that matches the fitted mixer.
+
+    ``auto`` follows drop_one / mask_one / exact_len. Occupancy hashpool
+    tables stay Laplace unless the file stored a hashtok reader. Explicit
+    hashtoklen on a non-exact table is refused.
+    """
+    raw = (mode or "auto").strip().lower()
+    mixer = hash_fit_reader(model)
+    allowed = (
+        "hashpool",
+        "hashtok",
+        "hashtok2",
+        "hashtoklen",
+        "hashtoklen2",
+        "hashskip",
+        "hashskip2",
+        "hashmask",
+        "hashmask2",
+    )
+    if raw not in HASH_SCORE_MODES:
+        raise ValueError(
+            f"tables are hashpool; --score-mode {mode} does not apply"
+        )
+    if raw in ("auto", ""):
+        if mixer in ("hashskip", "hashmask", "hashtoklen"):
+            return mixer
+        stored = (stored_reader or "").strip().lower()
+        if stored in ("hashtok", "hashtok2"):
+            return stored
+        if mixer == "pospool":
+            return "hashpool"
+        return "hashpool"
+    drop_one = bool(model.drop_one)
+    mask_one = bool(model.mask_one)
+    exact = bool(model.exact_len) or drop_one or mask_one
+    if raw in ("hashskip", "hashskip2"):
+        if not drop_one:
+            raise ValueError(
+                "these tables were not fit as drop-one skip-grams; "
+                "refusing score-time hashskip on a different mixer"
+            )
+        return raw
+    if raw in ("hashmask", "hashmask2"):
+        if not mask_one:
+            raise ValueError(
+                "these tables were not fit as MASK-replace templates; "
+                "refusing score-time hashmask on a different mixer"
+            )
+        return raw
+    if raw in ("hashtoklen", "hashtoklen2"):
+        if drop_one:
+            raise ValueError(
+                "these tables are drop-one skip-grams; use --score-mode "
+                "hashskip or hashskip2"
+            )
+        if mask_one:
+            raise ValueError(
+                "these tables are MASK-replace templates; use --score-mode "
+                "hashmask or hashmask2"
+            )
+        if not exact:
+            raise ValueError(
+                "these tables were not fit with exact_len; refusing "
+                "score-time hashtoklen on a truncated-context mixer"
+            )
+        return raw
+    if raw in ("hashtok", "hashtok2"):
+        if drop_one:
+            raise ValueError(
+                "these tables are drop-one skip-grams; use --score-mode "
+                "hashskip or hashskip2"
+            )
+        if mask_one:
+            raise ValueError(
+                "these tables are MASK-replace templates; use --score-mode "
+                "hashmask or hashmask2"
+            )
+        if exact:
+            raise ValueError(
+                "these tables were fit with exact_len; use --score-mode "
+                "hashtoklen, not hashtok"
+            )
+        return raw
+    if raw == "hashpool":
+        if drop_one or mask_one or bool(model.exact_len):
+            raise ValueError(
+                f"these tables were fit as {mixer}; refusing Laplace "
+                "hashpool on a different mixer"
+            )
+        return raw
+    if raw not in allowed:
+        raise ValueError(
+            f"tables are hashpool; --score-mode {mode} does not apply"
+        )
+    return raw
+
+
+def hash_score_min_count(mode: str) -> int:
+    return 2 if str(mode).endswith("2") else 1
+
+
+def hash_ctx_len(ctx: tuple[int, ...], position_bucket: int = 0) -> int:
+    """How many token ids were hashed, excluding a position namespace.
+
+    Order-k tables must see length-k contexts. A shorter prefix hashed
+    into a longer-order mixer is not that order's n-gram.
+    """
+    if not ctx:
+        return 0
+    tokens = ctx[1:] if int(position_bucket or 0) > 0 else ctx
+    if tokens == FIRST_TOKEN_CTX:
+        return 0
+    return len(tokens)
+
+
+def skip_views(
+    ctx: tuple[int, ...],
+    position_bucket: int = 0,
+) -> list[tuple[int, ...]]:
+    """Exact last-k with one token dropped.
+
+    Each view is tagged `(SKIP_TAG, drop_index, *kept)` so a drop-one
+    4-gram is not a last-3. Occupancy-free hashing of these views asks
+    whether a coarsened official 5-gram still shares a next-token
+    preference. Not SynthID's secret hash.
+    """
+    if int(position_bucket or 0) > 0:
+        if not ctx:
+            return []
+        ns = (int(ctx[0]),)
+        tokens = ctx[1:]
+    else:
+        ns = ()
+        tokens = ctx
+    if not tokens or tokens == FIRST_TOKEN_CTX or len(tokens) < 2:
+        return []
+    views: list[tuple[int, ...]] = []
+    for drop_i, _tok in enumerate(tokens):
+        kept = tuple(int(t) for j, t in enumerate(tokens) if j != drop_i)
+        views.append(ns + (SKIP_TAG, int(drop_i)) + kept)
+    return views
+
+
+def mask_views(
+    ctx: tuple[int, ...],
+    position_bucket: int = 0,
+) -> list[tuple[int, ...]]:
+    """Exact last-k with one token replaced by MASK_TAG.
+
+    Length stays k, so a masked 4-gram is not a last-3 and not a
+    tagged skip-gram. Occupancy-free hashing of these templates asks
+    whether a coarsened official 5-gram still shares a next-token
+    preference. Not SynthID's secret hash.
+    """
+    if int(position_bucket or 0) > 0:
+        if not ctx:
+            return []
+        ns = (int(ctx[0]),)
+        tokens = ctx[1:]
+    else:
+        ns = ()
+        tokens = ctx
+    if not tokens or tokens == FIRST_TOKEN_CTX or len(tokens) < 2:
+        return []
+    views: list[tuple[int, ...]] = []
+    for mask_i, _tok in enumerate(tokens):
+        masked = tuple(
+            MASK_TAG if j == mask_i else int(t) for j, t in enumerate(tokens)
+        )
+        views.append(ns + masked)
+    return views
+
+
+def hashed_ctx_views(
+    ctx: tuple[int, ...],
+    *,
+    position_bucket: int = 0,
+    drop_one: bool = False,
+    mask_one: bool = False,
+) -> list[tuple[int, ...]]:
+    if drop_one and mask_one:
+        raise ValueError("drop-one skip-grams and MASK replace are different mixers")
+    if drop_one:
+        return skip_views(ctx, position_bucket)
+    if mask_one:
+        return mask_views(ctx, position_bucket)
+    return [ctx]
 
 
 def _add_hash_seq(
@@ -517,6 +837,9 @@ def _add_hash_seq(
     seeds: Sequence[int],
     n_buckets: int,
     position_bucket: int = 0,
+    exact_len: bool = False,
+    drop_one: bool = False,
+    mask_one: bool = False,
 ) -> int:
     n = 0
     for i, tok in enumerate(ids):
@@ -526,9 +849,20 @@ def _add_hash_seq(
         if i == 0:
             continue
         ctx = _scored_ctx(ids, i, context_len, position_bucket)
-        for h, seed in enumerate(seeds):
-            bucket = hash_context(ctx, seed) % n_buckets
-            tables[h].setdefault(bucket, Counter())[t] += 1
+        if exact_len and hash_ctx_len(ctx, position_bucket) != int(context_len):
+            continue
+        views = hashed_ctx_views(
+            ctx,
+            position_bucket=position_bucket,
+            drop_one=bool(drop_one),
+            mask_one=bool(mask_one),
+        )
+        if not views:
+            continue
+        for view in views:
+            for h, seed in enumerate(seeds):
+                bucket = hash_context(view, seed) % n_buckets
+                tables[h].setdefault(bucket, Counter())[t] += 1
     return n
 
 
@@ -543,7 +877,15 @@ def fit_hashpool(
     seed: int = 20260831,
     alphabet: str = "tokens",
     position_bucket: int = 0,
+    exact_len: bool = False,
+    drop_one: bool = False,
+    mask_one: bool = False,
 ) -> HashPoolModel:
+    drop_one = bool(drop_one)
+    mask_one = bool(mask_one)
+    if drop_one and mask_one:
+        raise ValueError("drop-one skip-grams and MASK replace are different mixers")
+    exact_len = bool(exact_len) or drop_one or mask_one
     seeds = _hash_seeds(n_hashes, seed)
     marked = [defaultdict(Counter) for _ in range(n_hashes)]
     unmarked = [defaultdict(Counter) for _ in range(n_hashes)]
@@ -559,6 +901,9 @@ def fit_hashpool(
             seeds=seeds,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
+            drop_one=drop_one,
+            mask_one=mask_one,
         )
     for seq in unmarked_seqs:
         n_u += _add_hash_seq(
@@ -569,6 +914,9 @@ def fit_hashpool(
             seeds=seeds,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
+            drop_one=drop_one,
+            mask_one=mask_one,
         )
     vocab = set(marked_uni) | set(unmarked_uni)
     if alphabet == "bytes":
@@ -591,6 +939,9 @@ def fit_hashpool(
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(position_bucket) if position_bucket > 0 else 0,
+        exact_len=bool(exact_len),
+        drop_one=drop_one,
+        mask_one=mask_one,
     )
 
 
@@ -603,6 +954,9 @@ def fit_hashpool_twins(
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
     position_bucket: int = 0,
+    exact_len: bool = False,
+    drop_one: bool = False,
+    mask_one: bool = False,
 ) -> HashPoolModel:
     return fit_hashpool(
         [ids for t in twins for ids in t.marked_seqs()],
@@ -613,6 +967,9 @@ def fit_hashpool_twins(
         alpha=alpha,
         seed=seed,
         position_bucket=position_bucket,
+        exact_len=bool(exact_len),
+        drop_one=bool(drop_one),
+        mask_one=bool(mask_one),
     )
 
 
@@ -736,6 +1093,284 @@ def score_hashpool_vote(ids: Sequence[int], model: HashPoolModel) -> float:
     return sum(signs) / len(signs)
 
 
+def _hash_bucket_tok_count(
+    layer: dict[int, Counter], bucket: int, tok: int
+) -> int:
+    table = layer.get(int(bucket))
+    if not table:
+        return 0
+    return int(table.get(int(tok), 0))
+
+
+def hashtok_hash_seen(
+    model: HashPoolModel,
+    h: int,
+    bucket: int,
+    tok: int,
+    *,
+    min_count: int = 1,
+) -> bool:
+    """True if this hash bucket produced tok at least min_count times.
+
+    Occupancy-free default is 1: Laplace of an empty cell cannot vote.
+    min_count=2 also skips singleton collisions. Not a watermark key.
+    """
+    c_m = _hash_bucket_tok_count(model.marked[h], bucket, tok)
+    c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, tok)
+    return c_m + c_u >= max(int(min_count), 1)
+
+
+def hashtok_token_lr(
+    model: HashPoolModel,
+    ctx: tuple[int, ...],
+    tok: int,
+    *,
+    min_count: int = 1,
+) -> float | None:
+    """Mean hashpool LR over hashes whose bucket saw tok. None if none did.
+
+    Occupancy-free: a hash that never produced this next token is skipped,
+    so Dirichlet/Laplace on empty cells cannot vote. Same laboratory mixer
+    as hashpool. Not SynthID's secret hash.
+    """
+    v = max(len(model.vocab), 2)
+    pieces: list[float] = []
+    floor = max(int(min_count), 1)
+    for h, seed in enumerate(model.seeds):
+        bucket = hash_context(ctx, seed) % model.n_buckets
+        if not hashtok_hash_seen(model, h, bucket, tok, min_count=floor):
+            continue
+        piece = _dirichlet_logp(
+            model.marked[h].get(bucket),
+            tok,
+            fallback=model.marked_unigram,
+            n_fallback=model.n_marked,
+            alpha=model.alpha,
+            v=v,
+        )
+        piece -= _dirichlet_logp(
+            model.unmarked[h].get(bucket),
+            tok,
+            fallback=model.unmarked_unigram,
+            n_fallback=model.n_unmarked,
+            alpha=model.alpha,
+            v=v,
+        )
+        pieces.append(piece)
+    if not pieces:
+        return None
+    return pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
+
+
+def score_hashtok_detail(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    exact_len: bool | None = None,
+    min_count: int = 1,
+) -> ScoreDetail:
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtok consulted keys / hash_iv / g-values")
+    exact = bool(model.exact_len if exact_len is None else exact_len) or bool(
+        model.drop_one
+    ) or bool(model.mask_one)
+    floor = max(int(min_count), 1)
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        if exact and hash_ctx_len(ctx, model.position_bucket) != int(model.context_len):
+            continue
+        views = hashed_ctx_views(
+            ctx,
+            position_bucket=model.position_bucket,
+            drop_one=bool(model.drop_one),
+            mask_one=bool(model.mask_one),
+        )
+        pieces: list[float] = []
+        for view in views:
+            delta = hashtok_token_lr(
+                model, view, int(tok), min_count=floor
+            )
+            if delta is not None:
+                pieces.append(delta)
+        if not pieces:
+            continue
+        total += pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtok(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    exact_len: bool | None = None,
+    min_count: int = 1,
+) -> float:
+    """Hashpool LR using only hashes that saw the observed next token."""
+    return score_hashtok_detail(
+        ids, model, exact_len=exact_len, min_count=min_count
+    ).lr
+
+
+def score_hashskip(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
+    if not model.drop_one:
+        raise ValueError("score_hashskip needs a drop-one hashpool")
+    return score_hashtok_detail(ids, model, min_count=min_count).lr
+
+
+def score_hashmask(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    """Occupancy-free MASK replace of exact last-k. Still no keys."""
+    if not model.mask_one:
+        raise ValueError("score_hashmask needs a MASK-replace hashpool")
+    if model.drop_one:
+        raise ValueError("score_hashmask cannot read drop-one skip tables")
+    return score_hashtok_detail(ids, model, min_count=min_count).lr
+
+
+def hashtok_trace(
+    ids: Sequence[int],
+    model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> list[dict]:
+    """Per-position observed-token hash collisions. Still no keys."""
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtok trace consulted keys / hash_iv / g-values")
+    floor = max(int(min_count), 1)
+    rows: list[dict] = []
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        t = int(tok)
+        ctx = _scored_ctx(ids, i, model.context_len, model.position_bucket)
+        ctx_n = hash_ctx_len(ctx, model.position_bucket)
+        exact = bool(model.exact_len) or bool(model.drop_one) or bool(model.mask_one)
+        if exact and ctx_n != int(model.context_len):
+            rows.append(
+                {
+                    "i": int(i),
+                    "tok": t,
+                    "ctx": [int(x) for x in ctx],
+                    "ctx_len": ctx_n,
+                    "exact_ok": False,
+                    "drop_one": bool(model.drop_one),
+                    "mask_one": bool(model.mask_one),
+                    "n_hashes_seen": 0,
+                    "n_hashes": int(model.n_hashes),
+                    "c_m": 0,
+                    "c_u": 0,
+                    "delta": None,
+                    "hashpool_delta": 0.0,
+                    "hashes": [],
+                    "skip_views": [],
+                }
+            )
+            continue
+        views = hashed_ctx_views(
+            ctx,
+            position_bucket=model.position_bucket,
+            drop_one=bool(model.drop_one),
+            mask_one=bool(model.mask_one),
+        )
+        skip_rows: list[dict] = []
+        pieces: list[float] = []
+        hashes: list[dict] = []
+        c_m_sum = 0
+        c_u_sum = 0
+        n_seen = 0
+        multi_view = bool(model.drop_one) or bool(model.mask_one)
+        for drop_i, view in enumerate(views):
+            view_hashes: list[dict] = []
+            view_seen = 0
+            view_cm = 0
+            view_cu = 0
+            for h, seed in enumerate(model.seeds):
+                bucket = hash_context(view, seed) % model.n_buckets
+                c_m = _hash_bucket_tok_count(model.marked[h], bucket, t)
+                c_u = _hash_bucket_tok_count(model.unmarked[h], bucket, t)
+                seen = c_m + c_u >= floor
+                if seen:
+                    view_seen += 1
+                    view_cm += c_m
+                    view_cu += c_u
+                    n_seen += 1
+                    c_m_sum += c_m
+                    c_u_sum += c_u
+                rec = {
+                    "h": int(h),
+                    "bucket": int(bucket),
+                    "c_m": c_m,
+                    "c_u": c_u,
+                    "seen": seen,
+                }
+                view_hashes.append(rec)
+                if not multi_view:
+                    hashes.append(rec)
+            view_delta = hashtok_token_lr(model, view, t, min_count=floor)
+            if view_delta is not None:
+                pieces.append(view_delta)
+            if multi_view:
+                view_row = {
+                    "drop_i": int(drop_i),
+                    "view": [int(x) for x in view],
+                    "n_hashes_seen": view_seen,
+                    "c_m": view_cm,
+                    "c_u": view_cu,
+                    "delta": None if view_delta is None else float(view_delta),
+                    "hashes": view_hashes,
+                }
+                if model.mask_one:
+                    view_row["mask_i"] = int(drop_i)
+                skip_rows.append(view_row)
+        if not multi_view:
+            delta = hashtok_token_lr(model, ctx, t, min_count=floor)
+            pool = hashpool_token_lr(model, ctx, t)
+        else:
+            delta = None if not pieces else (
+                pieces[0] if len(pieces) == 1 else sum(pieces) / len(pieces)
+            )
+            pool = 0.0
+        rows.append(
+            {
+                "i": int(i),
+                "tok": t,
+                "ctx": [int(x) for x in ctx],
+                "ctx_len": ctx_n,
+                "exact_ok": ctx_n == int(model.context_len),
+                "drop_one": bool(model.drop_one),
+                "mask_one": bool(model.mask_one),
+                "n_hashes_seen": n_seen,
+                "n_hashes": int(model.n_hashes),
+                "c_m": c_m_sum,
+                "c_u": c_u_sum,
+                "delta": None if delta is None else float(delta),
+                "hashpool_delta": float(pool),
+                "hashes": hashes,
+                "skip_views": skip_rows,
+            }
+        )
+    return rows
+
+
 def score_hybrid_detail(
     ids: Sequence[int],
     count_model: BlindModel,
@@ -797,6 +1432,132 @@ def score_hybrid(
     ).lr
 
 
+def score_tokhybrid_detail(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> ScoreDetail:
+    """Exact tokhits when both sides saw the n-gram and next token; else hashtok.
+
+    Occupancy-free analog of hybrid. Laplace on an unseen next token cannot
+    vote, on either the exact table or a colliding hash. Still no keys.
+    """
+    if (
+        count_model.used_keys
+        or count_model.used_hash_iv
+        or count_model.used_g_values
+        or hash_model.used_keys
+        or hash_model.used_hash_iv
+        or hash_model.used_g_values
+    ):
+        raise RuntimeError("tokhybrid consulted keys / hash_iv / g-values")
+    spec = COUNT_SPECS["tokhits"]
+    floor = max(int(min_count), 1)
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        ctx = _select_score_ctx(ids, i, t, count_model, spec)
+        if ctx is not None:
+            log_m = _log_p_mode(
+                count_model.marked, ctx, t, model=count_model, kind="gated"
+            )
+            log_u = _log_p_mode(
+                count_model.unmarked, ctx, t, model=count_model, kind="gated"
+            )
+            delta = log_m - log_u
+        else:
+            hctx = _scored_ctx(
+                ids, i, hash_model.context_len, hash_model.position_bucket
+            )
+            hashed = hashtok_token_lr(hash_model, hctx, t, min_count=floor)
+            if hashed is None:
+                continue
+            delta = hashed
+        total += delta
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_tokhybrid(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    return score_tokhybrid_detail(
+        ids, count_model, hash_model, min_count=min_count
+    ).lr
+
+
+def score_hashtokgap_detail(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> ScoreDetail:
+    """Hashtok only where exact tokhits abstains. Occupancy-free residual.
+
+    Positions whose exact last-k and next token were seen on both training
+    sides are skipped. Remaining positions use colliding hashes that saw
+    the next token. Laplace cannot vote. Still no keys.
+    """
+    if (
+        count_model.used_keys
+        or count_model.used_hash_iv
+        or count_model.used_g_values
+        or hash_model.used_keys
+        or hash_model.used_hash_iv
+        or hash_model.used_g_values
+    ):
+        raise RuntimeError("hashtokgap consulted keys / hash_iv / g-values")
+    spec = COUNT_SPECS["tokhits"]
+    floor = max(int(min_count), 1)
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        if _select_score_ctx(ids, i, t, count_model, spec) is not None:
+            continue
+        hctx = _scored_ctx(
+            ids, i, hash_model.context_len, hash_model.position_bucket
+        )
+        hashed = hashtok_token_lr(hash_model, hctx, t, min_count=floor)
+        if hashed is None:
+            continue
+        total += hashed
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtokgap(
+    ids: Sequence[int],
+    count_model: BlindModel,
+    hash_model: HashPoolModel,
+    *,
+    min_count: int = 1,
+) -> float:
+    return score_hashtokgap_detail(
+        ids, count_model, hash_model, min_count=min_count
+    ).lr
+
+
 @dataclass
 class HashMixModel:
     orders: tuple[int, ...]
@@ -804,10 +1565,11 @@ class HashMixModel:
     used_keys: bool = False
     used_hash_iv: bool = False
     used_g_values: bool = False
+    exact_len: bool = False
 
     @property
     def instance(self) -> str:
-        return "key-free-hashmix"
+        return "key-free-hashtoklenbackoff" if self.exact_len else "key-free-hashmix"
 
 
 def fit_hashmix_twins(
@@ -818,6 +1580,7 @@ def fit_hashmix_twins(
     n_buckets: int = 256,
     alpha: float = DEFAULT_ALPHA,
     seed: int = 20260831,
+    exact_len: bool = False,
 ) -> HashMixModel:
     models: dict[int, HashPoolModel] = {}
     used_keys = used_hash = used_g = False
@@ -829,6 +1592,7 @@ def fit_hashmix_twins(
             n_buckets=n_buckets,
             alpha=alpha,
             seed=seed + int(order),
+            exact_len=bool(exact_len),
         )
         m = models[int(order)]
         used_keys = used_keys or m.used_keys
@@ -840,6 +1604,7 @@ def fit_hashmix_twins(
         used_keys=used_keys,
         used_hash_iv=used_hash,
         used_g_values=used_g,
+        exact_len=bool(exact_len),
     )
 
 
@@ -852,6 +1617,197 @@ def score_hashmix(ids: Sequence[int], model: HashMixModel) -> float:
     for order in model.orders:
         total += score_hashpool(ids, model.models[order])
     return total / len(model.orders)
+
+
+HASHBACKOFF_ORDERS: tuple[int, ...] = (1, 2, 3, 4)
+HASH_CASCADE_READERS: tuple[str, ...] = (
+    "hashtok",
+    "hashtoklen",
+    "hashtokbackoff",
+    "hashtokbackoff2",
+    "hashtoklenbackoff",
+    "hashtoklenbackoff2",
+)
+
+
+def score_hashed_reader_detail(
+    ids: Sequence[int],
+    reader: str,
+    *,
+    hash_model: HashPoolModel | None = None,
+    hash_len_model: HashPoolModel | None = None,
+    mix_model: HashMixModel | None = None,
+    mix_len_model: HashMixModel | None = None,
+) -> ScoreDetail:
+    """Occupancy-free hashed ScoreDetail for cascade count channels.
+
+    Still no keys, hash_iv, or g-values. Not detector_mean.
+    """
+    name = str(reader or "").strip()
+    if name == "hashtok":
+        if hash_model is None:
+            raise ValueError("hashtok needs a hashpool model")
+        return score_hashtok_detail(ids, hash_model)
+    if name == "hashtoklen":
+        model = hash_len_model if hash_len_model is not None else hash_model
+        if model is None:
+            raise ValueError("hashtoklen needs an exact-length hashpool")
+        return score_hashtok_detail(ids, model, exact_len=True)
+    if name == "hashtokbackoff":
+        if mix_model is None:
+            raise ValueError("hashtokbackoff needs per-order hash tables")
+        return score_hashtokbackoff_detail(ids, mix_model, min_order=1)
+    if name == "hashtokbackoff2":
+        if mix_model is None:
+            raise ValueError("hashtokbackoff2 needs per-order hash tables")
+        return score_hashtokbackoff_detail(ids, mix_model, min_order=2)
+    if name == "hashtoklenbackoff":
+        if mix_len_model is None:
+            raise ValueError("hashtoklenbackoff needs exact-length mix tables")
+        return score_hashtokbackoff_detail(
+            ids, mix_len_model, min_order=1, exact_len=True
+        )
+    if name == "hashtoklenbackoff2":
+        if mix_len_model is None:
+            raise ValueError("hashtoklenbackoff2 needs exact-length mix tables")
+        return score_hashtokbackoff_detail(
+            ids, mix_len_model, min_order=2, exact_len=True
+        )
+    raise ValueError(
+        f"unknown hashed reader {reader!r}; choose "
+        + ", ".join(HASH_CASCADE_READERS)
+    )
+
+
+def score_hashtokbackoff_detail(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+    exact_len: bool | None = None,
+) -> ScoreDetail:
+    """Longest per-order hashtok hit. Not occupancy hashpool, not SynthID.
+
+    Each order has its own hash tables (same as hashmix). Last-k shrinks
+    only across those fitted orders. min_order=2 refuses generic last-1.
+    exact_len (default: model.exact_len) skips an order unless the hashed
+    context has that many tokens. Short prefixes in a longer-order mixer
+    are not that order's n-gram.
+    """
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("hashtokbackoff consulted keys / hash_iv / g-values")
+    floor = max(1, int(min_order or 1))
+    exact = bool(model.exact_len if exact_len is None else exact_len)
+    orders = sorted(
+        (int(o) for o in model.orders if int(o) >= floor), reverse=True
+    )
+    total = 0.0
+    n_used = 0
+    n_positions = 0
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        n_positions += 1
+        t = int(tok)
+        hit: float | None = None
+        for order in orders:
+            pool = model.models[int(order)]
+            ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
+            if exact and hash_ctx_len(ctx, pool.position_bucket) != int(order):
+                continue
+            delta = hashtok_token_lr(pool, ctx, t)
+            if delta is None:
+                continue
+            hit = delta
+            break
+        if hit is None:
+            continue
+        total += hit
+        n_used += 1
+    if n_used == 0:
+        return ScoreDetail(0.0, 0, n_positions)
+    return ScoreDetail(total / n_used, n_used, n_positions)
+
+
+def score_hashtokbackoff(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+    exact_len: bool | None = None,
+) -> float:
+    return score_hashtokbackoff_detail(
+        ids, model, min_order=min_order, exact_len=exact_len
+    ).lr
+
+
+def hashtokbackoff_trace(
+    ids: Sequence[int],
+    model: HashMixModel,
+    *,
+    min_order: int = 1,
+    exact_len: bool | None = None,
+) -> list[dict]:
+    """Per-position longest hashed order that saw tok. Still no keys."""
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError(
+            "hashtokbackoff trace consulted keys / hash_iv / g-values"
+        )
+    floor = max(1, int(min_order or 1))
+    exact = bool(model.exact_len if exact_len is None else exact_len)
+    orders = sorted(
+        (int(o) for o in model.orders if int(o) >= floor), reverse=True
+    )
+    rows: list[dict] = []
+    for i, tok in enumerate(ids):
+        if i == 0:
+            continue
+        t = int(tok)
+        tried: list[dict] = []
+        chosen: int | None = None
+        chosen_delta: float | None = None
+        for order in orders:
+            pool = model.models[int(order)]
+            ctx = _scored_ctx(ids, i, pool.context_len, pool.position_bucket)
+            ctx_n = hash_ctx_len(ctx, pool.position_bucket)
+            exact_ok = ctx_n == int(order)
+            delta = None
+            n_seen = 0
+            c_m = c_u = 0
+            if not exact or exact_ok:
+                delta = hashtok_token_lr(pool, ctx, t)
+                for h, seed in enumerate(pool.seeds):
+                    bucket = hash_context(ctx, seed) % pool.n_buckets
+                    cm = _hash_bucket_tok_count(pool.marked[h], bucket, t)
+                    cu = _hash_bucket_tok_count(pool.unmarked[h], bucket, t)
+                    if cm + cu >= 1:
+                        n_seen += 1
+                        c_m += cm
+                        c_u += cu
+            tried.append(
+                {
+                    "order": int(order),
+                    "ctx_len": ctx_n,
+                    "exact_ok": exact_ok,
+                    "n_hashes_seen": n_seen,
+                    "c_m": c_m,
+                    "c_u": c_u,
+                    "delta": None if delta is None else float(delta),
+                }
+            )
+            if chosen is None and delta is not None:
+                chosen = int(order)
+                chosen_delta = float(delta)
+        rows.append(
+            {
+                "i": int(i),
+                "tok": t,
+                "order": chosen,
+                "delta": chosen_delta,
+                "tried": tried,
+            }
+        )
+    return rows
 
 
 HASHPOOL_KIND = "key-free-hashpool"
@@ -897,16 +1853,22 @@ def persist_hashpool(
     n_train_prompts: int = 0,
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
+    score_kind: str | None = None,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist a hashpool that used keys")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     kind = SURFACE_KIND if model.alphabet == "bytes" else HASHPOOL_KIND
+    reader = hash_fit_reader(model)
+    stored = str(score_kind or reader)
     payload = {
         "kind": kind,
         "alphabet": model.alphabet,
         "instance": model.instance,
+        "fit_reader": reader,
+        "score_kind": stored,
         "model_name": model_name,
         "pair_dir": pair_dir,
         "n_train_prompts": n_train_prompts,
@@ -918,6 +1880,10 @@ def persist_hashpool(
         "n_marked": model.n_marked,
         "n_unmarked": model.n_unmarked,
         "position_bucket": int(model.position_bucket),
+        "exact_len": bool(model.exact_len),
+        "drop_one": bool(model.drop_one),
+        "mask_one": bool(model.mask_one),
+        "fit_prefix": int(fit_prefix or 0),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -975,6 +1941,9 @@ def hashpool_from_payload(raw: dict) -> HashPoolModel:
         used_hash_iv=False,
         used_g_values=False,
         position_bucket=int(raw.get("position_bucket") or 0),
+        exact_len=bool(raw.get("exact_len") or False),
+        drop_one=bool(raw.get("drop_one") or False),
+        mask_one=bool(raw.get("mask_one") or False),
     )
 
 

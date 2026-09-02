@@ -1,5 +1,6 @@
 """Single-text key-free indicator: fit, persist, load, score one file."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.cli import main
@@ -14,6 +15,7 @@ from text_watermark_tools.indicator import (
     load_indicator,
     persist_holdout,
     persist_indicator,
+    print_holdout,
     rotate_holdout,
     score_text,
     score_text_from_tables,
@@ -166,6 +168,29 @@ def test_cli_indicate_fit_score_hashpool_is_key_free(tmp_path, capsys) -> None:
     assert used is False
     assert meta.instance == "key-free-hashpool"
     assert "lr=" + f"{lr:.6f}" in line
+    rc = main(
+        [
+            "indicate",
+            "score",
+            str(held),
+            "--tables",
+            str(tables),
+            "--score-mode",
+            "hashtok",
+        ]
+    )
+    assert rc == 0
+    tok_line = capsys.readouterr().out.splitlines()[0]
+    assert "instance=key-free-hashtok" in tok_line
+    assert "score_kind=hashtok" in tok_line
+    assert "used_keys=False" in tok_line
+    tok_lr, tok_meta, tok_used = score_text_from_tables(
+        held.read_text(), tables, tokenizer=tok, score_mode="hashtok"
+    )
+    assert tok_used is False
+    assert tok_meta.instance == "key-free-hashtok"
+    assert tok_meta.score_kind == "hashtok"
+    assert "lr=" + f"{tok_lr:.6f}" in tok_line
 
 
 def test_cli_indicate_fit_score_surface_needs_no_tokenizer(tmp_path, capsys) -> None:
@@ -259,6 +284,31 @@ def test_holdout_margin_counts_a_close_miss() -> None:
     ).n_marked_positive == 1
 
 
+def test_ranking_without_isolated_tp_is_prompt_win_with_no_marked_sign() -> None:
+    ev = IndicatorHoldout(
+        stems=["bus", "bus", "ferry", "ferry"],
+        marked_lrs=[-0.1, -0.2, 0.4, 0.5],
+        unmarked_lrs=[-0.4, -0.5, -0.2, -0.1],
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+        context_len=4,
+        model_name="gpt2",
+        samples=[1, 2, 1, 2],
+        mode="transfer",
+    )
+    assert ev.n_prompts_marked_above == 2
+    assert ev.n_marked_positive == 2
+    assert ev.ranking_without_isolated_tp == ["bus"]
+    assert ev.n_prompt_wins_without_isolated_tp == 1
+    assert ev.ranking_losses_with_isolated_tp == []
+    assert ev.n_marked_positive_on_ranking_losses == 0
+    assert ev.ranking_payload()["ranking_without_isolated_tp"] == ["bus"]
+    text = print_holdout(ev)
+    assert "ranking_without_isolated_tp=1/2" in text
+    assert "ranking_losses_with_isolated_tp=0" in text
+
+
 def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     ev = IndicatorHoldout(
         stems=["close", "wide"],
@@ -276,6 +326,10 @@ def test_holdout_from_json_can_retune_margin(tmp_path: Path) -> None:
     persist_holdout(ev, tmp_path)
     same = holdout_from_json(tmp_path / "holdout.json")
     assert same.n_marked_above_unmarked == 1
+    assert same.ranking_without_isolated_tp == []
+    raw = json.loads((tmp_path / "holdout.json").read_text())
+    assert raw["n_prompt_wins_without_isolated_tp"] == 0
+    assert raw["ranking_without_isolated_tp"] == []
     soft = holdout_from_json(tmp_path / "holdout.json", margin=0.015)
     assert soft.n_marked_above_unmarked == 2
     assert soft.margin == 0.015
@@ -308,3 +362,137 @@ def test_format_indicator_abstains_when_coverage_is_zero() -> None:
     )
     assert "decision=marked" in covered
     assert "decision=ABSTAIN" not in covered
+
+
+def test_format_indicator_abstains_on_occupancy_only() -> None:
+    line = format_indicator(
+        "file.txt",
+        0.149,
+        n_tokens=4,
+        used_keys=False,
+        score_kind="poshits",
+        n_used=1,
+        n_positions=3,
+        n_observed=0,
+        threshold=0.0,
+    )
+    assert "n_used=1" in line
+    assert "n_observed=0" in line
+    assert "occupancy_only=true" in line
+    assert "decision=ABSTAIN" in line
+    assert "decision=marked" not in line
+
+
+def test_indicate_score_lock_b_tables_abstain_on_the_ferry_occupancy() -> None:
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-100x4-to-12x4-opening-poshits"
+        / "tables-poshits"
+    )
+    pair = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-17-pair-12x4"
+    )
+    tok = load_tokenizer("gpt2")
+    ferry = (pair / "01-harbour-marked.txt").read_text()
+    lr, meta, used = score_text_from_tables(
+        ferry, tables, tokenizer=tok, score_mode="auto"
+    )
+    assert used is False
+    assert meta.score_kind == "poshits"
+    assert meta.n_used == 1
+    assert meta.n_observed == 0
+    line = format_indicator(
+        "01-harbour-marked.txt",
+        lr,
+        n_tokens=4,
+        used_keys=used,
+        instance=meta.instance,
+        score_kind=meta.score_kind,
+        n_used=meta.n_used,
+        n_positions=meta.n_positions,
+        n_observed=meta.n_observed,
+        threshold=0.0,
+    )
+    assert "occupancy_only=true" in line
+    assert "decision=ABSTAIN" in line
+    tok_lr, tok_meta, tok_used = score_text_from_tables(
+        ferry, tables, tokenizer=tok, score_mode="postokhits"
+    )
+    assert tok_used is False
+    assert tok_meta.n_used == 0
+    assert tok_lr == 0.0
+    rain = (pair / "07-rain-marked.txt").read_text()
+    rain_lr, rain_meta, rain_used = score_text_from_tables(
+        rain, tables, tokenizer=tok, score_mode="auto"
+    )
+    assert rain_used is False
+    assert rain_meta.n_observed is not None
+    assert rain_meta.n_observed > 0
+    rain_line = format_indicator(
+        "07-rain-marked.txt",
+        rain_lr,
+        n_tokens=4,
+        used_keys=rain_used,
+        instance=rain_meta.instance,
+        score_kind=rain_meta.score_kind,
+        n_used=rain_meta.n_used,
+        n_positions=rain_meta.n_positions,
+        n_observed=rain_meta.n_observed,
+        threshold=0.0,
+    )
+    assert "occupancy_only=true" not in rain_line
+    assert "decision=ABSTAIN" not in rain_line
+
+
+def test_indicate_score_auto_on_hashtoklen_tables_matches_explicit() -> None:
+    tables = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen"
+        / "tables-hashtoklen"
+    )
+    occupancy = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-31-transfer-36-to-12x4"
+        / "tables-hashpool"
+    )
+    text = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "2026-08-17-pair-12x4"
+        / "01-harbour-marked.txt"
+    ).read_text()
+    tok = load_tokenizer("gpt2")
+    auto_lr, auto_meta, auto_used = score_text_from_tables(
+        text, tables, tokenizer=tok, score_mode="auto"
+    )
+    explicit_lr, explicit_meta, explicit_used = score_text_from_tables(
+        text, tables, tokenizer=tok, score_mode="hashtoklen"
+    )
+    assert auto_used is False
+    assert explicit_used is False
+    assert auto_meta.score_kind == "hashtoklen"
+    assert explicit_meta.score_kind == "hashtoklen"
+    assert auto_meta.instance == "key-free-hashtoklen"
+    assert auto_lr == explicit_lr
+    try:
+        score_text_from_tables(
+            text, tables, tokenizer=tok, score_mode="hashpool"
+        )
+    except ValueError as exc:
+        assert "hashtoklen" in str(exc) or "Laplace" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+    try:
+        score_text_from_tables(
+            text, occupancy, tokenizer=tok, score_mode="hashtoklen"
+        )
+    except ValueError as exc:
+        assert "exact_len" in str(exc)
+    else:
+        raise AssertionError("expected ValueError")
+

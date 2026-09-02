@@ -8,7 +8,7 @@ This module reads that footprint with the public unmarked model (GPT-2 by
 default). It never computes g-values, never reads watermark keys, and never
 calls detector_mean.
 
-Two uses:
+Three uses:
 
 1. Detection. Per-token features (log-prob, rank, gap to argmax, top-k
    entropy) are aggregated and scored with a leave-one-prompt-out linear
@@ -18,6 +18,12 @@ Two uses:
    prefix (no re-decoding) is a key-free scrub. The official scorer is
    then used only as a reference measurement of whether the public mark
    died — the snap itself does not consult it.
+
+3. Table-free snap-rate. The fraction of unmarked-LM rows that leave the
+   argmax (`snapleave`), that upset the argmax inside top-k (`snapupset`),
+   or that miss top-k (`snapmiss`). No twin tables. Score is rate − 0.5
+   so threshold 0 means a majority. `snapmiss` is the negative control:
+   tournament sampling should not push mass outside top-k.
 """
 
 from __future__ import annotations
@@ -46,6 +52,13 @@ ENTROPY_INDEX = FEATURE_NAMES.index("mean_entropy_topk")
 PIVOT_KIND = "key-free-pivot"
 PIVOT_TABLES = "tables.json"
 PIVOT_WEIGHTS = ("uniform", "entropy", "in_topk")
+SNAPRATE_CENTER = 0.5
+SNAPRATE_KINDS = ("leave", "upset", "miss")
+SNAPRATE_METHODS: dict[str, str] = {
+    "snapleave": "leave",
+    "snapupset": "upset",
+    "snapmiss": "miss",
+}
 
 
 @dataclass(frozen=True)
@@ -223,6 +236,68 @@ def aggregate_choice_matrix(
     )
 
 
+def parse_snaprate_methods(raw: str | Sequence[str] | None) -> tuple[str, ...]:
+    """Method names for table-free snap-rate. Empty → all three."""
+    if raw is None or raw == "":
+        return tuple(SNAPRATE_METHODS)
+    if isinstance(raw, str):
+        parts = [p.strip().lower() for p in raw.split(",") if p.strip()]
+    else:
+        parts = [str(p).strip().lower() for p in raw if str(p).strip()]
+    if not parts:
+        return tuple(SNAPRATE_METHODS)
+    seen: list[str] = []
+    for name in parts:
+        if name not in SNAPRATE_METHODS:
+            raise ValueError(
+                f"unknown snaprate method {name!r}; choose "
+                f"{', '.join(SNAPRATE_METHODS)}"
+            )
+        if name not in seen:
+            seen.append(name)
+    return tuple(seen)
+
+
+def snap_rate_from_matrix(mat: np.ndarray, kind: str = "leave") -> float:
+    """Raw fraction in [0, 1]. Empty matrix is 0.5 (no evidence).
+
+    * leave — chosen token is not the unmarked argmax (upsets + misses)
+    * upset — among in-topk rows, chosen token is not rank 1 (tournament)
+    * miss — chosen token missed the unmarked top-k (negative control)
+    """
+    name = str(kind or "leave").strip().lower()
+    if name not in SNAPRATE_KINDS:
+        raise ValueError(
+            f"unknown snaprate kind {kind!r}; choose {', '.join(SNAPRATE_KINDS)}"
+        )
+    if mat is None or np.asarray(mat).size == 0:
+        return SNAPRATE_CENTER
+    rows = np.asarray(mat, dtype=np.float64)
+    if rows.ndim != 2 or rows.shape[1] < 4:
+        raise ValueError("choice matrix must be [T, 6] unmarked-LM features")
+    in_topk = rows[:, IN_TOPK_INDEX] >= 0.5
+    is_argmax = np.round(rows[:, RANK_TOPK_INDEX]) == 1
+    if name == "leave":
+        return float((~is_argmax).mean())
+    if name == "upset":
+        if not bool(in_topk.any()):
+            return SNAPRATE_CENTER
+        return float((~is_argmax[in_topk]).mean())
+    return float((~in_topk).mean())
+
+
+def snap_score_from_matrix(mat: np.ndarray, kind: str = "leave") -> float:
+    """Centered rate so threshold 0 means a majority. Empty matrix is 0."""
+    return float(snap_rate_from_matrix(mat, kind) - SNAPRATE_CENTER)
+
+
+def snap_scores_from_matrices(
+    mats: dict[tuple[str, int, str], np.ndarray],
+    kind: str = "leave",
+) -> dict[tuple[str, int, str], float]:
+    return {key: snap_score_from_matrix(mat, kind) for key, mat in mats.items()}
+
+
 def extract_choice_matrix(
     token_ids: Sequence[int],
     model: torch.nn.Module,
@@ -254,22 +329,222 @@ def extract_choice_vector(
     )
 
 
-def cascade_source(n_used: int, fallback: str = "pivot") -> str:
-    """Count tables when they have coverage; fallback reader otherwise."""
-    return "count" if int(n_used) > 0 else str(fallback or "pivot")
+CASCADE_WHEN_COVERAGE = "coverage"
+CASCADE_WHEN_POSITIVE = "positive"
+CASCADE_WHENS = (CASCADE_WHEN_COVERAGE, CASCADE_WHEN_POSITIVE)
 
 
-def cascade_score(count_lr: float, n_used: int, fallback_lr: float) -> float:
+def parse_cascade_when(raw: str | None) -> str:
+    """coverage: count when n_used>0. positive: count only when lr>0."""
+    text = str(raw or CASCADE_WHEN_COVERAGE).strip().lower()
+    if text in ("", "coverage", "zero", "n_used", "n-used"):
+        return CASCADE_WHEN_COVERAGE
+    if text in ("positive", "nonpositive", "unless-positive", "or"):
+        return CASCADE_WHEN_POSITIVE
+    raise ValueError(
+        f"unknown --cascade-when {raw!r}; use coverage or positive"
+    )
+
+
+def cascade_uses_count(
+    n_used: int,
+    count_lr: float = 0.0,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> bool:
+    if parse_cascade_when(when) == CASCADE_WHEN_POSITIVE:
+        return float(count_lr) > 0.0
+    return int(n_used) > 0
+
+
+def cascade_source(
+    n_used: int,
+    fallback: str = "pivot",
+    *,
+    count_lr: float = 0.0,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> str:
+    """Count tables when they fire; fallback reader otherwise."""
+    if cascade_uses_count(n_used, count_lr, when):
+        return "count"
+    return str(fallback or "pivot")
+
+
+def cascade_score(
+    count_lr: float,
+    n_used: int,
+    fallback_lr: float,
+    *,
+    when: str = CASCADE_WHEN_COVERAGE,
+) -> float:
     """Threshold-0 sign is comparable; mixed magnitudes are not an AUC."""
-    if int(n_used) > 0:
+    if cascade_uses_count(n_used, count_lr, when):
         return float(count_lr)
     return float(fallback_lr)
 
 
-def summarize_cascade(rows: Sequence[dict]) -> dict:
+def rebind_cascade_rows(
+    rows: Sequence[dict],
+    *,
+    when: str,
+    fallback: str | None = None,
+) -> list[dict]:
+    """Reuse saved count_lr / pivot_lr under a different cascade-when rule."""
+    when = parse_cascade_when(when)
+    fb = str(fallback or "")
+    if not fb:
+        for row in rows:
+            src = str(row.get("source") or "")
+            if src and src != "count":
+                fb = src
+                break
+        fb = fb or "pivot"
+    out: list[dict] = []
+    for row in rows:
+        item = dict(row)
+        n_used = int(item.get("n_used") or 0)
+        count_lr = float(item.get("count_lr") or 0.0)
+        pivot_lr = float(item.get("pivot_lr") or 0.0)
+        item["source"] = cascade_source(
+            n_used, fb, count_lr=count_lr, when=when
+        )
+        item["score"] = cascade_score(
+            count_lr, n_used, pivot_lr, when=when
+        )
+        item["cascade_when"] = when
+        out.append(item)
+    return out
+
+
+def rebind_count_channel(
+    rows: Sequence[dict],
+    counts: dict[tuple[str, int, str], dict],
+    *,
+    when: str = CASCADE_WHEN_COVERAGE,
+    fallback: str | None = None,
+    count_method: str = "",
+) -> list[dict]:
+    """Replace count_lr / n_used; keep unmarked-LM pivot_lr.
+
+    Use this to put an occupancy-free hashed reader on saved rank-path
+    rows without new GPT-2 forwards. Signs at 0 are comparable. Mixed
+    magnitudes are not an AUC.
+    """
+    when = parse_cascade_when(when)
+    fb = str(fallback or "")
+    if not fb:
+        for row in rows:
+            src = str(row.get("source") or "")
+            if src and src != "count":
+                fb = src
+                break
+        fb = fb or "pivot"
+    method = str(count_method or "")
+    out: list[dict] = []
+    for row in rows:
+        item = dict(row)
+        key = (str(item.get("stem") or ""), int(item.get("sample") or 0), str(item.get("side") or ""))
+        rec = counts.get(key)
+        if rec is None:
+            raise KeyError(f"no hashed count for {key}")
+        n_used = int(rec.get("n_used") or 0)
+        count_lr = float(rec.get("count_lr") or 0.0)
+        pivot_lr = float(item.get("pivot_lr") or 0.0)
+        item["n_used"] = n_used
+        item["count_lr"] = count_lr
+        if method:
+            item["count_method"] = method
+        item["source"] = cascade_source(
+            n_used, fb, count_lr=count_lr, when=when
+        )
+        item["score"] = cascade_score(
+            count_lr, n_used, pivot_lr, when=when
+        )
+        item["cascade_when"] = when
+        out.append(item)
+    return out
+
+
+def _combined_at_fallback_threshold(rows: Sequence[dict], threshold: float) -> dict:
+    """Count stays at t=0; fallback files use ``score > threshold``."""
+    t = float(threshold)
+    n_m = n_u = m_pos = u_nonpos = 0
+    for row in rows:
+        side = row.get("side")
+        source = row.get("source")
+        score = float(row.get("score") or 0.0)
+        if side == "marked":
+            n_m += 1
+            if source == "count":
+                if score > 0.0:
+                    m_pos += 1
+            elif score > t:
+                m_pos += 1
+        elif side == "unmarked":
+            n_u += 1
+            if source == "count":
+                if score <= 0.0:
+                    u_nonpos += 1
+            elif score <= t:
+                u_nonpos += 1
+    return {
+        "threshold": t,
+        "marked_above": m_pos,
+        "n_marked": n_m,
+        "unmarked_at_most": u_nonpos,
+        "n_unmarked": n_u,
+    }
+
+
+def _fallback_operating_points(
+    rows: Sequence[dict],
+    fallback_m: Sequence[dict],
+    fallback_u: Sequence[dict],
+) -> dict:
+    """Youden / 10% FPR on uncovered files only. Not a mixed-magnitude AUC."""
+    from text_watermark_tools.stats import (
+        binary_eval,
+        binary_eval_to_dict,
+        threshold_at_fpr,
+    )
+
+    fb_pos = [float(r["score"]) for r in fallback_m]
+    fb_neg = [float(r["score"]) for r in fallback_u]
+    if not fb_pos or not fb_neg:
+        return {
+            "fallback_binary": None,
+            "fallback_fpr10": None,
+            "combined_at_fallback_youden": None,
+            "combined_at_fallback_fpr10": None,
+        }
+    ev = binary_eval(fb_pos, fb_neg, n_perm=200)
+    t10 = threshold_at_fpr(fb_neg, fpr=0.10)
+    return {
+        "fallback_binary": binary_eval_to_dict(ev),
+        "fallback_fpr10": {
+            "threshold": t10,
+            "marked_above": sum(1 for s in fb_pos if s > t10),
+            "unmarked_at_most": sum(1 for s in fb_neg if s <= t10),
+            "n_marked": len(fb_pos),
+            "n_unmarked": len(fb_neg),
+        },
+        "combined_at_fallback_youden": _combined_at_fallback_threshold(
+            rows, ev.youden_threshold
+        ),
+        "combined_at_fallback_fpr10": _combined_at_fallback_threshold(rows, t10),
+    }
+
+
+def summarize_cascade(rows: Sequence[dict], *, when: str | None = None) -> dict:
     """Per-file count/pivot split. Mixed scores are not one ranking."""
     marked = [r for r in rows if r.get("side") == "marked"]
     unmarked = [r for r in rows if r.get("side") == "unmarked"]
+    when_name = parse_cascade_when(
+        when
+        or next(
+            (r.get("cascade_when") for r in rows if r.get("cascade_when")),
+            CASCADE_WHEN_COVERAGE,
+        )
+    )
 
     def _subset(items: Sequence[dict], source: str) -> list[dict]:
         return [r for r in items if r.get("source") == source]
@@ -295,9 +570,21 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
         "used_hash_iv": False,
         "used_g_values": False,
         "fallback": fallback,
+        "cascade_when": when_name,
         "note": (
-            "Count LR when n_used>0 (coverage); unmarked-LM fallback "
-            f"({fallback}) otherwise. Signs at threshold 0 are comparable. "
+            (
+                "Count LR when lr>0; unmarked-LM fallback "
+                f"({fallback}) when count is nonpositive "
+                "(coverage zeros and covered negatives). "
+            )
+            if when_name == CASCADE_WHEN_POSITIVE
+            else (
+                "Count LR when n_used>0 (coverage); unmarked-LM fallback "
+                f"({fallback}) otherwise. "
+            )
+        )
+        + (
+            "Signs at threshold 0 are comparable. "
             "A single AUC on mixed magnitudes is not a detector. "
             "Not keys, not a universal detector."
         ),
@@ -332,6 +619,7 @@ def summarize_cascade(rows: Sequence[dict]) -> dict:
             }
             for r in fallback_m
         ],
+        **_fallback_operating_points(rows, fallback_m, fallback_u),
     }
 
 

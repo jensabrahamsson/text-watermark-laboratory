@@ -14,10 +14,12 @@ As of August 2026, Anthropic says:
 - a detector is planned but is not yet publicly available;
 - the mark is expressed through generated word/token choices rather than hidden characters.
 
-Sources:
+Sources (web, not peer-reviewed; accessed 2026-09-01):
 
-- [Anthropic Help Center](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content)
-- [Anthropic announcement](https://www.anthropic.com/news/claude-text-watermark)
+- Anthropic (2026a), [Claude text watermark](https://www.anthropic.com/news/claude-text-watermark)
+- Anthropic (2026b), [How Claude marks AI-generated content](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content)
+
+Bibliographic records: [annotated-bibliography.md](annotated-bibliography.md).
 
 ## Relevant launch dates
 

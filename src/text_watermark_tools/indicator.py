@@ -28,8 +28,12 @@ from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     HASHPOOL_KIND,
+    HASH_SCORE_MODES,
     SURFACE_KIND,
+    hash_score_min_count,
     peek_tables_kind,
+    resolve_hash_score_mode,
+    score_hashtok_detail,
     score_hashpool_detail,
     score_sequence_detail,
     score_surface,
@@ -41,6 +45,45 @@ CAVEAT = (
     "Not detector_mean. Not Claude. Not Anthropic. "
     "≈0 is not “human” and not “Claude has no mark”."
 )
+
+
+def indicate_fit_defaults(
+    method: str,
+    *,
+    fit_prefix: int | None = None,
+    pos_bucket: int | None = None,
+) -> tuple[int, int]:
+    """Public ``indicate fit`` knobs.
+
+    Rankpath defaults to the opening model (``--fit-prefix 4 --pos-bucket 1``)
+    that produced the in-domain 41/48 figure. Other methods stay full-file
+    unless the caller passes a clip.
+    """
+    name = str(method or "counts")
+    if fit_prefix is None:
+        prefix = 4 if name == "rankpath" else 0
+    else:
+        prefix = int(fit_prefix)
+    if pos_bucket is None:
+        bucket = 1 if name == "rankpath" else 0
+    else:
+        bucket = int(pos_bucket)
+    return prefix, bucket
+
+
+def tables_payload(tables_dir: Path) -> dict:
+    path = Path(tables_dir)
+    if path.is_dir():
+        path = path / TABLES_NAME
+    return json.loads(path.read_text())
+
+
+def clip_ids_to_fit_prefix(ids: Sequence[int], raw: dict) -> list[int]:
+    n = int(raw.get("fit_prefix") or 0)
+    seq = [int(x) for x in ids]
+    if n > 0:
+        return seq[:n]
+    return seq
 
 
 @dataclass
@@ -55,6 +98,7 @@ class IndicatorMeta:
     decision_source: str = ""
     n_used: int | None = None
     n_positions: int | None = None
+    n_observed: int | None = None
 
 
 def _twin_file(stem: str, kind: str, sample: int) -> str:
@@ -110,19 +154,85 @@ class IndicatorHoldout:
     def n_unmarked_nonpositive(self) -> int:
         return sum(u <= self.margin for u in self.unmarked_lrs)
 
+    def _stem_pairs(self) -> dict[str, list[tuple[float, float]]]:
+        buckets: dict[str, list[tuple[float, float]]] = {}
+        for stem, m, u in zip(
+            self.stems, self.marked_lrs, self.unmarked_lrs, strict=True
+        ):
+            buckets.setdefault(stem, []).append((m, u))
+        return buckets
+
     @property
     def n_prompts_marked_above(self) -> int:
         """Mean LR per prompt, then marked (+margin) ≥ unmarked. Same grain as blind."""
-        buckets: dict[str, list[tuple[float, float]]] = {}
-        for stem, m, u in zip(self.stems, self.marked_lrs, self.unmarked_lrs, strict=True):
-            buckets.setdefault(stem, []).append((m, u))
         n = 0
-        for pairs in buckets.values():
+        for pairs in self._stem_pairs().values():
             marked_mean = sum(m for m, _ in pairs) / len(pairs)
             unmarked_mean = sum(u for _, u in pairs) / len(pairs)
             if pair_marked_wins(marked_mean, unmarked_mean, margin=self.margin):
                 n += 1
         return n
+
+    def _stem_rank_isolated(self) -> list[tuple[str, bool, int]]:
+        rows: list[tuple[str, bool, int]] = []
+        for stem, pairs in sorted(self._stem_pairs().items()):
+            marked_mean = sum(m for m, _ in pairs) / len(pairs)
+            unmarked_mean = sum(u for _, u in pairs) / len(pairs)
+            win = pair_marked_wins(
+                marked_mean, unmarked_mean, margin=self.margin
+            )
+            n_tp = sum(1 for m, _ in pairs if m > 0.0)
+            rows.append((stem, win, n_tp))
+        return rows
+
+    @property
+    def ranking_without_isolated_tp(self) -> list[str]:
+        """Prompt-ranking wins with no marked file ``lr > 0``.
+
+        Isolated sign stays hard ``lr > 0`` even when ``margin`` is nonzero.
+        Those stems rank because unmarked LRs are more negative, not because
+        any isolated marked file signs. Do not read prompt wins as isolated
+        recall.
+        """
+        return [stem for stem, win, n_tp in self._stem_rank_isolated() if win and n_tp == 0]
+
+    @property
+    def n_prompt_wins_without_isolated_tp(self) -> int:
+        return len(self.ranking_without_isolated_tp)
+
+    @property
+    def ranking_losses_with_isolated_tp(self) -> list[str]:
+        """Prompt-ranking losses that still have a marked file ``lr > 0``.
+
+        Isolated TPs on a ranking loss do not make the prompt-group
+        comparison. Ferry-queue on 12-LOO hard last-4 is the type case.
+        """
+        return [
+            stem
+            for stem, win, n_tp in self._stem_rank_isolated()
+            if (not win) and n_tp > 0
+        ]
+
+    @property
+    def n_marked_positive_on_ranking_losses(self) -> int:
+        return sum(
+            n_tp
+            for _stem, win, n_tp in self._stem_rank_isolated()
+            if not win
+        )
+
+    def ranking_payload(self) -> dict:
+        hide = self.ranking_without_isolated_tp
+        loss_tp = self.ranking_losses_with_isolated_tp
+        return {
+            "n_prompt_wins_without_isolated_tp": len(hide),
+            "ranking_without_isolated_tp": hide,
+            "n_ranking_losses_with_isolated_tp": len(loss_tp),
+            "ranking_losses_with_isolated_tp": loss_tp,
+            "n_marked_positive_on_ranking_losses": (
+                self.n_marked_positive_on_ranking_losses
+            ),
+        }
 
 
 def _dump_table(table: NextTokenTable) -> dict:
@@ -201,6 +311,7 @@ def persist_indicator(
     n_train_prompts: int = 0,
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist an indicator that used keys")
@@ -219,6 +330,7 @@ def persist_indicator(
         "position_bucket": bucket,
         "include_first": bool(getattr(model, "include_first", False)),
         "prompt_context": bool(getattr(model, "prompt_context", False)),
+        "fit_prefix": int(fit_prefix or 0),
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
@@ -391,7 +503,7 @@ def score_text_from_tables(
             raise ValueError("rankpath tables need a tokenizer")
         name = str(raw.get("model_name") or "gpt2")
         lm = _load_unmarked_model(generate_device(), model_name=name)
-        ids = tokenizer(text)["input_ids"]
+        ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], raw)
         symbols = symbols_from_token_ids(
             ids, lm, top_k=int(raw.get("top_k") or 40)
         )
@@ -407,20 +519,33 @@ def score_text_from_tables(
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
     if kind == HASHPOOL_KIND:
-        if mode not in ("auto", "hashpool", ""):
+        from text_watermark_tools.transfer import load_hashpool
+
+        if mode not in HASH_SCORE_MODES:
             raise ValueError(
                 f"tables are hashpool; --score-mode {score_mode} does not apply"
             )
-        from text_watermark_tools.transfer import load_hashpool
-
         if tokenizer is None:
             raise ValueError("hashpool tables need a tokenizer")
+        raw = tables_payload(path)
         model = load_hashpool(path)
-        ids = tokenizer(text)["input_ids"]
-        detail = score_hashpool_detail(ids, model)
-        meta = load_tables_meta(path)
-        meta.score_kind = "hashpool"
-        meta.instance = model.instance
+        ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], raw)
+        stored = str(raw.get("score_kind") or raw.get("fit_reader") or "")
+        resolved = resolve_hash_score_mode(model, mode, stored_reader=stored)
+        if resolved == "hashpool":
+            detail = score_hashpool_detail(ids, model)
+            meta = load_tables_meta(path)
+            meta.score_kind = "hashpool"
+            meta.instance = model.instance
+        else:
+            detail = score_hashtok_detail(
+                ids,
+                model,
+                min_count=hash_score_min_count(resolved),
+            )
+            meta = load_tables_meta(path)
+            meta.score_kind = resolved
+            meta.instance = f"key-free-{resolved}"
         meta.n_used = detail.n_used
         meta.n_positions = detail.n_positions
         return detail.lr, meta, bool(model.used_keys)
@@ -435,7 +560,7 @@ def score_text_from_tables(
             "lone file cannot reconstruct the prompt. Score pair twins with "
             "probe --prompt-context instead."
         )
-    ids = tokenizer(text)["input_ids"]
+    ids = clip_ids_to_fit_prefix(tokenizer(text)["input_ids"], tables_payload(path))
     bucketed = int(getattr(model, "position_bucket", 0) or 0) > 0
 
     def _return_detail(spec, score_kind: str, instance: str):
@@ -447,7 +572,18 @@ def score_text_from_tables(
         return detail.lr, meta, bool(model.used_keys)
 
     if mode == "poshits" or (mode in ("auto", "") and bucketed):
-        return _return_detail(COUNT_SPECS["hits"], "poshits", "key-free-poshits")
+        # Isolated-file auto matches lock B's poshits LR, but occupancy
+        # Laplace (context seen, observed next token unseen) is not
+        # coverage. n_observed is tokhits n_used; decision ABSTAINs
+        # when that is 0. Probe --methods poshits is unchanged.
+        hits = score_sequence_detail(ids, model, COUNT_SPECS["hits"])
+        observed = score_sequence_detail(ids, model, COUNT_SPECS["tokhits"])
+        meta.score_kind = "poshits"
+        meta.instance = "key-free-poshits"
+        meta.n_used = hits.n_used
+        meta.n_positions = hits.n_positions
+        meta.n_observed = observed.n_used
+        return hits.lr, meta, bool(model.used_keys)
     if mode == "poshitmass":
         return _return_detail(COUNT_SPECS["hitmass"], "poshitmass", "key-free-poshitmass")
     if mode == "postokhits":
@@ -471,7 +607,9 @@ def score_text_from_tables(
         raise ValueError(
             f"unknown --score-mode {score_mode}; "
             f"choose auto, hard, poshits, postokhits, postokbackoff, "
-            f"postokbackoff2, poshitmass, hashpool, or one of {sorted(COUNT_SPECS)}"
+            f"postokbackoff2, poshitmass, hashpool, hashtok, hashtoklen, "
+            f"hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, or one of "
+            f"{sorted(COUNT_SPECS)}"
         )
     spec = COUNT_SPECS[mode]
     return _return_detail(spec, mode, spec.instance)
@@ -489,14 +627,30 @@ def format_indicator(
     decision_source: str = "",
     n_used: int | None = None,
     n_positions: int | None = None,
+    n_observed: int | None = None,
 ) -> str:
     extra = ""
+    occupancy_only = (
+        n_used is not None
+        and n_observed is not None
+        and int(n_used) > 0
+        and int(n_observed) == 0
+    )
     if n_used is not None:
         extra += f" n_used={int(n_used)}"
         if n_positions is not None:
             extra += f" n_positions={int(n_positions)}"
+    if n_observed is not None:
+        extra += f" n_observed={int(n_observed)}"
+    if occupancy_only:
+        extra += " occupancy_only=true"
+    uncovered = False
+    if n_observed is not None:
+        uncovered = int(n_observed) == 0
+    elif n_used is not None:
+        uncovered = int(n_used) == 0
     if threshold is not None:
-        if n_used is not None and int(n_used) == 0:
+        if uncovered:
             decision = "ABSTAIN"
         else:
             decision = "marked" if lr > threshold else "unmarked"
@@ -505,7 +659,7 @@ def format_indicator(
             f" threshold={threshold:.6f} decision={decision}{src} "
             f"not_a_universal_detector=true"
         )
-    elif n_used is not None and int(n_used) == 0:
+    elif uncovered:
         extra += " decision=ABSTAIN not_a_universal_detector=true"
     return (
         f"{label}: lr={lr:.6f} n_tokens={n_tokens} "
@@ -628,6 +782,11 @@ def print_holdout(ev: IndicatorHoldout) -> str:
             f"n_files={ev.n_files} "
             f"marked_above_unmarked={ev.n_marked_above_unmarked} "
             f"prompts_marked_above={ev.n_prompts_marked_above} "
+            f"ranking_without_isolated_tp="
+            f"{ev.n_prompt_wins_without_isolated_tp}/"
+            f"{ev.n_prompts_marked_above} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(ev.ranking_losses_with_isolated_tp)} "
             f"marked_lr_positive={ev.n_marked_positive} "
             f"unmarked_lr_nonpositive={ev.n_unmarked_nonpositive} "
             f"margin={ev.margin:g} context_len={ev.context_len} "
@@ -703,6 +862,11 @@ def persist_holdout(ev: IndicatorHoldout, out_dir: Path) -> None:
         "n_files": ev.n_files,
         "n_marked_above_unmarked": ev.n_marked_above_unmarked,
         "n_prompts_marked_above": ev.n_prompts_marked_above,
+        "n_prompt_wins_without_isolated_tp": ev.n_prompt_wins_without_isolated_tp,
+        "ranking_without_isolated_tp": ev.ranking_without_isolated_tp,
+        "n_ranking_losses_with_isolated_tp": len(ev.ranking_losses_with_isolated_tp),
+        "ranking_losses_with_isolated_tp": ev.ranking_losses_with_isolated_tp,
+        "n_marked_positive_on_ranking_losses": ev.n_marked_positive_on_ranking_losses,
         "n_marked_lr_positive": ev.n_marked_positive,
         "n_unmarked_lr_nonpositive": ev.n_unmarked_nonpositive,
         "margin": ev.margin,

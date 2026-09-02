@@ -1,0 +1,180 @@
+{
+  "note": "Ranking vs isolated-file honesty on frozen holdouts. ranking_without_isolated_tp: prompt wins with no marked file lr>0. ranking_losses_with_isolated_tp: prompt losses that still have marked lr>0. Not a new probe --methods name. Not keys. Do not rewrite 9/12 or 25/48.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "rows": [
+    {
+      "id": "12loo-hard-last4",
+      "label": "12-LOO hard last-4 (recount headline)",
+      "path": "2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json",
+      "headline": "9/12 ranking, 25/48 isolated",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 9,
+      "n_marked_positive": 25,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "11-garden"
+      ],
+      "n_ranking_losses_with_isolated_tp": 3,
+      "ranking_losses_with_isolated_tp": [
+        "06-station",
+        "10-office",
+        "12-ferry-queue"
+      ],
+      "n_marked_positive_on_ranking_losses": 5
+    },
+    {
+      "id": "12loo-interpolate-last4",
+      "label": "12-LOO interpolate last-4",
+      "path": "2026-09-01-probe-12x4-recount-hard-last4/interpolate/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 7,
+      "n_marked_positive": 24,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 4,
+      "ranking_losses_with_isolated_tp": [
+        "04-market",
+        "06-station",
+        "07-rain",
+        "08-letter"
+      ],
+      "n_marked_positive_on_ranking_losses": 7
+    },
+    {
+      "id": "12loo-opening-poshits",
+      "label": "12-LOO opening poshits",
+      "path": "2026-09-01-probe-12x4-recount-opening-poshits/poshits/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 9,
+      "n_marked_positive": 23,
+      "n_prompt_wins_without_isolated_tp": 2,
+      "ranking_without_isolated_tp": [
+        "03-library",
+        "04-market"
+      ],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    },
+    {
+      "id": "12loo-opening-rankpath",
+      "label": "12-LOO opening rankpath",
+      "path": "2026-09-01-probe-12x4-recount-opening-rankpath/rankpath/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 11,
+      "n_marked_positive": 41,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "11-garden"
+      ],
+      "n_marked_positive_on_ranking_losses": 2
+    },
+    {
+      "id": "100-to-12-lock-a",
+      "label": "100 families \u2192 original 12\u00d74 lock A interpolate",
+      "path": "2026-09-01-transfer-100x4-to-12x4-hard-last4/interpolate/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 8,
+      "n_marked_positive": 27,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 3,
+      "ranking_losses_with_isolated_tp": [
+        "01-harbour",
+        "02-night-bus",
+        "03-library"
+      ],
+      "n_marked_positive_on_ranking_losses": 4
+    },
+    {
+      "id": "100-to-12-lock-b",
+      "label": "100 families \u2192 original 12\u00d74 lock B poshits",
+      "path": "2026-09-01-transfer-100x4-to-12x4-opening-poshits/poshits/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 11,
+      "n_marked_positive": 37,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "03-library"
+      ],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    },
+    {
+      "id": "100-to-12-lock-c",
+      "label": "100 families \u2192 original 12\u00d74 lock C rankpath",
+      "path": "2026-09-01-transfer-100x4-to-12x4-opening-rankpath/rankpath/holdout.json",
+      "used_keys": false,
+      "n_prompts": 12,
+      "n_prompt_wins": 10,
+      "n_marked_positive": 24,
+      "n_prompt_wins_without_isolated_tp": 3,
+      "ranking_without_isolated_tp": [
+        "02-night-bus",
+        "03-library",
+        "04-market"
+      ],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    },
+    {
+      "id": "100-to-36-lock-a",
+      "label": "100 families \u2192 36\u00d74 lock A interpolate",
+      "path": "2026-09-01-transfer-100x4-to-36x4-hard-last4/interpolate/holdout.json",
+      "used_keys": false,
+      "n_prompts": 36,
+      "n_prompt_wins": 36,
+      "n_marked_positive": 117,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    },
+    {
+      "id": "100-to-36-lock-b",
+      "label": "100 families \u2192 36\u00d74 lock B poshits",
+      "path": "2026-09-01-transfer-100x4-to-36x4-opening-poshits/poshits/holdout.json",
+      "used_keys": false,
+      "n_prompts": 36,
+      "n_prompt_wins": 35,
+      "n_marked_positive": 134,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "03-library"
+      ],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    },
+    {
+      "id": "100-to-36-lock-c",
+      "label": "100 families \u2192 36\u00d74 lock C rankpath",
+      "path": "2026-09-01-transfer-100x4-to-36x4-opening-rankpath/rankpath/holdout.json",
+      "used_keys": false,
+      "n_prompts": 36,
+      "n_prompt_wins": 35,
+      "n_marked_positive": 115,
+      "n_prompt_wins_without_isolated_tp": 2,
+      "ranking_without_isolated_tp": [
+        "04-market",
+        "08-letter"
+      ],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0
+    }
+  ]
+}

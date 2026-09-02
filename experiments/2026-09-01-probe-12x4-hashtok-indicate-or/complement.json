@@ -1,0 +1,918 @@
+{
+  "note": "In-domain 12x4 complementarity of hard last-4 indicate (29/48) and occupancy-free full-file hashtok (33/48). OR at t=0 recovers complementary true positives but spends unmarked false positives; combined 51/96 is worse than indicate 52/96. Do not sell 39/48. Coverage (primary if lr!=0 else fallback) is not leftover fill-in. Nested LDA/logit/max/mean and nested 2D Youden OR/AND are honest stem-held thresholds on already-held-out LOO scores. Still no keys. Not a calibrated isolated-file detector.",
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "headline": {
+    "indicate_t0_marked": 29,
+    "indicate_t0_unmarked_nonpositive": 23,
+    "indicate_combined": 52,
+    "hashtok_t0_marked": 33,
+    "or_indicate_hashtok_marked": 39,
+    "or_indicate_hashtok_unmarked_nonpositive": 12,
+    "or_combined": 51,
+    "nested_2d_or_marked": 37,
+    "nested_2d_or_unmarked_nonpositive": 18,
+    "lda_t0_marked": 28,
+    "lda_t0_unmarked_nonpositive": 27,
+    "lda_nested_marked": 21,
+    "lda_nested_unmarked_nonpositive": 37,
+    "max_nested_marked": 21,
+    "max_nested_unmarked_nonpositive": 39,
+    "postokhits_then_hashtok_marked": 35,
+    "postokhits_then_hashtok_unmarked_nonpositive": 22,
+    "postokhits_standalone_combined": 69,
+    "n_hashtok_recovers": 10,
+    "n_indicate_recovers": 6,
+    "n_both_miss": 9
+  },
+  "sources": {
+    "indicate": "experiments/2026-08-17-indicate-holdout-12x4/holdout.json",
+    "hashtok": "experiments/2026-09-01-probe-12x4-hashtok/hashtok/holdout.json",
+    "hashpool": "experiments/2026-09-01-probe-12x4-hashtok/hashpool/holdout.json",
+    "hits": "experiments/2026-09-01-probe-12x4-hashtok/hits/holdout.json",
+    "postokhits": "experiments/2026-09-01-probe-12x4-hashtok/postokhits/holdout.json"
+  },
+  "standalone": {
+    "indicate": {
+      "n_marked_positive": 29,
+      "n_unmarked_nonpositive": 23,
+      "n_unmarked_fp": 25,
+      "combined": 52,
+      "n": 48,
+      "n_prompts_marked_above": 10
+    },
+    "hashtok": {
+      "n_marked_positive": 33,
+      "n_unmarked_nonpositive": 22,
+      "n_unmarked_fp": 26,
+      "combined": 55,
+      "n": 48,
+      "n_prompts_marked_above": 9
+    },
+    "hashpool": {
+      "n_marked_positive": 35,
+      "n_unmarked_nonpositive": 29,
+      "n_unmarked_fp": 19,
+      "combined": 64,
+      "n": 48,
+      "n_prompts_marked_above": 11
+    },
+    "hits": {
+      "n_marked_positive": 28,
+      "n_unmarked_nonpositive": 30,
+      "n_unmarked_fp": 18,
+      "combined": 58,
+      "n": 48,
+      "n_prompts_marked_above": 11
+    },
+    "postokhits": {
+      "n_marked_positive": 24,
+      "n_unmarked_nonpositive": 45,
+      "n_unmarked_fp": 3,
+      "combined": 69,
+      "n": 48,
+      "n_prompts_marked_above": 12
+    },
+    "hashtoklen": {
+      "n_marked_positive": 33,
+      "n_unmarked_nonpositive": 23,
+      "n_unmarked_fp": 25,
+      "combined": 56,
+      "n": 48,
+      "n_prompts_marked_above": 8
+    }
+  },
+  "or_t0": {
+    "indicate_or_hashtok": {
+      "n_marked_positive": 39,
+      "n_unmarked_nonpositive": 12,
+      "n_unmarked_fp": 36,
+      "combined": 51,
+      "n": 48
+    },
+    "indicate_or_hashpool": {
+      "n_marked_positive": 41,
+      "n_unmarked_nonpositive": 17,
+      "n_unmarked_fp": 31,
+      "combined": 58,
+      "n": 48
+    },
+    "hits_or_hashtok": {
+      "n_marked_positive": 37,
+      "n_unmarked_nonpositive": 13,
+      "n_unmarked_fp": 35,
+      "combined": 50,
+      "n": 48
+    },
+    "postokhits_or_hashtok": {
+      "n_marked_positive": 35,
+      "n_unmarked_nonpositive": 21,
+      "n_unmarked_fp": 27,
+      "combined": 56,
+      "n": 48
+    }
+  },
+  "and_t0": {
+    "indicate_and_hashtok": {
+      "n_marked_positive": 23,
+      "n_unmarked_nonpositive": 33,
+      "n_unmarked_fp": 15,
+      "combined": 56,
+      "n": 48
+    }
+  },
+  "coverage": {
+    "hits_then_hashtok": {
+      "n_marked_positive": 29,
+      "n_unmarked_nonpositive": 25,
+      "n_unmarked_fp": 23,
+      "combined": 54,
+      "n": 48
+    },
+    "postokhits_then_hashtok": {
+      "n_marked_positive": 35,
+      "n_unmarked_nonpositive": 22,
+      "n_unmarked_fp": 26,
+      "combined": 57,
+      "n": 48
+    },
+    "postokhits_then_hashpool": {
+      "n_marked_positive": 36,
+      "n_unmarked_nonpositive": 29,
+      "n_unmarked_fp": 19,
+      "combined": 65,
+      "n": 48
+    },
+    "postokhits_standalone": {
+      "n_marked_positive": 24,
+      "n_unmarked_nonpositive": 45,
+      "n_unmarked_fp": 3,
+      "combined": 69,
+      "n": 48
+    }
+  },
+  "complement_marked": {
+    "indicate_tps": [
+      [
+        "01-harbour",
+        2
+      ],
+      [
+        "01-harbour",
+        3
+      ],
+      [
+        "01-harbour",
+        4
+      ],
+      [
+        "02-night-bus",
+        4
+      ],
+      [
+        "03-library",
+        1
+      ],
+      [
+        "03-library",
+        3
+      ],
+      [
+        "03-library",
+        4
+      ],
+      [
+        "04-market",
+        1
+      ],
+      [
+        "04-market",
+        2
+      ],
+      [
+        "04-market",
+        4
+      ],
+      [
+        "05-kitchen",
+        1
+      ],
+      [
+        "05-kitchen",
+        2
+      ],
+      [
+        "05-kitchen",
+        4
+      ],
+      [
+        "06-station",
+        3
+      ],
+      [
+        "06-station",
+        4
+      ],
+      [
+        "07-rain",
+        1
+      ],
+      [
+        "07-rain",
+        2
+      ],
+      [
+        "07-rain",
+        3
+      ],
+      [
+        "07-rain",
+        4
+      ],
+      [
+        "08-letter",
+        1
+      ],
+      [
+        "09-workshop",
+        1
+      ],
+      [
+        "09-workshop",
+        2
+      ],
+      [
+        "09-workshop",
+        3
+      ],
+      [
+        "09-workshop",
+        4
+      ],
+      [
+        "10-office",
+        2
+      ],
+      [
+        "10-office",
+        4
+      ],
+      [
+        "12-ferry-queue",
+        1
+      ],
+      [
+        "12-ferry-queue",
+        2
+      ],
+      [
+        "12-ferry-queue",
+        3
+      ]
+    ],
+    "hashtok_tps": [
+      [
+        "01-harbour",
+        1
+      ],
+      [
+        "01-harbour",
+        2
+      ],
+      [
+        "01-harbour",
+        3
+      ],
+      [
+        "01-harbour",
+        4
+      ],
+      [
+        "02-night-bus",
+        1
+      ],
+      [
+        "02-night-bus",
+        4
+      ],
+      [
+        "04-market",
+        2
+      ],
+      [
+        "04-market",
+        3
+      ],
+      [
+        "04-market",
+        4
+      ],
+      [
+        "05-kitchen",
+        1
+      ],
+      [
+        "05-kitchen",
+        2
+      ],
+      [
+        "05-kitchen",
+        3
+      ],
+      [
+        "05-kitchen",
+        4
+      ],
+      [
+        "06-station",
+        1
+      ],
+      [
+        "06-station",
+        2
+      ],
+      [
+        "06-station",
+        3
+      ],
+      [
+        "07-rain",
+        2
+      ],
+      [
+        "07-rain",
+        3
+      ],
+      [
+        "07-rain",
+        4
+      ],
+      [
+        "08-letter",
+        1
+      ],
+      [
+        "09-workshop",
+        1
+      ],
+      [
+        "09-workshop",
+        2
+      ],
+      [
+        "09-workshop",
+        3
+      ],
+      [
+        "09-workshop",
+        4
+      ],
+      [
+        "10-office",
+        1
+      ],
+      [
+        "10-office",
+        2
+      ],
+      [
+        "10-office",
+        4
+      ],
+      [
+        "11-garden",
+        2
+      ],
+      [
+        "11-garden",
+        3
+      ],
+      [
+        "11-garden",
+        4
+      ],
+      [
+        "12-ferry-queue",
+        1
+      ],
+      [
+        "12-ferry-queue",
+        2
+      ],
+      [
+        "12-ferry-queue",
+        3
+      ]
+    ],
+    "hashtok_recovers_of_indicate_miss": [
+      [
+        "01-harbour",
+        1
+      ],
+      [
+        "02-night-bus",
+        1
+      ],
+      [
+        "04-market",
+        3
+      ],
+      [
+        "05-kitchen",
+        3
+      ],
+      [
+        "06-station",
+        1
+      ],
+      [
+        "06-station",
+        2
+      ],
+      [
+        "10-office",
+        1
+      ],
+      [
+        "11-garden",
+        2
+      ],
+      [
+        "11-garden",
+        3
+      ],
+      [
+        "11-garden",
+        4
+      ]
+    ],
+    "indicate_recovers_of_hashtok_miss": [
+      [
+        "03-library",
+        1
+      ],
+      [
+        "03-library",
+        3
+      ],
+      [
+        "03-library",
+        4
+      ],
+      [
+        "04-market",
+        1
+      ],
+      [
+        "06-station",
+        4
+      ],
+      [
+        "07-rain",
+        1
+      ]
+    ],
+    "both_miss": [
+      [
+        "02-night-bus",
+        2
+      ],
+      [
+        "02-night-bus",
+        3
+      ],
+      [
+        "03-library",
+        2
+      ],
+      [
+        "08-letter",
+        2
+      ],
+      [
+        "08-letter",
+        3
+      ],
+      [
+        "08-letter",
+        4
+      ],
+      [
+        "10-office",
+        3
+      ],
+      [
+        "11-garden",
+        1
+      ],
+      [
+        "12-ferry-queue",
+        4
+      ]
+    ],
+    "n_hashtok_recovers": 10,
+    "n_indicate_recovers": 6,
+    "n_both_miss": 9,
+    "n_indicate_miss": 19,
+    "n_hashtok_miss": 15
+  },
+  "nested_2d_youden": {
+    "indicate_or_hashtok": {
+      "mode": "or",
+      "n_marked_positive": 37,
+      "n_unmarked_nonpositive": 18,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "mean_t_a": -0.016230493349125737,
+      "mean_t_b": 0.0836500714973012,
+      "thresholds": [
+        {
+          "stem": "01-harbour",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "02-night-bus",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "03-library",
+          "t_a": 0.060022617196460244,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "04-market",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.08023568141927168,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "05-kitchen",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "06-station",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "07-rain",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.3181818181818181
+        },
+        {
+          "stem": "08-letter",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.3181818181818181
+        },
+        {
+          "stem": "09-workshop",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.36363636363636354
+        },
+        {
+          "stem": "10-office",
+          "t_a": -0.030822781864326645,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.36363636363636354
+        },
+        {
+          "stem": "11-garden",
+          "t_a": 0.060022617196460244,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.31818181818181834
+        },
+        {
+          "stem": "12-ferry-queue",
+          "t_a": -0.03740611780348954,
+          "t_b": 0.0839604705953039,
+          "train_j": 0.34090909090909083
+        }
+      ]
+    },
+    "indicate_and_hashtok": {
+      "mode": "and",
+      "n_marked_positive": 26,
+      "n_unmarked_nonpositive": 28,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "mean_t_a": -0.02865551889394061,
+      "mean_t_b": -0.013325606293562567,
+      "thresholds": [
+        {
+          "stem": "01-harbour",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.01078466517738948,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "02-night-bus",
+          "t_a": -0.021285465268277102,
+          "t_b": 0.03200313711364538,
+          "train_j": 0.36363636363636376
+        },
+        {
+          "stem": "03-library",
+          "t_a": -0.021285465268277102,
+          "t_b": 0.03200313711364538,
+          "train_j": 0.38636363636363624
+        },
+        {
+          "stem": "04-market",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.01078466517738948,
+          "train_j": 0.36363636363636354
+        },
+        {
+          "stem": "05-kitchen",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.12848616571443688,
+          "train_j": 0.34090909090909083
+        },
+        {
+          "stem": "06-station",
+          "t_a": -0.029743884480540415,
+          "t_b": 0.03200313711364538,
+          "train_j": 0.38636363636363624
+        },
+        {
+          "stem": "07-rain",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.01078466517738948,
+          "train_j": 0.36363636363636354
+        },
+        {
+          "stem": "08-letter",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.004350464005694868,
+          "train_j": 0.36363636363636354
+        },
+        {
+          "stem": "09-workshop",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.12848616571443688,
+          "train_j": 0.38636363636363624
+        },
+        {
+          "stem": "10-office",
+          "t_a": -0.030822781864326645,
+          "t_b": -0.01078466517738948,
+          "train_j": 0.38636363636363624
+        },
+        {
+          "stem": "11-garden",
+          "t_a": -0.018385820856416664,
+          "t_b": 0.05932943445782909,
+          "train_j": 0.38636363636363624
+        },
+        {
+          "stem": "12-ferry-queue",
+          "t_a": -0.03740611780348954,
+          "t_b": -0.01078466517738948,
+          "train_j": 0.36363636363636354
+        }
+      ]
+    }
+  },
+  "fusion_holdouts": {
+    "lda_stack": {
+      "name": "lda_stack",
+      "instance": "key-free-stack-indicate-hashtok",
+      "score_kind": "stack",
+      "used_keys": false,
+      "n_prompts_marked_above": 10,
+      "n_prompts": 12,
+      "t0": {
+        "n_marked_positive": 28,
+        "n_unmarked_nonpositive": 27,
+        "n_unmarked_fp": 21,
+        "combined": 55,
+        "n": 48
+      },
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6436631944444444,
+        "mean_positive": 0.0020808124010978945,
+        "mean_negative": -0.0025438283081792375,
+        "mean_diff": 0.004624640709277132,
+        "n_positive_above_zero": 28,
+        "n_negative_at_most_zero": 27,
+        "permutation_p": 0.004987531172069825,
+        "binomial_p_above_zero": 0.15616340373663462,
+        "youden_threshold": 0.003383241900520583,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8333333333333334,
+        "youden_j": 0.29166666666666674,
+        "n_perm": 400
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 21,
+          "n_unmarked_at_most": 37,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4375,
+          "specificity": 0.7708333333333334,
+          "mean_threshold": 0.003427411173182765,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 17,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3541666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.005490004710087072,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    },
+    "logit": {
+      "name": "logit",
+      "instance": "key-free-logit-indicate-hashtok",
+      "score_kind": "logit",
+      "used_keys": false,
+      "n_prompts_marked_above": 10,
+      "n_prompts": 12,
+      "t0": {
+        "n_marked_positive": 27,
+        "n_unmarked_nonpositive": 27,
+        "n_unmarked_fp": 21,
+        "combined": 54,
+        "n": 48
+      },
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6432291666666666,
+        "mean_positive": 0.17999236252689346,
+        "mean_negative": -0.21559126801528464,
+        "mean_diff": 0.3955836305421781,
+        "n_positive_above_zero": 27,
+        "n_negative_at_most_zero": 27,
+        "permutation_p": 0.004987531172069825,
+        "binomial_p_above_zero": 0.2354395068108559,
+        "youden_threshold": 0.30215584944041607,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8333333333333334,
+        "youden_j": 0.29166666666666674,
+        "n_perm": 400
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 21,
+          "n_unmarked_at_most": 38,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4375,
+          "specificity": 0.7916666666666666,
+          "mean_threshold": 0.30530232133821444,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 17,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3541666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.46527014712037174,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    },
+    "max": {
+      "name": "max",
+      "instance": "key-free-max-indicate-hashtok",
+      "score_kind": "max",
+      "used_keys": false,
+      "n_prompts_marked_above": 10,
+      "n_prompts": 12,
+      "t0": {
+        "n_marked_positive": 39,
+        "n_unmarked_nonpositive": 12,
+        "n_unmarked_fp": 36,
+        "combined": 51,
+        "n": 48
+      },
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6358506944444444,
+        "mean_positive": 0.08536818555380443,
+        "mean_negative": 0.03448486005716361,
+        "mean_diff": 0.05088332549664082,
+        "n_positive_above_zero": 39,
+        "n_negative_at_most_zero": 12,
+        "permutation_p": 0.0024937655860349127,
+        "binomial_p_above_zero": 7.610913055344781e-06,
+        "youden_threshold": 0.08489501010821872,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8333333333333334,
+        "youden_j": 0.29166666666666674,
+        "n_perm": 400
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 21,
+          "n_unmarked_at_most": 39,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4375,
+          "specificity": 0.8125,
+          "mean_threshold": 0.08588236642247761,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 14,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.2916666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.12237541486227287,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    },
+    "mean": {
+      "name": "mean",
+      "instance": "key-free-mean-indicate-hashtok",
+      "score_kind": "mean",
+      "used_keys": false,
+      "n_prompts_marked_above": 10,
+      "n_prompts": 12,
+      "t0": {
+        "n_marked_positive": 33,
+        "n_unmarked_nonpositive": 23,
+        "n_unmarked_fp": 25,
+        "combined": 56,
+        "n": 48
+      },
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6644965277777778,
+        "mean_positive": 0.04659708857500806,
+        "mean_negative": -0.0072851709333186096,
+        "mean_diff": 0.05388225950832667,
+        "n_positive_above_zero": 33,
+        "n_negative_at_most_zero": 23,
+        "permutation_p": 0.0024937655860349127,
+        "binomial_p_above_zero": 0.006641640781122504,
+        "youden_threshold": 0.05161775023854577,
+        "youden_sensitivity": 0.4583333333333333,
+        "youden_specificity": 0.8541666666666666,
+        "youden_j": 0.3125,
+        "n_perm": 400
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 19,
+          "n_unmarked_at_most": 36,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3958333333333333,
+          "specificity": 0.75,
+          "mean_threshold": 0.04597386351535174,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 17,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3541666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.07548296206150648,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      }
+    }
+  },
+  "letter_d2": {
+    "indicate": -0.014977912160150769,
+    "hashtok": -0.026615543891856705
+  }
+}

@@ -31,12 +31,16 @@ from text_watermark_tools.probe import (
     score_twins,
     summarize_holdout,
 )
+from text_watermark_tools.rankpath import RANKPATH_SPECS
 from text_watermark_tools.score import load_tokenizer
 from text_watermark_tools.stats import binary_eval, binary_eval_to_dict, format_binary_eval
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     fit_count_model,
     fit_hashpool_twins,
+    score_hashtok,
+    score_hashskip,
+    score_hashmask,
     score_hashpool,
     score_sequence,
 )
@@ -47,7 +51,9 @@ CONTRAST_NOTE = (
     "control-shuffled-30 at sampling. If control ranks with unmarked, the "
     "key-free reader is instance-specific without keys. If it ranks with "
     "marked, the reader is detecting tournament sampling, not this instance. "
-    "Not key recovery. Not Claude."
+    "Not key recovery. Not Claude. ranking_without_isolated_tp counts "
+    "prompt wins with no marked file lr>0; do not read prompt wins as "
+    "isolated recall."
 )
 
 
@@ -82,6 +88,32 @@ def load_control_draws(pair_dir: Path, *, tokenizer=None) -> list[ControlDraw]:
                     text=text,
                 )
             )
+    return out
+
+
+def collect_control_matrices(
+    draws: Sequence[ControlDraw],
+    model,
+    *,
+    top_k: int = 40,
+    prompt_ids_by_stem: dict[str, Sequence[int]] | None = None,
+    prompt_context: bool = False,
+):
+    """Unmarked-LM choice matrices for *-control-gen.txt. No watermark keys."""
+    from text_watermark_tools.pivot import extract_choice_matrix
+
+    out = {}
+    for draw in draws:
+        prefix: Sequence[int] = ()
+        if prompt_context:
+            if not prompt_ids_by_stem or draw.stem not in prompt_ids_by_stem:
+                raise ValueError(
+                    f"prompt-context contrast needs prompt token ids on stem {draw.stem!r}"
+                )
+            prefix = tuple(int(x) for x in prompt_ids_by_stem[draw.stem])
+        out[(draw.stem, draw.sample, "control")] = extract_choice_matrix(
+            draw.ids, model, top_k=top_k, prefix=prefix
+        )
     return out
 
 
@@ -175,6 +207,9 @@ class ContrastRun:
     used_hash_iv: bool = False
     used_g_values: bool = False
     fit_prefix: int | None = None
+    rankpath_pos_bucket: int | None = None
+    rankpath_end: int | None = None
+    rankpath_model: object | None = None
     note: str = CONTRAST_NOTE
 
 
@@ -191,6 +226,11 @@ def run_instance_contrast(
     fit_prefix: int | None = None,
     position_bucket: int = 1,
     methods: Sequence[str] = ("hits", "poshits", "hashpool"),
+    rankpath_pos_bucket: int | None = None,
+    rankpath_end: int | None = None,
+    prompt_context: bool = False,
+    lm=None,
+    rankpath_symbols: dict | None = None,
 ) -> ContrastRun:
     """Fit on public twins; score public test and control-gen. No keys in the fit."""
     train, test, _overlap = apply_overlap(
@@ -211,21 +251,104 @@ def run_instance_contrast(
     pos_bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
     count_names = [n for n in names if n in COUNT_SPECS]
     pos_names = [n for n in names if n in POS_SPECS]
+    rank_names = [n for n in names if n in RANKPATH_SPECS]
     count_model = None
     pos_model = None
     hash_model = None
+    hash_len_model = None
+    hash_skip_model = None
+    hash_mask_model = None
+    rank_model = None
     if count_names:
         count_model = fit_count_model(train, context_len=context_len)
     if pos_names:
         pos_model = fit_count_model(
             train, context_len=context_len, position_bucket=pos_bucket
         )
-    if "hashpool" in names:
+    if "hashpool" in names or "hashtok" in names or "hashtok2" in names:
         hash_model = fit_hashpool_twins(train, context_len=context_len)
-    for model in (count_model, pos_model, hash_model):
+    if "hashtoklen" in names or "hashtoklen2" in names:
+        hash_len_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True
+        )
+    if "hashskip" in names or "hashskip2" in names:
+        hash_skip_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True, drop_one=True
+        )
+    if "hashmask" in names or "hashmask2" in names:
+        hash_mask_model = fit_hashpool_twins(
+            train, context_len=context_len, exact_len=True, mask_one=True
+        )
+    for model in (
+        count_model,
+        pos_model,
+        hash_model,
+        hash_len_model,
+        hash_skip_model,
+        hash_mask_model,
+    ):
         if model is not None and (
             model.used_keys or model.used_hash_iv or model.used_g_values
         ):
+            raise RuntimeError("instance contrast consulted keys / hash_iv / g-values")
+
+    if rankpath_pos_bucket is None:
+        rank_bucket = pos_bucket
+    else:
+        rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
+    rank_end = int(rankpath_end) if rankpath_end and int(rankpath_end) > 0 else None
+    symbols: dict = {}
+    if rank_names:
+        from text_watermark_tools.rankpath import (
+            fit_rankpath_from_symbols,
+            slice_symbols,
+            symbols_from_matrices,
+        )
+
+        if rankpath_symbols is not None:
+            symbols = dict(rankpath_symbols)
+        else:
+            from text_watermark_tools.generate import (
+                _load_unmarked_model,
+                generate_device,
+            )
+            from text_watermark_tools.pivot import collect_choice_matrices
+
+            if lm is None:
+                lm = _load_unmarked_model(generate_device(), model_name=model_name)
+            train_mats = collect_choice_matrices(
+                train, lm, prompt_context=prompt_context
+            )
+            test_mats = collect_choice_matrices(
+                test, lm, prompt_context=prompt_context
+            )
+            prompt_ids = {t.stem: t.prompt_ids for t in test}
+            control_mats = collect_control_matrices(
+                control_draws,
+                lm,
+                prompt_ids_by_stem=prompt_ids,
+                prompt_context=prompt_context,
+            )
+            symbols = {
+                **symbols_from_matrices(train_mats),
+                **symbols_from_matrices(test_mats),
+                **symbols_from_matrices(control_mats),
+            }
+        if rank_end is not None:
+            symbols = slice_symbols(symbols, 0, rank_end)
+        train_stems = [t.stem for t in train]
+        train_sym = {
+            key: ids
+            for key, ids in symbols.items()
+            if key[0] in train_stems and key[2] in ("marked", "unmarked")
+        }
+        rank_model = fit_rankpath_from_symbols(
+            train_sym,
+            train_stems,
+            context_len=min(int(context_len), 3),
+            position_bucket=rank_bucket,
+        )
+        if rank_model.used_keys or rank_model.used_hash_iv or rank_model.used_g_values:
             raise RuntimeError("instance contrast consulted keys / hash_iv / g-values")
 
     scorers = {}
@@ -248,20 +371,63 @@ def run_instance_contrast(
             lambda ids, m=hash_model: score_hashpool(ids, m),
             "key-free-hashpool",
         )
+    if "hashtok" in names and hash_model is not None:
+        scorers["hashtok"] = (
+            lambda ids, m=hash_model: score_hashtok(ids, m),
+            "key-free-hashtok",
+        )
+    if "hashtok2" in names and hash_model is not None:
+        scorers["hashtok2"] = (
+            lambda ids, m=hash_model: score_hashtok(ids, m, min_count=2),
+            "key-free-hashtok2",
+        )
+    if "hashtoklen" in names and hash_len_model is not None:
+        scorers["hashtoklen"] = (
+            lambda ids, m=hash_len_model: score_hashtok(ids, m),
+            "key-free-hashtoklen",
+        )
+    if "hashtoklen2" in names and hash_len_model is not None:
+        scorers["hashtoklen2"] = (
+            lambda ids, m=hash_len_model: score_hashtok(ids, m, min_count=2),
+            "key-free-hashtoklen2",
+        )
+    if "hashskip" in names and hash_skip_model is not None:
+        scorers["hashskip"] = (
+            lambda ids, m=hash_skip_model: score_hashskip(ids, m),
+            "key-free-hashskip",
+        )
+    if "hashskip2" in names and hash_skip_model is not None:
+        scorers["hashskip2"] = (
+            lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2),
+            "key-free-hashskip2",
+        )
+    if "hashmask" in names and hash_mask_model is not None:
+        scorers["hashmask"] = (
+            lambda ids, m=hash_mask_model: score_hashmask(ids, m),
+            "key-free-hashmask",
+        )
+    if "hashmask2" in names and hash_mask_model is not None:
+        scorers["hashmask2"] = (
+            lambda ids, m=hash_mask_model: score_hashmask(ids, m, min_count=2),
+            "key-free-hashmask2",
+        )
     unknown = [
         n
         for n in names
-        if n not in scorers
+        if n not in scorers and n not in RANKPATH_SPECS
     ]
     if unknown:
         raise ValueError(
             "unknown contrast methods: "
             + ", ".join(unknown)
             + "; choose hits, tokhits, tokbackoff, tokbackoff2, poshits, "
-            "postokhits, postokbackoff, postokbackoff2, hashpool, "
+            "postokhits, postokbackoff, postokbackoff2, hashpool, hashtok, "
+            "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, "
+            "hashmask2, rankpath, "
+            "rankuni, rankhits, "
             f"or one of {sorted(COUNT_SPECS) + sorted(POS_SPECS)}"
         )
-    if not scorers:
+    if not scorers and not rank_names:
         raise ValueError("instance contrast needs at least one scorer")
 
     unmarked = _index_unmarked(test)
@@ -279,6 +445,9 @@ def run_instance_contrast(
         n_control=len(control_draws),
         n_aligned=n_aligned,
         fit_prefix=prefix_n or None,
+        rankpath_pos_bucket=rank_bucket if rank_names else None,
+        rankpath_end=rank_end,
+        rankpath_model=rank_model,
     )
     transfer = TransferRun(
         train_dir=train_dir,
@@ -290,6 +459,7 @@ def run_instance_contrast(
         context_len=context_len,
         fit_prefix=prefix_n or None,
         position_bucket=pos_bucket,
+        rankpath_pos_bucket=rank_bucket if rank_names else None,
         note=CONTRAST_NOTE,
     )
     for name, (scorer, instance) in scorers.items():
@@ -356,6 +526,93 @@ def run_instance_contrast(
                 brier=logodds_brier(public.marked_lrs, public.unmarked_lrs),
             )
         )
+    if rank_names:
+        from text_watermark_tools.rankpath import score_rankpath
+
+        assert rank_model is not None
+        for name in rank_names:
+            spec = RANKPATH_SPECS[name]
+            instance = spec.instance
+
+            def _lr(stem: str, sample: int, side: str, m=rank_model, s=spec) -> float:
+                return float(
+                    score_rankpath(symbols.get((stem, sample, side), []), m, spec=s)
+                )
+
+            pub_rows: list[tuple[str, int, float, float]] = []
+            for twin in test:
+                n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+                for i in range(n):
+                    sample = i + 1
+                    pub_rows.append(
+                        (
+                            twin.stem,
+                            sample,
+                            _lr(twin.stem, sample, "marked"),
+                            _lr(twin.stem, sample, "unmarked"),
+                        )
+                    )
+            public = _holdout_from_scores(
+                pub_rows,
+                context_len=min(int(context_len), 3),
+                model_name=model_name,
+                instance=instance,
+                score_kind=name,
+            )
+            transfer.methods.append(summarize_holdout(name, public))
+            cu_rows = []
+            pc_rows = []
+            for draw in control_draws:
+                key = (draw.stem, draw.sample)
+                if key not in unmarked:
+                    continue
+                c_lr = _lr(draw.stem, draw.sample, "control")
+                u_lr = _lr(draw.stem, draw.sample, "unmarked")
+                cu_rows.append((draw.stem, draw.sample, c_lr, u_lr))
+                if key in marked:
+                    pc_rows.append(
+                        (draw.stem, draw.sample, _lr(draw.stem, draw.sample, "marked"), c_lr)
+                    )
+            if cu_rows:
+                cu = _holdout_from_scores(
+                    cu_rows,
+                    context_len=min(int(context_len), 3),
+                    model_name=model_name,
+                    instance=instance,
+                    score_kind=f"{name}-control-vs-unmarked",
+                )
+                run.methods.append(
+                    ContrastPair(
+                        name=name,
+                        comparison="control-vs-unmarked",
+                        holdout=cu,
+                        brier=logodds_brier(cu.marked_lrs, cu.unmarked_lrs),
+                    )
+                )
+            if pc_rows:
+                pc = _holdout_from_scores(
+                    pc_rows,
+                    context_len=min(int(context_len), 3),
+                    model_name=model_name,
+                    instance=instance,
+                    score_kind=f"{name}-public-vs-control",
+                )
+                run.methods.append(
+                    ContrastPair(
+                        name=name,
+                        comparison="public-vs-control",
+                        holdout=pc,
+                        brier=logodds_brier(pc.marked_lrs, pc.unmarked_lrs),
+                    )
+                )
+            run.methods.append(
+                ContrastPair(
+                    name=name,
+                    comparison="public-vs-unmarked",
+                    holdout=public,
+                    brier=logodds_brier(public.marked_lrs, public.unmarked_lrs),
+                )
+            )
     run.transfer = transfer
     run.used_keys = any(m.holdout.used_keys for m in run.methods)
     run.used_hash_iv = any(m.holdout.used_hash_iv for m in run.methods)
@@ -369,7 +626,9 @@ def print_contrast(run: ContrastRun) -> str:
             f"instance-contrast n_rows={len(run.methods)} train={run.train_dir} "
             f"test={run.test_dir} control={run.control_dir} "
             f"n_control={run.n_control} n_aligned={run.n_aligned} "
-            f"fit_prefix={run.fit_prefix} used_keys={run.used_keys}"
+            f"fit_prefix={run.fit_prefix} "
+            f"rankpath_pos_bucket={run.rankpath_pos_bucket} "
+            f"rankpath_end={run.rankpath_end} used_keys={run.used_keys}"
         ),
         run.note,
         CAVEAT,
@@ -404,7 +663,10 @@ def print_contrast(run: ContrastRun) -> str:
                 label=f"{row.name} {row.comparison}",
             )
             + f" brier={row.brier:.4f} "
-            f"prompts={row.holdout.n_prompts_marked_above}/{row.holdout.n_prompts}"
+            f"prompts={row.holdout.n_prompts_marked_above}/{row.holdout.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{row.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{row.holdout.n_prompts_marked_above}"
         )
     if run.transfer is not None:
         lines.append("")
@@ -422,6 +684,8 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
         "n_control": run.n_control,
         "n_aligned": run.n_aligned,
         "fit_prefix": run.fit_prefix,
+        "rankpath_pos_bucket": run.rankpath_pos_bucket,
+        "rankpath_end": run.rankpath_end,
         "used_keys": run.used_keys,
         "used_hash_iv": run.used_hash_iv,
         "used_g_values": run.used_g_values,
@@ -440,6 +704,7 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
                 "comparison": row.comparison,
                 "n_prompt_wins": row.holdout.n_prompts_marked_above,
                 "n_prompts": row.holdout.n_prompts,
+                **row.holdout.ranking_payload(),
                 "brier": row.brier,
                 "binary": binary_eval_to_dict(
                     binary_eval(row.holdout.marked_lrs, row.holdout.unmarked_lrs)
@@ -449,6 +714,17 @@ def persist_contrast(run: ContrastRun, out_dir: Path) -> None:
         )
     if run.transfer is not None:
         persist_transfer(run.transfer, out_dir / "public-transfer")
+    if run.rankpath_model is not None:
+        from text_watermark_tools.rankpath import persist_rankpath
+
+        persist_rankpath(
+            run.rankpath_model,
+            out_dir / "tables-rankpath",
+            model_name=run.transfer.model_name if run.transfer is not None else "gpt2",
+            pair_dir=run.train_dir,
+            n_train_prompts=run.transfer.n_train_prompts if run.transfer is not None else 0,
+            spec_name="rankpath",
+        )
     body = "# Key-free instance contrast\n\n" + print_contrast(run) + "\n"
     (out_dir / "README.md").write_text(body)
     (out_dir / "results.md").write_text(body)

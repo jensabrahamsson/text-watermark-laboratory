@@ -47,6 +47,7 @@ from text_watermark_tools.indicator import (
     fit_indicator,
     format_indicator,
     holdout_single_text,
+    indicate_fit_defaults,
     load_tables_meta,
     rotate_holdout,
     persist_holdout,
@@ -312,6 +313,35 @@ def cmd_openings(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_atoms(args: argparse.Namespace) -> int:
+    from text_watermark_tools.atoms import (
+        DEFAULT_ATOM_WINDOWS,
+        dump_interpolate_atoms,
+        persist_interpolate_atoms,
+        print_interpolate_atoms,
+    )
+    from text_watermark_tools.probe import _parse_windows
+
+    raw = str(getattr(args, "windows", "") or "").strip()
+    spans = _parse_windows(raw.split(",") if raw else [])
+    payload = dump_interpolate_atoms(
+        Path(args.tables),
+        Path(args.test_dir),
+        model_name=str(getattr(args, "model", None) or "gpt2"),
+        windows=spans or DEFAULT_ATOM_WINDOWS,
+        top_k=int(getattr(args, "top_k", 20) or 20),
+        store_rows=bool(getattr(args, "store_rows", False)),
+    )
+    if payload["used_keys"] or payload["used_hash_iv"] or payload["used_g_values"]:
+        print("atoms consulted keys / hash_iv / g-values", file=sys.stderr)
+        return 1
+    print(print_interpolate_atoms(payload))
+    if args.out_dir:
+        persist_interpolate_atoms(payload, Path(args.out_dir))
+        print(f"wrote {args.out_dir}")
+    return 0
+
+
 def cmd_resample(args: argparse.Namespace) -> int:
     from text_watermark_tools.resample import PREMARK_DIR, LOGBOOK_PATH, EXPERIMENTS
 
@@ -397,6 +427,13 @@ def cmd_pair(args: argparse.Namespace) -> int:
 def cmd_indicate_fit(args: argparse.Namespace) -> int:
     twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
     method = str(getattr(args, "method", "counts") or "counts")
+    raw_prefix = getattr(args, "fit_prefix", None)
+    raw_bucket = getattr(args, "pos_bucket", None)
+    fit_prefix, pos_bucket = indicate_fit_defaults(
+        method, fit_prefix=raw_prefix, pos_bucket=raw_bucket
+    )
+    if fit_prefix > 0:
+        twins = [t.clip_prefix(fit_prefix) for t in twins]
     if method == "hashpool":
         from text_watermark_tools.transfer import fit_hashpool_twins, persist_hashpool
 
@@ -416,12 +453,14 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             model_name=args.model,
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
+            fit_prefix=fit_prefix,
+            score_kind="hashpool",
         )
         print(
             f"wrote {path} instance={model.instance} "
             f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
             f"context_len={model.context_len} n_hashes={model.n_hashes} "
-            f"n_buckets={model.n_buckets}"
+            f"n_buckets={model.n_buckets} fit_prefix={fit_prefix}"
         )
         print(CAVEAT)
         return 0
@@ -451,6 +490,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             model_name=args.model,
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
+            fit_prefix=fit_prefix,
         )
         print(
             f"wrote {path} instance={model.instance} "
@@ -512,7 +552,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             symbols,
             [t.stem for t in twins],
             context_len=min(int(args.context_len), 3),
-            position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
+            position_bucket=pos_bucket,
         )
         if model.used_keys or model.used_hash_iv or model.used_g_values:
             print("rankpath fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -524,11 +564,13 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
             pair_dir=str(args.pair_dir),
             n_train_prompts=len(twins),
             prompt_context=False,
+            fit_prefix=fit_prefix,
         )
         print(
             f"wrote {path} instance=key-free-rankpath "
             f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
-            f"alphabet=5 prompt_context=False"
+            f"alphabet=5 prompt_context=False fit_prefix={fit_prefix} "
+            f"pos_bucket={pos_bucket}"
         )
         print(CAVEAT)
         return 0
@@ -544,7 +586,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         context_len=args.context_len,
         alpha=args.alpha,
         backoff=bool(args.backoff),
-        position_bucket=int(getattr(args, "pos_bucket", 0) or 0),
+        position_bucket=pos_bucket,
     )
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         print("indicator fit consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -555,11 +597,12 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         model_name=args.model,
         pair_dir=str(args.pair_dir),
         n_train_prompts=len(twins),
+        fit_prefix=fit_prefix,
     )
     print(
         f"wrote {path} instance={INDICATOR_INSTANCE} "
         f"used_keys={model.used_keys} n_train_prompts={len(twins)} "
-        f"context_len={model.context_len}"
+        f"context_len={model.context_len} fit_prefix={fit_prefix}"
     )
     print(CAVEAT)
     return 0
@@ -612,6 +655,7 @@ def cmd_indicate_score(args: argparse.Namespace) -> int:
             decision_source=meta.decision_source if threshold is not None else "",
             n_used=meta.n_used,
             n_positions=meta.n_positions,
+            n_observed=meta.n_observed,
         )
     )
     return 0
@@ -624,8 +668,23 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
     instance = INDICATOR_INSTANCE
     extra_rotate = {
         "hashpool": "rotate_hashpool",
+        "hashtok": "rotate_hashtok",
+        "hashtok2": "rotate_hashtok2",
+        "hashtoklen": "rotate_hashtoklen",
+        "hashtoklen2": "rotate_hashtoklen2",
+        "hashskip": "rotate_hashskip",
+        "hashskip2": "rotate_hashskip2",
+        "hashmask": "rotate_hashmask",
+        "hashmask2": "rotate_hashmask2",
+        "hashtokbackoff": "rotate_hashtokbackoff",
+        "hashtokbackoff2": "rotate_hashtokbackoff2",
+        "hashtoklenbackoff": "rotate_hashtoklenbackoff",
+        "hashtoklenbackoff2": "rotate_hashtoklenbackoff2",
         "hashvote": "rotate_hashvote",
         "hybrid": "rotate_hybrid",
+        "tokhybrid": "rotate_tokhybrid",
+        "hashtokgap": "rotate_hashtokgap",
+        "poshashtok": "rotate_poshashtok",
         "hashmix": "rotate_hashmix",
         "surface": "rotate_surface",
         "poshits": "rotate_poshits",
@@ -661,9 +720,16 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
             "postokhits",
             "postokbackoff",
             "postokbackoff2",
+            "poshashtok",
         ):
             kwargs["position_bucket"] = int(getattr(args, "pos_bucket", 16))
-        elif score_kind != "hard":
+        if score_kind not in (
+            "poshits",
+            "poshitmass",
+            "postokhits",
+            "postokbackoff",
+            "postokbackoff2",
+        ):
             kwargs["n_hashes"] = int(getattr(args, "n_hashes", 8))
             kwargs["n_buckets"] = int(getattr(args, "n_buckets", 256))
         ev = rotator(**kwargs)
@@ -673,9 +739,12 @@ def cmd_indicate_holdout(args: argparse.Namespace) -> int:
         if score_kind not in COUNT_SPECS:
             print(
                 f"unknown --score-mode {score_kind}; "
-                f"choose hard, hashpool, hashvote, hybrid, surface, poshits, "
-                f"poshitmass, postokhits, postokbackoff, postokbackoff2, "
-                f"or one of "
+                f"choose hard, hashpool, hashtok, hashtok2, hashtoklen, hashtoklen2, "
+                f"hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
+                f"hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
+                f"hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
+                f"poshits, poshitmass, postokhits, postokbackoff, "
+                f"postokbackoff2, or one of "
                 f"{sorted(COUNT_SPECS)}",
                 file=sys.stderr,
             )
@@ -812,6 +881,13 @@ def cmd_probe(args: argparse.Namespace) -> int:
                 if getattr(args, "rankpath_pos_bucket", None) is not None
                 else None
             ),
+            cascade_rankpath_end=(
+                int(args.cascade_rankpath_end)
+                if getattr(args, "cascade_rankpath_end", None)
+                else None
+            ),
+            cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
+            with_snaprate=bool(getattr(args, "snaprate", False)),
         )
         if run.used_keys or run.used_hash_iv or run.used_g_values:
             print("transfer consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -850,6 +926,13 @@ def cmd_probe(args: argparse.Namespace) -> int:
             if getattr(args, "rankpath_pos_bucket", None) is not None
             else None
         ),
+        cascade_rankpath_end=(
+            int(args.cascade_rankpath_end)
+            if getattr(args, "cascade_rankpath_end", None)
+            else None
+        ),
+        cascade_when=str(getattr(args, "cascade_when", "coverage") or "coverage"),
+        with_snaprate=bool(getattr(args, "snaprate", False)),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("probe consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -954,6 +1037,13 @@ def cmd_contrast(args: argparse.Namespace) -> int:
         fit_prefix=int(getattr(args, "fit_prefix", 0) or 0) or None,
         position_bucket=int(getattr(args, "pos_bucket", 1)),
         methods=methods or ("hits", "poshits", "hashpool"),
+        rankpath_pos_bucket=(
+            int(args.rankpath_pos_bucket)
+            if getattr(args, "rankpath_pos_bucket", None) is not None
+            else None
+        ),
+        rankpath_end=int(getattr(args, "rankpath_end", 0) or 0) or None,
+        prompt_context=bool(getattr(args, "prompt_context", False)),
     )
     if run.used_keys or run.used_hash_iv or run.used_g_values:
         print("contrast consulted keys / hash_iv / g-values", file=sys.stderr)
@@ -1115,7 +1205,7 @@ def build_parser() -> argparse.ArgumentParser:
         "blind",
         help=(
             "Key-free leave-one-prompt-out on pair twins "
-            "(no keys / hash_iv / g-values)"
+            "(no keys / hash_iv / g-values). Prints ranking vs isolated sign."
         ),
     )
     p_blind.add_argument(
@@ -1194,10 +1284,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_fit.add_argument(
         "--pos-bucket",
         type=int,
-        default=0,
+        default=None,
         help=(
             "If >0, prepend i//N to last-k context when fitting count "
-            "tables (poshits). Not a watermark key. Default 0."
+            "tables (poshits). Default 1 for --method rankpath, else 0. "
+            "Not a watermark key."
+        ),
+    )
+    p_fit.add_argument(
+        "--fit-prefix",
+        type=int,
+        default=None,
+        help=(
+            "Clip each twin to the first N generated tokens before fitting. "
+            "Default 4 for --method rankpath (the opening model); 0 (full "
+            "file) otherwise. 0 means no clip."
         ),
     )
     p_fit.add_argument("--n-hashes", type=int, default=8)
@@ -1229,14 +1330,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--score-mode",
         default="auto",
         help=(
-            "How to read count tables: auto (hashpool tables → hashpool, "
-            "bucketed count tables → poshits, else hard), or "
+            "How to read count tables: auto (hashpool tables follow the "
+            "fitted mixer: exact_len→hashtoklen, drop-one→hashskip, "
+            "MASK→hashmask, else Laplace hashpool; bucketed count tables → "
+            "poshits, else hard), or "
             "hard/hits/tokhits/tokbackoff/tokbackoff2/poshits/postokhits/"
             "postokbackoff/postokbackoff2/poshitmass/gated/unigram/… "
-            "Hashpool tables ignore count modes. tokhits skips Laplace "
-            "scores for a next token never seen under that context. "
-            "tokbackoff shrinks last-k until an observed next token hits. "
-            "tokbackoff2 stops at last-2."
+            "Hashpool tables refuse a reader that does not match the mixer "
+            "(hashtoklen needs exact_len; hashskip needs drop-one). "
+            "Explicit hashtok / hashtok2 remains occupancy-free hashing on "
+            "Laplace tables. "
+            "tokhits skips Laplace scores for a next token never seen under "
+            "that context. tokbackoff shrinks last-k until an observed next "
+            "token hits. tokbackoff2 stops at last-2."
         ),
     )
     p_is.add_argument(
@@ -1291,10 +1397,17 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "How to read the count tables: hard (default), unigram, backoff, "
             "interpolate, hits, tokhits, tokbackoff, tokbackoff2, gated, "
-            "shrinkage, mix, hashpool, hashvote, hybrid, surface, poshits, "
-            "postokhits, postokbackoff, postokbackoff2, poshitmass. "
+            "shrinkage, mix, hashpool, hashtok, hashtok2, hashtoklen, hashtoklen2, "
+            "hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
+            "hashtokbackoff2, hashtoklenbackoff, hashtoklenbackoff2, "
+            "hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, surface, "
+            "poshits, postokhits, postokbackoff, postokbackoff2, poshitmass. "
             "Hashpool/surface/poshits/postokhits/postokbackoff/"
-            "postokbackoff2 modes need --rotate. Still key-free."
+            "postokbackoff2/hashtok/hashtok2/hashtoklen/hashtoklen2/hashskip/hashskip2/"
+            "hashmask/hashmask2/tokhybrid/hashtokgap/poshashtok/hashtok2/"
+            "hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
+            "hashtoklenbackoff2 modes "
+            "need --rotate. Still key-free."
         ),
     )
     p_ih.add_argument(
@@ -1332,10 +1445,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--methods",
         default="",
         help=(
-            "Comma-separated methods: count specs plus hashpool, hashvote, "
-            "hybrid, hashmix, surface, stack, logit, poshits, postokhits, "
-            "postokbackoff, postokbackoff2, poshitmass, pospool, first, "
-            "tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, rankhits"
+            "Comma-separated methods: count specs plus hashpool, hashtok, hashtok2, "
+            "hashtoklen, hashtoklen2, hashskip, hashskip2, hashmask, hashmask2, hashtokbackoff, "
+            "hashtokbackoff2, hashtoklenbackoff, "
+            "hashtoklenbackoff2, hashvote, hybrid, tokhybrid, hashtokgap, poshashtok, hashmix, "
+            "surface, stack, logit, poshits, postokhits, "
+            "postokbackoff, postokbackoff2, poshitmass, pospool, "
+            "first, tokhits, tokbackoff, tokbackoff2, rankpath, rankuni, "
+            "rankhits, snapleave, snapupset, snapmiss"
         ),
     )
     p_probe.add_argument(
@@ -1360,18 +1477,40 @@ def build_parser() -> argparse.ArgumentParser:
         "--cascade",
         default="",
         help=(
-            "Isolated-file protocol: use this count method when n_used>0, "
-            "else the --cascade-fallback reader. Example: postokbackoff. "
-            "Loads GPT-2."
+            "Isolated-file protocol: use this count or occupancy-free "
+            "hashed method when the --cascade-when rule fires, else the "
+            "--cascade-fallback reader. Example: postokbackoff or "
+            "hashtoklen. Hashed readers skip empty-cell Laplace. Loads GPT-2."
         ),
     )
     p_probe.add_argument(
         "--cascade-fallback",
         default="pivot",
         help=(
-            "When --cascade has n_used=0: pivot (LDA), rankpath (tokbackoff "
+            "When --cascade yields: pivot (LDA), rankpath (tokbackoff "
             "on unmarked-LM rank symbols), or rankuni (rank-symbol unigram). "
+            "Rank-path fallback uses the opening path, not --rankpath-full. "
             "Default pivot."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade-rankpath-end",
+        type=int,
+        default=0,
+        help=(
+            "First N rank symbols for --cascade-fallback rankpath/rankuni. "
+            "0 (default) is the --fit-prefix opening. 4 is the unbucketed "
+            "prefix-4 reader. Never the full 128-token path. Still no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--cascade-when",
+        default="coverage",
+        help=(
+            "When the count channel yields to --cascade-fallback: coverage "
+            "(n_used>0, default) or positive (count lr>0). positive also "
+            "sends covered-negative files to the rank-path reader. Still "
+            "no keys. Mixed AUC is not a detector."
         ),
     )
     p_probe.add_argument(
@@ -1380,6 +1519,15 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Score unmarked-LM rank-symbol tables (rankpath + rankuni). "
             "Loads GPT-2. Token identity is not used. Still no keys."
+        ),
+    )
+    p_probe.add_argument(
+        "--snaprate",
+        action="store_true",
+        help=(
+            "Score table-free unmarked-LM snap rates: snapleave (not argmax), "
+            "snapupset (in-topk not argmax), snapmiss (missed top-k, negative "
+            "control). No twin tables. Loads GPT-2. Still no keys."
         ),
     )
     p_probe.add_argument(
@@ -1488,7 +1636,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=16,
         help=(
-            "Token-position bucket size for poshits/poshitmass/pospool. "
+            "Token-position bucket size for poshits/poshitmass/pospool/poshashtok. "
             "Prepends i//N to the last-4 context so early 4-grams do not "
             "share counts with the tail. 0 is unbucketed (same tables as "
             "hits/tokhits). Not a watermark key. Default 16."
@@ -1619,11 +1767,35 @@ def build_parser() -> argparse.ArgumentParser:
     p_contrast.add_argument("--methods", default="hits,poshits,hashpool",
         help=(
             "Comma-separated: hits, tokhits, tokbackoff, tokbackoff2, "
-            "poshits, postokhits, postokbackoff, postokbackoff2, hashpool"
+            "poshits, postokhits, postokbackoff, postokbackoff2, hashpool, "
+            "hashtok, hashtok2, hashtoklen, hashtoklen2, hashskip, hashskip2, "
+            "hashmask, hashmask2, "
+            "rankpath, rankuni, "
+            "rankhits"
         ),
     )
     p_contrast.add_argument("--fit-prefix", type=int, default=0)
     p_contrast.add_argument("--pos-bucket", type=int, default=1)
+    p_contrast.add_argument(
+        "--rankpath-pos-bucket",
+        type=int,
+        default=None,
+        help=(
+            "Position bucket for rank-symbol tables. Default: same as "
+            "--pos-bucket. 0 is unbucketed. Not a watermark key."
+        ),
+    )
+    p_contrast.add_argument(
+        "--rankpath-end",
+        type=int,
+        default=0,
+        help=(
+            "If >0, score only the first N rank symbols after collection. "
+            "Isolated --fit-prefix 4 is three symbols; --fit-prefix 5 is "
+            "four (unbucketed prefix-4). Still no keys."
+        ),
+    )
+    p_contrast.add_argument("--prompt-context", action="store_true")
     p_contrast.add_argument("--out-dir", default="")
     p_contrast.set_defaults(func=cmd_contrast)
 
@@ -1808,6 +1980,36 @@ def build_parser() -> argparse.ArgumentParser:
     p_open.add_argument("--skip-stem-curve", action="store_true")
     p_open.add_argument("--out-dir", default="")
     p_open.set_defaults(func=cmd_openings)
+
+    p_atoms = sub.add_parser(
+        "atoms",
+        help=(
+            "Decode interpolate last-4 atoms from frozen count tables. "
+            "Not a new scorer, not detector_mean, not key recovery."
+        ),
+        description=(
+            "Load persisted interpolate tables and list per-window mean "
+            "deltas plus the most common observed-token atoms on marked "
+            "test files. Explains where a transfer LR comes from. Not a "
+            "new scorer, not detector_mean, not a universal detector."
+        ),
+    )
+    p_atoms.add_argument("tables", help="tables-counts directory from probe/transfer")
+    p_atoms.add_argument("--test-dir", required=True, help="Twin directory to decode")
+    p_atoms.add_argument("--model", default="gpt2")
+    p_atoms.add_argument(
+        "--windows",
+        default="0:4,4:16,16:32,32:64,64:128",
+        help="Comma-separated half-open token windows",
+    )
+    p_atoms.add_argument("--top-k", type=int, default=20)
+    p_atoms.add_argument(
+        "--store-rows",
+        action="store_true",
+        help="Also persist every per-file atom list (large)",
+    )
+    p_atoms.add_argument("--out-dir", default="")
+    p_atoms.set_defaults(func=cmd_atoms)
     return parser
 
 

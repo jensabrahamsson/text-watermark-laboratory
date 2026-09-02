@@ -1,0 +1,170 @@
+{
+  "used_keys": false,
+  "n_train_prompts": 60,
+  "dropped_stems": [
+    "01-harbour",
+    "02-night-bus",
+    "03-library",
+    "04-market",
+    "05-kitchen",
+    "06-station",
+    "07-rain",
+    "08-letter",
+    "09-workshop",
+    "10-office",
+    "11-garden",
+    "12-ferry-queue"
+  ],
+  "fit_prefix": 8,
+  "note": "60-stem prefix-8 postokbackoff vs postokbackoff2. The four prefix-4 zeros that prefix-8 backoff signs are last-1 English, not official 5-grams. used_keys=false.",
+  "postokbackoff": {
+    "marked_positive": 38,
+    "unmarked_nonpositive": 40,
+    "prompt_wins": 10
+  },
+  "postokbackoff2": {
+    "marked_positive": 18,
+    "unmarked_nonpositive": 46,
+    "prompt_wins": 12,
+    "marked_zeros": 30
+  },
+  "prefix4_postokbackoff": {
+    "marked_positive": 34,
+    "unmarked_nonpositive": 48
+  },
+  "tp_only_last1": 20,
+  "tp_n": 38,
+  "rescued_prefix4_zeros": [
+    {
+      "stem": "06-station",
+      "sample": 4,
+      "prefix4_lr": 0.0,
+      "backoff_lr": 1.6071729058032487,
+      "backoff2_lr": 0.0,
+      "backoff2_n_used": 0,
+      "only_last1": true,
+      "max_order": 1,
+      "atoms": [
+        {
+          "i": 6,
+          "order": 1,
+          "tok": 366,
+          "piece": " \"",
+          "ctx_text": ",",
+          "c_m": 2,
+          "c_u": 0,
+          "delta": 1.6071729058032487
+        }
+      ]
+    },
+    {
+      "stem": "08-letter",
+      "sample": 3,
+      "prefix4_lr": 0.0,
+      "backoff_lr": 0.9202095496476337,
+      "backoff2_lr": 0.0,
+      "backoff2_n_used": 0,
+      "only_last1": true,
+      "max_order": 1,
+      "atoms": [
+        {
+          "i": 3,
+          "order": 1,
+          "tok": 262,
+          "piece": " the",
+          "ctx_text": " on",
+          "c_m": 3,
+          "c_u": 6,
+          "delta": -0.6140516668951843
+        },
+        {
+          "i": 6,
+          "order": 1,
+          "tok": 616,
+          "piece": " my",
+          "ctx_text": ",",
+          "c_m": 17,
+          "c_u": 1,
+          "delta": 2.4544707661904517
+        }
+      ]
+    },
+    {
+      "stem": "10-office",
+      "sample": 1,
+      "prefix4_lr": 0.0,
+      "backoff_lr": 1.3091352805732726,
+      "backoff2_lr": 0.0,
+      "backoff2_n_used": 0,
+      "only_last1": true,
+      "max_order": 1,
+      "atoms": [
+        {
+          "i": 4,
+          "order": 1,
+          "tok": 383,
+          "piece": " The",
+          "ctx_text": ".",
+          "c_m": 5,
+          "c_u": 1,
+          "delta": 1.3091352805732726
+        }
+      ]
+    },
+    {
+      "stem": "10-office",
+      "sample": 3,
+      "prefix4_lr": 0.0,
+      "backoff_lr": 1.3091352805732726,
+      "backoff2_lr": 0.0,
+      "backoff2_n_used": 0,
+      "only_last1": true,
+      "max_order": 1,
+      "atoms": [
+        {
+          "i": 4,
+          "order": 1,
+          "tok": 383,
+          "piece": " The",
+          "ctx_text": ".",
+          "c_m": 5,
+          "c_u": 1,
+          "delta": 1.3091352805732726
+        }
+      ]
+    }
+  ],
+  "letter_d2": {
+    "backoff_lr": -0.605563287681721,
+    "backoff2_lr": 0.0,
+    "backoff2_n_used": 0,
+    "only_last1": true,
+    "atoms": [
+      {
+        "i": 2,
+        "order": 1,
+        "tok": 262,
+        "piece": " the",
+        "ctx_text": " in",
+        "c_m": 2,
+        "c_u": 8,
+        "delta": -1.2039236630693844
+      },
+      {
+        "i": 5,
+        "order": 1,
+        "tok": 1101,
+        "piece": "'m",
+        "ctx_text": " I",
+        "c_m": 1,
+        "c_u": 1,
+        "delta": -0.007202912294057562
+      }
+    ]
+  },
+  "order_counts_marked_tp": {
+    "1": 20,
+    "2": 16,
+    "3": 2
+  }
+}

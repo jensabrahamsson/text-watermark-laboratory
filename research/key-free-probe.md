@@ -1,8 +1,10 @@
 # Stronger key-free probes (without reconstructing keys)
 
-The 10/12 prompt-grain count-table result is real. The 29/48 isolated-file sign
-was a weak test. On 2026-08-31 we re-read the same 12×4 GPT-2 twins with
-scorers that still use **no keys, no `hash_iv`, no g-values**.
+The published 10/12 / 29/48 last-4 count-table result overcounted truncated
+openings. After storing each real suffix once, hard last-4 is **9/12** /
+**25/48** (`experiments/2026-09-01-probe-12x4-recount-hard-last4/`). Isolated
+sign at 0 remains a weak test. On 2026-08-31 we re-read the same 12×4 GPT-2
+twins with scorers that still use **no keys, no `hash_iv`, no g-values**.
 
 Raw tables: [../experiments/2026-08-31-probe-12x4/](../experiments/2026-08-31-probe-12x4/)
 and [../experiments/2026-08-31-scrub-12x4/](../experiments/2026-08-31-scrub-12x4/).
@@ -21,6 +23,31 @@ Frozen file: `experiments/2026-08-17-indicate-holdout-12x4/holdout.json`.
 So the original method already had a significant **ranking** gap. The headline
 weakness was the threshold-0 sign, not “no signal”.
 
+## Truncated-context recount (2026-09-01)
+
+`_add_sequence` used to store every order `1..k` even when fewer tokens
+existed, so `fit_table([[10,20]], context_len=4)` counted `(10,)→20` four
+times. After storing each real suffix once:
+
+| Grain | Statistic | Result |
+|---|---|---|
+| Prompt-mean ranking | 9/12 | binomial P(≥9) = 0.073 (not a 5% test) |
+| Isolated `lr > 0` | 25/48 | binomial P(≥25) = 0.443 (not a 5% test) |
+| Isolated ranking | AUC | **0.590** |
+| Mean gap | permutation | p = 0.040 |
+
+Prompt ranking survives (**9/12**, or **10/12** with margin 0.02). Isolated
+sign at 0 is chance-like. Rechecked `hits` is **10/12**, AUC **0.718**.
+In-domain 36×4 hits is still **36/36**, AUC **0.930**. JSON:
+`experiments/2026-09-01-blind-12x4-recount-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hits/`,
+`experiments/2026-09-01-probe-36x4-recount-hits/`. The 2026-08-17 holdout
+files stay as collected. `probe` / `indicate holdout` / `blind` now report
+`ranking_without_isolated_tp`: prompt-group wins whose marked files are
+all `lr<=0`. Those stems are not isolated-file true positives. Historical
+`blind` JSON stays stem-mean only.
+
 ## What the new scorers do
 
 The published `hard` last-4 LR falls straight to the unigram when a 4-gram is
@@ -28,9 +55,10 @@ new. Leave-one-prompt-out makes most content 4-grams unseen. Two hypotheses:
 
 1. Shared function-word 4-grams across prompts carry the transferable mark
    (`hits` / `gated` / `shrinkage`).
-2. Random feature-hashing of the last-4 context shares statistics the way a
-   stealing attack would, without reconstructing SynthID’s secret hash
-   (`hashpool`).
+2. Random feature-hashing of the last-4 context shares statistics across
+   prompts (`hashpool`). That mixer is a laboratory splitmix of token ids,
+   not SynthID’s secret hash, and it is not the stealing attack of
+   Jovanović et al. (2024).
 3. Tournament sampling only reweights top-k, so unmarked-LM rank/gap features
    should also separate (`pivot-*`), and snapping to the unmarked argmax
    should kill the official mean (`scrub`).
@@ -71,7 +99,56 @@ Prompt-level misses:
 - hashpool: *letter*
 
 `hits` and `hashpool` fail different prompts. That is recorded; it is not a
-claimed 12/12 ensemble.
+claimed 12/12 ensemble. `hashtok` is occupancy-free hashpool (tokhits on
+collisions). On 60-stem prefix-5 it copies postokhits' 30 true positives;
+hashpool's extra four, including letter d2's official 5-gram, are Laplace.
+`hashtokbackoff` fits per-order hash tables; prefix-5 nested Youden stays
+**30/48**, and letter d2's fifth token is last-1 unmarked. Those tables
+also hash short prefixes into longer-order mixers. `hashtoklenbackoff`
+requires exact last-k; nested Youden **33/48**. Prefix-4 hashed
+backoff hurts versus hashtok. `hashskip` (tagged drop-one last-k)
+is denser at t=0 (**25/48**) and nested Youden **16/48**; letter d2's
+official `I` is seen unmarked-only. `hashtoklen2` skips singleton
+collisions: **10/48 vs 48/48**, precision 1.0; 11 of 21 hashtoklen TPs
+were singletons; harbour d2 survives. Count-weighting those hashes
+keeps 21/48 (no singleton+dense mix). `hashtoklen2` + prefix-4 rankpath cascade
+is **28/48 vs 40/48** (same as standalone rankpath). `hashmask`
+(length-k MASK replace) is **21/48 vs 42/48** at t=0 and nested
+Youden **19/48 vs 45/48**, worse than hashtoklen; letter d2's official
+slot is two opposing singletons (lr=+0.240), thrown out nested.
+In-domain full-file `hashtok` is **33/48 vs 22/48**, nested-by-stem
+**22/48 vs 30/48** (hashpool stays **35/48 vs 29/48**). `--n-hashes 2`
+on that mixer is **34/48 vs 31/48**, nested **28/48 vs 37/48**, AUC
+**0.764**; `--n-hashes 4` is **36/48 vs 30/48**, nested **35/48 vs
+30/48**; `--n-hashes 16` copies 36/48 with nested spec **24/48**;
+`--n-hashes 32` hurts (**30/48**, nested **21/48 vs 38/48**). Default
+n=8 is not the best in-domain width **at seed 20260831**; that n=2 win
+is seed-confounded (n=2 spec **21–31/48**). 24→12 nested Youden prefers
+n=8 (**17/48 vs 46/48**) at seed 20260831; that win is also
+seed-confounded (n=2 seed 7 nested **19/48 vs 47/48**). Occupancy-free
+last-k at that frozen mixer: in-domain last-1 is chance (**5/12**);
+last-3 prompt **11/12** has t=0 **24/48** (below recounted hard **25/48**). 24→12
+last-4 still wins prompt ranking and nested FPR10 (**17/48 vs 46/48**);
+last-2 file AUC **0.738** is ranking (nested **15/48**); last-1 nested
+**18/48** has prompt **7/12**. Keep `--context-len 4`. Do not fish a
+seed. Do not sell 36/48, 31/48, 24/48, or 18/48. OR with hard
+last-4 indicate is **39/48 vs 12/48**, combined **51/96** (worse than
+indicate **52/96**); nested LDA **21/48 vs 37/48**. Complementary TPs
+exist; the unmarked OR cost destroys the combined gate. Do not sell
+33/48 or 39/48 as replacing **25/48**. `tokhybrid` (tokhits, then
+hashtok) copies that isolated 33/48 and lifts prompt ranking to 11/12;
+`poshashtok` nested **14/48 vs 38/48** is a specificity knob.
+`hashtokgap` (hashtok only where tokhits abstains) is **27/48 vs 21/48**,
+nested **17/48 vs 31/48**, a strict subset of hashtok's 33 TPs.
+`hashtok2` (unbucketed min_count=2) is **34/48 vs 21/48**, nested
+**19/48 vs 35/48**: a sign reshuffle, not a singleton core.
+In-domain `--fit-prefix 4` occupancy-free hashing copies tokhits
+density, not opening rankpath **41/48**: tokhits **23/48 vs 48/48**
+(prompt **12/12**); hashtok **24/48 vs 47/48** (nested **23/48 vs
+47/48**, extra TP letter d3 only); hashtok2 **22/48 vs 48/48**. Letter
+d2 is zero at that grain. Marked isolated recall **24/48** is below
+hard last-4 **25/48**. Do not sell 24/48 as replacing **25/48**.
+See [key-free-hashtok.md](key-free-hashtok.md).
 
 ## Results on 36 GPT-2 topics (one draw)
 
@@ -419,7 +496,13 @@ do not read Qwen (8/12, AUC 0.584).
 **Same tokenizer is not a transferable 4-gram detector.** DistilGPT2
 12×4 is officially **12/12**. In-domain hits **9/12**, AUC 0.705. GPT-2
 36×4 → Distil (shared BPE, same public keys) hits **5/12**, AUC **0.462**.
-The 4-gram footprint is generator-weight specific.
+The 4-gram footprint is generator-weight specific. Native Distil
+unmarked-LM rankpath is chance (**8/12**, AUC **0.579**). Rank-path is
+not a universal tournament detector.
+
+**Qwen native rankpath does not copy first-token 12/12.** Opening
+rankpath is **8/12**, AUC **0.590**, isolated 24/48. Qwen's in-domain
+opening remains generated token 0.
 
 **A tiny neural net does not beat those tables.** On the same 4-token
 new-topic gate, tokmlp is 8/12 (AUC 0.714) against poshits **12/12**
@@ -429,6 +512,8 @@ transfer to Distil or Qwen. Details: [key-free-learn.md](key-free-learn.md).
 **Extra GPT-2 training draws do not create a Qwen detector.** 36×4 GPT-2 → new Qwen 12×4 is chance (hits 6/12, AUC 0.445). Same-topic surface on that sample is 7/12 (AUC 0.525). The published original-corpus Qwen hashpool 10/12 stays tied to that corpus.
 
 **Argmax snap removes the public mark without keys.** On all 48 marked 12×4 files, official mean **0.6216 → 0.4994**. An unmarked control stays near 0.50 (0.508 → 0.487). About 60–90 of 128 tokens flip, so this is a statistical scrub, not a fluent rewrite. It needs the unmarked generator, not the keys.
+
+**Binary snap-rate is not a tournament detector.** Table-free `snapupset` (in-topk not argmax) on 12×4 openings is chance: **7/12**, AUC **0.501**, perm p=0.55. Marked and unmarked leave the greedy top-k token at the same rate (0.649 vs 0.653). `snapleave` majority vote marks 48/48 and 41 unmarked files. `snapmiss` ranks (**10/12**, AUC **0.707**) because marked openings sit off-mode more often (46% vs 28% miss); isolated t=0 is **21/48 vs 41/48**, correlation 0.87 with opening pivot-rank, 0.23 with rankpath. Rank-symbol tables are not a dressed-up upset bit. Details: [key-free-snaprate.md](key-free-snaprate.md).
 
 ## What this is not
 
@@ -512,6 +597,9 @@ python -m text_watermark_tools probe experiments/2026-08-17-pair-36 \
 python -m text_watermark_tools indicate fit experiments/2026-08-17-pair-12x4 \
   --method hashpool --out-dir experiments/indicator-gpt2-hashpool
 
+python -m text_watermark_tools indicate score FILE.txt \
+  --tables experiments/indicator-gpt2-hashpool --score-mode hashtok
+
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
   --test-dir experiments/2026-08-17-pair-qwen \
   --overlap keep \
@@ -524,6 +612,10 @@ python -m text_watermark_tools indicate score FILE.txt \
 python -m text_watermark_tools scrub \
   experiments/2026-08-17-pair-12x4 \
   --out-dir experiments/2026-08-31-scrub-12x4
+
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods snapleave,snapupset,snapmiss --skip-hashpool --fit-prefix 4 \
+  --out-dir experiments/2026-09-01-probe-12x4-fitprefix4-snaprate
 
 python -m text_watermark_tools learn experiments/2026-08-31-pair-36x4 \
   --fit-prefix 4 --pos-bucket 1 \
@@ -539,7 +631,8 @@ Learned scorers: [key-free-learn.md](key-free-learn.md).
 
 Occupancy vs observed next tokens: [key-free-tokhits.md](key-free-tokhits.md).
 Opening geometry and ABSTAIN: [key-free-cascade.md](key-free-cascade.md).
-Rank-path (no token identity): opening **12/12 / 41/48**, OOD **10/12 / 28/48**; full file is chance. [key-free-rankpath.md](key-free-rankpath.md).
+Rank-path (no token identity): GPT-2 opening **12/12 / 41/48**, OOD **10/12 / 28/48**; full file is chance. Distil native opening is chance (**8/12**, AUC **0.579**). Qwen opening rankpath is **8/12** against first-token **12/12**. [key-free-rankpath.md](key-free-rankpath.md).
+Table-free snap-rate: opening `snapupset` chance **7/12**; `snapmiss` **10/12** / **21/48**. [key-free-snaprate.md](key-free-snaprate.md).
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-31-prompts-long12 \

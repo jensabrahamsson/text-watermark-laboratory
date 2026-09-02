@@ -495,6 +495,138 @@ def persist_openings(payload: dict, out_dir: Path) -> Path:
     return out_dir / "coverage.json"
 
 
+def _zero_keys(payload: dict, method: str = "postokhits") -> set[tuple[str, int]]:
+    zeros = payload["final"][method]["zeros"]
+    return {(str(z["stem"]), int(z["sample"])) for z in zeros}
+
+
+def _holdout_file_lrs(path: Path) -> tuple[set[tuple[str, int]], dict, dict]:
+    raw = json.loads(Path(path).read_text())
+    marked: dict[tuple[str, int], float] = {}
+    unmarked: dict[tuple[str, int], float] = {}
+    for row in raw.get("files") or []:
+        key = (str(row["stem"]), int(row["sample"]))
+        lr = float(row["lr"])
+        name = str(row.get("file") or "")
+        if "unmarked" in name:
+            unmarked[key] = lr
+        else:
+            marked[key] = lr
+    return set(marked), marked, unmarked
+
+
+def _leftover_sign(keys: set[tuple[str, int]], marked: dict, unmarked: dict) -> dict:
+    n = len(keys)
+    m_pos = sum(1 for k in keys if float(marked[k]) > 0.0)
+    u_nonpos = sum(1 for k in keys if float(unmarked[k]) <= 0.0)
+    return {
+        "n": n,
+        "marked_above_zero": m_pos,
+        "unmarked_at_most_zero": u_nonpos,
+    }
+
+
+def summarize_coverage_union(
+    coverage_a: Path,
+    coverage_b: Path,
+    holdout: Path,
+    *,
+    method: str = "postokhits",
+    leftover_holdouts: dict[str, Path] | None = None,
+    label_a: str = "a",
+    label_b: str = "b",
+) -> dict:
+    """Set-union of published opening zeros. Not a mixed detector."""
+    pay_a = json.loads(Path(coverage_a).read_text())
+    pay_b = json.loads(Path(coverage_b).read_text())
+    if pay_a.get("used_keys") or pay_b.get("used_keys"):
+        raise RuntimeError("coverage union consulted keys")
+    all_marked, _, _ = _holdout_file_lrs(holdout)
+    z_a = _zero_keys(pay_a, method)
+    z_b = _zero_keys(pay_b, method)
+    cov_a = all_marked - z_a
+    cov_b = all_marked - z_b
+    leftover = z_a & z_b
+    leftover_rows = []
+    for name, path in (leftover_holdouts or {}).items():
+        _keys, marked, unmarked = _holdout_file_lrs(path)
+        leftover_rows.append(
+            {"label": name, **_leftover_sign(leftover, marked, unmarked)}
+        )
+    return {
+        "note": (
+            "Set-union of published occupancy-free opening zeros. "
+            "Not mixed tables, not a new probe method, not keys. "
+            "Does not replace 25/48."
+        ),
+        "used_keys": False,
+        "used_hash_iv": False,
+        "used_g_values": False,
+        "method": method,
+        "n_marked": len(all_marked),
+        "label_a": label_a,
+        "label_b": label_b,
+        "n_covered_a": len(cov_a),
+        "n_covered_b": len(cov_b),
+        "n_union": len(cov_a | cov_b),
+        "n_intersection": len(cov_a & cov_b),
+        "n_leftover": len(leftover),
+        "covered_a_only": sorted(
+            [{"stem": s, "sample": n} for s, n in sorted(cov_a - cov_b)],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "covered_b_only": sorted(
+            [{"stem": s, "sample": n} for s, n in sorted(cov_b - cov_a)],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "leftover": sorted(
+            [{"stem": s, "sample": n} for s, n in sorted(leftover)],
+            key=lambda r: (r["stem"], r["sample"]),
+        ),
+        "leftover_signs": leftover_rows,
+    }
+
+
+def print_coverage_union(payload: dict) -> str:
+    lines = [
+        "# Opening-coverage union",
+        "",
+        str(payload.get("note") or ""),
+        "",
+        (
+            f"used_keys={payload.get('used_keys')} "
+            f"{payload.get('label_a')}={payload.get('n_covered_a')} "
+            f"{payload.get('label_b')}={payload.get('n_covered_b')} "
+            f"union={payload.get('n_union')} "
+            f"intersection={payload.get('n_intersection')} "
+            f"leftover={payload.get('n_leftover')}"
+        ),
+        "",
+        "Leftover signs on files neither train covers:",
+        "",
+    ]
+    for row in payload.get("leftover_signs") or []:
+        lines.append(
+            f"- {row['label']}: marked>0 {row['marked_above_zero']}/{row['n']}, "
+            f"unmarked≤0 {row['unmarked_at_most_zero']}/{row['n']}"
+        )
+    lines.extend(
+        [
+            "",
+            "Set-union occupancy-free coverage is not a mixed detector. "
+            "Does not replace 25/48.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def persist_coverage_union(payload: dict, out_dir: Path) -> None:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "union.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (out_dir / "results.md").write_text(print_coverage_union(payload))
+
+
 def load_group(path: Path, tokenizer, name: str | None = None) -> TrainGroup:
     twins = load_twins(path, tokenizer=tokenizer)
     return TrainGroup(name or path.name, twins)

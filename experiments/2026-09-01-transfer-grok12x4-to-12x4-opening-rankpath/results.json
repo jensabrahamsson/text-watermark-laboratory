@@ -1,0 +1,124 @@
+{
+  "train_dir": "experiments/2026-09-01-pair-grok12x4",
+  "test_dir": "experiments/2026-08-17-pair-12x4",
+  "n_train_prompts": 12,
+  "n_test_prompts": 12,
+  "dropped_stems": [],
+  "overlap_mode": "drop-from-train",
+  "model_name": "gpt2",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "nested": true,
+  "shuffle_seed": null,
+  "surface_context_len": 8,
+  "prefix_lens": [],
+  "windows": [],
+  "fit_prefix": 4,
+  "position_bucket": 1,
+  "include_first": false,
+  "prompt_context": false,
+  "pivot_weights": [
+    "uniform"
+  ],
+  "rankpath_full": false,
+  "rankpath_pos_bucket": 1,
+  "cascade_fallback": "pivot",
+  "cascade_rankpath_end": null,
+  "cascade_when": "coverage",
+  "note": "Train on one twin directory, score the other. Shared prompt stems are dropped as overlap_mode says. In-sample Youden is optimistic. nested-youden / nested-fpr10 come from leave-one-prompt-out on training stems only, then frozen on the test files. ranking_without_isolated_tp counts prompt wins with no marked file lr>0; do not read prompt wins as isolated recall. Not detector_mean. Not Claude. Not key recovery.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "rankpath",
+      "instance": "key-free-rankpath",
+      "score_kind": "rankpath",
+      "n_prompt_wins": 10,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 34,
+      "n_prompt_wins_without_isolated_tp": 2,
+      "ranking_without_isolated_tp": [
+        "01-harbour",
+        "12-ferry-queue"
+      ],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "11-garden"
+      ],
+      "n_marked_positive_on_ranking_losses": 2,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.7105034722222222,
+        "mean_positive": 0.15460303628008742,
+        "mean_negative": -0.24232515143658337,
+        "mean_diff": 0.3969281877166708,
+        "n_positive_above_zero": 22,
+        "n_negative_at_most_zero": 31,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 0.7645604931891441,
+        "youden_threshold": -0.3833728963589038,
+        "youden_sensitivity": 0.9375,
+        "youden_specificity": 0.5,
+        "youden_j": 0.4375,
+        "n_perm": 2000
+      },
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 48,
+        "n_unmarked_decided": 48,
+        "decided_tp": 22,
+        "decided_fn": 26,
+        "decided_fp": 17,
+        "decided_tn": 31,
+        "precision": 0.5641025641025641,
+        "decided_accuracy": 0.5520833333333334,
+        "recall_including_zeros": 0.4583333333333333
+      }
+    }
+  ],
+  "thresholds": [
+    {
+      "name": "rankpath",
+      "train_youden": 0.0,
+      "n_marked_above": 22,
+      "n_unmarked_at_most": 31,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.4583333333333333,
+      "specificity": 0.6458333333333334,
+      "source": "in-sample-youden"
+    },
+    {
+      "name": "rankpath",
+      "train_youden": -0.4079251438740385,
+      "n_marked_above": 45,
+      "n_unmarked_at_most": 22,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.9375,
+      "specificity": 0.4583333333333333,
+      "source": "nested-youden"
+    },
+    {
+      "name": "rankpath",
+      "train_youden": 0.48791687697615055,
+      "n_marked_above": 12,
+      "n_unmarked_at_most": 45,
+      "n_marked": 48,
+      "n_unmarked": 48,
+      "sensitivity": 0.25,
+      "specificity": 0.9375,
+      "source": "nested-fpr10"
+    }
+  ],
+  "prefixes": [],
+  "window_scores": []
+}

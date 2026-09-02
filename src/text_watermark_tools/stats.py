@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import math
 import random
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Mapping, Sequence
 
 
 @dataclass(frozen=True)
@@ -149,10 +150,12 @@ def nested_threshold_by_stem(
 ) -> NestedStemEval:
     """Leave-one-stem-out threshold on already-held-out file scores.
 
-    For each stem, choose Youden (or a target FPR) on the *other* stems,
-    then apply that threshold to this stem. Does not refit tables. Use this
-    on leave-one-prompt-out LRs so the operating point is not chosen on the
-    same prompt family being classified.
+    For each stem H, choose Youden (or a target FPR) on the *other* stems'
+    already-OOF LRs, then apply that threshold to H. This is nested on the
+    operating point only. It does not refit tables without H: those other
+    OOF scores were still produced by models that trained on H. True nested
+    CV would refit when choosing H's threshold. t=0, AUC, and prompt
+    ranking do not use this helper.
     """
     if len(stems) != len(marked_lrs) or len(stems) != len(unmarked_lrs):
         raise ValueError("stems and LRs must be aligned")
@@ -463,6 +466,87 @@ def format_coverage_gate(ev: CoverageGate, *, label: str = "") -> str:
         f"fp={ev.decided_fp} tn={ev.decided_tn} "
         f"precision={ev.precision:.3f} decided_acc={ev.decided_accuracy:.3f}"
     )
+
+
+def stem_transfer_rows(
+    files: Sequence[Mapping[str, object]],
+    nested_threshold: float,
+) -> list[dict]:
+    """Group already-saved holdout file LRs by stem.
+
+    Prompt win is mean marked LR > mean unmarked LR. ``marked_t0`` is
+    hard ``lr > 0``. ``marked_nested`` uses the train-LOO Youden
+    threshold passed in. Not a new scorer. Does not consult keys.
+    """
+    by: dict[str, dict[str, list[float]]] = defaultdict(
+        lambda: {"marked": [], "unmarked": []}
+    )
+    for row in files:
+        stem = str(row["stem"])
+        lr = float(row["lr"])
+        name = str(row["file"])
+        side = "unmarked" if "unmarked" in name else "marked"
+        by[stem][side].append(lr)
+    rows: list[dict] = []
+    for stem in sorted(by):
+        marked = by[stem]["marked"]
+        unmarked = by[stem]["unmarked"]
+        if not marked or not unmarked:
+            raise ValueError(f"stem {stem!r} is missing a marked or unmarked side")
+        mean_marked = _mean(marked)
+        mean_unmarked = _mean(unmarked)
+        rows.append(
+            {
+                "stem": stem,
+                "prompt_win": mean_marked > mean_unmarked,
+                "mean_marked": mean_marked,
+                "mean_unmarked": mean_unmarked,
+                "mean_diff": mean_marked - mean_unmarked,
+                "marked_t0": sum(1 for x in marked if x > 0.0),
+                "marked_nested": sum(1 for x in marked if x > nested_threshold),
+                "n": len(marked),
+            }
+        )
+    return rows
+
+
+def stem_prompt_losses(rows: Sequence[Mapping[str, object]]) -> list[str]:
+    """Stems whose marked mean LR does not beat unmarked mean LR."""
+    return [str(r["stem"]) for r in rows if not r["prompt_win"]]
+
+
+def stem_ranking_without_isolated_tp(
+    rows: Sequence[Mapping[str, object]],
+) -> list[str]:
+    """Prompt-ranking wins with no marked file above 0.
+
+    Those stems rank because unmarked LRs are more negative, not because
+    any isolated marked file signs. Do not read prompt wins as isolated
+    recall.
+    """
+    return [
+        str(r["stem"])
+        for r in rows
+        if r["prompt_win"] and int(r["marked_t0"]) == 0
+    ]
+
+
+def stem_ranking_losses_with_isolated_tp(
+    rows: Sequence[Mapping[str, object]],
+) -> list[str]:
+    """Prompt-ranking losses that still have a marked file above 0."""
+    return [
+        str(r["stem"])
+        for r in rows
+        if (not r["prompt_win"]) and int(r["marked_t0"]) > 0
+    ]
+
+
+def stem_marked_positive_on_ranking_losses(
+    rows: Sequence[Mapping[str, object]],
+) -> int:
+    """Isolated ``lr>0`` count sitting on prompt-ranking losses."""
+    return sum(int(r["marked_t0"]) for r in rows if not r["prompt_win"])
 
 
 def binary_eval_to_dict(ev: BinaryEval) -> dict:

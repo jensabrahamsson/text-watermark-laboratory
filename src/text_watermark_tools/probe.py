@@ -37,6 +37,8 @@ from text_watermark_tools.stats import (
 from text_watermark_tools.transfer import (
     COUNT_SPECS,
     DEFAULT_SURFACE_CONTEXT,
+    HASHBACKOFF_ORDERS,
+    HASH_CASCADE_READERS,
     ScoreSpec,
     fit_count_model,
     fit_hashmix_twins,
@@ -44,10 +46,17 @@ from text_watermark_tools.transfer import (
     fit_surface_twins,
     _count,
     persist_hashpool,
+    score_hashed_reader_detail,
     score_hashmix,
+    score_hashtok,
+    score_hashskip,
+    score_hashmask,
+    score_hashtokbackoff,
     score_hashpool,
     score_hashpool_vote,
     score_hybrid,
+    score_tokhybrid,
+    score_hashtokgap,
     score_sequence,
     score_surface,
 )
@@ -99,6 +108,104 @@ POS_SPECS: dict[str, ScoreSpec] = {
     "postokbackoff2": POSTOKBACKOFF2_SPEC,
     "poshitmass": POSHITMASS_SPEC,
 }
+
+
+def _hashed_cascade_models(
+    twins: Sequence[Twin],
+    reader: str,
+    *,
+    context_len: int,
+    n_hashes: int,
+    n_buckets: int,
+) -> dict:
+    """Fit occupancy-free hashed tables for a cascade count channel."""
+    name = str(reader)
+    models: dict = {
+        "hash_model": None,
+        "hash_len_model": None,
+        "mix_model": None,
+        "mix_len_model": None,
+    }
+    if name == "hashtok":
+        models["hash_model"] = fit_hashpool_twins(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+    elif name == "hashtoklen":
+        models["hash_len_model"] = fit_hashpool_twins(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+    elif name in ("hashtokbackoff", "hashtokbackoff2"):
+        models["mix_model"] = fit_hashmix_twins(
+            twins,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+    elif name in ("hashtoklenbackoff", "hashtoklenbackoff2"):
+        models["mix_len_model"] = fit_hashmix_twins(
+            twins,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+    else:
+        raise ValueError(
+            f"unknown hashed cascade {reader!r}; choose "
+            + ", ".join(HASH_CASCADE_READERS)
+        )
+    return models
+
+
+def hashed_count_detail(reader: str, models: dict):
+    """ScoreDetail callable for an occupancy-free hashed cascade channel."""
+
+    def _detail(ids, prefix=()):
+        del prefix
+        return score_hashed_reader_detail(ids, reader, **models)
+
+    return _detail
+
+
+def hashed_count_map(
+    twins: Sequence[Twin],
+    reader: str,
+    models: dict,
+) -> dict[tuple[str, int, str], dict]:
+    """Per-file hashed count_lr / n_used for rebind_count_channel."""
+    detail = hashed_count_detail(reader, models)
+    out: dict[tuple[str, int, str], dict] = {}
+    for twin in twins:
+        n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            for side, ids in (
+                ("marked", twin.marked_seqs()[i]),
+                ("unmarked", twin.unmarked_seqs()[i]),
+            ):
+                rec = detail(ids)
+                out[(twin.stem, sample, side)] = {
+                    "count_lr": rec.lr,
+                    "n_used": rec.n_used,
+                    "n_positions": rec.n_positions,
+                    "count_method": reader,
+                }
+    return out
+
+
+def _hashed_flag_model(models: dict):
+    for key in ("hash_len_model", "hash_model", "mix_len_model", "mix_model"):
+        model = models.get(key)
+        if model is not None:
+            return model
+    return None
 
 
 def _twin_prefix(twin: Twin, prompt_context: bool) -> tuple[int, ...]:
@@ -615,7 +722,50 @@ def rotate_hashpool(
     window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
     position_bucket: int = 0,
     method_name: str = "hashpool",
+    exact_len: bool = False,
+    seed: int = 20260831,
 ) -> IndicatorHoldout:
+    reader = str(method_name or "hashpool")
+    drop_one = reader in ("hashskip", "hashskip2")
+    mask_one = reader in ("hashmask", "hashmask2")
+    min_count = 2 if reader in (
+        "hashtok2",
+        "hashtoklen2",
+        "hashskip2",
+        "hashmask2",
+    ) else 1
+    if reader in (
+        "hashtok",
+        "hashtok2",
+        "hashtoklen",
+        "hashtoklen2",
+        "hashskip",
+        "hashskip2",
+        "hashmask",
+        "hashmask2",
+        "poshashtok",
+    ):
+        kind = reader
+        instance = f"key-free-{reader}"
+        if drop_one:
+            score_fn = lambda ids, m, k=min_count: score_hashskip(ids, m, min_count=k)
+        elif mask_one:
+            score_fn = lambda ids, m, k=min_count: score_hashmask(ids, m, min_count=k)
+        else:
+            score_fn = lambda ids, m, k=min_count: score_hashtok(ids, m, min_count=k)
+        exact_len = bool(exact_len) or reader in (
+            "hashtoklen",
+            "hashtoklen2",
+            "hashskip",
+            "hashskip2",
+            "hashmask",
+            "hashmask2",
+        )
+    else:
+        kind = "pospool" if position_bucket > 0 else "hashpool"
+        instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
+        score_fn = score_hashpool
+
     def make(train: Sequence[Twin]):
         model = fit_hashpool_twins(
             train,
@@ -623,16 +773,17 @@ def rotate_hashpool(
             n_hashes=n_hashes,
             n_buckets=n_buckets,
             position_bucket=position_bucket,
+            exact_len=bool(exact_len),
+            drop_one=drop_one,
+            mask_one=mask_one,
+            seed=seed,
         )
         return (
-            lambda ids, m=model: score_hashpool(ids, m),
+            lambda ids, m=model, s=score_fn: s(ids, m),
             model.used_keys,
             model.used_hash_iv,
             model.used_g_values,
         )
-
-    kind = "pospool" if position_bucket > 0 else "hashpool"
-    instance = "key-free-pospool" if position_bucket > 0 else "key-free-hashpool"
     store_name = method_name or kind
     one: dict[int, IndicatorHoldout] = {}
     one_win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -656,6 +807,266 @@ def rotate_hashpool(
         for win, hold in one_win.items():
             window_out.setdefault(win, {})[store_name] = hold
     return ev
+
+
+def rotate_hashtok(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+    exact_len: bool = False,
+    method_name: str = "",
+    seed: int = 20260831,
+) -> IndicatorHoldout:
+    """Hashpool reader that skips unseen next tokens (no occupancy Laplace)."""
+    reader = str(method_name or ("hashtoklen" if exact_len else "hashtok"))
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name=reader,
+        exact_len=bool(exact_len) or reader == "hashtoklen",
+        seed=seed,
+    )
+
+
+def rotate_hashtok2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Unbucketed hashtok that skips singleton hash collisions. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashtok2",
+        exact_len=False,
+    )
+
+
+def rotate_hashskip(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Occupancy-free drop-one skip-grams of exact last-k. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashskip",
+        exact_len=True,
+    )
+
+
+def rotate_hashtoklen2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Exact last-k hashtok that skips singleton hash collisions."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashtoklen2",
+        exact_len=True,
+    )
+
+
+def rotate_hashskip2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Drop-one skip-grams that skip singleton hash collisions."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashskip2",
+        exact_len=True,
+    )
+
+
+def rotate_hashmask(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """Occupancy-free MASK replace of exact last-k. Still no keys."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashmask",
+        exact_len=True,
+    )
+
+
+def rotate_hashmask2(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    """MASK replace that skips singleton hash collisions."""
+    return rotate_hashpool(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        method_name="hashmask2",
+        exact_len=True,
+    )
+
+
+def rotate_hashtoklen(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = 0,
+) -> IndicatorHoldout:
+    return rotate_hashtok(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=position_bucket,
+        exact_len=True,
+        method_name="hashtoklen",
+    )
 
 
 def rotate_pos_methods(
@@ -899,6 +1310,122 @@ def rotate_hybrid(
     )
 
 
+def rotate_tokhybrid(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    """Occupancy-free hybrid: tokhits, then hashtok. Still no keys."""
+
+    def make(train: Sequence[Twin]):
+        counts = fit_count_model(train, context_len=context_len)
+        hashed = fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        used = (
+            counts.used_keys or hashed.used_keys,
+            counts.used_hash_iv or hashed.used_hash_iv,
+            counts.used_g_values or hashed.used_g_values,
+        )
+        return (
+            lambda ids, c=counts, h=hashed: score_tokhybrid(ids, c, h),
+            used[0],
+            used[1],
+            used[2],
+        )
+
+    return rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-tokhybrid",
+        score_kind="tokhybrid",
+        margin=margin,
+    )
+
+
+def rotate_hashtokgap(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+) -> IndicatorHoldout:
+    """Hashtok residual where exact tokhits abstains. Still no keys."""
+
+    def make(train: Sequence[Twin]):
+        counts = fit_count_model(train, context_len=context_len)
+        hashed = fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        used = (
+            counts.used_keys or hashed.used_keys,
+            counts.used_hash_iv or hashed.used_hash_iv,
+            counts.used_g_values or hashed.used_g_values,
+        )
+        return (
+            lambda ids, c=counts, h=hashed: score_hashtokgap(ids, c, h),
+            used[0],
+            used[1],
+            used[2],
+        )
+
+    return rotate_custom(
+        twins,
+        make,
+        context_len=context_len,
+        model_name=model_name,
+        instance="key-free-hashtokgap",
+        score_kind="hashtokgap",
+        margin=margin,
+    )
+
+
+def rotate_poshashtok(
+    twins: Sequence[Twin],
+    *,
+    context_len: int = 4,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    prefix_lens: Sequence[int] = (),
+    prefix_out: dict[int, dict[str, IndicatorHoldout]] | None = None,
+    windows: Sequence[str | tuple[int, int]] = (),
+    window_out: dict[tuple[int, int], dict[str, IndicatorHoldout]] | None = None,
+    position_bucket: int = DEFAULT_POS_BUCKET,
+) -> IndicatorHoldout:
+    """Occupancy-free hashing with a token-position namespace. Not a key."""
+    bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    return rotate_hashtok(
+        twins,
+        context_len=context_len,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        prefix_lens=prefix_lens,
+        prefix_out=prefix_out,
+        windows=windows,
+        window_out=window_out,
+        position_bucket=bucket,
+        method_name="poshashtok",
+    )
+
+
 def rotate_hashmix(
     twins: Sequence[Twin],
     *,
@@ -932,6 +1459,129 @@ def rotate_hashmix(
         instance="key-free-hashmix",
         score_kind="hashmix",
         margin=margin,
+    )
+
+
+def rotate_hashtokbackoff(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+    min_order: int = 1,
+    method_name: str = "",
+    exact_len: bool = False,
+) -> IndicatorHoldout:
+    """Hashtok that shrinks last-k across per-order hash tables."""
+    floor = max(1, int(min_order or 1))
+    if method_name:
+        name = str(method_name)
+    elif exact_len:
+        name = "hashtoklenbackoff2" if floor >= 2 else "hashtoklenbackoff"
+    else:
+        name = "hashtokbackoff2" if floor >= 2 else "hashtokbackoff"
+    instance = f"key-free-{name}"
+
+    def make(train: Sequence[Twin]):
+        model = fit_hashmix_twins(
+            train,
+            orders=orders,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=bool(exact_len),
+        )
+        return (
+            lambda ids, m=model, mo=floor: score_hashtokbackoff(
+                ids, m, min_order=mo
+            ),
+            model.used_keys,
+            model.used_hash_iv,
+            model.used_g_values,
+        )
+
+    ctx = max(int(o) for o in orders) if orders else int(context_len)
+    return rotate_custom(
+        twins,
+        make,
+        context_len=ctx,
+        model_name=model_name,
+        instance=instance,
+        score_kind=name,
+        margin=margin,
+    )
+
+
+def rotate_hashtokbackoff2(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=2,
+        method_name="hashtokbackoff2",
+    )
+
+
+def rotate_hashtoklenbackoff(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=1,
+        method_name="hashtoklenbackoff",
+        exact_len=True,
+    )
+
+
+def rotate_hashtoklenbackoff2(
+    twins: Sequence[Twin],
+    *,
+    orders: Sequence[int] = HASHBACKOFF_ORDERS,
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    model_name: str = "gpt2",
+    margin: float = 0.0,
+    context_len: int = 4,
+) -> IndicatorHoldout:
+    return rotate_hashtokbackoff(
+        twins,
+        orders=orders,
+        n_hashes=n_hashes,
+        n_buckets=n_buckets,
+        model_name=model_name,
+        margin=margin,
+        context_len=context_len,
+        min_order=2,
+        method_name="hashtoklenbackoff2",
+        exact_len=True,
     )
 
 
@@ -1575,6 +2225,138 @@ def transfer_pivot(
     return test_out, train_out, fits
 
 
+def _snaprate_holdout_from_twins(
+    twins: Sequence[Twin],
+    mats: dict,
+    *,
+    kind: str,
+    model_name: str,
+    score_kind: str,
+    mode: str,
+) -> IndicatorHoldout:
+    from text_watermark_tools.pivot import snap_score_from_matrix
+
+    parts = _empty_holdout_parts()
+    empty = None
+    for twin in twins:
+        n = min(len(twin.marked_seqs()), len(twin.unmarked_seqs()))
+        for i in range(n):
+            sample = i + 1
+            marked = mats.get((twin.stem, sample, "marked"), empty)
+            unmarked = mats.get((twin.stem, sample, "unmarked"), empty)
+            _append_pair(
+                parts,
+                twin.stem,
+                sample,
+                snap_score_from_matrix(marked, kind),
+                snap_score_from_matrix(unmarked, kind),
+            )
+    return _holdout_from_parts(
+        parts,
+        context_len=0,
+        model_name=model_name,
+        instance=f"key-free-{score_kind}",
+        score_kind=score_kind,
+        mode=mode,
+        used_keys=False,
+        used_hash_iv=False,
+        used_g_values=False,
+    )
+
+
+def rotate_snaprate(
+    twins: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("snapleave", "snapupset", "snapmiss"),
+    mats=None,
+) -> dict[str, IndicatorHoldout]:
+    """Table-free unmarked-LM snap rates. No twin tables, no leave-one-out fit."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        SNAPRATE_METHODS,
+        collect_choice_matrices,
+        parse_snaprate_methods,
+    )
+
+    names = parse_snaprate_methods(methods)
+    if mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        mats = collect_choice_matrices(
+            twins, lm, top_k=top_k, prompt_context=prompt_context
+        )
+    return {
+        name: _snaprate_holdout_from_twins(
+            twins,
+            mats,
+            kind=SNAPRATE_METHODS[name],
+            model_name=model_name,
+            score_kind=name,
+            mode="rotate",
+        )
+        for name in names
+    }
+
+
+def transfer_snaprate(
+    train: Sequence[Twin],
+    test: Sequence[Twin],
+    *,
+    model_name: str = "gpt2",
+    top_k: int = 40,
+    lm: object | None = None,
+    prompt_context: bool = False,
+    methods: Sequence[str] = ("snapleave", "snapupset", "snapmiss"),
+    train_mats=None,
+    test_mats=None,
+) -> tuple[dict[str, IndicatorHoldout], dict[str, IndicatorHoldout]]:
+    """Score train and test with the same table-free snap rates. No fit."""
+    from text_watermark_tools.generate import _load_unmarked_model, generate_device
+    from text_watermark_tools.pivot import (
+        SNAPRATE_METHODS,
+        collect_choice_matrices,
+        parse_snaprate_methods,
+    )
+
+    names = parse_snaprate_methods(methods)
+    if train_mats is None or test_mats is None:
+        if lm is None:
+            lm = _load_unmarked_model(generate_device(), model_name=model_name)
+        if train_mats is None:
+            train_mats = collect_choice_matrices(
+                train, lm, top_k=top_k, prompt_context=prompt_context
+            )
+        if test_mats is None:
+            test_mats = collect_choice_matrices(
+                test, lm, top_k=top_k, prompt_context=prompt_context
+            )
+    train_out: dict[str, IndicatorHoldout] = {}
+    test_out: dict[str, IndicatorHoldout] = {}
+    for name in names:
+        kind = SNAPRATE_METHODS[name]
+        train_out[name] = _snaprate_holdout_from_twins(
+            train,
+            train_mats,
+            kind=kind,
+            model_name=model_name,
+            score_kind=name,
+            mode="train",
+        )
+        test_out[name] = _snaprate_holdout_from_twins(
+            test,
+            test_mats,
+            kind=kind,
+            model_name=model_name,
+            score_kind=name,
+            mode="transfer",
+        )
+    return test_out, train_out
+
+
 def rotate_rankpath(
     twins: Sequence[Twin],
     *,
@@ -1818,7 +2600,7 @@ def transfer_rankpath(
 def rotate_cascade(
     twins: Sequence[Twin],
     *,
-    spec: ScoreSpec,
+    spec: ScoreSpec | None = None,
     position_bucket: int = 1,
     context_len: int = 4,
     include_first: bool = False,
@@ -1830,14 +2612,20 @@ def rotate_cascade(
     count_prompt_context: bool = False,
     fallback: str = "pivot",
     mats=None,
+    rankpath_pos_bucket: int | None = None,
+    cascade_when: str = "coverage",
+    hashed_reader: str = "",
+    n_hashes: int = 8,
+    n_buckets: int = 256,
 ) -> tuple[IndicatorHoldout, list[dict]]:
-    """LOO: count LR when n_used>0, else unmarked-LM fallback. Isolated-file."""
+    """LOO: count LR when the cascade-when rule fires, else unmarked-LM fallback."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
     from text_watermark_tools.pivot import (
         cascade_score,
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
+        parse_cascade_when,
         vectors_from_matrices,
     )
     from text_watermark_tools.rankpath import (
@@ -1851,6 +2639,7 @@ def rotate_cascade(
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
     fallback = parse_cascade_fallback(fallback)
+    when = parse_cascade_when(cascade_when)
     if mats is None:
         if lm is None:
             lm = _load_unmarked_model(generate_device(), model_name=model_name)
@@ -1865,19 +2654,39 @@ def rotate_cascade(
     rows: list[dict] = []
     used_keys = used_hash = used_g = False
     bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
+    if rankpath_pos_bucket is None:
+        rank_bucket = bucket
+    else:
+        rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
     for held in twins:
         train = [t for t in twins if t.stem != held.stem]
-        model = fit_count_model(
-            train,
-            context_len=context_len,
-            position_bucket=bucket,
-            include_first=include_first,
-            prompt_context=count_prompt_context,
-        )
-        model.include_first = bool(include_first)
-        used_keys = used_keys or model.used_keys
-        used_hash = used_hash or model.used_hash_iv
-        used_g = used_g or model.used_g_values
+        hashed = str(hashed_reader or "").strip()
+        count_detail = None
+        model = None
+        if hashed:
+            models = _hashed_cascade_models(
+                train,
+                hashed,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+            )
+            count_detail = hashed_count_detail(hashed, models)
+            model = _hashed_flag_model(models)
+        else:
+            if spec is None:
+                raise ValueError("count cascade needs a ScoreSpec")
+            model = fit_count_model(
+                train,
+                context_len=context_len,
+                position_bucket=bucket,
+                include_first=include_first,
+                prompt_context=count_prompt_context,
+            )
+            model.include_first = bool(include_first)
+        used_keys = used_keys or bool(getattr(model, "used_keys", False))
+        used_hash = used_hash or bool(getattr(model, "used_hash_iv", False))
+        used_g = used_g or bool(getattr(model, "used_g_values", False))
         fit = None
         rank_model = None
         if fallback == "pivot":
@@ -1890,7 +2699,7 @@ def rotate_cascade(
                 symbols,
                 [t.stem for t in train],
                 context_len=min(context_len, 3),
-                position_bucket=bucket,
+                position_bucket=rank_bucket,
             )
             used_keys = used_keys or rank_model.used_keys
             used_hash = used_hash or rank_model.used_hash_iv
@@ -1901,8 +2710,12 @@ def rotate_cascade(
             sample = i + 1
             ids_m = held.marked_seqs()[i]
             ids_u = held.unmarked_seqs()[i]
-            dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
-            du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
+            if count_detail is not None:
+                dm = count_detail(ids_m)
+                du = count_detail(ids_u)
+            else:
+                dm = score_sequence_detail(ids_m, model, spec, prefix=count_prefix)
+                du = score_sequence_detail(ids_u, model, spec, prefix=count_prefix)
             pm = _cascade_fallback_lr(
                 fallback,
                 stem=held.stem,
@@ -1925,8 +2738,8 @@ def rotate_cascade(
                 rank_model=rank_model,
                 rank_spec=rank_spec,
             )
-            sm = cascade_score(dm.lr, dm.n_used, pm)
-            su = cascade_score(du.lr, du.n_used, pu)
+            sm = cascade_score(dm.lr, dm.n_used, pm, when=when)
+            su = cascade_score(du.lr, du.n_used, pu, when=when)
             _append_pair(parts, held.stem, sample, sm, su)
             opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
             rows.append(
@@ -1937,9 +2750,12 @@ def rotate_cascade(
                     "n_used": dm.n_used,
                     "count_lr": dm.lr,
                     "pivot_lr": pm,
-                    "source": cascade_source(dm.n_used, fallback),
+                    "source": cascade_source(
+                        dm.n_used, fallback, count_lr=dm.lr, when=when
+                    ),
                     "score": sm,
                     "opening_text": opening,
+                    "cascade_when": when,
                 }
             )
             rows.append(
@@ -1950,9 +2766,12 @@ def rotate_cascade(
                     "n_used": du.n_used,
                     "count_lr": du.lr,
                     "pivot_lr": pu,
-                    "source": cascade_source(du.n_used, fallback),
+                    "source": cascade_source(
+                        du.n_used, fallback, count_lr=du.lr, when=when
+                    ),
                     "score": su,
                     "opening_text": "",
+                    "cascade_when": when,
                 }
             )
     ev = _holdout_from_parts(
@@ -1972,7 +2791,7 @@ def transfer_cascade(
     train: Sequence[Twin],
     test: Sequence[Twin],
     *,
-    spec: ScoreSpec,
+    spec: ScoreSpec | None = None,
     position_bucket: int = 1,
     context_len: int = 4,
     include_first: bool = False,
@@ -1987,6 +2806,13 @@ def transfer_cascade(
     train_mats=None,
     test_mats=None,
     rank_model=None,
+    rankpath_pos_bucket: int | None = None,
+    cascade_when: str = "coverage",
+    hashed_reader: str = "",
+    n_hashes: int = 8,
+    n_buckets: int = 256,
+    count_detail=None,
+    flag_model=None,
 ) -> tuple[IndicatorHoldout, IndicatorHoldout, list[dict]]:
     """Train count+fallback on one corpus, score the other. Isolated-file cascade."""
     from text_watermark_tools.generate import _load_unmarked_model, generate_device
@@ -1995,6 +2821,7 @@ def transfer_cascade(
         cascade_source,
         collect_choice_matrices,
         fit_pivot_from_vectors,
+        parse_cascade_when,
         vectors_from_matrices,
     )
     from text_watermark_tools.rankpath import (
@@ -2008,18 +2835,39 @@ def transfer_cascade(
     from text_watermark_tools.transfer import fit_count_model, score_sequence_detail
 
     fallback = parse_cascade_fallback(fallback)
+    when = parse_cascade_when(cascade_when)
     if lm is None and (train_mats is None or test_mats is None):
         lm = _load_unmarked_model(generate_device(), model_name=model_name)
     tok = load_tokenizer(model_name)
     bucket = int(position_bucket) if position_bucket and position_bucket > 0 else 0
-    model = pos_model or fit_count_model(
-        train,
-        context_len=context_len,
-        position_bucket=bucket,
-        include_first=include_first,
-        prompt_context=count_prompt_context,
-    )
-    model.include_first = bool(include_first)
+    if rankpath_pos_bucket is None:
+        rank_bucket = bucket
+    else:
+        rank_bucket = int(rankpath_pos_bucket) if rankpath_pos_bucket > 0 else 0
+    hashed = str(hashed_reader or "").strip()
+    if count_detail is None and hashed:
+        models = _hashed_cascade_models(
+            train,
+            hashed,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+        )
+        count_detail = hashed_count_detail(hashed, models)
+        flag_model = _hashed_flag_model(models)
+    if count_detail is None:
+        if spec is None:
+            raise ValueError("count cascade needs a ScoreSpec")
+        model = pos_model or fit_count_model(
+            train,
+            context_len=context_len,
+            position_bucket=bucket,
+            include_first=include_first,
+            prompt_context=count_prompt_context,
+        )
+        model.include_first = bool(include_first)
+    else:
+        model = flag_model
     if train_mats is None:
         train_mats = collect_choice_matrices(
             train, lm, top_k=top_k, prompt_context=prompt_context
@@ -2044,7 +2892,7 @@ def transfer_cascade(
                 train_sym,
                 [t.stem for t in train],
                 context_len=min(context_len, 3),
-                position_bucket=bucket,
+                position_bucket=rank_bucket,
             )
 
     def _score_side(twins, vecs, mode: str) -> tuple[dict, list[dict]]:
@@ -2057,8 +2905,12 @@ def transfer_cascade(
                 sample = i + 1
                 ids_m = twin.marked_seqs()[i]
                 ids_u = twin.unmarked_seqs()[i]
-                dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
-                du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
+                if count_detail is not None:
+                    dm = count_detail(ids_m)
+                    du = count_detail(ids_u)
+                else:
+                    dm = score_sequence_detail(ids_m, model, spec, prefix=prefix)
+                    du = score_sequence_detail(ids_u, model, spec, prefix=prefix)
                 pm = _cascade_fallback_lr(
                     fallback,
                     stem=twin.stem,
@@ -2081,8 +2933,8 @@ def transfer_cascade(
                     rank_model=rank_model,
                     rank_spec=rank_spec,
                 )
-                sm = cascade_score(dm.lr, dm.n_used, pm)
-                su = cascade_score(du.lr, du.n_used, pu)
+                sm = cascade_score(dm.lr, dm.n_used, pm, when=when)
+                su = cascade_score(du.lr, du.n_used, pu, when=when)
                 _append_pair(parts, twin.stem, sample, sm, su)
                 opening = "".join(decode_token(tok, t) for t in ids_m[:4]).strip()
                 rows.append(
@@ -2093,9 +2945,12 @@ def transfer_cascade(
                         "n_used": dm.n_used,
                         "count_lr": dm.lr,
                         "pivot_lr": pm,
-                        "source": cascade_source(dm.n_used, fallback),
+                        "source": cascade_source(
+                            dm.n_used, fallback, count_lr=dm.lr, when=when
+                        ),
                         "score": sm,
                         "opening_text": opening,
+                        "cascade_when": when,
                     }
                 )
                 rows.append(
@@ -2106,9 +2961,12 @@ def transfer_cascade(
                         "n_used": du.n_used,
                         "count_lr": du.lr,
                         "pivot_lr": pu,
-                        "source": cascade_source(du.n_used, fallback),
+                        "source": cascade_source(
+                            du.n_used, fallback, count_lr=du.lr, when=when
+                        ),
                         "score": su,
                         "opening_text": "",
+                        "cascade_when": when,
                     }
                 )
         fb = fit if fallback == "pivot" else rank_model
@@ -2118,12 +2976,17 @@ def transfer_cascade(
             model_name=model_name,
             instance="key-free-cascade",
             score_kind="cascade",
-            used_keys=bool(model.used_keys or (fb.used_keys if fb is not None else False)),
+            used_keys=bool(
+                getattr(model, "used_keys", False)
+                or (fb.used_keys if fb is not None else False)
+            ),
             used_hash_iv=bool(
-                model.used_hash_iv or (fb.used_hash_iv if fb is not None else False)
+                getattr(model, "used_hash_iv", False)
+                or (fb.used_hash_iv if fb is not None else False)
             ),
             used_g_values=bool(
-                model.used_g_values or (fb.used_g_values if fb is not None else False)
+                getattr(model, "used_g_values", False)
+                or (fb.used_g_values if fb is not None else False)
             ),
             mode=mode,
         )
@@ -2188,10 +3051,15 @@ class ProbeRun:
     rankpath_full: bool = False
     rankpath_pos_bucket: int | None = None
     cascade: dict | None = None
+    cascade_rankpath_end: int | None = None
+    cascade_when: str = "coverage"
     coverage: dict | None = None
     note: str = (
         "Key-free scorer comparison. Not detector_mean. Not Claude. "
-        "AUC is single-file ranking; prompt wins are the 10/12 grain. "
+        "AUC is single-file ranking; prompt wins are prompt-group ranking, "
+        "not per-file accuracy. ranking_without_isolated_tp counts prompt "
+        "wins with no marked file lr>0 — those stems rank because unmarked "
+        "is more negative, not because any isolated file signs. "
         "nested-youden-by-stem is a threshold chosen on other prompt "
         "families' already-held-out LRs, not a global peek at the same stem. "
         "coverage.json is leave-one-out shared last-k fraction by position; "
@@ -2229,6 +3097,9 @@ class TransferRun:
     used_g_values: bool = False
     count_model: object | None = None
     hash_model: object | None = None
+    hash_len_model: object | None = None
+    hash_skip_model: object | None = None
+    hash_mask_model: object | None = None
     surface_model: object | None = None
     pos_model: object | None = None
     pos_hash: object | None = None
@@ -2252,11 +3123,15 @@ class TransferRun:
     rankpath_full: bool = False
     rankpath_pos_bucket: int | None = None
     cascade_fallback: str = "pivot"
+    cascade_rankpath_end: int | None = None
+    cascade_when: str = "coverage"
     cascade: dict | None = None
     note: str = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. Thresholds are Youden on the "
         "training files (in-sample), then frozen on the test files. "
+        "ranking_without_isolated_tp counts prompt wins with no marked "
+        "file lr>0; do not read prompt wins as isolated recall. "
         "Not detector_mean. Not Claude. Not key recovery."
     )
 
@@ -2298,16 +3173,40 @@ def _choice_matrix_views(
     prompt_context: bool,
     rankpath_full: bool,
     want_spans: bool,
+    cascade_end: int | None = None,
 ):
-    """Collect unmarked-LM ranks once. Opening view matches --fit-prefix."""
-    from text_watermark_tools.pivot import collect_choice_matrices
-    from text_watermark_tools.rankpath import opening_matrix_end, slice_matrices
+    """Collect unmarked-LM ranks once. Opening view matches --fit-prefix.
 
-    need_full = bool(rankpath_full or want_spans)
-    source = raw if need_full else clipped
-    full = collect_choice_matrices(source, lm, prompt_context=prompt_context)
+    Cascade rank-path fallback never uses the full file. ``cascade_end``
+    may collect a few extra opening rows (prefix-N) without 128-token
+    forwards.
+    """
+    from text_watermark_tools.blind import clip_twins_prefix
+    from text_watermark_tools.pivot import collect_choice_matrices
+    from text_watermark_tools.rankpath import (
+        generated_tokens_for_rank_symbols,
+        opening_matrix_end,
+        slice_matrices,
+    )
+
     open_end = opening_matrix_end(fit_prefix, prompt_context)
-    if open_end is None or source is clipped:
+    cas_end = int(cascade_end) if cascade_end and int(cascade_end) > 0 else None
+    if rankpath_full or want_spans:
+        source = raw
+    else:
+        need_rows = max(open_end or 0, cas_end or 0)
+        if need_rows <= 0:
+            source = clipped
+        else:
+            need_tokens = generated_tokens_for_rank_symbols(
+                need_rows, prompt_context
+            )
+            if fit_prefix and int(fit_prefix) >= need_tokens:
+                source = clipped
+            else:
+                source = clip_twins_prefix(raw, need_tokens)
+    full = collect_choice_matrices(source, lm, prompt_context=prompt_context)
+    if open_end is None:
         opening = full
     else:
         opening = slice_matrices(full, 0, open_end)
@@ -2338,6 +3237,38 @@ def summarize_holdout(name: str, ev: IndicatorHoldout) -> MethodSummary:
     )
 
 
+def _ranking_without_tp_md(methods: Sequence[MethodSummary]) -> list[str]:
+    lines = [
+        "",
+        (
+            "| method | prompt wins | ranking wins with no isolated TP | "
+            "ranking losses with isolated TP |"
+        ),
+        "|---|---|---|---|",
+    ]
+    for m in methods:
+        hide = m.holdout.ranking_without_isolated_tp
+        loss = m.holdout.ranking_losses_with_isolated_tp
+        hide_cell = f"{len(hide)}/{m.n_prompt_wins}"
+        if 0 < len(hide) <= 6:
+            hide_cell += f" ({', '.join(hide)})"
+        loss_cell = str(len(loss))
+        if 0 < len(loss) <= 6:
+            loss_cell += f" ({', '.join(loss)})"
+        lines.append(
+            f"| {m.name} | {m.n_prompt_wins}/{m.n_prompts} | "
+            f"{hide_cell} | {loss_cell} |"
+        )
+    lines.append("")
+    lines.append(
+        "Ranking wins with no isolated TP are prompt groups whose marked "
+        "mean LR beats unmarked while every marked file has lr<=0. Ranking "
+        "losses with isolated TP still have marked files above 0 but lose "
+        "the prompt-mean comparison. Neither column is a detector."
+    )
+    return lines
+
+
 def run_probe(
     twins: Sequence[Twin],
     *,
@@ -2350,6 +3281,7 @@ def run_probe(
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
     with_rankpath: bool = False,
+    with_snaprate: bool = False,
     cascade_fallback: str = "pivot",
     n_hashes: int = 8,
     n_buckets: int = 256,
@@ -2364,6 +3296,8 @@ def run_probe(
     prompt_context: bool = False,
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
+    cascade_rankpath_end: int | None = None,
+    cascade_when: str = "coverage",
     lm=None,
 ) -> ProbeRun:
     requested = (
@@ -2374,12 +3308,16 @@ def run_probe(
     count_names = [m for m in requested if m in COUNT_SPECS]
     extras = {m for m in requested if m not in COUNT_SPECS}
     pos_names = [m for m in requested if m in POS_SPECS]
+    from text_watermark_tools.pivot import SNAPRATE_METHODS
     from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
 
     rank_names = [m for m in requested if m in RANKPATH_SPECS]
     fallback = parse_cascade_fallback(cascade_fallback)
     if with_rankpath and not rank_names:
         rank_names = ["rankpath", "rankuni"]
+    snap_names = [m for m in requested if m in SNAPRATE_METHODS]
+    if with_snaprate and not snap_names:
+        snap_names = list(SNAPRATE_METHODS)
     raw_twins = twins
     if fit_prefix and fit_prefix > 0:
         twins = clip_twins_prefix(twins, int(fit_prefix))
@@ -2404,9 +3342,17 @@ def run_probe(
         position_bucket=pos_bucket,
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
-        pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names else (),
+        pivot_weights=tuple(pivot_weights) if with_pivot or cascade or rank_names or snap_names else (),
         rankpath_full=rank_full,
-        rankpath_pos_bucket=rank_bucket if rank_names else None,
+        rankpath_pos_bucket=(
+            rank_bucket if rank_names or fallback in RANKPATH_SPECS else None
+        ),
+        cascade_rankpath_end=(
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            else None
+        ),
+        cascade_when=cascade_when,
     )
     if count_names:
         counted = rotate_count_methods(
@@ -2425,7 +3371,12 @@ def run_probe(
             run.methods.append(summarize_holdout(name, counted[name]))
     want_hash = with_hashpool and (
         methods is None or "hashpool" in requested or "hashvote" in extras
-        or "hybrid" in extras
+        or "hybrid" in extras or "tokhybrid" in extras or "hashtokgap" in extras
+        or "hashtok" in extras or "hashtok2" in extras
+        or "hashtoklen" in extras
+        or "hashtoklen2" in extras or "hashskip" in extras or "hashskip2" in extras
+        or "hashmask" in extras or "hashmask2" in extras
+        or "poshashtok" in extras
     )
     if want_hash and (methods is None or "hashpool" in requested):
         hp = rotate_hashpool(
@@ -2471,6 +3422,20 @@ def run_probe(
             method_name="pospool",
         )
         run.methods.append(summarize_holdout("pospool", pp))
+    if with_hashpool and "poshashtok" in extras:
+        pht = rotate_poshashtok(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+            position_bucket=pos_bucket,
+        )
+        run.methods.append(summarize_holdout("poshashtok", pht))
     if with_hashpool and "hashvote" in extras:
         vote = rotate_hashvote(
             twins,
@@ -2480,6 +3445,110 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashvote", vote))
+    if with_hashpool and "hashtok" in extras:
+        ht = rotate_hashtok(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtok", ht))
+    if with_hashpool and "hashtok2" in extras:
+        ht2 = rotate_hashtok2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtok2", ht2))
+    if with_hashpool and "hashtoklen" in extras:
+        htl = rotate_hashtoklen(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtoklen", htl))
+    if with_hashpool and "hashskip" in extras:
+        hsk = rotate_hashskip(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashskip", hsk))
+    if with_hashpool and "hashtoklen2" in extras:
+        htl2 = rotate_hashtoklen2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashtoklen2", htl2))
+    if with_hashpool and "hashskip2" in extras:
+        hsk2 = rotate_hashskip2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashskip2", hsk2))
+    if with_hashpool and "hashmask" in extras:
+        hmk = rotate_hashmask(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashmask", hmk))
+    if with_hashpool and "hashmask2" in extras:
+        hmk2 = rotate_hashmask2(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+            prefix_lens=lenses,
+            prefix_out=prefix_out if lenses else None,
+            windows=spans,
+            window_out=window_out if spans else None,
+        )
+        run.methods.append(summarize_holdout("hashmask2", hmk2))
     if "hybrid" in extras:
         hyb = rotate_hybrid(
             twins,
@@ -2489,6 +3558,24 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hybrid", hyb))
+    if "tokhybrid" in extras:
+        thyb = rotate_tokhybrid(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("tokhybrid", thyb))
+    if "hashtokgap" in extras:
+        hgap = rotate_hashtokgap(
+            twins,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokgap", hgap))
     if "hashmix" in extras:
         mix = rotate_hashmix(
             twins,
@@ -2497,6 +3584,38 @@ def run_probe(
             model_name=model_name,
         )
         run.methods.append(summarize_holdout("hashmix", mix))
+    if "hashtokbackoff" in extras:
+        hb = rotate_hashtokbackoff(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokbackoff", hb))
+    if "hashtokbackoff2" in extras:
+        hb2 = rotate_hashtokbackoff2(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtokbackoff2", hb2))
+    if "hashtoklenbackoff" in extras:
+        hlb = rotate_hashtoklenbackoff(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtoklenbackoff", hlb))
+    if "hashtoklenbackoff2" in extras:
+        hlb2 = rotate_hashtoklenbackoff2(
+            twins,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            model_name=model_name,
+        )
+        run.methods.append(summarize_holdout("hashtoklenbackoff2", hlb2))
     if "surface" in extras:
         one: dict[int, IndicatorHoldout] = {}
         one_win: dict[tuple[int, int], IndicatorHoldout] = {}
@@ -2518,7 +3637,7 @@ def run_probe(
             _store_windows(
                 window_out, {win: {"surface": ev} for win, ev in one_win.items()}
             )
-    if with_pivot or cascade or rank_names:
+    if with_pivot or cascade or rank_names or snap_names:
         from text_watermark_tools.generate import _load_unmarked_model, generate_device
         from text_watermark_tools.pivot import (
             parse_pivot_weights,
@@ -2529,8 +3648,17 @@ def run_probe(
             lm = _load_unmarked_model(generate_device(), model_name=model_name)
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
-        from text_watermark_tools.rankpath import RANKPATH_SPECS as _RANK_SPECS
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS as _RANK_SPECS,
+            cascade_fallback_matrices,
+        )
 
+        cas_end = (
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            and fallback in _RANK_SPECS
+            else None
+        )
         full_mats, opening_mats, rank_mats = _choice_matrix_views(
             twins,
             raw_twins,
@@ -2539,6 +3667,7 @@ def run_probe(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=bool(rank_names and (lenses or spans)),
+            cascade_end=cas_end,
         )
         if with_pivot:
             pivots = rotate_pivot(
@@ -2551,6 +3680,17 @@ def run_probe(
             )
             for name, ev in pivots.items():
                 run.methods.append(summarize_holdout(name, ev))
+        if snap_names:
+            snapped = rotate_snaprate(
+                twins,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                methods=snap_names,
+                mats=opening_mats,
+            )
+            for name in snap_names:
+                run.methods.append(summarize_holdout(name, snapped[name]))
         if rank_names:
             ranked = rotate_rankpath(
                 twins,
@@ -2571,15 +3711,21 @@ def run_probe(
                 run.methods.append(summarize_holdout(name, ev))
         cascade_name = str(cascade or "").strip()
         if cascade_name:
-            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
-            if spec is None:
+            hashed = cascade_name if cascade_name in HASH_CASCADE_READERS else ""
+            spec = None if hashed else (
+                POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            )
+            if spec is None and not hashed:
                 raise ValueError(
                     f"unknown --cascade {cascade_name}; choose postokbackoff, "
-                    f"postokhits, or a count spec"
+                    f"postokhits, a count spec, or occupancy-free "
+                    + ", ".join(HASH_CASCADE_READERS)
                 )
             cascade_mats = (
-                full_mats
-                if rank_full and fallback in _RANK_SPECS
+                cascade_fallback_matrices(
+                    opening_mats, full_mats, end=cas_end
+                )
+                if fallback in _RANK_SPECS
                 else opening_mats
             )
             ev, rows = rotate_cascade(
@@ -2595,13 +3741,19 @@ def run_probe(
                 count_prompt_context=False,
                 fallback=fallback,
                 mats=cascade_mats,
+                rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
+                cascade_when=cascade_when,
+                hashed_reader=hashed,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
             )
             run.methods.append(summarize_holdout("cascade", ev))
-            run.cascade = summarize_cascade(rows)
+            run.cascade = summarize_cascade(rows, when=cascade_when)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rankpath_end"] = cas_end
             run.cascade["rows"] = rows
     by_name = {m.name: m.holdout for m in run.methods}
     want_stack = "hits" in by_name and "hashpool" in by_name and (
@@ -2644,15 +3796,26 @@ def format_cascade(payload: dict) -> list[str]:
     n_cm = max(int(payload.get("n_count_marked") or 0), 1)
     n_cu = max(int(payload.get("n_count_unmarked") or 0), 1)
     fallback = str(payload.get("fallback") or "pivot")
+    when = str(payload.get("cascade_when") or "coverage")
+    if when == "positive":
+        rule = (
+            f"Cascade: count LR when lr>0, unmarked-LM {fallback} when count "
+            "is nonpositive (zeros and covered negatives). "
+        )
+    else:
+        rule = (
+            f"Cascade: count LR when n_used>0, unmarked-LM {fallback} otherwise. "
+        )
     lines = [
         (
-            f"Cascade: count LR when n_used>0, unmarked-LM {fallback} otherwise. "
-            "Signs at 0 are comparable. Mixed AUC is not a detector. "
+            rule
+            + "Signs at 0 are comparable. Mixed AUC is not a detector. "
             "Not keys, not a universal detector."
         ),
         (
             f"count_method={payload.get('count_method')} "
             f"fallback={fallback} "
+            f"cascade_when={when} "
             f"pivot_weight={payload.get('pivot_weight')} "
             f"prompt_context={payload.get('prompt_context')} "
             f"used_keys={payload.get('used_keys')}"
@@ -2677,6 +3840,26 @@ def format_cascade(payload: dict) -> list[str]:
             f"{payload.get('n_unmarked')}"
         ),
     ]
+    if payload.get("rankpath_end"):
+        lines.append(
+            f"cascade rankpath_end={payload.get('rankpath_end')} "
+            "(opening prefix-N, not the full file)"
+        )
+    fb10 = payload.get("fallback_fpr10") or {}
+    comb10 = payload.get("combined_at_fallback_fpr10") or {}
+    if fb10:
+        lines.append(
+            f"{fallback} uncovered FPR10 t={float(fb10.get('threshold') or 0):.4f} "
+            f"marked>t {fb10.get('marked_above')}/{fb10.get('n_marked')} "
+            f"unmarked<=t {fb10.get('unmarked_at_most')}/{fb10.get('n_unmarked')}"
+        )
+    if comb10:
+        lines.append(
+            f"combined at fallback FPR10 marked>t "
+            f"{comb10.get('marked_above')}/{comb10.get('n_marked')} "
+            f"unmarked<=t {comb10.get('unmarked_at_most')}/{comb10.get('n_unmarked')}. "
+            "Count stays at 0; mixed AUC is still not a detector."
+        )
     marked_fallback = payload.get("pivot_fallback_marked") or []
     if marked_fallback:
         lines.append(f"{fallback}-fallback marked files:")
@@ -2718,6 +3901,8 @@ def print_probe(run: ProbeRun) -> str:
             f"fit_prefix={run.fit_prefix} pos_bucket={run.position_bucket} "
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
             f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
+            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)} "
+            f"cascade_when={getattr(run, 'cascade_when', 'coverage')} "
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"used_keys={run.used_keys} hash_iv={run.used_hash_iv} "
             f"g_values={run.used_g_values}"
@@ -2739,6 +3924,7 @@ def print_probe(run: ProbeRun) -> str:
             f"{b.n_negative_at_most_zero}/{b.n_negative} | "
             f"{b.permutation_p:.4g} | {b.mean_diff:.4f} |"
         )
+    lines.extend(_ranking_without_tp_md(run.methods))
     lines.append("")
     lines.append(
         "| method | marked zeros | unmarked zeros | decided tp/fn | "
@@ -2811,6 +3997,11 @@ def print_probe(run: ProbeRun) -> str:
         lines.append(format_binary_eval(m.binary, label=m.name))
         lines.append(
             f"{m.name} prompts_marked_above={m.n_prompt_wins}/{m.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{m.n_prompt_wins} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(m.holdout.ranking_losses_with_isolated_tp)} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)
@@ -2836,6 +4027,8 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
         "pivot_weights": list(run.pivot_weights),
         "rankpath_full": bool(getattr(run, "rankpath_full", False)),
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
+        "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
+        "cascade_when": getattr(run, "cascade_when", "coverage"),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -2848,6 +4041,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
             "n_prompt_wins": m.n_prompt_wins,
             "n_prompts": m.n_prompts,
             "n_marked_above_unmarked": m.holdout.n_marked_above_unmarked,
+            **m.holdout.ranking_payload(),
             "used_keys": m.holdout.used_keys,
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
@@ -2868,6 +4062,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -2884,6 +4079,7 @@ def persist_probe(run: ProbeRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -2971,10 +4167,14 @@ def run_transfer(
     pivot_weights: Sequence[str] = ("uniform",),
     cascade: str = "",
     with_rankpath: bool = False,
+    with_snaprate: bool = False,
     cascade_fallback: str = "pivot",
     rankpath_full: bool = False,
     rankpath_pos_bucket: int | None = None,
+    cascade_rankpath_end: int | None = None,
+    cascade_when: str = "coverage",
     lm=None,
+    hash_seed: int = 20260831,
 ) -> TransferRun:
     """Fit on train twins, score every test file. No test prompt enters the fit."""
     train, test, overlap = apply_overlap(
@@ -2993,12 +4193,16 @@ def run_transfer(
     names = list(methods or TRANSFER_DEFAULTS)
     count_names = [n for n in names if n in COUNT_SPECS]
     extras = [n for n in names if n not in COUNT_SPECS]
+    from text_watermark_tools.pivot import SNAPRATE_METHODS
     from text_watermark_tools.rankpath import RANKPATH_SPECS, parse_cascade_fallback
 
     rank_names = [n for n in names if n in RANKPATH_SPECS]
     fallback = parse_cascade_fallback(cascade_fallback)
     if with_rankpath and not rank_names:
         rank_names = ["rankpath", "rankuni"]
+    snap_names = [n for n in names if n in SNAPRATE_METHODS]
+    if with_snaprate and not snap_names:
+        snap_names = list(SNAPRATE_METHODS)
     if "logit" in extras:
         logit_ready = [n for n in LOGIT_FEATURE_ORDER if n in names]
         if len(logit_ready) < 2:
@@ -3007,10 +4211,32 @@ def run_transfer(
                 "surface, hitmass, poshitmass, first"
             )
     need_counts = bool(count_names) or any(
-        n in extras for n in ("hybrid", "stack")
+        n in extras for n in ("hybrid", "tokhybrid", "hashtokgap", "stack")
     )
     need_hash = any(
-        n in extras for n in ("hashpool", "hashvote", "hybrid", "stack", "hashmix")
+        n in extras
+        for n in (
+            "hashpool",
+            "hashvote",
+            "hybrid",
+            "tokhybrid",
+            "hashtokgap",
+            "stack",
+            "hashmix",
+            "hashtok",
+            "hashtok2",
+            "hashtoklen",
+            "hashtoklen2",
+            "hashskip",
+            "hashskip2",
+            "hashmask",
+            "hashmask2",
+            "hashtokbackoff",
+            "hashtokbackoff2",
+            "hashtoklenbackoff",
+            "hashtoklenbackoff2",
+            "poshashtok",
+        )
     )
     need_surface = "surface" in extras
     store_first = include_first or "first" in count_names
@@ -3032,19 +4258,87 @@ def run_transfer(
             context_len=context_len,
             n_hashes=n_hashes,
             n_buckets=n_buckets,
+            seed=hash_seed,
         )
         if need_hash and any(
-            n in extras for n in ("hashpool", "hashvote", "hybrid", "stack")
+            n in extras
+            for n in (
+                "hashpool",
+                "hashvote",
+                "hybrid",
+                "tokhybrid",
+                "hashtokgap",
+                "stack",
+                "hashtok",
+                "hashtok2",
+            )
         )
+        else None
+    )
+    hash_len_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+        if need_hash and any(n in extras for n in ("hashtoklen", "hashtoklen2"))
+        else None
+    )
+    hash_skip_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+            drop_one=True,
+        )
+        if need_hash and any(n in extras for n in ("hashskip", "hashskip2"))
+        else None
+    )
+    hash_mask_model = (
+        fit_hashpool_twins(
+            train,
+            context_len=context_len,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+            mask_one=True,
+        )
+        if need_hash and any(n in extras for n in ("hashmask", "hashmask2"))
         else None
     )
     mix_model = (
         fit_hashmix_twins(
             train,
+            orders=(
+                HASHBACKOFF_ORDERS
+                if any(
+                    n in extras for n in ("hashtokbackoff", "hashtokbackoff2")
+                )
+                else (1, 2, 4)
+            ),
             n_hashes=n_hashes,
             n_buckets=n_buckets,
         )
-        if "hashmix" in extras
+        if any(
+            n in extras for n in ("hashmix", "hashtokbackoff", "hashtokbackoff2")
+        )
+        else None
+    )
+    mix_len_model = (
+        fit_hashmix_twins(
+            train,
+            orders=HASHBACKOFF_ORDERS,
+            n_hashes=n_hashes,
+            n_buckets=n_buckets,
+            exact_len=True,
+        )
+        if any(
+            n in extras for n in ("hashtoklenbackoff", "hashtoklenbackoff2")
+        )
         else None
     )
     surface_model = (
@@ -3087,13 +4381,24 @@ def run_transfer(
             n_buckets=n_buckets,
             position_bucket=pos_bucket,
         )
-        if "pospool" in extras
+        if "pospool" in extras or "poshashtok" in extras
         else None
     )
     used_keys = False
     used_hash = False
     used_g = False
-    for model in (count_model, hash_model, mix_model, surface_model, pos_model, pos_hash):
+    for model in (
+        count_model,
+        hash_model,
+        hash_len_model,
+        hash_skip_model,
+        hash_mask_model,
+        mix_model,
+        mix_len_model,
+        surface_model,
+        pos_model,
+        pos_hash,
+    ):
         if model is None:
             continue
         used_keys = used_keys or model.used_keys
@@ -3128,6 +4433,70 @@ def run_transfer(
             "hashvote",
             "ids",
         )
+    if "hashtok" in extras:
+        assert hash_model is not None
+        scorers["hashtok"] = (
+            (lambda ids, m=hash_model: score_hashtok(ids, m)),
+            "key-free-hashtok",
+            "hashtok",
+            "ids",
+        )
+    if "hashtok2" in extras:
+        assert hash_model is not None
+        scorers["hashtok2"] = (
+            (lambda ids, m=hash_model: score_hashtok(ids, m, min_count=2)),
+            "key-free-hashtok2",
+            "hashtok2",
+            "ids",
+        )
+    if "hashtoklen" in extras:
+        assert hash_len_model is not None
+        scorers["hashtoklen"] = (
+            (lambda ids, m=hash_len_model: score_hashtok(ids, m)),
+            "key-free-hashtoklen",
+            "hashtoklen",
+            "ids",
+        )
+    if "hashtoklen2" in extras:
+        assert hash_len_model is not None
+        scorers["hashtoklen2"] = (
+            (lambda ids, m=hash_len_model: score_hashtok(ids, m, min_count=2)),
+            "key-free-hashtoklen2",
+            "hashtoklen2",
+            "ids",
+        )
+    if "hashskip" in extras:
+        assert hash_skip_model is not None
+        scorers["hashskip"] = (
+            (lambda ids, m=hash_skip_model: score_hashskip(ids, m)),
+            "key-free-hashskip",
+            "hashskip",
+            "ids",
+        )
+    if "hashskip2" in extras:
+        assert hash_skip_model is not None
+        scorers["hashskip2"] = (
+            (lambda ids, m=hash_skip_model: score_hashskip(ids, m, min_count=2)),
+            "key-free-hashskip2",
+            "hashskip2",
+            "ids",
+        )
+    if "hashmask" in extras:
+        assert hash_mask_model is not None
+        scorers["hashmask"] = (
+            (lambda ids, m=hash_mask_model: score_hashmask(ids, m)),
+            "key-free-hashmask",
+            "hashmask",
+            "ids",
+        )
+    if "hashmask2" in extras:
+        assert hash_mask_model is not None
+        scorers["hashmask2"] = (
+            (lambda ids, m=hash_mask_model: score_hashmask(ids, m, min_count=2)),
+            "key-free-hashmask2",
+            "hashmask2",
+            "ids",
+        )
     if "hybrid" in extras:
         assert count_model is not None and hash_model is not None
         scorers["hybrid"] = (
@@ -3136,12 +4505,76 @@ def run_transfer(
             "hybrid",
             "ids",
         )
+    if "tokhybrid" in extras:
+        assert count_model is not None and hash_model is not None
+        scorers["tokhybrid"] = (
+            (lambda ids, c=count_model, h=hash_model: score_tokhybrid(ids, c, h)),
+            "key-free-tokhybrid",
+            "tokhybrid",
+            "ids",
+        )
+    if "hashtokgap" in extras:
+        assert count_model is not None and hash_model is not None
+        scorers["hashtokgap"] = (
+            (lambda ids, c=count_model, h=hash_model: score_hashtokgap(ids, c, h)),
+            "key-free-hashtokgap",
+            "hashtokgap",
+            "ids",
+        )
     if "hashmix" in extras:
         assert mix_model is not None
         scorers["hashmix"] = (
             (lambda ids, m=mix_model: score_hashmix(ids, m)),
             "key-free-hashmix",
             "hashmix",
+            "ids",
+        )
+    if "hashtokbackoff" in extras:
+        assert mix_model is not None
+        scorers["hashtokbackoff"] = (
+            (
+                lambda ids, m=mix_model: score_hashtokbackoff(
+                    ids, m, min_order=1
+                )
+            ),
+            "key-free-hashtokbackoff",
+            "hashtokbackoff",
+            "ids",
+        )
+    if "hashtokbackoff2" in extras:
+        assert mix_model is not None
+        scorers["hashtokbackoff2"] = (
+            (
+                lambda ids, m=mix_model: score_hashtokbackoff(
+                    ids, m, min_order=2
+                )
+            ),
+            "key-free-hashtokbackoff2",
+            "hashtokbackoff2",
+            "ids",
+        )
+    if "hashtoklenbackoff" in extras:
+        assert mix_len_model is not None
+        scorers["hashtoklenbackoff"] = (
+            (
+                lambda ids, m=mix_len_model: score_hashtokbackoff(
+                    ids, m, min_order=1
+                )
+            ),
+            "key-free-hashtoklenbackoff",
+            "hashtoklenbackoff",
+            "ids",
+        )
+    if "hashtoklenbackoff2" in extras:
+        assert mix_len_model is not None
+        scorers["hashtoklenbackoff2"] = (
+            (
+                lambda ids, m=mix_len_model: score_hashtokbackoff(
+                    ids, m, min_order=2
+                )
+            ),
+            "key-free-hashtoklenbackoff2",
+            "hashtoklenbackoff2",
             "ids",
         )
     if "surface" in extras:
@@ -3176,12 +4609,22 @@ def run_transfer(
             "pospool",
             "ids",
         )
+    if "poshashtok" in extras:
+        assert pos_hash is not None
+        scorers["poshashtok"] = (
+            (lambda ids, m=pos_hash: score_hashtok(ids, m)),
+            "key-free-poshashtok",
+            "poshashtok",
+            "ids",
+        )
 
     note = (
         "Train on one twin directory, score the other. Shared prompt stems "
         "are dropped as overlap_mode says. In-sample Youden is optimistic. "
         "nested-youden / nested-fpr10 come from leave-one-prompt-out on "
         "training stems only, then frozen on the test files. "
+        "ranking_without_isolated_tp counts prompt wins with no marked "
+        "file lr>0; do not read prompt wins as isolated recall. "
         "Not detector_mean. Not Claude. Not key recovery."
     )
     if shuffle_labels:
@@ -3204,6 +4647,9 @@ def run_transfer(
         used_g_values=used_g,
         count_model=count_model,
         hash_model=hash_model,
+        hash_len_model=hash_len_model,
+        hash_skip_model=hash_skip_model,
+        hash_mask_model=hash_mask_model,
         surface_model=surface_model,
         pos_model=pos_model,
         pos_hash=pos_hash,
@@ -3217,7 +4663,15 @@ def run_transfer(
         include_first=bool(include_first),
         prompt_context=bool(prompt_context),
         rankpath_full=rank_full,
-        rankpath_pos_bucket=rank_bucket if rank_names else None,
+        rankpath_pos_bucket=(
+            rank_bucket if rank_names or fallback in RANKPATH_SPECS else None
+        ),
+        cascade_rankpath_end=(
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            else None
+        ),
+        cascade_when=cascade_when,
         note=note,
     )
     train_holdouts: dict[str, IndicatorHoldout] = {}
@@ -3364,7 +4818,7 @@ def run_transfer(
         test_holdouts["logit"] = test_logit
         train_holdouts["logit"] = train_logit
 
-    if with_pivot or cascade or rank_names:
+    if with_pivot or cascade or rank_names or snap_names:
         from text_watermark_tools.generate import _load_unmarked_model, generate_device
         from text_watermark_tools.pivot import (
             parse_pivot_weights,
@@ -3376,8 +4830,17 @@ def run_transfer(
         weight_names = parse_pivot_weights(pivot_weights)
         run.pivot_weights = weight_names
         run.cascade_fallback = fallback
-        from text_watermark_tools.rankpath import RANKPATH_SPECS as _RANK_SPECS
+        from text_watermark_tools.rankpath import (
+            RANKPATH_SPECS as _RANK_SPECS,
+            cascade_fallback_matrices,
+        )
 
+        cas_end = (
+            int(cascade_rankpath_end)
+            if cascade_rankpath_end and int(cascade_rankpath_end) > 0
+            and fallback in _RANK_SPECS
+            else None
+        )
         want_spans = bool(rank_names and (run.prefix_lens or run.windows))
         train_full, train_opening, train_rank_mats = _choice_matrix_views(
             train,
@@ -3387,6 +4850,7 @@ def run_transfer(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=want_spans,
+            cascade_end=cas_end,
         )
         test_full, test_opening, test_rank_mats = _choice_matrix_views(
             test,
@@ -3396,6 +4860,7 @@ def run_transfer(
             prompt_context=prompt_context,
             rankpath_full=rank_full,
             want_spans=want_spans,
+            cascade_end=cas_end,
         )
         train_mats = train_rank_mats
         test_mats = test_rank_mats
@@ -3431,6 +4896,37 @@ def run_transfer(
                 )
                 test_holdouts[name] = ev
                 train_holdouts[name] = train_pivots[name]
+        if snap_names:
+            test_snaps, train_snaps = transfer_snaprate(
+                train,
+                test,
+                model_name=model_name,
+                lm=lm,
+                prompt_context=prompt_context,
+                methods=snap_names,
+                train_mats=train_opening,
+                test_mats=test_opening,
+            )
+            used_keys = used_keys or any(ev.used_keys for ev in test_snaps.values())
+            used_hash = used_hash or any(
+                ev.used_hash_iv for ev in test_snaps.values()
+            )
+            used_g = used_g or any(ev.used_g_values for ev in test_snaps.values())
+            for name in snap_names:
+                ev = test_snaps[name]
+                run.methods.append(summarize_holdout(name, ev))
+                train_bin = binary_eval(
+                    train_snaps[name].marked_lrs, train_snaps[name].unmarked_lrs
+                )
+                _append_threshold(
+                    run,
+                    name=name,
+                    source="in-sample-youden",
+                    threshold=train_bin.youden_threshold,
+                    test_ev=ev,
+                )
+                test_holdouts[name] = ev
+                train_holdouts[name] = train_snaps[name]
         rank_model = None
         if rank_names:
             rank_pref: dict[int, dict[str, IndicatorHoldout]] = {}
@@ -3477,17 +4973,47 @@ def run_transfer(
                 train_holdouts[name] = train_rank[name]
         cascade_name = str(cascade or "").strip()
         if cascade_name:
-            spec = POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
-            if spec is None:
+            hashed = cascade_name if cascade_name in HASH_CASCADE_READERS else ""
+            spec = None if hashed else (
+                POS_SPECS.get(cascade_name) or COUNT_SPECS.get(cascade_name)
+            )
+            if spec is None and not hashed:
                 raise ValueError(
                     f"unknown --cascade {cascade_name}; choose postokbackoff, "
-                    f"postokhits, or a count spec"
+                    f"postokhits, a count spec, or occupancy-free "
+                    + ", ".join(HASH_CASCADE_READERS)
                 )
-            cascade_pos = pos_model if cascade_name in POS_SPECS else None
-            if fallback in _RANK_SPECS and rank_full:
-                cas_train, cas_test = train_full, test_full
+            cascade_pos = None if hashed else (
+                pos_model if cascade_name in POS_SPECS else None
+            )
+            if fallback in _RANK_SPECS:
+                cas_train = cascade_fallback_matrices(
+                    train_opening, train_full, end=cas_end
+                )
+                cas_test = cascade_fallback_matrices(
+                    test_opening, test_full, end=cas_end
+                )
             else:
                 cas_train, cas_test = train_opening, test_opening
+            reuse_rank = (
+                fallback in RANKPATH_SPECS
+                and rank_model is not None
+                and not rank_full
+                and cas_end is None
+            )
+            hashed_models = None
+            count_detail = None
+            flag_model = None
+            if hashed:
+                hashed_models = _hashed_cascade_models(
+                    train,
+                    hashed,
+                    context_len=context_len,
+                    n_hashes=n_hashes,
+                    n_buckets=n_buckets,
+                )
+                count_detail = hashed_count_detail(hashed, hashed_models)
+                flag_model = _hashed_flag_model(hashed_models)
             test_cas, train_cas, rows = transfer_cascade(
                 train,
                 test,
@@ -3504,7 +5030,14 @@ def run_transfer(
                 fallback=fallback,
                 train_mats=cas_train,
                 test_mats=cas_test,
-                rank_model=rank_model if fallback in RANKPATH_SPECS else None,
+                rank_model=rank_model if reuse_rank else None,
+                rankpath_pos_bucket=rank_bucket if fallback in _RANK_SPECS else None,
+                cascade_when=cascade_when,
+                hashed_reader="" if count_detail is not None else hashed,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                count_detail=count_detail,
+                flag_model=flag_model,
             )
             run.methods.append(summarize_holdout("cascade", test_cas))
             train_bin = binary_eval(train_cas.marked_lrs, train_cas.unmarked_lrs)
@@ -3517,11 +5050,12 @@ def run_transfer(
             )
             test_holdouts["cascade"] = test_cas
             train_holdouts["cascade"] = train_cas
-            run.cascade = summarize_cascade(rows)
+            run.cascade = summarize_cascade(rows, when=cascade_when)
             run.cascade["count_method"] = cascade_name
             run.cascade["pivot_weight"] = weight_names[0]
             run.cascade["fallback"] = fallback
             run.cascade["prompt_context"] = bool(prompt_context)
+            run.cascade["rankpath_end"] = cas_end
             run.cascade["rows"] = rows
             used_keys = used_keys or test_cas.used_keys
             used_hash = used_hash or test_cas.used_hash_iv
@@ -3546,6 +5080,99 @@ def run_transfer(
             nested_holdouts["hashpool"] = rotate_hashpool(
                 train,
                 context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtok" in extras:
+            nested_holdouts["hashtok"] = rotate_hashtok(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+                seed=hash_seed,
+            )
+        if "hashtok2" in extras:
+            nested_holdouts["hashtok2"] = rotate_hashtok2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklen" in extras:
+            nested_holdouts["hashtoklen"] = rotate_hashtoklen(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklen2" in extras:
+            nested_holdouts["hashtoklen2"] = rotate_hashtoklen2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashskip" in extras:
+            nested_holdouts["hashskip"] = rotate_hashskip(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashskip2" in extras:
+            nested_holdouts["hashskip2"] = rotate_hashskip2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashmask" in extras:
+            nested_holdouts["hashmask"] = rotate_hashmask(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashmask2" in extras:
+            nested_holdouts["hashmask2"] = rotate_hashmask2(
+                train,
+                context_len=context_len,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtokbackoff" in extras:
+            nested_holdouts["hashtokbackoff"] = rotate_hashtokbackoff(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtokbackoff2" in extras:
+            nested_holdouts["hashtokbackoff2"] = rotate_hashtokbackoff2(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklenbackoff" in extras:
+            nested_holdouts["hashtoklenbackoff"] = rotate_hashtoklenbackoff(
+                train,
+                n_hashes=n_hashes,
+                n_buckets=n_buckets,
+                model_name=model_name,
+            )
+        if "hashtoklenbackoff2" in extras:
+            nested_holdouts["hashtoklenbackoff2"] = rotate_hashtoklenbackoff2(
+                train,
                 n_hashes=n_hashes,
                 n_buckets=n_buckets,
                 model_name=model_name,
@@ -3581,6 +5208,10 @@ def run_transfer(
                     methods=rank_names,
                     mats=train_mats,
                 )
+            )
+        if snap_names:
+            nested_holdouts.update(
+                {n: train_holdouts[n] for n in snap_names if n in train_holdouts}
             )
         if (
             "stack" in extras
@@ -3631,7 +5262,9 @@ def print_transfer(run: TransferRun) -> str:
             f"hash_iv={run.used_hash_iv} g_values={run.used_g_values} "
             f"include_first={run.include_first} prompt_context={run.prompt_context} "
             f"rankpath_full={getattr(run, 'rankpath_full', False)} "
-            f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)}"
+            f"rankpath_pos_bucket={getattr(run, 'rankpath_pos_bucket', None)} "
+            f"cascade_rankpath_end={getattr(run, 'cascade_rankpath_end', None)} "
+            f"cascade_when={getattr(run, 'cascade_when', 'coverage')}"
         ),
         run.note,
         CAVEAT,
@@ -3650,6 +5283,7 @@ def print_transfer(run: TransferRun) -> str:
             f"{b.n_negative_at_most_zero}/{b.n_negative} | "
             f"{b.permutation_p:.4g} | {b.mean_diff:.4f} |"
         )
+    lines.extend(_ranking_without_tp_md(run.methods))
     lines.append("")
     lines.append(
         "| method | marked zeros | unmarked zeros | decided tp/fn | "
@@ -3668,13 +5302,25 @@ def print_transfer(run: TransferRun) -> str:
     lines.append("")
     lines.append(
         "Zeros are lr==0: no shared last-k, or (tokhits/postokhits/"
-        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2) no observed "
-        "next token under that context. They are abstentions, not sign "
-        "errors. poshits can still score an *unseen* next token after a "
-        "shared context via Laplace; that occupancy artifact is not a "
-        "token preference. tokbackoff shrinks last-k until an observed "
-        "next token hits; tokbackoff2 stops at last-2. Neither is key "
-        "recovery."
+        "tokbackoff/postokbackoff/tokbackoff2/postokbackoff2/hashtok/"
+        "hashtoklen/hashtokbackoff/hashtokbackoff2/hashtoklenbackoff/"
+        "hashtoklenbackoff2/hashskip/hashtoklen2/hashskip2/hashmask/hashmask2/"
+        "tokhybrid/hashtokgap/poshashtok/hashtok2) no observed next token under that "
+        "context (or colliding hash). They are abstentions, not sign "
+        "errors. poshits and hashpool can still score an *unseen* next "
+        "token via Laplace; that occupancy artifact is not a token "
+        "preference. tokbackoff / hashtokbackoff shrink last-k until an "
+        "observed next token hits; tokbackoff2 / hashtokbackoff2 stop at "
+        "last-2. hashtoklen / hashtoklenbackoff hash only exact last-k "
+        "(short prefixes are not mixed into a longer-order table). "
+        "hashskip hashes exact last-k with one token dropped (tagged "
+        "skip-grams, not last-(k-1)). hashmask replaces one last-k token "
+        "with MASK_TAG (length-k templates). hashtoklen2 / hashskip2 / "
+        "hashmask2 / hashtok2 skip "
+        "singleton hash collisions (min_count=2). hashtok is the hashpool analog of "
+        "tokhits. tokhybrid prefers tokhits then hashtok; hashtokgap is the "
+        "opposite residual (hashtok only where tokhits abstains). "
+        "None of these is key recovery."
     )
     lines.append("")
     lines.append(
@@ -3736,6 +5382,11 @@ def print_transfer(run: TransferRun) -> str:
         )
         lines.append(
             f"{m.name} prompts_marked_above={m.n_prompt_wins}/{m.n_prompts} "
+            f"ranking_without_isolated_tp="
+            f"{m.holdout.n_prompt_wins_without_isolated_tp}/"
+            f"{m.n_prompt_wins} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(m.holdout.ranking_losses_with_isolated_tp)} "
             f"instance={m.holdout.instance} used_keys={m.holdout.used_keys}"
         )
     return "\n".join(lines)
@@ -3769,6 +5420,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         "rankpath_full": bool(getattr(run, "rankpath_full", False)),
         "rankpath_pos_bucket": getattr(run, "rankpath_pos_bucket", None),
         "cascade_fallback": getattr(run, "cascade_fallback", "pivot"),
+        "cascade_rankpath_end": getattr(run, "cascade_rankpath_end", None),
+        "cascade_when": getattr(run, "cascade_when", "coverage"),
         "note": run.note,
         "caveat": CAVEAT,
         "methods": [],
@@ -3788,6 +5441,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             "n_prompt_wins": m.n_prompt_wins,
             "n_prompts": m.n_prompts,
             "n_marked_above_unmarked": m.holdout.n_marked_above_unmarked,
+            **m.holdout.ranking_payload(),
             "used_keys": m.holdout.used_keys,
             "used_hash_iv": m.holdout.used_hash_iv,
             "used_g_values": m.holdout.used_g_values,
@@ -3799,6 +5453,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
         table["methods"].append(row)
         persist_holdout(m.holdout, out_dir / m.name)
     persist_tables = run.shuffle_seed is None
+    fit_n = int(run.fit_prefix or 0)
     if persist_tables and run.hash_model is not None:
         nested_t = _t("hashpool", "nested-youden")
         in_t = _t("hashpool", "in-sample-youden")
@@ -3812,6 +5467,74 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_source=(
                 "nested-youden" if nested_t is not None else "in-sample-youden"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashpool",
+        )
+    if persist_tables and getattr(run, "hash_len_model", None) is not None:
+        nested_t = _t("hashtoklen", "nested-youden") or _t(
+            "hashtoklen2", "nested-youden"
+        )
+        in_t = _t("hashtoklen", "in-sample-youden") or _t(
+            "hashtoklen2", "in-sample-youden"
+        )
+        persist_hashpool(
+            run.hash_len_model,
+            out_dir / "tables-hashtoklen",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashtoklen"
+                if nested_t is not None
+                else "in-sample-youden-hashtoklen"
+            ),
+            fit_prefix=fit_n,
+            score_kind="hashtoklen",
+        )
+    if persist_tables and getattr(run, "hash_skip_model", None) is not None:
+        nested_t = _t("hashskip", "nested-youden") or _t(
+            "hashskip2", "nested-youden"
+        )
+        in_t = _t("hashskip", "in-sample-youden") or _t(
+            "hashskip2", "in-sample-youden"
+        )
+        persist_hashpool(
+            run.hash_skip_model,
+            out_dir / "tables-hashskip",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashskip"
+                if nested_t is not None
+                else "in-sample-youden-hashskip"
+            ),
+            fit_prefix=fit_n,
+            score_kind="hashskip",
+        )
+    if persist_tables and getattr(run, "hash_mask_model", None) is not None:
+        nested_t = _t("hashmask", "nested-youden") or _t(
+            "hashmask2", "nested-youden"
+        )
+        in_t = _t("hashmask", "in-sample-youden") or _t(
+            "hashmask2", "in-sample-youden"
+        )
+        persist_hashpool(
+            run.hash_mask_model,
+            out_dir / "tables-hashmask",
+            model_name=run.model_name,
+            pair_dir=run.train_dir,
+            n_train_prompts=run.n_train_prompts,
+            decision_threshold=nested_t if nested_t is not None else in_t,
+            decision_source=(
+                "nested-youden-hashmask"
+                if nested_t is not None
+                else "in-sample-youden-hashmask"
+            ),
+            fit_prefix=fit_n,
+            score_kind="hashmask",
         )
     if persist_tables and run.surface_model is not None:
         nested_t = _t("surface", "nested-youden")
@@ -3828,6 +5551,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-surface"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.count_model is not None:
         nested_t = _t("hits", "nested-youden")
@@ -3842,6 +5566,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
             decision_source=(
                 "nested-youden-hits" if nested_t is not None else "in-sample-youden-hits"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.pos_model is not None:
         nested_t = _t("poshits", "nested-youden") or _t("poshitmass", "nested-youden")
@@ -3858,6 +5583,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-poshits"
             ),
+            fit_prefix=fit_n,
         )
     if persist_tables and run.pos_hash is not None:
         nested_t = _t("pospool", "nested-youden")
@@ -3874,6 +5600,8 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-pospool"
             ),
+            fit_prefix=fit_n,
+            score_kind="hashpool",
         )
     table["prefixes"] = []
     for plen in sorted(run.prefixes):
@@ -3884,6 +5612,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -3900,6 +5629,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                     "name": m.name,
                     "n_prompt_wins": m.n_prompt_wins,
                     "n_prompts": m.n_prompts,
+                    **m.holdout.ranking_payload(),
                     "binary": binary_eval_to_dict(m.binary),
                     "nested_stem": nested_stem_gates(m.holdout),
                     "used_keys": m.holdout.used_keys,
@@ -3989,6 +5719,7 @@ def persist_transfer(run: TransferRun, out_dir: Path) -> None:
                 if nested_t is not None
                 else "in-sample-youden-rankpath"
             ),
+            fit_prefix=fit_n,
         )
     if run.cascade:
         (out_dir / "cascade.json").write_text(

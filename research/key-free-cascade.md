@@ -109,6 +109,90 @@ unmarked files. That 5/6 slice is not a test. Combined 39/48 has
 precision 0.722. Do not sell 39/48 cascade as beating poshits 39/48
 (The-Laplace occupancy, different FPs).
 
+Rank-path leftover fill-in, same 60-stem count tables, not the full
+file. Opening rankuni: **2/6** leftover, 15 unmarked FPs, cascade
+36/48. Full-file rankpath: **4/6** leftover, 17 unmarked FPs, cascade
+38/48. Unbucketed prefix-4 rankpath (`--cascade-rankpath-end 4`):
+**1/6** leftover, 5 unmarked FPs, cascade **35/48 vs 43/48**. Uncovered
+FPR10 on the saved opening-rankuni rows is 1/6 leftover and 3 unmarked
+FPs. Quote the count channel when `n_used>0`. Do not sell 35–38/48.
+
+Coverage cascade leaves eight **covered-negative** harbour / ferry
+openings on the count channel (`The ferry was so/over/...`, last-1
+`' was'` looks unmarked). `--cascade-when positive` sends those to
+prefix-4 rankpath as well as the zeros. Rebound from the same saved
+rows, no new GPT-2 forwards:
+
+JSON: [../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/](../experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/).
+
+| Rule | marked>0 | unmarked≤0 |
+|---|---|---|
+| count `lr>0` | **34/48** | **48/48** |
+| coverage cascade | 35/48 | 43/48 |
+| **positive-when cascade** | **40/48** | **40/48** |
+
+Five of eight covered-negatives sign, plus one leftover zero. Eight
+unmarked FPs, all rankpath. Combined accuracy **80/96** vs count
+**82/96**. Fallback FPR10 on that residual is combined **39/48 vs 44/48**.
+Do not sell 40/48 or 39/48 as beating poshits **39/48**.
+
+## Leftover eight are officially marked
+
+The eight positive-when misses are not unmarked openings. Official
+`public-deepmind-30` mean on isolated generated prefixes
+([../experiments/2026-09-01-official-prefix-leftover/](../experiments/2026-09-01-official-prefix-leftover/)):
+
+| prefix | leftover marked | other marked | unmarked |
+|---|---|---|---|
+| 5 (one 5-gram) | 0.637 (6/8 >0.55) | 0.633 | 0.481 |
+| 16 | **0.627, 8/8 >0.55** | 0.626, 40/40 | 0.496, 3/48 |
+| 128 | 0.621, 8/8 | 0.622, 40/40 | 0.500, 0/48 |
+
+Prefix 4 is shorter than `ngram_len=5` and returns no official score.
+Letter d2/d3 prefix-5 means are **0.733 / 0.767**. Office d1/d3 are
+0.500 at five tokens and 0.633 at eight. In-domain opening rankpath
+already signs 7/8; only letter d2 misses. The OOD miss is overlap plus
+one hard 5-gram (`Now in the second I`).
+
+That 5-gram is generated token 4. Isolated `--fit-prefix 4` rankpath
+never scores it (three symbols = tokens 1–3). Isolated unmarked GPT-2
+ranks `I` given `Now in the second` at **41** (miss top-k). The same
+token with the prompt in context is rank **11**. Official g-values on
+the isolated 5-gram match the last n-gram of `prompt + generated[:5]`
+(22/30). Isolated rankpath is the right tokens and the wrong LM
+context; generation-time rank 11 is not the near-tie bin.
+
+In-domain `--fit-prefix 5` rankpath
+([../experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/](../experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/))
+is **11/12**, **30/48 vs 36/48**. Prefix-4 stays **12/12 / 41/48**.
+Letter d2 stays `lr<0` (−1.208). Window `3:4` rankuni (token 4 alone)
+is **4/12**, AUC **0.406**. Letter d3's 5-gram is also an isolated
+miss (rank 41, official 0.767); prefix-4 already signs it from tokens
+1–3. Ferry-queue d4 is officially marked (0.700) on the **argmax**.
+Keep prefix-4. Do not sell 30/48.
+
+Among 45 marked files with official prefix-5 >0.55, isolated token-4
+rank is **10 argmax** and **8 miss**. Unmarked isolated miss is **7/48**
+vs marked **9/48**. Fifth-token rank is not a detector.
+
+JSON: [../experiments/2026-09-01-letter-d2-first-ngram/](../experiments/2026-09-01-letter-d2-first-ngram/).
+
+60-stem `--fit-prefix 8` postokbackoff
+([../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/))
+covers 4 of 6 prefix-4 zeros (station d4, letter d3, office d1/d3):
+**38/48 vs 40/48**, precision 0.826, AUC **0.818**. Combined **78/96**
+vs prefix-4 count **82/96**. Nested FPR10 38/48 vs 42/48. Letter d2
+stays `lr<0`. That negative is last-1 `' in' → ' the'` (c_m=2, c_u=8),
+not the official 5-gram. The 5-gram is unseen at last-4/3/2; last-1
+`' second'` never continues with `' I'`. `postokbackoff2` abstains
+(`n_used=0`). Letter d3's prefix-8 rescue is last-1 `',' → ' my'`,
+not `While working on the key`. All four extra TPs are last-1
+punctuation; **20 of 38** TPs are last-1 only. Prefix-8
+`postokbackoff2` is **18/48 vs 46/48**, precision 0.900 among decided
+([../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2/](../experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-backoff2/)).
+Prefix-8 rankpath is 30/48 vs 35/48 and does not beat prefix-4
+rankpath. Do not sell 38/48 or 18/48 as beating poshits **39/48**.
+
 ## What to use
 
 - Isolated-file observed-token reader: `postokhits` / `postokbackoff`
@@ -120,10 +204,29 @@ precision 0.722. Do not sell 39/48 cascade as beating poshits 39/48
 - Prompt-conditioned geometry is not an isolated-file protocol and
   fails leave-one-prompt-out.
 - Cascade is an honest two-channel report, not a single score.
+  Rank-path fallback uses the opening path (or prefix-N), never the
+  full file. `--cascade-when coverage` (default) substitutes only at
+  `n_used=0`. `--cascade-when positive` also substitutes covered
+  negatives; on the 60-stem prefix-4 gate that is **40/48 vs 40/48**.
+  Quote the count channel when it is positive. Uncovered-only 10% FPR
+  is reported beside t=0. Prefix-8 backoff on the same 60-stem train is
+  **38/48 vs 40/48** (4 extra zeros, 8 FPs). Those extras are last-1
+  punctuation, not official 5-grams. Prefix-8 `postokbackoff2` is
+  **18/48 vs 46/48**. Keep prefix-4 when the high-precision last-1
+  reader is the point. Isolated prefix-5 rankpath is **11/12**,
+  **30/48 vs 36/48** and still misses letter d2's official 5-gram
+  (isolated rank 41, prompt rank 11). Keep prefix-4.
 
 Still not keys. Still not a universal detector. Do not replace
 **10/12**, **29/48**, or **36/36**. Rank-path tables that score novel
 openings without token identity are in
-[key-free-rankpath.md](key-free-rankpath.md). Full-file rank-path
-fallback on the 60-stem gate is 38/48 with 17 unmarked FPs; keep the
-opening reader.
+[key-free-rankpath.md](key-free-rankpath.md). Hashing the official
+5-gram context does not recover letter d2 without occupancy Laplace;
+see [key-free-hashtok.md](key-free-hashtok.md). Occupancy-free
+`hashtoklen` as the count channel, saved prefix-4 rankpath as
+fallback, is **33/48 vs 37/48** (combined 70/96 vs count 82/96). The
+leftover eight stay misses. `--cascade hashtoklen` is first-class.
+Do not sell 33/48. Rebound `hashtoklen2` onto the same rankpath rows
+is **28/48 vs 40/48**, copying standalone prefix-4 rankpath: the 10
+robust 5-gram TPs are already rankpath TPs. Leftover fill-in still
+0/8. `hashtoklen2` is not a cascade count channel on that number.

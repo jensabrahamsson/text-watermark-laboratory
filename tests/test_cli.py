@@ -126,7 +126,22 @@ def test_cli_probe_help_mentions_auc_grain(capsys) -> None:
     assert "--cascade" in out
     assert "--pivot-weight" in out
     assert "--rankpath" in out
+    assert "--snaprate" in out
+    assert "hashtok" in out
+    assert "hashtok2" in out
+    assert "hashtokbackoff" in out
+    assert "hashtoklen" in out
+    assert "hashtoklen2" in out
+    assert "hashskip" in out
+    assert "hashskip2" in out
+    assert "hashmask" in out
+    assert "tokhybrid" in out
+    assert "hashtokgap" in out
+    assert "poshashtok" in out
+    assert "hashtoklenbackoff" in out
     assert "--cascade-fallback" in out
+    assert "--cascade-rankpath-end" in out
+    assert "--cascade-when" in out
     try:
         build_parser().parse_args(["indicate", "holdout", "--help"])
     except SystemExit as exc:

@@ -48,10 +48,10 @@ This is a surrogate for **presence**, not a reconstruction of the official detec
 
 A single static paragraph gives far less information than repeated access to a marked generator.
 
-Published attacks on statistical watermarks typically exploit many generated samples to estimate context-dependent preferences. That is a different problem from algebraically recovering the secret state from one string.
+Published attacks on statistical watermarks typically exploit many generated samples to estimate context-dependent preferences (Jovanović et al., 2024; Wu & Chandrasekaran, 2024). Zhang et al. (2024) prove impossibility of *strong* watermarking given quality and perturbation oracles. Those are different problems from algebraically recovering the secret state from one string.
 
 The experiments in this repository stay on the inference side: can enough paired observations reveal a usable statistical signature?
 
-Current answer: **yes, at matched/repeated prompt grain; much less reliably for one isolated file.** The key-free opening-token reader is **instance-specific** on this mixin (control-shuffled-30 isolated `lr>0` is **0/48** under 4-token poshits) without recovering keys. See [key-free-contrast.md](key-free-contrast.md).
+Current answer: **yes, at matched/repeated prompt grain; much less reliably for one isolated file.** The key-free opening-token reader is **instance-specific** on this mixin (control-shuffled-30 isolated `lr>0` is **0/48** under 4-token poshits) without recovering keys. See [key-free-contrast.md](key-free-contrast.md). How this measurement sits next to keyed theory, ZK public verifiability, and stealing is [related-work.md](related-work.md); citation convention [CITING.md](CITING.md).
 
 See [key-free-twins.md](key-free-twins.md).

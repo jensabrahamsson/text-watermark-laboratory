@@ -9,6 +9,11 @@ from text_watermark_tools.stats import (
     permutation_mean_diff_p,
     roc_auc,
     score_ridge_logodds,
+    stem_marked_positive_on_ranking_losses,
+    stem_prompt_losses,
+    stem_ranking_losses_with_isolated_tp,
+    stem_ranking_without_isolated_tp,
+    stem_transfer_rows,
     threshold_at_fpr,
     youden_threshold,
 )
@@ -26,6 +31,11 @@ def test_auc_is_half_on_identical_lists() -> None:
 def test_auc_handles_ties() -> None:
     # 1 vs 1 (tie), 1 vs -1 (win), 0 vs 1 (loss), 0 vs -1 (win) → 2.5/4
     assert roc_auc([1.0, 0.0], [1.0, -1.0]) == 0.625
+
+
+def test_binomial_nine_of_twelve_is_above_five_percent() -> None:
+    assert binomial_sf(9, 12, 0.5) > 0.05
+    assert binomial_sf(10, 12, 0.5) < 0.05
 
 
 def test_binomial_ten_of_twelve_is_below_five_percent() -> None:
@@ -83,6 +93,7 @@ def test_nested_youden_by_stem_classifies_without_the_held_stem() -> None:
     assert ev.n_marked_above == 6
     assert ev.n_unmarked_at_most == 6
     assert ev.source == "nested-youden-by-stem"
+    assert "does not refit tables without H" in nested_threshold_by_stem.__doc__
 
 
 def test_nested_threshold_by_stem_rejects_misaligned_inputs() -> None:
@@ -107,6 +118,40 @@ def test_ridge_logodds_separates_two_features() -> None:
     w, b, mu, sd = fit_ridge_logodds(pos, neg, ridge=1.0)
     assert score_ridge_logodds(pos[0], w, b, mu, sd) > 0.0
     assert score_ridge_logodds(neg[0], w, b, mu, sd) < 0.0
+
+
+def test_stem_transfer_rows_groups_holdout_files() -> None:
+    files = [
+        {"file": "01-harbour-marked.txt", "stem": "01-harbour", "lr": 0.4},
+        {"file": "01-harbour-unmarked-gen.txt", "stem": "01-harbour", "lr": -0.2},
+        {"file": "01-harbour-marked-2.txt", "stem": "01-harbour", "lr": 0.4},
+        {"file": "01-harbour-unmarked-gen-2.txt", "stem": "01-harbour", "lr": -0.2},
+        {"file": "11-garden-marked.txt", "stem": "11-garden", "lr": -0.5},
+        {"file": "11-garden-unmarked-gen.txt", "stem": "11-garden", "lr": 0.1},
+        {"file": "11-garden-marked-2.txt", "stem": "11-garden", "lr": -0.5},
+        {"file": "11-garden-unmarked-gen-2.txt", "stem": "11-garden", "lr": 0.1},
+        {"file": "02-night-bus-marked.txt", "stem": "02-night-bus", "lr": -0.1},
+        {"file": "02-night-bus-unmarked-gen.txt", "stem": "02-night-bus", "lr": -0.4},
+        {"file": "02-night-bus-marked-2.txt", "stem": "02-night-bus", "lr": -0.1},
+        {"file": "02-night-bus-unmarked-gen-2.txt", "stem": "02-night-bus", "lr": -0.4},
+        {"file": "12-ferry-queue-marked.txt", "stem": "12-ferry-queue", "lr": 0.2},
+        {"file": "12-ferry-queue-unmarked-gen.txt", "stem": "12-ferry-queue", "lr": 0.4},
+        {"file": "12-ferry-queue-marked-2.txt", "stem": "12-ferry-queue", "lr": -0.1},
+        {"file": "12-ferry-queue-unmarked-gen-2.txt", "stem": "12-ferry-queue", "lr": 0.3},
+    ]
+    rows = stem_transfer_rows(files, nested_threshold=0.0)
+    by = {r["stem"]: r for r in rows}
+    assert by["01-harbour"]["prompt_win"] is True
+    assert by["01-harbour"]["marked_t0"] == 2
+    assert by["11-garden"]["prompt_win"] is False
+    assert by["02-night-bus"]["prompt_win"] is True
+    assert by["02-night-bus"]["marked_t0"] == 0
+    assert by["12-ferry-queue"]["prompt_win"] is False
+    assert by["12-ferry-queue"]["marked_t0"] == 1
+    assert stem_prompt_losses(rows) == ["11-garden", "12-ferry-queue"]
+    assert stem_ranking_without_isolated_tp(rows) == ["02-night-bus"]
+    assert stem_ranking_losses_with_isolated_tp(rows) == ["12-ferry-queue"]
+    assert stem_marked_positive_on_ranking_losses(rows) == 1
 
 
 def test_binary_eval_at_zero_matches_sign_counts() -> None:

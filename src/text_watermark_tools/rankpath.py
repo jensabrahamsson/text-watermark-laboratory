@@ -22,7 +22,8 @@ Symbols (``top_k`` default 40):
 The first generated token has no unmarked-LM context without a prompt, so
 the isolated-file path scores generated tokens 1… (choice-matrix rows).
 The first *symbol* is therefore a real tournament decision and is scored
-(``include_first=True`` on the symbol sequence). ``--rankpath-full`` keeps
+(``include_first=True`` on the symbol sequence; tokbackoff uses the
+``FIRST_TOKEN_CTX`` bucket for that opening symbol). ``--rankpath-full`` keeps
 those rows from the unclipped file when count tables use ``--fit-prefix``.
 Matched ``--prefix-lens`` / ``--windows`` slice the same rows (not token
 identity). Unbucketed full-file tables want ``--rankpath-pos-bucket 0``.
@@ -137,7 +138,11 @@ def opening_matrix_end(fit_prefix: int | None, prompt_context: bool) -> int | No
     """Choice-matrix rows that match a clipped generated file.
 
     Isolated generated-only skips token 0, so ``--fit-prefix 4`` is three
-    rank symbols. Prompt context scores every generated token.
+    rank symbols (generated tokens 1–3). Official ``detector_mean`` on an
+    isolated prefix of ``ngram_len=5`` scores one 5-gram: generated tokens
+    0–4. That tournament is choice-matrix row 3, which isolated rankpath
+    only sees at ``--fit-prefix 5`` (four symbols). Prompt context scores
+    every generated token.
     """
     if not fit_prefix or int(fit_prefix) <= 0:
         return None
@@ -145,6 +150,14 @@ def opening_matrix_end(fit_prefix: int | None, prompt_context: bool) -> int | No
     if prompt_context:
         return n
     return max(n - 1, 0)
+
+
+def generated_tokens_for_rank_symbols(n_symbols: int, prompt_context: bool) -> int:
+    """How many generated tokens yield ``n_symbols`` choice-matrix rows."""
+    n = max(int(n_symbols), 0)
+    if prompt_context:
+        return n
+    return n + 1
 
 
 def slice_matrices(
@@ -176,6 +189,25 @@ def slice_symbols(
         e = len(seq) if end is None else int(end)
         out[key] = seq[s:e]
     return out
+
+
+def cascade_fallback_matrices(
+    opening: dict[tuple[str, int, str], np.ndarray],
+    full: dict[tuple[str, int, str], np.ndarray] | None = None,
+    *,
+    end: int | None = None,
+) -> dict[tuple[str, int, str], np.ndarray]:
+    """Rank-path cascade fallback is the opening path, never the full file.
+
+    ``end`` slices a longer collected view to the first N rank symbols
+    (unbucketed prefix-N). ``None`` keeps the ``--fit-prefix`` opening.
+    ``rankpath-full`` must not change this default: averaging 128 rank
+    symbols dilutes the opening the way the published pivot did.
+    """
+    if end is None or int(end) <= 0:
+        return opening
+    source = full if full is not None else opening
+    return slice_matrices(source, 0, int(end))
 
 
 def parse_cascade_fallback(raw: str | None) -> str:
@@ -272,6 +304,7 @@ def persist_rankpath(
     spec_name: str = "rankpath",
     decision_threshold: float | None = None,
     decision_source: str = "",
+    fit_prefix: int = 0,
 ) -> Path:
     if model.used_keys or model.used_hash_iv or model.used_g_values:
         raise RuntimeError("refusing to persist a rankpath table that used keys")
@@ -290,6 +323,7 @@ def persist_rankpath(
         "position_bucket": int(getattr(model, "position_bucket", 0) or 0),
         "include_first": True,
         "prompt_context": bool(prompt_context),
+        "fit_prefix": int(fit_prefix or 0),
         "top_k": int(top_k),
         "alphabet": RANK_PATH_ALPHABET,
         "spec_name": spec_name if spec_name in RANKPATH_SPECS else "rankpath",

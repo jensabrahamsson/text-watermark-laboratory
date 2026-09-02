@@ -14,6 +14,7 @@ from text_watermark_tools.pivot import (
     parse_pivot_weights,
     persist_pivot,
     pivot_method_name,
+    rebind_cascade_rows,
     score_pivot_lda,
     snap_to_unmarked_argmax,
     summarize_cascade,
@@ -108,6 +109,9 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert cascade_source(0) == "pivot"
     assert cascade_score(1.5, 2, -9.0) == 1.5
     assert cascade_score(1.5, 0, -9.0) == -9.0
+    assert cascade_source(1, "rankpath", count_lr=-2.7, when="positive") == "rankpath"
+    assert cascade_score(-2.7, 1, 0.4, when="positive") == 0.4
+    assert cascade_score(1.2, 1, 0.4, when="positive") == 1.2
     summary = summarize_cascade(
         [
             {
@@ -135,6 +139,104 @@ def test_cascade_uses_count_only_when_covered() -> None:
     assert summary["combined_marked_above_zero"] == 1
     assert summary["pivot_marked_above_zero"] == 0
     assert summary["pivot_fallback_marked"][0]["opening_text"] == "Now in the second"
+    assert summary["fallback_fpr10"] is not None
+    assert summary["combined_at_fallback_fpr10"]["n_marked"] == 2
+    assert summary["combined_at_fallback_youden"]["n_unmarked"] == 2
+
+
+def test_rebind_cascade_rows_switches_covered_negatives_to_fallback() -> None:
+    rows = [
+        {
+            "side": "marked",
+            "n_used": 1,
+            "count_lr": -2.0,
+            "pivot_lr": 0.5,
+            "source": "count",
+            "score": -2.0,
+            "stem": "harbour",
+            "sample": 1,
+            "opening_text": "The ferry was so",
+        },
+        {
+            "side": "unmarked",
+            "n_used": 1,
+            "count_lr": -1.0,
+            "pivot_lr": -0.2,
+            "source": "count",
+            "score": -1.0,
+        },
+    ]
+    rebound = rebind_cascade_rows(rows, when="positive", fallback="rankpath")
+    assert rebound[0]["source"] == "rankpath"
+    assert rebound[0]["score"] == 0.5
+    summary = summarize_cascade(rebound, when="positive")
+    assert summary["combined_marked_above_zero"] == 1
+    assert summary["n_count_marked"] == 0
+
+
+def test_rebind_count_channel_swaps_hashed_n_used_onto_saved_rankpath() -> None:
+    from text_watermark_tools.pivot import rebind_count_channel
+
+    rows = [
+        {
+            "stem": "harbour",
+            "sample": 2,
+            "side": "marked",
+            "n_used": 1,
+            "count_lr": -2.0,
+            "pivot_lr": 0.4,
+            "source": "count",
+            "score": -2.0,
+        },
+        {
+            "stem": "harbour",
+            "sample": 2,
+            "side": "unmarked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.2,
+            "source": "rankpath",
+            "score": -0.2,
+        },
+        {
+            "stem": "letter",
+            "sample": 2,
+            "side": "marked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.9,
+            "source": "rankpath",
+            "score": -0.9,
+        },
+        {
+            "stem": "letter",
+            "sample": 2,
+            "side": "unmarked",
+            "n_used": 0,
+            "count_lr": 0.0,
+            "pivot_lr": -0.1,
+            "source": "rankpath",
+            "score": -0.1,
+        },
+    ]
+    counts = {
+        ("harbour", 2, "marked"): {"count_lr": 0.6, "n_used": 1},
+        ("harbour", 2, "unmarked"): {"count_lr": 0.0, "n_used": 0},
+        ("letter", 2, "marked"): {"count_lr": 0.0, "n_used": 0},
+        ("letter", 2, "unmarked"): {"count_lr": 0.0, "n_used": 0},
+    }
+    rebound = rebind_count_channel(
+        rows, counts, when="coverage", fallback="rankpath", count_method="hashtoklen"
+    )
+    assert rebound[0]["source"] == "count"
+    assert rebound[0]["score"] == 0.6
+    assert rebound[0]["count_method"] == "hashtoklen"
+    assert rebound[2]["source"] == "rankpath"
+    assert rebound[2]["score"] == -0.9
+    summary = summarize_cascade(rebound, when="coverage")
+    assert summary["combined_marked_above_zero"] == 1
+    assert summary["n_count_marked"] == 1
+    assert summary["n_fallback_marked"] == 1
 
 
 def test_format_cascade_does_not_dump_raw_rows() -> None:
@@ -190,3 +292,33 @@ def test_persist_load_pivot_is_key_free(tmp_path) -> None:
     assert parse_pivot_weights("entropy,uniform") == ("entropy", "uniform")
     assert pivot_method_name("lda", "entropy") == "pivot-lda-entropy"
     assert pivot_method_name("lda", "uniform") == "pivot-lda"
+
+
+def test_snap_rate_leave_upset_miss_without_keys() -> None:
+    from text_watermark_tools.pivot import (
+        parse_snaprate_methods,
+        snap_rate_from_matrix,
+        snap_score_from_matrix,
+    )
+
+    # FEATURE_NAMES: logp, rank, rank_topk, in_topk, gap, entropy
+    argmax = np.array([[0.0, 1.0, 1.0, 1.0, 0.0, 1.0]], dtype=np.float64)
+    upset = np.array([[0.0, 3.0, 2.0, 1.0, 0.4, 2.0]], dtype=np.float64)
+    miss = np.array([[0.0, 50.0, 41.0, 0.0, 3.0, 1.0]], dtype=np.float64)
+    mixed = np.vstack([argmax, upset, miss])
+    assert snap_rate_from_matrix(argmax, "leave") == 0.0
+    assert snap_rate_from_matrix(upset, "leave") == 1.0
+    assert snap_rate_from_matrix(miss, "leave") == 1.0
+    assert snap_rate_from_matrix(mixed, "leave") == 2.0 / 3.0
+    assert snap_rate_from_matrix(mixed, "upset") == 0.5
+    assert snap_rate_from_matrix(mixed, "miss") == 1.0 / 3.0
+    assert snap_rate_from_matrix(np.zeros((0, 6)), "leave") == 0.5
+    assert snap_score_from_matrix(argmax, "leave") == -0.5
+    assert snap_score_from_matrix(upset, "upset") == 0.5
+    assert parse_snaprate_methods("snapleave,snapmiss") == ("snapleave", "snapmiss")
+    try:
+        parse_snaprate_methods("snaprank")
+    except ValueError as exc:
+        assert "snaprank" in str(exc)
+    else:
+        raise AssertionError("expected unknown snaprate method")

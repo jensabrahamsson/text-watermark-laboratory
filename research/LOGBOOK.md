@@ -568,4 +568,949 @@ JSON: `experiments/2026-08-31-probe-12x4-rankpath-full-isolated/`,
 `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-rankpath-full-cascade/`.
 Write-up: [key-free-rankpath.md](key-free-rankpath.md).
 
+## 2026-08-31 rank-path instance contrast and prefix-4 cascade
+
+Public 36×4 rankpath tables vs 12×4 public and `control-shuffled-30`.
+Opening rankpath control ranking is chance (AUC **0.498**); isolated
+control `lr>0` **17/48**. Unbucketed prefix-4 rankpath: public
+**11/12**, AUC **0.759**, **25/48 vs 43/48**; control AUC **0.511**,
+isolated **6/48** (same FP rate as unmarked). Opening rankuni is a
+tournament detector (control **30/48**, public vs control AUC **0.502**).
+Not poshits **0/48**. Not key recovery.
+
+60-stem count plus prefix-4 rankpath fallback: **1/6** leftover zeros,
+5 unmarked FPs, cascade **35/48 vs 43/48**. Higher precision than
+opening rankuni (15 FPs) and full-file rankpath (17 FPs). Do not sell
+35/48.
+
+JSON: `experiments/2026-08-31-contrast-36x4-to-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-contrast-36x4-to-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
+## 2026-08-31 Distil/Qwen rankpath and 60-stem prefix-4 standalone
+
+DistilGPT2 12×4 is officially **12/12**. Native Distil unmarked-LM
+opening rankpath is chance: **8/12**, AUC **0.579**, perm p=0.132,
+isolated 28/48 vs 32/48. Prefix-4 is **7/12**, AUC 0.563. Distil
+in-domain token hits on the same pile is 9/12. Rank-path is **not** a
+universal tournament detector across GPT-2-family generators.
+
+GPT-2 36×4 rankpath scored on Distil tokens with the GPT-2 LM (wrong
+LM): **9/12**, AUC 0.636, isolated **21/48 vs 34/48**. Weak ranking,
+not a Distil reader. Token hits on that split stay 5/12 / 0.462.
+
+Qwen2-1.5B opening rankpath: **8/12**, AUC **0.590**, isolated 24/48 vs
+32/48. Prefix-4 is **9/12**, AUC **0.662**, isolated 25/48 vs 33/48
+(perm p=0.0035). Qwen’s in-domain opening remains token 0 (`first`
+**12/12**, AUC **0.901**). Rankpath starts at generated token 1 and
+does not recover that.
+
+60-stem prefix-4 as a standalone isolated-file reader (not leftover
+cascade): rankpath **10/12**, AUC **0.770**, **28/48 vs 40/48**.
+24-short prefix-4 was 11/12, 25/48 vs 43/48. Combined accuracy is the
+same **68/96**. Do not sell 28/48 as beating 29/48, or rankuni 39/48
+(16 FPs) as beating poshits 39/48.
+
+JSON: `experiments/2026-08-31-probe-distilgpt2-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-distilgpt2-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-36x4-to-distilgpt2-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-qwen-12x4-fitprefix4-rankpath/`,
+`experiments/2026-08-31-probe-qwen-12x4-prefix4-rankpath/`,
+`experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-prefix4-rankpath/`.
+Write-up: [key-free-rankpath.md](key-free-rankpath.md).
+
+## 2026-08-31 cascade-when positive on covered-negative ferry openings
+
+Coverage cascade keeps a negative count LR when `n_used>0`. Eight
+60-stem covered files are harbour / ferry-queue `The ferry was …`
+openings (last-1 `' was'` looks unmarked). Rebound prefix-4 rankpath
+on count-nonpositive files (`--cascade-when positive`), no new GPT-2
+forwards: combined **40/48 vs 40/48** (5 of 8 covered-negatives plus
+the leftover printer zero; 8 unmarked FPs). Count alone stays
+**34/48 vs 48/48**, precision 1.0. Combined accuracy 80/96 vs count
+82/96. Do not sell 40/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-08-31-transfer-short-medium-tails-family-to-12x4-fitprefix4-cascade-rankpath-prefix4-when-positive/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
+## 2026-09-01 table-free opening snap-rate
+
+No twin tables. Unmarked GPT-2 rows only. Opening `--fit-prefix 4`:
+`snapupset` (in-topk not argmax) is chance **7/12**, AUC **0.501**, perm
+p=0.55. Marked and unmarked leave the greedy top-k token at the same
+rate (0.649 vs 0.653). `snapleave` majority vote is 48/48 vs 7/48 (not
+a detector). `snapmiss` ranks **10/12**, AUC **0.707**, isolated
+**21/48 vs 41/48** (off-mode continuation, corr 0.87 with opening
+pivot-rank, 0.23 with rankpath). Prefix-4 `snapupset` stays chance
+(6/12, AUC 0.501). Do not sell 21/48 as beating 29/48. Rank-symbol
+tables are not a dressed-up upset bit.
+
+JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-snaprate/`,
+`experiments/2026-09-01-probe-12x4-prefix4-snaprate/`.
+Write-up: [key-free-snaprate.md](key-free-snaprate.md).
+
+## 2026-09-01 leftover eight are officially marked
+
+Positive-when cascade misses eight 12×4 files. Official prefix-16 mean
+**0.627**, all eight >0.55, matching the other 40 marked files
+(0.626). Unmarked 0.496 (3/48 >0.55). Prefix 4 cannot be scored
+(`ngram_len=5`). Letter d2/d3 first 5-grams are **0.733 / 0.767**.
+Office d1/d3 are chance at 5 tokens and marked at 8. In-domain opening
+rankpath already signs 7/8.
+
+60-stem prefix-8 postokbackoff: **38/48 vs 40/48**, AUC **0.818**,
+precision 0.826. Signs station / letter d3 / office ×2 via last-1
+punctuation, not official 5-grams. Combined 78/96 vs prefix-4 count
+82/96. Letter d2 stays a miss. Prefix-8 rankpath 30/48 vs 35/48. Do
+not sell 38/48 as beating poshits 39/48.
+
+JSON: `experiments/2026-09-01-official-prefix-leftover/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix8-rankpath/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
+## 2026-09-01 letter d2 official 5-gram is isolated-rank invisible
+
+Letter d2 first 5-gram `Now in the second I` is officially marked
+(mean **0.733**, 22/30). Isolated `--fit-prefix 4` never scores token
+4. Isolated unmarked GPT-2 ranks that token at **41** (miss);
+prompt-conditioned rank is **11**. Prefix-5 rankpath is **11/12**,
+**30/48 vs 36/48**, letter d2 still `lr<0`. Fifth-token rankuni is
+**4/12**, AUC **0.406**. Ferry-queue d4 is official 0.700 on the
+argmax. Keep prefix-4. Do not sell 30/48.
+
+JSON: `experiments/2026-09-01-letter-d2-first-ngram/`,
+`experiments/2026-09-01-probe-12x4-fitprefix5-rankpath/`.
+Write-up: [key-free-cascade.md](key-free-cascade.md).
+
+60-stem prefix-8 `postokbackoff` letter d2 `n_used=2` is last-1
+`' in' → ' the'` (2 vs 8), not the official 5-gram. That 5-gram is
+unseen at last-4/3/2; `' second'` never continues with `' I'`.
+`postokbackoff2` abstains. Letter d3's prefix-8 rescue is last-1
+`',' → ' my'`. Isolated token-4 miss rate is 9/48 marked vs 7/48
+unmarked. Officially marked 5-grams include both argmax (10) and miss
+(8). Prefix-8 backoff's four extra TPs are last-1 punctuation; **20 of
+38** TPs are last-1 only. `postokbackoff2` is **18/48 vs 46/48**.
+
+## 2026-09-01 hashtok is occupancy-free hashpool, not a 5-gram reader
+
+60-stem prefix-5 (`--fit-prefix 5`, last-4, official 5-gram grain).
+hashpool **11/12**, **34/48 vs 34/48**, zero abstentions. hashtok
+**9/12**, **30/48 vs 36/48**, five marked zeros. Those 30 true
+positives are **exactly** postokhits' 30. Hashpool's extra four
+(harbour d2/d3/d4, letter d2) have hashtok ≤0.
+
+Letter d2 prefix-5 `Now in the second I`: all four positions have
+0/8 hashes that saw the next token, including the official 5-gram
+`I`. hashpool lr=0.372 is Laplace occupancy. hashtok `n_used=0`.
+hybrid copies hashpool. Nested hashtok Youden **26/48 vs 42/48**.
+Do not sell 34/48 or 30/48 as beating poshits 39/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtok/`,
+`experiments/2026-09-01-letter-d2-first-ngram/hashtok-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashed backoff is per-order tables, not a 5-gram reader
+
+60-stem prefix-5. `hashtokbackoff` fits separate hashpool tables per
+order (1,2,3,4) and keeps the longest occupancy-free hit.
+hashtokbackoff **10/12**, **38/48 vs 35/48**; hashtokbackoff2 **36/48
+vs 34/48**. Nested Youden stays **30/48 vs 40–42/48**. Do not sell
+38/48 or 36/48 as beating poshits 39/48.
+
+Letter d2 official 5-gram `I`: last-4/3/2 hashes unseen; last-1 saw it
+unmarked only (c_m=0, c_u=2, δ=−1.10). hashtokbackoff2's letter d2
+lr=0.694 is tokens 1–2, not token 4. At i=1 the winning "order 3" is a
+one-token prefix hashed into the order-3 table, not a 3-gram. Harbour
+d3/d4 need last-1; library ×4 and letter d3 are order-4 hashed
+observed-token extras.
+
+Same train, published prefix-4 opening: hashtok **35/48 vs 39/48**;
+hashed backoff **hurts** (**31/48 vs 33/48**, 15 FPs). Hashpool's extra
+three versus hashtok are occupancy. Keep prefix-4 hashtok.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtokbackoff/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtokbackoff/`,
+`experiments/2026-09-01-letter-d2-first-ngram/hashtokbackoff-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 exact-length hashing drops short-prefix collisions
+
+`hashtoklen` / `hashtoklenbackoff` hash only when `len(ctx) == order`.
+60-stem prefix-5. hashtoklen **12/12**, **21/48 vs 45/48** (27 marked
+zeros: only the official 5-gram slot). hashtoklenbackoff **11/12**,
+**36/48 vs 34/48**, nested Youden **33/48 vs 42/48**.
+hashtoklenbackoff2 t=0 **36/48 vs 35/48**, nested **28/48 vs 43/48**.
+
+Mixed backoff library ×4 / letter d3 extras were order 4 at i=3
+(`order > i`). Exact length: library survives as last-3
+`'Cl' 'osing' ' is' → ' the'`; letter d3 extra is gone. Letter d2
+hashtoklen `n_used=0`; backoff2 lr=0.797 is last-2 `'Now in' → ' the'`,
+not official `I`; including last-1 of `I` (unmarked) makes
+hashtoklenbackoff −0.152. Do not sell 36/48 or 33/48 as beating
+poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen/`,
+`experiments/2026-09-01-letter-d2-first-ngram/hashtoklen-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtoklen recovers one exact 5-gram by collision
+
+Twenty of 21 prefix-5 hashtoklen TPs are exact `postokhits`. Harbour
+d2 `The ferry was over ,` is the extra: exact last-4 of the comma is
+unmarked-like (lr=−2.65); occupancy-free hashing is marked-like
+(+0.618) on **1/8** hashes (bucket 178, c_m=11, c_u=0). Not Laplace.
+Letter d2 still abstains. In-domain 12×4 LOO hashtoklen **7/48 vs
+48/48** (harbour d2 already a TP; letter d2 zero). Prefix-4
+`hashtoklen` is **0/48** (no last-4 on a 4-token prefix). Exact
+prefix-4 backoff **35/48 vs 38/48**, nested **35/48 vs 40/48** (mixed
+backoff had hurt: 31/48). hashtoklen+rankpath cascade **33/48 vs
+37/48**. Distil native hashtoklen **7/48 vs 48/48**. GPT-2 60-stem
+tables on Distil: hashtoklen AUC **0.571**, **10/48**; backoff chance
+(4/12, AUC 0.470). Do not sell 33/48, 10/48, or 7/48 as beating
+poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-letter-d2-first-ngram/harbour-d2-hashtoklen-trace.json`,
+`experiments/2026-09-01-probe-12x4-fitprefix5-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix4-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen-cascade-rankpath/`,
+`experiments/2026-09-01-probe-distilgpt2-12x4-fitprefix5-hashtoklen/`,
+`experiments/2026-09-01-transfer-short-medium-tails-family-to-distil-prefix5-hashtoklen/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 drop-one skip-grams see letter d2 unmarked
+
+`hashskip` hashes exact last-4 with one token dropped (tagged so they
+are not last-3). Occupancy-free. 60-stem prefix-5 → 12×4: **8/12**,
+**25/48 vs 35/48**, nested Youden **16/48 vs 41/48**. t=0 extras vs
+hashtoklen 21/48: harbour d3/d4, night-bus d2/d4, workshop d4; 13
+unmarked FPs. Nested leftover fill-in **0/8**.
+
+Letter d2 official `I` is no longer unseen: drop-2 and drop-3 skip
+views saw it unmarked-only (c_m=0, c_u=1, lr=−0.847). Coarsening the
+5-gram does not invent a marked preference. Do not sell 25/48 or
+16/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashskip/`,
+`experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashskip-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 eleven of twenty-one hashtoklen TPs are singleton collisions
+
+`hashtoklen2` skips a hash unless `c_m + c_u ≥ 2`. Same frozen
+exact-length tables. 60-stem prefix-5 → 12×4: **10/48 vs 48/48**,
+precision 1.0, nested Youden matching t=0. Harbour d2 survives
+(c_m=11, lr=+0.618). Letter d2 still abstains. Lost: night-bus d3,
+market ×4, kitchen d2, station d1/d3, rain d2, garden d1/d4.
+Leftover eight stay zeros.
+
+`hashskip2` **22/48 vs 39/48**, nested **15/48 vs 41/48**. Letter d2
+goes from −0.847 to 0 (unmarked singleton votes). Nested leftover
+fill-in still **0/8**. Coverage-then-hashskip on saved holdouts is
+worse than hashtoklen alone (26/48 vs 35/48). Do not sell 10/48,
+22/48, or 15/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 count-weighting and hashtoklen2 cascade are dead ends
+
+Weighting occupancy-free hashes by `c_m+c_u` or `log(1+n)` keeps
+prefix-5 hashtoklen **21/48 vs 45/48** (no sign flips). No file mixes
+a singleton with a dense hash on the official slot. Rain d1 mixes n=7
+with n=8; LR shifts 0.005. Weight `n-1` copies `min_count=2` (**10/48
+vs 48/48**). Not a product.
+
+Rebound `hashtoklen2` onto saved prefix-4 rankpath: coverage cascade
+**28/48 vs 40/48**, the same as standalone rankpath. All 10 robust
+5-gram TPs are already rankpath TPs. Leftover fill-in **0/8**. Combined
+**68/96** vs hashtoklen cascade **70/96**. Do not add hashtoklen2 as a
+cascade count channel. Do not sell 28/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashtoklen2-cascade-rankpath/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 MASK replace is worse nested than exact 5-grams
+
+`hashmask` replaces one last-4 token with `MASK_TAG` (length stays 4).
+Occupancy-free. 60-stem prefix-5 → 12×4: **11/12**, **21/48 vs 42/48**,
+nested Youden **19/48 vs 45/48**. Same 21 TPs as hashtoklen at t=0
+(extras harbour d3/d4, letter d2, workshop d4; lost market ×4). Nested
+is **worse** than hashtoklen **21/48 vs 45/48**. `hashmask2` **15/48 vs
+44/48**, nested **11/48 vs 45/48**.
+
+Letter d2 official `I` is a MASK hit at `mask_i=3` (`Now in the MASK`
+→ `I`): two opposing singletons average to file lr=+0.240, which is
+that slot. Nested 0.778 throws it out. Leftover nested fill-in is
+harbour d3/d4 only, not 8/8. Do not sell 21/48, 19/48, or 15/48 as
+beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-transfer-short-medium-tails-family-to-12x4-prefix5-hashmask/`,
+`experiments/2026-09-01-letter-d2-first-ngram/letter-d2-hashmask-trace.json`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 in-domain full-file hashtok is 33/48 vs 22/48
+
+Leave-one-prompt-out on 12×4, full 128-token last-4. Hashpool matches
+the published **35/48 vs 29/48**. Occupancy-free `hashtok` is **9/12**,
+**33/48 vs 22/48**, nested-by-stem **22/48 vs 30/48** (hits nested
+**22/48 vs 39/48**). `hashtoklen` **33/48 vs 23/48**, nested **30/48 vs
+20/48**. Four extra TPs versus hard 29/48, 26 unmarked FPs. Occupancy
+and occupancy-free disagree on six files. Letter d2 stays negative.
+Do not sell 33/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok OR indicate is 39/48 TPs and not a detector
+
+Saved 12×4 LOO scores. Complementary TPs are real: hashtok recovers
+10 of 19 hard last-4 misses; indicate recovers 6 of 15 hashtok misses;
+letter d2/d3/d4 stay misses on both. OR at t=0 is **39/48 vs 12/48**,
+combined **51/96**, worse than indicate **52/96**. Nested LDA of the
+two channels is **21/48 vs 37/48**. Coverage postokhits-then-hashtok
+is **35/48 vs 22/48** (combined 57/96 vs postokhits 69/96). Do not
+sell 39/48 as beating poshits 39/48 or replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok-indicate-or/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 tokhybrid copies hashtok isolated 33/48
+
+In-domain 12×4 LOO. Occupancy-free token-level hybrid (tokhits, then
+hashtok) copies hashtok **33/48 vs 22/48** (same 33 TPs). Prompt grain
+rises to **11/12** (station remains). Nested **23/48 vs 35/48**.
+Occupancy hybrid extras are the same four files as hashpool vs hashtok.
+`poshashtok` is **28/48 vs 25/48**, nested **14/48 vs 38/48**. Letter
+d2 stays negative. Do not sell 33/48 or tokhybrid 11/12 as replacing
+29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-tokhybrid-poshashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtokgap is weaker than hashtok (27/48)
+
+In-domain 12×4 LOO. Occupancy-free residual (hashtok only where tokhits
+abstains) is **27/48 vs 21/48**, nested **17/48 vs 31/48**, prompt
+**8/12**. True positives are a strict subset of hashtok's 33: loses
+harbour d2, kitchen d1, station d1/d2/d3, rain d3; gains none. Combined
+t=0 is 48/96 (chance). Letter d2 stays negative. Dropping
+tokhits-scorable positions does not isolate a complementary hashed
+signal. Do not sell 27/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtokgap/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok2 reshuffles full-file signs (34/48)
+
+In-domain 12×4 LOO. Unbucketed `min_count=2` is **34/48 vs 21/48**,
+nested **19/48 vs 35/48**, prompt **8/12**, AUC 0.602. Not the prefix-5
+hashtoklen2 collapse (10/48 precision 1.0). Lost harbour d2, night-bus
+d4, station d1; gained night-bus d3, library d1/d2, ferry-queue d4.
+Combined t=0 stays 55/96. Letter d2 stays negative. Do not sell 34/48
+as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-hashtok2/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 opening-grain hashtok copies tokhits (24/48)
+
+In-domain 12×4 LOO, `--fit-prefix 4`. Occupancy-free hashing at the
+published opening is sparse like tokhits, not opening rankpath
+**41/48**. tokhits **23/48 vs 48/48** (prompt **12/12**, 25 marked
+zeros). hashtok **24/48 vs 47/48**, nested **23/48 vs 47/48**, prompt
+**12/12**: tokhits ⊂ hashtok; extra TP is letter d3; one unmarked FP
+(kitchen d4). hashtok2 **22/48 vs 48/48** (gains letter d3, loses
+kitchen d4 and rain d1). Letter d2 is zero on all four readers at this
+grain. Marked isolated `lr>0` is **24/48**, below hard last-4 **29/48**.
+Do not sell 24/48 as replacing 29/48.
+
+JSON: `experiments/2026-09-01-probe-12x4-fitprefix4-hashtok/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 related-work note
+
+Recorded keyed vs key-free neighbours so the research notes stay
+current: Omidi et al. (2026) (SynthID mean/Bayesian theory;
+layer-inflation is a keyed removal study, not implemented here);
+Duan et al. (2025) (ZK of keyed detection); Wang et al. (2026)
+(TTP-Detect).
+
+## 2026-09-01 scientific references and annotation
+
+Author–year convention ([CITING.md](CITING.md)), canonical BibTeX
+([references.bib](references.bib)), and critical annotations
+([annotated-bibliography.md](annotated-bibliography.md)). Corrected two
+wrong attributions in earlier notes: Jovanović et al. (2024) stealing is
+arXiv 2402.19361, not 2311.04378 (that is Zhang et al., 2024); arXiv
+2405.20777 is Gloaguen et al. (2025), not Sabanayagam, Hörl, and Dobriban.
+Do not write the dissertation until isolated-file research is finished.
+
+## 2026-09-01 same problem, not a priority claim
+
+Neither this lab nor the agent invented key-free detection. Closest
+published analog is Wang et al. (2026) (TTP-Detect): same audit problem,
+different method. Gloaguen et al. (2025) ask whether a *generator* is
+watermarked via queries, not whether one finished file is marked.
+Isolated hard last-4 stays **29/48**. See [related-work.md](related-work.md).
+
+## 2026-09-01 hashtok mixer-width ablation
+
+In-domain 12×4 full-file occupancy-free `hashtok` while varying
+`--n-hashes`. Default n=8 is **33/48 vs 22/48**, nested **22/48 vs
+30/48**, prompt **9/12**. n=2 is **34/48 vs 31/48**, nested **28/48 vs
+37/48**, prompt **11/12**, AUC **0.764**. n=4 is densest t=0
+(**36/48 vs 30/48**, nested **35/48 vs 30/48**). n=16 copies 36/48
+with nested spec **24/48**. n=32 hurts (**30/48**, nested **21/48 vs
+38/48**). Letter d2 stays negative except n=16; that prompt still
+loses. Keep the CLI default at 8. Do not sell 36/48, 35/48, or 34/48
+as replacing **29/48**. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-nhashes{2,4,16,32}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok mixer width does not transfer
+
+24 new 36×4 stems → original 12×4 files, occupancy-free `hashtok`.
+Default n=8 wins OOD: **11/12**, **29/48 vs 35/48**, nested Youden
+**17/48 vs 46/48**, nested FPR10 **17/48 vs 46/48**. n=2 is 10/12,
+nested **17/48 vs 44/48**. n=4 is densest t=0 (**31/48**) and nested
+recall (**19/48 vs 41/48**) with the worst nested spec. The in-domain
+n=2 / n=4 win did not transfer. Keep the CLI default at 8. t=0 29/48
+here is not the headline hard last-4 **29/48**. Do not sell 31/48,
+19/48, or 17/48. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-nhashes{2,4,8}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok n=2 seed sweep: not a width law
+
+In-domain 12×4 hashtok n=2 while varying the feature-hash seed (not
+SynthID `hash_iv`). Default seed 20260831 reproduces **34/48 vs 31/48**,
+nested **28/48 vs 37/48**. Other n=2 seeds: unmarked spec **21–31/48**,
+nested spec **25–37/48**, prompt **9–11/12**. Seed 0 keeps 34 TPs and
+collapses spec to **21/48**. n=8 seed 7 nested **28/48 vs 37/48**
+matches the advertised n=2 default. Letter d2 flips at seeds 0 and
+12345. Keep CLI `n_hashes=8` and seed `20260831`. Do not sell 34/48 as
+a width law. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-nhashes2-seeds/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok transfer seed sweep: n=8 win is not a width law
+
+24→12 occupancy-free `hashtok` at other feature-hash seeds (not
+`hash_iv`). Default n=8 seed 20260831 is **11/12**, nested **17/48 vs
+46/48**. Other n=8 seeds: prompt **10/12**, t=0 marked **25–27/48**.
+n=2 seed 7 nested **19/48 vs 47/48** beats that default nested, with
+prompt 9/12. Letter d2 flips at seed 0. Keep `n_hashes=8` and seed
+`20260831`. Do not fish a seed. Do not sell 19/48. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-seeds/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok last-k ablation: last-1 is chance
+
+In-domain 12×4 occupancy-free `hashtok` while varying `--context-len`,
+frozen `n_hashes=8` and seed `20260831`. Last-1 is chance (**5/12**,
+AUC **0.507**, **22/48 vs 22/48**, nested **9/48 vs 42/48**). Last-3
+is the best prompt ranking (**11/12**) and nested spec (**22/48 vs
+40/48**), with sparser t=0 marked (**24/48**, below default **33/48**
+and below hard last-4 **29/48**). Last-2 ranking is not a 5% test.
+Letter d2 flips positive at last-3; not the official 5-gram. Keep
+`--context-len 4`. Do not sell 24/48 or last-3 **11/12**. JSON:
+`experiments/2026-09-01-probe-12x4-hashtok-k{1,2,3}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 hashtok last-k does not transfer as a denser detector
+
+24 new 36×4 stems → original 12×4 files, same frozen mixer. Last-4
+still wins prompt ranking (**11/12**) and nested FPR10 (**17/48 vs
+46/48**). Last-2 has the best file AUC (**0.738**) with nested Youden
+**15/48 vs 45/48**. Last-1 nested-Youden recall **18/48** has prompt
+**7/12** and FPR10 **8/48**. In-domain last-3 **11/12** does not
+transfer (nested **11/48 vs 47/48**). Transfer t=0 29/48 is not the
+headline hard last-4 **29/48**. Keep `--context-len 4`. Do not sell
+18/48 nested or AUC 0.738. JSON:
+`experiments/2026-09-01-transfer-36x4-to-12x4-hashtok-k{1,2,3}/`.
+Write-up: [key-free-hashtok.md](key-free-hashtok.md).
+
+## 2026-09-01 confirmatory protocol freeze
+
+Occupancy-free hashing on the old 12×4 / 36×4 twins is closed (width,
+seed, last-k are knobs, not a denser isolated-file detector). Next
+measurement is a frozen prediction on a new 100×4 corpus, not another
+`probe --methods` name. Primary endpoint: prompt-level paired
+discrimination under hard last-4. Opening poshits and opening rankpath
+are the other two locked readers. Isolated `lr>0` is not the primary
+endpoint. Protocol: [PROTOCOL-next.md](PROTOCOL-next.md). Index:
+[results-ledger.md](results-ledger.md). Do not write `thesis/` from
+this freeze.
+
+## 2026-09-01 confirmatory prompts committed before pair
+
+One hundred new one-line scenes in
+`experiments/2026-09-01-prompts-100/`, disjoint from the 36-topic
+seeds. This commit is still before `pair`. Seed `20260901`, four
+draws, 128 tokens, as [PROTOCOL-next.md](PROTOCOL-next.md). Do not
+open key-free LRs until generation and the frozen analysis commands
+have run.
+
+## 2026-09-01 README cut to three headlines
+
+The root README is no longer an ablation dump. Locked claims are
+**10/12**, **36/36**, **29/48**, plus the front-loaded opening. The
+rest of the table lives in [results-ledger.md](results-ledger.md) and
+[../experiments/README.md](../experiments/README.md). Wang et al.
+(2026) stays the closest analog; a later TTP-Detect comparison is a
+shared-data question, not a method race
+([related-work.md](related-work.md)).
+
+## 2026-09-01 truncated-context recount
+
+Count tables used to store every order `1..k` even when fewer tokens
+existed, so `fit_table([[10,20]], context_len=4)` counted `(10,)→20`
+four times. Rankpath also skipped the empty first-symbol context.
+After storing each real suffix once and scoring the first rank symbol:
+
+- hard last-4 prompt ranking **9/12** (misses station, office,
+  ferry-queue); binomial P(≥9) = 0.073
+- same LRs, margin 0.02: **10/12** (ferry-queue flips)
+- isolated hard `lr>0` **25/48 vs 22/48**; AUC **0.590**, permutation
+  p **0.040**; binomial P(≥25) ≈ 0.44
+- `hits` **10/12**, AUC **0.718**, **28/48 vs 31/48**
+- opening poshits **9/12**, **23/48 vs 48/48**
+- opening rankpath **11/12**, isolated still **41/48 vs 35/48**
+- 36×4 hits still **36/36**, AUC **0.930**
+- interpolate last-4 still **7/12** (PROTOCOL-next lock A unchanged)
+
+Pre-fix **10/12** / **29/48** stay in historical JSON. Hashpool does
+not use `_add_sequence`; those 2026-08-31 numbers were not this bug.
+`indicate score --score-mode auto` now follows the fitted hash mixer.
+Nested-by-stem remains a threshold nest on already-OOF scores, not a
+second-level table refit. JSON:
+`experiments/2026-09-01-blind-12x4-recount-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hard-last4/`,
+`experiments/2026-09-01-probe-12x4-recount-hits/`,
+`experiments/2026-09-01-probe-12x4-recount-opening-poshits/`,
+`experiments/2026-09-01-probe-12x4-recount-opening-rankpath/`,
+`experiments/2026-09-01-probe-36x4-recount-hits/`. The confirmatory
+100×4 pair is still generating; do not open those LRs until the frozen
+PROTOCOL-next commands run on the corrected readers.
+
+## 2026-09-01 confirmatory 100×4 pair (official lamp)
+
+`pair` on `experiments/2026-09-01-prompts-100/` finished.
+`experiments/2026-09-01-pair-100x4/`: seed `20260901`, four draws,
+128 tokens, GPT-2 + `public-deepmind-30`. Official first-draw marked
+mean > unmarked mean on **100/100** stems (min marked ≈ 0.576, max
+unmarked ≈ 0.519). That is the keyed positive control, not the
+key-free indicator. Frozen PROTOCOL-next probes run next on the
+corrected readers; do not change flags.
+
+## 2026-09-01 confirmatory Phase A (frozen probes)
+
+Protocol SHA `7001489`. Prompts `294dba5`. Pair `bf98c92`. Flags
+unchanged. `used_keys=false`.
+
+- **H1 / lock A** interpolate last-4: **99/100** prompt ranking, file
+  AUC **0.898**, permutation p < 0.001. Isolated **352/400 vs 290/400**.
+  Stem **088** misses (`The stone trough held rainwater and a single
+  floating leaf.`).
+- **H2** windows: **0:4** **99/100**, AUC **0.885**; **16:32**
+  **89/100**, AUC **0.689**. Early is stronger; mid-file is not chance.
+- **Lock B** opening poshits: **100/100**, AUC **0.980**, isolated
+  **393/400 vs 344/400**.
+- **Lock C** opening rankpath: **96/100**, AUC **0.822**, isolated
+  **314/400 vs 302/400**. `--rankpath` also emitted default methods;
+  lock C is rankpath, not those extras.
+- **H3** Distil/Qwen: not opened.
+
+Do not sell 352/400 or 393/400 as replacing recounted hard **25/48**.
+Nested-by-stem remains a threshold nest on already-OOF scores. JSON:
+`experiments/2026-09-01-probe-100x4-hard-last4/`,
+`experiments/2026-09-01-probe-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-100x4-opening-rankpath/`,
+`experiments/2026-09-01-probe-100x4-hard-windows/`.
+
+## 2026-09-01 Phase B commands frozen before Distil/Qwen pair
+
+Phase A is checked in. Exact DistilGPT2 and Qwen2-1.5B-Instruct pair
+and opening probes (locks B and C only) are now in
+[PROTOCOL-next.md](PROTOCOL-next.md). Seed `20260901`, four draws,
+128 tokens, same 100 prompts. This commit still precedes those
+`pair` runs. Do not look at key-free LRs until official first-draw
+scores exist and the frozen opening probes have run once. H3 is
+rankpath drop vs poshits drop relative to GPT-2 Phase A. Do not run
+lock A on these twins.
+
+## 2026-09-01 Phase B Distil opening locks
+
+Native DistilGPT2, same 100 prompts, seed `20260901`. Official
+first-draw marked > unmarked is **70/100** (weaker lamp than GPT-2
+**100/100**; min marked ≈ 0.433). Mixin on/off remains ground truth.
+
+- **Lock B** opening poshits: **89/100**, AUC **0.713**, isolated
+  **216/400 vs 247/400**
+- **Lock C** opening rankpath: **69/100**, AUC **0.598**, isolated
+  **164/400 vs 270/400**
+
+H3 on Distil so far: rankpath drop from GPT-2 Phase A is **27**
+(96→69); poshits drop is **11** (100→89). Rankpath drops more.
+`--rankpath` extras are not lock C. Do not sell Distil 89/100 or
+69/100 as replacing **25/48**.
+
+JSON: `experiments/2026-09-01-pair-distil-100x4/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-distil-100x4-opening-rankpath/`.
+
+## 2026-09-01 isolated-file transfer frozen before 100→12 / 100→36
+
+In-family 100×4 nested-by-stem Youden is already measured: lock A
+**322/400 vs 338/400**, lock B **392/400 vs 382/400** (198/400 unmarked
+`n_used=0`), lock C **312/400 vs 319/400**. Those do not replace
+**25/48**. Exact out-of-family `probe --test-dir` commands for locks
+A/B (and C after Qwen RAM) are in
+[PROTOCOL-isolated.md](PROTOCOL-isolated.md). This commit still
+precedes those transfer runs. Do not look at test LRs until the frozen
+commands have been run once. Primary isolated endpoint is nested Youden
+on the test files (threshold from train LOO only).
+
+## 2026-09-01 isolated-file transfer 100→12 and 100→36
+
+Protocol SHA `eb00f92`. Frozen lock A/B `probe --test-dir` once. Official
+keys unused.
+
+- **12×4 lock A** interpolate: prompt **8/12**, AUC **0.663**, nested
+  Youden **23/48 vs 38/48**. Isolated recall does not beat **25/48**.
+- **12×4 lock B** opening poshits: prompt **11/12**, AUC **0.844**, nested
+  Youden **36/48 vs 42/48**, occupancy 9/48 vs 33/48 zeros.
+- **36×4 lock A**: prompt **36/36**, AUC **0.858**, nested Youden
+  **109/144 vs 122/144**.
+- **36×4 lock B**: prompt **35/36**, AUC **0.955**, nested Youden
+  **134/144 vs 129/144**, occupancy 7/144 vs 75/144 zeros.
+
+H-iso-A holds only as 8/12 > 6/12. H-iso-B holds on the original 12
+(11≥8). Do not sell 36/48 or 109/144 as replacing **25/48**. Lock C
+waits on Qwen RAM. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-hard-last4/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/`.
+
+## 2026-09-01 lock B occupancy-free readout of the frozen 100-family tables
+
+Same poshits tables as PROTOCOL-isolated lock B. No new `probe
+--methods`. Observed-token scorer is postokhits on those tables.
+
+- Original 12×4: postokhits t=0 **16/48 vs 48/48**. **21** poshits TPs
+  were unseen next (`The`→` ferry` / ` bus` / ` dog` / ` printer`).
+  Nested poshits **36/48** is not 36 observed tokens.
+- 36×4: postokhits t=0 **114/144 vs 139/144**. Occupancy marked TP
+  **20**. Shared `"This is the"` openings are register overlap.
+
+Do not sell 16/48 or 114/144 as replacing **25/48**. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-poshits/occupancy-free.json`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-poshits/occupancy-free.json`.
+
+Lock A 12×4 prompt losses are harbour, night-bus, library, ferry-queue
+(not the 12-LOO trio station/office/ferry-queue). Lock B loses letter
+only. JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-hard-last4/stems.json`.
+
+## 2026-09-01 opening-overlap bound on the 100-family tables
+
+`openings` `--methods postokhits --skip-stem-curve`. Isolated
+observed-token recall equals train opening coverage.
+
+- Original 12×4: covered **18/48**, exact 4-token **14/48**, decided
+  16 TP / 0 FP. Occupancy-free t=0 **16/48 vs 48/48**.
+- 36×4: covered **117/144**, exact 4-token **103/144**, decided 114 TP
+  / 5 FP. Occupancy-free t=0 **114/144 vs 139/144**.
+
+Zeros on the original 12 are `The ferry` / `Closing` / `The dog` /
+`The printer` openings the 100 one-liners do not produce. Do not sell
+18/48 or 117/144 as replacing **25/48**. JSON:
+`experiments/2026-09-01-openings-100x4-to-12x4/`,
+`experiments/2026-09-01-openings-100x4-to-36x4/`.
+
+## 2026-09-01 indicate score occupancy-only ABSTAIN
+
+`indicate score` auto on the frozen lock B poshits tables called
+`01-harbour-marked.txt` **marked** (`lr≈0.149`, `n_used=1`) via Laplace
+on unseen `The`→` ferry`. That is occupancy, not an observed token.
+Isolated `indicate score` now prints `n_observed` and
+`occupancy_only=true`, and **ABSTAINs** when `n_observed=0`. Probe
+`--methods poshits` is unchanged. `--score-mode postokhits` still has
+`n_used=0`. This does not replace **25/48**.
+
+## 2026-09-01 Phase B Qwen opening locks
+
+Native `Qwen/Qwen2-1.5B-Instruct`, same 100 prompts, seed `20260901`.
+Local Hugging Face, not Dashscope. Official first-draw marked > unmarked
+is **100/100** (mixin on; min marked ≈ 0.518). Mixin on/off remains
+ground truth.
+
+- **Lock B** opening poshits: **95/100**, AUC **0.873**, isolated
+  **333/400 vs 308/400**
+- **Lock C** opening rankpath: **84/100**, AUC **0.706**, isolated
+  **275/400 vs 259/400**
+
+H3 on Qwen: rankpath drop from GPT-2 Phase A is **12** (96→84); poshits
+drop is **5** (100→95). Rankpath drops more. `--rankpath` extras are
+not lock C. Do not sell Qwen 95/100 or 84/100 as replacing **25/48**.
+
+JSON: `experiments/2026-09-01-pair-qwen-100x4/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-poshits/`,
+`experiments/2026-09-01-probe-qwen-100x4-opening-rankpath/`.
+
+## 2026-09-01 isolated lock C transfer 100→12 and 100→36
+
+Qwen pair gone. Frozen `--methods rankpath --fit-prefix 4 --pos-bucket 1`.
+`used_keys=false`. Overlap dropped 0.
+
+- Original 12×4: prompt **10/12**, nested Youden **24/48 vs 41/48**,
+  t=0 **24/48 vs 40/48**, AUC **0.770**. Does not beat **25/48**.
+- 36×4: prompt **35/36**, nested Youden **109/144 vs 117/144**, t=0
+  **115/144 vs 112/144**, AUC **0.838**.
+
+H-iso-C: rankpath is more domain-specific than lock B (**11/12** /
+**36/48** occupancy on the original 12). JSON:
+`experiments/2026-09-01-transfer-100x4-to-12x4-opening-rankpath/`,
+`experiments/2026-09-01-transfer-100x4-to-36x4-opening-rankpath/`.
+
+## 2026-09-01 isolated lock C stem losses on the original 12
+
+Readout of the frozen 100→12 rankpath holdout. No new `probe --methods`.
+
+Lock C prompt losses: **letter**, **garden**. Not lock A
+harbour/night-bus/library/ferry-queue. Not 12-LOO hard
+station/office/ferry-queue. Garden is also the 12-LOO opening-rankpath
+miss. Letter is lock B's only miss.
+
+Three ranking wins have **0/4** marked `lr>0`: night-bus, library,
+market. Those stems rank because unmarked LRs are more negative.
+Harbour and ferry-queue, which lock A missed, are 4/4 isolated TPs
+under rankpath (`The ferry` openings). Do not sell union A/B/C t=0
+**42/48** or nested **40/48**. On 36×4 the only prompt loss is library
+(same Closing opening, different draws, still 0/4 marked t=0).
+
+## 2026-09-01 ranking-without-isolated-TP is a first-class holdout field
+
+Prompt-group ranking can hide stems whose marked files are all `lr<=0`.
+Lock C 10/12 includes night-bus, library, and market that way.
+`IndicatorHoldout.ranking_without_isolated_tp` now reports those stems.
+`probe` / `transfer` / `indicate holdout` print the count. Not a new
+scorer. Does not replace **25/48**.
+
+## 2026-09-01 ranking vs isolated-file honesty on frozen holdouts
+
+Same derived fields, applied to already-saved holdouts. No new scorer.
+
+12-LOO hard last-4 (**9/12**, **25/48**): garden ranks with 0/4 marked
+`lr>0`. Station, office, and ferry-queue lose ranking but hold **5** of
+the **25** isolated TPs (ferry-queue 3/4). Lock C 100→12: three ranking
+wins with 0 isolated TPs, zero TPs on ranking losses. Lock A 100→12: no
+hidden ranking wins; 4 isolated TPs on ranking losses.
+
+Do not rewrite **9/12** or **25/48**. JSON:
+`experiments/2026-09-01-ranking-isolated-honesty/`.
+
+## 2026-09-01 blind leave-one-prompt-out reports ranking vs isolated
+
+The 9/12 producer (`blind`) stored only stem-mean LRs, so it could not
+name garden as a ranking win with 0 isolated TPs. `leave_one_prompt_out`
+now keeps per-file LRs. Stem-mean ranking is unchanged. New persists
+print `ranking_without_isolated_tp` and `ranking_losses_with_isolated_tp`.
+Historical `experiments/2026-09-01-blind-12x4-recount-last4/` stays
+stem-mean only. Isolated sign stays hard `lr>0` even when `--margin` is
+nonzero. Live 12×4 last-4 remeasure wrote
+`experiments/2026-09-01-blind-12x4-ranking-honesty/`: **9/12**, garden
+**0/4**, isolated **25**, ranking losses station/office/ferry-queue
+with **5** TPs. Historical recount JSON unchanged. Not a new scorer.
+Does not replace **25/48**.
+
+## 2026-09-01 Grok-register isolated protocol frozen
+
+[PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) and
+`experiments/2026-09-01-prompts-grok12/` committed at SHA `07ce009`.
+Twelve new multi-paragraph scene prompts, disjoint from the original 12
+and from the 100 one-liners. Same three locks as PROTOCOL-isolated.
+Seed `20260904`. Do **not** run `pair` until this line is on origin.
+Do not look at key-free LRs until the frozen analysis commands have
+been run once. Nested Youden on the original 12×4 is the primary
+endpoint. It still does not replace **25/48**.
+
+## 2026-09-01 Grok-register isolated transfer opened
+
+SHA `07ce009` protocol, pair SHA `28cf9f5`. Official first-draw **12/12**.
+`used_keys=false`.
+
+Lock A nested Youden **16/48 vs 41/48** (prompt **5/12**, t=0 **23/48**).
+That is below one-liner lock A **23/48** and does not beat **25/48**.
+H-reg-A fails. Harbour and library now rank; night-bus and ferry-queue
+still lose.
+
+Lock B nested **6/48 vs 47/48**. Occupancy-free postokhits t=0 **5/48**,
+opening coverage **5/48** (0 exact). H-reg-B holds.
+
+Lock C prompt **10/12**, t=0 **22/48**. Nested **45/48 vs 22/48** at a
+negative threshold: do not sell 45/48.
+
+In-family interpolate **11/12**, nested-by-stem **24/48 vs 40/48**.
+Cross-register → 36×4 nested **50/144 vs 115/144**. Isolated-file
+detection is still not finished.
+
+## 2026-09-01 100 one-liners → Grok-register isolated protocol frozen
+
+[PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) committed at SHA
+`1ef7330`. Same three locks as PROTOCOL-isolated. Train is the existing
+100×4 one-liners. Test is the existing grok12×4 twins. No new `pair`.
+Do not look at key-free test LRs until this line is on origin and the
+frozen analysis commands have been run once. Nested Youden on grok12×4
+is the primary endpoint. It does not replace **25/48**. Do not write
+`thesis/`.
+
+## 2026-09-01 100 one-liners → Grok-register isolated transfer opened
+
+SHA `1ef7330` protocol. `used_keys=false`. Official first-draw on the
+Grok twins remains **12/12**.
+
+Lock A nested Youden **22/48 vs 41/48** (prompt **11/12**, t=0 **27/48**).
+H-xreg-A holds versus Grok-train → original 12 **16/48**. H-xreg-hard
+holds: 22/48 is at or below in-family nested-by-stem **24/48**. The
+original 12 are not uniquely cursed. Taxi-rank is the ranking loss with
+isolated TPs.
+
+Lock B nested **36/48 vs 44/48** is occupancy (37/48 unmarked zeros).
+Occupancy-free postokhits t=0 **0/48**, opening coverage **5/48** (0
+exact). All ten postokhits ranking wins have 0 isolated TPs. H-xreg-B
+holds.
+
+Lock C prompt **8/12**, nested **10/48 vs 41/48**, t=0 **10/48**.
+H-xreg-iso holds: nothing here replaces **25/48**. Isolated-file
+detection is still not finished.
+
+## 2026-09-01 interpolate window readout frozen
+
+[PROTOCOL-isolated-windows.md](PROTOCOL-isolated-windows.md) committed at
+SHA `7d8759a`. Same lock A interpolate tables as PROTOCOL-isolated-xreg.
+Windows `0:4,4:16,16:32,32:64,64:128` on grok12 and on the original 12.
+No new scorer. Do not look at window LRs until this line is on origin.
+Does not replace **25/48**. Do not write `thesis/`.
+
+## 2026-09-01 interpolate window readout opened
+
+SHA `7d8759a`. `used_keys=false`.
+
+Grok-register files: window 0:4 ranks **7/12** (AUC 0.619, t=0
+**23/48 vs 31/48**). Windows **32:64** and **64:128** rank **9/12**.
+Window 4:16 anti-ranks **4/12**. Full-file **11/12** is not an opening
+core on this split. Occupancy-free openings remain **0/48**.
+
+Original 12: window 0:4 ranks **9/12**; 16:32 ranks **6/12**.
+Front-loaded transfer holds on the original 12 and not on Grok-length
+OOD files. Isolated t=0 is chance-like in every slice. H-win-iso holds.
+Does not replace **25/48**. Isolated-file detection is still not
+finished.
+
+## 2026-09-01 interpolate atoms on Grok-register transfer
+
+Same lock A tables as PROTOCOL-isolated-xreg / windows. CLI `atoms`
+(not a new `probe --methods` name). `used_keys=false`. Marked `lr>0`
+**27/48**. Almost all interpolate mass is Witten–Bell backoff on
+unseen next tokens (tail 64:128: 214 seen, 5924 unseen). Window 0:4
+ranks because unmarked Δ is more negative, not because occupancy-free
+openings fire (**0/48**). Observed-token hits: `'The' → ' car'` (n=19)
+and GPT-2 dialogue templates in the tail. Shared continuation 4-grams,
+not a denser isolated-file detector. Do not sell `The car`. Does not
+replace **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-atoms-100x4-to-grok12x4-interpolate/`.
+
+## 2026-09-01 36 Grok-length train protocol frozen
+
+[PROTOCOL-isolated-scale.md](PROTOCOL-isolated-scale.md) and
+`experiments/2026-09-01-prompts-grok36/` committed at SHA `e537d71`.
+Thirty-six new Grok-register scenes, disjoint from grok12. Seed
+`20260905`. Do not run `pair` until this line is on origin. Do not mix
+grok12 into the train. Does not replace **25/48**. Do not write
+`thesis/`.
+
+## 2026-09-01 36 Grok-length scale protocol opened
+
+SHA `e537d71`. Pair `69ef41f`. Official first-draw **36/36**.
+`used_keys=false`.
+
+Lock A nested Youden, grok12×4 test: **36/48 vs 39/48** (prompt
+**12/12**). Occupancy-free postokhits **39/48 vs 45/48**, equal to
+opening coverage **39/48** (exact 21/48; 3 unmarked FP). H-scale-grok
+holds vs 100-one-liner xreg **22/48**. Isolated observed-token recall
+is still opening-atom overlap.
+
+Lock A nested Youden, original 12×4: **26/48 vs 33/48** (prompt
+**10/12**). Occupancy-free **10/48**, equal to coverage **10/48**.
+H-scale-A holds vs grok12-train **16/48**. Do not sell 26/48 or t=0
+**29/48**.
+
+H-scale-iso holds. Nothing here replaces **25/48**. Isolated-file
+detection is still not finished.
+
+JSON: `experiments/2026-09-01-transfer-grok36x4-to-grok12x4-hard-last4/`,
+`experiments/2026-09-01-openings-grok36x4-to-grok12x4/`,
+`experiments/2026-09-01-transfer-grok36x4-to-12x4-hard-last4/`.
+
+## 2026-09-01 interpolate atoms on 36 Grok-length transfer
+
+Same lock A tables as PROTOCOL-isolated-scale, after the frozen
+probes. CLI `atoms` (not a new `probe --methods` name).
+`used_keys=false`.
+
+Original 12×4: marked `lr>0` **29/48**. Nested interpolate stays
+**26/48 vs 33/48**. Occupancy-free stays **10/48**. Almost all mass is
+Witten–Bell backoff (tail 64:128: 137 seen vs 5996 unseen). Window
+0:4 ranks because unmarked Δ is more negative and because unbucketed
+body copies fire (`'Cl' → 'osing'` n=4 on library; postokhits zeros
+that opening). The 29-versus-10 gap is not isolated recall.
+
+Grok12×4: marked `lr>0` **39/48**, equal to occupancy-free and
+opening coverage. Window 0:4 marked Δ +2.518 (`'The' → ' car'` n=19).
+Tail still backoff (183 seen vs 5955 unseen). Interpolate nested
+**36/48** is not denser than occupancy-free **39/48**.
+
+Do not sell 26/48, 29/48, 39/48, `Closing`, or `The car`. Does not
+replace **25/48**. Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-atoms-grok36x4-to-12x4-interpolate/`,
+`experiments/2026-09-01-atoms-grok36x4-to-grok12x4-interpolate/`.
+
+## 2026-09-01 pooled-train isolated protocol frozen
+
+[PROTOCOL-isolated-pool.md](PROTOCOL-isolated-pool.md) and the
+published-zero union dump
+`experiments/2026-09-01-openings-union-100-and-grok36-to-12x4/` committed
+at SHA `244d23a`. Set-union of occupancy-free openings on the original
+12 is **28/48** (18+10, intersection 0, leftover 20). That number is
+determined from already-opened zeros. Do not look at mixed `probe` /
+mixed `openings` LRs until this line is on origin. Do not sell
+**28/48** as replacing **25/48**. Do not write `thesis/`.
+
+## 2026-09-01 pooled-train isolated transfer opened
+
+SHA `244d23a`. `used_keys=false`. Mixed openings coverage **28/48**
+equals the published set-union (no combo atoms). Occupancy-free
+postokhits t=0 is **26/48 vs 47/48** (two covered letter files are
+negative). Nested interpolate **27/48 vs 39/48**. H-pool-B holds for
+coverage; H-pool-A holds vs grok36-only 26/48. Do not sell 28/48, 26/48,
+or 27/48. Leftover 20 files remain. Nothing replaces **25/48**.
+Isolated-file detection is still not finished.
+
+JSON: `experiments/2026-09-01-openings-100plusgrok36-to-12x4/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-occupancy-free/`,
+`experiments/2026-09-01-transfer-100plusgrok36-to-12x4-hard-last4/`.
+
+## 2026-09-01 leftover-opening rankpath protocol frozen
+
+[PROTOCOL-isolated-leftover.md](PROTOCOL-isolated-leftover.md) committed
+at SHA `7afd049`. The 20 mixed postokhits zeros are the isolated-file
+core. Do not look at mixed rankpath LRs until this line is on origin.
+Do not sell leftover signs as replacing **25/48**. Do not write
+`thesis/`.
+
 ---

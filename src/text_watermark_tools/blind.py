@@ -119,6 +119,8 @@ class BlindFold:
     marked_lr: float
     unmarked_lr: float
     marked_wins: bool
+    marked_file_lrs: list[float] = field(default_factory=list)
+    unmarked_file_lrs: list[float] = field(default_factory=list)
 
 
 @dataclass
@@ -145,6 +147,73 @@ class BlindEval:
         if not self.folds:
             return float("nan")
         return self.n_marked_wins / len(self.folds)
+
+    def _sorted_folds(self) -> list[BlindFold]:
+        return sorted(self.folds, key=lambda f: f.stem)
+
+    @property
+    def n_marked_positive(self) -> int:
+        """Isolated hard sign: marked files with ``lr > 0``.
+
+        Independent of ``margin``. Empty ``marked_file_lrs`` counts as
+        no isolated true positives.
+        """
+        return sum(1 for f in self.folds for m in f.marked_file_lrs if m > 0.0)
+
+    def _stem_rank_isolated(self) -> list[tuple[str, bool, int]]:
+        rows: list[tuple[str, bool, int]] = []
+        for fold in self._sorted_folds():
+            n_tp = sum(1 for m in fold.marked_file_lrs if m > 0.0)
+            rows.append((fold.stem, fold.marked_wins, n_tp))
+        return rows
+
+    @property
+    def ranking_without_isolated_tp(self) -> list[str]:
+        """Prompt-ranking wins with no marked file ``lr > 0``.
+
+        Isolated sign stays hard ``lr > 0`` even when ``margin`` is nonzero.
+        Those stems rank because unmarked LRs are more negative, not because
+        any isolated marked file signs. Do not read prompt wins as isolated
+        recall.
+        """
+        return [stem for stem, win, n_tp in self._stem_rank_isolated() if win and n_tp == 0]
+
+    @property
+    def n_prompt_wins_without_isolated_tp(self) -> int:
+        return len(self.ranking_without_isolated_tp)
+
+    @property
+    def ranking_losses_with_isolated_tp(self) -> list[str]:
+        """Prompt-ranking losses that still have a marked file ``lr > 0``.
+
+        Isolated TPs on a ranking loss do not make the prompt-group
+        comparison. Ferry-queue on 12-LOO hard last-4 is the type case.
+        """
+        return [
+            stem
+            for stem, win, n_tp in self._stem_rank_isolated()
+            if (not win) and n_tp > 0
+        ]
+
+    @property
+    def n_marked_positive_on_ranking_losses(self) -> int:
+        return sum(
+            n_tp for _stem, win, n_tp in self._stem_rank_isolated() if not win
+        )
+
+    def ranking_payload(self) -> dict:
+        hide = self.ranking_without_isolated_tp
+        loss_tp = self.ranking_losses_with_isolated_tp
+        return {
+            "n_prompt_wins_without_isolated_tp": len(hide),
+            "ranking_without_isolated_tp": hide,
+            "n_ranking_losses_with_isolated_tp": len(loss_tp),
+            "ranking_losses_with_isolated_tp": loss_tp,
+            "n_marked_positive_on_ranking_losses": (
+                self.n_marked_positive_on_ranking_losses
+            ),
+            "n_marked_lr_positive": self.n_marked_positive,
+        }
 
 
 def _ctx(ids: Sequence[int], i: int, context_len: int) -> tuple[int, ...]:
@@ -199,21 +268,20 @@ def _add_sequence(
         t = int(tok)
         table.unigram[t] += 1
         table.n_tokens += 1
-        if i == 0:
-            if prefix:
-                for length in range(1, table.context_len + 1):
-                    ctx = _scored_ctx(
-                        ids, i, length, position_bucket, prefix=prefix
-                    )
-                    table.counts.setdefault(ctx, Counter())[t] += 1
-            elif include_first:
+        available = len(prefix) + i
+        if i == 0 and not prefix:
+            if include_first:
                 ctx = _scored_ctx(ids, i, 0, position_bucket, prefix=())
                 table.counts.setdefault(ctx, Counter())[t] += 1
             continue
-        # Store every suffix length 1..k so backoff can shrink the context
-        # instead of jumping straight to the unigram.
-        for length in range(1, table.context_len + 1):
-            ctx = _scored_ctx(ids, i, length, position_bucket, prefix=prefix)
+        # Store every *real* suffix length 1..min(k, available) once.
+        # Looping 1..k when fewer tokens exist collapses to the same
+        # truncated context and overweights the opening.
+        max_len = min(int(table.context_len), available)
+        for length in range(1, max_len + 1):
+            ctx = _scored_ctx(
+                ids, i, length, position_bucket, prefix=prefix
+            )
             table.counts.setdefault(ctx, Counter())[t] += 1
 
 
@@ -457,12 +525,12 @@ def leave_one_prompt_out(
         used_keys = used_keys or model.used_keys
         used_hash = used_hash or model.used_hash_iv
         used_g = used_g or model.used_g_values
-        marked_lr = sum(likelihood_ratio(s, model) for s in held.marked_seqs()) / len(
-            held.marked_seqs()
-        )
-        unmarked_lr = sum(
+        marked_file_lrs = [likelihood_ratio(s, model) for s in held.marked_seqs()]
+        unmarked_file_lrs = [
             likelihood_ratio(s, model) for s in held.unmarked_seqs()
-        ) / len(held.unmarked_seqs())
+        ]
+        marked_lr = sum(marked_file_lrs) / len(marked_file_lrs)
+        unmarked_lr = sum(unmarked_file_lrs) / len(unmarked_file_lrs)
         folds.append(
             BlindFold(
                 stem=held.stem,
@@ -471,6 +539,8 @@ def leave_one_prompt_out(
                 marked_wins=pair_marked_wins(
                     marked_lr, unmarked_lr, margin=margin
                 ),
+                marked_file_lrs=marked_file_lrs,
+                unmarked_file_lrs=unmarked_file_lrs,
             )
         )
     return BlindEval(
@@ -490,17 +560,35 @@ def print_blind_eval(ev: BlindEval) -> str:
         (
             f"blind leave-one-prompt-out n_pairs={ev.n_pairs} "
             f"marked_wins={ev.n_marked_wins} accuracy={ev.accuracy:.3f} "
+            f"ranking_without_isolated_tp="
+            f"{ev.n_prompt_wins_without_isolated_tp}/{ev.n_marked_wins} "
+            f"ranking_losses_with_isolated_tp="
+            f"{len(ev.ranking_losses_with_isolated_tp)} "
+            f"marked_lr_positive={ev.n_marked_positive} "
             f"context_len={ev.context_len} backoff={ev.backoff} "
             f"margin={ev.margin:g} "
             f"used_keys={ev.used_keys} hash_iv={ev.used_hash_iv} "
             f"g_values={ev.used_g_values}"
         )
     ]
+    hide = ev.ranking_without_isolated_tp
+    loss = ev.ranking_losses_with_isolated_tp
+    if hide:
+        lines.append(
+            "ranking wins with no isolated TP: " + ", ".join(hide)
+        )
+    if loss:
+        lines.append(
+            "ranking losses with isolated TP: " + ", ".join(loss)
+        )
     for fold in ev.folds:
         flag = "marked_higher" if fold.marked_wins else "unmarked_higher"
+        n_tp = sum(1 for m in fold.marked_file_lrs if m > 0.0)
+        n_files = len(fold.marked_file_lrs)
+        files = f" marked_files_gt0={n_tp}/{n_files}" if n_files else ""
         lines.append(
             f"{fold.stem}: marked_lr={fold.marked_lr:.4f} "
-            f"unmarked_lr={fold.unmarked_lr:.4f} {flag}"
+            f"unmarked_lr={fold.unmarked_lr:.4f} {flag}{files}"
         )
     return "\n".join(lines)
 
@@ -512,6 +600,7 @@ def persist_blind_eval(ev: BlindEval, out_dir: Path) -> None:
         "n_pairs": ev.n_pairs,
         "n_marked_wins": ev.n_marked_wins,
         "accuracy": ev.accuracy,
+        **ev.ranking_payload(),
         "context_len": ev.context_len,
         "backoff": ev.backoff,
         "margin": ev.margin,
@@ -522,7 +611,10 @@ def persist_blind_eval(ev: BlindEval, out_dir: Path) -> None:
         "note": (
             "Likelihood ratio from token counts only. Positive marked_lr "
             "means the held-out text looks more like the marked train pile. "
-            "No keys / hash_iv / g-values."
+            "n_marked_wins is prompt-mean ranking, not per-file accuracy. "
+            "ranking_without_isolated_tp lists ranking wins with no marked "
+            "file lr>0. Isolated sign is hard lr>0 even when margin is "
+            "nonzero. No keys / hash_iv / g-values."
         ),
         "folds": [
             {
@@ -530,11 +622,16 @@ def persist_blind_eval(ev: BlindEval, out_dir: Path) -> None:
                 "marked_lr": f.marked_lr,
                 "unmarked_lr": f.unmarked_lr,
                 "marked_wins": f.marked_wins,
+                "marked_file_lrs": list(f.marked_file_lrs),
+                "unmarked_file_lrs": list(f.unmarked_file_lrs),
+                "n_marked_positive": sum(1 for m in f.marked_file_lrs if m > 0.0),
             }
             for f in ev.folds
         ],
     }
     (out_dir / "results.json").write_text(json.dumps(table, indent=2) + "\n")
+    hide = ev.ranking_without_isolated_tp
+    loss = ev.ranking_losses_with_isolated_tp
     md = [
         "# Key-free blind eval (leave-one-prompt-out)",
         "",
@@ -542,15 +639,27 @@ def persist_blind_eval(ev: BlindEval, out_dir: Path) -> None:
         f"context_len={ev.context_len} backoff={ev.backoff} "
         f"margin={ev.margin:g}.",
         "",
+        f"Ranking wins with no isolated TP: **{len(hide)}/{ev.n_marked_wins}**"
+        + (f" ({', '.join(hide)})" if hide else "")
+        + ". "
+        f"Ranking losses with isolated TP: **{len(loss)}**"
+        + (f" ({', '.join(loss)})" if loss else "")
+        + f". Isolated marked `lr>0`: **{ev.n_marked_positive}**. "
+        "Prompt ranking is not per-file accuracy.",
+        "",
         "No key. No `detector_mean`. Ground truth is how the file was *created* "
         "(mixin vs not), not the official score.",
         "",
-        "| Stem | Marked LR | Unmarked LR | Marked higher |",
-        "|---|---|---|---|",
+        "| Stem | Marked LR | Unmarked LR | Marked higher | Marked files >0 |",
+        "|---|---|---|---|---|",
     ]
     for f in ev.folds:
+        n_tp = sum(1 for m in f.marked_file_lrs if m > 0.0)
+        n_files = len(f.marked_file_lrs)
+        files = f"{n_tp}/{n_files}" if n_files else "—"
         md.append(
-            f"| {f.stem} | {f.marked_lr:.4f} | {f.unmarked_lr:.4f} | {f.marked_wins} |"
+            f"| {f.stem} | {f.marked_lr:.4f} | {f.unmarked_lr:.4f} | "
+            f"{f.marked_wins} | {files} |"
         )
     md.append("")
     (out_dir / "results.md").write_text("\n".join(md) + "\n")
