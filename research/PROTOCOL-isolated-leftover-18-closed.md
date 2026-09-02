@@ -142,5 +142,7 @@ Distil→gpt2-medium t=0 **20/48 vs 48/48**; gpt2-medium→Distil t=0
 [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
 16:32 **87/100**. The remaining honesty item that is not leftover
 targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md).
+Opened: interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso
+**fails** as a raw count. Do not sell **30/48**.
 Do not sell
 **10/48**, **20/48**, **3/48**, or H2 **87/100**. Do not write `thesis/`.

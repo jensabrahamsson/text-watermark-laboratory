@@ -37,7 +37,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-m12.md](PROTOCOL-isolated-m12.md) | gpt2-medium 100×4 → gpt2-medium 12×4 occupancy-free **10/48** (coverage **13/48**); not leftover-15; not **25/48** |
 | [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md) | Distil→gpt2-medium occupancy-free **20/48** (coverage **22/48**); gpt2-medium→Distil **3/48** (coverage **5/48**); not leftover-15; not **25/48** |
 | [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) | Absolute-history H2: 0:4 **99/100** vs 16:32 **87/100**; paired McNemar **86/13/1/0**; **25/48** CI includes ½; not **25/48** |
-| [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) | Second-key in-domain lock A: control-as-marked 12×4 vs original unmarked; frozen until named; not **25/48** |
+| [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) | Second-key in-domain lock A: interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso fails as a raw count; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

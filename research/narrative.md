@@ -235,7 +235,10 @@ families. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]** includes
 or **87/100**. Isolated-file detection is still not finished. The
 remaining honesty item that is not leftover targeting is
 [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
-on control-as-marked 12×4 versus the original unmarked pile. Do not
+on control-as-marked 12×4 versus the original unmarked pile. Opened:
+interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails**
+as a raw count. Do not sell **30/48** or **7/12**. Isolated-file
+detection is still not finished. Do not
 write `thesis/`.
 
 ## What this freeze refuses

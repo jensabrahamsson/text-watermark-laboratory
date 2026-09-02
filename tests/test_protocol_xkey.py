@@ -1,5 +1,6 @@
 """Second-key in-domain lock A, frozen before control-as-marked LRs."""
 
+import json
 from pathlib import Path
 
 from text_watermark_tools.blind import load_twins
@@ -8,6 +9,7 @@ from text_watermark_tools.contrast import (
     control_gen_to_marked_name,
     materialize_control_as_marked,
 )
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-isolated-xkey.md"
@@ -39,13 +41,18 @@ def test_protocol_xkey_names_frozen_sources_before_decode() -> None:
     assert "leftover-15" in text
     assert "Distil ∪ gpt2-medium" in text
     assert "key-free-contrast.md" in text
-    assert "*(empty until the SHA is named in LOGBOOK.md)*" in text
-    assert "H-xkey-A **holds**" not in text
-    assert "`d25e495`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
+    assert "H-xkey-A **holds**" in text
+    assert "H-xkey-iso **fails**" in text
+    assert "H-xkey-seed **holds**" in text
+    assert "Do not sell **30/48**" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "`d25e495`" in log
+    assert "`9ec3b0c`" in log
     assert CONTROL.is_dir()
     assert UNMARKED.is_dir()
     assert PAIR.is_dir()
-    assert not (PROBE / "results.json").is_file()
+    assert (PROBE / "results.json").is_file()
 
 
 def test_control_gen_maps_onto_marked_names() -> None:
@@ -98,3 +105,35 @@ def test_materialize_control_as_marked_is_idempotent(tmp_path) -> None:
     assert harbour.marked_text == src
     unmarked = (UNMARKED / "01-harbour-unmarked-gen.txt").read_text()
     assert harbour.unmarked_text == unmarked
+
+
+def test_xkey_interpolate_last4_from_holdout() -> None:
+    raw = json.loads((PROBE / "results.json").read_text())
+    assert raw["used_keys"] is False
+    assert raw["used_hash_iv"] is False
+    assert raw["used_g_values"] is False
+    assert raw["pair_dir"] == "experiments/2026-09-02-pair-12x4-control-as-marked"
+    methods = {m["name"]: m for m in raw["methods"]}
+    row = methods["interpolate"]
+    assert row["n_prompt_wins"] == 7
+    assert row["n_prompts"] == 12
+    assert row["n_prompt_ties"] == 0
+    assert row["binary"]["n_positive_above_zero"] == 30
+    assert row["binary"]["n_negative_at_most_zero"] == 25
+    assert abs(row["binary"]["auc"] - 0.590) < 0.001
+    assert row["ranking_without_isolated_tp"] == ["11-garden"]
+    nested = row["nested_stem"]["nested-youden-by-stem"]
+    assert nested["n_marked_above"] == 33
+    assert nested["n_unmarked_at_most"] == 20
+    lo, hi = clopper_pearson(30, 48)
+    assert lo < 0.5 < hi
+    plo, phi = clopper_pearson(7, 12)
+    assert plo < 0.5 < phi
+    text = PROTOCOL.read_text()
+    assert "H-xkey-A **holds**" in text
+    assert "H-xkey-iso **fails**" in text
+    assert "H-xkey-seed **holds**" in text
+    assert "Do not sell **30/48**" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "second-key in-domain lock A opened" in log
+    assert "`9ec3b0c`" in log

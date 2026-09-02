@@ -200,5 +200,7 @@ the unmarked false-positive rate) while public vs unmarked stays
 independent key sample, or a different generator, is a different
 experiment. Treating those same control files as the marked class under
 leave-one-prompt-out (original unmarked pile, seed mismatch labeled) is
-[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md). That freeze is
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md). Opened:
+interpolate last-4 **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso
+**fails** as a raw count. Do not sell **30/48**. That freeze is
 not this contrast dump. Do not sell it as **25/48**.

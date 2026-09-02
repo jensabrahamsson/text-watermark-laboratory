@@ -256,4 +256,6 @@ leftover official **15/15**, or Qwen→Qwen **31/48** as replacing
 16:32 **87/100**. The remaining honesty item that is not leftover
 targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
 in-domain lock A on control-as-marked 12×4 versus the original unmarked
-pile. Do not write `thesis/`.
+pile. Opened: interpolate **7/12**, isolated **30/48 vs 25/48**.
+H-xkey-iso **fails** as a raw count. Do not sell **30/48**. Isolated-file
+remains open. Do not write `thesis/`.

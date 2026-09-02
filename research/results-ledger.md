@@ -486,7 +486,9 @@ Clopper–Pearson **[0.372, 0.667]** includes ½. Do
 not sell **99/100** or **87/100**. Isolated-file remains open. The
 remaining honesty item that is not leftover targeting is
 [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
-on control-as-marked 12×4 versus the original unmarked pile.
+on control-as-marked 12×4 versus the original unmarked pile. Opened:
+interpolate **7/12**, isolated **30/48 vs 25/48**. H-xkey-iso **fails**
+as a raw count. Do not sell **30/48**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

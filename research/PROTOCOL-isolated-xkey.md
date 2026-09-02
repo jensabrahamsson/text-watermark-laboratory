@@ -164,4 +164,47 @@ Human merge of PR #2 / PR #3 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `d25e495`. Named `9ec3b0c`. `used_keys=false`. Leave-one-prompt-out
+on constructed `experiments/2026-09-02-pair-12x4-control-as-marked/`.
+Control-shuffled-30 files are the marked class. Unmarked files are the
+original 12×4 pile. Seeds **20260931** vs **0**. Not a matched `pair()`
+run.
+
+Dump: [experiments/2026-09-02-probe-12x4-control-as-marked-hard-last4/](../experiments/2026-09-02-probe-12x4-control-as-marked-hard-last4/).
+
+| Reader | Prompt | Isolated t=0 | Unmarked ≤0 | File AUC |
+|---|---|---|---|---|
+| Interpolate last-4 | **7/12** | **30/48** | **25/48** | **0.590** |
+
+`n_prompt_ties` is 0. Nested-by-stem Youden **33/48 vs 20/48** at a
+negative train threshold ≈ −0.036; do not sell 33/48. Garden ranks with
+0 isolated TPs. Ranking losses with isolated TP: harbour, night-bus,
+letter, workshop, ferry-queue (11 of 30 TPs). File-level permutation p
+= 0.135 is descriptive.
+
+Clopper–Pearson 95%:
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| Prompt **7/12** | **[0.277, 0.848]** | yes |
+| Isolated **30/48** | **[0.474, 0.760]** | yes |
+| Original isolated **25/48** | **[0.372, 0.667]** | yes |
+
+H-xkey-A **holds**. Prompt ranking **7/12** is strictly above **6/12**.
+It is lower than public-key **9/12**, as the seed-mismatch clause
+allowed. The interval includes ½.
+
+H-xkey-iso **fails** as a raw count: isolated t=0 is **30/48**, which
+exceeds hard **25/48**. These are control-shuffled-30 files, not the
+original public marked 12. The **30/48** interval still includes ½.
+Nested **33/48** is a negative threshold. Do not sell **30/48**,
+**33/48**, or **7/12** as replacing **25/48**.
+
+H-xkey-seed **holds**. This is not a matched `pair()` run. Official
+public lamp on these control files is chance (**0.501**); matching
+control keys **0.624**. Those lamps use keys. **7/12** / **30/48** is
+not a matched-seed second-key proof. A later matched-seed multi-key
+`pair()` is still out of scope here.
+
+Isolated-file detection on the original 12 is still not finished. Do not
+write `thesis/`.

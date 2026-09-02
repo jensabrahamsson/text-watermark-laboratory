@@ -162,7 +162,9 @@ H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
 **99/100** vs 16:32 **87/100**. The remaining honesty item that is not leftover
 targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
 in-domain lock A on control-as-marked 12×4 versus the original unmarked
-pile. Do not
+pile. Opened: interpolate **7/12**, isolated **30/48 vs 25/48**.
+H-xkey-iso **fails** as a raw count. Do not sell **30/48**. Isolated-file
+remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

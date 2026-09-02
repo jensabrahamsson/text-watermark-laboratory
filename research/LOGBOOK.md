@@ -1912,4 +1912,20 @@ probe command has been run once, as written. Do not add a scorer.
 replaces **25/48**. Isolated-file detection is still not finished. Do
 not write `thesis/`.
 
+## 2026-09-02 second-key in-domain lock A opened
+
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) named `9ec3b0c`.
+Leave-one-prompt-out interpolate last-4 on control-as-marked 12×4 ranks
+**7/12** (AUC **0.590**, isolated **30/48 vs 25/48**). H-xkey-A and
+H-xkey-seed hold. H-xkey-iso **fails** as a raw count (**30/48** >
+**25/48**). These are control-shuffled-30 files, not the original public
+marked 12. Clopper–Pearson 95% on **7/12** is **[0.277, 0.848]** and
+includes ½; on **30/48** is **[0.474, 0.760]** and includes ½.
+`used_keys=false`. Seeds **20260931** vs **0**. Not a matched `pair()`
+run. Nested Youden **33/48 vs 20/48** is a negative threshold; do not
+sell 33/48. Do not sell **7/12** or **30/48** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-02-probe-12x4-control-as-marked-hard-last4/`.
+
 ---
