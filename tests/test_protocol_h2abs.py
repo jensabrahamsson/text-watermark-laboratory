@@ -162,6 +162,7 @@ def test_h2abs_paired_prompt_family_mcnemar_from_holdouts() -> None:
     assert "McNemar" in text
     assert "Clopper–Pearson" in text
     assert "[0.372, 0.667]" in text
-    assert "Do not sell McNemar" in text or "Do not sell the McNemar" in text
+    assert "Do not sell" in text
+    assert "McNemar **0.00092**" in text
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "paired prompt-family H2 readout" in log
