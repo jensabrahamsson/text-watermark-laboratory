@@ -117,7 +117,7 @@ Prompt-group ranking (exploratory \textbf{36/36}, lock~A \textbf{99/100},
 corrected original \textbf{9/12}) compares four-draw means.
 Isolated detection is a different task: the prespecified $\tau=0$
 confusion matrix on 96 files (\textbf{47/96} correct).
-\Cref{fig:twograin} is the picture. The auditor is paired-reference, not
+\Cref{fig:twograin} in Results is the picture. The auditor is paired-reference, not
 a web-document detector.
 
 % =========================================================================
@@ -210,7 +210,7 @@ fixed public instance, without training a proxy model.
 not provide a shared-benchmark cost. Simpler is not automatically
 cheaper.}
 \label{tab:compare}
-\begin{tabular}{p{0.22\textwidth} p{0.35\textwidth} p{0.35\textwidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.35\textwidth} >{\raggedright\arraybackslash}p{0.35\textwidth}}
 \toprule
 Axis & TTP-Detect \citep{wang2026ttp} & This report \\
 \midrule
@@ -457,8 +457,8 @@ generator, not inference to English at large.
 \label{sec:generation}
 
 All twins use Hugging Face generators with the public mixin.
-Length is matched: both \texttt{min\_new\_tokens} and
-\texttt{max\_new\_tokens} equal 128. Temperature is $1.0$, top-$\Ktop=40$,
+Length is matched at 128 new tokens
+(\texttt{min\_new\_tokens}=\texttt{max\_new\_tokens}). Temperature is $1.0$, top-$\Ktop=40$,
 and the pad token equals EOS. Prompts are plain strings; Qwen2-Instruct
 is not wrapped in a chat template. EOS does not truncate early: every
 file has 128 new tokens.
@@ -823,9 +823,9 @@ still contribute five isolated true positives.
   % axes
   \draw[gray!70,thin] (0,0) -- (12.4,0);
   \node[gray!70,anchor=east] at (-0.12,0) {$\tau=0$};
-  \draw[->] (0,-0.15) -- (0,0.27);
+  \draw[->] (0,-0.15) -- (0,0.28);
   \node[anchor=south,rotate=90] at (-1.15,0.06) {file $\LLR$};
-  \foreach \y/\lab in {-0.10/-0.10,0.10/0.10,0.20/0.20} {
+  \foreach \y/\lab in {-0.10/-0.10,0.10/0.10,0.20/0.20,0.25/0.25} {
     \draw[gray!40] (0,\y) -- (12.4,\y);
     \node[anchor=east] at (-0.12,\y) {\lab};
   }
@@ -833,9 +833,9 @@ still contribute five isolated true positives.
     \node[anchor=east,rotate=50] at (\x,-0.165) {\lab};
   }
   % ranking-loss stems that still hold isolated TPs
-  \fill[red!12] (5.02,-0.15) rectangle (5.98,0.265);
-  \fill[red!12] (9.02,-0.15) rectangle (9.98,0.265);
-  \fill[red!12] (11.02,-0.15) rectangle (11.98,0.265);
+  \fill[red!12] (5.02,-0.15) rectangle (5.98,0.275);
+  \fill[red!12] (9.02,-0.15) rectangle (9.98,0.275);
+  \fill[red!12] (11.02,-0.15) rectangle (11.98,0.275);
   % harbour
   \foreach \y in {-0.0248,0.0437,0.017,-0.0131} \fill[blue!70!black] (0.35,\y) circle (1.15pt);
   \foreach \y in {0.0506,-0.0428,-0.0873,0.0341} \draw[black] (0.65,\y) circle (1.15pt);
@@ -887,7 +887,7 @@ still contribute five isolated true positives.
   \draw[blue!70!black,line width=0.7pt] (9.18,-0.0524) -- (9.82,-0.0524);
   \draw[black,line width=0.7pt] (9.18,0.0192) -- (9.82,0.0192);
   % garden
-  \fill[yellow!25] (10.02,-0.15) rectangle (10.98,0.265);
+  \fill[yellow!25] (10.02,-0.15) rectangle (10.98,0.275);
   \foreach \y in {-0.0135,-0.0069,-0.0608,-0.0142} \fill[blue!70!black] (10.35,\y) circle (1.15pt);
   \foreach \y in {-0.0376,-0.1078,-0.063,0.0186} \draw[black] (10.65,\y) circle (1.15pt);
   \draw[blue!70!black,line width=0.7pt] (10.18,-0.0238) -- (10.82,-0.0238);
