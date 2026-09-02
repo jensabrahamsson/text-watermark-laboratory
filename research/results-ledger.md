@@ -483,7 +483,10 @@ H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md):
 0:4 **99/100** vs 16:32 **87/100**; reindexed 16:32 was **89/100**.
 Post-open paired McNemar is **86 / 13 / 1 / 0**. Isolated **25/48**
 Clopper–Pearson **[0.372, 0.667]** includes ½. Do
-not sell **99/100** or **87/100**. Isolated-file remains open.
+not sell **99/100** or **87/100**. Isolated-file remains open. The
+remaining honesty item that is not leftover targeting is
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
+on control-as-marked 12×4 versus the original unmarked pile.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

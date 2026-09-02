@@ -94,20 +94,56 @@ class Twin:
             prompt_ids=list(self.prompt_ids),
         )
 
-    def clip_prefix(self, n: int) -> Twin:
-        """Keep the first n tokens of every draw. n<=0 leaves ids unchanged."""
+    def clip_prefix(self, n: int, *, tokenizer=None) -> Twin:
+        """Keep the first n tokens of every draw. n<=0 leaves ids unchanged.
+
+        Count-table scorers read ids. Surface and other UTF-8 scorers read
+        ``*_text``. When ``tokenizer`` is set, every text field is rewritten
+        from the clipped ids so ``--fit-prefix`` is a matched prefix for
+        those readers too. Without a tokenizer, texts stay full-length
+        (legacy). Extra draws clip the same way as the primary draw.
+        """
         if n <= 0:
             return self
+
+        def clip_ids(ids: list[int]) -> list[int]:
+            return list(ids[:n])
+
+        def clip_text(ids: list[int], fallback: str) -> str:
+            if tokenizer is None:
+                return fallback
+            if not ids:
+                return ""
+            return tokenizer.decode(
+                ids,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )
+
+        marked_ids = clip_ids(self.marked_ids)
+        unmarked_ids = clip_ids(self.unmarked_ids)
+        extra_m_ids = [clip_ids(x) for x in self.extra_marked_ids]
+        extra_u_ids = [clip_ids(x) for x in self.extra_unmarked_ids]
+        extra_m_text_src = list(self.extra_marked_text)
+        extra_u_text_src = list(self.extra_unmarked_text)
+        extra_m_text = [
+            clip_text(ids, extra_m_text_src[i] if i < len(extra_m_text_src) else "")
+            for i, ids in enumerate(extra_m_ids)
+        ]
+        extra_u_text = [
+            clip_text(ids, extra_u_text_src[i] if i < len(extra_u_text_src) else "")
+            for i, ids in enumerate(extra_u_ids)
+        ]
         return Twin(
             stem=self.stem,
-            marked_text=self.marked_text,
-            unmarked_text=self.unmarked_text,
-            marked_ids=list(self.marked_ids[:n]),
-            unmarked_ids=list(self.unmarked_ids[:n]),
-            extra_marked_ids=[list(x[:n]) for x in self.extra_marked_ids],
-            extra_unmarked_ids=[list(x[:n]) for x in self.extra_unmarked_ids],
-            extra_marked_text=list(self.extra_marked_text),
-            extra_unmarked_text=list(self.extra_unmarked_text),
+            marked_text=clip_text(marked_ids, self.marked_text),
+            unmarked_text=clip_text(unmarked_ids, self.unmarked_text),
+            marked_ids=marked_ids,
+            unmarked_ids=unmarked_ids,
+            extra_marked_ids=extra_m_ids,
+            extra_unmarked_ids=extra_u_ids,
+            extra_marked_text=extra_m_text,
+            extra_unmarked_text=extra_u_text,
             prompt_text=self.prompt_text,
             prompt_ids=list(self.prompt_ids),
         )
@@ -646,9 +682,24 @@ def clip_twins(twins: Sequence[Twin], max_draws: int) -> list[Twin]:
     return [twin.clip_draws(max_draws) for twin in twins]
 
 
-def clip_twins_prefix(twins: Sequence[Twin], n: int) -> list[Twin]:
-    """Keep the first n tokens of every draw. Matched fit/score prefix."""
-    return [twin.clip_prefix(n) for twin in twins]
+def clip_twins_prefix(
+    twins: Sequence[Twin],
+    n: int,
+    *,
+    tokenizer=None,
+    model_name: str | None = None,
+) -> list[Twin]:
+    """Keep the first n tokens of every draw. Matched fit/score prefix.
+
+    Pass the same tokenizer that produced the ids so UTF-8 / surface
+    strings match the clipped prefix. ``model_name`` loads that tokenizer
+    when ``tokenizer`` is omitted. Count-table scorers ignore text.
+    Without either argument, texts stay full-length (legacy).
+    """
+    tok = tokenizer
+    if tok is None and model_name:
+        tok = load_tokenizer(model_name)
+    return [twin.clip_prefix(n, tokenizer=tok) for twin in twins]
 
 
 def pair_outcome(

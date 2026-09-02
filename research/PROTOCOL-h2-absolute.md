@@ -230,4 +230,8 @@ This readout defends the frozen 99 > 87 comparison as a within-family
 opening-versus-mid split, and it defends isolated **25/48** as
 compatible with chance. It does not replace **25/48**. Do not sell
 McNemar **0.00092**, **93/100** gap signs, **99/100**, or **87/100** as
-replacing **25/48**. Do not write `thesis/`.
+replacing **25/48**. Isolated-file detection is still not finished. The
+remaining honesty item that is not leftover targeting is
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
+on control-shuffled-30 12×4 treated as marked against the original
+unmarked pile. Do not write `thesis/`.

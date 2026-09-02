@@ -198,4 +198,7 @@ the unmarked false-positive rate) while public vs unmarked stays
 
 `control_keys()` is a laboratory permutation of the public 30. A genuinely
 independent key sample, or a different generator, is a different
-experiment.
+experiment. Treating those same control files as the marked class under
+leave-one-prompt-out (original unmarked pile, seed mismatch labeled) is
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md). That freeze is
+not this contrast dump. Do not sell it as **25/48**.

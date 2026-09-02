@@ -107,6 +107,8 @@ official **15/15** at prefix-5 and prefix-128 from already-opened JSON.
   [PROTOCOL-isolated-xsize.md](PROTOCOL-isolated-xsize.md), not leftover
   targeting. Absolute-history H2 remasure is
   [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md), not leftover
+  targeting. Second-key in-domain lock A is
+  [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md), not leftover
   targeting.
 - New hashed / backoff / cascade / learned scorers on 12×4.
 - Mixing grok12 into any train.
@@ -157,7 +159,10 @@ occupancy-free transfer is
 Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Absolute-history
 H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4
-**99/100** vs 16:32 **87/100**. Do not
+**99/100** vs 16:32 **87/100**. The remaining honesty item that is not leftover
+targeting is [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md):
+in-domain lock A on control-as-marked 12×4 versus the original unmarked
+pile. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

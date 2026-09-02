@@ -95,6 +95,67 @@ def test_clip_twins_keeps_the_first_n_draws() -> None:
     assert len(four.marked_seqs()) == 4
 
 
+def test_clip_prefix_without_tokenizer_keeps_full_text() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="full marked string",
+        unmarked_text="full unmarked string",
+        marked_ids=[10, 11, 12, 13],
+        unmarked_ids=[20, 21, 22, 23],
+        extra_marked_ids=[[30, 31, 32, 33]],
+        extra_unmarked_ids=[[40, 41, 42, 43]],
+        extra_marked_text=["full extra marked"],
+        extra_unmarked_text=["full extra unmarked"],
+        prompt_text="the prompt",
+    )
+    clipped = twin.clip_prefix(2)
+    assert clipped.marked_ids == [10, 11]
+    assert clipped.unmarked_ids == [20, 21]
+    assert clipped.extra_marked_ids == [[30, 31]]
+    assert clipped.extra_unmarked_ids == [[40, 41]]
+    assert clipped.marked_text == "full marked string"
+    assert clipped.unmarked_text == "full unmarked string"
+    assert clipped.extra_marked_text == ["full extra marked"]
+    assert clipped.extra_unmarked_text == ["full extra unmarked"]
+    assert clipped.prompt_text == "the prompt"
+
+
+class _FakeTok:
+    def decode(
+        self,
+        ids,
+        skip_special_tokens=True,
+        clean_up_tokenization_spaces=False,
+    ):
+        assert skip_special_tokens is True
+        assert clean_up_tokenization_spaces is False
+        return "[" + ",".join(str(i) for i in ids) + "]"
+
+
+def test_clip_prefix_rewrites_text_from_clipped_ids() -> None:
+    twin = Twin(
+        stem="x",
+        marked_text="full marked string",
+        unmarked_text="full unmarked string",
+        marked_ids=[10, 11, 12, 13],
+        unmarked_ids=[20, 21, 22, 23],
+        extra_marked_ids=[[30, 31, 32, 33]],
+        extra_unmarked_ids=[[40, 41, 42, 43]],
+        extra_marked_text=["full extra marked"],
+        extra_unmarked_text=["full extra unmarked"],
+        prompt_text="the prompt",
+        prompt_ids=[1, 2],
+    )
+    clipped = twin.clip_prefix(2, tokenizer=_FakeTok())
+    assert clipped.marked_ids == [10, 11]
+    assert clipped.marked_text == "[10,11]"
+    assert clipped.unmarked_text == "[20,21]"
+    assert clipped.extra_marked_text == ["[30,31]"]
+    assert clipped.extra_unmarked_text == ["[40,41]"]
+    assert clipped.prompt_text == "the prompt"
+    assert clipped.prompt_ids == [1, 2]
+
+
 def test_clip_twins_rejects_zero_draws() -> None:
     twin = Twin(
         stem="x",

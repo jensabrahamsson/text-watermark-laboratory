@@ -232,7 +232,10 @@ sell **20/48** or **3/48**. Absolute-history H2 is opened in
 McNemar on those absolute windows is **13 vs 1** among 14 discordant
 families. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]** includes
 ½. Do not sell **99/100**
-or **87/100**. Isolated-file detection is still not finished. Do not
+or **87/100**. Isolated-file detection is still not finished. The
+remaining honesty item that is not leftover targeting is
+[PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md): in-domain lock A
+on control-as-marked 12×4 versus the original unmarked pile. Do not
 write `thesis/`.
 
 ## What this freeze refuses

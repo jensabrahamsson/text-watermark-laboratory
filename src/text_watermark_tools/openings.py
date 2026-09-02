@@ -358,11 +358,17 @@ def run_openings(
     grouped = [
         TrainGroup(
             g.name,
-            clip_twins_prefix(g.twins, prefix_n) if fit_prefix and fit_prefix > 0 else list(g.twins),
+            clip_twins_prefix(g.twins, prefix_n, tokenizer=tokenizer)
+            if fit_prefix and fit_prefix > 0
+            else list(g.twins),
         )
         for g in groups
     ]
-    held = clip_twins_prefix(list(test), prefix_n) if fit_prefix and fit_prefix > 0 else list(test)
+    held = (
+        clip_twins_prefix(list(test), prefix_n, tokenizer=tokenizer)
+        if fit_prefix and fit_prefix > 0
+        else list(test)
+    )
     names = [m.strip() for m in methods if str(m).strip()]
     if not names:
         names = ["postokhits", "postokbackoff", "postokbackoff2"]

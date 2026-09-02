@@ -452,9 +452,20 @@ def rotate_learn(
     )
 
 
-def _clip(twins: Sequence[Twin], fit_prefix: int | None) -> list[Twin]:
+def _clip(
+    twins: Sequence[Twin],
+    fit_prefix: int | None,
+    *,
+    tokenizer=None,
+    model_name: str | None = None,
+) -> list[Twin]:
     if fit_prefix and fit_prefix > 0:
-        return clip_twins_prefix(list(twins), int(fit_prefix))
+        return clip_twins_prefix(
+            list(twins),
+            int(fit_prefix),
+            tokenizer=tokenizer,
+            model_name=model_name,
+        )
     return list(twins)
 
 
@@ -474,7 +485,9 @@ def run_learn(
     work = list(twins)
     if max_draws and max_draws > 0:
         work = clip_twins(work, int(max_draws))
-    work = _clip(work, fit_prefix)
+    work = _clip(
+        work, fit_prefix, tokenizer=tokenizer, model_name=model_name
+    )
     run = ProbeRun(
         pair_dir=pair_dir,
         model_name=model_name,
@@ -523,8 +536,15 @@ def run_learn_transfer(
     train, test, overlap = apply_overlap(
         train_twins, test_twins, mode=overlap_mode
     )
-    train = _clip(train, fit_prefix)
-    test = _clip(test, fit_prefix)
+    train = _clip(
+        train, fit_prefix, tokenizer=tokenizer, model_name=model_name
+    )
+    test = _clip(
+        test,
+        fit_prefix,
+        tokenizer=score_tokenizer or tokenizer,
+        model_name=model_name,
+    )
     if shuffle_labels:
         train = shuffle_twin_sides(train, seed=shuffle_seed)
     if len(train) < 1:

@@ -55,6 +55,7 @@ def test_protocol_occupancy_closed_refuses_family12_and_new_trains() -> None:
     assert "Do not sell leftover official **18/18**" in text
     assert "There is no decode command" in text
     assert "`afb7668`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "PROTOCOL-isolated-xkey" in text
 
 
 def test_leftover18_official_is_18_of_18_by_subset() -> None:

@@ -428,7 +428,8 @@ def cmd_pair(args: argparse.Namespace) -> int:
 
 
 def cmd_indicate_fit(args: argparse.Namespace) -> int:
-    twins = load_twins(Path(args.pair_dir), tokenizer=load_tokenizer(args.model))
+    tok = load_tokenizer(args.model)
+    twins = load_twins(Path(args.pair_dir), tokenizer=tok)
     method = str(getattr(args, "method", "counts") or "counts")
     raw_prefix = getattr(args, "fit_prefix", None)
     raw_bucket = getattr(args, "pos_bucket", None)
@@ -436,7 +437,7 @@ def cmd_indicate_fit(args: argparse.Namespace) -> int:
         method, fit_prefix=raw_prefix, pos_bucket=raw_bucket
     )
     if fit_prefix > 0:
-        twins = [t.clip_prefix(fit_prefix) for t in twins]
+        twins = [t.clip_prefix(fit_prefix, tokenizer=tok) for t in twins]
     if method == "hashpool":
         from text_watermark_tools.transfer import fit_hashpool_twins, persist_hashpool
 
@@ -1301,7 +1302,8 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Clip each twin to the first N generated tokens before fitting. "
             "Default 4 for --method rankpath (the opening model); 0 (full "
-            "file) otherwise. 0 means no clip."
+            "file) otherwise. 0 means no clip. Token ids are sliced; the "
+            "generator tokenizer rewrites UTF-8 strings from those ids."
         ),
     )
     p_fit.add_argument("--n-hashes", type=int, default=8)
@@ -1631,7 +1633,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=0,
         help=(
             "If >0, clip every draw to the first N tokens before fit and "
-            "score (matched prefix protocol, not fit-full/score-prefix)"
+            "score (matched prefix protocol, not fit-full/score-prefix). "
+            "The generator tokenizer rewrites UTF-8 strings from the "
+            "clipped ids so surface matches the prefix."
         ),
     )
     p_probe.add_argument(
@@ -1732,7 +1736,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--fit-prefix",
         type=int,
         default=0,
-        help="If >0, clip every draw to the first N tokens before fit and score",
+        help=(
+            "If >0, clip every draw to the first N tokens before fit and "
+            "score. The generator tokenizer rewrites UTF-8 strings from "
+            "the clipped ids."
+        ),
     )
     p_learn.add_argument(
         "--pos-bucket",

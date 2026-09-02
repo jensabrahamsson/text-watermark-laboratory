@@ -3275,6 +3275,7 @@ def _choice_matrix_views(
     rankpath_full: bool,
     want_spans: bool,
     cascade_end: int | None = None,
+    model_name: str = "gpt2",
 ):
     """Collect unmarked-LM ranks once. Opening view matches --fit-prefix.
 
@@ -3305,7 +3306,9 @@ def _choice_matrix_views(
             if fit_prefix and int(fit_prefix) >= need_tokens:
                 source = clipped
             else:
-                source = clip_twins_prefix(raw, need_tokens)
+                source = clip_twins_prefix(
+                    raw, need_tokens, model_name=model_name
+                )
     full = collect_choice_matrices(source, lm, prompt_context=prompt_context)
     if open_end is None:
         opening = full
@@ -3421,7 +3424,9 @@ def run_probe(
         snap_names = list(SNAPRATE_METHODS)
     raw_twins = twins
     if fit_prefix and fit_prefix > 0:
-        twins = clip_twins_prefix(twins, int(fit_prefix))
+        twins = clip_twins_prefix(
+            twins, int(fit_prefix), model_name=model_name
+        )
     lenses = _parse_prefix_lens(prefix_lens)
     spans = _parse_windows(windows)
     prefix_out: dict[int, dict[str, IndicatorHoldout]] = {}
@@ -3769,6 +3774,7 @@ def run_probe(
             rankpath_full=rank_full,
             want_spans=bool(rank_names and (lenses or spans)),
             cascade_end=cas_end,
+            model_name=model_name,
         )
         if with_pivot:
             pivots = rotate_pivot(
@@ -4285,8 +4291,12 @@ def run_transfer(
         train = shuffle_twin_sides(train, seed=shuffle_seed)
     raw_train, raw_test = train, test
     if fit_prefix and fit_prefix > 0:
-        train = clip_twins_prefix(train, int(fit_prefix))
-        test = clip_twins_prefix(test, int(fit_prefix))
+        train = clip_twins_prefix(
+            train, int(fit_prefix), model_name=model_name
+        )
+        test = clip_twins_prefix(
+            test, int(fit_prefix), model_name=model_name
+        )
     if len(train) < 1:
         raise ValueError("transfer left no training prompts")
     if len(test) < 1:
@@ -4930,6 +4940,7 @@ def run_transfer(
             rankpath_full=rank_full,
             want_spans=want_spans,
             cascade_end=cas_end,
+            model_name=model_name,
         )
         test_full, test_opening, test_rank_mats = _choice_matrix_views(
             test,
@@ -4940,6 +4951,7 @@ def run_transfer(
             rankpath_full=rank_full,
             want_spans=want_spans,
             cascade_end=cas_end,
+            model_name=model_name,
         )
         train_mats = train_rank_mats
         test_mats = test_rank_mats
