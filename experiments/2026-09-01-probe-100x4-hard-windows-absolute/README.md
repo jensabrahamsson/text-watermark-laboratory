@@ -11,5 +11,7 @@ New out-dir so the reindexed dump is not overwritten. `used_keys=false`.
 | 16:32 | **87/100** | **0.695** | 267/400 vs 240/400 | **89/100** |
 
 H2-abs holds (99 > 87). Absolute 16:32 did not rise versus reindexed
-**89/100**. Do not sell **99/100** or **87/100** as replacing **25/48**.
+**89/100**. Paired prompt-family McNemar is **86 / 13 / 1 / 0** (post-open,
+not a second freeze). Isolated **25/48** Clopper–Pearson **[0.372, 0.667]**
+includes ½. Do not sell **99/100** or **87/100** as replacing **25/48**.
 Keep `../2026-09-01-probe-100x4-hard-windows/`.

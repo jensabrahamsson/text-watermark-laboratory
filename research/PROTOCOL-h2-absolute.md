@@ -172,3 +172,62 @@ reindexed **99/100** vs **89/100**, lock A **99/100**, nested
 **25/48**. Do not overwrite the reindexed dump. Do not rewrite
 PROTOCOL-next’s first-run flags. Isolated-file detection is still not
 finished. Do not write `thesis/`.
+
+## Paired prompt-family readout (post-open, not a second freeze)
+
+This is a clustered description of the already-opened absolute holdout
+JSON. It does **not** add a scorer. It was **not** preregistered inside
+H2-abs (the freeze only named strict `>` on win counts). Leave-one-
+prompt-out tables share training mass across families, so the 100
+prompt signs are weakly dependent; the same caveat already sits on
+`permutation_prompt_sign_p`. Helpers: `clopper_pearson`,
+`mcnemar_exact_p`, `paired_prompt_sign_table` in
+[`stats.py`](../src/text_watermark_tools/stats.py). Cite Clopper and
+Pearson (1934) and McNemar (1947). Do not treat a frontier-model sketch
+as a proof ([CITING.md](CITING.md)).
+
+Same dumps as above. `used_keys=false`. Window 0:4 versus 16:32, prompt
+family as the unit. Win is mean(marked) > mean(unmarked).
+
+| Cell | Count |
+|---|---|
+| Both windows win | **86** |
+| Only 0:4 wins | **13** |
+| Only 16:32 wins | **1** |
+| Both lose | **0** |
+
+Exact one-sided McNemar: P(X ≥ 13 | Bin(14, ½)) = **15/16384 ≈ 0.00092**.
+Two-sided **≈ 0.00183**. Prompt-mean gap `delta = mean(marked) −
+mean(unmarked)` is larger at 0:4 than at 16:32 on **93/100** stems
+(7 reverse; 0 ties); mean(d0 − d1) ≈ **1.69**. The paired sign-flip p
+on those gaps hits the conservative `permutation_prompt_sign_p` floor
+**1/2001 ≈ 0.00050**.
+
+Clopper–Pearson 95% intervals on already-opened counts (invert
+`binomial_sf`; not a second measurement):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+| Hard last-4 **9/12** | **[0.428, 0.945]** | yes |
+| Margin-0.02 **10/12** | **[0.516, 0.979]** | no |
+| Absolute 0:4 **99/100** | **[0.946, 0.9997]** | no |
+| Absolute 16:32 **87/100** | **[0.788, 0.929]** | no |
+
+**25/48** and **9/12** are compatible with a fair coin at this exact
+interval. That is the weak grain, not a slogan that “detection fails.”
+**10/12** with margin 0.02 is the robustness endpoint whose interval
+excludes ½; it is not the headline. **87/100** excludes ½: H2-abs-acc
+as “not chance,” not as accumulation.
+
+Do **not** test 0:4 versus 16:32 by whether the unpaired Clopper–Pearson
+intervals overlap. Those intervals treat the windows as two samples;
+the families are paired. The paired test is the McNemar 2×2 (13 vs 1).
+The unpaired **99/100** lower bound sits above the **87/100** upper
+bound; that non-overlap is not the H2 test.
+
+This readout defends the frozen 99 > 87 comparison as a within-family
+opening-versus-mid split, and it defends isolated **25/48** as
+compatible with chance. It does not replace **25/48**. Do not sell
+McNemar **0.00092**, **93/100** gap signs, **99/100**, or **87/100** as
+replacing **25/48**. Do not write `thesis/`.

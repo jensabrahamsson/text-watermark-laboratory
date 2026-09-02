@@ -131,7 +131,11 @@ AUC **0.689**. Absolute-history remasure
 [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): **0:4** **99/100**,
 AUC **0.885**; **16:32** **87/100**, AUC **0.695**. Opening still
 outranks mid-file under real prefix. Absolute 16:32 did not rise versus
-reindexed **89/100**. Do **not** overwrite the reindexed dump. Isolated `lr>0` is
+reindexed **89/100**. Post-open paired prompt-family McNemar on those
+absolute windows is **86 / 13 / 1 / 0** (one-sided ≈ 0.00092); that is
+not a second freeze. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]**
+includes ½. Unpaired interval overlap is not the H2 test. Do **not**
+overwrite the reindexed dump. Isolated `lr>0` is
 not H1. `--rankpath` also emitted default methods; those are not lock C.
 Do not sell lock B **393/400**, lock A **352/400**, or nested-by-stem
 **322/400** / **392/400** as replacing **25/48**. Those are in-family.
@@ -476,7 +480,9 @@ Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
 sell **20/48** or **3/48**. Does not replace **25/48**. Absolute-history
 H2 is opened in [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md):
-0:4 **99/100** vs 16:32 **87/100**; reindexed 16:32 was **89/100**. Do
+0:4 **99/100** vs 16:32 **87/100**; reindexed 16:32 was **89/100**.
+Post-open paired McNemar is **86 / 13 / 1 / 0**. Isolated **25/48**
+Clopper–Pearson **[0.372, 0.667]** includes ½. Do
 not sell **99/100** or **87/100**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.

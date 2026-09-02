@@ -4,6 +4,11 @@ import json
 from pathlib import Path
 
 from text_watermark_tools.indicator import holdout_from_json
+from text_watermark_tools.stats import (
+    clopper_pearson,
+    mcnemar_exact_p,
+    paired_prompt_sign_table,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-h2-absolute.md"
@@ -114,3 +119,49 @@ def test_h2abs_midfile_did_not_rise_versus_reindexed() -> None:
     assert "H2-abs-acc **holds**" in text
     assert "did **not** rise versus reindexed **89/100**" in text
     assert "H2-abs-iso **holds**" in text
+
+
+def test_h2abs_paired_prompt_family_mcnemar_from_holdouts() -> None:
+    early = holdout_from_json(ABSOLUTE / "window-0-4" / "interpolate" / "holdout.json")
+    mid = holdout_from_json(ABSOLUTE / "window-16-32" / "interpolate" / "holdout.json")
+    table = paired_prompt_sign_table(
+        early.stems,
+        early.marked_lrs,
+        early.unmarked_lrs,
+        mid.stems,
+        mid.marked_lrs,
+        mid.unmarked_lrs,
+        n_perm=50,
+        seed=0,
+    )
+    assert table.n_stems == 100
+    assert table.both_win == 86
+    assert table.only_a == 13
+    assert table.only_b == 1
+    assert table.both_lose == 0
+    assert table.n_discordant == 14
+    one, two = mcnemar_exact_p(13, 1)
+    assert table.mcnemar_one_sided_p == one
+    assert table.mcnemar_two_sided_p == two
+    assert table.n_a_gap_larger == 93
+    assert table.n_b_gap_larger == 7
+    assert table.n_gap_ties == 0
+    assert abs(table.mean_gap_diff - 1.6875446420769182) < 1e-9
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi
+    nine_lo, nine_hi = clopper_pearson(9, 12)
+    assert nine_lo <= 0.5 <= nine_hi
+    abs99_lo, _abs99_hi = clopper_pearson(99, 100)
+    mid_lo, _mid_hi = clopper_pearson(87, 100)
+    assert abs99_lo > 0.5
+    assert mid_lo > 0.5
+    text = PROTOCOL.read_text()
+    assert "not a second freeze" in text
+    assert "**86**" in text
+    assert "**13**" in text
+    assert "McNemar" in text
+    assert "Clopper–Pearson" in text
+    assert "[0.372, 0.667]" in text
+    assert "Do not sell McNemar" in text or "Do not sell the McNemar" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "paired prompt-family H2 readout" in log

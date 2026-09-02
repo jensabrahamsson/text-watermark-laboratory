@@ -57,6 +57,29 @@ Forbidden:
 - “Key-free detection fails” as a collapse of isolated **25/48** onto prompt-group **99/100**.
 - Treating a frontier-model sketch as a proof.
 
+Allowed clustered descriptions of **already-opened** scores, when they
+change a claim and are labelled as such:
+
+- Clopper–Pearson intervals on prompt-win or isolated-sign counts
+  (Clopper & Pearson, 1934). Isolated **25/48** is **[0.372, 0.667]**
+  and includes ½. Hard last-4 **9/12** includes ½; margin-0.02
+  **10/12** does not. That is why both 9/12 and 10/12 are reported.
+- Exact McNemar / binomial on discordant **prompt-family** signs
+  (McNemar, 1947), directed at the frozen ranking endpoint. Absolute
+  H2 0:4 versus 16:32 is **86 / 13 / 1 / 0**; one-sided p ≈ 0.00092.
+- `permutation_prompt_sign_p`: sign-flip on prompt-mean(marked −
+  unmarked). Prompt family is the unit.
+
+These are not a second freeze, not a new `probe --methods` name, and
+not a theorem. Leave-one-prompt-out tables share training mass, so
+families are weakly dependent. Independent binomial intervals on two
+**paired** windows are not a test of those windows. Anytime-valid /
+e-value machinery does not apply after a one-shot freeze-and-open.
+If the p-value does not change a claim beyond the frozen count, omit
+it. Do not paste a language-model derivation as a proof that
+tournament sampling is distinguishable in the sense of Christ et al.
+(2024).
+
 A complexity-theoretic proof that tournament sampling is key-free distinguishable, in the sense of Christ et al. (2024), would be a different paper. This notebook does not contain that proof. Placement of the theorems relative to the measurements: [related-work.md](related-work.md).
 
 ## Manuscript position

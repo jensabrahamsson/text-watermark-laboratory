@@ -1884,4 +1884,16 @@ Isolated-file detection is still not finished. Do not write `thesis/`.
 JSON: `experiments/2026-09-01-probe-100x4-hard-windows-absolute/`.
 Reindexed (keep): `experiments/2026-09-01-probe-100x4-hard-windows/`.
 
+## 2026-09-02 paired prompt-family H2 readout
+
+Post-open clustered description of the already-opened absolute H2
+holdouts. Not a second freeze. Not a new scorer. Prompt family is the
+unit. 0:4 versus 16:32 is **86 / 13 / 1 / 0**. Exact one-sided McNemar
+P(X ≥ 13 | Bin(14, ½)) ≈ **0.00092**. Clopper–Pearson 95% on isolated
+**25/48** is **[0.372, 0.667]** and includes ½; on **9/12** includes ½;
+on absolute **87/100** is **[0.788, 0.929]** and excludes ½. Unpaired
+interval overlap is not the H2 test. Do not sell McNemar **0.00092**,
+**93/100** gap signs, **99/100**, or **87/100** as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
 ---

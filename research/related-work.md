@@ -33,7 +33,11 @@ SynthID-Text.
 
 How to write an indication rather than a slogan:
 [CITING.md](CITING.md). This laboratory **did not refute** Christ et al.
-(2024) or Zhang et al. (2024). Do not write that it did.
+(2024) or Zhang et al. (2024). Do not write that it did. Clustered
+binomial intervals and exact McNemar on already-opened prompt-family
+signs (Clopper & Pearson, 1934; McNemar, 1947) are allowed when they
+change a claim and are labelled post-open. A frontier-model sketch is
+not a proof that tournament sampling is distinguishable in their sense.
 
 Christ et al. (2024) prove *cryptographic undetectability* for a stated
 PRF-based construction: a polynomial-time algorithm without the key

@@ -136,7 +136,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Occupancy-free gpt2-medium leftover-15 | leftover-15 coverage **0/15**; occupancy-free t=0 **16/48 vs 48/48**; official **100/100**; not **25/48** |
 | Occupancy-free gpt2-medium→gpt2-medium 12 | postokhits t=0 **10/48 vs 48/48** (coverage **13/48**; exact 10/48); does not beat **25/48** |
 | Occupancy-free Distil↔gpt2-medium 12 | Distil→gpt2-medium postokhits t=0 **20/48 vs 48/48** (coverage **22/48**); gpt2-medium→Distil **3/48 vs 47/48** (coverage **5/48**); does not beat **25/48** |
-| Confirmatory H2 windows | reindexed 0:4 **99/100** vs 16:32 **89/100**; absolute 0:4 **99/100** vs 16:32 **87/100**; not **25/48** |
+| Confirmatory H2 windows | reindexed 0:4 **99/100** vs 16:32 **89/100**; absolute 0:4 **99/100** vs 16:32 **87/100**; paired McNemar **86/13/1/0**; not **25/48** |
 | Key-free hits (shared 4-grams only, recount) | **10/12**, AUC **0.718** |
 | Key-free hashpool | **11/12**, isolated **35/48** |
 | Key-free hashpool, 36 topics | **31/36**, AUC **0.877** |

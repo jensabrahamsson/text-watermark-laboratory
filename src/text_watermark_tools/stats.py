@@ -21,6 +21,17 @@ FILE_LEVEL_INFERENCE_NOTE = (
     "prompt-mean differences."
 )
 
+CLUSTERED_INFERENCE_NOTE = (
+    "Prompt family is the intended independent unit. Leave-one-prompt-out "
+    "tables share training mass across families, so the families are weakly "
+    "dependent. permutation_prompt_sign_p, exact McNemar on discordant "
+    "prompt signs, and Clopper–Pearson intervals on prompt-win counts are "
+    "clustered descriptions of already-computed scores. They are not a "
+    "second freeze, not a new scorer, and not a theorem. File-level "
+    "binomial_p_above_zero remains descriptive. Independent binomial "
+    "intervals on two paired windows are not a test of those windows."
+)
+
 
 @dataclass(frozen=True)
 class BinaryEval:
@@ -72,6 +83,91 @@ def binomial_sf(k: int, n: int, p: float = 0.5) -> float:
     for i in range(k, n + 1):
         total += math.comb(n, i) * (p**i) * ((1.0 - p) ** (n - i))
     return total
+
+
+def _binomial_sf_invert(k: int, n: int, target: float, *, iters: int = 80) -> float:
+    """Invert binomial_sf(k, n, p) = target by bisection on p in [0, 1].
+
+    binomial_sf increases in p. No scipy.
+    """
+    lo = 0.0
+    hi = 1.0
+    for _ in range(iters):
+        mid = 0.5 * (lo + hi)
+        if binomial_sf(k, n, mid) > target:
+            hi = mid
+        else:
+            lo = mid
+    return 0.5 * (lo + hi)
+
+
+def clopper_pearson(
+    k: int, n: int, *, confidence: float = 0.95
+) -> tuple[float, float]:
+    """Exact Clopper–Pearson interval for a binomial proportion.
+
+    Inverts binomial_sf. Lower solves P(X >= k | n, p) = α/2; upper
+    solves P(X <= k | n, p) = α/2. k=0 pins lower at 0; k=n pins
+    upper at 1. Not a theorem about watermarks. Cite Clopper and
+    Pearson (1934).
+    """
+    if n <= 0:
+        raise ValueError("n must be positive")
+    k = int(k)
+    n = int(n)
+    if k < 0 or k > n:
+        raise ValueError("k must satisfy 0 <= k <= n")
+    if not 0.0 < confidence < 1.0:
+        raise ValueError("confidence must be in (0, 1)")
+    alpha = 1.0 - confidence
+    lo = 0.0 if k == 0 else _binomial_sf_invert(k, n, alpha / 2.0)
+    hi = 1.0 if k == n else _binomial_sf_invert(k + 1, n, 1.0 - alpha / 2.0)
+    return lo, hi
+
+
+def mcnemar_exact_p(n_only_a: int, n_only_b: int) -> tuple[float, float]:
+    """Exact binomial McNemar on discordant paired binary outcomes.
+
+    one_sided is P(X >= n_only_a | Bin(n_only_a+n_only_b, 1/2)): the
+    directed test that A wins more of the disagreements. two_sided is
+    P(|X - n/2| >= |n_only_a - n/2|). Zero discordant pairs return
+    (1, 1). Cite McNemar (1947).
+    """
+    b = int(n_only_a)
+    c = int(n_only_b)
+    if b < 0 or c < 0:
+        raise ValueError("discordant counts must be non-negative")
+    n = b + c
+    if n == 0:
+        return 1.0, 1.0
+    one_sided = binomial_sf(b, n, 0.5)
+    thresh = abs(b - n / 2.0)
+    two_sided = 0.0
+    half_n = 0.5**n
+    for i in range(n + 1):
+        if abs(i - n / 2.0) + 1e-15 >= thresh:
+            two_sided += math.comb(n, i) * half_n
+    return one_sided, min(1.0, two_sided)
+
+
+def _sign_flip_mean_p(
+    deltas: Sequence[float], *, n_perm: int, seed: int
+) -> float:
+    """One-sided sign-flip p on mean(deltas). Conservative +1/(n_perm+1)."""
+    values = [float(x) for x in deltas]
+    if not values or n_perm <= 0:
+        return float("nan")
+    observed = _mean(values)
+    rng = random.Random(seed)
+    count = 0
+    n = len(values)
+    for _ in range(n_perm):
+        flipped = 0.0
+        for delta in values:
+            flipped += delta if rng.random() < 0.5 else -delta
+        if flipped / n >= observed:
+            count += 1
+    return (count + 1) / (n_perm + 1)
 
 
 def permutation_mean_diff_p(
@@ -130,17 +226,110 @@ def permutation_prompt_sign_p(
     if not by or n_perm <= 0:
         return float("nan")
     deltas = [_mean(ms) - _mean(us) for ms, us in by.values()]
-    observed = _mean(deltas)
-    rng = random.Random(seed)
-    count = 0
-    for _ in range(n_perm):
-        flipped = 0.0
-        for delta in deltas:
-            flipped += delta if rng.random() < 0.5 else -delta
-        fake = flipped / len(deltas)
-        if fake >= observed:
-            count += 1
-    return (count + 1) / (n_perm + 1)
+    return _sign_flip_mean_p(deltas, n_perm=n_perm, seed=seed)
+
+
+def _prompt_family_win_delta(
+    stems: Sequence[str],
+    marked: Sequence[float],
+    unmarked: Sequence[float],
+) -> dict[str, tuple[bool, float]]:
+    if len(stems) != len(marked) or len(stems) != len(unmarked):
+        raise ValueError("stems and LRs must be aligned")
+    by: dict[str, tuple[list[float], list[float]]] = {}
+    for stem, m, u in zip(stems, marked, unmarked, strict=True):
+        bucket = by.setdefault(str(stem), ([], []))
+        bucket[0].append(float(m))
+        bucket[1].append(float(u))
+    out: dict[str, tuple[bool, float]] = {}
+    for stem, (ms, us) in by.items():
+        if not ms or not us:
+            raise ValueError(f"stem {stem!r} is missing a marked or unmarked side")
+        delta = _mean(ms) - _mean(us)
+        out[stem] = (delta > 0.0, delta)
+    return out
+
+
+@dataclass(frozen=True)
+class PairedPromptSignTable:
+    n_stems: int
+    both_win: int
+    only_a: int
+    only_b: int
+    both_lose: int
+    n_discordant: int
+    mcnemar_one_sided_p: float
+    mcnemar_two_sided_p: float
+    n_a_gap_larger: int
+    n_b_gap_larger: int
+    n_gap_ties: int
+    mean_gap_diff: float
+    gap_sign_p: float
+    note: str
+
+
+def paired_prompt_sign_table(
+    stems_a: Sequence[str],
+    marked_a: Sequence[float],
+    unmarked_a: Sequence[float],
+    stems_b: Sequence[str],
+    marked_b: Sequence[float],
+    unmarked_b: Sequence[float],
+    *,
+    n_perm: int = 2000,
+    seed: int = 0,
+) -> PairedPromptSignTable:
+    """Paired prompt-family 2×2 of ranking wins, plus delta-gap signs.
+
+    Win is mean(marked) > mean(unmarked), the frozen strict-`>` ranking
+    endpoint. McNemar is exact binomial on the discordant cells, directed
+    at A. gap_sign_p is a sign-flip on mean(delta_a − delta_b), the same
+    conservative +1/(n_perm+1) as permutation_prompt_sign_p. Leave-one-
+    prompt-out tables induce weak dependence; see CLUSTERED_INFERENCE_NOTE.
+    """
+    left = _prompt_family_win_delta(stems_a, marked_a, unmarked_a)
+    right = _prompt_family_win_delta(stems_b, marked_b, unmarked_b)
+    if set(left) != set(right):
+        raise ValueError("paired tables must cover the same prompt families")
+    both_win = only_a = only_b = both_lose = 0
+    n_a_gap = n_b_gap = n_gap_ties = 0
+    gap_diffs: list[float] = []
+    for stem in sorted(left):
+        win_a, delta_a = left[stem]
+        win_b, delta_b = right[stem]
+        if win_a and win_b:
+            both_win += 1
+        elif win_a and not win_b:
+            only_a += 1
+        elif (not win_a) and win_b:
+            only_b += 1
+        else:
+            both_lose += 1
+        gap = delta_a - delta_b
+        gap_diffs.append(gap)
+        if gap > 0.0:
+            n_a_gap += 1
+        elif gap < 0.0:
+            n_b_gap += 1
+        else:
+            n_gap_ties += 1
+    one_sided, two_sided = mcnemar_exact_p(only_a, only_b)
+    return PairedPromptSignTable(
+        n_stems=len(left),
+        both_win=both_win,
+        only_a=only_a,
+        only_b=only_b,
+        both_lose=both_lose,
+        n_discordant=only_a + only_b,
+        mcnemar_one_sided_p=one_sided,
+        mcnemar_two_sided_p=two_sided,
+        n_a_gap_larger=n_a_gap,
+        n_b_gap_larger=n_b_gap,
+        n_gap_ties=n_gap_ties,
+        mean_gap_diff=_mean(gap_diffs),
+        gap_sign_p=_sign_flip_mean_p(gap_diffs, n_perm=n_perm, seed=seed),
+        note=CLUSTERED_INFERENCE_NOTE,
+    )
 
 
 def youden_threshold(

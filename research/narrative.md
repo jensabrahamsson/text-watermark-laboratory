@@ -228,7 +228,10 @@ Distil→gpt2-medium t=0 **20/48 vs 48/48** (coverage **22/48**);
 gpt2-medium→Distil t=0 **3/48 vs 47/48** (coverage **5/48**). Do not
 sell **20/48** or **3/48**. Absolute-history H2 is opened in
 [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md): 0:4 **99/100** vs
-16:32 **87/100**; reindexed 16:32 was **89/100**. Do not sell **99/100**
+16:32 **87/100**; reindexed 16:32 was **89/100**. Paired prompt-family
+McNemar on those absolute windows is **13 vs 1** among 14 discordant
+families. Isolated **25/48** Clopper–Pearson **[0.372, 0.667]** includes
+½. Do not sell **99/100**
 or **87/100**. Isolated-file detection is still not finished. Do not
 write `thesis/`.
 

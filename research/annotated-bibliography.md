@@ -112,3 +112,15 @@ Annotation: Primary sources for Anthropic’s announced mark (“a version of”
 **Google DeepMind. (2024).** Publicly verifiable detection (Issue 22) [GitHub issue]. https://github.com/google-deepmind/synthid-text/issues/22
 
 Annotation: Feature request for publicly verifiable detection. Confirms that the public reference detector is still keyed.
+
+---
+
+## Clustered tests (not watermark papers)
+
+**Clopper, C. J., & Pearson, E. S. (1934).** The use of confidence or fiducial limits illustrated in the case of the binomial. *Biometrika, 26*(4), 404–413. https://doi.org/10.1093/biomet/26.4.404
+
+Annotation: Exact binomial interval used on already-opened *k*/*n* counts. Isolated **25/48** is **[0.372, 0.667]** and includes ½. This is not a theorem about SynthID-Text.
+
+**McNemar, Q. (1947).** Note on the sampling error of the difference between correlated proportions or percentages. *Psychometrika, 12*(2), 153–157. https://doi.org/10.1007/BF02295996
+
+Annotation: Exact binomial test on discordant paired binary outcomes. Absolute-history H2 uses it on prompt-family ranking wins (0:4 versus 16:32: **86 / 13 / 1 / 0**). The families are weakly dependent under leave-one-prompt-out; this is not a second freeze and not **25/48**.
