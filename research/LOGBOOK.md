@@ -2501,6 +2501,27 @@ JSON: `experiments/2026-09-04-pair-100x4-aaronson/`,
 `experiments/2026-09-04-probe-100x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-100x4-aaronson/`.
 
+## 2026-09-04 DistilGPT2 ngram_len=13 freeze
+
+[PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md) frozen
+before generation. Same public keys and `ngram_len=13` ($\Hw=12$) as
+[PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md), generator
+`distilgpt2`, original 12 prompt strings, seed **20260903**, Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-long-d-ctrl,
+H-long-d-group, H-long-d-iso, and H-long-d-occ are stated before
+generation. Do not look at key-free LRs until `pair` has written
+official first-draw scores and the probe command has been run once, as
+written. Do not add a scorer. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260903 \
+  --ngram-len 13 --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-12x4-ngram13
+```
+
+
 
 
 

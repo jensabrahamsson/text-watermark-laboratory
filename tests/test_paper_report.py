@@ -196,6 +196,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw" in PAPER
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
+    assert "PROTOCOL-next-longctx-distil" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -230,6 +231,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "573" in next_sec
     assert "608/800" in next_sec
     assert "25167" in next_sec
+    assert "pair-distil-12x4-ngram13" in next_sec
+    assert "has not been generated" in next_sec
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "68/96" not in abs_
     assert "pair-distil-100x4-kgw" not in abs_
