@@ -225,12 +225,12 @@ Axis & TTP-Detect \citep{wang2026ttp} & This report \\
 \midrule
 Oracle & Paired watermarked / unwatermarked references & Same: matched twins \\
 Keys at test & Unused & Unused (public keys exist and are withheld) \\
-Fitted object & LoRA-tuned Qwen2.5-3B proxy plus Qwen3-1.7B scorer; relative tests & Sparse next-token counts and $\LLR$ (0 neural parameters) \\
+Fitted object & LoRA Qwen2.5-3B proxy + Qwen3-1.7B; relative tests & Sparse next-token counts and $\LLR$ (0 neural parameters) \\
 Training references & 6000 C4 paired completions (their paper) & $N\times 4$ twins (100 families here) \\
 Training hardware & 2$\times$A100 80GB (their paper) & CPU; no accelerator \\
-Detection-time provider queries & $N=16$ watermarked $+$ $N=16$ unmarked references ($\approx 6.14$s Llama-3.1-8B) & None (finished-string lookup) \\
+Detection-time queries & $N=16$ wm + $N=16$ unwm refs ($\approx 6.14$s Llama-3.1-8B) & None (finished-string lookup) \\
 TTP-side scoring & $<2$s GPU modules (their Table~2) & CPU mean $\LLR$ over observed 4-grams \\
-Persisted reader & 3B proxy $+$ 1.7B scorer & 33.2\,MB JSON; 108454 / 116491 contexts on 100-family interpolate \\
+Persisted reader & 3B proxy + 1.7B scorer & 33.2\,MB JSON; 108454 / 116491 contexts \\
 Decision unit & Finished-string tests in that paper & Prompt-group mean and one file \\
 Demonstrated scope & Their corpora and scheme mix & One public SynthID instance \\
 \bottomrule
