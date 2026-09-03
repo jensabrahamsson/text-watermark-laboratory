@@ -423,7 +423,7 @@ last-1 tail is **100/100**). Grok-register 12 last-2 isolated
 **21/48** vs last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
-**10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
+**10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
 opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
