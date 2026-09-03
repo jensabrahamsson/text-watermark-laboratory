@@ -94,6 +94,36 @@ def test_unmarked_model_load_forwards_hub_revision(monkeypatch) -> None:
     assert model is not None
 
 
+def test_marked_model_load_forwards_hub_revision(monkeypatch) -> None:
+    import torch
+    from text_watermark_tools.generate import _load_marked_model, KeyedSynthIDGPT2
+
+    seen: dict = {}
+
+    class Dummy:
+        watermark_keys = None
+        watermark_ngram_len = None
+
+        def to(self, _device):
+            return self
+
+        def eval(self):
+            return self
+
+    def fake_from_pretrained(name, **kwargs):
+        seen["name"] = name
+        seen["kwargs"] = kwargs
+        return Dummy()
+
+    monkeypatch.setattr(KeyedSynthIDGPT2, "from_pretrained", fake_from_pretrained)
+    model = _load_marked_model(
+        torch.device("cpu"), model_name="gpt2", ngram_len=13, revision="abc123"
+    )
+    assert seen["name"] == "gpt2"
+    assert seen["kwargs"]["revision"] == "abc123"
+    assert model.watermark_ngram_len == 13
+
+
 def test_cli_pair_accepts_hub_revision() -> None:
     from text_watermark_tools.cli import build_parser
 
