@@ -49,6 +49,9 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "--mixin kgw" in text
     assert "**85/96**" in text
     assert "**114**" in text
+    assert "**100/100**" in text
+    assert "**747/800**" in text
+    assert "**4557**" in text
     assert "**6/12**" in text
     assert "**76/100**" in text
     assert "**160**" in text

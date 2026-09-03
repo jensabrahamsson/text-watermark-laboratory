@@ -207,8 +207,9 @@ green-list defaults), not a longer SynthID history. Official scores are
 `WatermarkDetector` z-scores, not `detector_mean`. Frozen before
 generation: [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md).
 Original-12 interpolate last-4 is **12/12** (isolated **85/96**);
-occupancy **114** seen. Do not sell **12/12** or **85/96** as replacing
-**25/48**.
+occupancy **114** seen. 100-family interpolate is **100/100** (isolated
+**747/800**); occupancy **4557** seen. Do not sell **12/12**,
+**100/100**, **85/96**, or **747/800** as replacing **25/48**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \

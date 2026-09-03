@@ -109,4 +109,6 @@ not finished. Nested Youden is post hoc, not nested CV. Lock A
 fitted detector. A Kirchenbauer green-list mixin is frozen in
 `research/PROTOCOL-next-kgw.md` (SHA `8371406`; `--mixin kgw`, seed
 20260904). Original-12 interpolate last-4 is **12/12** (isolated
-**85/96**); occupancy **114** seen. That is not **25/48**.
+**85/96**); occupancy **114** seen. 100-family interpolate is
+**100/100** (isolated **747/800**); occupancy **4557** seen. That is
+not **25/48**. GitHub tree pin: `8f09aa6`.

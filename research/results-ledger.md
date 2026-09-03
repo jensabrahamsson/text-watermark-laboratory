@@ -560,8 +560,10 @@ interpolate **76/100** (below lock A **99/100**); isolated
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
-(**60/96**); occupancy **114** seen. Do not sell **12/12** or
-**85/96** as replacing **25/48**. Isolated-file remains open.
+(**60/96**); occupancy **114** seen. 100-family interpolate
+**100/100** (isolated **747/800**); occupancy **4557** seen. Do not
+sell **12/12**, **100/100**, **85/96**, or **747/800** as replacing
+**25/48**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

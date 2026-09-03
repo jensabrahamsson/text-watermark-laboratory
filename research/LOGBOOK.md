@@ -2258,6 +2258,24 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
 Do not look at key-free LRs until `pair` has written official
 first-draw z-scores and the probe command has been run once, as written.
 
+## 2026-09-03 Kirchenbauer 100-family opened
+
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) 100-family named `8f09aa6`.
+Pair seed **20260904**, `--mixin kgw`, 100 one-liners. Official
+first-draw z>3 **100/100** (H-kgw-B-ctrl holds). Extra-draw **400/400**
+marked above 3.0, **5/400** unmarked. Key-free interpolate last-4
+**100/100** (AUC **0.982**, isolated **376/400 vs 371/400**, BA
+**747/800**, mean $D_p=0.745$). Hard **62/100** (AUC **0.573**, BA
+**440/800**). `used_keys=false`. Occupancy **4557** seen vs **96991**
+unseen (opening 1044 vs 1356), below public $\Hw=4$ **10158** and
+$\Hw=12$ **5878**. Do not sell **100/100**, **747/800**, or **4557** as
+replacing **25/48**. Isolated-file detection on the public SynthID
+original-12 is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-03-pair-100x4-kgw/`,
+`experiments/2026-09-03-probe-100x4-kgw-hard-last4/`,
+`experiments/2026-09-03-atoms-100x4-kgw/`.
+
 ---
 
 ## 2026-09-02 resample

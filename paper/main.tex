@@ -1467,7 +1467,20 @@ therefore not an exact 4-gram copy detector; Witten--Bell backoff
 carries the mass. $\mathrm{context\_width}=1$ is shorter than public
 $\Hw=4$, not a longer-history result. Isolated \textbf{85/96} is a
 different construction from the original-12 SynthID \textbf{47/96}.
-One hundred Kirchenbauer families remain named, not opened.
+
+\paragraph{One hundred families, Kirchenbauer green-list.}
+Same freeze, same Hub SHA, seed 20260904, named \texttt{8f09aa6} before
+generation. Official matching $z$-scores are above $3.0$ on
+\textbf{100/100} first marked files (min $6.61$). Leave-one-family-out
+interpolate last-4 ranks \textbf{100/100} (AUC $0.982$; $\tau=0$ is
+376 TP, 24 FN, 371 TN, 29 FP; balanced accuracy $747/800$; mean
+$D_p=0.745$, every family $D_p>0$). Hard last-4 is \textbf{62/100}
+(AUC $0.573$; balanced accuracy $440/800$). Exact last-4 occupancy is
+4557 seen versus 96991 unseen (opening $[0{:}4)$ is 1044 versus 1356),
+below public $\Hw=4$ 100-family occupancy 10158 seen and below
+$\Hw=12$ 5878 seen. Interpolate \textbf{100/100} is therefore not an
+exact 4-gram copy detector. It is a different construction from lock~A
+\textbf{99/100} and from the original-12 SynthID \textbf{47/96}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1480,11 +1493,12 @@ the opening window (\Cref{tab:occ}). On the original 12 the opening is
 mostly backoff; on the 100 one-liners it is still mostly exact copies,
 fewer than under public $\Hw=4$. The
 original-12 \textbf{6/12} is small-$n$. Kirchenbauer
-\texttt{lefthash} on the same 12 strings goes the other way:
-interpolate \textbf{12/12} and isolated \textbf{85/96} with
-\textit{less} exact last-4 occupancy than public $\Hw=4$. That matches
-a one-token green-list, not a universal detector. Neither count is a
-theorem about production Gemini.
+\texttt{lefthash} on the same prompt strings goes the other way:
+original-12 interpolate \textbf{12/12} and 100-family interpolate
+\textbf{100/100} (isolated $747/800$) with \textit{less} exact last-4
+occupancy than public $\Hw=4$ or $\Hw=12$. That matches a one-token
+green-list plus Witten--Bell backoff, not a universal detector.
+Neither count is a theorem about production Gemini.
 
 % =========================================================================
 \section{Conclusion}
@@ -1517,12 +1531,13 @@ lower than under public $\Hw=4$ (\Cref{tab:occ}). The original-12 readout is
 $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
 \textbf{25/48} sensitivity and \textbf{47/96} correct. On a Kirchenbauer
 green-list mixin with one-token seeding, interpolate last-4 ranks
-\textbf{12/12} and isolated $\tau=0$ is \textbf{85/96} on new twins of
-the original 12 strings; that is a different construction, not a
-replacement of \textbf{25/48}.
+\textbf{12/12} (isolated \textbf{85/96}) on the original 12 strings and
+\textbf{100/100} (isolated $747/800$) on 100 one-liners; that is a
+different construction, not a replacement of \textbf{25/48}.
 
 Code and frozen JSON:
-\url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
+\url{https://github.com/jensabrahamsson/text-watermark-laboratory}
+(pinned revision in \Cref{app:artifacts}).
 
 % =========================================================================
 \appendix
@@ -1538,6 +1553,9 @@ Hub commit SHAs were not recorded at generation time. Published scores
 use the committed strings (\Cref{sec:generation}); they do not re-download
 Hub weights. Current laboratory \texttt{gpt2} cache:
 \texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
+GitHub tree for this manuscript track:
+\url{https://github.com/jensabrahamsson/text-watermark-laboratory/tree/8f09aa6}
+(100-family Kirchenbauer start; later dump SHAs below).
 
 \paragraph{Chronology (confirmatory 100).}
 Protocol freeze SHA \texttt{7001489}. Prompts
@@ -1621,6 +1639,16 @@ Kirchenbauer mixin freeze: \path{research/PROTOCOL-next-kgw.md}
 Original-12 occupancy:
 \path{experiments/2026-09-03-atoms-12x4-kgw/atoms.json}
 (\texttt{cbde7405e481bfad}; 114 seen).
+100-family Kirchenbauer start: \texttt{8f09aa6}.
+100-family pair:
+\path{experiments/2026-09-03-pair-100x4-kgw/results.json}
+(\texttt{d96793694eaa2ab1}).
+100-family probe:
+\path{experiments/2026-09-03-probe-100x4-kgw-hard-last4/interpolate/holdout.json}
+(\texttt{dce85a6796def442}; interpolate $100/100$, $747/800$).
+100-family occupancy:
+\path{experiments/2026-09-03-atoms-100x4-kgw/atoms.json}
+(\texttt{e59753393fdc1d3e}; 4557 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

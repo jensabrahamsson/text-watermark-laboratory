@@ -260,7 +260,9 @@ finished. Sol's different-mixin two-grain lock is
 defaults, `--mixin kgw`, seed **20260904**). Opened: official z>3
 **48/48** marked; interpolate and hard **12/12**; isolated interpolate
 **44/48 vs 41/48** (**85/96**); occupancy **114** seen vs **12071**
-unseen. Do not sell **12/12**, **85/96**, or **114** as replacing
+unseen. 100-family interpolate **100/100** (isolated **747/800**);
+occupancy **4557** seen vs **96991** unseen. Do not sell **12/12**,
+**100/100**, **85/96**, **747/800**, or **114** as replacing
 **25/48**. Do not write `thesis/`.
 
 ## What this freeze refuses

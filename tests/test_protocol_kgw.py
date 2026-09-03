@@ -12,6 +12,9 @@ LOG = ROOT / "research" / "LOGBOOK.md"
 PAIR = ROOT / "experiments" / "2026-09-03-pair-12x4-kgw"
 PROBE = ROOT / "experiments" / "2026-09-03-probe-12x4-kgw-hard-last4"
 ATOMS = ROOT / "experiments" / "2026-09-03-atoms-12x4-kgw"
+PAIR100 = ROOT / "experiments" / "2026-09-03-pair-100x4-kgw"
+PROBE100 = ROOT / "experiments" / "2026-09-03-probe-100x4-kgw-hard-last4"
+ATOMS100 = ROOT / "experiments" / "2026-09-03-atoms-100x4-kgw"
 
 
 def test_protocol_kgw_locks_config_before_generation() -> None:
@@ -43,7 +46,7 @@ def test_protocol_kgw_locks_config_before_generation() -> None:
     assert "synthid-text" in text
     assert "thesis/" in text
     assert "Do **not** look at key-free LRs" in text
-    assert "named, not opened" in text
+    assert "Named here before generation" in text
     assert "Aaronson" in text
     assert "PROTOCOL-next-longctx" in text
     assert "not unique to tournament" in text or "not unique to tournament sampling" in text
@@ -180,6 +183,42 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert "H-kgw-B-ctrl" in log
     assert "H-kgw-B-group" in log
     assert "H-kgw-B-iso" in log
+
+
+def test_protocol_kgw_100_family_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR100 / "results.json").read_text())
+    assert pair["mixin"] == "kgw"
+    assert pair["seed"] == 20260904
+    assert pair["hub_revision"] == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
+    assert len(pair["rows"]) == 100
+    assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    assert sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"]) == 1
+    interp = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE100 / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["n_prompts_marked_above"] == 100
+    assert hard["n_prompts_marked_above"] == 62
+    assert interp["n_marked_lr_positive"] == 376
+    assert interp["n_unmarked_lr_nonpositive"] == 371
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 747
+    assert abs(interp["binary"]["auc"] - 0.982) < 0.001
+    assert abs(interp["binary"]["mean_diff"] - 0.745) < 0.001
+    occ = json.loads((ATOMS100 / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 4557
+    assert occ["n_unseen"] == 96991
+    assert occ["windows"][0]["n_seen"] == 1044
+    assert "H-kgw-B-ctrl **holds**" in text
+    assert "H-kgw-B-group **holds**" in text
+    assert "H-kgw-B-iso **holds**" in text
+    assert "**100/100**" in text
+    assert "**747/800**" in text
+    assert "**4557**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **100/100**" in collapsed
+    lo, hi = clopper_pearson(100, 100)
+    assert lo > 0.5
 
 
 def test_protocol_kgw_pair_does_not_store_synthid_means() -> None:

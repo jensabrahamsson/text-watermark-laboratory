@@ -148,8 +148,8 @@ python -m text_watermark_tools atoms --leave-one-out \
 
 Same mixin defaults, GPT-2, `--n-samples 4`, $T=128$, seed
 `20260904`, prompts `experiments/2026-09-01-prompts-100/`, Hub SHA
-as above. Same readers. Same two grains. Named, not opened here.
-LOGBOOK names the start before generation.
+as above. Same readers. Same two grains. Named here before generation.
+Opened below. LOGBOOK names the start before generation.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
@@ -260,6 +260,67 @@ or `'I' → ' walked'` as replacing **25/48**.
 
 JSON: [experiments/2026-09-03-atoms-12x4-kgw/](../experiments/2026-09-03-atoms-12x4-kgw/).
 
-One hundred families remain named, not opened. Isolated-file detection
-on the public SynthID original-12 remains **25/48** / **47/96**. Do not
-write `thesis/`.
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. The 100-family readout follows. Do not write
+`thesis/`.
+
+## One hundred families (opened)
+
+Named `8f09aa6` before generation. Pair seed **20260904**. `mixin=kgw`.
+`used_keys=false`. Hub SHA `607a30d783dfa663caf39e06633721c8d4cfcd7e`.
+
+Pair dump: [experiments/2026-09-03-pair-100x4-kgw/](../experiments/2026-09-03-pair-100x4-kgw/).
+Probe dump: [experiments/2026-09-03-probe-100x4-kgw-hard-last4/](../experiments/2026-09-03-probe-100x4-kgw-hard-last4/).
+
+H-kgw-B-ctrl **holds**. Official first-draw matching z-score is above
+$3.0$ on **100/100** first marked files (min $6.61$). Unmarked
+first-draw: **1/100** above $3.0$ (max $3.13$). Mixin is on.
+Post-open extra-draw check: **400/400** marked above $3.0$ (min
+$3.53$), **5/400** unmarked above $3.0$ (max $5.45$). Not a second
+freeze.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **100/100** | 0.982 | 376/400 | 371/400 | 376 24 371 29 | **747/800** |
+| hard last-4 | **62/100** | 0.573 | 209/400 | 231/400 | 209 191 231 169 | **440/800** |
+
+Public-mixin lock A interpolate on these prompt *strings* (different
+twins, `ngram_len=5`) was **99/100**. Kirchenbauer interpolate
+**100/100** is a different construction. Mean $D_p=0.745$ (median
+$0.759$; every family $D_p>0$). Hard mean paired difference is $0.030$.
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| kgw interpolate **100/100** | **[0.964, 1.000]** | no |
+| kgw interpolate BA **747/800** | **[0.914, 0.950]** | no |
+| kgw hard **62/100** | **[0.517, 0.715]** | no |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+
+H-kgw-B-group **holds** as a report. Interpolate last-4 100-LOO ranking
+is **100/100** (clustered permutation $p\approx 0.0005$). It does not
+replace lock A **99/100** (different mixin) or isolated **25/48**.
+`context_width=1` is shorter than public $\Hw=4$.
+
+H-kgw-B-iso **holds**. Isolated interpolate **747/800** (AUC **0.982**)
+is a different corpus and mixin from the original-12 SynthID
+**47/96**. Hard isolated **440/800** (AUC **0.573**) is near chance at
+file grain. Nested Youden interpolate 368/400 vs 379/400 is post hoc.
+Do not sell **100/100**, **376/400**, **747/800**, **62/100**, or
+**440/800** as replacing **25/48**. Official **100/100** uses the
+matching z-test.
+
+H-kgw-occ on this frame: leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate holdout (marked
+`lr>0` **376/400**). Exact next-token overlap is **4557** seen vs
+**96991** unseen. Public $\Hw=4$ 100-family was **10158** seen;
+$\Hw=12$ was **5878** seen. Opening $[0{:}4)$ is 1044 seen vs 1356
+unseen. Interpolate **100/100** is not an exact last-4 copy detector.
+Do not sell **4557**, **1044**, or `'They' → ' were'` as replacing
+**25/48**.
+
+JSON: [experiments/2026-09-03-atoms-100x4-kgw/](../experiments/2026-09-03-atoms-100x4-kgw/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.

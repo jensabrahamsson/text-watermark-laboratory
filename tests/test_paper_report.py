@@ -147,6 +147,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
+    assert "8f09aa6" in PAPER
+    assert "text-watermark-laboratory/tree/8f09aa6" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
@@ -157,6 +159,12 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert r"\textbf{12/12}" in next_sec
     assert "85/96" in next_sec
     assert "114 seen" in next_sec or "114 seen versus" in next_sec
+    assert "747/800" in next_sec
+    assert "4557" in next_sec
+    assert r"\textbf{100/100}" in next_sec
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "747/800" not in abs_
+    assert "4557" not in abs_
     assert "context_width" in next_sec or "context\\_width" in next_sec
 
 
@@ -194,6 +202,8 @@ def test_readme_matches_revised_title() -> None:
     assert "--mixin kgw" in README
     assert "12/12" in README
     assert "85/96" in README
+    assert "747/800" in README
+    assert "8f09aa6" in README
     assert "19 A4" in README
     assert "pdflatex" in README.lower() or "pdflatex" in README
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
@@ -550,6 +560,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-03-pair-12x4-kgw/results.json": "c4360e0c259b1f77",
         "experiments/2026-09-03-probe-12x4-kgw-hard-last4/interpolate/holdout.json": "67b8ed6bb2b96bcd",
         "experiments/2026-09-03-atoms-12x4-kgw/atoms.json": "cbde7405e481bfad",
+        "experiments/2026-09-03-pair-100x4-kgw/results.json": "d96793694eaa2ab1",
+        "experiments/2026-09-03-probe-100x4-kgw-hard-last4/interpolate/holdout.json": "dce85a6796def442",
+        "experiments/2026-09-03-atoms-100x4-kgw/atoms.json": "e59753393fdc1d3e",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():
