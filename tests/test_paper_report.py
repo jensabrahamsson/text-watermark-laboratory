@@ -199,6 +199,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "not Distil/Qwen Phase" in PAPER
     assert r"Original 12, $\Hw=12$" in PAPER or "Original 12" in PAPER
     assert "One hundred families" in PAPER
+    assert "Interpretation" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
     assert "489/800" in PAPER
     assert "436/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
