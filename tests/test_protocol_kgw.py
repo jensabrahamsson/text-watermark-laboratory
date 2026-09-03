@@ -1,11 +1,17 @@
 """Kirchenbauer green-list two-grain freeze, locked before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-kgw.md"
 PROMPTS = ROOT / "experiments" / "2026-08-17-grok-prompts"
 LOG = ROOT / "research" / "LOGBOOK.md"
+PAIR = ROOT / "experiments" / "2026-09-03-pair-12x4-kgw"
+PROBE = ROOT / "experiments" / "2026-09-03-probe-12x4-kgw-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-03-atoms-12x4-kgw"
 
 
 def test_protocol_kgw_locks_config_before_generation() -> None:
@@ -37,7 +43,7 @@ def test_protocol_kgw_locks_config_before_generation() -> None:
     assert "synthid-text" in text
     assert "thesis/" in text
     assert "Do **not** look at key-free LRs" in text
-    assert "Not opened" in text
+    assert "named, not opened" in text
     assert "Aaronson" in text
     assert "PROTOCOL-next-longctx" in text
     assert "not unique to tournament" in text or "not unique to tournament sampling" in text
@@ -105,8 +111,77 @@ def test_protocol_kgw_refuses_synthid_only_flags() -> None:
     assert cmd_pair(ctrl) == 2
 
 
-def test_protocol_kgw_has_no_pair_dump_yet() -> None:
-    pair = ROOT / "experiments" / "2026-09-03-pair-12x4-kgw"
-    probe = ROOT / "experiments" / "2026-09-03-probe-12x4-kgw-hard-last4"
-    assert not (pair / "results.json").is_file()
-    assert not (probe / "hard" / "holdout.json").is_file()
+def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR / "results.json").read_text())
+    probe = json.loads((PROBE / "results.json").read_text())
+    assert pair["mixin"] == "kgw"
+    assert pair["instance"] == "kirchenbauer-hf-default"
+    assert pair["seed"] == 20260904
+    assert pair["hub_revision"] == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
+    assert pair["kgw"]["greenlist_ratio"] == 0.25
+    assert pair["kgw"]["bias"] == 2.0
+    assert pair["kgw"]["hashing_key"] == 15485863
+    assert pair["kgw"]["seeding_scheme"] == "lefthash"
+    assert pair["kgw"]["context_width"] == 1
+    assert pair["kgw"]["z_threshold"] == 3.0
+    assert len(pair["rows"]) == 12
+    for row in pair["rows"]:
+        assert row["marked"]["z_score"] > 3.0
+        assert row["unmarked_gen"]["z_score"] <= 3.0
+        assert row["marked"]["n_tokens"] == 128
+    assert min(row["marked"]["z_score"] for row in pair["rows"]) > 8.4
+    assert max(row["unmarked_gen"]["z_score"] for row in pair["rows"]) < 2.2
+    assert probe["used_keys"] is False
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    assert hard["used_keys"] is False
+    assert interp["used_keys"] is False
+    assert hard["n_prompts_marked_above"] == 12
+    assert interp["n_prompts_marked_above"] == 12
+    assert hard["n_prompt_ties"] == 0
+    assert interp["n_prompt_ties"] == 0
+    assert interp["n_marked_lr_positive"] == 44
+    assert interp["n_unmarked_lr_nonpositive"] == 41
+    assert hard["n_marked_lr_positive"] == 35
+    assert hard["n_unmarked_lr_nonpositive"] == 25
+    assert abs(interp["binary"]["auc"] - 0.947) < 0.001
+    assert abs(hard["binary"]["auc"] - 0.703) < 0.001
+    assert abs(interp["binary"]["mean_diff"] - 0.437) < 0.001
+    assert abs(hard["binary"]["mean_diff"] - 0.070) < 0.001
+    lo, hi = clopper_pearson(12, 12)
+    assert lo > 0.5
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi
+    ba_lo, ba_hi = clopper_pearson(85, 96)
+    assert ba_lo > 0.5
+    assert "H-kgw-ctrl **holds**" in text
+    assert "H-kgw-group **holds**" in text
+    assert "H-kgw-hard **holds**" in text
+    assert "H-kgw-iso **holds**" in text
+    assert "H-kgw-occ **holds**" in text
+    assert "**12/12**" in text
+    assert "**85/96**" in text
+    assert "**114**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **12/12**" in collapsed
+    assert "Not opened. Do not fill this section" not in text
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 114
+    assert occ["n_unseen"] == 12071
+    assert occ["n_marked_lr_positive"] == 44
+    assert occ["windows"][0]["n_seen"] == 40
+    assert occ["windows"][0]["n_unseen"] == 248
+    log = LOG.read_text()
+    assert "`8371406`" in log
+    assert "09e40d4" in log
+
+
+def test_protocol_kgw_pair_does_not_store_synthid_means() -> None:
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["instance"] != "public-deepmind-30"
+    assert "detector_mean" in pair["note"]
+    for row in pair["rows"]:
+        assert "z_score" in row["marked"]
+        assert "green_fraction" in row["marked"]

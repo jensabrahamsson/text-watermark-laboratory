@@ -2203,6 +2203,26 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-03-pair-12x4-kgw
 ```
 
+## 2026-09-03 Kirchenbauer mixin two-grain opened
+
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) named `09e40d4`. Pair seed
+**20260904**, `--mixin kgw`, original 12 Grok strings. Official
+first-draw matching z-score is above 3.0 on **12/12** first marked
+files (H-kgw-ctrl holds). Post-open extra-draw check: **48/48** marked
+above 3.0 (min $7.22$), **2/48** unmarked above 3.0. Key-free 12-LOO
+interpolate last-4 is **12/12** (AUC **0.947**, isolated **44/48 vs
+41/48**, balanced accuracy **85/96**). Hard is **12/12** (AUC
+**0.703**, isolated **35/48 vs 25/48**, **60/96**). `used_keys=false`.
+Occupancy **114** seen vs **12071** unseen (opening 40 vs 248). H-kgw-group
+holds as the ≥**9/12** branch. Do not sell **12/12**, **44/48**,
+**85/96**, or **114** as replacing **25/48**. Isolated-file detection
+on the public SynthID original-12 is still not finished. Do not write
+`thesis/`. One hundred families are not opened.
+
+JSON: `experiments/2026-09-03-pair-12x4-kgw/`,
+`experiments/2026-09-03-probe-12x4-kgw-hard-last4/`,
+`experiments/2026-09-03-atoms-12x4-kgw/`.
+
 ---
 
 ## 2026-09-02 resample

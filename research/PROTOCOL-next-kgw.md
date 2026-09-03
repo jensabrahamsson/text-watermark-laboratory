@@ -197,5 +197,69 @@ Human merge of PR #4 is out of scope for this file.
 
 ## Results
 
-Not opened. Do not fill this section before the frozen commands have
-been run once, as written.
+Protocol SHA `8371406`. Named `09e40d4`. Pair seed **20260904**.
+`mixin=kgw`. `used_keys=false` on the key-free probe. Hub revision
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`.
+
+Pair dump: [experiments/2026-09-03-pair-12x4-kgw/](../experiments/2026-09-03-pair-12x4-kgw/).
+Probe dump: [experiments/2026-09-03-probe-12x4-kgw-hard-last4/](../experiments/2026-09-03-probe-12x4-kgw-hard-last4/).
+
+H-kgw-ctrl **holds**. Official matching z-score is above $3.0$ on all
+12 first marked files (min $8.45$). Unmarked first-draw is **0/12**
+above $3.0$ (max $2.10$). Mixin is on. Post-open extra-draw check,
+using the shipped `kgw_score_text` on the committed files: **48/48**
+marked above $3.0$ (min $7.22$), **2/48** unmarked above $3.0$
+(night-bus draw 2 $z=3.13$; rain draw 4 $z=3.53$). Not a second freeze.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **12/12** | 0.947 | 44/48 | 41/48 | 44 4 41 7 | **85/96** |
+| hard last-4 | **12/12** | 0.703 | 35/48 | 25/48 | 35 13 25 23 | **60/96** |
+
+Public-mixin diagnostic on these prompt *strings* (different twins,
+`ngram_len=5`) was hard **9/12**, isolated **25/48 vs 22/48**, AUC
+**0.590**. That is not a matched-seed pair and not this mixin.
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| kgw interpolate **12/12** | **[0.735, 1.000]** | no |
+| kgw interpolate t=0 **44/48** | **[0.800, 0.977]** | no |
+| kgw interpolate BA **85/96** | **[0.804, 0.941]** | no |
+| kgw hard t=0 **35/48** | **[0.582, 0.847]** | no |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+
+H-kgw-group **holds** as the $\ge$**9/12** branch. Interpolate last-4
+12-LOO prompt ranking is **12/12** (clustered permutation
+$p\approx 0.0005$; mean $D_p=0.437$). Short tournament $\Hw=4$ is not
+shown to be necessary for this reader on this 12-family frame.
+`context_width=1` is shorter than public $\Hw=4$. It does not replace
+**25/48**.
+
+H-kgw-hard **holds** as a companion readout: hard is also **12/12**
+(AUC **0.703**; mean paired difference $0.070$).
+
+H-kgw-iso **holds**. Isolated $\tau=0$ on these Kirchenbauer twins is
+not the original-12 SynthID matrix. Interpolate is 44 TP, 4 FN, 41 TN,
+7 FP (**85/96**); hard is **60/96**. Nested Youden interpolate
+42/48 vs 42/48 is post hoc. Do not sell **12/12**, **44/48**,
+**85/96**, **35/48**, or **60/96** as replacing **25/48**. Official
+**48/48** uses the matching z-test.
+
+H-kgw-occ **holds**. Leave-one-family-out interpolate atoms
+(`atoms --leave-one-out`; `used_keys=false`). File LRs match interpolate
+holdout file-by-file (marked `lr>0` **44/48**). Exact next-token overlap
+on the Kirchenbauer twins is **114** seen vs **12071** unseen
+(Witten–Bell backoff). Public $\Hw=4$ original-12 twins (same prompt
+strings, different generation): **269** seen vs **11912** unseen.
+Opening $[0{:}4)$ is 40 seen vs 248 unseen. Interpolate ranking
+**12/12** is not an exact last-4 copy detector. Occupancy is a
+mechanistic intermediate, not a detector. Do not sell **114**, **40**,
+or `'I' → ' walked'` as replacing **25/48**.
+
+JSON: [experiments/2026-09-03-atoms-12x4-kgw/](../experiments/2026-09-03-atoms-12x4-kgw/).
+
+One hundred families remain named, not opened. Isolated-file detection
+on the public SynthID original-12 remains **25/48** / **47/96**. Do not
+write `thesis/`.

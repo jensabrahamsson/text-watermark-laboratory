@@ -147,10 +147,17 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
-    assert "has not been generated" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
+    assert "85/96" not in abs_
+    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+    assert r"\textbf{12/12}" in next_sec
+    assert "85/96" in next_sec
+    assert "114 seen" in next_sec or "114 seen versus" in next_sec
+    assert "context_width" in next_sec or "context\\_width" in next_sec
 
 
 def test_nested_youden_is_post_hoc() -> None:
@@ -185,6 +192,8 @@ def test_readme_matches_revised_title() -> None:
     assert "ngram_len=13" in README
     assert "PROTOCOL-next-kgw" in README
     assert "--mixin kgw" in README
+    assert "12/12" in README
+    assert "85/96" in README
     assert "19 A4" in README
     assert "pdflatex" in README.lower() or "pdflatex" in README
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
@@ -538,6 +547,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-03-atoms-12x4-public-loo/atoms.json": "1247287a6369e93d",
         "experiments/2026-09-03-atoms-100x4-ngram13/atoms.json": "ee0fcb86e6aceafc",
         "experiments/2026-09-03-atoms-100x4-public-loo/atoms.json": "6d6d516ec296aae1",
+        "experiments/2026-09-03-pair-12x4-kgw/results.json": "c4360e0c259b1f77",
+        "experiments/2026-09-03-probe-12x4-kgw-hard-last4/interpolate/holdout.json": "67b8ed6bb2b96bcd",
+        "experiments/2026-09-03-atoms-12x4-kgw/atoms.json": "cbde7405e481bfad",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():

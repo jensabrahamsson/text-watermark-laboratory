@@ -257,9 +257,11 @@ occupancy is **160** seen versus public $\Hw=4$ **269** seen
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
-defaults, `--mixin kgw`, seed **20260904**). It has not been generated.
-Do not sell a future Kirchenbauer count as replacing **25/48**. Do not
-write `thesis/`.
+defaults, `--mixin kgw`, seed **20260904**). Opened: official z>3
+**48/48** marked; interpolate and hard **12/12**; isolated interpolate
+**44/48 vs 41/48** (**85/96**); occupancy **114** seen vs **12071**
+unseen. Do not sell **12/12**, **85/96**, or **114** as replacing
+**25/48**. Do not write `thesis/`.
 
 ## What this freeze refuses
 

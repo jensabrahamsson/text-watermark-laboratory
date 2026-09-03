@@ -25,7 +25,8 @@ Kirchenbauer et al. (2023) (KGW) and Aaronson and Kirchner (2023) are the
 earlier sampling-watermark family. A two-grain replication on Hugging Face
 Kirchenbauer defaults is frozen in
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`, seed
-20260904) and has not been generated. Kuditipudi et al. (2024) and Christ et al.
+20260904). Opened on the original 12 strings: interpolate **12/12**,
+isolated **85/96**. Do not sell those as replacing **25/48**. Kuditipudi et al. (2024) and Christ et al.
 (2024) give distortion-free / cryptographically undetectable variants.
 SynthID is a tournament member of that family, not a hidden-character tag.
 Christ et al. (2024) prove undetectability for a *different* construction;

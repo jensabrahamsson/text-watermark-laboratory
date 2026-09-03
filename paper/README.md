@@ -27,7 +27,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`compile.log`](compile.log): last successful TeX Live build (19 A4
   pages, PR #4). Later $\Hw=12$ paragraphs, the occupancy table
   (\texttt{tab:occ}), the plain-English lead, the \texttt{get\_gvals}
-  docstring paragraph, and the Kirchenbauer mixin freeze have not been
+  docstring paragraph, and the Kirchenbauer mixin results have not been
   recompiled here; `pdflatex` is missing on this machine.
 
 Numbers are taken from this repository (`research/`, `experiments/`).
@@ -108,4 +108,5 @@ not finished. Nested Youden is post hoc, not nested CV. Lock A
 **99/100** is leave-one-family-out of a frozen algorithm, not a frozen
 fitted detector. A Kirchenbauer green-list mixin is frozen in
 `research/PROTOCOL-next-kgw.md` (SHA `8371406`; `--mixin kgw`, seed
-20260904) and has not been generated.
+20260904). Original-12 interpolate last-4 is **12/12** (isolated
+**85/96**); occupancy **114** seen. That is not **25/48**.

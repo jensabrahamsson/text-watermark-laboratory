@@ -840,7 +840,9 @@ outcome spread more thinly. Lower-order Witten--Bell backoff may retain
 a coarser signal that is no longer a reused 4-gram footprint. Lengthening
 this mixin to $\Hw=12$ attenuates group ranking and lowers exact
 next-token occupancy (\Cref{sec:next}, \Cref{tab:occ}). A Kirchenbauer
-green-list mixin is frozen (\Cref{sec:next}) and has not been generated.
+green-list mixin on the original 12 prompt strings ranks interpolate
+last-4 \textbf{12/12} with mostly Witten--Bell backoff (\Cref{sec:next}).
+That is a shorter hash window than $\Hw=4$, not a longer-history result.
 An Aaronson mixin has not been run.
 
 Christ et al.\ and Zhang et al.\ apply to different constructions and
@@ -1336,10 +1338,10 @@ preregistered longer-history replication is freeze SHA \texttt{b70986d}
 (\texttt{research/PROTOCOL-next-longctx.md}), named in the laboratory
 logbook before generation (\Cref{tab:nextlock}). It lengthens the public
 mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
-checkout. A Kirchenbauer green-list mixin is frozen in
-\texttt{research/PROTOCOL-next-kgw.md} (freeze SHA \texttt{8371406};
-Hugging Face \texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
-\texttt{--mixin kgw}) and has not been generated. Scoring those twins
+checkout. A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
+(\texttt{research/PROTOCOL-next-kgw.md}; Hugging Face
+\texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
+\texttt{--mixin kgw}), named before generation. Scoring those twins
 with SynthID \texttt{detector\_mean} would be a harness bug. An Aaronson
 mixin is a third protocol and has not been run.
 
@@ -1448,6 +1450,25 @@ width $0.1$. Compare \Cref{fig:locka}.}
 \label{fig:hw12}
 \end{figure}
 
+\paragraph{Original 12, Kirchenbauer green-list.}
+The different-mixin arm uses Hugging Face Kirchenbauer defaults
+(\texttt{lefthash}, $\mathrm{context\_width}=1$, $\gamma=0.25$,
+$\delta=2.0$; freeze SHA \texttt{8371406}; seed 20260904; Hub SHA
+\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}). Official matching
+$z$-scores are above $3.0$ on all 48 marked files (first draw already
+12/12). Unmarked first-draw is $0/12$ above $3.0$. Leave-one-family-out
+interpolate last-4 ranks \textbf{12/12} (AUC $0.947$; $\tau=0$ is 44 TP,
+4 FN, 41 TN, 7 FP; balanced accuracy $85/96$; mean $D_p=0.437$). Hard
+last-4 is also \textbf{12/12} (AUC $0.703$; 35 TP, 13 FN, 25 TN, 23 FP;
+balanced accuracy $60/96$). Exact last-4 occupancy is 114 seen versus
+12071 unseen (opening $[0{:}4)$ is 40 versus 248), below public
+$\Hw=4$ original-12 occupancy 269 seen. Interpolate \textbf{12/12} is
+therefore not an exact 4-gram copy detector; Witten--Bell backoff
+carries the mass. $\mathrm{context\_width}=1$ is shorter than public
+$\Hw=4$, not a longer-history result. Isolated \textbf{85/96} is a
+different construction from the original-12 SynthID \textbf{47/96}.
+One hundred Kirchenbauer families remain named, not opened.
+
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
 work would begin to support a transferable audit method. The observed
@@ -1458,8 +1479,12 @@ under $\Hw=12$ than under public $\Hw=4$ on both prompt frames and in
 the opening window (\Cref{tab:occ}). On the original 12 the opening is
 mostly backoff; on the 100 one-liners it is still mostly exact copies,
 fewer than under public $\Hw=4$. The
-original-12 \textbf{6/12} is small-$n$. Neither count is a theorem
-about production Gemini.
+original-12 \textbf{6/12} is small-$n$. Kirchenbauer
+\texttt{lefthash} on the same 12 strings goes the other way:
+interpolate \textbf{12/12} and isolated \textbf{85/96} with
+\textit{less} exact last-4 occupancy than public $\Hw=4$. That matches
+a one-token green-list, not a universal detector. Neither count is a
+theorem about production Gemini.
 
 % =========================================================================
 \section{Conclusion}
@@ -1490,9 +1515,11 @@ above $0.55$ on all 400 marked files. Exact next-token occupancy is
 lower than under public $\Hw=4$ (\Cref{tab:occ}). The original-12 readout is
 \textbf{6/12} (underpowered; clustered permutation $p=0.247$). Isolated
 $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
-\textbf{25/48} sensitivity and \textbf{47/96} correct. A Kirchenbauer
-green-list mixin is frozen (\texttt{PROTOCOL-next-kgw.md}) and has not
-been generated.
+\textbf{25/48} sensitivity and \textbf{47/96} correct. On a Kirchenbauer
+green-list mixin with one-token seeding, interpolate last-4 ranks
+\textbf{12/12} and isolated $\tau=0$ is \textbf{85/96} on new twins of
+the original 12 strings; that is a different construction, not a
+replacement of \textbf{25/48}.
 
 Code and frozen JSON:
 \url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
@@ -1586,7 +1613,14 @@ Original-12 public occupancy:
 \path{experiments/2026-09-03-atoms-100x4-public-loo/atoms.json}
 (\texttt{6d6d516ec296aae1}).
 Kirchenbauer mixin freeze: \path{research/PROTOCOL-next-kgw.md}
-(\texttt{8371406}; \texttt{--mixin kgw}, seed 20260904; not generated).
+(\texttt{8371406}). Original-12 pair:
+\path{experiments/2026-09-03-pair-12x4-kgw/results.json}
+(\texttt{c4360e0c259b1f77}). Original-12 probe:
+\path{experiments/2026-09-03-probe-12x4-kgw-hard-last4/interpolate/holdout.json}
+(\texttt{67b8ed6bb2b96bcd}; interpolate $12/12$, $85/96$).
+Original-12 occupancy:
+\path{experiments/2026-09-03-atoms-12x4-kgw/atoms.json}
+(\texttt{cbde7405e481bfad}; 114 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
