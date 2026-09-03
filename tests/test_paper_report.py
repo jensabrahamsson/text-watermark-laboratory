@@ -173,6 +173,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert interp["n_prompts_marked_above"] == 6
     assert r"\textbf{6/12}" in PAPER
     assert "52/96" in PAPER
+    intro = PAPER.split(r"\section{Introduction}")[1].split(r"\section{Related Work}")[0]
+    assert r"\textbf{76/100}" in intro
     assert r"\textbf{76/100}" in PAPER
     assert "489/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
