@@ -137,6 +137,17 @@ def test_cli_pair_accepts_hub_revision() -> None:
     )
     assert args.hub_revision == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
     assert args.ngram_len == 5
+    ctrl = build_parser().parse_args(
+        [
+            "pair",
+            "experiments/prompts",
+            "--control-only",
+            "--hub-revision",
+            "abc",
+        ]
+    )
+    assert ctrl.control_only is True
+    assert ctrl.hub_revision == "abc"
 
 
 def test_gpt2_family_names_use_the_gpt2_mixin() -> None:
