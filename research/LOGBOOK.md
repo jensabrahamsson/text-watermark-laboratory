@@ -2289,8 +2289,8 @@ Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jen
 ---
 ## 2026-09-03 Qwen2-1.5B Kirchenbauer freeze
 
-[PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) frozen before
-generation. Same Hugging Face Kirchenbauer defaults as
+[PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) committed at SHA
+`45a75c9`. Frozen before generation. Same Hugging Face Kirchenbauer defaults as
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md), generator
 `Qwen/Qwen2-1.5B-Instruct`, original 12 prompt strings, seed
 **20260904**, `--mixin kgw`, plain prompts (no chat template).

@@ -30,6 +30,7 @@ def test_protocol_kgw_qwen_locks_config_before_generation() -> None:
     assert len(list(PROMPTS.glob("*.txt"))) == 12
     log = LOG.read_text()
     assert "PROTOCOL-next-kgw-qwen" in log
+    assert "`45a75c9`" in log
 
 
 def test_protocol_kgw_qwen_cli_flag_exists() -> None:
