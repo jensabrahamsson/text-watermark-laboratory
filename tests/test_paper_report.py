@@ -329,6 +329,10 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
         r"\section{Conclusion}"
     )[0]
+    leftover = PAPER.split("Leftover versus covered isolated true positives")[1].split(
+        "Ablations and Mechanistic Perturbation"
+    )[0]
+    assert "not a leftover union" in leftover
     assert "160 exact next-token events versus 269" in next_sec
     assert "20/48" in next_sec
     tex = Path(ROOT / "paper" / "main.tex").read_text()
