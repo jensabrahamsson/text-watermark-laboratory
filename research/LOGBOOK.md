@@ -2005,7 +2005,7 @@ Reindexed (keep): `experiments/2026-09-01-transfer-100x4-to-grok12x4-hard-window
 ## 2026-09-03 absolute-history 12-LOO mask-*k* freeze
 
 [PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md)
-committed at SHA `PENDING`. Absolute-history OOD windows are already
+committed at SHA `b70986d`. Absolute-history OOD windows are already
 opened. The remaining honesty item that is not leftover targeting is
 whether 12-LOO hard last-4 still keeps tail ranking **9/12** and prefix
 **0:4** **5/12** when mid-file 4-grams keep their real prefix.
@@ -2019,7 +2019,7 @@ finished. Do not write `thesis/`.
 ## 2026-09-03 longer-context two-grain freeze
 
 [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) committed at SHA
-`PENDING`. Sol's 260903 next experiment: public keys, `ngram_len=13`
+`b70986d`. Sol's 260903 next experiment: public keys, `ngram_len=13`
 ($\Hw=12$), original 12 Grok prompt strings, GPT-2, 4 draws, $T=128$,
 seed **20260903**, leave-one-family-out hard+interpolate last-4.
 Hypotheses H-long-ctrl, H-long-group, H-long-hard, H-long-iso, and

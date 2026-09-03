@@ -37,6 +37,7 @@ def test_protocol_longctx_locks_config_before_generation() -> None:
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "PROTOCOL-next-longctx" in log
     assert "ngram_len=13" in log or "`ngram_len=13`" in log
+    assert "`b70986d`" in log
 
 
 def test_protocol_longctx_cli_flag_exists() -> None:

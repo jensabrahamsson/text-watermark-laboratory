@@ -34,6 +34,7 @@ def test_protocol_maskabs_names_frozen_flags_before_probe() -> None:
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "PROTOCOL-isolated-mask-absolute" in log
     assert "PROTOCOL-next-longctx" in log
+    assert "`b70986d`" in log
 
 
 def test_protocol_maskabs_keeps_reindexed_dump() -> None:
