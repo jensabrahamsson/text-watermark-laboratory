@@ -1351,8 +1351,8 @@ That is below the public-mixin hard diagnostic
 Isolated $\tau=0$ on the new twins is $52/96$, a different corpus from
 the original-12 \textbf{47/96}.
 Leave-one-family-out interpolate occupancy is in \Cref{tab:occ}:
-160 exact next-token events versus 269 on the public $\Hw=4$ twins
-(window $[0{:}4)$ is 71 versus 84). Isolated interpolate remains 20/48.
+160 exact next-token events versus 269 on the public $\Hw=4$ twins.
+Isolated interpolate remains 20/48.
 Hard prompt wins are market, station, rain, letter, workshop, and
 ferry-queue. Interpolate wins library, market, station, letter,
 workshop, and ferry-queue. Five stems win on both readers. Mean paired
@@ -1373,8 +1373,7 @@ $p\approx 0.0005$ (2000 prompt-mean sign shuffles). Isolated
 $489/800$ is a different corpus from the original-12 \textbf{47/96}.
 Mean $D_p$ is $0.156$ (median $0.174$; range
 $[-0.386,0.602]$). Occupancy on this frame is 5878 versus 10158 exact
-events (\Cref{tab:occ}; window $[0{:}4)$ is 1287 versus 1633). Isolated
-interpolate remains 267/400.
+events (\Cref{tab:occ}). Isolated interpolate remains 267/400.
 \Cref{fig:hw12} sits much closer to zero than
 lock~A (\Cref{fig:locka}, mean $0.520$).
 
@@ -1388,10 +1387,12 @@ detector.}
 \label{tab:occ}
 \begin{tabular}{lrrrr}
 \toprule
-Prompt frame & $\Hw=12$ seen & public $\Hw=4$ seen & $\Hw=12$ unseen & public unseen \\
+Slice & $\Hw=12$ seen & public $\Hw=4$ seen & $\Hw=12$ unseen & public unseen \\
 \midrule
-Original 12 & 160 & 269 & 12026 & 11912 \\
-100 families & 5878 & 10158 & 95624 & 91353 \\
+Original 12, full file & 160 & 269 & 12026 & 11912 \\
+Original 12, $[0{:}4)$ & 71 & 84 & 217 & 204 \\
+100 families, full file & 5878 & 10158 & 95624 & 91353 \\
+100 families, $[0{:}4)$ & 1287 & 1633 & 1113 & 767 \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -306,6 +306,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 160
     assert occ_pub["n_seen"] == 269
+    assert occ["windows"][0]["n_seen"] == 71
+    assert occ_pub["windows"][0]["n_seen"] == 84
     next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
         r"\section{Conclusion}"
     )[0]
@@ -313,8 +315,10 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "20/48" in next_sec
     tex = Path(ROOT / "paper" / "main.tex").read_text()
     assert r"\label{tab:occ}" in tex
-    assert "Original 12 & 160 & 269 & 12026 & 11912" in tex
-    assert "100 families & 5878 & 10158 & 95624 & 91353" in tex
+    assert "Original 12, full file & 160 & 269 & 12026 & 11912" in tex
+    assert r"Original 12, $[0{:}4)$ & 71 & 84 & 217 & 204" in tex
+    assert "100 families, full file & 5878 & 10158 & 95624 & 91353" in tex
+    assert r"100 families, $[0{:}4)$ & 1287 & 1633 & 1113 & 767" in tex
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "160" not in abs_
     assert "269" not in abs_
@@ -337,6 +341,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert occ100["used_keys"] is False
     assert occ100["n_seen"] == 5878
     assert occ100_pub["n_seen"] == 10158
+    assert occ100["windows"][0]["n_seen"] == 1287
+    assert occ100_pub["windows"][0]["n_seen"] == 1633
     assert "5878 versus 10158" in next_sec
     assert "5878" not in abs_
     assert "10158" not in abs_
