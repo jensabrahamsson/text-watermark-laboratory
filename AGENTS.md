@@ -57,6 +57,7 @@ python -m pytest tests/ -q
 python -m text_watermark_tools score FILE.txt
 python -m text_watermark_tools pair DIR --out-dir experiments/pair
 python -m text_watermark_tools pair DIR --ngram-len 13 --n-samples 4 --seed 20260903 --out-dir experiments/pair-ngram13
+python -m text_watermark_tools pair DIR --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e --out-dir experiments/pair-pinned
 python -m text_watermark_tools blind experiments/pair --out-dir experiments/blind
 python -m text_watermark_tools indicate score FILE.txt --tables experiments/indicator-gpt2
 python -m text_watermark_tools indicate fit PAIR --method hashpool --out-dir experiments/hashpool

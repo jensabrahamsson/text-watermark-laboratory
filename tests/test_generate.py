@@ -33,6 +33,31 @@ def test_merge_warper_cfg_ngram_len_overrides_extra_params() -> None:
     assert cfg["keys"] == [1, 2, 3]
 
 
+def test_hf_load_kwargs_omits_unset_revision() -> None:
+    from text_watermark_tools.score import hf_load_kwargs
+
+    assert hf_load_kwargs() == {}
+    assert hf_load_kwargs(revision=None) == {}
+    assert hf_load_kwargs(revision="607a30d783dfa663caf39e06633721c8d4cfcd7e") == {
+        "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e"
+    }
+
+
+def test_cli_pair_accepts_hub_revision() -> None:
+    from text_watermark_tools.cli import build_parser
+
+    args = build_parser().parse_args(
+        [
+            "pair",
+            "experiments/prompts",
+            "--hub-revision",
+            "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        ]
+    )
+    assert args.hub_revision == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
+    assert args.ngram_len == 5
+
+
 def test_gpt2_family_names_use_the_gpt2_mixin() -> None:
     assert is_gpt2_name(None) is True
     assert is_gpt2_name("gpt2") is True

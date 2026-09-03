@@ -10,7 +10,13 @@ import transformers
 from synthid_text import logits_processing
 from synthid_text import synthid_mixin
 
-from text_watermark_tools.score import MODEL_NAME, TEMPERATURE, TOP_K, load_tokenizer
+from text_watermark_tools.score import (
+    MODEL_NAME,
+    TEMPERATURE,
+    TOP_K,
+    hf_load_kwargs,
+    load_tokenizer,
+)
 
 # Small enough for 32 GB unified memory. Not DIPPER. Not a 7B.
 QWEN_MODEL = "Qwen/Qwen2-1.5B-Instruct"
@@ -165,13 +171,15 @@ def _load_marked_model(
     keys: Optional[Sequence[int]] = None,
     model_name: Optional[str] = None,
     ngram_len: Optional[int] = None,
+    revision: Optional[str] = None,
 ):
     name = model_name or MODEL_NAME
+    kw = hf_load_kwargs(revision=revision)
     if is_gpt2_name(name):
-        model = KeyedSynthIDGPT2.from_pretrained(name)
+        model = KeyedSynthIDGPT2.from_pretrained(name, **kw)
         model.watermark_keys = list(keys) if keys is not None else None
     else:
-        model = KeyedSynthIDQwen2.from_pretrained(name)
+        model = KeyedSynthIDQwen2.from_pretrained(name, **kw)
         model.watermark_keys = list(keys) if keys is not None else None
     model.watermark_ngram_len = int(ngram_len) if ngram_len is not None else None
     return model.to(device).eval()
@@ -181,12 +189,14 @@ def _load_unmarked_model(
     device: torch.device,
     *,
     model_name: Optional[str] = None,
+    revision: Optional[str] = None,
 ):
     name = model_name or MODEL_NAME
+    kw = hf_load_kwargs(revision=revision)
     if is_gpt2_name(name):
-        model = transformers.GPT2LMHeadModel.from_pretrained(name)
+        model = transformers.GPT2LMHeadModel.from_pretrained(name, **kw)
     else:
-        model = transformers.AutoModelForCausalLM.from_pretrained(name)
+        model = transformers.AutoModelForCausalLM.from_pretrained(name, **kw)
     return model.to(device).eval()
 
 
@@ -204,6 +214,7 @@ def generate_text(
     keys: Optional[Sequence[int]] = None,
     model_name: Optional[str] = None,
     ngram_len: Optional[int] = None,
+    revision: Optional[str] = None,
 ) -> Generation:
     """Generate with mixin (marked=True) or the same model unmarked.
 
@@ -219,14 +230,20 @@ def generate_text(
         dev = generate_device() if not is_gpt2_name(name) else torch.device("cpu")
     else:
         dev = device
-    tok = tokenizer or load_tokenizer(name)
+    tok = tokenizer or load_tokenizer(name, revision=revision)
     if seed is not None:
         torch.manual_seed(seed)
     if model is None:
         model = (
-            _load_marked_model(dev, keys=keys, model_name=name, ngram_len=ngram_len)
+            _load_marked_model(
+                dev,
+                keys=keys,
+                model_name=name,
+                ngram_len=ngram_len,
+                revision=revision,
+            )
             if marked
-            else _load_unmarked_model(dev, model_name=name)
+            else _load_unmarked_model(dev, model_name=name, revision=revision)
         )
     elif marked and ngram_len is not None and hasattr(model, "watermark_ngram_len"):
         model.watermark_ngram_len = int(ngram_len)

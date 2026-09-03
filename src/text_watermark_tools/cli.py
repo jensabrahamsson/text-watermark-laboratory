@@ -459,6 +459,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             resume_dir=out,
             persist_dir=out,
             ngram_len=int(args.ngram_len),
+            hub_revision=str(args.hub_revision) if args.hub_revision else None,
         )
     print(print_pair_run(run))
     if args.out_dir:
@@ -1256,6 +1257,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Mixin hash n-gram length (public default 5, Hw=4). "
             "Must match official scoring. Does not edit synthid-text."
+        ),
+    )
+    p_pair.add_argument(
+        "--hub-revision",
+        default="",
+        help=(
+            "Hugging Face Hub commit SHA or branch for --model. "
+            "Unset keeps the unpinned default. Does not rewrite committed twins."
         ),
     )
     p_pair.set_defaults(func=cmd_pair)

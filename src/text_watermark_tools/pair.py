@@ -61,6 +61,7 @@ class PairRun:
     alt_keys: list[int] | None = None
     model_name: str = "gpt2"
     ngram_len: int = 5
+    hub_revision: str | None = None
 
 
 def collect_prompts(path: Path) -> list[tuple[str, str]]:
@@ -188,6 +189,7 @@ def run_pairs(
     resume_dir: Path | None = None,
     persist_dir: Path | None = None,
     ngram_len: int | None = None,
+    hub_revision: str | None = None,
 ) -> PairRun:
     """For each prompt: score the prompt, then generate unmarked and marked twins.
 
@@ -202,7 +204,7 @@ def run_pairs(
         raise ValueError("n_samples must be >= 1")
     name = model_name or "gpt2"
     nlen = public_ngram_len() if ngram_len is None else int(ngram_len)
-    tok = tokenizer or load_tokenizer(name)
+    tok = tokenizer or load_tokenizer(name, revision=hub_revision)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
     resume = Path(resume_dir) if resume_dir is not None else None
     persist = Path(persist_dir) if persist_dir is not None else None
@@ -216,14 +218,23 @@ def run_pairs(
     if remaining:
         if marked_model is None:
             marked_model = _load_marked_model(
-                device, model_name=name, ngram_len=nlen
+                device,
+                model_name=name,
+                ngram_len=nlen,
+                revision=hub_revision,
             )
         if unmarked_model is None:
-            unmarked_model = _load_unmarked_model(device, model_name=name)
+            unmarked_model = _load_unmarked_model(
+                device, model_name=name, revision=hub_revision
+            )
     alt_key_list = control_keys() if also_control_keys else None
     if also_control_keys and alt_model is None:
         alt_model = _load_marked_model(
-            device, keys=alt_key_list, model_name=name, ngram_len=nlen
+            device,
+            keys=alt_key_list,
+            model_name=name,
+            ngram_len=nlen,
+            revision=hub_revision,
         )
 
     rows: list[PairRow] = []
@@ -330,6 +341,7 @@ def run_pairs(
         alt_keys=alt_key_list,
         model_name=name,
         ngram_len=nlen,
+        hub_revision=hub_revision,
     )
 
 
@@ -469,6 +481,7 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
         "instance": PUBLIC_INSTANCE,
         "model_name": run.model_name,
         "ngram_len": run.ngram_len,
+        "hub_revision": run.hub_revision,
         "also_control_keys": run.alt_keys is not None,
         "control_only": bool(run.alt_keys is not None)
         and all(not row.marked_text for row in run.rows),

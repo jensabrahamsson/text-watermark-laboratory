@@ -9,9 +9,23 @@ from text_watermark_tools.pair import (
     persist_pair_run,
     run_pairs,
 )
+import json
 from text_watermark_tools.score import OfficialScore
 
 PROMPT = "The harbour lights flickered over wet cobblestones. "
+
+
+def test_persist_pair_run_records_hub_revision(tmp_path: Path) -> None:
+    run = PairRun(
+        rows=[],
+        max_new_tokens=128,
+        seed=0,
+        hub_revision="607a30d783dfa663caf39e06633721c8d4cfcd7e",
+    )
+    persist_pair_run(run, tmp_path)
+    data = json.loads((tmp_path / "results.json").read_text())
+    assert data["hub_revision"] == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
+    assert data["ngram_len"] == 5
 
 
 def test_collect_prompts_from_file(tmp_path: Path) -> None:

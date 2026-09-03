@@ -202,6 +202,10 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-03-pair-12x4-ngram13
 ```
 
+`--hub-revision SHA` pins the Hugging Face snapshot for *new* generation.
+Historical twins are committed files; published scores do not re-download
+Hub weights. Hub SHAs were not recorded when those twins were generated.
+
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \

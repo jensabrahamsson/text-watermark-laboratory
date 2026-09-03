@@ -77,12 +77,21 @@ def official_processor(
     )
 
 
+def hf_load_kwargs(*, revision: Optional[str] = None) -> dict:
+    """Hugging Face from_pretrained kwargs. Empty when revision is unset."""
+    return {"revision": str(revision)} if revision else {}
+
+
 def load_tokenizer(
     model_name: Optional[str] = None,
+    *,
+    revision: Optional[str] = None,
 ) -> transformers.PreTrainedTokenizer:
     """Tokenizer for the generator that produced the tokens. Default: GPT-2."""
     name = model_name or MODEL_NAME
-    tokenizer = transformers.AutoTokenizer.from_pretrained(name)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
+        name, **hf_load_kwargs(revision=revision)
+    )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
