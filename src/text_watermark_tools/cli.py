@@ -440,19 +440,19 @@ def cmd_blind(args: argparse.Namespace) -> int:
 def cmd_pair(args: argparse.Namespace) -> int:
     prompts = collect_prompts(Path(args.path))
     mixin = str(getattr(args, "mixin", "synthid") or "synthid")
-    if mixin == "kgw":
+    if mixin in ("kgw", "aaronson"):
         if bool(getattr(args, "control_only", False)) or bool(
             getattr(args, "also_control_keys", False)
         ):
             print(
-                "--mixin kgw cannot be combined with --control-only or "
+                f"--mixin {mixin} cannot be combined with --control-only or "
                 "--also-control-keys (those flags are SynthID-only)",
                 file=sys.stderr,
             )
             return 2
         if int(args.ngram_len) != 5:
             print(
-                "--ngram-len is SynthID-only; --mixin kgw uses Kirchenbauer "
+                f"--ngram-len is SynthID-only; --mixin {mixin} uses "
                 "context_width=1",
                 file=sys.stderr,
             )
@@ -1289,12 +1289,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_pair.add_argument(
         "--mixin",
-        choices=("synthid", "kgw"),
+        choices=("synthid", "kgw", "aaronson"),
         default="synthid",
         help=(
             "Sampling watermark. synthid is public-deepmind-30 (default). "
             "kgw is Hugging Face Kirchenbauer green-list defaults; official "
-            "scores are WatermarkDetector z-scores, not detector_mean."
+            "scores are WatermarkDetector z-scores, not detector_mean. "
+            "aaronson is laboratory exponential-minimum (Aaronson & Kirchner "
+            "2023 talk); official scores are the matching mean-r z-test."
         ),
     )
     p_pair.set_defaults(func=cmd_pair)

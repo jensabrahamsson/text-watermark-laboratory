@@ -2415,3 +2415,114 @@ JSON: `experiments/2026-09-03-pair-distil-100x4-kgw/`,
 `experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/`,
 `experiments/2026-09-03-atoms-distil-100x4-kgw/`.
 
+## 2026-09-04 Aaronson–Kirchner exponential-minimum freeze
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) committed at SHA
+`747f3cd`. Frozen before generation. Laboratory exponential-minimum sampler
+(`--mixin aaronson`), not in `transformers==4.57.6`. GPT-2, original 12
+prompt strings, seed **20260905**, Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`, `hashing_key` **314159265**,
+`context_width=1`. Official control is the matching mean-\(r\) z-test,
+not `detector_mean` and not Kirchenbauer `WatermarkDetector`.
+Hypotheses H-aar-ctrl, H-aar-group, H-aar-hard, H-aar-iso, and
+H-aar-occ are stated before generation. Do not look at key-free LRs
+until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --n-samples 4 --max-new-tokens 128 --seed 20260905 --mixin aaronson \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-04-pair-12x4-aaronson
+```
+
+## 2026-09-04 Aaronson–Kirchner exponential-minimum opened
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) named `29a1436`.
+Pair seed **20260905**, `--mixin aaronson`. Official first-draw z>3
+**12/12** (H-aar-ctrl holds; unmarked **0/12**). Interpolate last-4
+**11/12** (AUC **0.955**, isolated **8/48 vs 48/48**, BA **56/96**;
+loses station). Hard **12/12** (AUC **0.976**, BA **72/96**). Occupancy
+**573** seen vs **11618** unseen. `used_keys=false`. Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`. Do not sell **11/12**,
+**12/12**, **8/48**, or **56/96** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-12x4-aaronson/`,
+`experiments/2026-09-04-probe-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-12x4-aaronson/`.
+
+## 2026-09-04 Aaronson–Kirchner 100-family start
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) 100-family arm
+named before generation (same freeze SHA `747f3cd`). GPT-2, prompts
+`experiments/2026-09-01-prompts-100/`, `--n-samples 4`, $T=128$, seed
+**20260905**, `--mixin aaronson`, Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`. Same readers: hard and
+interpolate last-4 leave-one-family-out. Same two grains. No new
+`probe --methods` name.
+
+Stated before these 100×4 LRs:
+
+- **H-aar-B-ctrl.** Official matching z-score is above $3.0$ on every
+  first marked file. Unmarked first-draw is not all above $3.0$.
+- **H-aar-B-group.** Interpolate last-4 prompt ranking is reported
+  beside original-12 Aaronson **11/12** and GPT-2 Kirchenbauer
+  **100/100**. Either drop or hold is informative. It does not replace
+  **25/48**.
+- **H-aar-B-iso.** Isolated $\tau=0$ does not replace **25/48**.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260905 --mixin aaronson \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-04-pair-100x4-aaronson
+```
+
+Do not look at key-free LRs until `pair` has written official first-draw
+z-scores and the probe command has been run once, as written. Do not add
+a scorer. Nothing replaces **25/48**. Isolated-file detection is still
+not finished. Do not write `thesis/`.
+
+## 2026-09-04 Aaronson–Kirchner 100-family opened
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) named `2f9de1a`.
+Pair seed **20260905**, `--mixin aaronson`. Official first-draw z>3
+**100/100** (H-aar-B-ctrl holds; unmarked **0/100**). Interpolate last-4
+**100/100** (AUC **0.986**, isolated **208/400 vs 400/400**, BA
+**608/800**). Hard **95/100** (AUC **0.950**, BA **744/800**). Occupancy
+**25167** seen vs **76418** unseen. `used_keys=false`. Do not sell
+**100/100** or **608/800** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-100x4-aaronson/`,
+`experiments/2026-09-04-probe-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-100x4-aaronson/`.
+
+## 2026-09-04 DistilGPT2 ngram_len=13 freeze
+
+[PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md)
+committed at SHA `bae6d81`. Frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$) as
+[PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md), generator
+`distilgpt2`, original 12 prompt strings, seed **20260903**, Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-long-d-ctrl,
+H-long-d-group, H-long-d-iso, and H-long-d-occ are stated before
+generation. Do not look at key-free LRs until `pair` has written
+official first-draw scores and the probe command has been run once, as
+written. Do not add a scorer. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260903 \
+  --ngram-len 13 --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-12x4-ngram13
+```
+
+
+
+
+
+

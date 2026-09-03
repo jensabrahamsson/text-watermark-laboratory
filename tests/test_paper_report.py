@@ -189,11 +189,15 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     math = PAPER.split(r"\section{Why a Fixed Key Can Leave a Trace}")[1].split(
         r"\section{Results}"
     )[0]
-    assert "has not been run" in math
+    assert "has not been generated" not in math
     assert "is untested" not in math
+    assert "PROTOCOL-next-aaronson" in PAPER
+    assert "747f3cd" in PAPER
     assert "PROTOCOL-next-kgw" in PAPER
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
+    assert "PROTOCOL-next-longctx-distil" in PAPER
+    assert "bae6d81" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -223,15 +227,41 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "683/800" in next_sec
     assert r"\textbf{82/100}" in next_sec
     assert "16170" in next_sec
+    assert "20260905" in next_sec
+    assert "56/96" in next_sec
+    assert "573" in next_sec
+    assert "608/800" in next_sec
+    assert "25167" in next_sec
+    assert "pair-distil-12x4-ngram13" in next_sec
+    assert "has not been generated" in next_sec
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "68/96" not in abs_
     assert "pair-distil-100x4-kgw" not in abs_
     assert "683/800" not in abs_
     assert "16170" not in abs_
+    assert "56/96" not in abs_
+    assert "573" not in abs_
+    assert "608/800" not in abs_
+    assert "25167" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
     assert "context_width" in next_sec or "context\\_width" in next_sec
+
+
+def test_maskabs_table_is_dump_backed() -> None:
+    tex = Path(ROOT / "paper" / "main.tex").read_text()
+    assert r"\label{tab:maskabs}" in tex
+    assert "58094d769726dc18" in tex
+    assert "headline-windows-absolute" in tex
+    body = tex.split(r"\label{tab:maskabs}")[1].split(r"\end{table}")[0]
+    assert r"$5/12$" in body
+    assert r"$9/12$" in body
+    assert r"$4/12$" in body
+    assert r"$3/12$" in body
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "58094d769726dc18" not in abs_
+    assert "tab:maskabs" not in abs_
 
 
 def test_nested_youden_is_post_hoc() -> None:
@@ -271,8 +301,8 @@ def test_readme_matches_revised_title() -> None:
     assert "747/800" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
-    assert "23 A4" in README
-    assert "acc61a9" in README
+    assert "24 A4" in README
+    assert "00f2328" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README

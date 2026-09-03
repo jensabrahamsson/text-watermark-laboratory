@@ -1,5 +1,6 @@
 """Absolute-history 12-LOO mask-k, frozen before window LRs."""
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -57,6 +58,10 @@ def test_protocol_maskabs_keeps_reindexed_dump() -> None:
     assert hard4128["n_prompts_marked_above"] == 9
     assert hard8128["n_prompts_marked_above"] == 9
     assert interp8128["n_prompts_marked_above"] == 3
+    reindexed_sha = hashlib.sha256((REINDEXED / "results.json").read_bytes()).hexdigest()[
+        :16
+    ]
+    assert reindexed_sha == "4b69fa0c15123a75"
 
 
 def test_protocol_maskabs_prefixes_equal_reindexed_hard_tails_stay() -> None:

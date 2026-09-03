@@ -206,6 +206,12 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
 green-list defaults), not a longer SynthID history. Official scores are
 `WatermarkDetector` z-scores, not `detector_mean`. Frozen before
 generation: [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md).
+`pair --mixin aaronson` is a third mixin (Aaronson–Kirchner
+exponential-minimum). `transformers==4.57.6` has no Aaronson processor;
+the sampler is `src/text_watermark_tools/aaronson.py`. Official scores
+are the matching mean-\(r\) z-test, not `detector_mean`. Frozen before
+generation: [research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson.md).
+Do not sell an Aaronson count as replacing **25/48**.
 Original-12 interpolate last-4 is **12/12** (isolated **85/96**);
 occupancy **114** seen. 100-family interpolate is **100/100** (isolated
 **747/800**); occupancy **4557** seen. Do not sell **12/12**,
