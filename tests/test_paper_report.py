@@ -197,6 +197,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
     assert "PROTOCOL-next-longctx-distil" in PAPER
+    assert "bae6d81" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER

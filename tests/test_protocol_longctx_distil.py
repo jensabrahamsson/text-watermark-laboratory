@@ -33,6 +33,7 @@ def test_protocol_longctx_distil_locks_config_before_generation() -> None:
     assert "PROTOCOL-next-longctx-distil" in log
     assert "--model distilgpt2" in log
     assert "--ngram-len 13" in log
+    assert "`bae6d81`" in log
 
 
 def test_protocol_longctx_distil_cli_flag_exists() -> None:
