@@ -174,6 +174,9 @@ def test_protocol_longctx_phase_b_from_dumps() -> None:
         text.split()
     )
     assert "facc538" in text
+    exp = (ROOT / "experiments" / "README.md").read_text()
+    assert "2026-09-03-probe-100x4-ngram13-hard-last4" in exp
+    assert "76/100" in exp
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "Phase B start" in log
     assert not (PROBE100 / "tables-counts").exists()
