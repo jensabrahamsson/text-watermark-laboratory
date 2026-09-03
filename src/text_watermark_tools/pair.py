@@ -493,7 +493,9 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
             "Marked and unmarked-gen are newly sampled tokens from the prompt. "
             "The prompt string itself is not stamped. "
             "*-control-gen.txt (if present) used control-shuffled-30 at sampling; "
-            "not a *-marked.txt so blind ignore it."
+            "not a *-marked.txt so blind ignore it. "
+            "hub_revision is the Hugging Face snapshot if --hub-revision was set; "
+            "null means the unpinned default."
         ),
         "rows": [],
     }
