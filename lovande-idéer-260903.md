@@ -298,8 +298,11 @@ gained 12 TN, lost 6. Occupancy leftover-20 (zeros of
 `experiments/2026-09-01-openings-100plusgrok36-to-12x4/coverage.json`):
 last-4 **10/20 vs 11/20**, last-2 **12/20 vs 12/20**. Covered 15/28 →
 **22/28**. Leftover last-2 tail 64:128 is **13/20 vs 12/20**; covered
-tail **21/28**. Last-2 does **not** fix leftover; the isolated lift is
-mostly occupancy-covered files.
+tail **21/28**. Occupancy-free `postokhits` leftover last-2 is **8/20**,
+unmarked $\le 0$ **20/20** — same isolated count as last-4 `postokhits`
+leftover. 100→12 last-2 leftover is **11/20 vs 13/20**. Last-2 does
+**not** fix leftover; the isolated lift is mostly occupancy-covered
+files.
 
 Transfer 100×4 → original 12, hard, no method name:
 
@@ -311,8 +314,15 @@ Transfer 100×4 → original 12, hard, no method name:
 Same-register 100 → 36×4 (`--skip-nested`): last-2 **31/36**, isolated
 **118/144**, AUC **0.743** versus last-4 **25/36**, **96/144**, 0.624.
 Last-2 helps the 36-family transfer. It does **not** transfer to
-Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). Kirchenbauer last-1
-cross-generator transfer is idea 2, not this width.
+Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). 100 one-liners →
+Grok-register (`--skip-nested`; do not mix grok12 into train): last-2
+grok12 **6/12**, **29/48**, AUC **0.590** versus last-4 **4/12**,
+**12/48**, 0.424; grok36 last-2 **18/36**, **77/144**, 0.516 versus
+last-4 **15/36**, **43/144**, 0.458. Isolated **29/48** equals
+100→original-12 last-2; ranking is chance. In-domain grok12 last-2
+TPs overlap that transfer on **19/29** files. Grok36 last-2 windows:
+0:4 **24/36**, **96/144**, 0.621; 64:128 **19/36**, **77/144**, 0.539.
+Kirchenbauer last-1 cross-generator transfer is idea 2, not this width.
 
 Second-key control-as-marked 12×4 (constructed twins, not a matched
 `pair()`; interpolate freeze stays **7/12 / 30/48**): hard last-2
@@ -407,9 +417,10 @@ last-1 tail is **100/100**). Grok-register 12 last-2 isolated
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
-sell leftover **12/20** or leftover tail **13/20**. Do not sell
+sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
+**8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
 opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
-**66/100**, Qwen **351/400**, grok **34/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
+**66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
