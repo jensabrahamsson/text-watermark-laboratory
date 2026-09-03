@@ -176,7 +176,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\textbf{76/100}" in PAPER
     assert "489/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
-    assert "prompt_sign_p" in PAPER
+    assert "prompt" in PAPER and "sign" in PAPER
+    assert r"prompt\_sign\_p" in PAPER or "prompt_sign_p" in PAPER.replace("\\", "")
     b100 = json.loads(
         (
             ROOT
