@@ -148,7 +148,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "20260904" in PAPER
     assert "8371406" in PAPER
     assert "8f09aa6" in PAPER
-    assert "text-watermark-laboratory/tree/8f09aa6" in PAPER
+    assert "1582a09" in PAPER
+    assert "text-watermark-laboratory/tree/1582a09" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
@@ -204,6 +205,7 @@ def test_readme_matches_revised_title() -> None:
     assert "85/96" in README
     assert "747/800" in README
     assert "8f09aa6" in README
+    assert "1582a09" in README
     assert "19 A4" in README
     assert "pdflatex" in README.lower() or "pdflatex" in README
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
