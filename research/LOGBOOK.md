@@ -2223,6 +2223,41 @@ JSON: `experiments/2026-09-03-pair-12x4-kgw/`,
 `experiments/2026-09-03-probe-12x4-kgw-hard-last4/`,
 `experiments/2026-09-03-atoms-12x4-kgw/`.
 
+## 2026-09-03 Kirchenbauer 100-family start
+
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) 100-family readout, named
+before generation. Same freeze SHA `8371406`. Hugging Face Kirchenbauer
+defaults, GPT-2, prompts `experiments/2026-09-01-prompts-100/`,
+`--n-samples 4`, $T=128$, seed **20260904**, `--mixin kgw`, Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`. Same readers: hard and
+interpolate last-4 leave-one-family-out. Same two grains. No new
+`probe --methods` name.
+
+Stated before these 100×4 LRs:
+
+- **H-kgw-B-ctrl.** Official first-draw matching z-score is above $3.0$
+  on every first marked file.
+- **H-kgw-B-group.** Interpolate last-4 prompt ranking is reported
+  beside original-12 **12/12**. It does not replace lock A **99/100**
+  or isolated **25/48**.
+- **H-kgw-B-iso.** Isolated $\tau=0$ confusion matrix does not replace
+  **25/48**. Do not sell any Kirchenbauer 100-family count as replacing
+  **25/48**.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260904 --mixin kgw \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-03-pair-100x4-kgw
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --out-dir experiments/2026-09-03-probe-100x4-kgw-hard-last4
+```
+
+Do not look at key-free LRs until `pair` has written official
+first-draw z-scores and the probe command has been run once, as written.
+
 ---
 
 ## 2026-09-02 resample

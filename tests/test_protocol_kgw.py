@@ -176,6 +176,10 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     log = LOG.read_text()
     assert "`8371406`" in log
     assert "09e40d4" in log
+    assert "2026-09-03-pair-100x4-kgw" in log
+    assert "H-kgw-B-ctrl" in log
+    assert "H-kgw-B-group" in log
+    assert "H-kgw-B-iso" in log
 
 
 def test_protocol_kgw_pair_does_not_store_synthid_means() -> None:
