@@ -43,6 +43,28 @@ def test_hf_load_kwargs_omits_unset_revision() -> None:
     }
 
 
+def test_load_tokenizer_forwards_hub_revision(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    seen: dict = {}
+
+    def fake_from_pretrained(name, **kwargs):
+        seen["name"] = name
+        seen["kwargs"] = kwargs
+        tok = SimpleNamespace(pad_token=None, eos_token="eos")
+        return tok
+
+    monkeypatch.setattr(
+        "transformers.AutoTokenizer.from_pretrained", fake_from_pretrained
+    )
+    from text_watermark_tools.score import load_tokenizer
+
+    tok = load_tokenizer("gpt2", revision="abc123")
+    assert seen["name"] == "gpt2"
+    assert seen["kwargs"]["revision"] == "abc123"
+    assert tok.pad_token == "eos"
+
+
 def test_cli_pair_accepts_hub_revision() -> None:
     from text_watermark_tools.cli import build_parser
 

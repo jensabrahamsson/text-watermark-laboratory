@@ -224,6 +224,8 @@ def generate_text(
     Score must use the same `ngram_len`. The synthid-text tree is not edited.
     `model_name` defaults to GPT-2. Pass a Qwen2 id to use that checkpoint
     with the same tournament; score must use the same tokenizer.
+    `revision` is an optional Hugging Face Hub SHA or branch. Unset keeps
+    the unpinned default. Historical twins are committed files.
     """
     name = model_name or MODEL_NAME
     if device is None:
