@@ -120,18 +120,41 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
 ```
 
 `used_keys=false`. After that dump exists, occupancy (not a second
-freeze; same tables):
+freeze; same interpolate reader). Pooled `tables-counts` would leak
+the held-out family, so occupancy is leave-one-family-out atoms,
+the same rotate as probe:
 
 ```bash
-python -m text_watermark_tools atoms \
-  experiments/2026-09-03-probe-12x4-ngram13-hard-last4/tables-counts \
+python -m text_watermark_tools atoms --leave-one-out \
   --test-dir experiments/2026-09-03-pair-12x4-ngram13 \
   --windows 0:4,4:16,16:32,32:64,64:128 \
   --out-dir experiments/2026-09-03-atoms-12x4-ngram13
 ```
 
-If `tables-counts` was dropped from the probe out-dir, persist it
-once with the same fit flags; do not add a method.
+Public-mixin comparison on the existing `ngram_len=5` original-12
+twins (same prompt strings, not a matched-seed pair):
+
+```bash
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-12x4-public-loo
+```
+
+Do not look at these occupancy counts until this command is
+committed. Do not add a `probe --methods` name. Lower exact overlap
+(`seen_next`) than public $\Hw=4$ in-domain is the expected
+mechanistic direction for $\Hw=12$; it is not a detector.
+
+100-family occupancy is a named companion of the same lock, not a
+new scorer:
+
+```bash
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-100x4-ngram13
+```
 
 ## Phase B (named)
 

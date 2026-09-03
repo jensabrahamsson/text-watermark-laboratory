@@ -13,6 +13,7 @@ from text_watermark_tools.transfer import (
     COUNT_SPECS,
     HitAtom,
     ScoreSpec,
+    fit_count_model,
     gated_hit_trace,
     interpolate_trace,
     score_sequence_detail,
@@ -271,24 +272,14 @@ def window_atom_summary(
     return out
 
 
-def dump_interpolate_atoms(
-    tables_dir: Path,
-    test_dir: Path,
-    out_path: Path | None = None,
+def _interpolate_atom_rows(
+    twins: Sequence[Twin],
+    model: BlindModel,
     *,
-    model_name: str = "gpt2",
-    windows: Sequence[tuple[int, int]] = DEFAULT_ATOM_WINDOWS,
-    top_k: int = 20,
-    store_rows: bool = False,
-) -> dict:
-    """Decode interpolate last-4 atoms from persisted tables. No keys."""
-    model, _meta = load_indicator(tables_dir)
-    if model.used_keys or model.used_hash_iv or model.used_g_values:
-        raise RuntimeError("atom dump consulted keys / hash_iv / g-values")
-    tokenizer = load_tokenizer(model_name)
-    twins = load_twins(test_dir, tokenizer=tokenizer)
-    spec = COUNT_SPECS["interpolate"]
-    decode = lambda t, tok=tokenizer: decode_token(tok, t)
+    decode: Callable[[int], str],
+    spec: ScoreSpec | None = None,
+) -> list[dict]:
+    spec = spec or COUNT_SPECS["interpolate"]
     bucket = int(model.position_bucket or 0)
     rows: list[dict] = []
     for twin in twins:
@@ -324,25 +315,129 @@ def dump_interpolate_atoms(
                     ],
                 }
             )
+    return rows
+
+
+def _interpolate_atoms_payload(
+    rows: Sequence[dict],
+    windows: Sequence[tuple[int, int]],
+    *,
+    top_k: int,
+    store_rows: bool,
+    note: str,
+    mode: str,
+) -> dict:
     windows_out = window_atom_summary(rows, windows, top_k=top_k)
     payload = {
-        "note": (
-            "Interpolate last-4 atoms from frozen count tables. "
-            "unseen_next means the observed next token is absent from both "
-            "marked and unmarked buckets (Witten–Bell backoff). Not keys, "
-            "not a new probe method, not a universal detector."
-        ),
+        "note": note,
+        "mode": mode,
         "used_keys": False,
         "used_hash_iv": False,
         "used_g_values": False,
         "n_rows": len(rows),
         "windows": windows_out,
+        "n_seen": sum(int(w["n_seen"]) for w in windows_out),
+        "n_unseen": sum(int(w["n_unseen"]) for w in windows_out),
         "n_marked_lr_positive": sum(
             1 for r in rows if r["side"] == "marked" and float(r["lr"]) > 0.0
         ),
+        "files": [
+            {
+                "stem": r["stem"],
+                "sample": r["sample"],
+                "side": r["side"],
+                "lr": r["lr"],
+                "n_used": r["n_used"],
+            }
+            for r in rows
+        ],
     }
     if store_rows:
-        payload["rows"] = rows
+        payload["rows"] = list(rows)
+    return payload
+
+
+def dump_interpolate_atoms(
+    tables_dir: Path,
+    test_dir: Path,
+    out_path: Path | None = None,
+    *,
+    model_name: str = "gpt2",
+    windows: Sequence[tuple[int, int]] = DEFAULT_ATOM_WINDOWS,
+    top_k: int = 20,
+    store_rows: bool = False,
+) -> dict:
+    """Decode interpolate last-4 atoms from persisted tables. No keys."""
+    model, _meta = load_indicator(tables_dir)
+    if model.used_keys or model.used_hash_iv or model.used_g_values:
+        raise RuntimeError("atom dump consulted keys / hash_iv / g-values")
+    tokenizer = load_tokenizer(model_name)
+    twins = load_twins(test_dir, tokenizer=tokenizer)
+    decode = lambda t, tok=tokenizer: decode_token(tok, t)
+    rows = _interpolate_atom_rows(twins, model, decode=decode)
+    payload = _interpolate_atoms_payload(
+        rows,
+        windows,
+        top_k=top_k,
+        store_rows=store_rows,
+        note=(
+            "Interpolate last-4 atoms from frozen count tables. "
+            "unseen_next means the observed next token is absent from both "
+            "marked and unmarked buckets (Witten–Bell backoff). Not keys, "
+            "not a new probe method, not a universal detector."
+        ),
+        mode="tables",
+    )
+    if out_path is not None:
+        Path(out_path).write_text(json.dumps(payload, indent=2) + "\n")
+    return payload
+
+
+def dump_interpolate_atoms_loo(
+    test_dir: Path,
+    out_path: Path | None = None,
+    *,
+    model_name: str = "gpt2",
+    context_len: int = 4,
+    windows: Sequence[tuple[int, int]] = DEFAULT_ATOM_WINDOWS,
+    top_k: int = 20,
+    store_rows: bool = False,
+) -> dict:
+    """Leave-one-family-out interpolate atoms. Same fit as probe rotate.
+
+    A pooled tables-counts dump would leak the held-out family. This is
+    occupancy of the published interpolate reader, not a new scorer.
+    """
+    tokenizer = load_tokenizer(model_name)
+    twins = load_twins(test_dir, tokenizer=tokenizer)
+    if len(twins) < 3:
+        raise ValueError("leave-one-family-out atoms needs at least three prompts")
+    spec = COUNT_SPECS["interpolate"]
+    decode = lambda t, tok=tokenizer: decode_token(tok, t)
+    rows: list[dict] = []
+    for held in twins:
+        train = [t for t in twins if t.stem != held.stem]
+        model = fit_count_model(train, context_len=int(context_len))
+        if model.used_keys or model.used_hash_iv or model.used_g_values:
+            raise RuntimeError("atom dump consulted keys / hash_iv / g-values")
+        rows.extend(
+            _interpolate_atom_rows([held], model, decode=decode, spec=spec)
+        )
+    payload = _interpolate_atoms_payload(
+        rows,
+        windows,
+        top_k=top_k,
+        store_rows=store_rows,
+        note=(
+            "Leave-one-family-out interpolate last-4 atoms. "
+            "Each family is scored on tables fit on the other families "
+            "(same rotate as probe). unseen_next is Witten–Bell backoff. "
+            "Not keys, not a new probe method, not a universal detector."
+        ),
+        mode="leave-one-family-out",
+    )
+    payload["pair_dir"] = str(Path(test_dir))
+    payload["context_len"] = int(context_len)
     if out_path is not None:
         Path(out_path).write_text(json.dumps(payload, indent=2) + "\n")
     return payload
@@ -354,8 +449,10 @@ def print_interpolate_atoms(payload: dict) -> str:
         "",
         str(payload.get("note") or ""),
         "",
-        f"used_keys={payload.get('used_keys')} n_rows={payload.get('n_rows')} "
-        f"marked_lr>0={payload.get('n_marked_lr_positive')}",
+        f"used_keys={payload.get('used_keys')} mode={payload.get('mode')} "
+        f"n_rows={payload.get('n_rows')} "
+        f"marked_lr>0={payload.get('n_marked_lr_positive')} "
+        f"seen={payload.get('n_seen')} unseen={payload.get('n_unseen')}",
         "",
         "| window | mean marked Δ | mean unmarked Δ | seen | unseen |",
         "|---|---|---|---|---|",

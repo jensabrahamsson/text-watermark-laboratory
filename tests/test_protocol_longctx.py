@@ -109,6 +109,9 @@ def test_protocol_longctx_official_control_and_keyfree_from_dumps() -> None:
     assert "H-long-hard **holds**" in text
     assert "H-long-iso **holds**" in text
     assert "H-long-occ is **not opened**" in text
+    assert "--leave-one-out" in text
+    assert "2026-09-03-atoms-12x4-ngram13" in text
+    assert "2026-09-03-atoms-12x4-public-loo" in text
     assert "*(empty until the SHA is named in LOGBOOK.md)*" not in text
     collapsed = " ".join(text.split())
     assert "Do not sell **6/12**" in collapsed

@@ -331,6 +331,7 @@ def cmd_atoms(args: argparse.Namespace) -> int:
     from text_watermark_tools.atoms import (
         DEFAULT_ATOM_WINDOWS,
         dump_interpolate_atoms,
+        dump_interpolate_atoms_loo,
         persist_interpolate_atoms,
         print_interpolate_atoms,
     )
@@ -338,14 +339,38 @@ def cmd_atoms(args: argparse.Namespace) -> int:
 
     raw = str(getattr(args, "windows", "") or "").strip()
     spans = _parse_windows(raw.split(",") if raw else [])
-    payload = dump_interpolate_atoms(
-        Path(args.tables),
-        Path(args.test_dir),
-        model_name=str(getattr(args, "model", None) or "gpt2"),
-        windows=spans or DEFAULT_ATOM_WINDOWS,
-        top_k=int(getattr(args, "top_k", 20) or 20),
-        store_rows=bool(getattr(args, "store_rows", False)),
-    )
+    leave_one_out = bool(getattr(args, "leave_one_out", False))
+    tables = str(getattr(args, "tables", "") or "").strip()
+    if leave_one_out:
+        if tables:
+            print(
+                "atoms --leave-one-out does not load pooled tables "
+                "(that leaks the held-out family)",
+                file=sys.stderr,
+            )
+            return 2
+        payload = dump_interpolate_atoms_loo(
+            Path(args.test_dir),
+            model_name=str(getattr(args, "model", None) or "gpt2"),
+            windows=spans or DEFAULT_ATOM_WINDOWS,
+            top_k=int(getattr(args, "top_k", 20) or 20),
+            store_rows=bool(getattr(args, "store_rows", False)),
+        )
+    else:
+        if not tables:
+            print(
+                "atoms needs a tables-counts directory, or --leave-one-out",
+                file=sys.stderr,
+            )
+            return 2
+        payload = dump_interpolate_atoms(
+            Path(tables),
+            Path(args.test_dir),
+            model_name=str(getattr(args, "model", None) or "gpt2"),
+            windows=spans or DEFAULT_ATOM_WINDOWS,
+            top_k=int(getattr(args, "top_k", 20) or 20),
+            store_rows=bool(getattr(args, "store_rows", False)),
+        )
     if payload["used_keys"] or payload["used_hash_iv"] or payload["used_g_values"]:
         print("atoms consulted keys / hash_iv / g-values", file=sys.stderr)
         return 1
@@ -2035,8 +2060,21 @@ def build_parser() -> argparse.ArgumentParser:
             "new scorer, not detector_mean, not a universal detector."
         ),
     )
-    p_atoms.add_argument("tables", help="tables-counts directory from probe/transfer")
+    p_atoms.add_argument(
+        "tables",
+        nargs="?",
+        default="",
+        help="tables-counts directory from probe/transfer (omit with --leave-one-out)",
+    )
     p_atoms.add_argument("--test-dir", required=True, help="Twin directory to decode")
+    p_atoms.add_argument(
+        "--leave-one-out",
+        action="store_true",
+        help=(
+            "Fit interpolate tables per held-out family (same rotate as probe). "
+            "Not a new scorer. Do not pass pooled tables-counts: that leaks."
+        ),
+    )
     p_atoms.add_argument("--model", default="gpt2")
     p_atoms.add_argument(
         "--windows",

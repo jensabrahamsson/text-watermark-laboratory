@@ -107,6 +107,49 @@ def test_window_summary_separates_head_and_tail() -> None:
     assert top[0]["n"] == 1
 
 
+def test_loo_interpolate_atoms_does_not_pool_the_held_out_family() -> None:
+    twins = [
+        _twin("a", [1, 2, 3, 4, 5], [1, 9, 9, 9, 9]),
+        _twin("b", [1, 2, 3, 4, 6], [1, 8, 8, 8, 8]),
+        _twin("c", [1, 2, 3, 4, 5], [1, 7, 7, 7, 7]),
+    ]
+    from text_watermark_tools.atoms import (
+        _interpolate_atom_rows,
+        _interpolate_atoms_payload,
+        decode_token,
+    )
+    from text_watermark_tools.score import load_tokenizer
+    from text_watermark_tools.transfer import COUNT_SPECS, fit_count_model
+
+    spec = COUNT_SPECS["interpolate"]
+    tok = load_tokenizer("gpt2")
+    decode = lambda t, tokenizer=tok: decode_token(tokenizer, t)
+    rows = []
+    for held in twins:
+        train = [t for t in twins if t.stem != held.stem]
+        model = fit_count_model(train, context_len=4)
+        assert model.used_keys is False
+        rows.extend(_interpolate_atom_rows([held], model, decode=decode, spec=spec))
+    payload = _interpolate_atoms_payload(
+        rows,
+        ((0, 4), (4, 16)),
+        top_k=5,
+        store_rows=False,
+        note="test",
+        mode="leave-one-family-out",
+    )
+    assert payload["mode"] == "leave-one-family-out"
+    assert payload["used_keys"] is False
+    assert payload["n_rows"] == 6
+    assert "rows" not in payload
+    assert len(payload["files"]) == 6
+    pooled = fit_count_model(twins, context_len=4)
+    pooled_rows = _interpolate_atom_rows(twins, pooled, decode=decode, spec=spec)
+    loo_lrs = [r["lr"] for r in rows]
+    pooled_lrs = [r["lr"] for r in pooled_rows]
+    assert loo_lrs != pooled_lrs
+
+
 def test_cli_atoms_help_is_not_a_new_scorer(capsys) -> None:
     try:
         main(["atoms", "--help"])
@@ -115,6 +158,22 @@ def test_cli_atoms_help_is_not_a_new_scorer(capsys) -> None:
     out = capsys.readouterr().out
     assert "not a new scorer" in out.lower()
     assert "detector_mean" in out
+    assert "--leave-one-out" in out
+
+
+def test_cli_atoms_leave_one_out_rejects_pooled_tables(capsys) -> None:
+    code = main(
+        [
+            "atoms",
+            "experiments/tables-counts",
+            "--leave-one-out",
+            "--test-dir",
+            "experiments/pair",
+        ]
+    )
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "leaks" in err.lower()
 
 
 def test_live_grok12_atoms_are_backoff_not_a_detector() -> None:

@@ -369,8 +369,12 @@ python -m text_watermark_tools probe \
 
 `atoms` decodes frozen interpolate tables into per-window mean Δ and
 the most common observed-token 4-grams. It is not a new scorer and not
-`detector_mean`. On the 100 one-liner → Grok-register split, almost all
-mass is Witten–Bell backoff; occupancy-free openings stay **0/48**.
+`detector_mean`. `--leave-one-out` fits those tables per held-out
+family (the same rotate as `probe`) so occupancy of a 12-LOO or
+100-LOO interpolate reader does not leak the test family through a
+pooled `tables-counts` dump. On the 100 one-liner → Grok-register
+split, almost all mass is Witten–Bell backoff; occupancy-free
+openings stay **0/48**.
 
 ```bash
 python -m text_watermark_tools atoms \
