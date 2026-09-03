@@ -175,3 +175,29 @@ def test_protocol_longctx_phase_b_from_dumps() -> None:
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "Phase B start" in log
     assert not (PROBE100 / "tables-counts").exists()
+
+
+def test_ngram13_phase_b_official_all_400_marked_files() -> None:
+    from text_watermark_tools.score import (
+        load_tokenizer,
+        official_processor,
+        official_score_text,
+    )
+
+    tok = load_tokenizer("gpt2")
+    proc = official_processor(ngram_len=13)
+    marked = [p for p in PAIR100.glob("*-marked*.txt") if "unmarked" not in p.name]
+    unmarked = list(PAIR100.glob("*-unmarked-gen*.txt"))
+    assert len(marked) == 400
+    assert len(unmarked) == 400
+    n_hi = sum(
+        official_score_text(p.read_text(), tokenizer=tok, processor=proc).mean > 0.55
+        for p in marked
+    )
+    n_u = sum(
+        official_score_text(p.read_text(), tokenizer=tok, processor=proc).mean > 0.55
+        for p in unmarked
+    )
+    assert n_hi == 400
+    assert n_u == 0
+    assert "**400/400**" in PROTOCOL.read_text()

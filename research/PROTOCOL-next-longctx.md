@@ -249,7 +249,9 @@ Probe dump: [experiments/2026-09-03-probe-100x4-ngram13-hard-last4/](../experime
 
 H-long-B-ctrl **holds**. Official first-draw matching `ngram_len=13`
 is above $0.55$ on **100/100** first marked files (min $0.582$).
-Unmarked first-draw: **0/100** above $0.55$ (max $0.519$).
+Unmarked first-draw: **0/100** above $0.55$ (max $0.519$). Post-open
+extra-draw check: **400/400** marked above $0.55$ (min $0.574$),
+**0/400** unmarked above $0.55$ (max $0.525$). Not a second freeze.
 
 | Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
 |---|---|---|---|---|---|---|

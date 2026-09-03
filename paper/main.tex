@@ -1278,7 +1278,10 @@ $\tau=0$ is not distinguishable from chance under a prompt-clustered
 sign-flip.
 
 How count-table coverage scales with longer watermark history is
-unknown. Production Gemini and Anthropic keys were not measured.
+partly measured: $\Hw=12$ attenuates group ranking from lock~A
+\textbf{99/100} to \textbf{76/100} on the same 100 prompt strings
+(different twins). Occupancy of exact 4-grams was not decoded on that
+dump. Production Gemini and Anthropic keys were not measured.
 Multi-key replication of the public mixin is not started. Isolated-file
 research is not finished.
 
@@ -1314,8 +1317,9 @@ Occupancy was not decoded: the 12-LOO dump does not persist
 \texttt{tables-counts}.
 
 Phase~B (same lock, 100 one-liners, start named \texttt{facc538}) is
-opened. Official first-draw matching $\mathtt{ngram\_len}=13$ is
-\textbf{100/100} above $0.55$. Leave-one-family-out interpolate last-4
+opened. Official matching $\mathtt{ngram\_len}=13$ is above $0.55$ on
+\textbf{400/400} marked files (first-draw was already \textbf{100/100};
+post-open extra-draw check). Leave-one-family-out interpolate last-4
 ranks \textbf{76/100} (AUC $0.666$; $\tau=0$ is 267 TP, 133 FN, 222 TN,
 178 FP; balanced accuracy $489/800$), below public-mixin lock~A
 \textbf{99/100} on these prompt strings. Hard is \textbf{66/100}

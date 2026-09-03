@@ -175,6 +175,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "52/96" in PAPER
     assert r"\textbf{76/100}" in PAPER
     assert "489/800" in PAPER
+    assert r"\textbf{400/400}" in PAPER
     b100 = json.loads(
         (
             ROOT
