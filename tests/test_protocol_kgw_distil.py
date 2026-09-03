@@ -151,3 +151,47 @@ def test_protocol_kgw_distil_100_cli_flag_exists() -> None:
     assert args.model == "distilgpt2"
     assert args.seed == 20260904
     assert args.hub_revision == "2290a62682d06624634c1f46a6ad5be0f47f38aa"
+
+
+PAIR100 = ROOT / "experiments" / "2026-09-03-pair-distil-100x4-kgw"
+PROBE100 = ROOT / "experiments" / "2026-09-03-probe-distil-100x4-kgw-hard-last4"
+ATOMS100 = ROOT / "experiments" / "2026-09-03-atoms-distil-100x4-kgw"
+
+
+def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR100 / "results.json").read_text())
+    assert pair["mixin"] == "kgw"
+    assert pair["model_name"] == "distilgpt2"
+    assert pair["seed"] == 20260904
+    assert pair["hub_revision"] == "2290a62682d06624634c1f46a6ad5be0f47f38aa"
+    assert len(pair["rows"]) == 100
+    assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    n_unmarked_above = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
+    assert n_unmarked_above == 16
+    interp = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE100 / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["n_prompts_marked_above"] == 100
+    assert hard["n_prompts_marked_above"] == 82
+    assert interp["n_marked_lr_positive"] == 346
+    assert interp["n_unmarked_lr_nonpositive"] == 337
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 683
+    assert abs(interp["binary"]["auc"] - 0.915) < 0.001
+    occ = json.loads((ATOMS100 / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 16170
+    assert occ["n_unseen"] == 71541
+    assert occ["n_marked_lr_positive"] == 346
+    assert "H-kgw-d100-ctrl **holds**" in text
+    assert "H-kgw-d100-group **holds**" in text
+    assert "H-kgw-d100-iso **holds**" in text
+    assert "H-kgw-d100-occ **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **100/100**" in collapsed
+    lo, hi = clopper_pearson(100, 100)
+    assert lo > 0.5
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi
+    ba_lo, ba_hi = clopper_pearson(683, 800)
+    assert ba_lo > 0.5

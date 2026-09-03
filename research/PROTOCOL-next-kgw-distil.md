@@ -202,3 +202,63 @@ python -m text_watermark_tools atoms --leave-one-out \
 Do not look at key-free LRs until `pair` has written official
 first-draw z-scores and the probe command has been run once, as
 written. Do not change flags after the first run. Do not add a scorer.
+
+## One hundred families (opened)
+
+Named `4fad227` before generation. Pair seed **20260904**. `mixin=kgw`.
+`model=distilgpt2`. `used_keys=false`. Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`. First `pair` died at stem
+088 with a full disk; a `.strip()` persist bug had also collapsed
+newline-only Distil draws to a one-byte file. Harness fix SHA
+`8984759` keeps whitespace-only twins. Same flags re-run after that
+fix. Do not backfill Distil-12.
+
+Pair dump: [experiments/2026-09-03-pair-distil-100x4-kgw/](../experiments/2026-09-03-pair-distil-100x4-kgw/).
+Probe dump: [experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/](../experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/).
+
+H-kgw-d100-ctrl **holds**. Official matching z-score is above $3.0$ on
+**100/100** first marked files (min $6.81$). Unmarked first-draw is
+**16/100** above $3.0$ (max $19.52$). Mixin is on. The unmarked
+passers are newline-loop files that Kirchenbauer scores as fully
+green; not a second freeze.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **100/100** | 0.915 | 346/400 | 337/400 | 346 54 337 63 | **683/800** |
+| hard last-4 | **82/100** | 0.666 | 180/400 | 322/400 | 180 220 322 78 | **502/800** |
+
+GPT-2 Kirchenbauer interpolate on these prompt *strings* (different
+twins) was **100/100** / **747/800**. Distil interpolate matches the
+group sign count and drops isolated balanced accuracy. Mean
+$D_p=0.587$ (median $0.585$; every family $D_p>0$). Hard mean paired
+difference is $0.138$.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **100/100** is
+**[0.964, 1.000]**; hard **82/100** is **[0.731, 0.890]**; BA
+**683/800** is **[0.827, 0.878]**. Isolated **25/48** still includes ½.
+
+H-kgw-d100-group **holds**. Interpolate last-4 is **100/100**, the same
+sign count as GPT-2 Kirchenbauer on these strings. It does not replace
+**25/48**.
+
+H-kgw-d100-iso **holds**. Isolated interpolate **683/800** is a
+different generator and mixin from the original-12 SynthID **47/96**.
+Do not sell **100/100**, **683/800**, **82/100**, or **502/800** as
+replacing **25/48**.
+
+H-kgw-d100-occ **holds**. Leave-one-family-out interpolate atoms
+(`atoms --leave-one-out`; `used_keys=false`). File LRs match
+interpolate holdout (marked `lr>0` **346/400**). Exact next-token
+overlap is **16170** seen versus **71541** unseen (opening $[0{:}4)$
+is 1800 versus 600). The top opening atom is `'\n\n' → '\n\n'`
+(n=172). First-draw strip-empty (newline-only) files: **40/100**
+marked, **12/100** unmarked; **191/800** across all draws. Distil plus
+Kirchenbauer often loops newline tokens, which this reader treats as
+reusable last-4 occupancy. Occupancy is a mechanistic intermediate,
+not a detector. Do not sell **16170**, **1800**, or newline loops as
+replacing **25/48**.
+
+JSON: [experiments/2026-09-03-atoms-distil-100x4-kgw/](../experiments/2026-09-03-atoms-distil-100x4-kgw/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.

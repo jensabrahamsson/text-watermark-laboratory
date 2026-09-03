@@ -1358,11 +1358,11 @@ with the same Kirchenbauer defaults is frozen in
 in \texttt{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
 \texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
 (isolated \textbf{68/96}); hard is \textbf{8/12}. That is not
-\textbf{25/48}. DistilGPT2 Kirchenbauer on the 100 one-liners is named
+\textbf{25/48}. DistilGPT2 Kirchenbauer on the 100 one-liners is frozen
 in \texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
-\texttt{4fad227};
-\texttt{experiments/2026-09-03-pair-distil-100x4-kgw}) and has not been
-generated. An Aaronson mixin is a third protocol and has not been
+\texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
+(isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
+\textbf{25/48}. An Aaronson mixin is a third protocol and has not been
 run.
 
 \begin{table}[ht]
@@ -1522,6 +1522,24 @@ Hard is \textbf{8/12} (AUC $0.566$; $50/96$). Occupancy is 84 seen
 versus 12108 unseen. Hub revision was unpinned at generation. Group
 ranking holds; isolated balanced accuracy is below Distil and GPT-2
 Kirchenbauer \textbf{85/96}. That is not \textbf{25/48}.
+
+\paragraph{One hundred families, DistilGPT2 Kirchenbauer.}
+Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
+\texttt{4fad227}, dump
+\path{experiments/2026-09-03-pair-distil-100x4-kgw}, seed 20260904,
+Hub SHA \path{2290a62682d06624634c1f46a6ad5be0f47f38aa}. Official matching
+$z$-scores are above $3.0$ on \textbf{100/100} first marked files
+(min $6.81$). Unmarked first-draw is $16/100$ above $3.0$ (newline
+loops scored fully green). Interpolate last-4 ranks \textbf{100/100}
+(AUC $0.915$; 346 TP, 54 FN, 337 TN, 63 FP; balanced accuracy
+$683/800$; mean $D_p=0.587$, every family $D_p>0$). Hard is
+\textbf{82/100} (AUC $0.666$; $502/800$). Occupancy is 16170 seen
+versus 71541 unseen (opening $[0{:}4)$ is 1800 versus 600). The top
+opening atom is a newline loop. First-draw newline-only files are
+$40/100$ marked and $12/100$ unmarked. Group ranking matches GPT-2
+Kirchenbauer \textbf{100/100} on these strings; isolated balanced
+accuracy is below GPT-2 Kirchenbauer \textbf{747/800}. That is not
+\textbf{25/48}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1719,6 +1737,16 @@ Qwen interpolate:
 Qwen occupancy:
 \path{experiments/2026-09-03-atoms-qwen-12x4-kgw/atoms.json}
 (\texttt{df93d69c13d85869}; 84 seen).
+Distil 100-family Kirchenbauer freeze: \texttt{4fad227}.
+Distil 100 pair:
+\path{experiments/2026-09-03-pair-distil-100x4-kgw/results.json}
+(\texttt{3d59709dc295ed17}).
+Distil 100 interpolate:
+\path{experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/interpolate/holdout.json}
+(\texttt{cd10c0b6b355e51b}; $100/100$, $683/800$).
+Distil 100 occupancy:
+\path{experiments/2026-09-03-atoms-distil-100x4-kgw/atoms.json}
+(\texttt{d48748a701d201eb}; 16170 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

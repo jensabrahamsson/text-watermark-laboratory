@@ -2395,3 +2395,23 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-03-pair-distil-100x4-kgw
 ```
 
+## 2026-09-03 DistilGPT2 Kirchenbauer 100-family opened
+
+[PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) named
+`4fad227`. Pair seed **20260904**, `--mixin kgw`, `--model distilgpt2`,
+Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`. First `pair` hit a
+full disk at stem 088; persist `.strip()` had also emptied newline-only
+draws. Harness fix `8984759`. Same flags after the fix. Official
+first-draw z>3 **100/100** (H-kgw-d100-ctrl holds; unmarked **16/100**
+above 3.0 are newline loops). Interpolate last-4 **100/100** (AUC
+**0.915**, isolated **346/400 vs 337/400**, BA **683/800**). Hard
+**82/100** (AUC **0.666**, BA **502/800**). Occupancy **16170** seen vs
+**71541** unseen (opening 1800 vs 600; `'\n\n' → '\n\n'` n=172).
+`used_keys=false`. Do not sell **100/100** or **683/800** as replacing
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+JSON: `experiments/2026-09-03-pair-distil-100x4-kgw/`,
+`experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/`,
+`experiments/2026-09-03-atoms-distil-100x4-kgw/`.
+
