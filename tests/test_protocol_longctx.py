@@ -196,6 +196,9 @@ def test_ngram13_pair_readmes_note_unpinned_hub() -> None:
         readme = (dump / "README.md").read_text()
         assert "Hub revision was not recorded" in readme
         assert "committed strings" in readme
+        data = json.loads((dump / "results.json").read_text())
+        assert "hub_revision" not in data
+        assert data["ngram_len"] == 13
 
 
 def test_ngram13_phase_b_official_all_400_marked_files() -> None:
