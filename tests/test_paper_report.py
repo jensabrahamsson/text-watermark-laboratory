@@ -25,6 +25,13 @@ def test_plain_english_ingress_precedes_the_abstract() -> None:
     assert "160" not in lead
 
 
+def test_how_synthid_works_records_docstring_mismatch() -> None:
+    text = (ROOT / "research" / "how-synthid-works.md").read_text()
+    assert "lowest three bits" in text
+    assert "(hash >> 30) % 2" in text
+    assert "Do not edit" in text or "do not edit" in text.lower()
+
+
 def test_installed_get_gvals_docstring_does_not_match_return() -> None:
     import inspect
 
