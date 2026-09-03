@@ -65,6 +65,11 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "ranks 2--3" in PAPER
     assert r"\tau=0" in PAPER
     assert r"\Hw" in PAPER or "H_{\\mathrm{w}}" in PAPER
+    math = PAPER.split(r"\section{Why a Fixed Key Can Leave a Trace}")[1].split(
+        r"\section{Results}"
+    )[0]
+    assert "has not been run" in math
+    assert "is untested" not in math
 
 
 def test_nested_youden_is_post_hoc() -> None:
