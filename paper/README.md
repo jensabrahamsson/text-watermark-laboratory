@@ -25,8 +25,9 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful TeX Live build (19 A4
-  pages, PR #4). Later $\Hw=12$ paragraphs and the occupancy table
-  (\texttt{tab:occ}) have not been recompiled here; `pdflatex` is
+  pages, PR #4). Later $\Hw=12$ paragraphs, the occupancy table
+  (\texttt{tab:occ}), the plain-English lead, and the \texttt{get\_gvals}
+  docstring paragraph have not been recompiled here; `pdflatex` is
   missing on this machine.
 
 Numbers are taken from this repository (`research/`, `experiments/`).
