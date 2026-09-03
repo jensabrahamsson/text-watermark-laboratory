@@ -57,6 +57,13 @@ def test_score_reports_counts(marked_text: str) -> None:
     assert 0 < score.n_unmasked_ngrams <= score.n_tokens
 
 
+def test_official_processor_ngram_len_override() -> None:
+    default = official_processor()
+    longer = official_processor(ngram_len=13)
+    assert int(default.ngram_len) == 5
+    assert int(longer.ngram_len) == 13
+
+
 def test_format_score_names_public_instance(marked_text: str) -> None:
     line = format_score("lab", official_score_text(marked_text))
     assert "instance=public-deepmind-30" in line

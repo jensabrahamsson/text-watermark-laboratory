@@ -27,8 +27,10 @@ from text_watermark_tools.score import (
     control_keys,
     format_score,
     load_tokenizer,
+    official_processor,
     official_score_text,
     official_score_token_ids,
+    public_ngram_len,
 )
 
 
@@ -58,6 +60,7 @@ class PairRun:
     seed: int
     alt_keys: list[int] | None = None
     model_name: str = "gpt2"
+    ngram_len: int = 5
 
 
 def collect_prompts(path: Path) -> list[tuple[str, str]]:
@@ -122,6 +125,16 @@ def persist_pair_row_texts(row: PairRow, out_dir: Path) -> None:
             (out_dir / f"{row.stem}-control-gen-{i}.txt").write_text(txt.strip() + "\n")
 
 
+def _score_text(text: str, tokenizer, ngram_len: int, keys=None) -> OfficialScore:
+    proc = official_processor(keys=keys, ngram_len=ngram_len)
+    return official_score_text(text, tokenizer=tokenizer, processor=proc)
+
+
+def _score_ids(ids, tokenizer, ngram_len: int, keys=None) -> OfficialScore:
+    proc = official_processor(keys=keys, ngram_len=ngram_len)
+    return official_score_token_ids(ids, tokenizer=tokenizer, processor=proc)
+
+
 def load_pair_row_from_files(
     out_dir: Path,
     stem: str,
@@ -129,6 +142,7 @@ def load_pair_row_from_files(
     tokenizer,
     *,
     n_samples: int,
+    ngram_len: int = 5,
 ) -> PairRow:
     """Rebuild a row from already-written twins. Re-scores; does not regenerate."""
     out_dir = Path(out_dir)
@@ -141,19 +155,19 @@ def load_pair_row_from_files(
         extra_m = (out_dir / f"{stem}-marked-{i}.txt").read_text()
         extra_u = (out_dir / f"{stem}-unmarked-gen-{i}.txt").read_text()
         extra_marked.append(
-            (extra_m, official_score_text(extra_m, tokenizer=tokenizer))
+            (extra_m, _score_text(extra_m, tokenizer, ngram_len))
         )
         extra_unmarked.append(
-            (extra_u, official_score_text(extra_u, tokenizer=tokenizer))
+            (extra_u, _score_text(extra_u, tokenizer, ngram_len))
         )
     return PairRow(
         stem=stem,
         prompt=text,
-        prompt_score=official_score_text(text, tokenizer=tokenizer),
+        prompt_score=_score_text(text, tokenizer, ngram_len),
         marked_text=marked,
-        marked_score=official_score_text(marked, tokenizer=tokenizer),
+        marked_score=_score_text(marked, tokenizer, ngram_len),
         unmarked_text=unmarked,
-        unmarked_score=official_score_text(unmarked, tokenizer=tokenizer),
+        unmarked_score=_score_text(unmarked, tokenizer, ngram_len),
         extra_marked=extra_marked,
         extra_unmarked=extra_unmarked,
     )
@@ -173,6 +187,7 @@ def run_pairs(
     n_samples: int = 1,
     resume_dir: Path | None = None,
     persist_dir: Path | None = None,
+    ngram_len: int | None = None,
 ) -> PairRun:
     """For each prompt: score the prompt, then generate unmarked and marked twins.
 
@@ -186,6 +201,7 @@ def run_pairs(
     if n_samples < 1:
         raise ValueError("n_samples must be >= 1")
     name = model_name or "gpt2"
+    nlen = public_ngram_len() if ngram_len is None else int(ngram_len)
     tok = tokenizer or load_tokenizer(name)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
     resume = Path(resume_dir) if resume_dir is not None else None
@@ -199,25 +215,29 @@ def run_pairs(
     ]
     if remaining:
         if marked_model is None:
-            marked_model = _load_marked_model(device, model_name=name)
+            marked_model = _load_marked_model(
+                device, model_name=name, ngram_len=nlen
+            )
         if unmarked_model is None:
             unmarked_model = _load_unmarked_model(device, model_name=name)
     alt_key_list = control_keys() if also_control_keys else None
     if also_control_keys and alt_model is None:
-        alt_model = _load_marked_model(device, keys=alt_key_list, model_name=name)
+        alt_model = _load_marked_model(
+            device, keys=alt_key_list, model_name=name, ngram_len=nlen
+        )
 
     rows: list[PairRow] = []
     for offset, (stem, prompt) in enumerate(prompts):
         text = prompt if prompt.endswith("\n") else prompt + "\n"
         if resume is not None and pair_stem_files_complete(resume, stem, n_samples):
             row = load_pair_row_from_files(
-                resume, stem, text, tok, n_samples=n_samples
+                resume, stem, text, tok, n_samples=n_samples, ngram_len=nlen
             )
             rows.append(row)
             if persist is not None:
                 persist_pair_row_texts(row, persist)
             continue
-        prompt_score = official_score_text(text, tokenizer=tok)
+        prompt_score = _score_text(text, tok, nlen)
         stride = 2 * n_samples + 2
         marked_gen: Generation = generate_text(
             text,
@@ -227,6 +247,7 @@ def run_pairs(
             device=device,
             tokenizer=tok,
             model=marked_model,
+            ngram_len=nlen,
         )
         unmarked_gen: Generation = generate_text(
             text,
@@ -248,6 +269,7 @@ def run_pairs(
                 device=device,
                 tokenizer=tok,
                 model=marked_model,
+                ngram_len=nlen,
             )
             ug = generate_text(
                 text,
@@ -259,10 +281,10 @@ def run_pairs(
                 model=unmarked_model,
             )
             extra_marked.append(
-                (mg.text, official_score_token_ids(mg.token_ids, tokenizer=tok))
+                (mg.text, _score_ids(mg.token_ids, tok, nlen))
             )
             extra_unmarked.append(
-                (ug.text, official_score_token_ids(ug.token_ids, tokenizer=tok))
+                (ug.text, _score_ids(ug.token_ids, tok, nlen))
             )
         alt_text = ""
         alt_pub = None
@@ -276,11 +298,12 @@ def run_pairs(
                 device=device,
                 tokenizer=tok,
                 model=alt_model,
+                ngram_len=nlen,
             )
             alt_text = alt_gen.text
-            alt_pub = official_score_token_ids(alt_gen.token_ids, tokenizer=tok)
-            alt_match = official_score_token_ids(
-                alt_gen.token_ids, tokenizer=tok, keys=alt_key_list
+            alt_pub = _score_ids(alt_gen.token_ids, tok, nlen)
+            alt_match = _score_ids(
+                alt_gen.token_ids, tok, nlen, keys=alt_key_list
             )
         rows.append(
             PairRow(
@@ -288,13 +311,9 @@ def run_pairs(
                 prompt=text,
                 prompt_score=prompt_score,
                 marked_text=marked_gen.text,
-                marked_score=official_score_token_ids(
-                    marked_gen.token_ids, tokenizer=tok
-                ),
+                marked_score=_score_ids(marked_gen.token_ids, tok, nlen),
                 unmarked_text=unmarked_gen.text,
-                unmarked_score=official_score_token_ids(
-                    unmarked_gen.token_ids, tokenizer=tok
-                ),
+                unmarked_score=_score_ids(unmarked_gen.token_ids, tok, nlen),
                 alt_text=alt_text,
                 alt_score_public=alt_pub,
                 alt_score_matching=alt_match,
@@ -310,6 +329,7 @@ def run_pairs(
         seed=seed,
         alt_keys=alt_key_list,
         model_name=name,
+        ngram_len=nlen,
     )
 
 
@@ -389,17 +409,27 @@ def run_control_only(
 def print_pair_run(run: PairRun) -> str:
     chunks: list[str] = []
     for row in run.rows:
-        chunks.append(format_score(f"{row.stem}-prompt", row.prompt_score))
+        nlen = run.ngram_len
+        chunks.append(
+            format_score(f"{row.stem}-prompt", row.prompt_score, ngram_len=nlen)
+        )
         if row.unmarked_text:
-            chunks.append(format_score(f"{row.stem}-unmarked-gen", row.unmarked_score))
+            chunks.append(
+                format_score(
+                    f"{row.stem}-unmarked-gen", row.unmarked_score, ngram_len=nlen
+                )
+            )
         if row.marked_text:
-            chunks.append(format_score(f"{row.stem}-marked", row.marked_score))
+            chunks.append(
+                format_score(f"{row.stem}-marked", row.marked_score, ngram_len=nlen)
+            )
         if row.alt_score_public is not None and row.alt_score_matching is not None:
             chunks.append(
                 format_score(
                     f"{row.stem}-control-gen",
                     row.alt_score_public,
                     instance=PUBLIC_INSTANCE,
+                    ngram_len=nlen,
                 )
             )
             chunks.append(
@@ -407,6 +437,7 @@ def print_pair_run(run: PairRun) -> str:
                     f"{row.stem}-control-gen",
                     row.alt_score_matching,
                     instance=CONTROL_INSTANCE,
+                    ngram_len=nlen,
                 )
             )
             for i, (_txt, pub, match) in enumerate(row.extra_control, start=2):
@@ -415,6 +446,7 @@ def print_pair_run(run: PairRun) -> str:
                         f"{row.stem}-control-gen-{i}",
                         pub,
                         instance=PUBLIC_INSTANCE,
+                        ngram_len=nlen,
                     )
                 )
                 chunks.append(
@@ -422,6 +454,7 @@ def print_pair_run(run: PairRun) -> str:
                         f"{row.stem}-control-gen-{i}",
                         match,
                         instance=CONTROL_INSTANCE,
+                        ngram_len=nlen,
                     )
                 )
     return "\n".join(chunks)
@@ -435,7 +468,7 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
         "seed": run.seed,
         "instance": PUBLIC_INSTANCE,
         "model_name": run.model_name,
-        "ngram_len": 5,
+        "ngram_len": run.ngram_len,
         "also_control_keys": run.alt_keys is not None,
         "control_only": bool(run.alt_keys is not None)
         and all(not row.marked_text for row in run.rows),

@@ -134,15 +134,22 @@ def _print_score_lines(
     *,
     with_control: bool,
     tokenizer=None,
+    ngram_len: int | None = None,
 ) -> None:
     """Score the same tokens on the official instance, and optionally the control."""
     tok = tokenizer or load_tokenizer()
     ids = tok(text, return_tensors="pt")["input_ids"]
-    official = official_score_token_ids(ids, tokenizer=tok)
-    print(format_score(label, official, instance=PUBLIC_INSTANCE))
+    official = official_score_token_ids(ids, tokenizer=tok, ngram_len=ngram_len)
+    print(format_score(label, official, instance=PUBLIC_INSTANCE, ngram_len=ngram_len))
     if with_control:
-        control = official_score_token_ids(ids, tokenizer=tok, keys=control_keys())
-        print(format_score(label, control, instance=CONTROL_INSTANCE))
+        control = official_score_token_ids(
+            ids, tokenizer=tok, keys=control_keys(), ngram_len=ngram_len
+        )
+        print(
+            format_score(
+                label, control, instance=CONTROL_INSTANCE, ngram_len=ngram_len
+            )
+        )
 
 
 def cmd_score(args: argparse.Namespace) -> int:
@@ -160,10 +167,17 @@ def cmd_score(args: argparse.Namespace) -> int:
                 file_path.read_text(),
                 with_control=with_control,
                 tokenizer=tok,
+                ngram_len=int(getattr(args, "ngram_len", 5)),
             )
         return 0
     text = _read_input(path)
-    _print_score_lines(path or "stdin", text, with_control=with_control, tokenizer=tok)
+    _print_score_lines(
+        path or "stdin",
+        text,
+        with_control=with_control,
+        tokenizer=tok,
+        ngram_len=int(getattr(args, "ngram_len", 5)),
+    )
     return 0
 
 
@@ -419,6 +433,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             n_samples=int(args.n_samples),
             resume_dir=out,
             persist_dir=out,
+            ngram_len=int(args.ngram_len),
         )
     print(print_pair_run(run))
     if args.out_dir:
@@ -1134,6 +1149,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="gpt2",
         help="Tokenizer/model id used at generation (must match the sampler)",
     )
+    p_score.add_argument(
+        "--ngram-len",
+        type=int,
+        default=5,
+        help="Detector n-gram length (must match generation; public default 5)",
+    )
     p_score.set_defaults(func=cmd_score)
 
     p_exp = sub.add_parser(
@@ -1202,6 +1223,15 @@ def build_parser() -> argparse.ArgumentParser:
         type=str,
         default="",
         help="If set, write *-prompt.txt, *-marked.txt, *-unmarked-gen.txt, results",
+    )
+    p_pair.add_argument(
+        "--ngram-len",
+        type=int,
+        default=5,
+        help=(
+            "Mixin hash n-gram length (public default 5, Hw=4). "
+            "Must match official scoring. Does not edit synthid-text."
+        ),
     )
     p_pair.set_defaults(func=cmd_pair)
 

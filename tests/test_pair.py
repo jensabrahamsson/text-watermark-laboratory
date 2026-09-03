@@ -64,6 +64,30 @@ def test_pair_control_gen_is_other_instance_not_a_marked_file(tmp_path: Path) ->
     assert marked == ["harbour-marked.txt"]
 
 
+def test_persist_pair_run_writes_ngram_len(tmp_path: Path) -> None:
+    dummy = OfficialScore(mean=0.50, weighted_mean=0.50, n_tokens=8, n_unmasked_ngrams=4)
+    run = PairRun(
+        rows=[
+            PairRow(
+                stem="harbour",
+                prompt="The harbour lights.\n",
+                prompt_score=dummy,
+                marked_text="marked",
+                marked_score=dummy,
+                unmarked_text="unmarked",
+                unmarked_score=dummy,
+            )
+        ],
+        max_new_tokens=128,
+        seed=20260903,
+        ngram_len=13,
+    )
+    persist_pair_run(run, tmp_path)
+    results = (tmp_path / "results.json").read_text()
+    assert '"ngram_len": 13' in results
+    assert (tmp_path / "harbour-marked.txt").is_file()
+
+
 def test_persist_control_only_writes_extra_draws_not_marked(tmp_path: Path) -> None:
     dummy = OfficialScore(mean=0.50, weighted_mean=0.50, n_tokens=8, n_unmasked_ngrams=4)
     match = OfficialScore(mean=0.62, weighted_mean=0.62, n_tokens=8, n_unmasked_ngrams=4)

@@ -20,6 +20,19 @@ def test_merge_warper_cfg_caller_keys_win() -> None:
     assert cfg["device"].type == "cpu"
 
 
+def test_merge_warper_cfg_ngram_len_overrides_extra_params() -> None:
+    import torch
+
+    cfg = _merge_warper_cfg(
+        {"ngram_len": 5, "temperature": 1.0, "top_k": 40},
+        [1, 2, 3],
+        torch.device("cpu"),
+        ngram_len=13,
+    )
+    assert cfg["ngram_len"] == 13
+    assert cfg["keys"] == [1, 2, 3]
+
+
 def test_gpt2_family_names_use_the_gpt2_mixin() -> None:
     assert is_gpt2_name(None) is True
     assert is_gpt2_name("gpt2") is True
@@ -42,6 +55,26 @@ def test_mixin_generate_scores_above_chance() -> None:
     assert score.n_unmasked_ngrams >= 50
     assert score.mean > 0.5
     assert score.weighted_mean > 0.5
+
+
+def test_ngram_len_13_generate_scores_with_matching_processor() -> None:
+    """Longer mixin history is a different instance; matching ngram_len must light up."""
+    tok = load_tokenizer()
+    gen = generate_text(
+        PROMPT,
+        marked=True,
+        max_new_tokens=32,
+        seed=2,
+        ngram_len=13,
+    )
+    matching = official_score_token_ids(
+        gen.token_ids, tokenizer=tok, ngram_len=13
+    )
+    public = official_score_token_ids(gen.token_ids, tokenizer=tok, ngram_len=5)
+    assert gen.token_ids.shape[-1] == 32
+    assert matching.n_unmasked_ngrams >= 10
+    assert matching.mean > 0.5
+    assert matching.mean > public.mean
 
 
 def test_control_key_generate_is_chance_on_public_high_on_match() -> None:

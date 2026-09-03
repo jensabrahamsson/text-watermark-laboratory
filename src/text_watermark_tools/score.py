@@ -57,12 +57,18 @@ def official_processor(
     *,
     keys: Optional[list[int]] = None,
     device: Optional[torch.device] = None,
+    ngram_len: Optional[int] = None,
 ) -> logits_processing.SynthIDLogitsProcessor:
-    """Build the DeepMind processor for the public reference config."""
+    """Build the DeepMind processor for the public reference config.
+
+    `ngram_len` overrides the public hash window. Matching generation must
+    use the same value. Default is the public instance (`ngram_len=5`).
+    """
     cfg = public_watermarking_config()
     dev = device or _device()
+    nlen = int(ngram_len) if ngram_len is not None else int(cfg["ngram_len"])
     return logits_processing.SynthIDLogitsProcessor(
-        ngram_len=cfg["ngram_len"],
+        ngram_len=nlen,
         keys=list(keys) if keys is not None else list(cfg["keys"]),
         context_history_size=cfg["context_history_size"],
         device=dev,
@@ -101,12 +107,13 @@ def official_score_token_ids(
     tokenizer: Optional[transformers.PreTrainedTokenizer] = None,
     processor: Optional[logits_processing.SynthIDLogitsProcessor] = None,
     keys: Optional[list[int]] = None,
+    ngram_len: Optional[int] = None,
 ) -> OfficialScore:
     """Score token ids with DeepMind mean / weighted_mean (not a local reimplementation)."""
     if input_ids.dim() == 1:
         input_ids = input_ids.unsqueeze(0)
     tok = tokenizer or load_tokenizer()
-    proc = processor or official_processor(keys=keys)
+    proc = processor or official_processor(keys=keys, ngram_len=ngram_len)
     ngram_len = proc.ngram_len
     if input_ids.shape[1] < ngram_len:
         return OfficialScore(
@@ -145,11 +152,16 @@ def official_score_text(
     tokenizer: Optional[transformers.PreTrainedTokenizer] = None,
     processor: Optional[logits_processing.SynthIDLogitsProcessor] = None,
     keys: Optional[list[int]] = None,
+    ngram_len: Optional[int] = None,
 ) -> OfficialScore:
     tok = tokenizer or load_tokenizer()
     ids = tok(text, return_tensors="pt")["input_ids"]
     return official_score_token_ids(
-        ids, tokenizer=tok, processor=processor, keys=keys
+        ids,
+        tokenizer=tok,
+        processor=processor,
+        keys=keys,
+        ngram_len=ngram_len,
     )
 
 

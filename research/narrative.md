@@ -241,8 +241,10 @@ grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
 original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
 **10/12** or **30/48**. Reindexed window dumps stay. The remaining
 honesty item that is not leftover targeting is 12-LOO mask-*k*
-absolute remasure of [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md)
-(those dumps stay reindexed). Isolated-file detection is still not
+absolute remasure of [PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md)
+(reindexed dumps stay). Sol's preregistered longer-context two-grain
+lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
+(`ngram_len=13`, $\Hw=12$), frozen before generation. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
 ## What this freeze refuses

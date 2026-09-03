@@ -29,11 +29,15 @@ def generate_device() -> torch.device:
     return torch.device("cpu")
 
 
-def _merge_warper_cfg(extra_params, watermark_keys, device) -> dict:
+def _merge_warper_cfg(
+    extra_params, watermark_keys, device, ngram_len: Optional[int] = None
+) -> dict:
     cfg = dict(synthid_mixin.DEFAULT_WATERMARKING_CONFIG)
     cfg.update(dict(extra_params))
     if watermark_keys is not None:
         cfg["keys"] = list(watermark_keys)
+    if ngram_len is not None:
+        cfg["ngram_len"] = int(ngram_len)
     cfg["device"] = device
     return cfg
 
@@ -99,10 +103,16 @@ class KeyedSynthIDGPT2(CompatSynthIDSample, synthid_mixin.SynthIDGPT2LMHeadModel
         self.watermark_keys = (
             list(watermark_keys) if watermark_keys is not None else None
         )
+        self.watermark_ngram_len: Optional[int] = None
 
     def _construct_warper_list(self, extra_params):
         device = next(self.parameters()).device
-        cfg = _merge_warper_cfg(extra_params, self.watermark_keys, device)
+        cfg = _merge_warper_cfg(
+            extra_params,
+            self.watermark_keys,
+            device,
+            ngram_len=self.watermark_ngram_len,
+        )
         warpers = transformers.LogitsProcessorList()
         warpers.append(logits_processing.SynthIDLogitsProcessor(**cfg))
         return warpers
@@ -120,10 +130,16 @@ class KeyedSynthIDQwen2(
         self.watermark_keys = (
             list(watermark_keys) if watermark_keys is not None else None
         )
+        self.watermark_ngram_len: Optional[int] = None
 
     def _construct_warper_list(self, extra_params):
         device = next(self.parameters()).device
-        cfg = _merge_warper_cfg(extra_params, self.watermark_keys, device)
+        cfg = _merge_warper_cfg(
+            extra_params,
+            self.watermark_keys,
+            device,
+            ngram_len=self.watermark_ngram_len,
+        )
         warpers = transformers.LogitsProcessorList()
         warpers.append(logits_processing.SynthIDLogitsProcessor(**cfg))
         return warpers
@@ -148,6 +164,7 @@ def _load_marked_model(
     *,
     keys: Optional[Sequence[int]] = None,
     model_name: Optional[str] = None,
+    ngram_len: Optional[int] = None,
 ):
     name = model_name or MODEL_NAME
     if is_gpt2_name(name):
@@ -156,6 +173,7 @@ def _load_marked_model(
     else:
         model = KeyedSynthIDQwen2.from_pretrained(name)
         model.watermark_keys = list(keys) if keys is not None else None
+    model.watermark_ngram_len = int(ngram_len) if ngram_len is not None else None
     return model.to(device).eval()
 
 
@@ -185,11 +203,14 @@ def generate_text(
     model: Optional[torch.nn.Module] = None,
     keys: Optional[Sequence[int]] = None,
     model_name: Optional[str] = None,
+    ngram_len: Optional[int] = None,
 ) -> Generation:
     """Generate with mixin (marked=True) or the same model unmarked.
 
     `keys` is only used when `marked` is True and no `model` is passed.
     None keeps DeepMind's public 30-key default.
+    `ngram_len` overrides the public mixin hash window (default 5).
+    Score must use the same `ngram_len`. The synthid-text tree is not edited.
     `model_name` defaults to GPT-2. Pass a Qwen2 id to use that checkpoint
     with the same tournament; score must use the same tokenizer.
     """
@@ -203,10 +224,12 @@ def generate_text(
         torch.manual_seed(seed)
     if model is None:
         model = (
-            _load_marked_model(dev, keys=keys, model_name=name)
+            _load_marked_model(dev, keys=keys, model_name=name, ngram_len=ngram_len)
             if marked
             else _load_unmarked_model(dev, model_name=name)
         )
+    elif marked and ngram_len is not None and hasattr(model, "watermark_ngram_len"):
+        model.watermark_ngram_len = int(ngram_len)
     inputs = tok(prompt, return_tensors="pt").to(dev)
     gen_kwargs = dict(
         do_sample=True,
