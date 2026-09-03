@@ -353,6 +353,7 @@ def run_control_only(
     n_samples: int = 1,
     model_name: str | None = None,
     tokenizer=None,
+    hub_revision: str | None = None,
 ) -> PairRun:
     """Sample only control-shuffled-30 twins. Does not write *-marked.txt.
 
@@ -362,10 +363,12 @@ def run_control_only(
     if n_samples < 1:
         raise ValueError("n_samples must be >= 1")
     name = model_name or "gpt2"
-    tok = tokenizer or load_tokenizer(name)
+    tok = tokenizer or load_tokenizer(name, revision=hub_revision)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
     alt_key_list = control_keys()
-    alt_model = _load_marked_model(device, keys=alt_key_list, model_name=name)
+    alt_model = _load_marked_model(
+        device, keys=alt_key_list, model_name=name, revision=hub_revision
+    )
     rows: list[PairRow] = []
     for offset, (stem, prompt) in enumerate(prompts):
         text = prompt if prompt.endswith("\n") else prompt + "\n"
@@ -415,6 +418,7 @@ def run_control_only(
         seed=seed,
         alt_keys=alt_key_list,
         model_name=name,
+        hub_revision=hub_revision,
     )
 
 

@@ -446,6 +446,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             seed=args.seed,
             n_samples=int(args.n_samples),
             model_name=args.model,
+            hub_revision=str(args.hub_revision) if args.hub_revision else None,
         )
     else:
         out = Path(args.out_dir) if args.out_dir else None
