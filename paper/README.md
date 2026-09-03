@@ -24,11 +24,9 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`main.tex`](main.tex): article (abstract through bibliography).
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
-- [`compile.log`](compile.log): last successful TeX Live build (19 A4
-  pages, PR #4). Later $\Hw=12$ paragraphs, the occupancy table
-  (\texttt{tab:occ}), the plain-English lead, the \texttt{get\_gvals}
-  docstring paragraph, and the Kirchenbauer mixin results have not been
-  recompiled here; `pdflatex` is missing on this machine.
+- [`compile.log`](compile.log): last successful local `tectonic` build
+  (22 A4 pages, git `0e37989`). Dated copy in
+  [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
 If a figure is not in those dumps, it is not in the paper.
