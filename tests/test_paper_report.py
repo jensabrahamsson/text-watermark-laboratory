@@ -233,6 +233,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "Interpretation" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
     interp_para = PAPER.split(r"\paragraph{Interpretation.}")[1].split(r"\section{Conclusion}")[0]
     assert "tab:occ" in interp_para
+    assert "mostly backoff" in interp_para
+    assert "mostly exact copies" in interp_para
     assert "Observed counts follow" in PAPER
     assert "489/800" in PAPER
     assert "436/800" in PAPER
