@@ -40,6 +40,7 @@ def test_margin_is_demoted_and_not_a_half_null() -> None:
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "0.02" not in abs_
     assert "10/12" not in abs_
+    assert "088" not in abs_
 
 
 def test_isolated_primary_is_confusion_matrix_not_sensitivity_alone() -> None:
