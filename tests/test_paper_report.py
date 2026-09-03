@@ -52,6 +52,10 @@ def test_intro_surfaces_get_gvals_docstring_mismatch() -> None:
 def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     assert "committed strings" in PAPER
     assert "does not affect the published scores" in PAPER
+    limits = PAPER.split(r"\section{Limitations}")[1].split(
+        r"\section{A Locked Next Experiment}"
+    )[0]
+    assert "committed strings" in limits
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
     assert "bitwise re-generation" in PAPER
     assert "--hub-revision" in Path(ROOT / "paper" / "main.tex").read_text()
