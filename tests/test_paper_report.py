@@ -55,6 +55,11 @@ def test_intro_surfaces_get_gvals_docstring_mismatch() -> None:
     assert r"\gg 30" in intro or ">> 30" in intro
     assert "documentation bug" in intro
     assert "not a laboratory rewrite" in intro
+    assert "12 linear-congruential mixes" in intro
+    prelim = PAPER.split(r"\section{Preliminaries and Threat Model}")[1].split(
+        r"\section{Method}"
+    )[0]
+    assert r"\gg 30" in prelim
     related = PAPER.split(r"\section{Related Work}")[1].split(
         r"\section{Preliminaries and Threat Model}"
     )[0]
