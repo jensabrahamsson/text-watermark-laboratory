@@ -228,6 +228,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "20260905" in next_sec
     assert "56/96" in next_sec
     assert "573" in next_sec
+    assert "608/800" in next_sec
+    assert "25167" in next_sec
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "68/96" not in abs_
     assert "pair-distil-100x4-kgw" not in abs_
@@ -235,6 +237,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "16170" not in abs_
     assert "56/96" not in abs_
     assert "573" not in abs_
+    assert "608/800" not in abs_
+    assert "25167" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_

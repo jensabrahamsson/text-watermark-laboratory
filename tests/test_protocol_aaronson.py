@@ -121,3 +121,37 @@ def test_protocol_aaronson_official_and_keyfree_from_dumps() -> None:
     assert iso_lo <= 0.5 <= iso_hi
     ba_lo, ba_hi = clopper_pearson(56, 96)
     assert ba_lo <= 0.5 <= ba_hi
+
+
+PAIR100 = ROOT / "experiments" / "2026-09-04-pair-100x4-aaronson"
+PROBE100 = ROOT / "experiments" / "2026-09-04-probe-100x4-aaronson-hard-last4"
+ATOMS100 = ROOT / "experiments" / "2026-09-04-atoms-100x4-aaronson"
+
+
+def test_protocol_aaronson_100_official_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR100 / "results.json").read_text())
+    assert pair["mixin"] == "aaronson"
+    assert pair["seed"] == 20260905
+    assert len(pair["rows"]) == 100
+    assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    assert all(row["unmarked_gen"]["z_score"] <= 3.0 for row in pair["rows"])
+    interp = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE100 / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["n_prompts_marked_above"] == 100
+    assert hard["n_prompts_marked_above"] == 95
+    assert interp["n_marked_lr_positive"] == 208
+    assert interp["n_unmarked_lr_nonpositive"] == 400
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 608
+    occ = json.loads((ATOMS100 / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 25167
+    assert occ["n_unseen"] == 76418
+    assert "H-aar-B-ctrl **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **100/100**" in collapsed
+    lo, _hi = clopper_pearson(100, 100)
+    assert lo > 0.5
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi

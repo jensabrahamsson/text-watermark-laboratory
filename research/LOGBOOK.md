@@ -2486,6 +2486,22 @@ z-scores and the probe command has been run once, as written. Do not add
 a scorer. Nothing replaces **25/48**. Isolated-file detection is still
 not finished. Do not write `thesis/`.
 
+## 2026-09-04 Aaronson–Kirchner 100-family opened
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) named `2f9de1a`.
+Pair seed **20260905**, `--mixin aaronson`. Official first-draw z>3
+**100/100** (H-aar-B-ctrl holds; unmarked **0/100**). Interpolate last-4
+**100/100** (AUC **0.986**, isolated **208/400 vs 400/400**, BA
+**608/800**). Hard **95/100** (AUC **0.950**, BA **744/800**). Occupancy
+**25167** seen vs **76418** unseen. `used_keys=false`. Do not sell
+**100/100** or **608/800** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-100x4-aaronson/`,
+`experiments/2026-09-04-probe-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-100x4-aaronson/`.
+
+
 
 
 

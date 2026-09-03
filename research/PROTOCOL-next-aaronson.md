@@ -251,6 +251,50 @@ Occupancy is a mechanistic intermediate, not a detector. Do not sell
 JSON: [experiments/2026-09-04-atoms-12x4-aaronson/](../experiments/2026-09-04-atoms-12x4-aaronson/).
 
 Isolated-file detection on the public SynthID original-12 remains
-**25/48** / **47/96**. One hundred families remain named, not generated.
-Do not write `thesis/`.
+**25/48** / **47/96**. One hundred families follow. Do not write
+`thesis/`.
+
+## One hundred families (opened)
+
+Named `2f9de1a` before generation. Same freeze SHA `747f3cd`. Pair seed
+**20260905**. `mixin=aaronson`. `used_keys=false`. Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`.
+
+Pair dump: [experiments/2026-09-04-pair-100x4-aaronson/](../experiments/2026-09-04-pair-100x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-100x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-100x4-aaronson-hard-last4/).
+
+H-aar-B-ctrl **holds**. Official matching z-score is above $3.0$ on
+**100/100** first marked files (min $7.91$). Unmarked first-draw is
+**0/100** above $3.0$ (max $2.77$). Mixin is on.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **100/100** | 0.986 | 208/400 | 400/400 | 208 192 400 0 | **608/800** |
+| hard last-4 | **95/100** | 0.950 | 344/400 | 400/400 | 344 56 400 0 | **744/800** |
+
+Mean $D_p=4.368$ (interpolate; every family $D_p>0$) / $2.091$ (hard).
+Interpolate **48/100** ranking wins have no isolated TP.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **100/100** is
+**[0.964, 1.000]**; hard **95/100** is **[0.887, 0.984]**; BA
+**608/800** is **[0.729, 0.789]**. Isolated **25/48** still includes ½.
+
+H-aar-B-group **holds**. Interpolate last-4 is **100/100**. It does not
+replace **25/48**.
+
+H-aar-B-iso **holds**. Isolated interpolate **608/800** is a different
+generator and mixin from the original-12 SynthID **47/96**. Do not sell
+**100/100**, **608/800**, **95/100**, or **744/800** as replacing
+**25/48**.
+
+Occupancy: **25167** seen versus **76418** unseen (opening $[0{:}4)$ is
+1977 versus 423). Top opening atom `'\n' → '"'` (n=392). File LRs match
+interpolate **208/400**. Occupancy is not a detector. Do not sell
+**25167** or `"This is not a joke"` as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-100x4-aaronson/](../experiments/2026-09-04-atoms-100x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
 

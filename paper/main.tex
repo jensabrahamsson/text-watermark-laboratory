@@ -1366,8 +1366,9 @@ in \texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 (isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
 \textbf{25/48}. An Aaronson--Kirchner exponential-minimum mixin (freeze
 SHA \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
-\textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. That is
-not \textbf{25/48}. The protocol note is
+\textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the 100 one-liners interpolate last-4 is
+\textbf{100/100} (isolated \textbf{608/800}). That is not
+\textbf{25/48}. The protocol note is
 \path{research/PROTOCOL-next-aaronson.md}.
 
 \begin{table}[ht]
@@ -1557,6 +1558,17 @@ accuracy $56/96$; mean $D_p=1.738$; loses station). Hard is
 \textbf{12/12} (AUC $0.976$; $72/96$). Occupancy is 573 seen versus
 11618 unseen. Nine of eleven interpolate ranking wins have no isolated
 true positive. That is not \textbf{25/48}.
+
+\paragraph{One hundred families, Aaronson--Kirchner exponential-minimum.}
+Same freeze SHA \texttt{747f3cd}, seed 20260905, dump
+\path{experiments/2026-09-04-pair-100x4-aaronson}. Official matching
+$z$-scores are above $3.0$ on \textbf{100/100} first marked files
+(min $7.91$). Unmarked first-draw is $0/100$ above $3.0$. Interpolate
+last-4 ranks \textbf{100/100} (AUC $0.986$; 208 TP, 192 FN, 400 TN,
+0 FP; balanced accuracy $608/800$; mean $D_p=4.368$). Hard is
+\textbf{95/100} (AUC $0.950$; $744/800$). Occupancy is 25167 seen versus
+76418 unseen. Forty-eight of one hundred interpolate ranking wins have
+no isolated true positive. That is not \textbf{25/48}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1764,6 +1776,15 @@ Aaronson interpolate:
 Aaronson occupancy:
 \path{experiments/2026-09-04-atoms-12x4-aaronson/atoms.json}
 (\texttt{c1f16afa2ba1c418}; 573 seen).
+Aaronson 100 pair:
+\path{experiments/2026-09-04-pair-100x4-aaronson/results.json}
+(\texttt{71ecbdbcf12095ed}).
+Aaronson 100 interpolate:
+\path{experiments/2026-09-04-probe-100x4-aaronson-hard-last4/interpolate/holdout.json}
+(\texttt{0689c1d63140de33}; $100/100$, $608/800$).
+Aaronson 100 occupancy:
+\path{experiments/2026-09-04-atoms-100x4-aaronson/atoms.json}
+(\texttt{31668c74ecd8834e}; 25167 seen).
 Distil 100-family Kirchenbauer freeze: \texttt{4fad227}.
 Distil 100 pair:
 \path{experiments/2026-09-03-pair-distil-100x4-kgw/results.json}
