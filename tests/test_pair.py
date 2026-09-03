@@ -34,6 +34,7 @@ def test_persist_pair_run_records_unset_hub_revision_as_null(tmp_path: Path) -> 
     data = json.loads((tmp_path / "results.json").read_text())
     assert "hub_revision" in data
     assert data["hub_revision"] is None
+    assert "unpinned default" in data["note"]
 
 
 def test_collect_prompts_from_file(tmp_path: Path) -> None:
