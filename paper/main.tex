@@ -141,14 +141,17 @@ member of that family, deployed at scale and released as a public
 reference implementation
 \citep{dathathri2024synthid,deepmind2024synthidcode}. Official detection
 needs the instance keys. Those keys exist in the public reference code;
-this report withholds them from the auditor by design. The public
-\texttt{get\_gvals} docstring says $g$-values come from ``the lowest
-three bits'' of the n-gram keys. The installed code does 12
-linear-congruential mixes and then $(\mathrm{hash}\gg 30)\bmod 2$. This
-report trusts the code; that mismatch is a documentation bug in the
-public DeepMind checkout, not a laboratory rewrite. If a third party
-cannot or will not use the vendor's keys, verification is an open
-practical question \citep{deepmind2024issue22,gloaguen2025blackbox,wang2026ttp}.
+this report withholds them from the auditor by design.
+
+The public \texttt{get\_gvals} docstring says $g$-values come from
+``the lowest three bits'' of the n-gram keys. The installed code does
+12 linear-congruential mixes and then $(\mathrm{hash}\gg 30)\bmod 2$.
+This report trusts the code. That mismatch is a documentation bug in
+the public DeepMind checkout, not a laboratory rewrite.
+
+If a third party cannot or will not use the vendor's keys, verification
+is an open practical question
+\citep{deepmind2024issue22,gloaguen2025blackbox,wang2026ttp}.
 
 This report asks a scoped version of that question, on one public
 instance, under a strong oracle:
