@@ -161,6 +161,19 @@ def test_cli_atoms_help_is_not_a_new_scorer(capsys) -> None:
     assert "--leave-one-out" in out
 
 
+def test_cli_atoms_without_tables_needs_leave_one_out(capsys) -> None:
+    code = main(
+        [
+            "atoms",
+            "--test-dir",
+            "experiments/pair",
+        ]
+    )
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "leave-one-out" in err.lower()
+
+
 def test_cli_atoms_leave_one_out_rejects_pooled_tables(capsys) -> None:
     code = main(
         [
