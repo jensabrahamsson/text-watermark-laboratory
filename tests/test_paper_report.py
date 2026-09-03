@@ -183,6 +183,18 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "489/800" in PAPER
     assert "436/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
+    pair100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-pair-100x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    assert pair100["ngram_len"] == 13
+    assert len(pair100["rows"]) == 100
+    assert all(row["marked"]["mean"] > 0.55 for row in pair100["rows"])
+    assert r"\textbf{100/100}" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
     assert "prompt" in PAPER and "sign" in PAPER
     assert r"prompt\_sign\_p" in PAPER or "prompt_sign_p" in PAPER.replace("\\", "")
     b100 = json.loads(
