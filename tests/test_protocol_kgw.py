@@ -46,6 +46,7 @@ def test_protocol_kgw_locks_config_before_generation() -> None:
     log = LOG.read_text()
     assert "PROTOCOL-next-kgw" in log
     assert "--mixin kgw" in log
+    assert "`8371406`" in log
 
 
 def test_protocol_kgw_cli_flag_exists() -> None:

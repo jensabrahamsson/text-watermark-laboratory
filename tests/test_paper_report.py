@@ -146,6 +146,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
+    assert "8371406" in PAPER
     assert "has not been generated" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "kgw" not in abs_

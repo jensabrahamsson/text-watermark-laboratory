@@ -107,5 +107,5 @@ Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A
 **99/100** is leave-one-family-out of a frozen algorithm, not a frozen
 fitted detector. A Kirchenbauer green-list mixin is frozen in
-`research/PROTOCOL-next-kgw.md` (`--mixin kgw`, seed 20260904) and has
-not been generated.
+`research/PROTOCOL-next-kgw.md` (SHA `8371406`; `--mixin kgw`, seed
+20260904) and has not been generated.

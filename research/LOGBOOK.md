@@ -2179,7 +2179,8 @@ JSON: `experiments/2026-09-03-atoms-100x4-ngram13/`,
 
 ## 2026-09-03 Kirchenbauer mixin two-grain freeze
 
-[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) frozen before generation.
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) committed at SHA
+`8371406`. Frozen before generation.
 Sol's 260903 other external-validity arm: Hugging Face Kirchenbauer
 green-list defaults (`WatermarkLogitsProcessor` /
 `WatermarkDetector`), not a SynthID `ngram_len` change. Original 12
