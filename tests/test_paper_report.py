@@ -191,6 +191,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     )
     assert b100["used_keys"] is False
     assert b100["n_prompts_marked_above"] == 76
+    assert abs(b100["binary"]["mean_diff"] - 0.156) < 0.001
+    assert "0.156" in PAPER
     assert r"\label{fig:hw12}" in Path(ROOT / "paper" / "main.tex").read_text()
     from collections import defaultdict
     from math import floor
