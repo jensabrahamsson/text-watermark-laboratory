@@ -147,7 +147,9 @@ Hard width is not “any shorter k.” GPT-2 Kirchenbauer hard:
 
 At n=100, last-1 > last-2 > last-4. Original-12 last-2 collapse is
 small-n. Last-2 is the SynthID isolated lift (idea 3), not the
-Kirchenbauer companion.
+Kirchenbauer companion. Distil 100 last-2 hard is **77/100**,
+**253/400**, AUC **0.646**: below last-1 (**99/100 / 350/400**) and
+below last-4 ranking (**82/100**).
 
 Existing `unigram` (token identity, no context; not a new method
 name) ranks GPT-2 Kirchenbauer 12×4 **12/12**, isolated **46/48**,
