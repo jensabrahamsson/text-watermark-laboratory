@@ -164,8 +164,8 @@ Same mixin defaults, DistilGPT2, `--n-samples 4`, $T=128$, seed
 `20260904`, prompts `experiments/2026-09-01-prompts-100/`, Hub SHA
 `2290a62682d06624634c1f46a6ad5be0f47f38aa` (the local snapshot after
 the original-12 Distil run; Distil 12 was unpinned, do not backfill).
-Same readers. Same two grains. Named here before generation.
-LOGBOOK names the start before generation. A finished 100×4 Distil
+Same readers. Same two grains. Named here before generation (freeze
+SHA `4fad227`). LOGBOOK names the start before generation. A finished 100×4 Distil
 Kirchenbauer corpus is not required for the original-12 freeze to hold.
 
 Stated before these 100×4 LRs:

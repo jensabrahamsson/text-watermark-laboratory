@@ -117,6 +117,7 @@ def test_protocol_kgw_distil_100_named_before_generation() -> None:
     assert "Do not look at key-free LRs" in text
     assert "25/48" in text
     assert "H-kgw-d100-ctrl" in log
+    assert "`4fad227`" in log
     assert "2290a62682d06624634c1f46a6ad5be0f47f38aa" in log
     assert "2026-09-03-pair-distil-100x4-kgw" in log
     assert PROMPTS_100.is_dir()

@@ -2378,7 +2378,7 @@ Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jen
 ## 2026-09-03 DistilGPT2 Kirchenbauer 100-family freeze
 
 [PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) 100-family
-arm named before generation. Same Hugging Face Kirchenbauer defaults,
+arm named `4fad227` before generation. Same Hugging Face Kirchenbauer defaults,
 generator `distilgpt2`, prompts `experiments/2026-09-01-prompts-100/`,
 seed **20260904**, `--mixin kgw`, Hub SHA
 `2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-kgw-d100-ctrl,
