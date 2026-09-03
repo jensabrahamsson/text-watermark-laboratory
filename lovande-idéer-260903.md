@@ -159,7 +159,10 @@ keys. Interpolate last-4 was already saturated at 100 families
 **389/400**, **350/400**, or **100/100** as replacing **25/48**. Do
 not add a method name. Do not retune Kirchenbauer `context_width`
 after peeking. Do not run last-1 as the headline SynthID reader
-(full-file last-1 dies there).
+(full-file last-1 dies there). Kirchenbauer last-1 tables trained on
+100 GPT-2 families do **not** classify public SynthID original-12
+(isolated **6/48**, AUC 0.542, three ranking wins with no isolated
+TP). The last-1 lift is mixin-specific.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -262,7 +265,9 @@ last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
 sell leftover **12/20**. Do not switch interpolate to last-2. Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
-repeat the 100-family **94/100** jump).
+repeat the 100-family **94/100** jump). Public last-2 tables trained
+on 100 GPT-2 families do not classify Kirchenbauer original-12
+(isolated **24/48**, AUC 0.554).
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
