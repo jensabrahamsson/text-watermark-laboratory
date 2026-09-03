@@ -85,8 +85,9 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    dump. Longer-history 100-family readout (not Distil/Qwen Phase B):
    interpolate **76/100** (below lock A **99/100**); isolated
    **489/800**. Figure hw12 is the paired-difference
-   histogram (mean 0.156 vs lock A 0.520). Do not sell **6/12** or
-   **76/100** as replacing **25/48**.
+   histogram (mean 0.156 vs lock A 0.520). Isolated original-12 remains
+   **47/96**; **6/12** and **76/100** are group rankings on $\Hw=12$
+   twins.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A
