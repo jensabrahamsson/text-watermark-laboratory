@@ -263,6 +263,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
     assert r"\textbf{6/12}" in concl
     assert r"\textbf{25/48}" in concl
+    assert r"\textbf{76/100}" in concl
+    assert r"\textbf{47/96}" in concl
     assert r"\textbf{36/36}" in PAPER.split(r"\begin{abstract}")[1]
     assert hard["n_marked_lr_positive"] == 22
     assert hard["n_unmarked_lr_nonpositive"] == 30
