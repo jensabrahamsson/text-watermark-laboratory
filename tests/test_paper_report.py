@@ -176,6 +176,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     intro = PAPER.split(r"\section{Introduction}")[1].split(r"\section{Related Work}")[0]
     assert r"\textbf{76/100}" in intro
     assert r"\textbf{76/100}" in PAPER
+    assert "not Distil/Qwen Phase" in PAPER
     assert "489/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
     assert "prompt" in PAPER and "sign" in PAPER
