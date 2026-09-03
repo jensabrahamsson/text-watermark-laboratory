@@ -83,7 +83,8 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    Absolute-history 12-LOO mask-*k* remasure (same SHA) leaves hard
    prefix **5/12** and tails **9/12** unchanged versus the reindexed
    dump. Phase B opened: interpolate **76/100** (below lock A
-   **99/100**); isolated **489/800**. Do not sell **6/12** or
+   **99/100**); isolated **489/800**. Figure hw12 is the paired-difference
+   histogram (mean 0.156 vs lock A 0.520). Do not sell **6/12** or
    **76/100** as replacing **25/48**.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
