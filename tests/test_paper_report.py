@@ -117,6 +117,54 @@ def test_margin_is_demoted_and_not_a_half_null() -> None:
     assert "leftover" not in abs_
 
 
+def test_claude_resample_20260903_is_dump_backed_and_not_in_abstract() -> None:
+    import json
+
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "35/40" not in abs_
+    assert "37/40" not in abs_
+    catalog = PAPER.split(r"\section{Additional transfer catalog}")[1]
+    assert r"\textbf{35/40}" in catalog
+    assert r"\textbf{37/40}" in catalog
+    assert r"\textbf{29/40}" in catalog
+    assert r"\textbf{33/40}" in catalog
+    assert "style-shift order" in catalog
+    assert "claude-sample-2026-08-21" in catalog
+    assert "not an Anthropic detector" in catalog
+    assert r"\textbf{25/48}" in catalog
+    limits = PAPER.split(r"\section{Limitations}")[1].split(
+        r"\section{A Locked Next Experiment}"
+    )[0]
+    assert r"\textbf{35/40}" in limits
+    report = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-resample-work"
+            / "report.json"
+        ).read_text()
+    )
+    assert report["n_collected"] == 40
+    by = {c["name"]: c for c in report["contrasts"]}
+    assert by["premark-vs-new"]["last4_wins"] == 35
+    assert by["premark-vs-new"]["last1_wins"] == 37
+    assert by["previous-vs-new"]["last4_wins"] == 29
+    assert by["premark-vs-new"]["used_keys"] is False
+    k4 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-resample-work"
+            / "blind-premark-vs-new-k4"
+            / "results.json"
+        ).read_text()
+    )
+    assert k4["used_keys"] is False
+    assert k4["n_marked_wins"] == 35
+    assert k4["n_marked_lr_positive"] == 32
+    assert k4["n_prompt_wins_without_isolated_tp"] == 3
+
+
 def test_isolated_primary_is_confusion_matrix_not_sensitivity_alone() -> None:
     assert "TP 25, FN 23, TN 22, FP 26" in PAPER
     assert "Balanced accuracy" in PAPER
@@ -144,6 +192,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "has not been run" in math
     assert "is untested" not in math
     assert "PROTOCOL-next-kgw" in PAPER
+    assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -566,6 +615,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-03-pair-100x4-kgw/results.json": "d96793694eaa2ab1",
         "experiments/2026-09-03-probe-100x4-kgw-hard-last4/interpolate/holdout.json": "dce85a6796def442",
         "experiments/2026-09-03-atoms-100x4-kgw/atoms.json": "e59753393fdc1d3e",
+        "experiments/2026-09-03-resample-work/report.json": "e7a1a62a10585d1d",
+        "experiments/2026-09-03-resample-work/blind-premark-vs-new-k4/results.json": "31894db2db724064",
+        "experiments/2026-09-03-resample-work/blind-previous-vs-new-k4/results.json": "f852be4c7fd1dcf1",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():

@@ -110,3 +110,5 @@ fitted detector. A Kirchenbauer green-list mixin is frozen in
 **85/96**); occupancy **114** seen. 100-family interpolate is
 **100/100** (isolated **747/800**); occupancy **4557** seen. That is
 not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
+vendor detector; not **25/48**).

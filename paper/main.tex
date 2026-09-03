@@ -211,7 +211,8 @@ Exact next-token occupancy is lower than under public $\Hw=4$
 \end{enumerate}
 
 What this is not: key recovery; a web-crawler detector; a calibrated
-isolated-file classifier; a production Gemini or Claude measurement; a
+isolated-file classifier; a production Gemini or Anthropic-key
+measurement; a
 complexity-theoretic distinguisher against
 \citet{christ2024undetectable}; a mixing attack against
 \citet{zhang2024sand}; a new watermark construction.
@@ -1323,7 +1324,13 @@ measured on this public mixin: $\Hw=12$ attenuates group ranking from lock~A
 \textbf{99/100} to \textbf{76/100} on the same 100 prompt strings
 (different twins). Interpolate occupancy is lower under $\Hw=12$ than
 under public $\Hw=4$ on both prompt frames (\Cref{tab:occ}).
-Production Gemini and Anthropic keys were not measured.
+Production Gemini and Anthropic keys were not measured. A rumored-mark
+Claude resample on 2026-09-03 (40 prompts; \Cref{app:catalog}) ranks
+last-4 \textbf{35/40} against the August pre-mark pile and
+\textbf{29/40} against the previous committed sample (2026-08-21).
+Last-1 is higher (\textbf{37/40} / \textbf{33/40}): that is the
+style-shift order, not the public-mixin watermark-window order. It is
+not a vendor detector and not the original-12 SynthID \textbf{25/48}.
 Hub revisions were not recorded at generation; published scores read
 committed strings (\Cref{sec:generation}).
 Multi-key replication of the public mixin is not started. Isolated-file
@@ -1342,8 +1349,10 @@ checkout. A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
 (\texttt{research/PROTOCOL-next-kgw.md}; Hugging Face
 \texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
 \texttt{--mixin kgw}), named before generation. Scoring those twins
-with SynthID \texttt{detector\_mean} would be a harness bug. An Aaronson
-mixin is a third protocol and has not been run.
+with SynthID \texttt{detector\_mean} would be a harness bug. DistilGPT2
+with the same Kirchenbauer defaults is frozen in
+\texttt{research/PROTOCOL-next-kgw-distil.md} and has not been
+generated. An Aaronson mixin is a third protocol and has not been run.
 
 \begin{table}[ht]
 \centering
@@ -1649,6 +1658,15 @@ Original-12 occupancy:
 100-family occupancy:
 \path{experiments/2026-09-03-atoms-100x4-kgw/atoms.json}
 (\texttt{e59753393fdc1d3e}; 4557 seen).
+Claude 2026-09-03 resample report:
+\path{experiments/2026-09-03-resample-work/report.json}
+(\texttt{e7a1a62a10585d1d}; 40 texts).
+Premark vs new last-4:
+\path{experiments/2026-09-03-resample-work/blind-premark-vs-new-k4/results.json}
+(\texttt{31894db2db724064}; $35/40$, \texttt{used\_keys=false}).
+Previous vs new last-4:
+\path{experiments/2026-09-03-resample-work/blind-previous-vs-new-k4/results.json}
+(\texttt{f852be4c7fd1dcf1}; $29/40$).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
@@ -1704,6 +1722,21 @@ matching control keys ($0.624$). Key-free opening poshits trained on
 public twins assign $\LLR>0$ to $0/48$ control files. Public vs.\
 control still ranks $12/12$ (AUC $0.906$). The reader is
 instance-specific without recovering keys.
+
+\paragraph{Claude resample, 2026-09-03.}
+Same 40 \texttt{PROMPTS} as the August pre-mark pile, collected on
+claude.ai (\texttt{assumed\_watermark=rumored};
+\path{experiments/claude-sample-2026-09-03/}). Key-free last-$k$
+leave-one-prompt-out, one file per prompt, GPT-2 tokenizer.
+\texttt{used\_keys=false}. Versus pre-mark: last-1 \textbf{37/40},
+last-4 \textbf{35/40} (isolated last-4 marked $\LLR>0$ is $32/40$;
+three ranking wins have no isolated TP). Versus the previous committed
+sample with a manifest (\texttt{claude-sample-2026-08-21}): last-1
+\textbf{33/40}, last-4 \textbf{29/40}. Last-1 ahead of last-4 is
+style-shift order. This is not an Anthropic detector, not
+\texttt{public-deepmind-30} \texttt{score}, and not the original-12
+hard $\tau=0$ matrix \textbf{25/48} / \textbf{47/96}. Do not train a
+Claude classifier on the pre-mark pile alone.
 
 % =========================================================================
 {\raggedright\sloppy\interlinepenalty=10000
