@@ -1385,8 +1385,8 @@ Locked before generation & Value \\
 \midrule
 Mixin / $\Hw$ & public-deepmind-30 keys, $\mathtt{ngram\_len}=13$ ($\Hw=12$) \\
 Generator / tokenizer & \texttt{gpt2} \\
-Prompt frame & original 12 Grok scene strings, new twins \\
-Reference size & $12\times 4$ matched twins, $T=128$, seed 20260903 \\
+Prompt frame & original 12 Grok scene strings, then 100 one-liners \\
+Reference size & $12\times 4$ then $100\times 4$ matched twins, $T=128$, seed 20260903 \\
 Reader & hard and interpolate last-4 (lock~A analog) \\
 Fold topology & Algorithm~1 leave-one-family-out \\
 Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
