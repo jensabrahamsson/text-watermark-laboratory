@@ -93,7 +93,12 @@ def _score_to_dict(score: OfficialScore) -> dict:
 
 
 def pair_stem_files_complete(out_dir: Path, stem: str, n_samples: int) -> bool:
-    """True when marked/unmarked draws for this stem are already on disk."""
+    """True when marked/unmarked draws for this stem are already on disk.
+
+    A single-byte ``\\n`` file is the old ``.strip()`` artifact of a
+    whitespace-only generation (Distil+Kirchenbauer newline loops). Those
+    files are not complete; resume must regenerate them.
+    """
     if n_samples < 1:
         return False
     out_dir = Path(out_dir)
@@ -104,7 +109,17 @@ def pair_stem_files_complete(out_dir: Path, stem: str, n_samples: int) -> bool:
     for i in range(2, n_samples + 1):
         needed.append(out_dir / f"{stem}-marked-{i}.txt")
         needed.append(out_dir / f"{stem}-unmarked-gen-{i}.txt")
-    return all(p.is_file() and p.stat().st_size > 0 for p in needed)
+    return all(p.is_file() and p.stat().st_size > 1 for p in needed)
+
+
+def _write_generation_text(path: Path, text: str) -> None:
+    """Write a generated twin. Keep whitespace-only bodies.
+
+    ``str.strip()`` would turn 128 newline tokens into an empty file, and
+    Kirchenbauer scoring then fails (needs a token after the prefix).
+    """
+    blob = text if text.endswith("\n") else text + "\n"
+    path.write_text(blob)
 
 
 def persist_pair_row_texts(row: PairRow, out_dir: Path) -> None:
@@ -113,23 +128,21 @@ def persist_pair_row_texts(row: PairRow, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{row.stem}-prompt.txt").write_text(row.prompt.rstrip() + "\n")
     if row.unmarked_text:
-        (out_dir / f"{row.stem}-unmarked-gen.txt").write_text(
-            row.unmarked_text.strip() + "\n"
-        )
+        _write_generation_text(out_dir / f"{row.stem}-unmarked-gen.txt", row.unmarked_text)
     if row.marked_text:
-        (out_dir / f"{row.stem}-marked.txt").write_text(row.marked_text.strip() + "\n")
+        _write_generation_text(out_dir / f"{row.stem}-marked.txt", row.marked_text)
     for i, (txt, _sc) in enumerate(row.extra_marked, start=2):
-        (out_dir / f"{row.stem}-marked-{i}.txt").write_text(txt.strip() + "\n")
+        _write_generation_text(out_dir / f"{row.stem}-marked-{i}.txt", txt)
     for i, (txt, _sc) in enumerate(row.extra_unmarked, start=2):
-        (out_dir / f"{row.stem}-unmarked-gen-{i}.txt").write_text(txt.strip() + "\n")
+        _write_generation_text(out_dir / f"{row.stem}-unmarked-gen-{i}.txt", txt)
     if (
         row.alt_text
         and row.alt_score_public is not None
         and row.alt_score_matching is not None
     ):
-        (out_dir / f"{row.stem}-control-gen.txt").write_text(row.alt_text.strip() + "\n")
+        _write_generation_text(out_dir / f"{row.stem}-control-gen.txt", row.alt_text)
         for i, (txt, _pub, _match) in enumerate(row.extra_control, start=2):
-            (out_dir / f"{row.stem}-control-gen-{i}.txt").write_text(txt.strip() + "\n")
+            _write_generation_text(out_dir / f"{row.stem}-control-gen-{i}.txt", txt)
 
 
 def _score_text(text: str, tokenizer, ngram_len: int, keys=None) -> OfficialScore:

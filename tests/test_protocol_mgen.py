@@ -156,6 +156,30 @@ def test_pair_stem_files_complete_and_persist_row_texts(tmp_path: Path) -> None:
     assert not pair_stem_files_complete(tmp_path, "missing", 1)
 
 
+def test_persist_keeps_newline_only_generation(tmp_path: Path) -> None:
+    dummy = OfficialScore(mean=0.5, weighted_mean=0.5, n_tokens=128, n_unmasked_ngrams=127)
+    newlines = "\n" * 128
+    row = PairRow(
+        stem="porter",
+        prompt="A porter dragged a suitcase.\n",
+        prompt_score=dummy,
+        marked_text=newlines,
+        marked_score=dummy,
+        unmarked_text=newlines,
+        unmarked_score=dummy,
+        extra_marked=[(newlines, dummy), (newlines, dummy), (newlines, dummy)],
+        extra_unmarked=[(newlines, dummy), (newlines, dummy), (newlines, dummy)],
+    )
+    persist_pair_row_texts(row, tmp_path)
+    body = (tmp_path / "porter-marked.txt").read_text()
+    assert body == newlines + "\n" or body == newlines
+    assert (tmp_path / "porter-marked.txt").stat().st_size > 1
+    assert pair_stem_files_complete(tmp_path, "porter", 4)
+    (tmp_path / "empty-marked.txt").write_text("\n")
+    (tmp_path / "empty-unmarked-gen.txt").write_text("\n")
+    assert not pair_stem_files_complete(tmp_path, "empty", 1)
+
+
 def test_gpt2_medium_occupancy_free_leftover15_is_zero() -> None:
     dump = ROOT / "experiments" / "2026-09-01-isolated-mgen-leftover-15"
     raw = json.loads((dump / "mgen.json").read_text())
