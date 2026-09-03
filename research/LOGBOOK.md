@@ -2287,6 +2287,27 @@ Not a Claude detector. Not a watermark claim.
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-02-resample-work`.
 
 ---
+## 2026-09-03 Qwen2-1.5B Kirchenbauer freeze
+
+[PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) frozen before
+generation. Same Hugging Face Kirchenbauer defaults as
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md), generator
+`Qwen/Qwen2-1.5B-Instruct`, original 12 prompt strings, seed
+**20260904**, `--mixin kgw`, plain prompts (no chat template).
+Hypotheses H-kgw-q-ctrl, H-kgw-q-group, and H-kgw-q-iso are stated
+before generation. Probe and atoms use `--model Qwen/Qwen2-1.5B-Instruct`.
+Do not look at key-free LRs until `pair` has written official first-draw
+z-scores and the probe command has been run once, as written. Do not add
+a scorer. Nothing replaces **25/48**. Isolated-file detection is still
+not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260904 --mixin kgw \
+  --out-dir experiments/2026-09-03-pair-qwen-12x4-kgw
+```
+
 ## 2026-09-03 DistilGPT2 Kirchenbauer freeze
 
 [PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) committed at
