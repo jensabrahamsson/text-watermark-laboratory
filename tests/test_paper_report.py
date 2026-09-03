@@ -14,6 +14,15 @@ def test_title_exposes_paired_reference_oracle() -> None:
     assert "Public SynthID-Text Instance" in PAPER
 
 
+def test_how_to_read_names_two_grain_hw12_and_occupancy() -> None:
+    how = PAPER.split("How to read this report")[1].split(r"\section{Introduction}")[0]
+    assert "fig:twograin" in how
+    assert "fig:hw12" in how
+    assert "tab:occ" in how
+    assert r"\textbf{36/36}" in how
+    assert r"\textbf{47/96}" in how
+
+
 def test_abstract_leads_with_group_then_full_isolated_matrix() -> None:
     assert r"\textbf{36/36}" in PAPER
     assert r"\textbf{99/100}" in PAPER
