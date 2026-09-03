@@ -133,13 +133,27 @@ python -m text_watermark_tools atoms \
 If `tables-counts` was dropped from the probe out-dir, persist it
 once with the same fit flags; do not add a method.
 
-## Phase B (named, not opened)
+## Phase B (named)
 
 Same `ngram_len=13`, GPT-2, `--n-samples 4`, $T=128$, seed
 `20260903`, prompts `experiments/2026-09-01-prompts-100/`. Same
-readers. Same two grains. Do **not** generate Phase B until Phase A
-is checked in and a later logbook line names a Phase B start. A
-finished 100×4 corpus is not required for this freeze to hold.
+readers. Same two grains. Phase A is checked in. LOGBOOK names the
+Phase B start before generation.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260903 --ngram-len 13 \
+  --out-dir experiments/2026-09-03-pair-100x4-ngram13
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --out-dir experiments/2026-09-03-probe-100x4-ngram13-hard-last4
+```
+
+Do not look at these 100×4 key-free LRs until that logbook line exists
+and both commands have been run once, as written. A finished 100×4
+corpus is not required for the freeze to hold; it is the n=100
+readout of the same lock.
 
 ## What this protocol refuses
 

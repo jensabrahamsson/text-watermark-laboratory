@@ -2069,6 +2069,39 @@ not opened.
 JSON: `experiments/2026-09-03-pair-12x4-ngram13/`,
 `experiments/2026-09-03-probe-12x4-ngram13-hard-last4/`.
 
+## 2026-09-03 longer-context Phase B start
+
+[PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) Phase B, named
+before generation. Same freeze SHA `b70986d`. Public keys,
+`ngram_len=13`, GPT-2, prompts
+`experiments/2026-09-01-prompts-100/`, `--n-samples 4`, $T=128$,
+seed **20260903**. Same readers: hard and interpolate last-4
+leave-one-family-out. Same two grains. No new `probe --methods` name.
+
+Stated before these 100×4 LRs:
+
+- **H-long-B-ctrl.** Official first-draw matching `ngram_len=13` is
+  above $0.55$ on every first marked file.
+- **H-long-B-group.** Interpolate last-4 prompt ranking is below
+  public-mixin lock A **99/100**. Isolated $\tau=0$ does not replace
+  **25/48**.
+- **H-long-B-iso.** Isolated $\tau=0$ confusion matrix stays
+  chance-like relative to **47/96**. Do not sell any ngram-13 100-family
+  count as replacing **25/48**.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --n-samples 4 --max-new-tokens 128 --seed 20260903 --ngram-len 13 \
+  --out-dir experiments/2026-09-03-pair-100x4-ngram13
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --out-dir experiments/2026-09-03-probe-100x4-ngram13-hard-last4
+```
+
+Do not look at key-free LRs until `pair` has written official
+first-draw scores and the probe command has been run once, as written.
+
 ---
 
 ## 2026-09-02 resample
