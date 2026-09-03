@@ -118,7 +118,7 @@ interpolate tail with last-4 tables.
 
 ---
 
-## 2. Match `context_len` to Kirchenbauer hash width (last-1)
+## 2. Match `context_len` to last-1 hash width (Kirchenbauer and Aaronson–Kirchner)
 
 **Observation.** Kirchenbauer hashes **one** previous token
 (`context_width=1`). The published last-4 hard reader is wider than
@@ -198,6 +198,27 @@ SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
 not sell **47/48**, **394/400**, Distil last-4 hashpool **95/100**, or
 **149/400**.
 
+The same last-1 match holds on the laboratory Aaronson–Kirchner
+exponential-minimum mixin (Aaronson & Kirchner, 2023; frozen in
+[research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson.md);
+`context_width=1`, not a new method name). Hard last-4 there is
+**12/12**, isolated **24/48**, unmarked $\le 0$ **48/48**, AUC 0.976.
+Last-1 hard is **12/12**, **40/48**, unmarked $\le 0$ **48/48**, AUC
+0.957 (two ranking wins with no isolated TP). Last-2 sits in between
+(**11/12**, **28/48**, 0.955). Interpolate last-1 isolated is
+**20/48** versus last-4 interpolate **8/48**; ranking stays **11/12**.
+Confirmatory 100-family last-1 hard (`--skip-nested`): **99/100**,
+**388/400**, AUC **0.989**, unmarked $\le 0$ **399/400**, versus last-4
+**95/100**, **344/400**, 0.950, unmarked **400/400**. Both windows
+rank: 0:4 **100/100**, **388/400**, 0.987; 64:128 **99/100**,
+**380/400**, 0.985. That is **not** Kirchenbauer’s tail-only last-1
+split. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
+unmarked $\le 0$ **48/48** (below hard last-1). 100 → 12 last-1 hard
+is **11/12**, **40/48**, 0.936, unmarked $\le 0$ **48/48**. Aaronson
+last-1 tables do **not** classify Kirchenbauer 12 (isolated **0/48**,
+AUC 0.504) or public SynthID 12 (**0/48**, AUC 0.597, ten ranking wins
+with no isolated TP). Do not sell **40/48**, **388/400**, or **99/100**.
+
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
 better.” It matches this mixin’s hash width. (SynthID last-1 window
@@ -213,7 +234,10 @@ Nested Youden on 100-family last-1 hard is **376/400 vs 369/400**.
 
 **Scope.** Kirchenbauer 12×4 dumps from idea 1 plus confirmatory
 `experiments/2026-09-03-pair-100x4-kgw/` and
-`experiments/2026-09-03-pair-distil-100x4-kgw/`. Distil 100 last-1 used
+`experiments/2026-09-03-pair-distil-100x4-kgw/`. Aaronson–Kirchner
+twins: `experiments/2026-09-04-pair-12x4-aaronson/` and
+`experiments/2026-09-04-pair-100x4-aaronson/` (opened freeze is last-4;
+last-1 is post-open). Distil 100 last-1 used
 the GPT-2 tokenizer id on Distil text (same BPE). Last-1 was not the
 preregistered PROTOCOL-next-kgw reader (that freeze is last-4). This
 is a post-open width match. Distil 100 has newline-loop files that the
@@ -221,21 +245,25 @@ keyed z-test also flags; last-1 unigrams on those loops are not a
 reason to sell **350/400**.
 
 **Hypothesis.** When the watermark hash is last-1, last-4 count
-tables smear a one-token green list across unused context tokens.
+tables smear that one-token seed across unused context tokens.
 Matching reader width to hash width recovers isolated sign without
-keys. A context-free unigram still ranks because green tokens are
-over-used in aggregate; last-1 `hard` / `hashpool` are the tighter
-match. Interpolate last-4 was already saturated at 100 families
-(**100/100** / **376/400**); last-1 is the hard-reader lift, and
-hashpool last-1 is the same width on the hash-pool spec.
+keys on both last-1 mixins (Kirchenbauer green list and
+Aaronson–Kirchner exponential-minimum). A context-free unigram still
+ranks Kirchenbauer because green tokens are over-used in aggregate;
+last-1 `hard` / `hashpool` are the tighter match. Interpolate last-4
+was already saturated at Kirchenbauer 100 families (**100/100** /
+**376/400**); last-1 is the hard-reader lift, and hashpool last-1 is
+the same width on the hash-pool spec. Aaronson last-1 is not
+Kirchenbauer’s tail-only geography: both 0:4 and 64:128 rank.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
-**394/400**, **304/400**, **325/400**, **149/400**, occupancy-free last-1
+**394/400**, **304/400**, **325/400**, **149/400**, Aaronson last-1
+**40/48**, **388/400**, **99/100**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
-retune Kirchenbauer `context_width` after peeking. Do not run last-1,
+retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
 switch Kirchenbauer hard to last-2 (12×4 collapse; 100×4 is strictly
 below last-1). Kirchenbauer last-1 tables trained on 100 GPT-2
@@ -243,7 +271,10 @@ families do **not** classify public SynthID original-12 (isolated
 **6/48**, AUC 0.542, three ranking wins with no isolated TP) or
 Grok-register SynthID 12 (**6/12**, **8/48**, AUC 0.523, two ranking
 wins with no isolated TP). Hashpool last-1 transfer to public SynthID
-12 is **2/48**, AUC 0.501. The last-1 lift is mixin-specific.
+12 is **2/48**, AUC 0.501. Aaronson last-1 tables trained on 100
+families do **not** classify Kirchenbauer 12 (**0/48**) or public
+SynthID 12 (**0/48**, ten ranking wins with no isolated TP). The
+last-1 lift is mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
 generators. Last-4 does not:
@@ -297,6 +328,16 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hashpool --context-len 1 --skip-nested \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hard,interpolate --context-len 1 --skip-hashpool \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-aaronson-last1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-last1
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
@@ -313,7 +354,12 @@ isolated **6/48**). The freeze in
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
 Hashpool last-1 is the other existing-scorer companion, not a fourth
-method name.
+method name. Aaronson–Kirchner last-1 is the same width match on a
+third mixin (`context_width=1`): isolated **24/48** → **40/48** at
+n=12 and **344/400** → **388/400** at n=100, without selling those
+counts. The freeze in
+[research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson.md)
+keeps last-4 as the preregistered grain.
 
 ---
 
@@ -640,9 +686,12 @@ A freeze of **width and mixin geography** that already moved a grain:
 
 1. Kirchenbauer green-list leak is a **body** leak under last-4
    interpolate (100-family tail **100/100**, opening **88/100**).
-2. Matching `context_len` to that mixin’s last-1 hash recovers
-   isolated `hard` / `hashpool` sign (100-family hard **389/400** vs
-   last-4 **209/400**; hashpool **394/400** vs **304/400**).
+2. Matching `context_len` to last-1 hash width recovers isolated
+   `hard` / `hashpool` sign on Kirchenbauer (100-family hard
+   **389/400** vs last-4 **209/400**; hashpool **394/400** vs
+   **304/400**) and on Aaronson–Kirchner (hard **388/400** vs last-4
+   **344/400**). Aaronson last-1 ranks both windows; Kirchenbauer
+   last-1 is a body lift.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
