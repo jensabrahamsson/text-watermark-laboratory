@@ -67,6 +67,9 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
     assert "bitwise re-generation" in PAPER
     assert "--hub-revision" in Path(ROOT / "paper" / "main.tex").read_text()
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert "--hub-revision" in howto
+    assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in howto
     cache = Path.home() / ".cache/huggingface/hub/models--gpt2/refs/main"
     if cache.exists():
         assert cache.read_text().strip() == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
