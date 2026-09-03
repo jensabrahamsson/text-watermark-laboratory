@@ -163,6 +163,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "b70986d" in PAPER
     assert "facc538" in PAPER
     assert "df5487d" in PAPER
+    assert "--leave-one-out" in PAPER
     assert "4d29c92147e6da9d" in PAPER
     assert "ee0fcb86e6aceafc" in PAPER
     assert "PROTOCOL-next-longctx" in PAPER
