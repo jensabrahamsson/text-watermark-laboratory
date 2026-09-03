@@ -443,8 +443,8 @@ are descriptive under an independent Bernoulli model that the design
 only approximates. File-level label-shuffle permutation $p$-values
 \citep{ernst2004permutation} ignore pairing and clustering; they are
 descriptive. Exact McNemar tests on discordant prompt-family signs
-\citep{mcnemar1947sampling} are clustered descriptions of already-opened
-scores, not a second freeze.
+\citep{mcnemar1947sampling} are clustered descriptions of already
+collected scores, not a second preregistration.
 
 \paragraph{Declared operating criteria.}
 The primary group endpoint is the prompt-family win count of
@@ -1159,8 +1159,9 @@ $P(X\ge 25\mid \mathrm{Bin}(31,1/2))\approx 0.00044$.
 Qwen lock~B loses 5 and gains none (net $100\to 95$); lock~C loses 15
 and gains 3 (net $96\to 84$). Qwen B-only drops 2, C-only 12, both 3;
 $P(X\ge 12\mid \mathrm{Bin}(14,1/2))\approx 0.0065$. Rankpath loses more
-GPT-2 wins than poshits on both generators. This is a post-open
-clustered description of already-opened scores, not a second freeze.
+GPT-2 wins than poshits on both generators. This is a post hoc
+clustered description of already collected scores, not a second
+preregistration.
 Lock~B starts at 100/100 and lock~C at 96/100 on GPT-2, so raw
 percentage-point drops also differ by ceiling.
 
@@ -1238,11 +1239,11 @@ H2 asked whether lock~A window $[0{:}4)$ outranks $[16{:}32)$ on the 100
 GPT-2 families. Reindexed: $[0{:}4)$ \textbf{99/100} (AUC $0.885$),
 $[16{:}32)$ \textbf{89/100} (AUC $0.689$). Absolute-history:
 $[0{:}4)$ \textbf{99/100} (AUC $0.885$), $[16{:}32)$ \textbf{87/100}
-(AUC $0.695$). Opening still outranks mid-file in-family. Post-open
-paired McNemar on the absolute windows is $86/13/1/0$ (both / opening
+(AUC $0.695$). Opening still outranks mid-file in-family. Paired
+McNemar on the absolute windows is $86/13/1/0$ (both / opening
 only / mid only / neither);
 $P(X\ge 13\mid \mathrm{Bin}(14,1/2))\approx 0.00092$. That is not a
-second freeze.
+second preregistration.
 
 Out-of-family, the same interpolate tables are not front-loaded on
 Grok-length files (reindexed $[0{:}4)$ is 7/12; tails 9/12).
@@ -1287,8 +1288,10 @@ sign-flip.
 How count-table coverage scales with longer watermark history is
 partly measured: $\Hw=12$ attenuates group ranking from lock~A
 \textbf{99/100} to \textbf{76/100} on the same 100 prompt strings
-(different twins). Occupancy of exact 4-grams was not decoded on that
-dump. Production Gemini and Anthropic keys were not measured.
+(different twins). Interpolate occupancy is lower under $\Hw=12$ than
+under public $\Hw=4$ on both prompt frames (original-12: 160 versus
+269 exact next-token events; 100 one-liners: 5878 versus 10158).
+Production Gemini and Anthropic keys were not measured.
 Multi-key replication of the public mixin is not started. Isolated-file
 research is not finished.
 
@@ -1346,8 +1349,12 @@ That is below the public-mixin hard diagnostic
 \textbf{9/12} on these prompt strings (different twins, $\Hw=4$).
 Isolated $\tau=0$ on the new twins is $52/96$, a different corpus from
 the original-12 \textbf{47/96}.
-Occupancy was not decoded: leave-one-family-out fits were not
-written as a single pooled table.
+Leave-one-family-out interpolate occupancy on these twins is 160 exact
+next-token events versus 12026 Witten--Bell backoff events (window
+$[0{:}4)$ is 71 versus 217). The same decode on the public $\Hw=4$
+original-12 twins is 269 versus 11912; every window has fewer exact
+hits under $\Hw=12$. Occupancy is a mechanistic intermediate: isolated
+interpolate on these twins remains 20/48.
 Hard prompt wins are market, station, rain, letter, workshop, and
 ferry-queue. Interpolate wins library, market, station, letter,
 workshop, and ferry-queue. Five stems win on both readers. Mean paired
@@ -1367,7 +1374,13 @@ Prompt-clustered sign permutation on interpolate $D_p$ is
 $p\approx 0.0005$ (2000 prompt-mean sign shuffles). Isolated
 $489/800$ is a different corpus from the original-12 \textbf{47/96}.
 Mean $D_p$ is $0.156$ (median $0.174$; range
-$[-0.386,0.602]$). \Cref{fig:hw12} sits much closer to zero than
+$[-0.386,0.602]$). Leave-one-family-out interpolate occupancy on these
+twins is 5878 exact next-token events versus 95624 Witten--Bell backoff
+events (window $[0{:}4)$ is 1287 versus 1113). The same decode on the
+public $\Hw=4$ 100-family twins is 10158 versus 91353; every window has
+fewer exact hits under $\Hw=12$. Occupancy is a mechanistic
+intermediate: isolated interpolate on these twins remains 267/400.
+\Cref{fig:hw12} sits much closer to zero than
 lock~A (\Cref{fig:locka}, mean $0.520$).
 
 \begin{figure}[ht]
@@ -1427,7 +1440,7 @@ above $0.55$ on all 400 marked files. The original-12 readout is
 \textbf{6/12} (underpowered; clustered permutation $p=0.247$). Isolated
 $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
 \textbf{25/48} sensitivity and \textbf{47/96} correct. A different local
-mixin remains unopened.
+mixin has not been run.
 
 Code and frozen JSON:
 \url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
@@ -1497,6 +1510,19 @@ Longer-history 100-family pair:
 Longer-history 100-family probe:
 \path{experiments/2026-09-03-probe-100x4-ngram13-hard-last4/interpolate/holdout.json}
 (\texttt{e17cda239aa36e43}; interpolate $76/100$).
+Occupancy command freeze: \texttt{df5487d}.
+Original-12 $\Hw=12$ occupancy:
+\path{experiments/2026-09-03-atoms-12x4-ngram13/atoms.json}
+(\texttt{4d29c92147e6da9d}; 160 seen versus public 269).
+Original-12 public occupancy:
+\path{experiments/2026-09-03-atoms-12x4-public-loo/atoms.json}
+(\texttt{1247287a6369e93d}).
+100-family $\Hw=12$ occupancy:
+\path{experiments/2026-09-03-atoms-100x4-ngram13/atoms.json}
+(\texttt{ee0fcb86e6aceafc}; 5878 seen versus public 10158).
+100-family public occupancy:
+\path{experiments/2026-09-03-atoms-100x4-public-loo/atoms.json}
+(\texttt{6d6d516ec296aae1}).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

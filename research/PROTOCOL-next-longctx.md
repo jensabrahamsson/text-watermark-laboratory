@@ -257,10 +257,31 @@ sensitivity, 30/48 specificity, **52/96** balanced accuracy, AUC
 **6/12**, **22/48**, **52/96**, or nested 24/48 as replacing
 **25/48**. Official first-draw **12/12** uses keys.
 
-H-long-occ is **not opened**. Probe dropped `tables-counts` (same as
-other 12-LOO dumps). A single pooled fit would leak the held-out
-family. Occupancy remains a mechanistic intermediate for a later
-LOO-aware decode. Do not invent unseen/seen counts.
+H-long-occ **holds**. Leave-one-family-out interpolate atoms
+(`atoms --leave-one-out`, named `df5487d` before the counts;
+`used_keys=false`). File LRs match interpolate holdout file-by-file
+(marked `lr>0` **20/48**). Exact next-token overlap on the Hw=12
+twins is **160** seen vs **12026** unseen (Witten–Bell backoff).
+Public Hw=4 original-12 twins (same prompt strings, different
+generation): **269** seen vs **11912** unseen. Every window has
+fewer seen events under Hw=12:
+
+| window | Hw=12 seen | public Hw=4 seen |
+|---|---|---|
+| 0:4 | 71 | 84 |
+| 4:16 | 10 | 32 |
+| 16:32 | 17 | 33 |
+| 32:64 | 16 | 26 |
+| 64:128 | 46 | 94 |
+
+Opening 0:4 still has shared tokens (`'The' → ' bus'` n=15 on Hw=12;
+public `'The' → ' ferry'` n=8). Tails are almost all backoff.
+Occupancy is a mechanistic intermediate, not a detector. Do not sell
+**160**, **269**, `'The' → ' bus'`, or `'The' → ' ferry'` as replacing
+**25/48**.
+
+JSON: [experiments/2026-09-03-atoms-12x4-ngram13/](../experiments/2026-09-03-atoms-12x4-ngram13/),
+[experiments/2026-09-03-atoms-12x4-public-loo/](../experiments/2026-09-03-atoms-12x4-public-loo/).
 
 Isolated-file detection is still not finished. Do not write `thesis/`.
 
@@ -310,5 +331,29 @@ different register and $n$ from the original 12. Hard isolated BA is
 **436/800** (AUC **0.579**). Neither is the prespecified original-12
 matrix. Do not sell **267/400**, **489/800**, or **76/100** as
 replacing **25/48**. Nested Youden is post hoc.
+
+100-family occupancy (same `atoms --leave-one-out` command named
+before the original-12 counts; `used_keys=false`). File LRs match
+interpolate holdout file-by-file (marked `lr>0` **267/400**). Exact
+next-token overlap on the Hw=12 twins is **5878** seen vs **95624**
+unseen. Public Hw=4 100-family twins (lock A interpolate holdout
+**352/400**, ranking **99/100**): **10158** seen vs **91353** unseen.
+Every window has fewer seen events under Hw=12:
+
+| window | Hw=12 seen | public Hw=4 seen |
+|---|---|---|
+| 0:4 | 1287 | 1633 |
+| 4:16 | 840 | 2086 |
+| 16:32 | 544 | 1239 |
+| 32:64 | 1099 | 1899 |
+| 64:128 | 2108 | 3301 |
+
+One-liner openings are not mostly backoff (Hw=12 0:4 is 1287 vs 1113
+unseen). Occupancy is a mechanistic intermediate, not a detector.
+Do not sell **5878**, **10158**, `'The' → ' house'`, or `'"' → 'This'`
+as replacing **25/48**.
+
+JSON: [experiments/2026-09-03-atoms-100x4-ngram13/](../experiments/2026-09-03-atoms-100x4-ngram13/),
+[experiments/2026-09-03-atoms-100x4-public-loo/](../experiments/2026-09-03-atoms-100x4-public-loo/).
 
 Isolated-file detection is still not finished. Do not write `thesis/`.

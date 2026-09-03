@@ -47,6 +47,10 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "PROTOCOL-next-longctx" in text
     assert "**6/12**" in text
     assert "**76/100**" in text
+    assert "**160**" in text
+    assert "**269**" in text
+    assert "**5878**" in text
+    assert "**10158**" in text
     assert "H-xkey-iso **fails**" in text
     assert "Leftover-15 official is **15/15**" in text
     assert "Master of Science" in text

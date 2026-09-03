@@ -392,6 +392,17 @@ Do not sell **6/12** or **52/96**. Does not replace **25/48**.
 JSON: `experiments/2026-09-03-pair-12x4-ngram13/`,
 `experiments/2026-09-03-probe-12x4-ngram13-hard-last4/`.
 
+## Longer-context occupancy (original-12 leave-one-out atoms)
+
+Named `df5487d` before the counts. `used_keys=false`. Hw=12 interpolate
+atoms **160** seen vs **12026** unseen (marked `lr>0` **20/48**,
+matching holdout). Public Hw=4 original-12 **269** vs **11912**. Every
+window has fewer seen events under Hw=12. Do not sell **160** or
+**269**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-03-atoms-12x4-ngram13/`,
+`experiments/2026-09-03-atoms-12x4-public-loo/`.
+
 ## Longer-context two-grain Phase B (`ngram_len=13`, 100 families)
 
 Protocol SHA `b70986d`; start `facc538`. Official first-draw **100/100**.
@@ -402,6 +413,17 @@ Interpolate last-4 **76/100** (AUC **0.666**, isolated **267/400 vs
 
 JSON: `experiments/2026-09-03-pair-100x4-ngram13/`,
 `experiments/2026-09-03-probe-100x4-ngram13-hard-last4/`.
+
+## Longer-context occupancy (100-family leave-one-out atoms)
+
+`used_keys=false`. Hw=12 interpolate atoms **5878** seen vs **95624**
+unseen (marked `lr>0` **267/400**, matching holdout). Public Hw=4
+100-family **10158** vs **91353** (lock A interpolate **352/400**).
+Every window has fewer seen events under Hw=12. Do not sell **5878**
+or **10158**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-03-atoms-100x4-ngram13/`,
+`experiments/2026-09-03-atoms-100x4-public-loo/`.
 
 ## Isolated-file leftover vs covered (mask-*k* hard windows)
 

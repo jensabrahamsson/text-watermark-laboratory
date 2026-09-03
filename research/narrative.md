@@ -249,8 +249,11 @@ lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
 (`ngram_len=13`, $\Hw=12$). Opened Phase A: official first-draw
 **12/12**; interpolate and hard **6/12**; isolated hard **22/48 vs
 30/48** (**52/96**). Opened Phase B: interpolate **76/100** (below
-lock A **99/100**); isolated **489/800**. Do not sell **6/12** or
-**76/100**.
+lock A **99/100**); isolated **489/800**. Original-12 interpolate
+occupancy is **160** seen versus public $\Hw=4$ **269** seen
+(leave-one-family-out; H-long-occ holds). 100-family occupancy is
+**5878** seen versus public **10158** seen. Do not sell **6/12**,
+**76/100**, **160**, **269**, **5878**, or **10158**.
 Isolated-file detection is still not
 finished. Do not write `thesis/`.
 

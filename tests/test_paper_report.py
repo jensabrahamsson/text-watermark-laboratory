@@ -70,6 +70,9 @@ def test_no_lab_slang_in_report_body() -> None:
         "uniquely cursed",
         "this notebook",
         "official lamp",
+        "already-opened",
+        "post-open",
+        "remains unopened",
     ):
         assert banned not in body
 
@@ -148,6 +151,9 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\mathtt{ngram\_len}=13" in PAPER
     assert "b70986d" in PAPER
     assert "facc538" in PAPER
+    assert "df5487d" in PAPER
+    assert "4d29c92147e6da9d" in PAPER
+    assert "ee0fcb86e6aceafc" in PAPER
     assert "PROTOCOL-next-longctx" in PAPER
     assert "seed 20260903" in PAPER
     assert "different corpus" in PAPER
@@ -276,6 +282,57 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert expected in Path(ROOT / "paper" / "main.tex").read_text()
     assert "all 48 marked files" in PAPER
     assert "ferry-queue" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    occ = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-atoms-12x4-ngram13"
+            / "atoms.json"
+        ).read_text()
+    )
+    occ_pub = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-atoms-12x4-public-loo"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 160
+    assert occ_pub["n_seen"] == 269
+    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+    assert "160 exact" in next_sec
+    assert "269 versus 11912" in next_sec
+    assert "20/48" in next_sec
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "160" not in abs_
+    assert "269" not in abs_
+    occ100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-atoms-100x4-ngram13"
+            / "atoms.json"
+        ).read_text()
+    )
+    occ100_pub = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-atoms-100x4-public-loo"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert occ100["used_keys"] is False
+    assert occ100["n_seen"] == 5878
+    assert occ100_pub["n_seen"] == 10158
+    assert "5878 exact" in next_sec
+    assert "10158 versus 91353" in next_sec
+    assert "5878" not in abs_
+    assert "10158" not in abs_
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
     assert r"\textbf{6/12}" in concl
     assert r"\textbf{25/48}" in concl

@@ -27,8 +27,12 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-probe-12x4-headline-windows-absolute/` | Absolute-history 12-LOO mask-*k* | prefixes equal reindexed; hard tails **9/12**; interpolate 8:128 rose 3→4 |
 | `2026-09-03-pair-12x4-ngram13/` | Public keys, `ngram_len=13`, original 12 | official **48/48** marked above 0.55 |
 | `2026-09-03-probe-12x4-ngram13-hard-last4/` | 12-LOO hard/interpolate on those twins | interpolate and hard **6/12**; isolated hard **52/96** |
+| `2026-09-03-atoms-12x4-ngram13/` | 12-LOO interpolate occupancy, Hw=12 | **160** seen vs **12026** unseen; LRs match interpolate holdout |
+| `2026-09-03-atoms-12x4-public-loo/` | 12-LOO interpolate occupancy, public Hw=4 | **269** seen vs **11912** unseen; every window above Hw=12 |
 | `2026-09-03-pair-100x4-ngram13/` | Same mixin, 100 one-liners | official **400/400** marked above 0.55 |
 | `2026-09-03-probe-100x4-ngram13-hard-last4/` | 100-LOO hard/interpolate | interpolate **76/100** (below lock A **99/100**); isolated **489/800** |
+| `2026-09-03-atoms-100x4-ngram13/` | 100-LOO interpolate occupancy, Hw=12 | **5878** seen vs **95624** unseen; LRs match interpolate holdout |
+| `2026-09-03-atoms-100x4-public-loo/` | 100-LOO interpolate occupancy, public Hw=4 | **10158** seen vs **91353** unseen; every window above Hw=12 |
 | `2026-08-15-gpt2-sonnet5/` | Known public mark before/after Sonnet edits | marked 0.617/0.638; proofread 0.605/0.625; rewrite 0.502/0.502 |
 | `2026-08-15-known-mark-v2/` | Key-free rewrite surrogate, then official measurement | ~0.62 → ~0.50 |
 | `claude-premark-2026-08/` | Control corpus collected before announced marking condition | 40 A/B texts plus auxiliary files |

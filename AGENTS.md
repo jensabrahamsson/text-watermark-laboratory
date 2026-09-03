@@ -71,6 +71,7 @@ python -m text_watermark_tools probe PAIR --test-dir OTHER --fit-prefix 4 --pos-
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --pos-bucket 1 --methods postokbackoff --skip-hashpool --pivot --rankpath --cascade postokbackoff --cascade-fallback rankuni
 python -m text_watermark_tools openings TRAIN --test-dir TEST --extra-train OTHER --fit-prefix 4 --pos-bucket 1
 python -m text_watermark_tools atoms TABLES --test-dir TEST --windows 0:4,4:16,16:32,32:64,64:128
+python -m text_watermark_tools atoms --leave-one-out --test-dir PAIR --windows 0:4,4:16,16:32,32:64,64:128
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods first,poshits --pos-bucket 1 --include-first
 python -m text_watermark_tools probe PAIR --fit-prefix 4 --methods hits,poshits --pos-bucket 1 --prompt-context
 python -m text_watermark_tools pair DIR --model distilgpt2 --n-samples 4 --out-dir experiments/pair-distil

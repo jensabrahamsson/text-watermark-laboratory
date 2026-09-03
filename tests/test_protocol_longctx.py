@@ -13,6 +13,10 @@ PAIR = ROOT / "experiments" / "2026-09-03-pair-12x4-ngram13"
 PROBE = ROOT / "experiments" / "2026-09-03-probe-12x4-ngram13-hard-last4"
 PAIR100 = ROOT / "experiments" / "2026-09-03-pair-100x4-ngram13"
 PROBE100 = ROOT / "experiments" / "2026-09-03-probe-100x4-ngram13-hard-last4"
+ATOMS13 = ROOT / "experiments" / "2026-09-03-atoms-12x4-ngram13"
+ATOMSPUB = ROOT / "experiments" / "2026-09-03-atoms-12x4-public-loo"
+ATOMS100 = ROOT / "experiments" / "2026-09-03-atoms-100x4-ngram13"
+ATOMS100PUB = ROOT / "experiments" / "2026-09-03-atoms-100x4-public-loo"
 
 
 def test_protocol_longctx_locks_config_before_generation() -> None:
@@ -108,7 +112,7 @@ def test_protocol_longctx_official_control_and_keyfree_from_dumps() -> None:
     assert "H-long-group **holds**" in text
     assert "H-long-hard **holds**" in text
     assert "H-long-iso **holds**" in text
-    assert "H-long-occ is **not opened**" in text
+    assert "H-long-occ **holds**" in text
     assert "--leave-one-out" in text
     assert "2026-09-03-atoms-12x4-ngram13" in text
     assert "2026-09-03-atoms-12x4-public-loo" in text
@@ -211,3 +215,103 @@ def test_ngram13_phase_b_official_all_400_marked_files() -> None:
     assert n_hi == 400
     assert n_u == 0
     assert "**400/400**" in PROTOCOL.read_text()
+
+
+def test_protocol_longctx_occupancy_from_dumps() -> None:
+    hw = json.loads((ATOMS13 / "atoms.json").read_text())
+    pub = json.loads((ATOMSPUB / "atoms.json").read_text())
+    hold = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    assert hw["used_keys"] is False
+    assert pub["used_keys"] is False
+    assert hw["mode"] == "leave-one-family-out"
+    assert pub["mode"] == "leave-one-family-out"
+    assert hw["n_rows"] == 96
+    assert hw["n_seen"] == 160
+    assert hw["n_unseen"] == 12026
+    assert pub["n_seen"] == 269
+    assert pub["n_unseen"] == 11912
+    assert hw["n_marked_lr_positive"] == 20
+    assert hw["n_seen"] < pub["n_seen"]
+    assert all(
+        hw["windows"][i]["n_seen"] < pub["windows"][i]["n_seen"] for i in range(5)
+    )
+    assert [w["n_seen"] for w in hw["windows"]] == [71, 10, 17, 16, 46]
+    assert [w["n_seen"] for w in pub["windows"]] == [84, 32, 33, 26, 94]
+
+    def _hold_key(row: dict) -> tuple:
+        side = "unmarked" if "unmarked" in row["file"] else "marked"
+        return row["stem"], row["sample"], side
+
+    hold_lrs = {_hold_key(r): r["lr"] for r in hold["files"]}
+    atom_lrs = {
+        (r["stem"], r["sample"], r["side"]): r["lr"] for r in hw["files"]
+    }
+    assert hold_lrs.keys() == atom_lrs.keys()
+    for key, lr in atom_lrs.items():
+        assert abs(hold_lrs[key] - lr) < 1e-9
+    text = PROTOCOL.read_text()
+    assert "H-long-occ **holds**" in text
+    assert "**160**" in text
+    assert "**269**" in text
+    assert "**12026**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **160**" in collapsed
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "`df5487d`" in log
+    assert not (PROBE / "tables-counts").exists()
+
+
+def test_protocol_longctx_occupancy_100_from_dumps() -> None:
+    hw = json.loads((ATOMS100 / "atoms.json").read_text())
+    pub = json.loads((ATOMS100PUB / "atoms.json").read_text())
+    hold = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
+    lock_a = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-probe-100x4-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    assert hw["used_keys"] is False
+    assert pub["used_keys"] is False
+    assert hw["mode"] == "leave-one-family-out"
+    assert hw["n_rows"] == 800
+    assert hw["n_seen"] == 5878
+    assert hw["n_unseen"] == 95624
+    assert pub["n_seen"] == 10158
+    assert pub["n_unseen"] == 91353
+    assert hw["n_marked_lr_positive"] == 267
+    assert pub["n_marked_lr_positive"] == 352
+    assert hw["n_seen"] < pub["n_seen"]
+    assert all(
+        hw["windows"][i]["n_seen"] < pub["windows"][i]["n_seen"] for i in range(5)
+    )
+    assert [w["n_seen"] for w in hw["windows"]] == [1287, 840, 544, 1099, 2108]
+    assert [w["n_seen"] for w in pub["windows"]] == [1633, 2086, 1239, 1899, 3301]
+
+    def _hold_key(row: dict) -> tuple:
+        side = "unmarked" if "unmarked" in row["file"] else "marked"
+        return row["stem"], row["sample"], side
+
+    hold_lrs = {_hold_key(r): r["lr"] for r in hold["files"]}
+    atom_lrs = {
+        (r["stem"], r["sample"], r["side"]): r["lr"] for r in hw["files"]
+    }
+    assert hold_lrs.keys() == atom_lrs.keys()
+    for key, lr in atom_lrs.items():
+        assert abs(hold_lrs[key] - lr) < 1e-9
+    pub_lrs = {
+        (r["stem"], r["sample"], r["side"]): r["lr"] for r in pub["files"]
+    }
+    lock_lrs = {_hold_key(r): r["lr"] for r in lock_a["files"]}
+    assert pub_lrs.keys() == lock_lrs.keys()
+    for key, lr in pub_lrs.items():
+        assert abs(lock_lrs[key] - lr) < 1e-9
+    text = PROTOCOL.read_text()
+    assert "**5878**" in text
+    assert "**10158**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **5878**" in collapsed
+    assert not (PROBE100 / "tables-counts").exists()

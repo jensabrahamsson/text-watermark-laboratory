@@ -2148,6 +2148,35 @@ python -m text_watermark_tools atoms --leave-one-out \
   --out-dir experiments/2026-09-03-atoms-100x4-ngram13
 ```
 
+## 2026-09-03 Hw=12 occupancy (original 12)
+
+Named `df5487d` before the counts. Leave-one-family-out interpolate
+atoms, `used_keys=false`. File LRs match interpolate holdout
+(marked `lr>0` **20/48**). Hw=12 exact overlap **160** seen vs
+**12026** unseen. Public Hw=4 original-12 **269** seen vs **11912**
+unseen. Every window has fewer seen events under Hw=12 (0:4 is 71 vs
+84). H-long-occ holds. Occupancy is not a detector. Do not sell
+**160**, **269**, `'The' → ' bus'`, or `'The' → ' ferry'` as replacing
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+JSON: `experiments/2026-09-03-atoms-12x4-ngram13/`,
+`experiments/2026-09-03-atoms-12x4-public-loo/`.
+
+## 2026-09-03 Hw=12 occupancy (100 families)
+
+Same `atoms --leave-one-out` command. `used_keys=false`. File LRs
+match interpolate holdout (marked `lr>0` **267/400**). Hw=12 exact
+overlap **5878** seen vs **95624** unseen (0:4 is 1287 vs 1113).
+Public Hw=4 100-family **10158** seen vs **91353** unseen (lock A
+interpolate **352/400**). Every window has fewer seen events under
+Hw=12. Occupancy is not a detector. Do not sell **5878**, **10158**,
+`'The' → ' house'`, or `'"' → 'This'` as replacing **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-03-atoms-100x4-ngram13/`,
+`experiments/2026-09-03-atoms-100x4-public-loo/`.
+
 ---
 
 ## 2026-09-02 resample
