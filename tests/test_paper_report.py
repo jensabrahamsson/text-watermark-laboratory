@@ -81,6 +81,8 @@ def test_readme_matches_revised_title() -> None:
     assert "25/51" in README
     assert "b70986d" in README
     assert "ngram_len=13" in README
+    assert "19 A4" in README
+    assert "pdflatex" in README.lower() or "pdflatex" in README
 
 
 def test_keys_withheld_by_design() -> None:
