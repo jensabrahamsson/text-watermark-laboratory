@@ -1531,16 +1531,17 @@ Masking the first scored tokens of 12-LOO hard last-4 does not destroy
 prompt ranking. Reindexed tails $[4{:}128)$ and $[8{:}128)$ stay $9/12$,
 while prefix $[0{:}4)$ is $5/12$. Absolute-history remasure of the same
 windows (protocol SHA \texttt{b70986d}) leaves those prefix and hard-tail
-ranks unchanged; interpolate $[8{:}128)$ rises $3\to 4$. Isolated
-$\tau=0$ stays chance-like in every slice. Hard $[4{:}128)$ leftover is
-$11/20$ vs.\ $11/20$. Isolated $\tau=0$ stays chance-like on every
-slice; the original-12 matrix remains \textbf{47/96}.
+ranks unchanged; interpolate $[8{:}128)$ rises $3\to 4$. Hard
+$[4{:}128)$ leftover is $11/20$ vs.\ $11/20$. Isolated $\tau=0$ stays
+chance-like on every slice; the original-12 matrix remains
+\textbf{47/96}.
 
 \paragraph{Longer hash history.}
 Main-text \Cref{sec:next}: $\Hw=12$ interpolate ranking is
 \textbf{76/100} on 100 one-liners and \textbf{6/12} on the original 12
-strings. Official matching scores remain above $0.55$. Those counts are
-not substituted for lock~A \textbf{99/100} or isolated \textbf{25/48}.
+strings. Official matching scores remain above $0.55$. Group ranking
+\textbf{76/100} is below lock~A \textbf{99/100}; isolated original-12
+remains \textbf{47/96}.
 
 \paragraph{Control keys.}
 Text sampled with \texttt{control-shuffled-30} scores near $0.50$ on the
