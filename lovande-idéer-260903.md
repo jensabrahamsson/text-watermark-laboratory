@@ -218,6 +218,14 @@ is **11/12**, **40/48**, 0.936, unmarked $\le 0$ **48/48**. Aaronson
 last-1 tables do **not** classify Kirchenbauer 12 (isolated **0/48**,
 AUC 0.504) or public SynthID 12 (**0/48**, AUC 0.597, ten ranking wins
 with no isolated TP). Do not sell **40/48**, **388/400**, or **99/100**.
+Existing `unigram` on Aaronson 12 ranks **12/12** with isolated only
+**24/48**, unmarked $\le 0$ **48/48**, AUC 0.972, and **6** ranking
+wins with no isolated TP — the same isolated count as last-4 hard, not
+last-1 **40/48**. 100-family unigram is **96/100**, **308/400**, 0.961,
+unmarked $\le 0$ **400/400**, **19** ranking wins with no isolated TP
+(last-1 hard **388/400**). Aaronson last-1 is not a bag-of-tokens
+companion the way Kirchenbauer unigram is. Do not sell unigram
+**12/12** or **308/400**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -250,16 +258,19 @@ Matching reader width to hash width recovers isolated sign without
 keys on both last-1 mixins (Kirchenbauer green list and
 Aaronson–Kirchner exponential-minimum). A context-free unigram still
 ranks Kirchenbauer because green tokens are over-used in aggregate;
-last-1 `hard` / `hashpool` are the tighter match. Interpolate last-4
-was already saturated at Kirchenbauer 100 families (**100/100** /
-**376/400**); last-1 is the hard-reader lift, and hashpool last-1 is
-the same width on the hash-pool spec. Aaronson last-1 is not
-Kirchenbauer’s tail-only geography: both 0:4 and 64:128 rank.
+last-1 `hard` / `hashpool` are the tighter match. Aaronson unigram
+does **not** repeat that bag-of-tokens leak (isolated **24/48**, same
+as last-4 hard). Kirchenbauer interpolate last-4 was already saturated
+at 100 families (**100/100** / **376/400**); last-1 is the hard-reader
+lift, and hashpool last-1 is the same width on the hash-pool spec.
+Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
+and 64:128 rank.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, Aaronson last-1
-**40/48**, **388/400**, **99/100**, occupancy-free last-1
+**40/48**, **388/400**, **99/100**, Aaronson unigram **24/48**,
+**308/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
