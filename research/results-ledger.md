@@ -371,6 +371,27 @@ sell prefix 10/12 or tail 9/12. Does not replace **25/48**.
 
 JSON: `experiments/2026-09-01-probe-12x4-headline-windows/`.
 
+## Headline 12-LOO mask-*k* (absolute history)
+
+Protocol SHA `b70986d`. `used_keys=false`. New out-dir. Reindexed dump
+stays. Absolute prefixes equal reindexed (hard 0:4 **5/12**). Hard
+tails **4:128** / **8:128** stay **9/12**. Interpolate 8:128 rose 3→4.
+Isolated t=0 stays chance-like. Do not sell tail 9/12 or interpolate
+4/12. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-03-probe-12x4-headline-windows-absolute/`.
+
+## Longer-context two-grain Phase A (`ngram_len=13`)
+
+Protocol SHA `b70986d`. Official first-draw matching `ngram_len=13`
+**12/12** above 0.55. Key-free interpolate last-4 **6/12**, hard
+**6/12**. Isolated hard **22/48 vs 30/48** (**52/96**), AUC **0.544**.
+Below public-mixin **9/12**. Clopper–Pearson on **6/12** includes ½.
+Do not sell **6/12** or **52/96**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-03-pair-12x4-ngram13/`,
+`experiments/2026-09-03-probe-12x4-ngram13-hard-last4/`.
+
 ## Isolated-file leftover vs covered (mask-*k* hard windows)
 
 Protocol SHA `3e30e70`. `used_keys=false`. Hard **4:128** leftover
@@ -491,11 +512,16 @@ as a raw count). Absolute-history OOD windows are opened
 grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
 original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
 **10/12** or **30/48**. Reindexed dumps stay. The remaining honesty
-item that is not leftover targeting is 12-LOO mask-*k* absolute
+item that is not leftover targeting was 12-LOO mask-*k* absolute
 remasure of [PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md)
-(reindexed dumps stay). Sol's preregistered longer-context two-grain
+(reindexed dumps stay). Opened: absolute prefixes equal reindexed
+(hard 0:4 **5/12**); hard tails stay **9/12**; interpolate 8:128 rose
+3→4. Do not sell tail **9/12**. Sol's preregistered longer-context two-grain
 lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
-(`ngram_len=13`, $\Hw=12$), frozen before generation. Isolated-file remains open.
+(`ngram_len=13`, $\Hw=12$). Opened Phase A: official first-draw
+**12/12**; interpolate and hard prompt ranking **6/12**; isolated hard
+**22/48 vs 30/48** (**52/96**). Below public-mixin **9/12**. Do not
+sell **6/12**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

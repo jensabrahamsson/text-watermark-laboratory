@@ -1,0 +1,631 @@
+{
+  "mode": "rotate",
+  "n_prompts": 12,
+  "n_files": 96,
+  "n_marked_above_unmarked": 28,
+  "n_prompts_marked_above": 9,
+  "n_prompts_marked_ge": 9,
+  "n_prompt_ties": 0,
+  "n_prompt_losses": 3,
+  "n_prompt_wins_without_isolated_tp": 0,
+  "ranking_without_isolated_tp": [],
+  "ranking_ties_without_isolated_tp": [],
+  "n_ranking_losses_with_isolated_tp": 3,
+  "ranking_losses_with_isolated_tp": [
+    "06-station",
+    "10-office",
+    "12-ferry-queue"
+  ],
+  "n_marked_positive_on_ranking_losses": 4,
+  "n_marked_lr_positive": 26,
+  "n_unmarked_lr_nonpositive": 22,
+  "margin": 0.0,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "context_len": 4,
+  "model_name": "gpt2",
+  "instance": "key-free-counts",
+  "score_kind": "hard@w2-128",
+  "comparison": "strict-gt",
+  "prompt_sign_p": 0.07396301849075462,
+  "inference_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+  "binary": {
+    "n_positive": 48,
+    "n_negative": 48,
+    "auc": 0.5668402777777778,
+    "mean_positive": 0.01848605371022687,
+    "mean_negative": -0.0014868329762870362,
+    "mean_diff": 0.019972886686513907,
+    "n_positive_above_zero": 26,
+    "n_negative_at_most_zero": 22,
+    "permutation_p": 0.0769615192403798,
+    "binomial_p_above_zero": 0.3327329060383093,
+    "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "youden_threshold": -0.030614267139198244,
+    "youden_sensitivity": 0.7708333333333334,
+    "youden_specificity": 0.4375,
+    "youden_j": 0.20833333333333348,
+    "n_perm": 2000
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "files": [
+    {
+      "file": "01-harbour-marked.txt",
+      "lr": -0.04268738945870516,
+      "stem": "01-harbour",
+      "sample": 1
+    },
+    {
+      "file": "01-harbour-unmarked-gen.txt",
+      "lr": 0.0342374467080017,
+      "stem": "01-harbour",
+      "sample": 1
+    },
+    {
+      "file": "01-harbour-marked-2.txt",
+      "lr": 0.026652026166796797,
+      "stem": "01-harbour",
+      "sample": 2
+    },
+    {
+      "file": "01-harbour-unmarked-gen-2.txt",
+      "lr": -0.043040880513072574,
+      "stem": "01-harbour",
+      "sample": 2
+    },
+    {
+      "file": "01-harbour-marked-3.txt",
+      "lr": -0.0002941949977862732,
+      "stem": "01-harbour",
+      "sample": 3
+    },
+    {
+      "file": "01-harbour-unmarked-gen-3.txt",
+      "lr": -0.0875368216009815,
+      "stem": "01-harbour",
+      "sample": 3
+    },
+    {
+      "file": "01-harbour-marked-4.txt",
+      "lr": -0.030633457070807762,
+      "stem": "01-harbour",
+      "sample": 4
+    },
+    {
+      "file": "01-harbour-unmarked-gen-4.txt",
+      "lr": 0.034392894454372096,
+      "stem": "01-harbour",
+      "sample": 4
+    },
+    {
+      "file": "02-night-bus-marked.txt",
+      "lr": -0.04837601516246199,
+      "stem": "02-night-bus",
+      "sample": 1
+    },
+    {
+      "file": "02-night-bus-unmarked-gen.txt",
+      "lr": -0.10370641114626372,
+      "stem": "02-night-bus",
+      "sample": 1
+    },
+    {
+      "file": "02-night-bus-marked-2.txt",
+      "lr": -0.0032298870270735217,
+      "stem": "02-night-bus",
+      "sample": 2
+    },
+    {
+      "file": "02-night-bus-unmarked-gen-2.txt",
+      "lr": 0.061180897048676616,
+      "stem": "02-night-bus",
+      "sample": 2
+    },
+    {
+      "file": "02-night-bus-marked-3.txt",
+      "lr": -0.0740318207423225,
+      "stem": "02-night-bus",
+      "sample": 3
+    },
+    {
+      "file": "02-night-bus-unmarked-gen-3.txt",
+      "lr": -0.05112772142140097,
+      "stem": "02-night-bus",
+      "sample": 3
+    },
+    {
+      "file": "02-night-bus-marked-4.txt",
+      "lr": 0.07257946978158757,
+      "stem": "02-night-bus",
+      "sample": 4
+    },
+    {
+      "file": "02-night-bus-unmarked-gen-4.txt",
+      "lr": -0.08450856500218852,
+      "stem": "02-night-bus",
+      "sample": 4
+    },
+    {
+      "file": "03-library-marked.txt",
+      "lr": 0.0007668636959427958,
+      "stem": "03-library",
+      "sample": 1
+    },
+    {
+      "file": "03-library-unmarked-gen.txt",
+      "lr": -0.10531747614339104,
+      "stem": "03-library",
+      "sample": 1
+    },
+    {
+      "file": "03-library-marked-2.txt",
+      "lr": -0.02998117031533155,
+      "stem": "03-library",
+      "sample": 2
+    },
+    {
+      "file": "03-library-unmarked-gen-2.txt",
+      "lr": -0.08464903194849993,
+      "stem": "03-library",
+      "sample": 2
+    },
+    {
+      "file": "03-library-marked-3.txt",
+      "lr": 0.040984659925155084,
+      "stem": "03-library",
+      "sample": 3
+    },
+    {
+      "file": "03-library-unmarked-gen-3.txt",
+      "lr": -0.039352680839168146,
+      "stem": "03-library",
+      "sample": 3
+    },
+    {
+      "file": "03-library-marked-4.txt",
+      "lr": 0.014791630881845123,
+      "stem": "03-library",
+      "sample": 4
+    },
+    {
+      "file": "03-library-unmarked-gen-4.txt",
+      "lr": 0.06271475800169263,
+      "stem": "03-library",
+      "sample": 4
+    },
+    {
+      "file": "04-market-marked.txt",
+      "lr": 0.06181119225939838,
+      "stem": "04-market",
+      "sample": 1
+    },
+    {
+      "file": "04-market-unmarked-gen.txt",
+      "lr": 0.0825364005094128,
+      "stem": "04-market",
+      "sample": 1
+    },
+    {
+      "file": "04-market-marked-2.txt",
+      "lr": 0.09959735764064262,
+      "stem": "04-market",
+      "sample": 2
+    },
+    {
+      "file": "04-market-unmarked-gen-2.txt",
+      "lr": -0.05869386166518266,
+      "stem": "04-market",
+      "sample": 2
+    },
+    {
+      "file": "04-market-marked-3.txt",
+      "lr": -0.01818235802566278,
+      "stem": "04-market",
+      "sample": 3
+    },
+    {
+      "file": "04-market-unmarked-gen-3.txt",
+      "lr": 0.06520309297247469,
+      "stem": "04-market",
+      "sample": 3
+    },
+    {
+      "file": "04-market-marked-4.txt",
+      "lr": 0.09963088981178103,
+      "stem": "04-market",
+      "sample": 4
+    },
+    {
+      "file": "04-market-unmarked-gen-4.txt",
+      "lr": 0.03487673132330482,
+      "stem": "04-market",
+      "sample": 4
+    },
+    {
+      "file": "05-kitchen-marked.txt",
+      "lr": 0.10020391216257692,
+      "stem": "05-kitchen",
+      "sample": 1
+    },
+    {
+      "file": "05-kitchen-unmarked-gen.txt",
+      "lr": 0.022281480275394346,
+      "stem": "05-kitchen",
+      "sample": 1
+    },
+    {
+      "file": "05-kitchen-marked-2.txt",
+      "lr": 0.07418582762959536,
+      "stem": "05-kitchen",
+      "sample": 2
+    },
+    {
+      "file": "05-kitchen-unmarked-gen-2.txt",
+      "lr": 0.05463011539291739,
+      "stem": "05-kitchen",
+      "sample": 2
+    },
+    {
+      "file": "05-kitchen-marked-3.txt",
+      "lr": -0.05590728860707348,
+      "stem": "05-kitchen",
+      "sample": 3
+    },
+    {
+      "file": "05-kitchen-unmarked-gen-3.txt",
+      "lr": 0.07839584930058889,
+      "stem": "05-kitchen",
+      "sample": 3
+    },
+    {
+      "file": "05-kitchen-marked-4.txt",
+      "lr": 0.25209994741882924,
+      "stem": "05-kitchen",
+      "sample": 4
+    },
+    {
+      "file": "05-kitchen-unmarked-gen-4.txt",
+      "lr": -0.03423257409178668,
+      "stem": "05-kitchen",
+      "sample": 4
+    },
+    {
+      "file": "06-station-marked.txt",
+      "lr": -0.056170619143738325,
+      "stem": "06-station",
+      "sample": 1
+    },
+    {
+      "file": "06-station-unmarked-gen.txt",
+      "lr": 0.054564471329842455,
+      "stem": "06-station",
+      "sample": 1
+    },
+    {
+      "file": "06-station-marked-2.txt",
+      "lr": -0.04736634504509525,
+      "stem": "06-station",
+      "sample": 2
+    },
+    {
+      "file": "06-station-unmarked-gen-2.txt",
+      "lr": 0.04361723690708654,
+      "stem": "06-station",
+      "sample": 2
+    },
+    {
+      "file": "06-station-marked-3.txt",
+      "lr": -0.014765273837384381,
+      "stem": "06-station",
+      "sample": 3
+    },
+    {
+      "file": "06-station-unmarked-gen-3.txt",
+      "lr": -0.041923515513254274,
+      "stem": "06-station",
+      "sample": 3
+    },
+    {
+      "file": "06-station-marked-4.txt",
+      "lr": 0.07436619287775724,
+      "stem": "06-station",
+      "sample": 4
+    },
+    {
+      "file": "06-station-unmarked-gen-4.txt",
+      "lr": 0.03673329175022781,
+      "stem": "06-station",
+      "sample": 4
+    },
+    {
+      "file": "07-rain-marked.txt",
+      "lr": -0.008016647231073603,
+      "stem": "07-rain",
+      "sample": 1
+    },
+    {
+      "file": "07-rain-unmarked-gen.txt",
+      "lr": -0.09664993502376051,
+      "stem": "07-rain",
+      "sample": 1
+    },
+    {
+      "file": "07-rain-marked-2.txt",
+      "lr": 0.19580987229585076,
+      "stem": "07-rain",
+      "sample": 2
+    },
+    {
+      "file": "07-rain-unmarked-gen-2.txt",
+      "lr": 0.10783493323546937,
+      "stem": "07-rain",
+      "sample": 2
+    },
+    {
+      "file": "07-rain-marked-3.txt",
+      "lr": 0.07111631722893354,
+      "stem": "07-rain",
+      "sample": 3
+    },
+    {
+      "file": "07-rain-unmarked-gen-3.txt",
+      "lr": 0.07343535446293739,
+      "stem": "07-rain",
+      "sample": 3
+    },
+    {
+      "file": "07-rain-marked-4.txt",
+      "lr": 0.10854149795175443,
+      "stem": "07-rain",
+      "sample": 4
+    },
+    {
+      "file": "07-rain-unmarked-gen-4.txt",
+      "lr": -0.07496068313016672,
+      "stem": "07-rain",
+      "sample": 4
+    },
+    {
+      "file": "08-letter-marked.txt",
+      "lr": 0.1252270239165242,
+      "stem": "08-letter",
+      "sample": 1
+    },
+    {
+      "file": "08-letter-unmarked-gen.txt",
+      "lr": -0.052726210994605754,
+      "stem": "08-letter",
+      "sample": 1
+    },
+    {
+      "file": "08-letter-marked-2.txt",
+      "lr": 0.008456665434727428,
+      "stem": "08-letter",
+      "sample": 2
+    },
+    {
+      "file": "08-letter-unmarked-gen-2.txt",
+      "lr": 0.02737822521508852,
+      "stem": "08-letter",
+      "sample": 2
+    },
+    {
+      "file": "08-letter-marked-3.txt",
+      "lr": -0.009258657864481165,
+      "stem": "08-letter",
+      "sample": 3
+    },
+    {
+      "file": "08-letter-unmarked-gen-3.txt",
+      "lr": -0.09988013639542347,
+      "stem": "08-letter",
+      "sample": 3
+    },
+    {
+      "file": "08-letter-marked-4.txt",
+      "lr": -0.030018769556021667,
+      "stem": "08-letter",
+      "sample": 4
+    },
+    {
+      "file": "08-letter-unmarked-gen-4.txt",
+      "lr": 0.0008988826610002178,
+      "stem": "08-letter",
+      "sample": 4
+    },
+    {
+      "file": "09-workshop-marked.txt",
+      "lr": 0.08041435192226538,
+      "stem": "09-workshop",
+      "sample": 1
+    },
+    {
+      "file": "09-workshop-unmarked-gen.txt",
+      "lr": 0.05877632688302094,
+      "stem": "09-workshop",
+      "sample": 1
+    },
+    {
+      "file": "09-workshop-marked-2.txt",
+      "lr": 0.05542338056419821,
+      "stem": "09-workshop",
+      "sample": 2
+    },
+    {
+      "file": "09-workshop-unmarked-gen-2.txt",
+      "lr": 0.09969776280838777,
+      "stem": "09-workshop",
+      "sample": 2
+    },
+    {
+      "file": "09-workshop-marked-3.txt",
+      "lr": 0.02337227734125708,
+      "stem": "09-workshop",
+      "sample": 3
+    },
+    {
+      "file": "09-workshop-unmarked-gen-3.txt",
+      "lr": 0.09151069382808275,
+      "stem": "09-workshop",
+      "sample": 3
+    },
+    {
+      "file": "09-workshop-marked-4.txt",
+      "lr": 0.14966538630755205,
+      "stem": "09-workshop",
+      "sample": 4
+    },
+    {
+      "file": "09-workshop-unmarked-gen-4.txt",
+      "lr": 0.024240020812248464,
+      "stem": "09-workshop",
+      "sample": 4
+    },
+    {
+      "file": "10-office-marked.txt",
+      "lr": -0.1024731619776783,
+      "stem": "10-office",
+      "sample": 1
+    },
+    {
+      "file": "10-office-unmarked-gen.txt",
+      "lr": -0.057161068731711465,
+      "stem": "10-office",
+      "sample": 1
+    },
+    {
+      "file": "10-office-marked-2.txt",
+      "lr": -0.027687649986955536,
+      "stem": "10-office",
+      "sample": 2
+    },
+    {
+      "file": "10-office-unmarked-gen-2.txt",
+      "lr": 0.17454522328912894,
+      "stem": "10-office",
+      "sample": 2
+    },
+    {
+      "file": "10-office-marked-3.txt",
+      "lr": -0.11931667982100656,
+      "stem": "10-office",
+      "sample": 3
+    },
+    {
+      "file": "10-office-unmarked-gen-3.txt",
+      "lr": 0.02954777744198186,
+      "stem": "10-office",
+      "sample": 3
+    },
+    {
+      "file": "10-office-marked-4.txt",
+      "lr": 0.024807190290833475,
+      "stem": "10-office",
+      "sample": 4
+    },
+    {
+      "file": "10-office-unmarked-gen-4.txt",
+      "lr": -0.05727712147210325,
+      "stem": "10-office",
+      "sample": 4
+    },
+    {
+      "file": "11-garden-marked.txt",
+      "lr": 0.015891082149593276,
+      "stem": "11-garden",
+      "sample": 1
+    },
+    {
+      "file": "11-garden-unmarked-gen.txt",
+      "lr": -0.028902371252701627,
+      "stem": "11-garden",
+      "sample": 1
+    },
+    {
+      "file": "11-garden-marked-2.txt",
+      "lr": -0.0069106566309056275,
+      "stem": "11-garden",
+      "sample": 2
+    },
+    {
+      "file": "11-garden-unmarked-gen-2.txt",
+      "lr": -0.1085580880291072,
+      "stem": "11-garden",
+      "sample": 2
+    },
+    {
+      "file": "11-garden-marked-3.txt",
+      "lr": -0.061229740532135556,
+      "stem": "11-garden",
+      "sample": 3
+    },
+    {
+      "file": "11-garden-unmarked-gen-3.txt",
+      "lr": -0.06354180814618901,
+      "stem": "11-garden",
+      "sample": 3
+    },
+    {
+      "file": "11-garden-marked-4.txt",
+      "lr": 0.015164704114366672,
+      "stem": "11-garden",
+      "sample": 4
+    },
+    {
+      "file": "11-garden-unmarked-gen-4.txt",
+      "lr": 0.019368103769263678,
+      "stem": "11-garden",
+      "sample": 4
+    },
+    {
+      "file": "12-ferry-queue-marked.txt",
+      "lr": 0.017313983445909946,
+      "stem": "12-ferry-queue",
+      "sample": 1
+    },
+    {
+      "file": "12-ferry-queue-unmarked-gen.txt",
+      "lr": 0.004658802146230283,
+      "stem": "12-ferry-queue",
+      "sample": 1
+    },
+    {
+      "file": "12-ferry-queue-marked-2.txt",
+      "lr": 0.022922806259020045,
+      "stem": "12-ferry-queue",
+      "sample": 2
+    },
+    {
+      "file": "12-ferry-queue-unmarked-gen-2.txt",
+      "lr": -0.052091805666108146,
+      "stem": "12-ferry-queue",
+      "sample": 2
+    },
+    {
+      "file": "12-ferry-queue-marked-3.txt",
+      "lr": -5.2568194776531515e-05,
+      "stem": "12-ferry-queue",
+      "sample": 3
+    },
+    {
+      "file": "12-ferry-queue-unmarked-gen-3.txt",
+      "lr": -0.030614267139198244,
+      "stem": "12-ferry-queue",
+      "sample": 3
+    },
+    {
+      "file": "12-ferry-queue-marked-4.txt",
+      "lr": -0.15787558015532746,
+      "stem": "12-ferry-queue",
+      "sample": 4
+    },
+    {
+      "file": "12-ferry-queue-unmarked-gen-4.txt",
+      "lr": 0.007828280477654706,
+      "stem": "12-ferry-queue",
+      "sample": 4
+    }
+  ]
+}

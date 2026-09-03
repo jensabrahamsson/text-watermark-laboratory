@@ -206,18 +206,24 @@ fixed public instance, without training a proxy model.
 \begin{table}[t]
 \centering
 \small
-\caption{Task-level comparison. ``Not measured'' means this report does
-not provide a shared-benchmark cost. Simpler is not automatically
-cheaper.}
+\caption{Task-level comparison. TTP-Detect costs are from
+\citet{wang2026ttp} (their \S5.1 and Table~2), not remeasured here.
+Count-table size is from the committed 100-family interpolate dump.
+There is no shared-benchmark TPR. Simpler is not automatically a
+better detector.}
 \label{tab:compare}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.35\textwidth} >{\raggedright\arraybackslash}p{0.35\textwidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.20\textwidth} >{\raggedright\arraybackslash}p{0.36\textwidth} >{\raggedright\arraybackslash}p{0.36\textwidth}}
 \toprule
 Axis & TTP-Detect \citep{wang2026ttp} & This report \\
 \midrule
 Oracle & Paired watermarked / unwatermarked references & Same: matched twins \\
 Keys at test & Unused & Unused (public keys exist and are withheld) \\
-Fitted object & Proxy model and relative tests & Next-token count tables and $\LLR$ \\
-Training compute & Not reimplemented here & CPU GPT-2 tables; no proxy net \\
+Fitted object & LoRA-tuned Qwen2.5-3B proxy plus Qwen3-1.7B scorer; relative tests & Sparse next-token counts and $\LLR$ (0 neural parameters) \\
+Training references & 6000 C4 paired completions (their paper) & $N\times 4$ twins (100 families here) \\
+Training hardware & 2$\times$A100 80GB (their paper) & CPU; no accelerator \\
+Detection-time provider queries & $N=16$ watermarked $+$ $N=16$ unmarked references ($\approx 6.14$s Llama-3.1-8B) & None (finished-string lookup) \\
+TTP-side scoring & $<2$s GPU modules (their Table~2) & CPU mean $\LLR$ over observed 4-grams \\
+Persisted reader & 3B proxy $+$ 1.7B scorer & 33.2\,MB JSON; 108454 / 116491 contexts on 100-family interpolate \\
 Decision unit & Finished-string tests in that paper & Prompt-group mean and one file \\
 Demonstrated scope & Their corpora and scheme mix & One public SynthID instance \\
 \bottomrule
@@ -1258,7 +1264,9 @@ endpoint.
 The auditor is strong: marked and unmarked twins, finished strings, a
 toggleable mixin. Closest published finished-string analog is
 \citet{wang2026ttp}; this repository does not reimplement TTP-Detect on
-a shared corpus and does not measure wall-clock cost.
+a shared corpus. \Cref{tab:compare} quotes their published proxy and
+A100 costs against this laboratory's committed count-table dump. That
+is a resource contrast, not a shared-benchmark TPR.
 
 Nested Youden is not fully nested. The $0.02$ margin is not a valid
 chance test. Prompt sets are designed, not sampled from a stated
@@ -1283,33 +1291,52 @@ highest-value next measurement is one preregistered replication of the
 same two-grain protocol on either a materially longer watermark context
 or a structurally different local mixin, locked before generation.
 
-The lock should fix the items in \Cref{tab:nextlock}. Report
-exact-context occupancy as a mechanistic intermediate. If group ranking
-survives when short-context reuse drops, the work begins to support a
-transferable audit method. If it collapses, the public instance's
-reusable 4-gram footprint is a boundary of the result. Either outcome
-contributes more than fitting additional readers to the original 12
-families.
+The lock in \Cref{tab:nextlock} is freeze SHA \texttt{b70986d}
+(\texttt{research/PROTOCOL-next-longctx.md}), named in the laboratory
+logbook before generation. It lengthens the public mixin hash history
+to $\Hw=12$ without editing the \texttt{synthid-text} checkout. A
+Kirchenbauer or Aaronson mixin is a different freeze and is not this
+lock.
+
+Phase~A is now opened on the original 12 prompt strings (new twins,
+seed 20260903). Official first-draw means with matching
+$\mathtt{ngram\_len}=13$ are above $0.55$ on all 12 first marked files.
+Leave-one-family-out interpolate last-4 ranks \textbf{6/12} (AUC
+$0.541$; $\tau=0$ is 20 TP, 28 FN, 31 TN, 17 FP; balanced accuracy
+$51/96$). Hard last-4 is also \textbf{6/12} (AUC $0.544$; 22 TP, 26 FN,
+30 TN, 18 FP; balanced accuracy $52/96$). Both prompt-win Clopper--Pearson
+intervals include $1/2$. That is below the public-mixin hard diagnostic
+\textbf{9/12} on these prompt strings (different twins, $\Hw=4$).
+Isolated $\tau=0$ on the new twins does not replace \textbf{25/48}.
+Occupancy was not decoded: the 12-LOO dump does not persist
+\texttt{tables-counts}. Phase~B (100 families) is not opened.
+
+If group ranking had survived when short-context reuse should drop, the
+work would begin to support a transferable audit method. The observed
+drop to \textbf{6/12} is consistent with the public instance's reusable
+4-gram footprint being a boundary of the result. n=12 is small; this is
+not a theorem about production Gemini.
 
 \begin{table}[ht]
 \centering
 \small
-\caption{Preregistered next measurement (not yet run). Both grains are
-reported. No reader is selected after inspecting the new evaluation
-corpus.}
+\caption{Preregistered next measurement, locked before generation
+(protocol SHA \texttt{b70986d}). Phase~A on the original 12 strings is
+opened: group ranking \textbf{6/12}, isolated hard balanced accuracy
+$52/96$. No reader was selected after inspecting the new corpus.}
 \label{tab:nextlock}
 \begin{tabular}{ll}
 \toprule
 Locked before generation & Value \\
 \midrule
-Mixin / $\Hw$ & longer history, or a different local mixin \\
-Generator / tokenizer & named Hub id and revision \\
-Prompt frame & designed $N$ families, stated construction rule \\
-Reference size & $N\times M$ matched twins, $T=128$ \\
-Reader & interpolate last-$\hist$ (lock~A analog) \\
+Mixin / $\Hw$ & public-deepmind-30 keys, $\mathtt{ngram\_len}=13$ ($\Hw=12$) \\
+Generator / tokenizer & \texttt{gpt2} \\
+Prompt frame & original 12 Grok scene strings, new twins \\
+Reference size & $12\times 4$ matched twins, $T=128$, seed 20260903 \\
+Reader & hard and interpolate last-4 (lock~A analog) \\
 Fold topology & Algorithm~1 leave-one-family-out \\
 Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
-Primary group metric & $D_p$ magnitudes and win count \\
+Primary group metric & $D_p$ sign count, strict $>$ \\
 Primary isolated metric & $\tau=0$ matrix, balanced accuracy, AUC \\
 \bottomrule
 \end{tabular}
@@ -1389,6 +1416,17 @@ Distil lock~B: \path{experiments/2026-09-01-probe-distil-100x4-opening-poshits/p
 Qwen lock~B: \path{experiments/2026-09-01-probe-qwen-100x4-opening-poshits/poshits/holdout.json}
 (\texttt{5b7e3c00264561f8}).
 Stem honesty: \path{experiments/2026-09-01-ranking-isolated-honesty/}.
+Absolute-history 12-LOO mask-$m$:
+\path{experiments/2026-09-03-probe-12x4-headline-windows-absolute/results.json}
+(\texttt{58094d769726dc18}; prefixes equal reindexed; hard tails $9/12$).
+Longer-context protocol freeze: \texttt{b70986d}
+(\path{research/PROTOCOL-next-longctx.md}).
+Phase~A pair:
+\path{experiments/2026-09-03-pair-12x4-ngram13/results.json}
+(\texttt{61153a82dab1eaea}).
+Phase~A probe:
+\path{experiments/2026-09-03-probe-12x4-ngram13-hard-last4/hard/holdout.json}
+(\texttt{fcff60687ac27348}; interpolate and hard $6/12$).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
@@ -1421,9 +1459,12 @@ occupancy-free $0/48$. The original 12 are not a unique failure set.
 
 \paragraph{Mask-$m$.}
 Masking the first scored tokens of 12-LOO hard last-4 does not destroy
-prompt ranking: tails $[4{:}128)$ and $[8{:}128)$ stay $9/12$, while
-prefix $[0{:}4)$ is $5/12$. Isolated $\tau=0$ stays chance-like in
-every slice. Hard $[4{:}128)$ leftover is $11/20$ vs.\ $11/20$.
+prompt ranking. Reindexed tails $[4{:}128)$ and $[8{:}128)$ stay $9/12$,
+while prefix $[0{:}4)$ is $5/12$. Absolute-history remasure of the same
+windows (protocol SHA \texttt{b70986d}) leaves those prefix and hard-tail
+ranks unchanged; interpolate $[8{:}128)$ rises $3\to 4$. Isolated
+$\tau=0$ stays chance-like in every slice. Hard $[4{:}128)$ leftover is
+$11/20$ vs.\ $11/20$. Neither remasure replaces \textbf{25/48}.
 
 \paragraph{Control keys.}
 Text sampled with \texttt{control-shuffled-30} scores near $0.50$ on the

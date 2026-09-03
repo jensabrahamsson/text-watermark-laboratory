@@ -170,4 +170,55 @@ Human merge of PR #4 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `b70986d`. Named `7ec4509`. Pair seed **20260903**.
+`ngram_len=13`. `used_keys=false` on the key-free probe.
+
+Pair dump: [experiments/2026-09-03-pair-12x4-ngram13/](../experiments/2026-09-03-pair-12x4-ngram13/).
+Probe dump: [experiments/2026-09-03-probe-12x4-ngram13-hard-last4/](../experiments/2026-09-03-probe-12x4-ngram13-hard-last4/).
+
+H-long-ctrl **holds**. Official first-draw mean with matching
+`ngram_len=13` is above $0.55$ on all 12 first marked files
+(range $0.601$–$0.634$). Unmarked first-draw stays near $1/2$
+($0.471$–$0.508$). Mixin is on. `n_unmasked_ngrams=116` on every
+128-token twin (`ngram_len=13`).
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **6/12** | 0.541 | 20/48 | 31/48 | 20 28 31 17 | **51/96** |
+| hard last-4 | **6/12** | 0.544 | 22/48 | 30/48 | 22 26 30 18 | **52/96** |
+
+Public-mixin diagnostic on these prompt *strings* (different twins,
+`ngram_len=5`) was hard **9/12**, isolated **25/48 vs 22/48**, AUC
+**0.590**. That is not a matched-seed pair.
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| ngram-13 interpolate **6/12** | **[0.211, 0.789]** | yes |
+| ngram-13 hard **6/12** | **[0.211, 0.789]** | yes |
+| ngram-13 hard t=0 **22/48** | **[0.314, 0.608]** | yes |
+| ngram-13 hard BA **52/96** | **[0.437, 0.644]** | yes |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+
+H-long-group **holds**. Interpolate last-4 12-LOO prompt ranking is
+**6/12**, below the public-mixin diagnostic **9/12**. Short $\Hw=4$
+is not shown to be unnecessary on this 12-family frame. The
+Clopper–Pearson interval includes ½. n=12 is small. Mean paired
+file difference is $0.021$ (interpolate) / $0.009$ (hard).
+
+H-long-hard **holds** as a companion readout: hard is also **6/12**.
+
+H-long-iso **holds**. Isolated $\tau=0$ is chance-like (hard 22/48
+sensitivity, 30/48 specificity, **52/96** balanced accuracy, AUC
+**0.544**). Nested Youden 24/48 vs 21/48 is post hoc. Do not sell
+**6/12**, **22/48**, **52/96**, or nested 24/48 as replacing
+**25/48**. Official first-draw **12/12** uses keys.
+
+H-long-occ is **not opened**. Probe dropped `tables-counts` (same as
+other 12-LOO dumps). A single pooled fit would leak the held-out
+family. Occupancy remains a mechanistic intermediate for a later
+LOO-aware decode. Do not invent unseen/seen counts.
+
+Isolated-file detection is still not finished. Do not write `thesis/`.
+Phase B (100 families, same `ngram_len=13`) is still not opened.

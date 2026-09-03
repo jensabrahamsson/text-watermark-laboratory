@@ -79,6 +79,8 @@ def test_readme_matches_revised_title() -> None:
     assert "47/96" in README
     assert "Not a valid $1/2$ null test" in README
     assert "25/51" in README
+    assert "b70986d" in README
+    assert "ngram_len=13" in README
 
 
 def test_keys_withheld_by_design() -> None:
@@ -112,3 +114,67 @@ def test_pdf_metadata_and_monochrome_links() -> None:
     assert "pdfauthor" in PAPER
     assert "pdflang" in PAPER
     assert "linkcolor=black" in PAPER
+
+
+def test_wang_cost_contrast_is_quoted_not_shared_benchmark() -> None:
+    import json
+
+    tables = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-01-transfer-100x4-to-12x4-hard-last4"
+            / "tables-counts"
+            / "tables.json"
+        ).read_text()
+    )
+    n_marked = len(tables["marked"]["counts"])
+    n_unmarked = len(tables["unmarked"]["counts"])
+    assert tables["used_keys"] is False
+    assert tables["n_train_prompts"] == 100
+    assert str(n_marked) in PAPER
+    assert str(n_unmarked) in PAPER
+    assert "Qwen2.5-3B" in PAPER
+    assert "0 neural parameters" in PAPER
+    assert "2$\\times$A100" in PAPER or r"2$\times$A100" in PAPER
+    assert "shared-benchmark TPR" in PAPER
+    assert n_marked == 108454
+    assert n_unmarked == 116491
+
+
+def test_next_experiment_lock_is_ngram13_before_generation() -> None:
+    assert r"\mathtt{ngram\_len}=13" in PAPER
+    assert "b70986d" in PAPER
+    assert "PROTOCOL-next-longctx" in PAPER
+    assert "seed 20260903" in PAPER
+    assert "does not replace" in PAPER
+    import json
+
+    hard = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-12x4-ngram13-hard-last4"
+            / "hard"
+            / "holdout.json"
+        ).read_text()
+    )
+    interp = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-12x4-ngram13-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    assert hard["used_keys"] is False
+    assert hard["n_prompts_marked_above"] == 6
+    assert interp["n_prompts_marked_above"] == 6
+    assert r"\textbf{6/12}" in PAPER
+    assert "52/96" in PAPER
+    assert hard["n_marked_lr_positive"] == 22
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "ngram_len=13" not in abs_
+    assert "108454" not in abs_
+    assert r"\textbf{6/12}" not in abs_

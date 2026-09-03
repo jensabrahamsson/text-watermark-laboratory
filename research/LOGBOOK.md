@@ -2016,6 +2016,23 @@ once, as written. Do not add a scorer. Do not overwrite the reindexed
 dump. Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-03 absolute-history 12-LOO mask-*k* remasure opened
+
+[PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md)
+named `7ec4509`. Same flags as PROTOCOL-isolated-mask. New out-dir.
+`used_keys=false`. Absolute prefixes equal reindexed: hard 0:4 is
+**5/12**; 0:2 **10/12**; 0:8 **6/12**. Hard tails **4:128** and
+**8:128** stay **9/12** (neither rose nor fell). Interpolate 8:128
+**rose** 3→4. H-mask-abs-open, H-mask-abs-tail, H-mask-abs-2, and
+H-mask-abs-iso hold. Isolated t=0 stays chance-like. Do not sell
+absolute tail **9/12**, prefix **10/12**, interpolate **4/12**, or
+isolated 29/48 as replacing **25/48**. Do not overwrite the reindexed
+dump. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+JSON: `experiments/2026-09-03-probe-12x4-headline-windows-absolute/`.
+Reindexed (keep): `experiments/2026-09-01-probe-12x4-headline-windows/`.
+
 ## 2026-09-03 longer-context two-grain freeze
 
 [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) committed at SHA
@@ -2029,6 +2046,27 @@ command has been run once, as written. Do not add a scorer. A finished
 100×4 corpus is not required for this freeze. Nothing replaces
 **25/48**. Isolated-file detection is still not finished. Do not write
 `thesis/`.
+
+---
+
+## 2026-09-03 longer-context two-grain Phase A opened
+
+[PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) named `7ec4509`.
+Pair seed **20260903**, `ngram_len=13`, original 12 Grok strings.
+Official first-draw matching `ngram_len=13` is above 0.55 on **12/12**
+first marked files (H-long-ctrl holds). Key-free 12-LOO interpolate
+last-4 is **6/12** (AUC **0.541**, isolated **20/48 vs 31/48**). Hard
+is **6/12** (AUC **0.544**, isolated **22/48 vs 30/48**, balanced
+accuracy **52/96**). `used_keys=false`. Below the public-mixin
+diagnostic **9/12**. Clopper–Pearson on **6/12** is **[0.211, 0.789]**
+and includes ½. H-long-group, H-long-hard, and H-long-iso hold.
+H-long-occ is not opened (`tables-counts` dropped). Do not sell
+**6/12**, **22/48**, or **52/96** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`. Phase B is
+not opened.
+
+JSON: `experiments/2026-09-03-pair-12x4-ngram13/`,
+`experiments/2026-09-03-probe-12x4-ngram13-hard-last4/`.
 
 ---
 

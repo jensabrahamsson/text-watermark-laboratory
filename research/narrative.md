@@ -240,11 +240,16 @@ as a raw count). Absolute-history OOD windows are opened
 grok12 0:4 **7/12**; 32:64 **10/12** rose versus reindexed **9/12**;
 original 12 0:4 **9/12** vs 16:32 **6/12**). Do not sell absolute
 **10/12** or **30/48**. Reindexed window dumps stay. The remaining
-honesty item that is not leftover targeting is 12-LOO mask-*k*
+honesty item that is not leftover targeting was 12-LOO mask-*k*
 absolute remasure of [PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md)
-(reindexed dumps stay). Sol's preregistered longer-context two-grain
+(reindexed dumps stay). Opened: absolute prefixes equal reindexed
+(hard 0:4 **5/12**); hard tails stay **9/12**; interpolate 8:128 rose
+3→4. Do not sell tail **9/12**. Sol's preregistered longer-context two-grain
 lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
-(`ngram_len=13`, $\Hw=12$), frozen before generation. Isolated-file detection is still not
+(`ngram_len=13`, $\Hw=12$). Opened Phase A: official first-draw
+**12/12**; interpolate and hard **6/12**; isolated hard **22/48 vs
+30/48** (**52/96**). Below public-mixin **9/12**. Do not sell **6/12**.
+Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
 ## What this freeze refuses

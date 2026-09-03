@@ -75,6 +75,15 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
 5. **Margin 0.02.** Descriptive sensitivity analysis only
    ($\bar\Lambda_m+0.02>\bar\Lambda_u$). Not a valid $1/2$ null test.
 
+6. **Next lock.** Longer-context two-grain replication is frozen in
+   `research/PROTOCOL-next-longctx.md` (SHA `b70986d`) before
+   generation: public keys, `ngram_len=13` ($\Hw=12$), original 12
+   prompts, seed 20260903. Phase A opened: official first-draw
+   **12/12**; interpolate and hard **6/12**; isolated hard **52/96**.
+   Absolute-history 12-LOO mask-*k* remasure (same SHA) leaves hard
+   prefix **5/12** and tails **9/12** unchanged versus the reindexed
+   dump. Do not sell **6/12** as replacing **25/48**.
+
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A
 **99/100** is leave-one-family-out of a frozen algorithm, not a frozen

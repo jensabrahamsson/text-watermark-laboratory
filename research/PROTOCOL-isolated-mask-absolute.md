@@ -162,4 +162,56 @@ Human merge of PR #4 is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md)*
+Protocol SHA `b70986d`. Named `7ec4509`. `used_keys=false`. Same flags
+as PROTOCOL-isolated-mask. New out-dir. The reindexed dump is
+unchanged (interpolate 8:128 still **3/12**).
+
+Dump: [experiments/2026-09-03-probe-12x4-headline-windows-absolute/](../experiments/2026-09-03-probe-12x4-headline-windows-absolute/).
+Reindexed (keep): [experiments/2026-09-01-probe-12x4-headline-windows/](../experiments/2026-09-01-probe-12x4-headline-windows/).
+
+Full-file hard remains **9/12**, isolated **25/48 vs 22/48**, AUC
+**0.590**. Interpolate full-file is **7/12**. `n_prompt_ties` is 0 on
+every absolute window.
+
+| Window | Hard prompt | Hard AUC | Hard t=0 | Hard unmarked ≤0 | Reindexed hard | Interpolate prompt | Interp. t=0 | Reindexed interpolate |
+|---|---|---|---|---|---|---|---|---|
+| 0:2 | **10/12** | 0.689 | 27/48 | 31/48 | **10/12** | **9/12** | 31/48 | **9/12** |
+| 0:4 | **5/12** | 0.540 | 29/48 | 26/48 | **5/12** | **9/12** | 30/48 | **9/12** |
+| 0:8 | **6/12** | 0.596 | 33/48 | 25/48 | **6/12** | **8/12** | 31/48 | **8/12** |
+| 2:128 | **9/12** | 0.567 | 26/48 | 22/48 | **9/12** | **5/12** | 23/48 | **5/12** |
+| 4:128 | **9/12** | 0.589 | 29/48 | 23/48 | **9/12** | **5/12** | 21/48 | **5/12** |
+| 8:128 | **9/12** | 0.561 | 30/48 | 23/48 | **9/12** | **4/12** | 17/48 | **3/12** |
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| Abs hard 0:4 **5/12** | **[0.152, 0.723]** | yes |
+| Abs hard 4:128 **9/12** | **[0.428, 0.945]** | yes |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+| Abs hard 0:2 **10/12** | **[0.516, 0.979]** | no |
+
+H-mask-abs-open **holds**. Absolute prefixes equal reindexed: hard
+0:2 **10/12**, 0:4 **5/12**, 0:8 **6/12**; interpolate 0:2 **9/12**,
+0:4 **9/12**, 0:8 **8/12**. Isolated t=0 stays chance-like.
+
+H-mask-abs-tail **holds as a remasure**. Absolute hard tails **4:128**
+and **8:128** stay **9/12** (neither rose nor fell versus reindexed).
+Interpolate **8:128 rose** 3→4 (history accumulation on that slice);
+**4:128** stayed **5/12**. Do **not** sell tail **9/12** or interpolate
+**4/12**. Isolated t=0 on tails is not **25/48**.
+
+H-mask-abs-2 **holds**. Absolute hard 0:2 is **10/12** versus 0:4
+**5/12**. Absolute 2:128 matches full-file **9/12**.
+
+H-mask-abs-iso **holds**. Isolated t=0 stays chance-like (hard 0:4
+**29/48**; 4:128 **29/48**; full-file **25/48**). Do not sell absolute
+tails, reindexed tail **9/12**, prefix **10/12**, isolated 27/48 /
+29/48 / 31/48 / 33/48, interpolate 8:128 **4/12**, H2 **99/100**, or
+OOD absolute **10/12** as replacing **25/48**. Do not overwrite the
+reindexed dump. Isolated-file detection is still not finished. Do not
+write `thesis/`.
+
+The remaining external-validity freeze that is not leftover targeting
+is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) (`ngram_len=13`,
+$\Hw=12$), locked before generation.
