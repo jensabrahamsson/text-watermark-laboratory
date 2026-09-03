@@ -12,6 +12,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [threat-model.md](threat-model.md) | Auditor access: key-free ≠ reference-free; two grains; not field-defining; not a finished conference paper |
 | [LOGBOOK.md](LOGBOOK.md) | Dated lab notes. Append after every Claude sample or measurement |
 | [PROTOCOL-next.md](PROTOCOL-next.md) | Frozen confirmatory 100×4 protocol; lock A **99/100**; Distil H3 |
+| [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) | Frozen Aaronson–Kirchner exponential-minimum 12-LOO; `--mixin aaronson`; not generated |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |

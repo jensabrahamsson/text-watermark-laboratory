@@ -71,6 +71,21 @@ def test_persist_pair_run_records_kgw_mixin(tmp_path: Path) -> None:
     assert "mixin=kgw" in out
 
 
+def test_persist_pair_run_records_aaronson_mixin(tmp_path: Path) -> None:
+    run = PairRun(rows=[], max_new_tokens=128, seed=20260905, mixin="aaronson")
+    persist_pair_run(run, tmp_path)
+    data = json.loads((tmp_path / "results.json").read_text())
+    assert data["mixin"] == "aaronson"
+    assert data["instance"] == "aaronson-kirchner-expmin"
+    assert data["aaronson"]["hashing_key"] == 314159265
+    assert data["aaronson"]["context_width"] == 1
+    assert data["aaronson"]["z_threshold"] == 3.0
+    assert "exponential-minimum" in data["note"]
+    assert "detector_mean" in data["note"]
+    out = print_pair_run(run)
+    assert "mixin=aaronson" in out
+
+
 def test_collect_prompts_from_file(tmp_path: Path) -> None:
     p = tmp_path / "harbour.txt"
     p.write_text(PROMPT)

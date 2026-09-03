@@ -224,18 +224,26 @@ def generate_text(
     `ngram_len` overrides the public mixin hash window (default 5).
     Score must use the same `ngram_len`. The synthid-text tree is not edited.
     `mixin='kgw'` uses Hugging Face Kirchenbauer watermarking on the unmarked
-    GPT-2 weights. Do not pass a SynthID n-gram length other than the public
-    default with that mixin.
+    GPT-2 weights. `mixin='aaronson'` uses the laboratory exponential-minimum
+    processor (Aaronson & Kirchner 2023 talk; not in transformers 4.57.6).
+    Do not pass a SynthID n-gram length other than the public default with
+    those mixins.
     `model_name` defaults to GPT-2. Pass a Qwen2 id to use that checkpoint
     with the same tournament; score must use the same tokenizer.
     `revision` is an optional Hugging Face Hub SHA or branch. Unset keeps
     the unpinned default. Historical twins are committed files.
     """
     kind = mixin or "synthid"
-    if kind not in ("synthid", "kgw"):
-        raise ValueError(f"unknown mixin {mixin!r}; expected synthid or kgw")
+    if kind not in ("synthid", "kgw", "aaronson"):
+        raise ValueError(
+            f"unknown mixin {mixin!r}; expected synthid, kgw, or aaronson"
+        )
     if kind == "kgw" and ngram_len is not None and int(ngram_len) != 5:
         raise ValueError("ngram_len is SynthID-only; kgw uses context_width=1")
+    if kind == "aaronson" and ngram_len is not None and int(ngram_len) != 5:
+        raise ValueError(
+            "ngram_len is SynthID-only; aaronson uses context_width=1"
+        )
     name = model_name or MODEL_NAME
     if device is None:
         dev = generate_device() if not is_gpt2_name(name) else torch.device("cpu")
@@ -245,7 +253,7 @@ def generate_text(
     if seed is not None:
         torch.manual_seed(seed)
     if model is None:
-        if kind == "kgw":
+        if kind in ("kgw", "aaronson"):
             model = _load_unmarked_model(dev, model_name=name, revision=revision)
         else:
             model = (
@@ -276,6 +284,12 @@ def generate_text(
         from text_watermark_tools.kgw import kgw_config
 
         gen_kwargs["watermarking_config"] = kgw_config()
+    if kind == "aaronson" and marked:
+        from transformers import LogitsProcessorList
+
+        from text_watermark_tools.aaronson import aaronson_processor
+
+        gen_kwargs["logits_processor"] = LogitsProcessorList([aaronson_processor()])
     with torch.no_grad():
         outputs = model.generate(**inputs, **gen_kwargs)
     gen_ids = outputs[:, inputs["input_ids"].shape[1] :]

@@ -2415,3 +2415,27 @@ JSON: `experiments/2026-09-03-pair-distil-100x4-kgw/`,
 `experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/`,
 `experiments/2026-09-03-atoms-distil-100x4-kgw/`.
 
+## 2026-09-04 Aaronson–Kirchner exponential-minimum freeze
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) frozen before
+generation. Laboratory exponential-minimum sampler
+(`--mixin aaronson`), not in `transformers==4.57.6`. GPT-2, original 12
+prompt strings, seed **20260905**, Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`, `hashing_key` **314159265**,
+`context_width=1`. Official control is the matching mean-\(r\) z-test,
+not `detector_mean` and not Kirchenbauer `WatermarkDetector`.
+Hypotheses H-aar-ctrl, H-aar-group, H-aar-hard, H-aar-iso, and
+H-aar-occ are stated before generation. Do not look at key-free LRs
+until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished. Do
+not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --n-samples 4 --max-new-tokens 128 --seed 20260905 --mixin aaronson \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-04-pair-12x4-aaronson
+```
+
+

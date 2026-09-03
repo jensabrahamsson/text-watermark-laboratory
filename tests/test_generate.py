@@ -198,6 +198,71 @@ def test_generate_text_kgw_passes_watermarking_config(monkeypatch) -> None:
     assert "watermarking_config" not in unmarked_seen["kwargs"]
 
 
+def test_generate_text_aaronson_passes_logits_processor(monkeypatch) -> None:
+    import torch
+    from text_watermark_tools.generate import generate_text
+    from text_watermark_tools.aaronson import AaronsonLogitsProcessor
+
+    seen: dict = {}
+
+    class DummyTok:
+        eos_token_id = 0
+
+        def __call__(self, prompt, return_tensors="pt"):
+            del prompt, return_tensors
+
+            class Batch(dict):
+                def to(self, _device):
+                    return self
+
+            return Batch(input_ids=torch.tensor([[1, 2, 3]]))
+
+        def decode(self, ids, skip_special_tokens=True):
+            del ids, skip_special_tokens
+            return "aaronson-text"
+
+    class DummyModel:
+        def generate(self, **kwargs):
+            seen["kwargs"] = kwargs
+            return torch.tensor([[1, 2, 3, 4, 5]])
+
+    gen = generate_text(
+        "prompt",
+        marked=True,
+        max_new_tokens=2,
+        mixin="aaronson",
+        tokenizer=DummyTok(),
+        model=DummyModel(),
+    )
+    procs = seen["kwargs"]["logits_processor"]
+    assert any(isinstance(p, AaronsonLogitsProcessor) for p in procs)
+    assert gen.marked is True
+    unmarked_seen: dict = {}
+
+    class UnmarkedModel:
+        def generate(self, **kwargs):
+            unmarked_seen["kwargs"] = kwargs
+            return torch.tensor([[1, 2, 3, 4, 5]])
+
+    generate_text(
+        "prompt",
+        marked=False,
+        max_new_tokens=2,
+        mixin="aaronson",
+        tokenizer=DummyTok(),
+        model=UnmarkedModel(),
+    )
+    assert "logits_processor" not in unmarked_seen["kwargs"]
+
+
+def test_generate_text_aaronson_rejects_ngram_len_13() -> None:
+    import pytest
+    from text_watermark_tools.generate import generate_text
+
+    with pytest.raises(ValueError, match="SynthID-only"):
+        generate_text("p", mixin="aaronson", ngram_len=13)
+
+
 def test_generate_text_kgw_rejects_ngram_len_13() -> None:
     import pytest
     from text_watermark_tools.generate import generate_text
@@ -234,6 +299,10 @@ def test_cli_pair_accepts_hub_revision() -> None:
         ["pair", "experiments/prompts", "--mixin", "kgw"]
     )
     assert kgw.mixin == "kgw"
+    aar = build_parser().parse_args(
+        ["pair", "experiments/prompts", "--mixin", "aaronson"]
+    )
+    assert aar.mixin == "aaronson"
 
 
 def test_gpt2_family_names_use_the_gpt2_mixin() -> None:

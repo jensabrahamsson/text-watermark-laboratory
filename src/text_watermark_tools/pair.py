@@ -183,6 +183,15 @@ def load_pair_row_from_files(
                 model_name=model_name,
                 revision=hub_revision,
             )
+        if mixin == "aaronson":
+            from text_watermark_tools.aaronson import aaronson_score_text
+
+            return aaronson_score_text(
+                blob,
+                tokenizer=tokenizer,
+                model_name=model_name,
+                revision=hub_revision,
+            )
         return _score_text(blob, tokenizer, ngram_len)
 
     extra_marked: list[tuple[str, OfficialScore]] = []
@@ -233,18 +242,28 @@ def run_pairs(
     are written as soon as the row exists.
     `mixin='kgw'` uses Hugging Face Kirchenbauer watermarking. Official
     scores are then WatermarkDetector z-scores, not detector_mean.
+    `mixin='aaronson'` uses laboratory exponential-minimum sampling.
+    Official scores are then the matching mean-r z-test, not detector_mean.
     """
     if n_samples < 1:
         raise ValueError("n_samples must be >= 1")
     kind = mixin or "synthid"
-    if kind not in ("synthid", "kgw"):
-        raise ValueError(f"unknown mixin {mixin!r}; expected synthid or kgw")
-    if kind == "kgw" and also_control_keys:
-        raise ValueError("control keys are SynthID-only; they do not apply to kgw")
+    if kind not in ("synthid", "kgw", "aaronson"):
+        raise ValueError(
+            f"unknown mixin {mixin!r}; expected synthid, kgw, or aaronson"
+        )
+    if kind in ("kgw", "aaronson") and also_control_keys:
+        raise ValueError(
+            f"control keys are SynthID-only; they do not apply to {kind}"
+        )
     name = model_name or "gpt2"
     nlen = public_ngram_len() if ngram_len is None else int(ngram_len)
     if kind == "kgw" and nlen != public_ngram_len():
         raise ValueError("ngram_len is SynthID-only; kgw uses context_width=1")
+    if kind == "aaronson" and nlen != public_ngram_len():
+        raise ValueError(
+            "ngram_len is SynthID-only; aaronson uses context_width=1"
+        )
     tok = tokenizer or load_tokenizer(name, revision=hub_revision)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
     resume = Path(resume_dir) if resume_dir is not None else None
@@ -261,7 +280,7 @@ def run_pairs(
             unmarked_model = _load_unmarked_model(
                 device, model_name=name, revision=hub_revision
             )
-        if kind == "kgw":
+        if kind in ("kgw", "aaronson"):
             marked_model = unmarked_model
         elif marked_model is None:
             marked_model = _load_marked_model(
@@ -303,6 +322,23 @@ def run_pairs(
                 revision=hub_revision,
                 detector=kgw_det,
             )
+    elif kind == "aaronson":
+        from text_watermark_tools.aaronson import (
+            aaronson_score_text,
+            aaronson_score_token_ids,
+        )
+
+        def score_text(blob: str) -> OfficialScore:
+            return aaronson_score_text(
+                blob,
+                tokenizer=tok,
+                model_name=name,
+                revision=hub_revision,
+            )
+
+        def score_ids(ids, keys=None) -> OfficialScore:
+            del keys
+            return aaronson_score_token_ids(ids)
     else:
 
         def score_text(blob: str) -> OfficialScore:
@@ -510,18 +546,24 @@ def print_pair_run(run: PairRun) -> str:
     if run.hub_revision:
         chunks.append(f"hub_revision={run.hub_revision}")
     kgw_fmt = None
+    aar_fmt = None
     if run.mixin == "kgw":
         from text_watermark_tools.kgw import format_kgw_score
 
         kgw_fmt = format_kgw_score
+    if run.mixin == "aaronson":
+        from text_watermark_tools.aaronson import format_aaronson_score
+
+        aar_fmt = format_aaronson_score
     for row in run.rows:
         nlen = run.ngram_len
-        if kgw_fmt is not None:
-            chunks.append(kgw_fmt(f"{row.stem}-prompt", row.prompt_score))
+        line_fmt = kgw_fmt or aar_fmt
+        if line_fmt is not None:
+            chunks.append(line_fmt(f"{row.stem}-prompt", row.prompt_score))
             if row.unmarked_text:
-                chunks.append(kgw_fmt(f"{row.stem}-unmarked-gen", row.unmarked_score))
+                chunks.append(line_fmt(f"{row.stem}-unmarked-gen", row.unmarked_score))
             if row.marked_text:
-                chunks.append(kgw_fmt(f"{row.stem}-marked", row.marked_score))
+                chunks.append(line_fmt(f"{row.stem}-marked", row.marked_score))
             continue
         chunks.append(
             format_score(f"{row.stem}-prompt", row.prompt_score, ngram_len=nlen)
@@ -579,12 +621,19 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
     table: dict = {
         "max_new_tokens": run.max_new_tokens,
         "seed": run.seed,
-        "instance": PUBLIC_INSTANCE if run.mixin != "kgw" else "kirchenbauer-hf-default",
+        "instance": (
+            "kirchenbauer-hf-default"
+            if run.mixin == "kgw"
+            else "aaronson-kirchner-expmin"
+            if run.mixin == "aaronson"
+            else PUBLIC_INSTANCE
+        ),
         "model_name": run.model_name,
         "ngram_len": run.ngram_len,
         "hub_revision": run.hub_revision,
         "mixin": run.mixin,
         "kgw": None,
+        "aaronson": None,
         "also_control_keys": run.alt_keys is not None,
         "control_only": bool(run.alt_keys is not None)
         and all(not row.marked_text for row in run.rows),
@@ -596,7 +645,9 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
             "hub_revision is the Hugging Face snapshot if --hub-revision was set; "
             "null means the unpinned default. "
             "mixin=kgw uses Hugging Face Kirchenbauer watermarking; official "
-            "scores are WatermarkDetector z-scores, not SynthID detector_mean."
+            "scores are WatermarkDetector z-scores, not SynthID detector_mean. "
+            "mixin=aaronson uses laboratory exponential-minimum sampling; "
+            "official scores are the matching mean-r z-test, not detector_mean."
         ),
         "rows": [],
     }
@@ -604,6 +655,10 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
         from text_watermark_tools.kgw import kgw_config_dict
 
         table["kgw"] = kgw_config_dict()
+    if run.mixin == "aaronson":
+        from text_watermark_tools.aaronson import aaronson_config_dict
+
+        table["aaronson"] = aaronson_config_dict()
     md = [
         "# Same-prompt marked / unmarked twins",
         "",
