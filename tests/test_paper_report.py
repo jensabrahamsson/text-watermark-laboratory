@@ -213,6 +213,10 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert interp["n_prompts_marked_above"] == 6
     assert abs(hard["binary"]["auc"] - 0.544) < 0.001
     assert abs(interp["binary"]["auc"] - 0.541) < 0.001
+    assert abs(hard["binary"]["mean_diff"] - 0.009) < 0.001
+    assert abs(interp["binary"]["mean_diff"] - 0.021) < 0.001
+    assert "0.009" in PAPER
+    assert "0.021" in PAPER
     assert "0.544" in PAPER
     assert "0.541" in PAPER
     assert r"\textbf{6/12}" in PAPER
