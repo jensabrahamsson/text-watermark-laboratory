@@ -54,7 +54,13 @@ Confirmatory 100-family interpolate last-4, absolute 0:4 vs 64:128
 | Mixin | 0:4 | 64:128 |
 |---|---|---|
 | GPT-2 Kirchenbauer | 88/100, AUC 0.694, 258/400 | **100/100, 0.953, 364/400** |
+| DistilGPT2 Kirchenbauer | 78/100, 0.655, 277/400 | **98/100, 0.880, 194/400** |
 | Public SynthID | **99/100, 0.885, 372/400** | 93/100, 0.726, 259/400 |
+
+Distil 100 tail ranks **98/100** while isolated t=0 is only **194/400**
+(unmarked $\le 0$ **369/400**): newline-loop files already noted in
+the Distil Kirchenbauer freeze. Ranking geography still matches GPT-2
+Kirchenbauer. Do not sell Distil tail **194/400**.
 
 Kirchenbauer is **back-loaded**. SynthID is **front-loaded**. Original-12
 SynthID interpolate 64:128 **3/12** is not “the tail is chance at
