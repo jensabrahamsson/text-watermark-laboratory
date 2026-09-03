@@ -45,6 +45,7 @@ def test_protocol_aaronson_locks_config_before_generation() -> None:
     log = LOG.read_text()
     assert "PROTOCOL-next-aaronson" in log
     assert "--mixin aaronson" in log
+    assert "`747f3cd`" in log
     code = CODE.read_text()
     assert "314159265" in code
     assert "from synthid_text" not in code

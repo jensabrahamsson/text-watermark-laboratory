@@ -2417,8 +2417,8 @@ JSON: `experiments/2026-09-03-pair-distil-100x4-kgw/`,
 
 ## 2026-09-04 Aaronson–Kirchner exponential-minimum freeze
 
-[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) frozen before
-generation. Laboratory exponential-minimum sampler
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) committed at SHA
+`747f3cd`. Frozen before generation. Laboratory exponential-minimum sampler
 (`--mixin aaronson`), not in `transformers==4.57.6`. GPT-2, original 12
 prompt strings, seed **20260905**, Hub SHA
 `607a30d783dfa663caf39e06633721c8d4cfcd7e`, `hashing_key` **314159265**,

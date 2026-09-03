@@ -192,6 +192,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "has not been generated" in math
     assert "is untested" not in math
     assert "PROTOCOL-next-aaronson" in PAPER
+    assert "747f3cd" in PAPER
     assert "PROTOCOL-next-kgw" in PAPER
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
