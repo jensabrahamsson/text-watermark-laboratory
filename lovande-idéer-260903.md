@@ -355,8 +355,10 @@ count as last-4 `postokhits`. Hard last-2 **34/48** is not that
 occupancy-free reader. Grok-register in-domain last-2 repeats the
 isolated McNemar (12 gains / 3 losses, $p\approx 0.018$) at **34/48**
 with ranking still **8/12**; grok36 last-2 is **91/144** vs last-4
-**77/144** (37/23, $p\approx 0.046$). Do not mix grok12 into any
-train. Do not sell grok **34/48**.
+**77/144** (37/23, $p\approx 0.046$). Grok-register last-2 0:4 is
+**8/12 / 31/48**; 64:128 **6/12 / 30/48** — isolated is not the
+GPT-2-100 opening-only split. Do not mix grok12 into any train. Do
+not sell grok **34/48**.
 
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
 interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
@@ -397,7 +399,9 @@ train). Second-key hard is
 long for **full-file** isolated sign: last-2 keeps opening last-k mass
 in the file mean without falling into last-1 unigram collapse. It is
 not a body-hash match (n=100 last-2 tail **58/100**; Kirchenbauer
-last-1 tail is **100/100**). It is tied to short tournament history:
+last-1 tail is **100/100**). Grok-register 12 last-2 isolated
+**34/48** is not that opening-only split (0:4 **31/48**, tail
+**30/48**). It is tied to short tournament history:
 `ngram_len=13` ($\Hw=12$) last-2 does not rescue ranking (12×4 isolated
 **21/48** vs last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
 
