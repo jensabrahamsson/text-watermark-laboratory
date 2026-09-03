@@ -31,6 +31,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-probe-100x4-kgw-hard-last4/` | 100-LOO hard/interpolate | interpolate **100/100** (isolated **747/800**); hard **62/100** |
 | `2026-09-03-atoms-100x4-kgw/` | 100-LOO interpolate occupancy, Kirchenbauer | **4557** seen vs **96991** unseen |
 | `claude-sample-2026-09-03/` | Same 40 PROMPTS on claude.ai | 40 long texts; vs pre-mark last-4 **35/40**; not a Claude detector |
+| `2026-09-03-pair-distil-12x4-kgw/` | DistilGPT2 Kirchenbauer, original 12 | official z>3 **12/12** |
+| `2026-09-03-probe-distil-12x4-kgw-hard-last4/` | 12-LOO on those twins | interpolate **12/12** / **85/96**; hard **11/12** |
+| `2026-09-03-atoms-distil-12x4-kgw/` | Distil Kirchenbauer occupancy | **130** seen vs **11972** unseen |
 | `2026-09-03-probe-12x4-headline-windows-absolute/` | Absolute-history 12-LOO mask-*k* | prefixes equal reindexed; hard tails **9/12**; interpolate 8:128 rose 3→4 |
 | `2026-09-03-pair-12x4-ngram13/` | Public keys, `ngram_len=13`, original 12 | official **48/48** marked above 0.55 |
 | `2026-09-03-probe-12x4-ngram13-hard-last4/` | 12-LOO hard/interpolate on those twins | interpolate and hard **6/12**; isolated hard **52/96** |

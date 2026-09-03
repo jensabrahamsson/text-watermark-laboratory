@@ -1,11 +1,17 @@
 """Kirchenbauer on DistilGPT2, frozen before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-kgw-distil.md"
 PROMPTS = ROOT / "experiments" / "2026-08-17-grok-prompts"
 LOG = ROOT / "research" / "LOGBOOK.md"
+PAIR = ROOT / "experiments" / "2026-09-03-pair-distil-12x4-kgw"
+PROBE = ROOT / "experiments" / "2026-09-03-probe-distil-12x4-kgw-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-03-atoms-distil-12x4-kgw"
 
 
 def test_protocol_kgw_distil_locks_config_before_generation() -> None:
@@ -22,7 +28,7 @@ def test_protocol_kgw_distil_locks_config_before_generation() -> None:
     assert "detector_mean" in text
     assert "thesis/" in text
     assert "Do **not** look at key-free LRs" in text
-    assert "Not opened" in text
+    assert "H-kgw-d-ctrl **holds**" in text
     assert "PROTOCOL-next-kgw.md" in text
     assert "Aaronson" in text
     assert PROMPTS.is_dir()
@@ -59,8 +65,35 @@ def test_protocol_kgw_distil_cli_flag_exists() -> None:
     assert args.seed == 20260904
 
 
-def test_protocol_kgw_distil_has_no_pair_dump_yet() -> None:
-    pair = ROOT / "experiments" / "2026-09-03-pair-distil-12x4-kgw"
-    probe = ROOT / "experiments" / "2026-09-03-probe-distil-12x4-kgw-hard-last4"
-    assert not (pair / "results.json").is_file()
-    assert not (probe / "hard" / "holdout.json").is_file()
+def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["mixin"] == "kgw"
+    assert pair["model_name"] == "distilgpt2"
+    assert pair["seed"] == 20260904
+    assert pair["hub_revision"] is None
+    assert len(pair["rows"]) == 12
+    assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    assert all(row["unmarked_gen"]["z_score"] <= 3.0 for row in pair["rows"])
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["n_prompts_marked_above"] == 12
+    assert hard["n_prompts_marked_above"] == 11
+    assert interp["n_marked_lr_positive"] == 42
+    assert interp["n_unmarked_lr_nonpositive"] == 43
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 85
+    assert abs(interp["binary"]["auc"] - 0.947) < 0.001
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 130
+    assert occ["n_unseen"] == 11972
+    assert "H-kgw-d-ctrl **holds**" in text
+    assert "H-kgw-d-group **holds**" in text
+    assert "H-kgw-d-iso **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **12/12**" in collapsed
+    lo, hi = clopper_pearson(12, 12)
+    assert lo > 0.5
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi

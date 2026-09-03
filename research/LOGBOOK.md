@@ -2305,6 +2305,22 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --mixin kgw --out-dir experiments/2026-09-03-pair-distil-12x4-kgw
 ```
 
+## 2026-09-03 DistilGPT2 Kirchenbauer opened
+
+[PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) named
+`55ca96e`. Pair seed **20260904**, `--mixin kgw`, `--model distilgpt2`.
+Official first-draw z>3 **12/12** (H-kgw-d-ctrl holds). Interpolate
+last-4 **12/12** (AUC **0.947**, isolated **42/48 vs 43/48**, BA
+**85/96**). Hard **11/12** (AUC **0.780**, BA **66/96**). Occupancy
+**130** seen vs **11972** unseen. `used_keys=false`. Hub revision was
+unpinned (`null`). Do not sell **12/12** or **85/96** as replacing
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+JSON: `experiments/2026-09-03-pair-distil-12x4-kgw/`,
+`experiments/2026-09-03-probe-distil-12x4-kgw-hard-last4/`,
+`experiments/2026-09-03-atoms-distil-12x4-kgw/`.
+
 ## 2026-09-03 resample
 
 **Collection.** `experiments/claude-sample-2026-09-03` — **40** long texts.

@@ -1352,7 +1352,10 @@ checkout. A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
 with SynthID \texttt{detector\_mean} would be a harness bug. DistilGPT2
 with the same Kirchenbauer defaults is frozen in
 \texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
-\texttt{1540d3c}) and has not been generated. An Aaronson mixin is a third protocol and has not been run.
+\texttt{1540d3c}). Distil interpolate last-4 is \textbf{12/12}
+(isolated \textbf{85/96}); hard is \textbf{11/12}. That is not
+\textbf{25/48}. An Aaronson mixin is a third protocol and has not been
+run.
 
 \begin{table}[ht]
 \centering
@@ -1490,6 +1493,16 @@ below public $\Hw=4$ 100-family occupancy 10158 seen and below
 $\Hw=12$ 5878 seen. Interpolate \textbf{100/100} is therefore not an
 exact 4-gram copy detector. It is a different construction from lock~A
 \textbf{99/100} and from the original-12 SynthID \textbf{47/96}.
+
+\paragraph{Original 12, DistilGPT2 Kirchenbauer.}
+Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
+\texttt{1540d3c}, seed 20260904. Official matching $z$-scores are above
+$3.0$ on all 12 first marked files. Interpolate last-4 ranks
+\textbf{12/12} (AUC $0.947$; 42 TP, 6 FN, 43 TN, 5 FP; balanced
+accuracy $85/96$; mean $D_p=0.504$). Hard is \textbf{11/12} (AUC
+$0.780$; $66/96$). Occupancy is 130 seen versus 11972 unseen. Hub
+revision was unpinned at generation; published scores read committed
+strings. That is not \textbf{25/48}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1667,6 +1680,16 @@ Premark vs new last-4:
 Previous vs new last-4:
 \path{experiments/2026-09-03-resample-work/blind-previous-vs-new-k4/results.json}
 (\texttt{f852be4c7fd1dcf1}; $29/40$).
+Distil Kirchenbauer freeze: \texttt{1540d3c}.
+Distil pair:
+\path{experiments/2026-09-03-pair-distil-12x4-kgw/results.json}
+(\texttt{f17ba689c14ecf21}).
+Distil interpolate:
+\path{experiments/2026-09-03-probe-distil-12x4-kgw-hard-last4/interpolate/holdout.json}
+(\texttt{845af54db1aeb37f}; $12/12$, $85/96$).
+Distil occupancy:
+\path{experiments/2026-09-03-atoms-distil-12x4-kgw/atoms.json}
+(\texttt{52c8fe2505a567c0}; 130 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
