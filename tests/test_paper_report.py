@@ -212,8 +212,6 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
             / "holdout.json"
         ).read_text()
     )
-    assert b100["used_keys"] is False
-    assert b100["n_prompts_marked_above"] == 76
     hard100 = json.loads(
         (
             ROOT
@@ -223,6 +221,12 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
             / "holdout.json"
         ).read_text()
     )
+    assert b100["used_keys"] is False
+    assert b100["n_prompts_marked_above"] == 76
+    assert abs(b100["binary"]["auc"] - 0.666) < 0.001
+    assert abs(hard100["binary"]["auc"] - 0.579) < 0.001
+    assert "0.666" in PAPER
+    assert "0.579" in PAPER
     assert hard100["n_prompts_marked_above"] == 66
     assert (
         hard100["n_marked_lr_positive"] + hard100["n_unmarked_lr_nonpositive"]
