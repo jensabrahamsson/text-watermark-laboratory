@@ -232,6 +232,10 @@ a replacement for **25/48**).
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
 interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
 same sign count as last-4 interpolate. Keep interpolate at last-4.
+Hits last-2 on original-12 is also worse ranking than published last-4
+hits: **9/12**, AUC **0.632**, isolated 29/48 versus last-4 hits
+**10/12**, AUC **0.718**, isolated 28/48. The last-2 lift is a
+**hard** width effect, not “shorten every count spec.”
 
 Grid losers on original-12 hard: last-1 **1/12** / 22/48 / AUC 0.414;
 last-3 **8/12** / 26/48; last-5 **9/12** / 23/48. Matching mixin
@@ -263,7 +267,8 @@ last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
 sell leftover **12/20**. Do not switch interpolate to last-2. Do not
-add `hard2` as a method name. Do not present last-2 as matching the
+switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not add
+`hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
 repeat the 100-family **94/100** jump). Public last-2 tables trained
 on 100 GPT-2 families do not classify Kirchenbauer original-12
