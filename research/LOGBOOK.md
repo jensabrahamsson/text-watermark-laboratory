@@ -2521,6 +2521,22 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-distil-12x4-ngram13
 ```
 
+## 2026-09-04 DistilGPT2 ngram_len=13 opened
+
+[PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md) named
+`c120dc4`. Pair seed **20260903**, `ngram_len=13`, `--model distilgpt2`.
+Official first-draw mean>0.55 **12/12** (H-long-d-ctrl holds). Interpolate
+last-4 **9/12** (AUC **0.563**, isolated **21/48 vs 28/48**, BA
+**49/96**). Hard **6/12** (AUC **0.485**, BA **42/96**). Occupancy
+**175** seen vs **11994** unseen. `used_keys=false`. Do not sell
+**9/12** or **49/96** as replacing **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
+`experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-12x4-ngram13/`.
+
+
 
 
 
