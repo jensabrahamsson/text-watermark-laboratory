@@ -28,6 +28,14 @@ def test_persist_pair_run_records_hub_revision(tmp_path: Path) -> None:
     assert data["ngram_len"] == 5
 
 
+def test_persist_pair_run_records_unset_hub_revision_as_null(tmp_path: Path) -> None:
+    run = PairRun(rows=[], max_new_tokens=128, seed=0)
+    persist_pair_run(run, tmp_path)
+    data = json.loads((tmp_path / "results.json").read_text())
+    assert "hub_revision" in data
+    assert data["hub_revision"] is None
+
+
 def test_collect_prompts_from_file(tmp_path: Path) -> None:
     p = tmp_path / "harbour.txt"
     p.write_text(PROMPT)
