@@ -97,6 +97,8 @@ def test_protocol_longctx_official_control_and_keyfree_from_dumps() -> None:
     assert hard_raw["n_unmarked_lr_nonpositive"] == 30
     assert interp_raw["n_marked_lr_positive"] == 20
     assert interp_raw["n_unmarked_lr_nonpositive"] == 31
+    assert interp_raw["prompt_sign_p"] > 0.2
+    assert hard_raw["prompt_sign_p"] > 0.2
     assert abs(hard_raw["binary"]["auc"] - 0.544) < 0.001
     lo, hi = clopper_pearson(6, 12)
     assert lo <= 0.5 <= hi
