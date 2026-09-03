@@ -132,6 +132,9 @@ on every local generator we tried:
 GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
 isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
 last-1 lift is a **body** lift, same spatial pattern as idea 1.
+Confirmatory 100-family last-1 hard windows: 0:4 **94/100**, AUC
+**0.740**, isolated **257/400**; 64:128 **100/100**, AUC **0.962**,
+isolated **372/400**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
