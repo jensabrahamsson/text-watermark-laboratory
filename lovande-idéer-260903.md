@@ -136,6 +136,30 @@ Confirmatory 100-family last-1 hard windows: 0:4 **94/100**, AUC
 **0.740**, isolated **257/400**; 64:128 **100/100**, AUC **0.962**,
 isolated **372/400**.
 
+Hard width is not “any shorter k.” GPT-2 Kirchenbauer hard:
+
+| Width | 12×4 | 100×4 |
+|---|---|---|
+| last-1 | **12/12, 43/48, 0.911** | **100/100, 389/400, 0.990** |
+| last-2 | 7/12, 28/48, 0.484 | 79/100, 278/400, 0.677 |
+| last-3 | 8/12, 30/48, 0.569 | — |
+| last-4 | 12/12, 35/48, 0.703 | 62/100, 209/400, 0.573 |
+
+At n=100, last-1 > last-2 > last-4. Original-12 last-2 collapse is
+small-n. Last-2 is the SynthID isolated lift (idea 3), not the
+Kirchenbauer companion.
+
+Existing `unigram` (token identity, no context; not a new method
+name) ranks GPT-2 Kirchenbauer 12×4 **12/12**, isolated **46/48**,
+AUC **0.791**, unmarked $\le 0$ only **27/48**. 100-family unigram is
+**99/100**, **329/400**, AUC **0.887**. Distil 12×4 unigram **12/12**,
+**35/48**, 0.812. Qwen 12×4 unigram **9/12**, **16/48**, 0.598. That
+is a global bag-of-tokens green-list leak. Last-1 still wins AUC and
+(at n=100) isolated sign. Do not sell unigram **46/48**. Public
+SynthID unigram is **11/12**, **26/48**, AUC **0.592** (library ranks
+with no isolated TP). Mix last-1+last-4 and backoff on public
+SynthID 12 are chance (**6/12**, AUC 0.49).
+
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
 better.” It matches this mixin’s hash width. (SynthID last-1 window
@@ -161,17 +185,20 @@ reason to sell **350/400**.
 **Hypothesis.** When the watermark hash is last-1, last-4 count
 tables smear a one-token green list across unused context tokens.
 Matching reader width to hash width recovers isolated sign without
-keys. Interpolate last-4 was already saturated at 100 families
-(**100/100** / **376/400**); last-1 is the hard-reader lift.
+keys. A context-free unigram still ranks because green tokens are
+over-used in aggregate; last-1 is the tighter match. Interpolate
+last-4 was already saturated at 100 families (**100/100** /
+**376/400**); last-1 is the hard-reader lift.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
-**389/400**, **350/400**, or **100/100** as replacing **25/48**. Do
-not add a method name. Do not retune Kirchenbauer `context_width`
-after peeking. Do not run last-1 as the headline SynthID reader
-(full-file last-1 dies there). Kirchenbauer last-1 tables trained on
-100 GPT-2 families do **not** classify public SynthID original-12
-(isolated **6/48**, AUC 0.542, three ranking wins with no isolated
-TP). The last-1 lift is mixin-specific.
+**389/400**, **350/400**, **329/400**, or **100/100** as replacing
+**25/48**. Do not add a method name. Do not retune Kirchenbauer
+`context_width` after peeking. Do not run last-1 or unigram as the
+headline SynthID reader. Do not switch Kirchenbauer hard to last-2
+(12×4 collapse; 100×4 is strictly below last-1). Kirchenbauer last-1
+tables trained on 100 GPT-2 families do **not** classify public
+SynthID original-12 (isolated **6/48**, AUC 0.542, three ranking wins
+with no isolated TP). The last-1 lift is mixin-specific.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -182,15 +209,21 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hard,interpolate --context-len 1 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-last1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hard,unigram --context-len 2 --skip-hashpool \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-k2
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
 understates the green-list leak: 100-family ranking **62/100** →
 **100/100**, isolated **209/400** → **389/400**, AUC **0.573** →
-**0.990**. Same `hard` scorer. The freeze in
+**0.990**. Same `hard` scorer. At n=100 the hard widths are last-1 >
+last-2 > last-4. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
-width-matched companion.
+width-matched companion. Unigram is a weaker bag-of-tokens companion,
+not a fourth scorer.
 
 ---
 
@@ -350,11 +383,12 @@ not a proven improvement of this lab’s finished-string `indicate` /
 (2026) (TTP-Detect) stays the closest published finished-string analog
 and was not reimplemented.
 
-### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff
 
 `postokhits` on Kirchenbauer 12×4 is **11/48**. SynthID last-1
 full-file hard is **1/12**. Interpolate last-2 drops 36×4 ranking
-from **34/36** to **32/36**. None of those is a backlog item.
+from **34/36** to **32/36**. Mix last-1+last-4 and backoff on public
+SynthID 12 are chance (**6/12**). None of those is a backlog item.
 
 ---
 
