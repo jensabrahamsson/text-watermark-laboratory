@@ -187,13 +187,14 @@ marked/unmarked tables. Score `*-control-gen.txt` sampled with
 
 `pair --ngram-len 13` reuses the public keys at watermark history
 $\Hw=12$ without editing the `synthid-text` checkout. Official scoring
-must use the same `--ngram-len`. Frozen two-grain Phase A:
+must use the same `--ngram-len`. Original-12 $\Hw=12$:
 [research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md).
-Opened: official **48/48** marked files above 0.55; key-free interpolate
+Official **48/48** marked files above 0.55; key-free interpolate
 and hard **6/12**; isolated hard **52/96**. Longer-history 100 one-liners
 (not Distil/Qwen Phase B): interpolate **76/100** (below lock A
 **99/100**); isolated **489/800**.
-Do not sell **6/12** or **76/100**. Does not replace **25/48**.
+**6/12** and **76/100** are group rankings on $\Hw=12$; original-12
+isolated remains **25/48** / **47/96**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
