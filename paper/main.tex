@@ -1308,6 +1308,30 @@ to $\Hw=12$ without editing the \texttt{synthid-text} checkout. A
 Kirchenbauer or Aaronson mixin is a different protocol and is not this
 lock.
 
+\begin{table}[ht]
+\centering
+\small
+\caption{Preregistered $\Hw=12$ measurement, locked before generation
+(protocol SHA \texttt{b70986d}). Observed counts follow in the
+paragraphs below.}
+\label{tab:nextlock}
+\begin{tabular}{ll}
+\toprule
+Locked before generation & Value \\
+\midrule
+Mixin / $\Hw$ & public-deepmind-30 keys, $\mathtt{ngram\_len}=13$ ($\Hw=12$) \\
+Generator / tokenizer & \texttt{gpt2} \\
+Prompt frame & original 12 scene strings, then 100 one-liners \\
+Reference size & $12\times 4$ then $100\times 4$ matched twins, $T=128$, seed 20260903 \\
+Reader & hard and interpolate last-4 (lock~A analog) \\
+Fold topology & Algorithm~1 leave-one-family-out \\
+Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
+Primary group metric & $D_p$ sign count, strict $>$ \\
+Primary isolated metric & $\tau=0$ matrix, balanced accuracy, AUC \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Original 12, $\Hw=12$.}
 The original-12 replication uses new twins from those prompt strings
 (seed 20260903). Official means with matching $\mathtt{ngram\_len}=13$
@@ -1373,30 +1397,6 @@ drop from lock~A \textbf{99/100} to \textbf{76/100} is consistent with
 the public instance's reusable 4-gram footprint being a boundary of the
 group-level result. The original-12 \textbf{6/12} is small-$n$. Neither
 count is a theorem about production Gemini.
-
-\begin{table}[ht]
-\centering
-\small
-\caption{Preregistered $\Hw=12$ measurement, locked before generation
-(protocol SHA \texttt{b70986d}). Observed counts are in the paragraphs
-above, not in this lock table.}
-\label{tab:nextlock}
-\begin{tabular}{ll}
-\toprule
-Locked before generation & Value \\
-\midrule
-Mixin / $\Hw$ & public-deepmind-30 keys, $\mathtt{ngram\_len}=13$ ($\Hw=12$) \\
-Generator / tokenizer & \texttt{gpt2} \\
-Prompt frame & original 12 scene strings, then 100 one-liners \\
-Reference size & $12\times 4$ then $100\times 4$ matched twins, $T=128$, seed 20260903 \\
-Reader & hard and interpolate last-4 (lock~A analog) \\
-Fold topology & Algorithm~1 leave-one-family-out \\
-Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
-Primary group metric & $D_p$ sign count, strict $>$ \\
-Primary isolated metric & $\tau=0$ matrix, balanced accuracy, AUC \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 % =========================================================================
 \section{Conclusion}
