@@ -147,6 +147,7 @@ def test_wang_cost_contrast_is_quoted_not_shared_benchmark() -> None:
 def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\mathtt{ngram\_len}=13" in PAPER
     assert "b70986d" in PAPER
+    assert "facc538" in PAPER
     assert "PROTOCOL-next-longctx" in PAPER
     assert "seed 20260903" in PAPER
     assert "different corpus" in PAPER
