@@ -2287,3 +2287,19 @@ Not a Claude detector. Not a watermark claim.
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-02-resample-work`.
 
 ---
+## 2026-09-03 resample
+
+**Collection.** `experiments/claude-sample-2026-09-03` — **40** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+| Contrast | last-1 | last-4 |
+|---|---|---|
+| premark-vs-new (40 prompts) | 37/40 | 35/40 |
+| previous-vs-new (40 prompts) | 33/40 | 29/40 |
+
+Last-1 ahead of last-4 is the style-shift order. Last-4 ahead of last-1 is the public-mixin watermark-window order. Do not call either a vendor detector. Same-day chance means draw noise.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-03-resample-work`.
+
+---
