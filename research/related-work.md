@@ -62,8 +62,13 @@ error, not a citation.
 **Measurement (scoped).** Under frozen lock A on `public-deepmind-30`
 GPT-2 twins, prompt-group interpolate ranking was **99/100**. Under
 12-LOO hard last-4 on the original 12, prompt-group ranking was **9/12**
-and isolated sign at threshold 0 was **25/48**. `used_keys=false` for
-those key-free readers.
+and isolated sign at threshold 0 was **25/48**. Lengthening the public
+mixin to `ngram_len=13` ($\Hw=12$) on the same 100 prompt strings
+(new twins) attenuates interpolate ranking to **76/100**; official
+matching scores remain **400/400** above 0.55
+([PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)). `used_keys=false`
+for those key-free readers. Do not sell **76/100** as replacing
+**25/48**.
 
 **Indication (not a theorem).** Those prompt-group counts are consistent
 with a learnable next-token footprint of this public tournament
