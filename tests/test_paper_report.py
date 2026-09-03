@@ -314,7 +314,39 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert expected == "0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1"
     assert expected in Path(ROOT / "paper" / "main.tex").read_text()
     assert "all 48 marked files" in PAPER
-    assert "ferry-queue" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    next_raw = PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    assert "ferry-queue" in next_raw
+    from collections import defaultdict as _dd
+    from statistics import mean as _mean
+
+    def _wins(hold: dict) -> set[str]:
+        g = _dd(lambda: {"m": [], "u": []})
+        for row in hold["files"]:
+            side = "u" if "unmarked" in row["file"] else "m"
+            g[row["stem"]][side].append(row["lr"])
+        return {s for s, v in g.items() if _mean(v["m"]) > _mean(v["u"])}
+
+    hard_wins = _wins(hard)
+    interp_wins = _wins(interp)
+    assert hard_wins == {
+        "04-market",
+        "06-station",
+        "07-rain",
+        "08-letter",
+        "09-workshop",
+        "12-ferry-queue",
+    }
+    assert interp_wins == {
+        "03-library",
+        "04-market",
+        "06-station",
+        "08-letter",
+        "09-workshop",
+        "12-ferry-queue",
+    }
+    assert len(hard_wins & interp_wins) == 5
+    for name in ("market", "station", "rain", "letter", "workshop", "library"):
+        assert name in next_raw
     occ = json.loads(
         (
             ROOT
