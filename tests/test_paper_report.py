@@ -241,6 +241,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\textbf{25/48}" in concl
     assert r"\textbf{36/36}" in PAPER.split(r"\begin{abstract}")[1]
     assert hard["n_marked_lr_positive"] == 22
+    assert hard["n_unmarked_lr_nonpositive"] == 30
+    assert hard["n_marked_lr_positive"] + hard["n_unmarked_lr_nonpositive"] == 52
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "ngram_len=13" not in abs_
     assert "108454" not in abs_
