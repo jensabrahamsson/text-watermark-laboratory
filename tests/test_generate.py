@@ -65,6 +65,35 @@ def test_load_tokenizer_forwards_hub_revision(monkeypatch) -> None:
     assert tok.pad_token == "eos"
 
 
+def test_unmarked_model_load_forwards_hub_revision(monkeypatch) -> None:
+    import torch
+    from text_watermark_tools.generate import _load_unmarked_model
+
+    seen: dict = {}
+
+    class Dummy:
+        def to(self, _device):
+            return self
+
+        def eval(self):
+            return self
+
+    def fake_from_pretrained(name, **kwargs):
+        seen["name"] = name
+        seen["kwargs"] = kwargs
+        return Dummy()
+
+    monkeypatch.setattr(
+        "transformers.GPT2LMHeadModel.from_pretrained", fake_from_pretrained
+    )
+    model = _load_unmarked_model(
+        torch.device("cpu"), model_name="gpt2", revision="abc123"
+    )
+    assert seen["name"] == "gpt2"
+    assert seen["kwargs"]["revision"] == "abc123"
+    assert model is not None
+
+
 def test_cli_pair_accepts_hub_revision() -> None:
     from text_watermark_tools.cli import build_parser
 
