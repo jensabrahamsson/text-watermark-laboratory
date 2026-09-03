@@ -203,6 +203,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "clustered permutation" in PAPER
     assert "0.247" in PAPER
     assert "0.0005" in PAPER
+    assert abs(interp["prompt_sign_p"] - 0.247) < 0.01
     b100 = json.loads(
         (
             ROOT
@@ -237,6 +238,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
         == 489
     )
     assert abs(b100["binary"]["mean_diff"] - 0.156) < 0.001
+    assert abs(b100["prompt_sign_p"] - 0.0005) < 0.0001
     assert "0.156" in PAPER
     assert r"\label{fig:hw12}" in Path(ROOT / "paper" / "main.tex").read_text()
     from collections import defaultdict
