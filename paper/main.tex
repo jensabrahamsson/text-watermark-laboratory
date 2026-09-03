@@ -844,9 +844,9 @@ next-token occupancy (\Cref{sec:next}, \Cref{tab:occ}). A Kirchenbauer
 green-list mixin on the original 12 prompt strings ranks interpolate
 last-4 \textbf{12/12} with mostly Witten--Bell backoff (\Cref{sec:next}).
 That is a shorter hash window than $\Hw=4$, not a longer-history result.
-An Aaronson mixin is frozen in
-\texttt{research/PROTOCOL-next-aaronson.md} (freeze SHA \texttt{747f3cd})
-and has not been generated.
+An Aaronson mixin (freeze SHA \texttt{747f3cd}) ranks interpolate last-4
+\textbf{11/12} on the original 12 strings with isolated balanced accuracy
+$56/96$. That is not \textbf{25/48}.
 
 Christ et al.\ and Zhang et al.\ apply to different constructions and
 oracles (\Cref{sec:related}). Isolated chance accuracy at $\tau=0$ is
@@ -1364,10 +1364,11 @@ in \texttt{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
 in \texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
 (isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
-\textbf{25/48}. An Aaronson--Kirchner exponential-minimum mixin is frozen
-in \texttt{research/PROTOCOL-next-aaronson.md} (freeze SHA
-\texttt{747f3cd}; \texttt{--mixin aaronson}, seed 20260905) and has not
-been generated.
+\textbf{25/48}. An Aaronson--Kirchner exponential-minimum mixin (freeze
+SHA \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
+\textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. That is
+not \textbf{25/48}. The protocol note is
+\path{research/PROTOCOL-next-aaronson.md}.
 
 \begin{table}[ht]
 \centering
@@ -1544,6 +1545,18 @@ $40/100$ marked and $12/100$ unmarked. Group ranking matches GPT-2
 Kirchenbauer \textbf{100/100} on these strings; isolated balanced
 accuracy is below GPT-2 Kirchenbauer \textbf{747/800}. That is not
 \textbf{25/48}.
+
+\paragraph{Original 12, Aaronson--Kirchner exponential-minimum.}
+Laboratory sampler, freeze SHA \texttt{747f3cd}, seed 20260905, Hub SHA
+\path{607a30d783dfa663caf39e06633721c8d4cfcd7e}, dump
+\path{experiments/2026-09-04-pair-12x4-aaronson}. Official matching
+$z$-scores are above $3.0$ on all 12 first marked files (min $10.84$).
+Unmarked first-draw is $0/12$ above $3.0$. Interpolate last-4 ranks
+\textbf{11/12} (AUC $0.955$; 8 TP, 40 FN, 48 TN, 0 FP; balanced
+accuracy $56/96$; mean $D_p=1.738$; loses station). Hard is
+\textbf{12/12} (AUC $0.976$; $72/96$). Occupancy is 573 seen versus
+11618 unseen. Nine of eleven interpolate ranking wins have no isolated
+true positive. That is not \textbf{25/48}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1741,6 +1754,16 @@ Qwen interpolate:
 Qwen occupancy:
 \path{experiments/2026-09-03-atoms-qwen-12x4-kgw/atoms.json}
 (\texttt{df93d69c13d85869}; 84 seen).
+Aaronson freeze: \texttt{747f3cd}.
+Aaronson pair:
+\path{experiments/2026-09-04-pair-12x4-aaronson/results.json}
+(\texttt{f1a8616c9b5ec347}).
+Aaronson interpolate:
+\path{experiments/2026-09-04-probe-12x4-aaronson-hard-last4/interpolate/holdout.json}
+(\texttt{9077e6d67f7c1900}; $11/12$, $56/96$).
+Aaronson occupancy:
+\path{experiments/2026-09-04-atoms-12x4-aaronson/atoms.json}
+(\texttt{c1f16afa2ba1c418}; 573 seen).
 Distil 100-family Kirchenbauer freeze: \texttt{4fad227}.
 Distil 100 pair:
 \path{experiments/2026-09-03-pair-distil-100x4-kgw/results.json}

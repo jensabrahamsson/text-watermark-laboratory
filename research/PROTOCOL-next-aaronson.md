@@ -200,3 +200,57 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
    Do not add a scorer.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `747f3cd`. Named `29a1436`. Pair seed **20260905**.
+`mixin=aaronson`. `used_keys=false` on the key-free probe. Hub revision
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`.
+
+Pair dump: [experiments/2026-09-04-pair-12x4-aaronson/](../experiments/2026-09-04-pair-12x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-12x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-12x4-aaronson-hard-last4/).
+
+H-aar-ctrl **holds**. Official matching z-score is above $3.0$ on all
+12 first marked files (min $10.84$). Unmarked first-draw is **0/12**
+above $3.0$ (max $1.45$). Mixin is on. Post-open extra-draw check:
+**48/48** marked above $3.0$ (min $10.66$), **0/48** unmarked above
+$3.0$. Not a second freeze.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **11/12** | 0.955 | 8/48 | 48/48 | 8 40 48 0 | **56/96** |
+| hard last-4 | **12/12** | 0.976 | 24/48 | 48/48 | 24 24 48 0 | **72/96** |
+
+Interpolate loses station. Mean $D_p=1.738$ (interpolate) / $1.066$
+(hard). Interpolate isolated $8/48$ true positives sit beside **9/11**
+ranking wins with no isolated TP: group ranking is unmarked mass going
+more negative, not isolated $\tau=0$ detection.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **11/12** is
+**[0.615, 0.998]**; hard **12/12** is **[0.735, 1.000]**; isolated
+**8/48** is **[0.075, 0.302]**; BA **56/96** is **[0.478, 0.683]** and
+includes ½. Isolated **25/48** still includes ½.
+
+H-aar-group **holds** as the $\ge$**9/12** branch. Interpolate last-4
+is **11/12**. It does not replace **25/48**.
+
+H-aar-hard **holds** as a companion readout: hard is **12/12**.
+
+H-aar-iso **holds**. Isolated interpolate is 8 TP, 40 FN, 48 TN, 0 FP
+(**56/96**). Hard is **72/96**. Nested Youden is post hoc. Do not sell
+**11/12**, **12/12**, **8/48**, **24/48**, **56/96**, or **72/96** as
+replacing **25/48**. Official **48/48** uses the matching z-test.
+
+H-aar-occ **holds**. Leave-one-family-out interpolate atoms
+(`atoms --leave-one-out`; `used_keys=false`). File LRs match interpolate
+holdout (marked `lr>0` **8/48**). Exact next-token overlap is **573**
+seen versus **11618** unseen (opening $[0{:}4)$ is 167 versus 121).
+Occupancy is a mechanistic intermediate, not a detector. Do not sell
+**573** or `'\n' → '"'` as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-12x4-aaronson/](../experiments/2026-09-04-atoms-12x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. One hundred families remain named, not generated.
+Do not write `thesis/`.
+

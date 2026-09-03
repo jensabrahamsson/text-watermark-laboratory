@@ -2438,4 +2438,21 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-12x4-aaronson
 ```
 
+## 2026-09-04 Aaronson–Kirchner exponential-minimum opened
+
+[PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) named `29a1436`.
+Pair seed **20260905**, `--mixin aaronson`. Official first-draw z>3
+**12/12** (H-aar-ctrl holds; unmarked **0/12**). Interpolate last-4
+**11/12** (AUC **0.955**, isolated **8/48 vs 48/48**, BA **56/96**;
+loses station). Hard **12/12** (AUC **0.976**, BA **72/96**). Occupancy
+**573** seen vs **11618** unseen. `used_keys=false`. Hub SHA
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`. Do not sell **11/12**,
+**12/12**, **8/48**, or **56/96** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-12x4-aaronson/`,
+`experiments/2026-09-04-probe-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-12x4-aaronson/`.
+
+
 
