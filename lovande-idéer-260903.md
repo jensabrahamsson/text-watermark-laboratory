@@ -180,20 +180,23 @@ at `--context-len 1` is the same width match on a different count spec:
 | DistilGPT2 KGW 12×4 | 7/12, 26/48, 0.620 | **12/12, 43/48, 0.969** |
 | Qwen2-1.5B KGW 12×4 | 6/12, 15/48, 0.519 | **12/12, 39/48, 0.901** |
 | GPT-2 KGW 100×4 | 96/100, 304/400, 0.867 | **100/100, 394/400, 0.995** |
-| DistilGPT2 KGW 100×4 | — | 99/100, 325/400, 0.872 |
+| DistilGPT2 KGW 100×4 | 95/100, 149/400, 0.759 | 99/100, 325/400, 0.872 |
 
 Qwen last-4 hashpool is chance. Last-1 hashpool recovers ranking.
 Unmarked $\le 0$ on GPT-2 12 last-1 hashpool is **41/48** (better than
 unigram **27/48**). Distil 100 last-1 hashpool isolated **325/400** is
 below Distil hard last-1 **350/400**: hashpool is not strictly better
-than `hard` at every generator. GPT-2 KGW hashpool last-1 windows:
+than `hard` at every generator. Distil 100 last-4 hashpool ranks
+**95/100** with isolated only **149/400** and **34** ranking wins that
+have no isolated TP. GPT-2 KGW hashpool last-1 windows:
 0:4 **9/12**, **27/48**, 0.570; 64:128 **12/12**, **46/48**, 0.946.
 Same body geography as hard last-1. Occupancy-free `postokhits` last-1
 on GPT-2 KGW 12 is **9/12**, **33/48**, AUC 0.600, unmarked $\le 0$
 only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
 lifts isolated with FPs; it is not the green-list reader. Public
 SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
-not sell **47/48** or **394/400**.
+not sell **47/48**, **394/400**, Distil last-4 hashpool **95/100**, or
+**149/400**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -228,9 +231,10 @@ hashpool last-1 is the same width on the hash-pool spec.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
-**394/400**, **304/400**, **325/400**, occupancy-free last-1
-**33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, or
-**100/100** as replacing **25/48**. Do not add a method name. Do not
+**394/400**, **304/400**, **325/400**, **149/400**, occupancy-free last-1
+**33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
+hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
+**95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
 retune Kirchenbauer `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
 switch Kirchenbauer hard to last-2 (12×4 collapse; 100×4 is strictly
@@ -260,8 +264,11 @@ isolated **6/48**. Last-1 is the isolated transfer; last-4 ranking can
 look fine while files do not sign. Same last-1 `hashpool` tables:
 GPT-2 100 → GPT-2 12 **12/12, 48/48**, AUC **0.998**, unmarked $\le 0$
 **40/48** (eight FPs); GPT-2 100 → Distil 12 **12/12, 47/48**, 0.994.
-Do not sell **48/48** or **47/48**. Qwen uses a different tokenizer;
-this transfer is same-BPE only.
+Distil 100 hashpool last-1 → GPT-2 12 is **12/12, 44/48**, AUC
+**0.994**, unmarked $\le 0$ **47/48**; Distil 100 → Distil 12 is
+**12/12, 40/48**, 0.991, unmarked $\le 0$ **47/48**.
+Do not sell **48/48**, **47/48**, **44/48**, or **40/48**. Qwen uses a
+different tokenizer; this transfer is same-BPE only.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
