@@ -223,6 +223,8 @@ H-long-group **holds**. Interpolate last-4 12-LOO prompt ranking is
 is not shown to be unnecessary on this 12-family frame. The
 Clopper–Pearson interval includes ½. n=12 is small. Mean paired
 file difference is $0.021$ (interpolate) / $0.009$ (hard).
+Interpolate `prompt_sign_p` is $0.247$ (2000 shuffles); hard is
+$0.294$. Phase B is the n=100 readout.
 
 H-long-hard **holds** as a companion readout: hard is also **6/12**.
 
