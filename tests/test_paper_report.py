@@ -43,6 +43,10 @@ def test_intro_surfaces_get_gvals_docstring_mismatch() -> None:
     assert r"\gg 30" in intro or ">> 30" in intro
     assert "documentation bug" in intro
     assert "not a laboratory rewrite" in intro
+    related = PAPER.split(r"\section{Related Work}")[1].split(
+        r"\section{Preliminaries and Threat Model}"
+    )[0]
+    assert r"get\_gvals" in related
 
 
 def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
