@@ -124,5 +124,43 @@ python -m text_watermark_tools atoms --leave-one-out \
 
 ## Results
 
-Not opened. Do not fill this section before the frozen commands have
-been run once, as written.
+Protocol SHA `45a75c9`. Named `4f0ce39`. Pair seed **20260904**.
+`mixin=kgw`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Hub revision was not passed (`null` in `results.json`); the laboratory
+cache after this run is
+`ba1cf1846d7df0a0591d6c00649f57e798519da8`. Do not backfill.
+
+Pair dump: [experiments/2026-09-03-pair-qwen-12x4-kgw/](../experiments/2026-09-03-pair-qwen-12x4-kgw/).
+Probe dump: [experiments/2026-09-03-probe-qwen-12x4-kgw-hard-last4/](../experiments/2026-09-03-probe-qwen-12x4-kgw-hard-last4/).
+
+H-kgw-q-ctrl **holds**. Official matching z-score is above $3.0$ on all
+12 first marked files (min $4.56$). Unmarked first-draw is **0/12**
+above $3.0$ (max $1.90$). Mixin is on.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **12/12** | 0.814 | 35/48 | 33/48 | 35 13 33 15 | **68/96** |
+| hard last-4 | **8/12** | 0.566 | 19/48 | 31/48 | 19 29 31 17 | **50/96** |
+
+GPT-2 and Distil Kirchenbauer interpolate on these prompt *strings*
+(different twins) were **12/12** / **85/96**. Qwen interpolate keeps
+the group ranking and drops isolated balanced accuracy to **68/96**.
+Mean $D_p=0.224$ (interpolate) / $0.017$ (hard). Hard **8/12**
+Clopper–Pearson includes ½.
+
+H-kgw-q-group **holds**. Interpolate last-4 is **12/12**. It does not
+replace **25/48**.
+
+H-kgw-q-iso **holds**. Isolated interpolate **68/96** is a different
+generator and mixin from the original-12 SynthID **47/96**. Hard
+isolated **50/96** is chance-like. Do not sell **12/12**, **68/96**,
+**8/12**, or **50/96** as replacing **25/48**.
+
+Occupancy: **84** seen vs **12108** unseen (opening 62 vs 226).
+`used_keys=false`. File LRs match interpolate **35/48**. Do not sell
+**84** as replacing **25/48**.
+
+JSON: [experiments/2026-09-03-atoms-qwen-12x4-kgw/](../experiments/2026-09-03-atoms-qwen-12x4-kgw/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.

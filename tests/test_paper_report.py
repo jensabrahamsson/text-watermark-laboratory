@@ -216,6 +216,10 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "distilgpt2" in next_sec
     assert "130 seen" in next_sec or "130 seen versus" in next_sec
     assert r"\textbf{11/12}" in next_sec
+    assert "68/96" in next_sec
+    assert r"\textbf{8/12}" in next_sec
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "68/96" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
@@ -625,6 +629,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-03-pair-distil-12x4-kgw/results.json": "f17ba689c14ecf21",
         "experiments/2026-09-03-probe-distil-12x4-kgw-hard-last4/interpolate/holdout.json": "845af54db1aeb37f",
         "experiments/2026-09-03-atoms-distil-12x4-kgw/atoms.json": "52c8fe2505a567c0",
+        "experiments/2026-09-03-pair-qwen-12x4-kgw/results.json": "1e7e7a85888e2746",
+        "experiments/2026-09-03-probe-qwen-12x4-kgw-hard-last4/interpolate/holdout.json": "68b96241a91e8a9c",
+        "experiments/2026-09-03-atoms-qwen-12x4-kgw/atoms.json": "df93d69c13d85869",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():

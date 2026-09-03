@@ -1356,7 +1356,9 @@ with the same Kirchenbauer defaults is frozen in
 (isolated \textbf{85/96}); hard is \textbf{11/12}. That is not
 \textbf{25/48}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
 in \texttt{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
-\texttt{45a75c9}) and has not been generated. An Aaronson mixin is a third protocol and has not been
+\texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
+(isolated \textbf{68/96}); hard is \textbf{8/12}. That is not
+\textbf{25/48}. An Aaronson mixin is a third protocol and has not been
 run.
 
 \begin{table}[ht]
@@ -1505,6 +1507,17 @@ accuracy $85/96$; mean $D_p=0.504$). Hard is \textbf{11/12} (AUC
 $0.780$; $66/96$). Occupancy is 130 seen versus 11972 unseen. Hub
 revision was unpinned at generation; published scores read committed
 strings. That is not \textbf{25/48}.
+
+\paragraph{Original 12, Qwen2-1.5B Kirchenbauer.}
+Same mixin defaults, generator \texttt{Qwen/Qwen2-1.5B-Instruct}, freeze
+SHA \texttt{45a75c9}, seed 20260904, Qwen tokenizer on probe and atoms.
+Official matching $z$-scores are above $3.0$ on all 12 first marked
+files. Interpolate last-4 ranks \textbf{12/12} (AUC $0.814$; 35 TP,
+13 FN, 33 TN, 15 FP; balanced accuracy $68/96$; mean $D_p=0.224$).
+Hard is \textbf{8/12} (AUC $0.566$; $50/96$). Occupancy is 84 seen
+versus 12108 unseen. Hub revision was unpinned at generation. Group
+ranking holds; isolated balanced accuracy is below Distil and GPT-2
+Kirchenbauer \textbf{85/96}. That is not \textbf{25/48}.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1692,6 +1705,16 @@ Distil interpolate:
 Distil occupancy:
 \path{experiments/2026-09-03-atoms-distil-12x4-kgw/atoms.json}
 (\texttt{52c8fe2505a567c0}; 130 seen).
+Qwen Kirchenbauer freeze: \texttt{45a75c9}.
+Qwen pair:
+\path{experiments/2026-09-03-pair-qwen-12x4-kgw/results.json}
+(\texttt{1e7e7a85888e2746}).
+Qwen interpolate:
+\path{experiments/2026-09-03-probe-qwen-12x4-kgw-hard-last4/interpolate/holdout.json}
+(\texttt{68b96241a91e8a9c}; $12/12$, $68/96$).
+Qwen occupancy:
+\path{experiments/2026-09-03-atoms-qwen-12x4-kgw/atoms.json}
+(\texttt{df93d69c13d85869}; 84 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
