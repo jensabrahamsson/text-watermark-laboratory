@@ -20,6 +20,7 @@ def test_plain_english_ingress_precedes_the_abstract() -> None:
     assert "secret key" in lead
     assert "prompt groups" in lead
     assert "no keys" in lead
+    assert "abstract below" in lead
     assert "76/100" not in lead
     assert "160" not in lead
 
