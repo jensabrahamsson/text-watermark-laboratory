@@ -47,6 +47,10 @@ Qwen2-1.5B Kirchenbauer 12×4: interpolate 0:4 **7/12**, 64:128
 Kirchenbauer openings (`--fit-prefix 4 --pos-bucket 1`) is weak:
 isolated **11/48**. Full-file interpolate **12/12** is not an
 exact-copy detector (atoms: 114 seen vs 12071 unseen).
+Unmarked-LM `rankpath` on the same GPT-2 Kirchenbauer 12×4 is weaker
+than interpolate: full file **10/12**, **31/48**, AUC **0.634**; tail
+64:128 **11/12**, **30/48**, **0.648**; opening 0:4 **8/12**,
+**23/48**, **0.604**. Count tables, not rankpath, are the body reader.
 
 Confirmatory 100-family interpolate last-4, absolute 0:4 vs 64:128
 (same readers; `--skip-nested` on the window slice):
@@ -82,7 +86,8 @@ original-12 tail **3/12** overstates how dead the body is at n=100.
 **Non-claim.** This does not replace **25/48**. Full-file Kirchenbauer
 interpolate **12/12** / **44/48** / **85/96** is a different mixin and
 already opened; do not sell those counts as isolated SynthID
-detection. Occupancy-free KGW openings are **not** the leak. Distil
+detection. Occupancy-free KGW openings are **not** the leak. Rankpath
+on Kirchenbauer 12 is below interpolate; do not sell **31/48**. Distil
 100-family Kirchenbauer interpolate **100/100** /
 isolated **683/800** (opened on `main`) is the same construction at
 confirmatory scale, still not **25/48**. Do not sell confirmatory tail
@@ -136,6 +141,10 @@ Confirmatory 100-family last-1 hard windows: 0:4 **94/100**, AUC
 **0.740**, isolated **257/400**; 64:128 **100/100**, AUC **0.962**,
 isolated **372/400**.
 
+Qwen2-1.5B KGW last-1 hard windows: 0:4 **8/12**, **29/48**, AUC
+**0.536**; 64:128 **12/12**, **37/48**, **0.757**. Same back-loaded
+split.
+
 Hard width is not “any shorter k.” GPT-2 Kirchenbauer hard:
 
 | Width | 12×4 | 100×4 |
@@ -161,6 +170,30 @@ is a global bag-of-tokens green-list leak. Last-1 still wins AUC and
 SynthID unigram is **11/12**, **26/48**, AUC **0.592** (library ranks
 with no isolated TP). Mix last-1+last-4 and backoff on public
 SynthID 12 are chance (**6/12**, AUC 0.49).
+
+Existing `hashpool` (random-hash context pool; not a new method name)
+at `--context-len 1` is the same width match on a different count spec:
+
+| Corpus | last-4 hashpool | last-1 hashpool |
+|---|---|---|
+| GPT-2 KGW 12×4 | 12/12, 40/48, 0.747 | **12/12, 47/48, 0.979** |
+| DistilGPT2 KGW 12×4 | 7/12, 26/48, 0.620 | **12/12, 43/48, 0.969** |
+| Qwen2-1.5B KGW 12×4 | 6/12, 15/48, 0.519 | **12/12, 39/48, 0.901** |
+| GPT-2 KGW 100×4 | 96/100, 304/400, 0.867 | **100/100, 394/400, 0.995** |
+| DistilGPT2 KGW 100×4 | — | 99/100, 325/400, 0.872 |
+
+Qwen last-4 hashpool is chance. Last-1 hashpool recovers ranking.
+Unmarked $\le 0$ on GPT-2 12 last-1 hashpool is **41/48** (better than
+unigram **27/48**). Distil 100 last-1 hashpool isolated **325/400** is
+below Distil hard last-1 **350/400**: hashpool is not strictly better
+than `hard` at every generator. GPT-2 KGW hashpool last-1 windows:
+0:4 **9/12**, **27/48**, 0.570; 64:128 **12/12**, **46/48**, 0.946.
+Same body geography as hard last-1. Occupancy-free `postokhits` last-1
+on GPT-2 KGW 12 is **9/12**, **33/48**, AUC 0.600, unmarked $\le 0$
+only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
+lifts isolated with FPs; it is not the green-list reader. Public
+SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
+not sell **47/48** or **394/400**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -188,21 +221,25 @@ reason to sell **350/400**.
 tables smear a one-token green list across unused context tokens.
 Matching reader width to hash width recovers isolated sign without
 keys. A context-free unigram still ranks because green tokens are
-over-used in aggregate; last-1 is the tighter match. Interpolate
-last-4 was already saturated at 100 families (**100/100** /
-**376/400**); last-1 is the hard-reader lift.
+over-used in aggregate; last-1 `hard` / `hashpool` are the tighter
+match. Interpolate last-4 was already saturated at 100 families
+(**100/100** / **376/400**); last-1 is the hard-reader lift, and
+hashpool last-1 is the same width on the hash-pool spec.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
-**48/48**, **47/48**, **389/400**, **350/400**, **329/400**, or
-**100/100** as replacing **25/48**. Do not add a method name. Do not retune Kirchenbauer
-`context_width` after peeking. Do not run last-1 or unigram as the
-headline SynthID reader. Do not switch Kirchenbauer hard to last-2
-(12×4 collapse; 100×4 is strictly below last-1). Kirchenbauer last-1
-tables trained on 100 GPT-2 families do **not** classify public
-SynthID original-12 (isolated **6/48**, AUC 0.542, three ranking wins
-with no isolated TP) or Grok-register SynthID 12 (**6/12**, **8/48**,
-AUC 0.523, two ranking wins with no isolated TP). The last-1 lift is
-mixin-specific.
+**48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
+**394/400**, **304/400**, **325/400**, occupancy-free last-1
+**33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, or
+**100/100** as replacing **25/48**. Do not add a method name. Do not
+retune Kirchenbauer `context_width` after peeking. Do not run last-1,
+unigram, or hashpool last-1 as the headline SynthID reader. Do not
+switch Kirchenbauer hard to last-2 (12×4 collapse; 100×4 is strictly
+below last-1). Kirchenbauer last-1 tables trained on 100 GPT-2
+families do **not** classify public SynthID original-12 (isolated
+**6/48**, AUC 0.542, three ranking wins with no isolated TP) or
+Grok-register SynthID 12 (**6/12**, **8/48**, AUC 0.523, two ranking
+wins with no isolated TP). Hashpool last-1 transfer to public SynthID
+12 is **2/48**, AUC 0.501. The last-1 lift is mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
 generators. Last-4 does not:
@@ -211,14 +248,20 @@ generators. Last-4 does not:
 |---|---|---|
 | GPT-2 100 KGW → GPT-2 12 KGW | **12/12, 48/48, AUC 1.000** | 8/12, 32/48, 0.565 |
 | GPT-2 100 KGW → Distil 12 KGW | **12/12, 47/48, AUC 0.991** | 5/12, 22/48, 0.488 |
-| Distil 100 KGW → GPT-2 12 KGW | **12/12, 42/48, 0.987** | — |
-| Distil 100 KGW → Distil 12 KGW | **12/12, 42/48, 0.982** | — |
+| Distil 100 KGW → GPT-2 12 KGW | **12/12, 42/48, 0.987** | 11/12, 15/48, 0.685 |
+| Distil 100 KGW → Distil 12 KGW | **12/12, 42/48, 0.982** | 7/12, 6/48, 0.519 |
 
 `--skip-nested`; isolated is $\tau=0$. Unmarked $\le 0$ on GPT-2 12
-is **43/48** (five FPs). Distil in-domain last-1 was **46/48**; GPT-2
-tables on Distil files are **47/48**. Do not sell **48/48** or
-**47/48**. Qwen uses a different tokenizer; this transfer is same-BPE
-only.
+hard last-1 is **43/48** (five FPs). Distil in-domain last-1 was
+**46/48**; GPT-2 tables on Distil files are **47/48**. Distil last-4
+→ GPT-2 12 ranks **11/12** with isolated only **15/48** (two ranking
+wins with no isolated TP). Distil last-4 → Distil 12 is chance
+isolated **6/48**. Last-1 is the isolated transfer; last-4 ranking can
+look fine while files do not sign. Same last-1 `hashpool` tables:
+GPT-2 100 → GPT-2 12 **12/12, 48/48**, AUC **0.998**, unmarked $\le 0$
+**40/48** (eight FPs); GPT-2 100 → Distil 12 **12/12, 47/48**, 0.994.
+Do not sell **48/48** or **47/48**. Qwen uses a different tokenizer;
+this transfer is same-BPE only.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -239,19 +282,31 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-distil-12x4-kgw \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/xfer-kgw100-last1-to-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hashpool --context-len 1 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-hashpool-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashpool --context-len 1 --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-k1
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
 understates the green-list leak: 100-family ranking **62/100** →
 **100/100**, isolated **209/400** → **389/400**, AUC **0.573** →
-**0.990**. Same `hard` scorer. At n=100 the hard widths are last-1 >
-last-2 > last-4. Last-1 tables transfer GPT-2 ↔ Distil and GPT-2 100 →
-original-12 KGW (**48/48** vs last-4 **32/48**); last-4 tables do not.
-The freeze in
+**0.990**. Same `hard` scorer. Existing `hashpool` last-1 is the same
+width match (100-family **394/400**, AUC **0.995** vs last-4 hashpool
+**304/400**, **0.867**); Qwen last-4 hashpool is chance. At n=100 the
+hard widths are last-1 > last-2 > last-4. Last-1 tables transfer
+GPT-2 ↔ Distil and GPT-2 100 → original-12 KGW (**48/48** vs last-4
+**32/48**); last-4 tables do not (Distil 100 last-4 → Distil 12 is
+isolated **6/48**). The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
-width-matched companion. Unigram is a weaker bag-of-tokens companion,
-not a fourth scorer.
+width-matched companion. Unigram is a weaker bag-of-tokens companion.
+Hashpool last-1 is the other existing-scorer companion, not a fourth
+method name.
 
 ---
 
@@ -271,6 +326,30 @@ stays better at last-4 on 36×4 ranking. No new `--methods` name:
 | GPT-2 100×4 LOO | 67/100, 254/400, 0.607 | **94/100, 340/400**, 0.781 |
 | GPT-2 ngram-13 12×4 | 6/12, 22/48, 0.544 | 8/12, 21/48, 0.481 |
 | GPT-2 ngram-13 100×4 | 66/100, 215/400, 0.579 | 63/100, 248/400, 0.592 |
+
+Matching `context_len` to $\Hw=12$ does **not** repeat the Kirchenbauer
+last-1 jump. Original-12 ngram-13 hard width grid (k=4 is the freeze
+dump; other k used `--skip-nested`):
+
+| Width | 12×4 | 100×4 |
+|---|---|---|
+| last-2 | 8/12, 21/48, 0.481 | 63/100, 248/400, 0.592 |
+| last-3 | 5/12, 21/48, 0.473 | — |
+| last-4 | 6/12, 22/48, 0.544 | 66/100, 215/400, 0.579 |
+| last-6 | 6/12, 24/48, 0.560 | — |
+| last-8 | 6/12, 24/48, 0.551 | — |
+| last-10 | 7/12, 24/48, 0.553 | — |
+| last-12 | 7/12, 24/48, 0.553 | 71/100, 226/400, 0.620 |
+| last-13 | 7/12, 24/48, 0.553 | — |
+
+Last-6 is the half-window analog of last-2 on $\Hw=4$. Last-12 matches
+$\Hw=12$. Neither rescues isolated sign. 100-family last-12 ranking
+**71/100** is only +5 vs last-4; isolated **226/400** is below last-2
+**248/400**. Do not sell **71/100**. Hashpool last-2 on public
+SynthID 12 **hurts** ranking versus published last-4 hashpool:
+**10/12**, **31/48**, AUC **0.629** versus **11/12**, **35/48**,
+**0.716**. Hits last-2 already hurt; hashpool last-2 is the same. The
+last-2 lift is a **hard** width effect.
 
 12×4 last-2 absolute windows: tail 64:128 hard **10/12**, AUC 0.680,
 isolated **34/48**. Opening 0:4 last-2 hard is **7/12**. That tail
@@ -328,9 +407,8 @@ control-as-marked 12 (**4/12**, 19/48, AUC 0.441 versus last-4
 **7/12**, 19/48, 0.522): last-2 is instance-specific when the train
 key is public. In-domain second-key last-2 below is a different split.
 100 one-liners → Grok-register (`--skip-nested`; do not mix grok12 into
-train): last-2
-grok12 **6/12**, **29/48**, AUC **0.590** versus last-4 **4/12**,
-**12/48**, 0.424; grok36 last-2 **18/36**, **77/144**, 0.516 versus
+train): last-2 grok12 **6/12**, **29/48**, AUC **0.590** versus last-4
+**4/12**, **12/48**, 0.424; grok36 last-2 **18/36**, **77/144**, 0.516 versus
 last-4 **15/36**, **43/144**, 0.458. Isolated **29/48** equals
 100→original-12 last-2; ranking is chance. In-domain grok12 last-2
 TPs overlap that transfer on **19/29** files. Grok36 last-2 windows:
@@ -427,6 +505,8 @@ last-1 tail is **100/100**). Grok-register 12 last-2 isolated
 **30/48**). It is tied to short tournament history:
 `ngram_len=13` ($\Hw=12$) last-2 does not rescue ranking (12×4 isolated
 **21/48** vs last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
+Matching last-12 to $\Hw=12$ does not either (12×4 **24/48**; 100×4
+ranking **71/100**, isolated **226/400**, below last-2 **248/400**).
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
@@ -438,10 +518,12 @@ xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
-repeat the 100-family **94/100** jump). Do not present last-2 as a
-Kirchenbauer-style body companion. Public last-2 tables trained on
-100 GPT-2 families do not classify Kirchenbauer original-12
-(isolated **24/48**, AUC 0.554).
+repeat the 100-family **94/100** jump). Matching last-12 to $\Hw=12$
+does not replace last-2 (100-family isolated **226/400** vs last-2
+**248/400**). Do not present last-2 as a Kirchenbauer-style body
+companion. Public last-2 tables trained on 100 GPT-2 families do not
+classify Kirchenbauer original-12 (isolated **24/48**, AUC 0.554). Do
+not sell ngram-13 last-12 **71/100** or hashpool last-2 **31/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -464,6 +546,14 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-12x4-ngram13-k2
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
+  --methods hard --context-len 12 --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-12x4-ngram13-k12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods hard --context-len 12 --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-ngram13-k12
 ```
 
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
@@ -472,10 +562,12 @@ sign on 12, 36, and 100 **public** GPT-2 families in the same
 direction. At n=100 that lift is opening mass kept in the file mean
 (**334/340** of last-2 TPs are 0:4 TPs), not a body window: original-12
 tail **10/12** overstates geography. It is not a universal
-shorter-context recipe: longer hash history kills the ranking jump;
-Distil/Qwen/medium 12 do not repeat the isolated McNemar; Grok-register
-12 does (**34/48**, ranking still **8/12**). Keep leftover-20 as the
-honesty bound on any SynthID width change.
+shorter-context recipe: longer hash history kills the ranking jump
+(matching last-12 to $\Hw=12$ does not recover it); Distil/Qwen/medium
+12 do not repeat the isolated McNemar; Grok-register 12 does
+(**34/48**, ranking still **8/12**). Hits and hashpool last-2 hurt
+ranking. Keep leftover-20 as the honesty bound on any SynthID width
+change.
 
 ---
 
@@ -518,14 +610,20 @@ not a proven improvement of this lab’s finished-string `indicate` /
 (2026) (TTP-Detect) stays the closest published finished-string analog
 and was not reimplemented.
 
-### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; SynthID hashpool last-1/last-2
 
-`postokhits` on Kirchenbauer 12×4 is **11/48**. SynthID last-1
-full-file hard is **1/12**. Interpolate last-2 drops 36×4 ranking
-from **34/36** to **32/36**. Mix last-1+last-4 and backoff on public
+`postokhits` on Kirchenbauer 12×4 last-4 is **11/48**; last-1 is
+**33/48** with unmarked $\le 0$ only **25/48**. SynthID last-1
+full-file hard is **1/12**; SynthID hashpool last-1 is **5/12**,
+**24/48**, AUC 0.472. Interpolate last-2 drops 36×4 ranking from
+**34/36** to **32/36**. Mix last-1+last-4 and backoff on public
 SynthID 12 are chance (**6/12**). Occupancy-free `postokhits` last-2
-on public 12 is **23/48**, same as last-4 `postokhits`, below **25/48**.
-None of those is a backlog item.
+on public 12 is **23/48**, same as last-4 `postokhits`, below
+**25/48**. Matching last-12 / last-6 / last-13 to $\Hw=12$ leaves
+ngram-13 isolated at **21–24/48**. Hashpool last-2 on public 12 is
+**10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
+**35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
+interpolate **12/12**, AUC **0.904**. None of those is a backlog item.
 
 ---
 
@@ -536,12 +634,13 @@ A freeze of **width and mixin geography** that already moved a grain:
 1. Kirchenbauer green-list leak is a **body** leak under last-4
    interpolate (100-family tail **100/100**, opening **88/100**).
 2. Matching `context_len` to that mixin’s last-1 hash recovers
-   isolated hard sign (100-family **389/400** vs last-4 **209/400**).
+   isolated `hard` / `hashpool` sign (100-family hard **389/400** vs
+   last-4 **209/400**; hashpool **394/400** vs **304/400**).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
    lift is opening mass kept in the file mean, not a body leak. The
-   jump does not repeat at $\Hw=12$.
+   jump does not repeat at $\Hw=12$, including last-12.
 
 Keep leftover-20 as the honesty bound on any SynthID width change.
 Do not write `thesis/` from this file.
