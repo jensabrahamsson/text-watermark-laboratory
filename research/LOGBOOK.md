@@ -2536,6 +2536,27 @@ JSON: `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
 `experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-12x4-ngram13/`.
 
+## 2026-09-04 Qwen2-1.5B ngram_len=13 freeze
+
+[PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md)
+frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
+as [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md), generator
+`Qwen/Qwen2-1.5B-Instruct`, original 12 prompt strings, seed **20260903**,
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`. Hypotheses
+H-long-q-ctrl, H-long-q-group, H-long-q-iso, and H-long-q-occ are stated
+before generation. Do not look at key-free LRs until `pair` has written
+official first-draw scores and the probe command has been run once, as
+written. Do not add a scorer. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260903 --ngram-len 13 \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-12x4-ngram13
+```
+
 
 
 
