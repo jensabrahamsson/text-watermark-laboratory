@@ -313,6 +313,11 @@ Transfer 100×4 → original 12, hard, no method name:
 | last-4 | 8/12 | 21/48 | 14/48 vs 43/48 |
 | last-2 | 7/12 | **29/48** | **23/48 vs 36/48** |
 
+24 new stems from the 36-family pile (`--overlap drop-from-train`,
+`n_train=24`): last-2 **8/12**, **31/48**, AUC **0.625** versus last-4
+**8/12**, **28/48**, 0.585. Ranking tied; leftover last-2 **10/20 vs
+13/20**. Do not sell **31/48**.
+
 Same-register 100 → 36×4 (`--skip-nested`): last-2 **31/36**, isolated
 **118/144**, AUC **0.743** versus last-4 **25/36**, **96/144**, 0.624.
 Last-2 helps the 36-family transfer. It does **not** transfer to
