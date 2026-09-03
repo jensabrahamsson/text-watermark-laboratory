@@ -2374,3 +2374,24 @@ Last-1 ahead of last-4 is the style-shift order. Last-4 ahead of last-1 is the p
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-03-resample-work`.
 
 ---
+
+## 2026-09-03 DistilGPT2 Kirchenbauer 100-family freeze
+
+[PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) 100-family
+arm named before generation. Same Hugging Face Kirchenbauer defaults,
+generator `distilgpt2`, prompts `experiments/2026-09-01-prompts-100/`,
+seed **20260904**, `--mixin kgw`, Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-kgw-d100-ctrl,
+H-kgw-d100-group, H-kgw-d100-iso, and H-kgw-d100-occ are stated before
+generation. Do not look at key-free LRs until `pair` has written
+official first-draw z-scores and the probe command has been run once,
+as written. Do not add a scorer. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260904 \
+  --mixin kgw --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-03-pair-distil-100x4-kgw
+```
+

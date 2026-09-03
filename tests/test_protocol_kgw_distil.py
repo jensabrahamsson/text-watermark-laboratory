@@ -97,3 +97,58 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     assert lo > 0.5
     iso_lo, iso_hi = clopper_pearson(25, 48)
     assert iso_lo <= 0.5 <= iso_hi
+
+
+PROMPTS_100 = ROOT / "experiments" / "2026-09-01-prompts-100"
+
+
+def test_protocol_kgw_distil_100_named_before_generation() -> None:
+    text = PROTOCOL.read_text()
+    log = LOG.read_text()
+    assert "H-kgw-d100-ctrl" in text
+    assert "H-kgw-d100-group" in text
+    assert "H-kgw-d100-iso" in text
+    assert "H-kgw-d100-occ" in text
+    assert "2026-09-03-pair-distil-100x4-kgw" in text
+    assert "2026-09-01-prompts-100" in text
+    assert "--hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa" in text
+    assert "--model distilgpt2" in text
+    assert "--mixin kgw" in text
+    assert "Do not look at key-free LRs" in text
+    assert "25/48" in text
+    assert "H-kgw-d100-ctrl" in log
+    assert "2290a62682d06624634c1f46a6ad5be0f47f38aa" in log
+    assert "2026-09-03-pair-distil-100x4-kgw" in log
+    assert PROMPTS_100.is_dir()
+    assert len(list(PROMPTS_100.glob("*.txt"))) == 100
+    pair_100 = ROOT / "experiments" / "2026-09-03-pair-distil-100x4-kgw"
+    assert not pair_100.exists()
+
+
+def test_protocol_kgw_distil_100_cli_flag_exists() -> None:
+    from text_watermark_tools.cli import build_parser
+
+    args = build_parser().parse_args(
+        [
+            "pair",
+            "experiments/2026-09-01-prompts-100",
+            "--model",
+            "distilgpt2",
+            "--n-samples",
+            "4",
+            "--max-new-tokens",
+            "128",
+            "--seed",
+            "20260904",
+            "--mixin",
+            "kgw",
+            "--hub-revision",
+            "2290a62682d06624634c1f46a6ad5be0f47f38aa",
+            "--out-dir",
+            "experiments/2026-09-03-pair-distil-100x4-kgw",
+        ]
+    )
+    assert args.mixin == "kgw"
+    assert args.model == "distilgpt2"
+    assert args.seed == 20260904
+    assert args.hub_revision == "2290a62682d06624634c1f46a6ad5be0f47f38aa"

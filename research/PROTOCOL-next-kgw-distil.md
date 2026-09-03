@@ -157,3 +157,48 @@ JSON: [experiments/2026-09-03-atoms-distil-12x4-kgw/](../experiments/2026-09-03-
 
 Isolated-file detection on the public SynthID original-12 remains
 **25/48** / **47/96**. Do not write `thesis/`.
+
+## One hundred families (named)
+
+Same mixin defaults, DistilGPT2, `--n-samples 4`, $T=128$, seed
+`20260904`, prompts `experiments/2026-09-01-prompts-100/`, Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa` (the local snapshot after
+the original-12 Distil run; Distil 12 was unpinned, do not backfill).
+Same readers. Same two grains. Named here before generation.
+LOGBOOK names the start before generation. A finished 100×4 Distil
+Kirchenbauer corpus is not required for the original-12 freeze to hold.
+
+Stated before these 100×4 LRs:
+
+- **H-kgw-d100-ctrl.** Official matching z-score is above $3.0$ on
+  every first marked file. Unmarked first-draw is not all above $3.0$.
+  If marked first-draws fail, stop; harness bug.
+- **H-kgw-d100-group.** Interpolate last-4 prompt ranking is reported
+  beside GPT-2 Kirchenbauer **100/100** and Distil original-12
+  **12/12**. Either drop or hold is informative. It does not replace
+  **25/48**.
+- **H-kgw-d100-iso.** Isolated $\tau=0$ confusion matrix does not
+  replace **25/48**.
+- **H-kgw-d100-occ.** Exact last-4 occupancy (`atoms --leave-one-out`)
+  is logged after probe. Occupancy is a mechanistic intermediate, not
+  a detector.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260904 \
+  --mixin kgw --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-03-pair-distil-100x4-kgw
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --out-dir experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4
+
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-09-03-pair-distil-100x4-kgw \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-distil-100x4-kgw
+```
+
+Do not look at key-free LRs until `pair` has written official
+first-draw z-scores and the probe command has been run once, as
+written. Do not change flags after the first run. Do not add a scorer.
