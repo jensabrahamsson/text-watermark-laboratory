@@ -2102,6 +2102,24 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
 Do not look at key-free LRs until `pair` has written official
 first-draw scores and the probe command has been run once, as written.
 
+## 2026-09-03 longer-context Phase B opened
+
+[PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) Phase B named
+`facc538`. Pair seed **20260903**, `ngram_len=13`, 100 one-liners.
+Official first-draw **100/100** above 0.55 (H-long-B-ctrl holds).
+Key-free interpolate last-4 **76/100** (AUC **0.666**, isolated
+**267/400 vs 222/400**, BA **489/800**). Hard **66/100** (AUC
+**0.579**, isolated **215/400 vs 221/400**). `used_keys=false`.
+Below public-mixin lock A **99/100**. Clopper–Pearson on **76/100** is
+**[0.664, 0.840]** and excludes ½. H-long-B-group holds. Isolated
+**489/800** is not chance-like vs **47/96** on this different corpus;
+do not sell **76/100**, **267/400**, or **489/800** as replacing
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+JSON: `experiments/2026-09-03-pair-100x4-ngram13/`,
+`experiments/2026-09-03-probe-100x4-ngram13-hard-last4/`.
+
 ---
 
 ## 2026-09-02 resample

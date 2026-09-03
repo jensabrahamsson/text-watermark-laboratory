@@ -173,6 +173,19 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert interp["n_prompts_marked_above"] == 6
     assert r"\textbf{6/12}" in PAPER
     assert "52/96" in PAPER
+    assert r"\textbf{76/100}" in PAPER
+    assert "489/800" in PAPER
+    b100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-100x4-ngram13-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    assert b100["used_keys"] is False
+    assert b100["n_prompts_marked_above"] == 76
     assert "all 48 marked files" in PAPER
     assert "ferry-queue" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
@@ -184,3 +197,5 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "ngram_len=13" not in abs_
     assert "108454" not in abs_
     assert r"\textbf{6/12}" not in abs_
+    assert r"\textbf{76/100}" not in abs_
+    assert "489/800" not in abs_

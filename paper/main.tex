@@ -1311,7 +1311,18 @@ intervals include $1/2$. That is below the public-mixin hard diagnostic
 \textbf{9/12} on these prompt strings (different twins, $\Hw=4$).
 Isolated $\tau=0$ on the new twins does not replace \textbf{25/48}.
 Occupancy was not decoded: the 12-LOO dump does not persist
-\texttt{tables-counts}. Phase~B (100 families) is not opened.
+\texttt{tables-counts}.
+
+Phase~B (same lock, 100 one-liners, start named \texttt{facc538}) is
+opened. Official first-draw matching $\mathtt{ngram\_len}=13$ is
+\textbf{100/100} above $0.55$. Leave-one-family-out interpolate last-4
+ranks \textbf{76/100} (AUC $0.666$; $\tau=0$ is 267 TP, 133 FN, 222 TN,
+178 FP; balanced accuracy $489/800$), below public-mixin lock~A
+\textbf{99/100} on these prompt strings. Hard is \textbf{66/100}
+(AUC $0.579$; balanced accuracy $436/800$). Phase~A \textbf{6/12} was
+small-$n$; Phase~B shows attenuation, not collapse. Isolated
+$489/800$ is a different corpus from the original 12 and does not
+replace \textbf{25/48}.
 
 Hard prompt wins are market, station, rain, letter, workshop, and
 ferry-queue. Interpolate wins library, market, station, letter,
@@ -1375,8 +1386,9 @@ drops leave-one-family-out last-4 ranking on the original 12 strings to
 \textbf{6/12}, while official matching scores remain above $0.55$ on all
 48 marked files. Isolated $\tau=0$ is $52/96$. That is consistent with
 short reusable context as a boundary of the group-level result. It does
-not replace \textbf{25/48}. A different local mixin and a 100-family
-$\Hw=12$ corpus remain unopened.
+not replace \textbf{25/48}. A different local mixin remains unopened. The 100-family $\Hw=12$
+corpus is opened: interpolate ranking \textbf{76/100}, not lock~A
+\textbf{99/100}, and not a replacement of \textbf{25/48}.
 
 Code and frozen JSON:
 \url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
@@ -1438,6 +1450,12 @@ Phase~A pair:
 Phase~A probe:
 \path{experiments/2026-09-03-probe-12x4-ngram13-hard-last4/hard/holdout.json}
 (\texttt{fcff60687ac27348}; interpolate and hard $6/12$).
+Phase~B pair:
+\path{experiments/2026-09-03-pair-100x4-ngram13/results.json}
+(\texttt{761b5d2ea676fa5d}).
+Phase~B probe:
+\path{experiments/2026-09-03-probe-100x4-ngram13-hard-last4/interpolate/holdout.json}
+(\texttt{e17cda239aa36e43}; interpolate $76/100$).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

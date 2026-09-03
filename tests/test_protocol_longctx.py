@@ -11,6 +11,8 @@ PROTOCOL = ROOT / "research" / "PROTOCOL-next-longctx.md"
 PROMPTS = ROOT / "experiments" / "2026-08-17-grok-prompts"
 PAIR = ROOT / "experiments" / "2026-09-03-pair-12x4-ngram13"
 PROBE = ROOT / "experiments" / "2026-09-03-probe-12x4-ngram13-hard-last4"
+PAIR100 = ROOT / "experiments" / "2026-09-03-pair-100x4-ngram13"
+PROBE100 = ROOT / "experiments" / "2026-09-03-probe-100x4-ngram13-hard-last4"
 
 
 def test_protocol_longctx_locks_config_before_generation() -> None:
@@ -143,3 +145,33 @@ def test_ngram13_official_scores_all_48_marked_files() -> None:
     assert u_max < 0.55
     text = PROTOCOL.read_text()
     assert "**48/48**" in text
+
+
+def test_protocol_longctx_phase_b_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR100 / "results.json").read_text())
+    probe = json.loads((PROBE100 / "results.json").read_text())
+    assert pair["ngram_len"] == 13
+    assert pair["seed"] == 20260903
+    assert len(pair["rows"]) == 100
+    assert all(row["marked"]["mean"] > 0.55 for row in pair["rows"])
+    assert all(row["unmarked_gen"]["mean"] < 0.55 for row in pair["rows"])
+    assert probe["used_keys"] is False
+    interp = holdout_from_json(PROBE100 / "interpolate" / "holdout.json")
+    hard = holdout_from_json(PROBE100 / "hard" / "holdout.json")
+    assert interp.n_prompts_marked_above == 76
+    assert hard.n_prompts_marked_above == 66
+    interp_raw = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
+    assert interp_raw["n_marked_lr_positive"] == 267
+    assert interp_raw["n_unmarked_lr_nonpositive"] == 222
+    lo, hi = clopper_pearson(76, 100)
+    assert lo > 0.5
+    assert "H-long-B-ctrl **holds**" in text
+    assert "H-long-B-group **holds**" in text
+    assert "Do **not** sell **76/100**" in text or "Do not sell **76/100**" in " ".join(
+        text.split()
+    )
+    assert "facc538" in text
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "Phase B start" in log
+    assert not (PROBE100 / "tables-counts").exists()

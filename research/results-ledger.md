@@ -392,6 +392,17 @@ Do not sell **6/12** or **52/96**. Does not replace **25/48**.
 JSON: `experiments/2026-09-03-pair-12x4-ngram13/`,
 `experiments/2026-09-03-probe-12x4-ngram13-hard-last4/`.
 
+## Longer-context two-grain Phase B (`ngram_len=13`, 100 families)
+
+Protocol SHA `b70986d`; start `facc538`. Official first-draw **100/100**.
+Interpolate last-4 **76/100** (AUC **0.666**, isolated **267/400 vs
+222/400**, BA **489/800**). Hard **66/100**. Below public-mixin lock A
+**99/100**. Do not sell **76/100** or **489/800**. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-03-pair-100x4-ngram13/`,
+`experiments/2026-09-03-probe-100x4-ngram13-hard-last4/`.
+
 ## Isolated-file leftover vs covered (mask-*k* hard windows)
 
 Protocol SHA `3e30e70`. `used_keys=false`. Hard **4:128** leftover
@@ -520,8 +531,10 @@ remasure of [PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute
 lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
 (`ngram_len=13`, $\Hw=12$). Opened Phase A: official first-draw
 **12/12**; interpolate and hard prompt ranking **6/12**; isolated hard
-**22/48 vs 30/48** (**52/96**). Below public-mixin **9/12**. Do not
-sell **6/12**. Isolated-file remains open.
+**22/48 vs 30/48** (**52/96**). Opened Phase B: official **100/100**;
+interpolate **76/100** (below lock A **99/100**); isolated
+**267/400 vs 222/400** (**489/800**). Do not sell **6/12** or
+**76/100**. Isolated-file remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

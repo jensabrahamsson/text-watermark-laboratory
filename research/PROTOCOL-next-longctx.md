@@ -238,4 +238,49 @@ family. Occupancy remains a mechanistic intermediate for a later
 LOO-aware decode. Do not invent unseen/seen counts.
 
 Isolated-file detection is still not finished. Do not write `thesis/`.
-Phase B (100 families, same `ngram_len=13`) is still not opened.
+
+## Phase B results
+
+Named `facc538` before generation. Pair seed **20260903**.
+`ngram_len=13`. `used_keys=false`.
+
+Pair dump: [experiments/2026-09-03-pair-100x4-ngram13/](../experiments/2026-09-03-pair-100x4-ngram13/).
+Probe dump: [experiments/2026-09-03-probe-100x4-ngram13-hard-last4/](../experiments/2026-09-03-probe-100x4-ngram13-hard-last4/).
+
+H-long-B-ctrl **holds**. Official first-draw matching `ngram_len=13`
+is above $0.55$ on **100/100** first marked files (min $0.582$).
+Unmarked first-draw: **0/100** above $0.55$ (max $0.519$).
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **76/100** | 0.666 | 267/400 | 222/400 | 267 133 222 178 | **489/800** |
+| hard last-4 | **66/100** | 0.579 | 215/400 | 221/400 | 215 185 221 179 | **436/800** |
+
+Public-mixin lock A interpolate on these prompt *strings* (different
+twins, `ngram_len=5`) was **99/100**.
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+
+| Count | Interval | Includes ½? |
+|---|---|---|
+| ngram-13 interpolate **76/100** | **[0.664, 0.840]** | no |
+| ngram-13 hard **66/100** | **[0.558, 0.752]** | no |
+| ngram-13 interpolate t=0 **267/400** | **[0.619, 0.714]** | no |
+| ngram-13 interpolate BA **489/800** | **[0.576, 0.645]** | no |
+| Isolated **25/48** | **[0.372, 0.667]** | yes |
+
+H-long-B-group **holds**. Interpolate last-4 100-LOO ranking is
+**76/100**, below public-mixin lock A **99/100**. It is not chance
+on this n=100 one-liner set. Phase A **6/12** was small-n; Phase B
+shows attenuation, not collapse. Mean paired file difference is
+$0.156$ (interpolate) / $0.027$ (hard). Do **not** sell **76/100** as
+replacing **99/100** or **25/48**.
+
+H-long-B-iso **does not hold as “chance-like vs 47/96”** on this
+corpus: interpolate isolated BA is **489/800** (AUC **0.666**), a
+different register and $n$ from the original 12. Hard isolated BA is
+**436/800** (AUC **0.579**). Neither is the prespecified original-12
+matrix. Do not sell **267/400**, **489/800**, or **76/100** as
+replacing **25/48**. Nested Youden is post hoc.
+
+Isolated-file detection is still not finished. Do not write `thesis/`.

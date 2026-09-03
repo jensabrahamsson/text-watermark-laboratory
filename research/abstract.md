@@ -23,8 +23,8 @@ Official `score` **12/12** uses keys. Isolated **25/48** stays in the
 window so the two grains are not collapsed; it is not the merchandise.
 Do not put Distil **22/48**, Distil→Distil **16/48**, Qwen→Qwen
 **31/48**, Distil ∪ SMT union **33/48**, leftover official **15/15**, leftover official **18/18**, nested negative-threshold
-Youden, `Closing`, `'The'→' car'`, ngram-13 **6/12**, or isolated
-**52/96** in the window. Those are
+Youden, `Closing`, `'The'→' car'`, ngram-13 **6/12**, isolated
+**52/96**, or ngram-13 100-family **76/100** in the window. Those are
 stockroom measurements. They do not replace **25/48** on the original
 12. This laboratory did not refute Christ et al. (2024) or Zhang et al.
 (2024). Do not write `thesis/`.
