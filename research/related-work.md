@@ -22,7 +22,10 @@ reimplement `detector_mean`. Trust the code for `get_gvals`: 12 LCG mixes,
 then `(hash >> 30) % 2`.
 
 Kirchenbauer et al. (2023) (KGW) and Aaronson and Kirchner (2023) are the
-earlier sampling-watermark family. Kuditipudi et al. (2024) and Christ et al.
+earlier sampling-watermark family. A two-grain replication on Hugging Face
+Kirchenbauer defaults is frozen in
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`, seed
+20260904) and has not been generated. Kuditipudi et al. (2024) and Christ et al.
 (2024) give distortion-free / cryptographically undetectable variants.
 SynthID is a tournament member of that family, not a hidden-character tag.
 Christ et al. (2024) prove undetectability for a *different* construction;

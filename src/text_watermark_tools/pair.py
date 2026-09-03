@@ -62,6 +62,7 @@ class PairRun:
     model_name: str = "gpt2"
     ngram_len: int = 5
     hub_revision: str | None = None
+    mixin: str = "synthid"
 
 
 def collect_prompts(path: Path) -> list[tuple[str, str]]:
@@ -78,12 +79,17 @@ def collect_prompts(path: Path) -> list[tuple[str, str]]:
 
 
 def _score_to_dict(score: OfficialScore) -> dict:
-    return {
+    rec = {
         "mean": score.mean,
         "weighted_mean": score.weighted_mean,
         "n_tokens": score.n_tokens,
         "n_unmasked_ngrams": score.n_unmasked_ngrams,
     }
+    if score.z_score is not None:
+        rec["z_score"] = score.z_score
+    if score.green_fraction is not None:
+        rec["green_fraction"] = score.green_fraction
+    return rec
 
 
 def pair_stem_files_complete(out_dir: Path, stem: str, n_samples: int) -> bool:
@@ -144,31 +150,43 @@ def load_pair_row_from_files(
     *,
     n_samples: int,
     ngram_len: int = 5,
+    mixin: str = "synthid",
+    model_name: str = "gpt2",
+    hub_revision: str | None = None,
 ) -> PairRow:
     """Rebuild a row from already-written twins. Re-scores; does not regenerate."""
     out_dir = Path(out_dir)
     text = prompt if prompt.endswith("\n") else prompt + "\n"
     marked = (out_dir / f"{stem}-marked.txt").read_text()
     unmarked = (out_dir / f"{stem}-unmarked-gen.txt").read_text()
+
+    def score_one(blob: str) -> OfficialScore:
+        if mixin == "kgw":
+            from text_watermark_tools.kgw import kgw_score_text
+
+            return kgw_score_text(
+                blob,
+                tokenizer=tokenizer,
+                model_name=model_name,
+                revision=hub_revision,
+            )
+        return _score_text(blob, tokenizer, ngram_len)
+
     extra_marked: list[tuple[str, OfficialScore]] = []
     extra_unmarked: list[tuple[str, OfficialScore]] = []
     for i in range(2, n_samples + 1):
         extra_m = (out_dir / f"{stem}-marked-{i}.txt").read_text()
         extra_u = (out_dir / f"{stem}-unmarked-gen-{i}.txt").read_text()
-        extra_marked.append(
-            (extra_m, _score_text(extra_m, tokenizer, ngram_len))
-        )
-        extra_unmarked.append(
-            (extra_u, _score_text(extra_u, tokenizer, ngram_len))
-        )
+        extra_marked.append((extra_m, score_one(extra_m)))
+        extra_unmarked.append((extra_u, score_one(extra_u)))
     return PairRow(
         stem=stem,
         prompt=text,
-        prompt_score=_score_text(text, tokenizer, ngram_len),
+        prompt_score=score_one(text),
         marked_text=marked,
-        marked_score=_score_text(marked, tokenizer, ngram_len),
+        marked_score=score_one(marked),
         unmarked_text=unmarked,
-        unmarked_score=_score_text(unmarked, tokenizer, ngram_len),
+        unmarked_score=score_one(unmarked),
         extra_marked=extra_marked,
         extra_unmarked=extra_unmarked,
     )
@@ -190,6 +208,7 @@ def run_pairs(
     persist_dir: Path | None = None,
     ngram_len: int | None = None,
     hub_revision: str | None = None,
+    mixin: str = "synthid",
 ) -> PairRun:
     """For each prompt: score the prompt, then generate unmarked and marked twins.
 
@@ -199,11 +218,20 @@ def run_pairs(
     When `resume_dir` has complete stem files, those stems are re-scored
     instead of regenerated. When `persist_dir` is set, each stem's texts
     are written as soon as the row exists.
+    `mixin='kgw'` uses Hugging Face Kirchenbauer watermarking. Official
+    scores are then WatermarkDetector z-scores, not detector_mean.
     """
     if n_samples < 1:
         raise ValueError("n_samples must be >= 1")
+    kind = mixin or "synthid"
+    if kind not in ("synthid", "kgw"):
+        raise ValueError(f"unknown mixin {mixin!r}; expected synthid or kgw")
+    if kind == "kgw" and also_control_keys:
+        raise ValueError("control keys are SynthID-only; they do not apply to kgw")
     name = model_name or "gpt2"
     nlen = public_ngram_len() if ngram_len is None else int(ngram_len)
+    if kind == "kgw" and nlen != public_ngram_len():
+        raise ValueError("ngram_len is SynthID-only; kgw uses context_width=1")
     tok = tokenizer or load_tokenizer(name, revision=hub_revision)
     device = torch.device("cpu") if is_gpt2_name(name) else generate_device()
     resume = Path(resume_dir) if resume_dir is not None else None
@@ -216,16 +244,18 @@ def run_pairs(
         if resume is None or not pair_stem_files_complete(resume, stem, n_samples)
     ]
     if remaining:
-        if marked_model is None:
+        if unmarked_model is None:
+            unmarked_model = _load_unmarked_model(
+                device, model_name=name, revision=hub_revision
+            )
+        if kind == "kgw":
+            marked_model = unmarked_model
+        elif marked_model is None:
             marked_model = _load_marked_model(
                 device,
                 model_name=name,
                 ngram_len=nlen,
                 revision=hub_revision,
-            )
-        if unmarked_model is None:
-            unmarked_model = _load_unmarked_model(
-                device, model_name=name, revision=hub_revision
             )
     alt_key_list = control_keys() if also_control_keys else None
     if also_control_keys and alt_model is None:
@@ -237,18 +267,57 @@ def run_pairs(
             revision=hub_revision,
         )
 
+    kgw_det = None
+    if kind == "kgw":
+        from text_watermark_tools.kgw import kgw_detector, kgw_score_text, kgw_score_token_ids
+
+        kgw_det = kgw_detector(model_name=name, revision=hub_revision)
+
+        def score_text(blob: str) -> OfficialScore:
+            return kgw_score_text(
+                blob,
+                tokenizer=tok,
+                model_name=name,
+                revision=hub_revision,
+                detector=kgw_det,
+            )
+
+        def score_ids(ids, keys=None) -> OfficialScore:
+            del keys
+            return kgw_score_token_ids(
+                ids,
+                model_name=name,
+                revision=hub_revision,
+                detector=kgw_det,
+            )
+    else:
+
+        def score_text(blob: str) -> OfficialScore:
+            return _score_text(blob, tok, nlen)
+
+        def score_ids(ids, keys=None) -> OfficialScore:
+            return _score_ids(ids, tok, nlen, keys=keys)
+
     rows: list[PairRow] = []
     for offset, (stem, prompt) in enumerate(prompts):
         text = prompt if prompt.endswith("\n") else prompt + "\n"
         if resume is not None and pair_stem_files_complete(resume, stem, n_samples):
             row = load_pair_row_from_files(
-                resume, stem, text, tok, n_samples=n_samples, ngram_len=nlen
+                resume,
+                stem,
+                text,
+                tok,
+                n_samples=n_samples,
+                ngram_len=nlen,
+                mixin=kind,
+                model_name=name,
+                hub_revision=hub_revision,
             )
             rows.append(row)
             if persist is not None:
                 persist_pair_row_texts(row, persist)
             continue
-        prompt_score = _score_text(text, tok, nlen)
+        prompt_score = score_text(text)
         stride = 2 * n_samples + 2
         marked_gen: Generation = generate_text(
             text,
@@ -259,6 +328,7 @@ def run_pairs(
             tokenizer=tok,
             model=marked_model,
             ngram_len=nlen,
+            mixin=kind,
         )
         unmarked_gen: Generation = generate_text(
             text,
@@ -268,6 +338,7 @@ def run_pairs(
             device=device,
             tokenizer=tok,
             model=unmarked_model,
+            mixin=kind,
         )
         extra_marked: list[tuple[str, OfficialScore]] = []
         extra_unmarked: list[tuple[str, OfficialScore]] = []
@@ -281,6 +352,7 @@ def run_pairs(
                 tokenizer=tok,
                 model=marked_model,
                 ngram_len=nlen,
+                mixin=kind,
             )
             ug = generate_text(
                 text,
@@ -290,13 +362,10 @@ def run_pairs(
                 device=device,
                 tokenizer=tok,
                 model=unmarked_model,
+                mixin=kind,
             )
-            extra_marked.append(
-                (mg.text, _score_ids(mg.token_ids, tok, nlen))
-            )
-            extra_unmarked.append(
-                (ug.text, _score_ids(ug.token_ids, tok, nlen))
-            )
+            extra_marked.append((mg.text, score_ids(mg.token_ids)))
+            extra_unmarked.append((ug.text, score_ids(ug.token_ids)))
         alt_text = ""
         alt_pub = None
         alt_match = None
@@ -312,19 +381,17 @@ def run_pairs(
                 ngram_len=nlen,
             )
             alt_text = alt_gen.text
-            alt_pub = _score_ids(alt_gen.token_ids, tok, nlen)
-            alt_match = _score_ids(
-                alt_gen.token_ids, tok, nlen, keys=alt_key_list
-            )
+            alt_pub = score_ids(alt_gen.token_ids)
+            alt_match = score_ids(alt_gen.token_ids, keys=alt_key_list)
         rows.append(
             PairRow(
                 stem=stem,
                 prompt=text,
                 prompt_score=prompt_score,
                 marked_text=marked_gen.text,
-                marked_score=_score_ids(marked_gen.token_ids, tok, nlen),
+                marked_score=score_ids(marked_gen.token_ids),
                 unmarked_text=unmarked_gen.text,
-                unmarked_score=_score_ids(unmarked_gen.token_ids, tok, nlen),
+                unmarked_score=score_ids(unmarked_gen.token_ids),
                 alt_text=alt_text,
                 alt_score_public=alt_pub,
                 alt_score_matching=alt_match,
@@ -342,6 +409,7 @@ def run_pairs(
         model_name=name,
         ngram_len=nlen,
         hub_revision=hub_revision,
+        mixin=kind,
     )
 
 
@@ -424,10 +492,24 @@ def run_control_only(
 
 def print_pair_run(run: PairRun) -> str:
     chunks: list[str] = []
+    if run.mixin and run.mixin != "synthid":
+        chunks.append(f"mixin={run.mixin}")
     if run.hub_revision:
         chunks.append(f"hub_revision={run.hub_revision}")
+    kgw_fmt = None
+    if run.mixin == "kgw":
+        from text_watermark_tools.kgw import format_kgw_score
+
+        kgw_fmt = format_kgw_score
     for row in run.rows:
         nlen = run.ngram_len
+        if kgw_fmt is not None:
+            chunks.append(kgw_fmt(f"{row.stem}-prompt", row.prompt_score))
+            if row.unmarked_text:
+                chunks.append(kgw_fmt(f"{row.stem}-unmarked-gen", row.unmarked_score))
+            if row.marked_text:
+                chunks.append(kgw_fmt(f"{row.stem}-marked", row.marked_score))
+            continue
         chunks.append(
             format_score(f"{row.stem}-prompt", row.prompt_score, ngram_len=nlen)
         )
@@ -484,10 +566,12 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
     table: dict = {
         "max_new_tokens": run.max_new_tokens,
         "seed": run.seed,
-        "instance": PUBLIC_INSTANCE,
+        "instance": PUBLIC_INSTANCE if run.mixin != "kgw" else "kirchenbauer-hf-default",
         "model_name": run.model_name,
         "ngram_len": run.ngram_len,
         "hub_revision": run.hub_revision,
+        "mixin": run.mixin,
+        "kgw": None,
         "also_control_keys": run.alt_keys is not None,
         "control_only": bool(run.alt_keys is not None)
         and all(not row.marked_text for row in run.rows),
@@ -497,10 +581,16 @@ def persist_pair_run(run: PairRun, out_dir: Path) -> None:
             "*-control-gen.txt (if present) used control-shuffled-30 at sampling; "
             "not a *-marked.txt so blind ignore it. "
             "hub_revision is the Hugging Face snapshot if --hub-revision was set; "
-            "null means the unpinned default."
+            "null means the unpinned default. "
+            "mixin=kgw uses Hugging Face Kirchenbauer watermarking; official "
+            "scores are WatermarkDetector z-scores, not SynthID detector_mean."
         ),
         "rows": [],
     }
+    if run.mixin == "kgw":
+        from text_watermark_tools.kgw import kgw_config_dict
+
+        table["kgw"] = kgw_config_dict()
     md = [
         "# Same-prompt marked / unmarked twins",
         "",

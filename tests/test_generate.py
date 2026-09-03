@@ -124,6 +124,88 @@ def test_marked_model_load_forwards_hub_revision(monkeypatch) -> None:
     assert model.watermark_ngram_len == 13
 
 
+def test_generate_text_kgw_passes_watermarking_config(monkeypatch) -> None:
+    import torch
+    from text_watermark_tools.generate import generate_text
+    from text_watermark_tools.kgw import (
+        KGW_BIAS,
+        KGW_CONTEXT_WIDTH,
+        KGW_GREENLIST_RATIO,
+        KGW_HASHING_KEY,
+        KGW_SEEDING_SCHEME,
+    )
+
+    seen: dict = {}
+
+    class DummyTok:
+        eos_token_id = 0
+
+        def __call__(self, prompt, return_tensors="pt"):
+            del prompt, return_tensors
+
+            class Batch(dict):
+                def to(self, _device):
+                    return self
+
+            return Batch(input_ids=torch.tensor([[1, 2, 3]]))
+
+        def decode(self, ids, skip_special_tokens=True):
+            del ids, skip_special_tokens
+            return "kgw-text"
+
+    class DummyModel:
+        def generate(self, **kwargs):
+            seen["kwargs"] = kwargs
+            return torch.tensor([[1, 2, 3, 4, 5]])
+
+    monkeypatch.setattr(
+        "text_watermark_tools.generate.load_tokenizer", lambda *a, **k: DummyTok()
+    )
+    monkeypatch.setattr(
+        "text_watermark_tools.generate._load_unmarked_model",
+        lambda *a, **k: DummyModel(),
+    )
+    gen = generate_text(
+        "prompt",
+        marked=True,
+        max_new_tokens=2,
+        mixin="kgw",
+        tokenizer=DummyTok(),
+        model=DummyModel(),
+    )
+    cfg = seen["kwargs"]["watermarking_config"]
+    assert cfg.greenlist_ratio == KGW_GREENLIST_RATIO
+    assert cfg.bias == KGW_BIAS
+    assert cfg.hashing_key == KGW_HASHING_KEY
+    assert cfg.seeding_scheme == KGW_SEEDING_SCHEME
+    assert cfg.context_width == KGW_CONTEXT_WIDTH
+    assert gen.marked is True
+    unmarked_seen: dict = {}
+
+    class UnmarkedModel:
+        def generate(self, **kwargs):
+            unmarked_seen["kwargs"] = kwargs
+            return torch.tensor([[1, 2, 3, 4, 5]])
+
+    generate_text(
+        "prompt",
+        marked=False,
+        max_new_tokens=2,
+        mixin="kgw",
+        tokenizer=DummyTok(),
+        model=UnmarkedModel(),
+    )
+    assert "watermarking_config" not in unmarked_seen["kwargs"]
+
+
+def test_generate_text_kgw_rejects_ngram_len_13() -> None:
+    import pytest
+    from text_watermark_tools.generate import generate_text
+
+    with pytest.raises(ValueError, match="SynthID-only"):
+        generate_text("p", mixin="kgw", ngram_len=13)
+
+
 def test_cli_pair_accepts_hub_revision() -> None:
     from text_watermark_tools.cli import build_parser
 
@@ -148,6 +230,10 @@ def test_cli_pair_accepts_hub_revision() -> None:
     )
     assert ctrl.control_only is True
     assert ctrl.hub_revision == "abc"
+    kgw = build_parser().parse_args(
+        ["pair", "experiments/prompts", "--mixin", "kgw"]
+    )
+    assert kgw.mixin == "kgw"
 
 
 def test_gpt2_family_names_use_the_gpt2_mixin() -> None:

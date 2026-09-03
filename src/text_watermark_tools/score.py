@@ -103,6 +103,8 @@ class OfficialScore:
     weighted_mean: float
     n_tokens: int
     n_unmasked_ngrams: int
+    z_score: Optional[float] = None
+    green_fraction: Optional[float] = None
 
     def closer_to_half_than(self, other: "OfficialScore") -> bool:
         return abs(self.mean - 0.5) < abs(other.mean - 0.5) and abs(

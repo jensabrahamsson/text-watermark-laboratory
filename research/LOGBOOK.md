@@ -2177,6 +2177,31 @@ Isolated-file detection is still not finished. Do not write `thesis/`.
 JSON: `experiments/2026-09-03-atoms-100x4-ngram13/`,
 `experiments/2026-09-03-atoms-100x4-public-loo/`.
 
+## 2026-09-03 Kirchenbauer mixin two-grain freeze
+
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) frozen before generation.
+Sol's 260903 other external-validity arm: Hugging Face Kirchenbauer
+green-list defaults (`WatermarkLogitsProcessor` /
+`WatermarkDetector`), not a SynthID `ngram_len` change. Original 12
+Grok prompt strings, GPT-2, 4 draws, $T=128$, seed **20260904**,
+`--mixin kgw`, Hub SHA `607a30d783dfa663caf39e06633721c8d4cfcd7e`.
+Official control is matching z-score (`z_threshold=3.0`), not
+`detector_mean`. Hypotheses H-kgw-ctrl, H-kgw-group, H-kgw-hard,
+H-kgw-iso, and H-kgw-occ are stated before generation. Do not look at
+key-free LRs until `pair` has written official first-draw z-scores and
+the probe command has been run once, as written. Do not add a scorer.
+Do not score those twins with SynthID `detector_mean`. A finished
+100×4 corpus is not required for this freeze. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --n-samples 4 --max-new-tokens 128 --seed 20260904 --mixin kgw \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-03-pair-12x4-kgw
+```
+
 ---
 
 ## 2026-09-02 resample

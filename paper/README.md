@@ -26,9 +26,9 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful TeX Live build (19 A4
   pages, PR #4). Later $\Hw=12$ paragraphs, the occupancy table
-  (\texttt{tab:occ}), the plain-English lead, and the \texttt{get\_gvals}
-  docstring paragraph have not been recompiled here; `pdflatex` is
-  missing on this machine.
+  (\texttt{tab:occ}), the plain-English lead, the \texttt{get\_gvals}
+  docstring paragraph, and the Kirchenbauer mixin freeze have not been
+  recompiled here; `pdflatex` is missing on this machine.
 
 Numbers are taken from this repository (`research/`, `experiments/`).
 If a figure is not in those dumps, it is not in the paper.
@@ -106,4 +106,6 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A
 **99/100** is leave-one-family-out of a frozen algorithm, not a frozen
-fitted detector.
+fitted detector. A Kirchenbauer green-list mixin is frozen in
+`research/PROTOCOL-next-kgw.md` (`--mixin kgw`, seed 20260904) and has
+not been generated.

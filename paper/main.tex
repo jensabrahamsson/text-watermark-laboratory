@@ -839,8 +839,9 @@ demand should rise. As $\Ktop$ grows, observations per context-token
 outcome spread more thinly. Lower-order Witten--Bell backoff may retain
 a coarser signal that is no longer a reused 4-gram footprint. Lengthening
 this mixin to $\Hw=12$ attenuates group ranking and lowers exact
-next-token occupancy (\Cref{sec:next}, \Cref{tab:occ}). A structurally
-different local mixin has not been run.
+next-token occupancy (\Cref{sec:next}, \Cref{tab:occ}). A Kirchenbauer
+green-list mixin is frozen (\Cref{sec:next}) and has not been generated.
+An Aaronson mixin has not been run.
 
 Christ et al.\ and Zhang et al.\ apply to different constructions and
 oracles (\Cref{sec:related}). Isolated chance accuracy at $\tau=0$ is
@@ -1335,8 +1336,12 @@ preregistered longer-history replication is freeze SHA \texttt{b70986d}
 (\texttt{research/PROTOCOL-next-longctx.md}), named in the laboratory
 logbook before generation (\Cref{tab:nextlock}). It lengthens the public
 mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
-checkout. A Kirchenbauer or Aaronson mixin is a different protocol and
-has not been run.
+checkout. A Kirchenbauer green-list mixin is frozen in
+\texttt{research/PROTOCOL-next-kgw.md} (Hugging Face
+\texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
+\texttt{--mixin kgw}) and has not been generated. Scoring those twins
+with SynthID \texttt{detector\_mean} would be a harness bug. An Aaronson
+mixin is a third protocol and has not been run.
 
 \begin{table}[ht]
 \centering
@@ -1485,8 +1490,9 @@ above $0.55$ on all 400 marked files. Exact next-token occupancy is
 lower than under public $\Hw=4$ (\Cref{tab:occ}). The original-12 readout is
 \textbf{6/12} (underpowered; clustered permutation $p=0.247$). Isolated
 $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
-\textbf{25/48} sensitivity and \textbf{47/96} correct. A different local
-mixin has not been run.
+\textbf{25/48} sensitivity and \textbf{47/96} correct. A Kirchenbauer
+green-list mixin is frozen (\texttt{PROTOCOL-next-kgw.md}) and has not
+been generated.
 
 Code and frozen JSON:
 \url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
@@ -1524,6 +1530,10 @@ were not changed after the first run.
 \texttt{python -m text\_watermark\_tools atoms --leave-one-out}\\
 \texttt{\hspace{1em}--test-dir experiments/2026-09-03-pair-12x4-ngram13}\\
 \texttt{python -m text\_watermark\_tools pair PAIRDIR --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{python -m text\_watermark\_tools pair experiments/2026-08-17-grok-prompts}\\
+\texttt{\hspace{1em}--n-samples 4 --max-new-tokens 128 --seed 20260904 --mixin kgw}\\
+\texttt{\hspace{1em}--hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{\hspace{1em}--out-dir experiments/2026-09-03-pair-12x4-kgw}\\
 \par}
 
 Distil/Qwen Phase~B replace the model flag and run locks B and C only
@@ -1575,6 +1585,8 @@ Original-12 public occupancy:
 100-family public occupancy:
 \path{experiments/2026-09-03-atoms-100x4-public-loo/atoms.json}
 (\texttt{6d6d516ec296aae1}).
+Kirchenbauer mixin freeze: \path{research/PROTOCOL-next-kgw.md}
+(\texttt{--mixin kgw}, seed 20260904; not generated).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

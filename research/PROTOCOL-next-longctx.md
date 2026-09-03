@@ -30,9 +30,10 @@ instance until a longer history is measured.
 Sol (2026-09-03) asked that the next external-validity test be
 preregistered: same two-grain protocol, either a longer watermark
 context or a structurally different local mixin, locked before
-generation. A different mixin (Kirchenbauer green-list, Aaronson
-Gumbel, …) would be a second freeze and is **not** this file. This
-file only lengthens SynthID hash history.
+generation. A different mixin (Kirchenbauer green-list) is
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) and is **not** this file.
+An Aaronson Gumbel mixin is a third freeze. This file only lengthens
+SynthID hash history.
 
 A finished 100×4 corpus is not required for the freeze to hold. Phase A
 is the original 12 prompt strings with new twins. Phase B (100 new

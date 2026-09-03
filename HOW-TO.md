@@ -202,6 +202,20 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-03-pair-12x4-ngram13
 ```
 
+`pair --mixin kgw` is a different mixin (Hugging Face Kirchenbauer
+green-list defaults), not a longer SynthID history. Official scores are
+`WatermarkDetector` z-scores, not `detector_mean`. Frozen before
+generation: [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md).
+Not generated. Do not sell a future Kirchenbauer count as replacing
+**25/48**.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --n-samples 4 --max-new-tokens 128 --seed 20260904 --mixin kgw \
+  --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e \
+  --out-dir experiments/2026-09-03-pair-12x4-kgw
+```
+
 `--hub-revision SHA` pins the Hugging Face snapshot for *new* generation.
 Historical twins are committed files; published scores do not re-download
 Hub weights. Hub SHAs were not recorded when those twins were generated.

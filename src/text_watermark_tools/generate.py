@@ -215,18 +215,27 @@ def generate_text(
     model_name: Optional[str] = None,
     ngram_len: Optional[int] = None,
     revision: Optional[str] = None,
+    mixin: str = "synthid",
 ) -> Generation:
     """Generate with mixin (marked=True) or the same model unmarked.
 
-    `keys` is only used when `marked` is True and no `model` is passed.
-    None keeps DeepMind's public 30-key default.
+    `keys` is only used when `marked` is True, `mixin` is synthid, and no
+    `model` is passed. None keeps DeepMind's public 30-key default.
     `ngram_len` overrides the public mixin hash window (default 5).
     Score must use the same `ngram_len`. The synthid-text tree is not edited.
+    `mixin='kgw'` uses Hugging Face Kirchenbauer watermarking on the unmarked
+    GPT-2 weights. Do not pass a SynthID n-gram length other than the public
+    default with that mixin.
     `model_name` defaults to GPT-2. Pass a Qwen2 id to use that checkpoint
     with the same tournament; score must use the same tokenizer.
     `revision` is an optional Hugging Face Hub SHA or branch. Unset keeps
     the unpinned default. Historical twins are committed files.
     """
+    kind = mixin or "synthid"
+    if kind not in ("synthid", "kgw"):
+        raise ValueError(f"unknown mixin {mixin!r}; expected synthid or kgw")
+    if kind == "kgw" and ngram_len is not None and int(ngram_len) != 5:
+        raise ValueError("ngram_len is SynthID-only; kgw uses context_width=1")
     name = model_name or MODEL_NAME
     if device is None:
         dev = generate_device() if not is_gpt2_name(name) else torch.device("cpu")
@@ -236,18 +245,23 @@ def generate_text(
     if seed is not None:
         torch.manual_seed(seed)
     if model is None:
-        model = (
-            _load_marked_model(
-                dev,
-                keys=keys,
-                model_name=name,
-                ngram_len=ngram_len,
-                revision=revision,
+        if kind == "kgw":
+            model = _load_unmarked_model(dev, model_name=name, revision=revision)
+        else:
+            model = (
+                _load_marked_model(
+                    dev,
+                    keys=keys,
+                    model_name=name,
+                    ngram_len=ngram_len,
+                    revision=revision,
+                )
+                if marked
+                else _load_unmarked_model(dev, model_name=name, revision=revision)
             )
-            if marked
-            else _load_unmarked_model(dev, model_name=name, revision=revision)
-        )
-    elif marked and ngram_len is not None and hasattr(model, "watermark_ngram_len"):
+    elif marked and kind == "synthid" and ngram_len is not None and hasattr(
+        model, "watermark_ngram_len"
+    ):
         model.watermark_ngram_len = int(ngram_len)
     inputs = tok(prompt, return_tensors="pt").to(dev)
     gen_kwargs = dict(
@@ -258,6 +272,10 @@ def generate_text(
         top_k=top_k,
         pad_token_id=tok.eos_token_id,
     )
+    if kind == "kgw" and marked:
+        from text_watermark_tools.kgw import kgw_config
+
+        gen_kwargs["watermarking_config"] = kgw_config()
     with torch.no_grad():
         outputs = model.generate(**inputs, **gen_kwargs)
     gen_ids = outputs[:, inputs["input_ids"].shape[1] :]

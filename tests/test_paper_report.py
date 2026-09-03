@@ -79,6 +79,8 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     howto = (ROOT / "HOW-TO.md").read_text()
     assert "--hub-revision" in howto
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in howto
+    assert "--mixin kgw" in howto
+    assert "PROTOCOL-next-kgw" in howto
     cache = Path.home() / ".cache/huggingface/hub/models--gpt2/refs/main"
     if cache.exists():
         assert cache.read_text().strip() == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
@@ -141,6 +143,13 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     )[0]
     assert "has not been run" in math
     assert "is untested" not in math
+    assert "PROTOCOL-next-kgw" in PAPER
+    assert "--mixin kgw" in PAPER
+    assert "20260904" in PAPER
+    assert "has not been generated" in PAPER
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "kgw" not in abs_
+    assert "Kirchenbauer" not in abs_
 
 
 def test_nested_youden_is_post_hoc() -> None:
@@ -173,6 +182,8 @@ def test_readme_matches_revised_title() -> None:
     assert "25/51" in README
     assert "b70986d" in README
     assert "ngram_len=13" in README
+    assert "PROTOCOL-next-kgw" in README
+    assert "--mixin kgw" in README
     assert "19 A4" in README
     assert "pdflatex" in README.lower() or "pdflatex" in README
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
@@ -506,3 +517,31 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\textbf{6/12}" not in abs_
     assert r"\textbf{76/100}" not in abs_
     assert "489/800" not in abs_
+
+
+def test_appendix_sha_prefixes_match_committed_dumps() -> None:
+    import hashlib
+
+    mapping = {
+        "experiments/2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json": "e4f758305b631761",
+        "experiments/2026-09-01-probe-100x4-hard-last4/interpolate/holdout.json": "de0f0c5738729e87",
+        "experiments/2026-09-01-probe-100x4-opening-poshits/poshits/holdout.json": "aca0f852266c6b41",
+        "experiments/2026-09-01-probe-distil-100x4-opening-poshits/poshits/holdout.json": "37834c2f0e45856c",
+        "experiments/2026-09-01-probe-qwen-100x4-opening-poshits/poshits/holdout.json": "5b7e3c00264561f8",
+        "experiments/2026-09-03-probe-12x4-headline-windows-absolute/results.json": "58094d769726dc18",
+        "experiments/2026-09-03-pair-12x4-ngram13/results.json": "61153a82dab1eaea",
+        "experiments/2026-09-03-probe-12x4-ngram13-hard-last4/hard/holdout.json": "fcff60687ac27348",
+        "experiments/2026-09-03-pair-100x4-ngram13/results.json": "761b5d2ea676fa5d",
+        "experiments/2026-09-03-probe-100x4-ngram13-hard-last4/interpolate/holdout.json": "e17cda239aa36e43",
+        "experiments/2026-09-03-atoms-12x4-ngram13/atoms.json": "4d29c92147e6da9d",
+        "experiments/2026-09-03-atoms-12x4-public-loo/atoms.json": "1247287a6369e93d",
+        "experiments/2026-09-03-atoms-100x4-ngram13/atoms.json": "ee0fcb86e6aceafc",
+        "experiments/2026-09-03-atoms-100x4-public-loo/atoms.json": "6d6d516ec296aae1",
+    }
+    tex = (ROOT / "paper" / "main.tex").read_text()
+    for rel, prefix in mapping.items():
+        digest = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()[:16]
+        assert digest == prefix, f"{rel}: {digest} != {prefix}"
+        assert prefix in tex, f"appendix missing {prefix} for {rel}"
+    assert "PROTOCOL-next-kgw" in tex
+    assert "2026-09-03-pair-12x4-kgw" in tex

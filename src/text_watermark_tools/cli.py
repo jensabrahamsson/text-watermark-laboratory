@@ -439,6 +439,24 @@ def cmd_blind(args: argparse.Namespace) -> int:
 
 def cmd_pair(args: argparse.Namespace) -> int:
     prompts = collect_prompts(Path(args.path))
+    mixin = str(getattr(args, "mixin", "synthid") or "synthid")
+    if mixin == "kgw":
+        if bool(getattr(args, "control_only", False)) or bool(
+            getattr(args, "also_control_keys", False)
+        ):
+            print(
+                "--mixin kgw cannot be combined with --control-only or "
+                "--also-control-keys (those flags are SynthID-only)",
+                file=sys.stderr,
+            )
+            return 2
+        if int(args.ngram_len) != 5:
+            print(
+                "--ngram-len is SynthID-only; --mixin kgw uses Kirchenbauer "
+                "context_width=1",
+                file=sys.stderr,
+            )
+            return 2
     if bool(getattr(args, "control_only", False)):
         run = run_control_only(
             prompts,
@@ -461,6 +479,7 @@ def cmd_pair(args: argparse.Namespace) -> int:
             persist_dir=out,
             ngram_len=int(args.ngram_len),
             hub_revision=str(args.hub_revision) if args.hub_revision else None,
+            mixin=mixin,
         )
     print(print_pair_run(run))
     if args.out_dir:
@@ -1266,6 +1285,16 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Hugging Face Hub commit SHA or branch for --model. "
             "Unset keeps the unpinned default. Does not rewrite committed twins."
+        ),
+    )
+    p_pair.add_argument(
+        "--mixin",
+        choices=("synthid", "kgw"),
+        default="synthid",
+        help=(
+            "Sampling watermark. synthid is public-deepmind-30 (default). "
+            "kgw is Hugging Face Kirchenbauer green-list defaults; official "
+            "scores are WatermarkDetector z-scores, not detector_mean."
         ),
     )
     p_pair.set_defaults(func=cmd_pair)

@@ -255,7 +255,11 @@ occupancy is **160** seen versus public $\Hw=4$ **269** seen
 **5878** seen versus public **10158** seen. Do not sell **6/12**,
 **76/100**, **160**, **269**, **5878**, or **10158**.
 Isolated-file detection is still not
-finished. Do not write `thesis/`.
+finished. Sol's different-mixin two-grain lock is
+[PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
+defaults, `--mixin kgw`, seed **20260904**). It has not been generated.
+Do not sell a future Kirchenbauer count as replacing **25/48**. Do not
+write `thesis/`.
 
 ## What this freeze refuses
 

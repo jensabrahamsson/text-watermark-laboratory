@@ -556,7 +556,11 @@ lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
 **22/48 vs 30/48** (**52/96**). Opened Phase B: official **100/100**;
 interpolate **76/100** (below lock A **99/100**); isolated
 **267/400 vs 222/400** (**489/800**). Do not sell **6/12** or
-**76/100**. Isolated-file remains open.
+**76/100**. Isolated-file remains open. Sol's different-mixin two-grain
+lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
+Hugging Face Kirchenbauer defaults, seed **20260904**). Not generated.
+Do not sell a future Kirchenbauer count as replacing **25/48**. Isolated-file
+remains open.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

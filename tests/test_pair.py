@@ -27,6 +27,8 @@ def test_persist_pair_run_records_hub_revision(tmp_path: Path) -> None:
     data = json.loads((tmp_path / "results.json").read_text())
     assert data["hub_revision"] == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
     assert data["ngram_len"] == 5
+    assert data["mixin"] == "synthid"
+    assert data["kgw"] is None
 
 
 def test_persist_pair_run_records_unset_hub_revision_as_null(tmp_path: Path) -> None:
@@ -49,6 +51,24 @@ def test_print_pair_run_includes_hub_revision() -> None:
     assert "hub_revision=abc123" in out
     bare = print_pair_run(PairRun(rows=[], max_new_tokens=128, seed=0))
     assert "hub_revision=" not in bare
+    assert "mixin=" not in bare
+
+
+def test_persist_pair_run_records_kgw_mixin(tmp_path: Path) -> None:
+    run = PairRun(rows=[], max_new_tokens=128, seed=20260904, mixin="kgw")
+    persist_pair_run(run, tmp_path)
+    data = json.loads((tmp_path / "results.json").read_text())
+    assert data["mixin"] == "kgw"
+    assert data["instance"] == "kirchenbauer-hf-default"
+    assert data["kgw"]["greenlist_ratio"] == 0.25
+    assert data["kgw"]["bias"] == 2.0
+    assert data["kgw"]["hashing_key"] == 15485863
+    assert data["kgw"]["seeding_scheme"] == "lefthash"
+    assert data["kgw"]["context_width"] == 1
+    assert data["kgw"]["z_threshold"] == 3.0
+    assert "detector_mean" in data["note"]
+    out = print_pair_run(run)
+    assert "mixin=kgw" in out
 
 
 def test_collect_prompts_from_file(tmp_path: Path) -> None:

@@ -58,6 +58,7 @@ python -m text_watermark_tools score FILE.txt
 python -m text_watermark_tools pair DIR --out-dir experiments/pair
 python -m text_watermark_tools pair DIR --ngram-len 13 --n-samples 4 --seed 20260903 --out-dir experiments/pair-ngram13
 python -m text_watermark_tools pair DIR --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e --out-dir experiments/pair-pinned
+python -m text_watermark_tools pair DIR --mixin kgw --n-samples 4 --seed 20260904 --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e --out-dir experiments/pair-kgw
 python -m text_watermark_tools blind experiments/pair --out-dir experiments/blind
 python -m text_watermark_tools indicate score FILE.txt --tables experiments/indicator-gpt2
 python -m text_watermark_tools indicate fit PAIR --method hashpool --out-dir experiments/hashpool
@@ -227,7 +228,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | Longer-context 100-family $\Hw=12$ | official **400/400**; interpolate **76/100** (below lock A **99/100**); isolated **489/800**; not **25/48** |
 | $\Hw=12$ leave-one-out interpolate occupancy | original-12 **160** seen vs public **269**; 100 families **5878** vs **10158**; every window lower under $\Hw=12$; not **25/48** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/PROTOCOL-isolated-windows.md](research/PROTOCOL-isolated-windows.md), [research/PROTOCOL-isolated-windows-absolute.md](research/PROTOCOL-isolated-windows-absolute.md), [research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/PROTOCOL-isolated-windows.md](research/PROTOCOL-isolated-windows.md), [research/PROTOCOL-isolated-windows-absolute.md](research/PROTOCOL-isolated-windows-absolute.md), [research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md), [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
 
 ## Code map
 
@@ -235,7 +236,8 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 |---|---|
 | `score.py` | DeepMind mean / weighted mean |
 | `generate.py` | GPT-2 generation with the mixin |
-| `pair.py` | Same-prompt marked/unmarked generation |
+| `pair.py` | Same-prompt marked/unmarked generation (`--mixin kgw` is Kirchenbauer, not SynthID) |
+| `kgw.py` | Hugging Face Kirchenbauer official z-score (not `detector_mean`) |
 | `blind.py` | Key-free leave-one-out comparison |
 | `indicator.py` | Frozen count tables and single-file LR |
 | `stats.py` | AUC, permutation, binomial, Youden on key-free scores |
