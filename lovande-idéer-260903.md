@@ -202,6 +202,20 @@ tables trained on 100 GPT-2 families do **not** classify public
 SynthID original-12 (isolated **6/48**, AUC 0.542, three ranking wins
 with no isolated TP). The last-1 lift is mixin-specific.
 
+Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
+generators. Last-4 does not:
+
+| Train → test | last-1 hard | last-4 hard |
+|---|---|---|
+| GPT-2 100 KGW → Distil 12 KGW | **12/12, 47/48, AUC 0.991** | 5/12, 22/48, 0.488 |
+| Distil 100 KGW → GPT-2 12 KGW | **12/12, 42/48, 0.987** | — |
+| Distil 100 KGW → Distil 12 KGW | **12/12, 42/48, 0.982** | — |
+
+`--skip-nested`; isolated is $\tau=0$. Distil in-domain last-1 was
+**46/48**; GPT-2 tables on Distil files are **47/48**. Do not sell
+**47/48**. Qwen uses a different tokenizer; this transfer is same-BPE
+only.
+
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hard,interpolate --context-len 1 --skip-hashpool \
@@ -213,15 +227,17 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-last1
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
-  --methods hard,unigram --context-len 2 --skip-hashpool \
-  --out-dir /tmp/kgw-lab/probe-100x4-kgw-k2
+  --test-dir experiments/2026-09-03-pair-distil-12x4-kgw \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/xfer-kgw100-last1-to-distil12
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
 understates the green-list leak: 100-family ranking **62/100** →
 **100/100**, isolated **209/400** → **389/400**, AUC **0.573** →
 **0.990**. Same `hard` scorer. At n=100 the hard widths are last-1 >
-last-2 > last-4. The freeze in
+last-2 > last-4. Last-1 tables transfer GPT-2 ↔ Distil; last-4
+tables do not. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion,
@@ -267,6 +283,12 @@ Transfer 100×4 → original 12, hard, no method name:
 |---|---|---|---|
 | last-4 | 8/12 | 21/48 | 14/48 vs 43/48 |
 | last-2 | 7/12 | **29/48** | **23/48 vs 36/48** |
+
+Same-register 100 → 36×4 (`--skip-nested`): last-2 **31/36**, isolated
+**118/144**, AUC **0.743** versus last-4 **25/36**, **96/144**, 0.624.
+Last-2 helps the 36-family transfer. It does **not** transfer to
+Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). Kirchenbauer last-1
+cross-generator transfer is idea 2, not this width.
 
 Other generators, in-domain hard only: DistilGPT2 last-2 **33/48** vs
 last-4 **33/48** (no isolated lift; ranking 10/12 vs 11/12). Qwen2-1.5B
