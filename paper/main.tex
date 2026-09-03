@@ -198,7 +198,7 @@ DistilGPT-2 lock~B \textbf{88/100} (one tie), Qwen2-1.5B lock~B
 \textbf{95/100}. Rankpath drops more than opening poshits on both
 generators (paired McNemar on GPT-2-win losses).
 \item Artifact controls: a truncated-context overcount correction, a
-Laplace-occupancy versus observed-token split, and a key-free argmax
+Laplace occupancy versus observed-token split, and a key-free argmax
 perturbation that returns official scores to chance at a large
 rewrite cost.
 \item A preregistered longer-history replication: public keys at
@@ -507,7 +507,7 @@ the twins were generated. That does not affect the published scores:
 key-free tables and official \texttt{detector\_mean} read the committed
 strings, not a Hub snapshot. It would matter for bitwise re-generation
 of new twins. The laboratory machine's current \texttt{gpt2} cache is
-\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}; DistilGPT-2 and
+\path{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
 Qwen snapshots were not retained. Future \texttt{pair} runs should pass
 a Hub \texttt{revision} (\texttt{pair --hub-revision}).
 \texttt{transformers==4.57.6}. SynthID-Text is
@@ -1344,31 +1344,38 @@ research is not finished.
 
 Editorial revision cannot raise the venue ceiling by itself. The
 preregistered longer-history replication is freeze SHA \texttt{b70986d}
-(\texttt{research/PROTOCOL-next-longctx.md}), named in the laboratory
+(\path{research/PROTOCOL-next-longctx.md}), named in the laboratory
 logbook before generation (\Cref{tab:nextlock}). It lengthens the public
 mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
-checkout. A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
-(\texttt{research/PROTOCOL-next-kgw.md}; Hugging Face
+checkout.
+
+A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
+(\path{research/PROTOCOL-next-kgw.md}; Hugging Face
 \texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
-\texttt{--mixin kgw}), named before generation. Scoring those twins
-with SynthID \texttt{detector\_mean} would be a harness bug. DistilGPT2
-with the same Kirchenbauer defaults is frozen in
-\texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
+\texttt{mixin=kgw}), named before generation. Scoring those twins
+with SynthID \texttt{detector\_mean} would be a harness bug.
+
+DistilGPT2 with the same Kirchenbauer defaults is frozen in
+\path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{1540d3c}). Distil interpolate last-4 is \textbf{12/12}
 (isolated \textbf{85/96}); hard is \textbf{11/12}. That is not
 \textbf{25/48}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
-in \texttt{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
+in \path{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
 \texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
 (isolated \textbf{68/96}); hard is \textbf{8/12}. That is not
-\textbf{25/48}. DistilGPT2 Kirchenbauer on the 100 one-liners is frozen
-in \texttt{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
+\textbf{25/48}.
+
+DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
+\path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
 (isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
-\textbf{25/48}. An Aaronson--Kirchner exponential-minimum mixin (freeze
-SHA \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
-\textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the 100 one-liners interpolate last-4 is
-\textbf{100/100} (isolated \textbf{608/800}). That is not
-\textbf{25/48}. The protocol note is
+\textbf{25/48}.
+
+An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
+\texttt{747f3cd}, seed 20260905) ranks interpolate last-4
+\textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the
+100 one-liners interpolate last-4 is \textbf{100/100} (isolated
+\textbf{608/800}). That is not \textbf{25/48}. The protocol note is
 \path{research/PROTOCOL-next-aaronson.md}.
 
 \begin{table}[ht]
@@ -1530,10 +1537,12 @@ ranking holds; isolated balanced accuracy is below Distil and GPT-2
 Kirchenbauer \textbf{85/96}. That is not \textbf{25/48}.
 
 \paragraph{One hundred families, DistilGPT2 Kirchenbauer.}
+\begin{sloppypar}
 Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
-\texttt{4fad227}, dump
-\path{experiments/2026-09-03-pair-distil-100x4-kgw}, seed 20260904,
-Hub SHA \path{2290a62682d06624634c1f46a6ad5be0f47f38aa}. Official matching
+\texttt{4fad227}, seed 20260904. Dump
+\path{experiments/2026-09-03-pair-distil-100x4-kgw}.
+Hub revision \path{2290a62682d06624634c1f46a6ad5be0f47f38aa}.
+Official matching
 $z$-scores are above $3.0$ on \textbf{100/100} first marked files
 (min $6.81$). Unmarked first-draw is $16/100$ above $3.0$ (newline
 loops scored fully green). Interpolate last-4 ranks \textbf{100/100}
@@ -1546,6 +1555,7 @@ $40/100$ marked and $12/100$ unmarked. Group ranking matches GPT-2
 Kirchenbauer \textbf{100/100} on these strings; isolated balanced
 accuracy is below GPT-2 Kirchenbauer \textbf{747/800}. That is not
 \textbf{25/48}.
+\end{sloppypar}
 
 \paragraph{Original 12, Aaronson--Kirchner exponential-minimum.}
 Laboratory sampler, freeze SHA \texttt{747f3cd}, seed 20260905, Hub SHA
@@ -1827,13 +1837,33 @@ occupancy-free $0/48$. The original 12 are not a unique failure set.
 
 \paragraph{Mask-$m$.}
 Masking the first scored tokens of 12-LOO hard last-4 does not destroy
-prompt ranking. Reindexed tails $[4{:}128)$ and $[8{:}128)$ stay $9/12$,
-while prefix $[0{:}4)$ is $5/12$. Absolute-history remasure of the same
-windows (protocol SHA \texttt{b70986d}) leaves those prefix and hard-tail
-ranks unchanged; interpolate $[8{:}128)$ rises $3\to 4$. Hard
-$[4{:}128)$ leftover is $11/20$ vs.\ $11/20$. Isolated $\tau=0$ stays
-chance-like on every slice; the original-12 matrix remains
-\textbf{47/96}.
+prompt ranking. \Cref{tab:maskabs} is the absolute-history remasure
+(protocol SHA \texttt{b70986d}; reindexed dumps stay). Prefix
+$[0{:}4)$ and hard tails stay at the reindexed ranks; interpolate
+$[8{:}128)$ rises $3\to 4$. Hard $[4{:}128)$ leftover is $11/20$ vs.\
+$11/20$. Isolated $\tau=0$ stays chance-like on every slice; the
+original-12 matrix remains \textbf{47/96}. That is not \textbf{25/48}.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Absolute-history 12-LOO mask-$m$ last-4, original 12$\times$4.
+Absolute dump SHA prefix \texttt{58094d769726dc18}. Reindexed dump stays.
+Isolated $\tau=0$ is not \textbf{25/48}.}
+\label{tab:maskabs}
+\begin{tabular}{lcccc}
+\toprule
+Window & Hard abs. & Hard reind. & Interp.\ abs. & Interp.\ reind. \\
+\midrule
+$[0{:}2)$ & $10/12$ & $10/12$ & $9/12$ & $9/12$ \\
+$[0{:}4)$ & $5/12$ & $5/12$ & $9/12$ & $9/12$ \\
+$[0{:}8)$ & $6/12$ & $6/12$ & $8/12$ & $8/12$ \\
+$[2{:}128)$ & $9/12$ & $9/12$ & $5/12$ & $5/12$ \\
+$[4{:}128)$ & $9/12$ & $9/12$ & $5/12$ & $5/12$ \\
+$[8{:}128)$ & $9/12$ & $9/12$ & $4/12$ & $3/12$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Longer hash history.}
 Main-text \Cref{sec:next}: $\Hw=12$ interpolate ranking is

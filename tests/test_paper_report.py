@@ -245,6 +245,21 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "context_width" in next_sec or "context\\_width" in next_sec
 
 
+def test_maskabs_table_is_dump_backed() -> None:
+    tex = Path(ROOT / "paper" / "main.tex").read_text()
+    assert r"\label{tab:maskabs}" in tex
+    assert "58094d769726dc18" in tex
+    assert "headline-windows-absolute" in tex
+    body = tex.split(r"\label{tab:maskabs}")[1].split(r"\end{table}")[0]
+    assert r"$5/12$" in body
+    assert r"$9/12$" in body
+    assert r"$4/12$" in body
+    assert r"$3/12$" in body
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "58094d769726dc18" not in abs_
+    assert "tab:maskabs" not in abs_
+
+
 def test_nested_youden_is_post_hoc() -> None:
     assert "not second-level nested cross-validation" in PAPER
     assert "stay out of detector-performance comparisons" in PAPER
