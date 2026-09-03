@@ -1,24 +1,24 @@
-# Scientific report: key-free watermark indication
+# Scientific report: paired-reference key-free indication
 
-LaTeX manuscript for a focused empirical report:
+LaTeX manuscript for a focused empirical technical report:
 
-> **Key-Free Watermark Indication via Empirical Contrast:**
-> Prompt-Group Ranking and the Isolated-Text Boundary
-> on a Public SynthID-Text Instance
+> **Paired-Reference, Key-Free Indication of a Public SynthID-Text Instance**
 >
-> **Author:** [Jens Abrahamsson](https://github.com/jensabrahamsson)
+> **Author:** [Jens Abrahamsson](https://github.com/jensabrahamsson), MSc
 > **Date:** September 2026
 
-This is a workshop-style empirical report of a checked-in notebook, not
-a claim that the laboratory invented key-free detection or refuted
-Christ et al.\ (2024) or Zhang et al.\ (2024).
+This is a workshop-style empirical report, not a claim that the
+laboratory invented key-free detection or refuted Christ et al. (2024)
+or Zhang et al. (2024). The intended venue is a technical report. Group
+ranking under a strong paired oracle is the positive result; the
+prespecified isolated-file threshold is not.
 
 ## Files
 
 - [`main.tex`](main.tex): article (abstract through bibliography).
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
-- [`compile.log`](compile.log): last local build attempt (no MacTeX on this host).
+- [`compile.log`](compile.log): last local build attempt.
 
 Numbers are taken from this repository (`research/`, `experiments/`).
 If a figure is not in those dumps, it is not in the paper.
@@ -44,22 +44,38 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
 ## Claims the manuscript actually makes
 
 1. **Paired auditor (strong oracle).** Matched marked/unmarked twins.
-   Key-free, not reference-free, not web-text detection.
+   Key-free, not reference-free, not web-text detection. Public
+   reference keys exist and are withheld at scoring time.
 
 2. **Two grains.** Prompt-group ranking can work; isolated 128-token
-   sign at `t=0` is chance-like.
-   - Ranking: **9/12** (hard last-4 12-LOO; **10/12** with margin 0.02),
-     **36/36** in-domain hits (AUC **0.930**), lock A **99/100**,
-     Distil lock B **88/100** (1 tie), Qwen lock B **95/100**.
-   - Isolated: **25/48**, Clopper–Pearson **[0.372, 0.667]** includes ½.
+   decisions at $\tau=0$ do not.
+   - Ranking: exploratory hits **36/36** (AUC **0.930**); prospectively
+     specified lock A leave-one-family-out **99/100** (mean $D_p=0.520$);
+     corrected original hard last-4 **9/12**. Distil lock B **88/100**
+     (1 tie), Qwen lock B **95/100**, native tables.
+   - Isolated original 12, hard $\tau=0$: TP 25, FN 23, TN 22, FP 26;
+     sensitivity 25/48, specificity 22/48, precision **25/51**
+     $[0.348,0.634]$; balanced accuracy **47/96** ($48.96\%$). File AUC
+     **0.590**. Prompt-clustered sign-flip of balanced accuracy is
+     chance ($p=0.703$).
    - A ranking win can be “unmarked more negative” (garden: 0 isolated TPs).
 
-3. **Leftover / scrub.** Leftover last-4 **10/20 vs 11/20**; official
-   leftover **20/20**. Argmax snap **0.622 → 0.499**. Distil official
-   **70/100** is watermark strength, not only the indicator.
+3. **Leftover / perturbation.** Leftover last-4 **10/20 vs 11/20**;
+   official leftover **20/20**. Argmax snap **0.622 → 0.499** is a
+   mechanistic perturbation, not a fluent attack. Distil official
+   first-draw **70/100** is a keyed control with a different unit from
+   four-draw lock B (six ties; same 70 families also have marked mean
+   $>0.55$ on this sample).
 
-4. **Math.** Empirical LR uses $\hat P$, not $P_w$. Concentration is a
-   sketch ($O(1/M)$ for group means). No Hoeffding/SNR theorem.
+4. **Math.** Empirical LR uses $\hat P$, not $P_w$. Equality in
+   expectation over random keys does not imply equality for one fixed
+   instance. Concentration is conditional on fitted tables
+   ($O(1/M)$ for group means). No Hoeffding/SNR theorem.
+
+5. **Margin 0.02.** Descriptive sensitivity analysis only
+   ($\bar\Lambda_m+0.02>\bar\Lambda_u$). Not a valid $1/2$ null test.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
-not finished.
+not finished. Nested Youden is post hoc, not nested CV. Lock A
+**99/100** is leave-one-family-out of a frozen algorithm, not a frozen
+fitted detector.

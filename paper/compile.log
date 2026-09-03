@@ -1,29 +1,20 @@
 text-watermark-laboratory paper compile log
 date: 2026-09-02
-host: macos
+host: cloud agent (TeX Live 2023/Debian)
 working directory: paper/
 
-Command: make
+Command: pdflatex / bibtex / pdflatex / pdflatex
 
-which latexmk: not found (Makefile falls through to pdflatex)
-which pdflatex: not found
-which bibtex: not found
-which xelatex: not found
-which lualatex: not found
-which tectonic: not found
+which pdflatex: /usr/bin/pdflatex
+pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)
 
-make output:
-/bin/sh: pdflatex: command not found
-make: *** [main.pdf] Error 127
+Result: main.pdf produced (19 A4 pages).
+No Overfull/Underfull boxes in the final log.
+PDF metadata: title, author, subject, keywords, pdflang=en.
+Links are monochrome (black).
 
-Common MacTeX paths also missing:
-  /Library/TeX/texbin/pdflatex
-  /usr/local/texlive/2025/bin/universal-darwin/pdflatex
-  /usr/local/texlive/2024/bin/universal-darwin/pdflatex
-  $HOME/Library/TinyTeX/bin/universal-darwin/pdflatex
-
-Result: PDF not produced. Sources in this directory are still the
-manuscript: main.tex, references.bib, Makefile, README.md.
+Sources in this directory remain the manuscript:
+  main.tex, references.bib, Makefile, README.md.
 
 To compile later (TeX Live / MacTeX / Overleaf):
   make
