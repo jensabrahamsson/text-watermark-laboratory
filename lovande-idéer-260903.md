@@ -333,10 +333,16 @@ same BPE; Qwen uses `Qwen/Qwen2-1.5B-Instruct`):
 
 gpt2-medium 12 is chance both widths (official lamp **12/12**). At
 n=100 medium last-2 isolates **330/400** vs last-4 **274/400**; ranking
-only +3. Distil 100 last-4 is chance; last-2 ranking **66/100** is not
-GPT-2 **94/100**; both widths have **108/400** marked zeros. Qwen 100
-ranking is tied; last-4 isolated **351/400** has unmarked $\le 0$ only
-**121/400**. Do not sell **330/400**, **66/100**, or **351/400**.
+only +3. Medium last-2 windows match GPT-2 geography: 0:4 **99/100**,
+**387/400**, AUC **0.949**; 64:128 **54/100**, AUC **0.519**. Distil 100
+last-4 is chance; last-2 ranking **66/100** is not GPT-2 **94/100**; both
+widths have **108/400** marked zeros; Distil last-2 0:4 is only
+**74/100**. Qwen 100 ranking is tied; last-4 isolated **351/400** has
+unmarked $\le 0$ only **121/400**. Do not sell **330/400**, **66/100**,
+or **351/400**. Occupancy-free `postokhits` last-2 on the original 12
+is **9/12 / 23/48**, unmarked $\le 0$ **48/48** — the same isolated
+count as last-4 `postokhits`. Hard last-2 **34/48** is not that
+occupancy-free reader.
 
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
 interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
@@ -382,7 +388,7 @@ last-1 tail is **100/100**). It is tied to short tournament history:
 **10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
 sell leftover **12/20** or leftover tail **13/20**. Do not sell
 opening **389/400**, second-key **34/48**, medium **330/400**, Distil
-**66/100**, or Qwen **351/400**. Do not switch interpolate to last-2.
+**66/100**, Qwen **351/400**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
@@ -465,12 +471,14 @@ not a proven improvement of this lab’s finished-string `indicate` /
 (2026) (TTP-Detect) stays the closest published finished-string analog
 and was not reimplemented.
 
-### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2
 
 `postokhits` on Kirchenbauer 12×4 is **11/48**. SynthID last-1
 full-file hard is **1/12**. Interpolate last-2 drops 36×4 ranking
 from **34/36** to **32/36**. Mix last-1+last-4 and backoff on public
-SynthID 12 are chance (**6/12**). None of those is a backlog item.
+SynthID 12 are chance (**6/12**). Occupancy-free `postokhits` last-2
+on public 12 is **23/48**, same as last-4 `postokhits`, below **25/48**.
+None of those is a backlog item.
 
 ---
 
