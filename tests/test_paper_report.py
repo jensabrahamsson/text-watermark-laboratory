@@ -197,6 +197,8 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert r"\textbf{76/100}" in PAPER
     assert r"\textbf{66/100}" in PAPER
     assert "not Distil/Qwen Phase" in PAPER
+    assert r"Original 12, $\Hw=12$" in PAPER or "Original 12" in PAPER
+    assert "One hundred families" in PAPER
     assert "489/800" in PAPER
     assert "436/800" in PAPER
     assert r"\textbf{400/400}" in PAPER
