@@ -222,8 +222,11 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | 60-stem count + prefix-4 rankpath leftover | **1/6** leftover; cascade **35/48 vs 43/48** |
 | Same rows, `--cascade-when positive` | **40/48 vs 40/48** (8 rankpath FPs; not 39/48) |
 | Argmax snap, official mean on 48 marked files | **0.622 → 0.499** |
+| Longer-context original-12 `ngram_len=13` ($\Hw=12$) | official **48/48**; interpolate and hard **6/12**; isolated hard **52/96**; not **25/48** |
+| Longer-context 100-family $\Hw=12$ | official **400/400**; interpolate **76/100** (below lock A **99/100**); isolated **489/800**; not **25/48** |
+| $\Hw=12$ leave-one-out interpolate occupancy | original-12 **160** seen vs public **269**; 100 families **5878** vs **10158**; every window lower under $\Hw=12$; not **25/48** |
 
-See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/PROTOCOL-isolated-windows.md](research/PROTOCOL-isolated-windows.md), [research/PROTOCOL-isolated-windows-absolute.md](research/PROTOCOL-isolated-windows-absolute.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
+See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free-probe.md](research/key-free-probe.md), [research/key-free-learn.md](research/key-free-learn.md), [research/key-free-contrast.md](research/key-free-contrast.md), [research/key-free-tokhits.md](research/key-free-tokhits.md), [research/key-free-hashtok.md](research/key-free-hashtok.md), [research/key-free-cascade.md](research/key-free-cascade.md), [research/key-free-rankpath.md](research/key-free-rankpath.md), [research/key-free-snaprate.md](research/key-free-snaprate.md), [research/PROTOCOL-isolated-windows.md](research/PROTOCOL-isolated-windows.md), [research/PROTOCOL-isolated-windows-absolute.md](research/PROTOCOL-isolated-windows-absolute.md), [research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md), [research/related-work.md](research/related-work.md), [research/CITING.md](research/CITING.md), and [research/annotated-bibliography.md](research/annotated-bibliography.md).
 
 ## Code map
 
@@ -241,7 +244,7 @@ See [research/key-free-twins.md](research/key-free-twins.md), [research/key-free
 | `probe.py` | Compare scorers; transfer; cascade; nested thresholds; scrub |
 | `learn.py` | Key-free hashed logistic / token MLP / char CNN on the same twins |
 | `contrast.py` | Key-free public vs control-shuffled-30 instance check |
-| `atoms.py` | Decode hits / interpolate last-4 atoms (occupancy vs observed tokens; per-window mean Δ) |
+| `atoms.py` | Decode hits / interpolate last-4 atoms (occupancy vs observed tokens; per-window mean Δ; `--leave-one-out` for 12-LOO / 100-LOO) |
 | `openings.py` | Opening-overlap bound: isolated recall vs train atom coverage |
 | `leftover.py` | Occupancy leftover-20 official re-slice (keyed) and leftover-only interpolate atoms |
 | `iterate.py` | Rewrite and re-measure known-marked text |
