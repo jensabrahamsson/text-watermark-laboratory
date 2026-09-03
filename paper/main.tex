@@ -1349,12 +1349,9 @@ That is below the public-mixin hard diagnostic
 \textbf{9/12} on these prompt strings (different twins, $\Hw=4$).
 Isolated $\tau=0$ on the new twins is $52/96$, a different corpus from
 the original-12 \textbf{47/96}.
-Leave-one-family-out interpolate occupancy on these twins is 160 exact
-next-token events versus 12026 Witten--Bell backoff events (window
-$[0{:}4)$ is 71 versus 217). The same decode on the public $\Hw=4$
-original-12 twins is 269 versus 11912; every window has fewer exact
-hits under $\Hw=12$. Occupancy is a mechanistic intermediate: isolated
-interpolate on these twins remains 20/48.
+Leave-one-family-out interpolate occupancy is in \Cref{tab:occ}:
+160 exact next-token events versus 269 on the public $\Hw=4$ twins
+(window $[0{:}4)$ is 71 versus 84). Isolated interpolate remains 20/48.
 Hard prompt wins are market, station, rain, letter, workshop, and
 ferry-queue. Interpolate wins library, market, station, letter,
 workshop, and ferry-queue. Five stems win on both readers. Mean paired
@@ -1374,14 +1371,29 @@ Prompt-clustered sign permutation on interpolate $D_p$ is
 $p\approx 0.0005$ (2000 prompt-mean sign shuffles). Isolated
 $489/800$ is a different corpus from the original-12 \textbf{47/96}.
 Mean $D_p$ is $0.156$ (median $0.174$; range
-$[-0.386,0.602]$). Leave-one-family-out interpolate occupancy on these
-twins is 5878 exact next-token events versus 95624 Witten--Bell backoff
-events (window $[0{:}4)$ is 1287 versus 1113). The same decode on the
-public $\Hw=4$ 100-family twins is 10158 versus 91353; every window has
-fewer exact hits under $\Hw=12$. Occupancy is a mechanistic
-intermediate: isolated interpolate on these twins remains 267/400.
+$[-0.386,0.602]$). Occupancy on this frame is 5878 versus 10158 exact
+events (\Cref{tab:occ}; window $[0{:}4)$ is 1287 versus 1633). Isolated
+interpolate remains 267/400.
 \Cref{fig:hw12} sits much closer to zero than
 lock~A (\Cref{fig:locka}, mean $0.520$).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Leave-one-family-out interpolate occupancy: exact next-token
+events versus Witten--Bell backoff. File LRs match the interpolate
+holdouts. Occupancy is a mechanistic intermediate, not an isolated-file
+detector.}
+\label{tab:occ}
+\begin{tabular}{lrrrr}
+\toprule
+Prompt frame & $\Hw=12$ seen & public $\Hw=4$ seen & $\Hw=12$ unseen & public unseen \\
+\midrule
+Original 12 & 160 & 269 & 12026 & 11912 \\
+100 families & 5878 & 10158 & 95624 & 91353 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure}[ht]
 \centering

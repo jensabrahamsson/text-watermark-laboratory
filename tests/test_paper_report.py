@@ -304,9 +304,12 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
         r"\section{Conclusion}"
     )[0]
-    assert "160 exact" in next_sec
-    assert "269 versus 11912" in next_sec
+    assert "160 exact next-token events versus 269" in next_sec
     assert "20/48" in next_sec
+    tex = Path(ROOT / "paper" / "main.tex").read_text()
+    assert r"\label{tab:occ}" in tex
+    assert "Original 12 & 160 & 269 & 12026 & 11912" in tex
+    assert "100 families & 5878 & 10158 & 95624 & 91353" in tex
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "160" not in abs_
     assert "269" not in abs_
@@ -329,8 +332,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert occ100["used_keys"] is False
     assert occ100["n_seen"] == 5878
     assert occ100_pub["n_seen"] == 10158
-    assert "5878 exact" in next_sec
-    assert "10158 versus 91353" in next_sec
+    assert "5878 versus 10158" in next_sec
     assert "5878" not in abs_
     assert "10158" not in abs_
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
