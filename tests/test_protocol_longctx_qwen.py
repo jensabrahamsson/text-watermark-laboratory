@@ -36,6 +36,7 @@ def test_protocol_longctx_qwen_locks_config_before_generation() -> None:
     assert "PROTOCOL-next-longctx-qwen" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "--ngram-len 13" in log
+    assert "`d7303a2`" in log
 
 
 def test_protocol_longctx_qwen_cli_flag_exists() -> None:

@@ -2539,7 +2539,7 @@ JSON: `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
 ## 2026-09-04 Qwen2-1.5B ngram_len=13 freeze
 
 [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md)
-frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
+committed at SHA `d7303a2`. Frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
 as [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md), generator
 `Qwen/Qwen2-1.5B-Instruct`, original 12 prompt strings, seed **20260903**,
 Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`. Hypotheses
