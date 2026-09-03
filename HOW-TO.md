@@ -190,8 +190,9 @@ $\Hw=12$ without editing the `synthid-text` checkout. Official scoring
 must use the same `--ngram-len`. Frozen two-grain Phase A:
 [research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md).
 Opened: official **48/48** marked files above 0.55; key-free interpolate
-and hard **6/12**; isolated hard **52/96**. Do not sell **6/12**. Does
-not replace **25/48**.
+and hard **6/12**; isolated hard **52/96**. Phase B on 100 one-liners:
+interpolate **76/100** (below lock A **99/100**); isolated **489/800**.
+Do not sell **6/12** or **76/100**. Does not replace **25/48**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
