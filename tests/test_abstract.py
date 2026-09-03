@@ -45,6 +45,8 @@ def test_abstract_is_the_shop_window() -> None:
     assert "**6/12**" in stock
     assert "**52/96**" in stock
     assert "**76/100**" in stock
+    assert "**160**" in stock
+    assert "**5878**" in stock
     assert "31/48" not in window
     assert "22/48" not in window
     assert "16/48" not in window
@@ -52,6 +54,8 @@ def test_abstract_is_the_shop_window() -> None:
     assert "15/15" not in window
     assert "52/96" not in window
     assert "76/100" not in window
+    assert "160" not in window
+    assert "5878" not in window
 
 
 def test_readme_abstract_matches_the_window() -> None:
@@ -74,6 +78,8 @@ def test_readme_abstract_matches_the_window() -> None:
     assert "52/96" not in pane
     assert "6/12" not in pane
     assert "76/100" not in pane
+    assert "160" not in pane
+    assert "5878" not in pane
     assert "research/abstract.md" in pane
     assert "Master of Science" in README.read_text()
     assert "Jens Abrahamsson" in README.read_text()
