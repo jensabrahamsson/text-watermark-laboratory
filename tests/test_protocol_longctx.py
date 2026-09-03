@@ -191,6 +191,13 @@ def test_protocol_longctx_phase_b_from_dumps() -> None:
     assert not (PROBE100 / "tables-counts").exists()
 
 
+def test_ngram13_pair_readmes_note_unpinned_hub() -> None:
+    for dump in (PAIR, PAIR100):
+        readme = (dump / "README.md").read_text()
+        assert "Hub revision was not recorded" in readme
+        assert "committed strings" in readme
+
+
 def test_ngram13_phase_b_official_all_400_marked_files() -> None:
     from text_watermark_tools.score import (
         load_tokenizer,
