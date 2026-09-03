@@ -361,6 +361,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "10158" not in abs_
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
     assert "tab:occ" in concl
+    assert "tab:split" in concl
     assert r"\textbf{6/12}" in concl
     assert r"\textbf{25/48}" in concl
     assert r"\textbf{76/100}" in concl
