@@ -147,7 +147,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "b70986d" in PAPER
     assert "PROTOCOL-next-longctx" in PAPER
     assert "seed 20260903" in PAPER
-    assert "does not replace" in PAPER
+    assert "different corpus" in PAPER
     import json
 
     hard = json.loads(
