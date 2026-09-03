@@ -321,8 +321,14 @@ Transfer 100×4 → original 12, hard, no method name:
 Same-register 100 → 36×4 (`--skip-nested`): last-2 **31/36**, isolated
 **118/144**, AUC **0.743** versus last-4 **25/36**, **96/144**, 0.624.
 Last-2 helps the 36-family transfer. It does **not** transfer to
-Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). 100 one-liners →
-Grok-register (`--skip-nested`; do not mix grok12 into train): last-2
+Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). Distil 100 last-2 →
+original-12 GPT-2 is also chance (**7/12**, 26/48, 0.493 versus last-4
+**7/12**, 29/48, 0.596). Public 100 last-2 tables do **not** classify
+control-as-marked 12 (**4/12**, 19/48, AUC 0.441 versus last-4
+**7/12**, 19/48, 0.522): last-2 is instance-specific when the train
+key is public. In-domain second-key last-2 below is a different split.
+100 one-liners → Grok-register (`--skip-nested`; do not mix grok12 into
+train): last-2
 grok12 **6/12**, **29/48**, AUC **0.590** versus last-4 **4/12**,
 **12/48**, 0.424; grok36 last-2 **18/36**, **77/144**, 0.516 versus
 last-4 **15/36**, **43/144**, 0.458. Isolated **29/48** equals
@@ -427,7 +433,8 @@ last-1 tail is **100/100**). Grok-register 12 last-2 isolated
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
 opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
-**66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
+**66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**,
+xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
