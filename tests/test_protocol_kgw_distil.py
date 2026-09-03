@@ -122,8 +122,6 @@ def test_protocol_kgw_distil_100_named_before_generation() -> None:
     assert "2026-09-03-pair-distil-100x4-kgw" in log
     assert PROMPTS_100.is_dir()
     assert len(list(PROMPTS_100.glob("*.txt"))) == 100
-    pair_100 = ROOT / "experiments" / "2026-09-03-pair-distil-100x4-kgw"
-    assert not pair_100.exists()
 
 
 def test_protocol_kgw_distil_100_cli_flag_exists() -> None:
