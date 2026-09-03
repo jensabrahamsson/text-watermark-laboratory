@@ -200,7 +200,9 @@ headline SynthID reader. Do not switch Kirchenbauer hard to last-2
 (12×4 collapse; 100×4 is strictly below last-1). Kirchenbauer last-1
 tables trained on 100 GPT-2 families do **not** classify public
 SynthID original-12 (isolated **6/48**, AUC 0.542, three ranking wins
-with no isolated TP). The last-1 lift is mixin-specific.
+with no isolated TP) or Grok-register SynthID 12 (**6/12**, **8/48**,
+AUC 0.523, two ranking wins with no isolated TP). The last-1 lift is
+mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
 generators. Last-4 does not:
