@@ -2121,6 +2121,33 @@ do not sell **76/100**, **267/400**, or **489/800** as replacing
 JSON: `experiments/2026-09-03-pair-100x4-ngram13/`,
 `experiments/2026-09-03-probe-100x4-ngram13-hard-last4/`.
 
+## 2026-09-03 Hw=12 occupancy decode start
+
+Named `df5487d` before looking at occupancy counts. H-long-occ is
+leave-one-family-out interpolate atoms (`atoms --leave-one-out`), not
+pooled `tables-counts`. Same interpolate reader as the Hw=12 probe.
+Original-12 `ngram_len=13` twins, public `ngram_len=5` original-12
+comparison, and 100-family companion. Not a new `probe --methods`
+name. Do not sell occupancy as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-09-03-pair-12x4-ngram13 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-12x4-ngram13
+
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-12x4-public-loo
+
+python -m text_watermark_tools atoms --leave-one-out \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-03-atoms-100x4-ngram13
+```
+
 ---
 
 ## 2026-09-02 resample
