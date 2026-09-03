@@ -195,8 +195,9 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert len(pair100["rows"]) == 100
     assert all(row["marked"]["mean"] > 0.55 for row in pair100["rows"])
     assert r"\textbf{100/100}" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
-    assert "prompt" in PAPER and "sign" in PAPER
-    assert r"prompt\_sign\_p" in PAPER or "prompt_sign_p" in PAPER.replace("\\", "")
+    assert "clustered permutation" in PAPER
+    assert "0.247" in PAPER
+    assert "0.0005" in PAPER
     b100 = json.loads(
         (
             ROOT
