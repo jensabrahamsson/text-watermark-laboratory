@@ -254,7 +254,11 @@ occupancy is **160** seen versus public $\Hw=4$ **269** seen
 (leave-one-family-out; H-long-occ holds). 100-family occupancy is
 **5878** seen versus public **10158** seen. Do not sell **6/12**,
 **76/100**, **160**, **269**, **5878**, or **10158**.
-Isolated-file detection is still not
+DistilGPT2 $\Hw=12$ 12-LOO is
+[PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md)
+(freeze SHA `bae6d81`). Opened: interpolate **9/12** (isolated
+**49/96**); hard **6/12**; occupancy **175** seen. Do not sell
+**9/12** or **49/96**. Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
 defaults, `--mixin kgw`, seed **20260904**). Opened: official z>3
@@ -272,7 +276,7 @@ occupancy **4557** seen vs **96991** unseen. Do not sell **12/12**,
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
-  interpolate **12/18**, Distil occupancy-free **22/48**, leftover Distil
+  interpolate **12/18**, Distil $\Hw=12$ **9/12** / **49/96**, Distil occupancy-free **22/48**, leftover Distil
   **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, absolute OOD 32:64 **10/12**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.

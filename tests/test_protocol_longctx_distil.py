@@ -1,6 +1,9 @@
 """DistilGPT2 ngram_len=13 two-grain freeze, locked before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-longctx-distil.md"
@@ -26,7 +29,6 @@ def test_protocol_longctx_distil_locks_config_before_generation() -> None:
     assert "thesis/" in text
     assert "Do **not** look at key-free LRs" in text
     assert "PROTOCOL-next-longctx.md" in text
-    assert "H-long-d-ctrl **holds**" not in text
     assert PROMPTS.is_dir()
     assert len(list(PROMPTS.glob("*.txt"))) == 12
     log = LOG.read_text()
@@ -63,3 +65,41 @@ def test_protocol_longctx_distil_cli_flag_exists() -> None:
     assert args.ngram_len == 13
     assert args.seed == 20260903
     assert args.hub_revision == "2290a62682d06624634c1f46a6ad5be0f47f38aa"
+
+
+PAIR = ROOT / "experiments" / "2026-09-04-pair-distil-12x4-ngram13"
+PROBE = ROOT / "experiments" / "2026-09-04-probe-distil-12x4-ngram13-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-04-atoms-distil-12x4-ngram13"
+
+
+def test_protocol_longctx_distil_official_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["ngram_len"] == 13
+    assert pair["model_name"] == "distilgpt2"
+    assert pair["seed"] == 20260903
+    assert pair["hub_revision"] == "2290a62682d06624634c1f46a6ad5be0f47f38aa"
+    assert len(pair["rows"]) == 12
+    assert all(row["marked"]["mean"] > 0.55 for row in pair["rows"])
+    assert all(row["unmarked_gen"]["mean"] <= 0.55 for row in pair["rows"])
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["n_prompts_marked_above"] == 9
+    assert hard["n_prompts_marked_above"] == 6
+    assert interp["n_marked_lr_positive"] == 21
+    assert interp["n_unmarked_lr_nonpositive"] == 28
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 49
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 175
+    assert occ["n_unseen"] == 11994
+    assert "H-long-d-ctrl **holds**" in text
+    assert "H-long-d-group **holds**" in text
+    assert "H-long-d-iso **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **9/12**" in collapsed
+    lo, hi = clopper_pearson(9, 12)
+    assert lo <= 0.5 <= hi
+    iso_lo, iso_hi = clopper_pearson(25, 48)
+    assert iso_lo <= 0.5 <= iso_hi

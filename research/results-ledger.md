@@ -556,7 +556,12 @@ lock is [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md)
 **22/48 vs 30/48** (**52/96**). Opened Phase B: official **100/100**;
 interpolate **76/100** (below lock A **99/100**); isolated
 **267/400 vs 222/400** (**489/800**). Do not sell **6/12** or
-**76/100**. Isolated-file remains open. Sol's different-mixin two-grain
+**76/100**. Isolated-file remains open. DistilGPT2 $\Hw=12$ 12-LOO is
+[PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md)
+(freeze SHA `bae6d81`). Opened: official first-draw **12/12**;
+interpolate **9/12** (isolated **21/48 vs 28/48**, **49/96**); hard
+**6/12** (**42/96**); occupancy **175** seen vs **11994** unseen. Do not
+sell **9/12** or **49/96**. Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
@@ -564,6 +569,20 @@ interpolate **12/12** (isolated **85/96**); hard **12/12**
 **100/100** (isolated **747/800**); occupancy **4557** seen. Do not
 sell **12/12**, **100/100**, **85/96**, or **747/800** as replacing
 **25/48**. Isolated-file remains open.
+
+## DistilGPT2 longer-context two-grain (`ngram_len=13`)
+
+Protocol SHA `bae6d81`; named `c120dc4`. Official first-draw matching
+`ngram_len=13` **12/12** above 0.55. Key-free interpolate last-4
+**9/12**, isolated **21/48 vs 28/48** (**49/96**), AUC **0.563**. Hard
+**6/12**, isolated **42/96**. Occupancy **175** seen vs **11994** unseen.
+Above GPT-2 $\Hw=12$ interpolate **6/12** on these prompt strings
+(different twins). Clopper–Pearson on **9/12** includes ½. Do not sell
+**9/12** or **49/96**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
+`experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-12x4-ngram13/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

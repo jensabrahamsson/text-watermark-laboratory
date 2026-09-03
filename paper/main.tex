@@ -1377,10 +1377,11 @@ An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 100 one-liners interpolate last-4 is \textbf{100/100} (isolated
 \textbf{608/800}). That is not \textbf{25/48}. The protocol note is
 \path{research/PROTOCOL-next-aaronson.md}. DistilGPT2 $\Hw=12$ on the
-same 12 strings is named in \path{research/PROTOCOL-next-longctx-distil.md}
+same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
 (freeze SHA \texttt{bae6d81};
-\path{experiments/2026-09-04-pair-distil-12x4-ngram13}) and has not been
-generated.
+\path{experiments/2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
+interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
+\textbf{6/12}. That is not \textbf{25/48}.
 
 \begin{table}[ht]
 \centering
@@ -1809,6 +1810,16 @@ Distil 100 interpolate:
 Distil 100 occupancy:
 \path{experiments/2026-09-03-atoms-distil-100x4-kgw/atoms.json}
 (\texttt{d48748a701d201eb}; 16170 seen).
+DistilGPT2 $\Hw=12$ freeze: \texttt{bae6d81}.
+Distil $\Hw=12$ pair:
+\path{experiments/2026-09-04-pair-distil-12x4-ngram13/results.json}
+(\texttt{8dc1d84856d1df5d}).
+Distil $\Hw=12$ interpolate:
+\path{experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/interpolate/holdout.json}
+(\texttt{e8ac790aebdb8919}; $9/12$, $49/96$).
+Distil $\Hw=12$ occupancy:
+\path{experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json}
+(\texttt{e0ccc7de1f47a79c}; 175 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
