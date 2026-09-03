@@ -1333,7 +1333,29 @@ small-$n$; Phase~B shows attenuation, not collapse.
 Prompt-clustered sign permutation on interpolate $D_p$ is
 $p\approx 0.0005$ (2000 shuffles; dump field \texttt{prompt\_sign\_p}). Isolated
 $489/800$ is a different corpus from the original 12 and does not
-replace \textbf{25/48}.
+replace \textbf{25/48}. Mean $D_p$ is $0.156$ (median $0.174$; range
+$[-0.386,0.602]$). \Cref{fig:hw12} sits much closer to zero than
+lock~A (\Cref{fig:locka}, mean $0.520$).
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\scriptsize]
+  \draw[->] (0,0) -- (12.2,0) node[right] {$D_p$};
+  \draw[->] (0,0) -- (0,22) node[above] {families};
+  \foreach \i/\c in {0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1} {
+    \fill[blue!50!black,opacity=0.85] (\i,0) rectangle (\i+1,\c);
+  }
+  \draw[red!70!black,thick] (4,0) -- (4,21);
+  \node[red!70!black,anchor=south] at (4,21.2) {0};
+  \foreach \x/\lab in {0/-0.4,2/-0.2,4/0,6/0.2,8/0.4,10/0.6}
+    \node at (\x,-1.6) {\lab};
+  \node[anchor=west] at (4.3,20) {76 wins; mass nearer zero than lock~A.};
+\end{tikzpicture}
+\caption{$\Hw=12$ interpolate prompt-level paired differences $D_p$ on
+the same 100 prompt strings (new twins; leave-one-family-out). Bins of
+width $0.1$. Compare \Cref{fig:locka}.}
+\label{fig:hw12}
+\end{figure}
 
 Hard prompt wins are market, station, rain, letter, workshop, and
 ferry-queue. Interpolate wins library, market, station, letter,

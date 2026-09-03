@@ -191,6 +191,24 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     )
     assert b100["used_keys"] is False
     assert b100["n_prompts_marked_above"] == 76
+    assert r"\label{fig:hw12}" in Path(ROOT / "paper" / "main.tex").read_text()
+    from collections import defaultdict
+    from math import floor
+
+    by = defaultdict(lambda: {"m": [], "u": []})
+    for row in b100["files"]:
+        side = "u" if "unmarked" in row["file"] else "m"
+        by[row["stem"]][side].append(row["lr"])
+    counts = [0] * 11
+    for v in by.values():
+        dp = sum(v["m"]) / len(v["m"]) - sum(v["u"]) / len(v["u"])
+        b = int(floor((dp + 0.4) / 0.1))
+        b = max(0, min(10, b))
+        counts[b] += 1
+    assert sum(counts) == 100
+    expected = ",".join(f"{i}/{c}" for i, c in enumerate(counts))
+    assert expected == "0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1"
+    assert expected in Path(ROOT / "paper" / "main.tex").read_text()
     assert "all 48 marked files" in PAPER
     assert "ferry-queue" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
     concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
