@@ -18,7 +18,9 @@ prespecified isolated-file threshold is not.
 - [`main.tex`](main.tex): article (abstract through bibliography).
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
-- [`compile.log`](compile.log): last local build attempt.
+- [`compile.log`](compile.log): last successful TeX Live build (19 A4
+  pages, PR #4). Later $\Hw=12$ paragraphs have not been recompiled
+  here; `pdflatex` is missing on this machine.
 
 Numbers are taken from this repository (`research/`, `experiments/`).
 If a figure is not in those dumps, it is not in the paper.
