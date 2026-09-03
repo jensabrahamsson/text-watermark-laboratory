@@ -50,6 +50,9 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     assert "does not affect the published scores" in PAPER
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
     assert "bitwise re-generation" in PAPER
+    cache = Path.home() / ".cache/huggingface/hub/models--gpt2/refs/main"
+    if cache.exists():
+        assert cache.read_text().strip() == "607a30d783dfa663caf39e06633721c8d4cfcd7e"
 
 
 def test_how_to_read_names_two_grain_hw12_and_occupancy() -> None:

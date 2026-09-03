@@ -11,7 +11,12 @@ This is a workshop-style empirical report, not a claim that the
 laboratory invented key-free detection or refuted Christ et al. (2024)
 or Zhang et al. (2024). The intended venue is a technical report. Group
 ranking under a strong paired oracle is the positive result; the
-prespecified isolated-file threshold is not.
+prespecified isolated-file threshold is not. A plain-English lead sits
+above the dense abstract. The public \texttt{get\_gvals} docstring
+(``lowest three bits'') does not match the installed
+\texttt{(hash >> 30) \% 2}; the report trusts the code. Hub revisions
+were not recorded at generation; published scores read committed
+strings.
 
 ## Files
 
