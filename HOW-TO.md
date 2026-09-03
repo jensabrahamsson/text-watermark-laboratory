@@ -185,6 +185,20 @@ This is a useful sanity check that the measured bias follows the correct key set
 marked/unmarked tables. Score `*-control-gen.txt` sampled with
 `control-shuffled-30`. See [research/key-free-contrast.md](research/key-free-contrast.md).
 
+`pair --ngram-len 13` reuses the public keys at watermark history
+$\Hw=12$ without editing the `synthid-text` checkout. Official scoring
+must use the same `--ngram-len`. Frozen two-grain Phase A:
+[research/PROTOCOL-next-longctx.md](research/PROTOCOL-next-longctx.md).
+Opened: official **48/48** marked files above 0.55; key-free interpolate
+and hard **6/12**; isolated hard **52/96**. Do not sell **6/12**. Does
+not replace **25/48**.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --n-samples 4 --max-new-tokens 128 --seed 20260903 --ngram-len 13 \
+  --out-dir experiments/2026-09-03-pair-12x4-ngram13
+```
+
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --control-only --n-samples 4 --max-new-tokens 128 --seed 20260931 \

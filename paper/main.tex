@@ -1299,8 +1299,10 @@ Kirchenbauer or Aaronson mixin is a different freeze and is not this
 lock.
 
 Phase~A is now opened on the original 12 prompt strings (new twins,
-seed 20260903). Official first-draw means with matching
-$\mathtt{ngram\_len}=13$ are above $0.55$ on all 12 first marked files.
+seed 20260903). Official means with matching $\mathtt{ngram\_len}=13$
+are above $0.55$ on all 48 marked files (post-open extra-draw check;
+first-draw was already 12/12). Unmarked files stay near $1/2$ ($0/48$
+above $0.55$).
 Leave-one-family-out interpolate last-4 ranks \textbf{6/12} (AUC
 $0.541$; $\tau=0$ is 20 TP, 28 FN, 31 TN, 17 FP; balanced accuracy
 $51/96$). Hard last-4 is also \textbf{6/12} (AUC $0.544$; 22 TP, 26 FN,
@@ -1311,11 +1313,15 @@ Isolated $\tau=0$ on the new twins does not replace \textbf{25/48}.
 Occupancy was not decoded: the 12-LOO dump does not persist
 \texttt{tables-counts}. Phase~B (100 families) is not opened.
 
-If group ranking had survived when short-context reuse should drop, the
-work would begin to support a transferable audit method. The observed
-drop to \textbf{6/12} is consistent with the public instance's reusable
-4-gram footprint being a boundary of the result. n=12 is small; this is
-not a theorem about production Gemini.
+Hard prompt wins are market, station, rain, letter, workshop, and
+ferry-queue. Interpolate wins library, market, station, letter,
+workshop, and ferry-queue. Five stems win on both readers. Mean paired
+file differences are small ($0.009$ hard, $0.021$ interpolate). If group
+ranking had survived when short-context reuse should drop, the work
+would begin to support a transferable audit method. The observed drop to
+\textbf{6/12} is consistent with the public instance's reusable 4-gram
+footprint being a boundary of the result. n=12 is small; this is not a
+theorem about production Gemini.
 
 \begin{table}[ht]
 \centering
@@ -1363,9 +1369,14 @@ These results establish paired-reference indication at the group grain
 for one public SynthID-Text instance. They do not establish calibrated
 standalone indication on an unfamiliar file, a universal key-free
 detector, key recovery, or a refutation of
-\citet{christ2024undetectable} or \citet{zhang2024sand}. The unresolved
-external-validity question is whether the paired-reference signal
-survives a longer-context or different watermarking mixin.
+\citet{christ2024undetectable} or \citet{zhang2024sand}. A preregistered
+lengthening of the public mixin to $\Hw=12$ (freeze SHA \texttt{b70986d})
+drops leave-one-family-out last-4 ranking on the original 12 strings to
+\textbf{6/12}, while official matching scores remain above $0.55$ on all
+48 marked files. Isolated $\tau=0$ is $52/96$. That is consistent with
+short reusable context as a boundary of the group-level result. It does
+not replace \textbf{25/48}. A different local mixin and a 100-family
+$\Hw=12$ corpus remain unopened.
 
 Code and frozen JSON:
 \url{https://github.com/jensabrahamsson/text-watermark-laboratory}.

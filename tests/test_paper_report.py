@@ -173,6 +173,12 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert interp["n_prompts_marked_above"] == 6
     assert r"\textbf{6/12}" in PAPER
     assert "52/96" in PAPER
+    assert "all 48 marked files" in PAPER
+    assert "ferry-queue" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    concl = PAPER.split(r"\section{Conclusion}")[1].split(r"\appendix")[0]
+    assert r"\textbf{6/12}" in concl
+    assert r"\textbf{25/48}" in concl
+    assert r"\textbf{36/36}" in PAPER.split(r"\begin{abstract}")[1]
     assert hard["n_marked_lr_positive"] == 22
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "ngram_len=13" not in abs_

@@ -2054,7 +2054,8 @@ command has been run once, as written. Do not add a scorer. A finished
 [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) named `7ec4509`.
 Pair seed **20260903**, `ngram_len=13`, original 12 Grok strings.
 Official first-draw matching `ngram_len=13` is above 0.55 on **12/12**
-first marked files (H-long-ctrl holds). Key-free 12-LOO interpolate
+first marked files (H-long-ctrl holds). Post-open extra-draw check:
+**48/48** marked above 0.55 (min $0.599$), **0/48** unmarked above 0.55. Key-free 12-LOO interpolate
 last-4 is **6/12** (AUC **0.541**, isolated **20/48 vs 31/48**). Hard
 is **6/12** (AUC **0.544**, isolated **22/48 vs 30/48**, balanced
 accuracy **52/96**). `used_keys=false`. Below the public-mixin

@@ -180,7 +180,10 @@ H-long-ctrl **holds**. Official first-draw mean with matching
 `ngram_len=13` is above $0.55$ on all 12 first marked files
 (range $0.601$–$0.634$). Unmarked first-draw stays near $1/2$
 ($0.471$–$0.508$). Mixin is on. `n_unmasked_ngrams=116` on every
-128-token twin (`ngram_len=13`).
+128-token twin (`ngram_len=13`). Post-open extra-draw check, using
+the shipped `official_score_text` on the committed files: **48/48**
+marked above $0.55$ (min $0.599$), **0/48** unmarked above $0.55$
+(max $0.523$). Not a second freeze.
 
 | Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
 |---|---|---|---|---|---|---|

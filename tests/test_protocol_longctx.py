@@ -111,3 +111,35 @@ def test_protocol_longctx_official_control_and_keyfree_from_dumps() -> None:
     assert not (PROBE / "tables-counts").exists()
     log = (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "`b70986d`" in log
+
+
+def test_ngram13_official_scores_all_48_marked_files() -> None:
+    """Matching ngram_len=13 official_score_text on committed twins."""
+    from text_watermark_tools.score import (
+        load_tokenizer,
+        official_processor,
+        official_score_text,
+    )
+
+    tok = load_tokenizer("gpt2")
+    proc = official_processor(ngram_len=13)
+    marked = [p for p in PAIR.glob("*-marked*.txt") if "unmarked" not in p.name]
+    unmarked = list(PAIR.glob("*-unmarked-gen*.txt"))
+    assert len(marked) == 48
+    assert len(unmarked) == 48
+    n_hi = 0
+    for path in marked:
+        if official_score_text(path.read_text(), tokenizer=tok, processor=proc).mean > 0.55:
+            n_hi += 1
+    n_u_hi = 0
+    u_max = -1.0
+    for path in unmarked:
+        mean = official_score_text(path.read_text(), tokenizer=tok, processor=proc).mean
+        u_max = max(u_max, mean)
+        if mean > 0.55:
+            n_u_hi += 1
+    assert n_hi == 48
+    assert n_u_hi == 0
+    assert u_max < 0.55
+    text = PROTOCOL.read_text()
+    assert "**48/48**" in text
