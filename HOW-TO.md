@@ -205,6 +205,8 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
 `--hub-revision SHA` pins the Hugging Face snapshot for *new* generation.
 Historical twins are committed files; published scores do not re-download
 Hub weights. Hub SHAs were not recorded when those twins were generated.
+The laboratory's current `gpt2` cache is
+`607a30d783dfa663caf39e06633721c8d4cfcd7e`.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
