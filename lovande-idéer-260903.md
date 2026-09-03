@@ -335,6 +335,8 @@ same BPE; Qwen uses `Qwen/Qwen2-1.5B-Instruct`):
 | gpt2-medium 100×4 | 82/100, 274/400, 0.663 | 85/100, **330/400**, 0.719 |
 | Qwen2-1.5B 12×4 | 5/12, 15/48, 0.383 | 9/12, 23/48, 0.520 |
 | Qwen2-1.5B 100×4 | 74/100, 351/400, 0.626 | 74/100, 257/400, 0.620 |
+| Grok-register 12×4 | 8/12, 25/48, 0.509 | 8/12, **34/48**, 0.588 |
+| Grok-register 36×4 | 22/36, 77/144, 0.477 | 23/36, 91/144, 0.570 |
 
 gpt2-medium 12 is chance both widths (official lamp **12/12**). At
 n=100 medium last-2 isolates **330/400** vs last-4 **274/400**; ranking
@@ -350,7 +352,11 @@ unmarked $\le 0$ only **121/400**. Qwen last-2 0:4 is **88/100**,
 `postokhits` last-2 on the original 12
 is **9/12 / 23/48**, unmarked $\le 0$ **48/48** — the same isolated
 count as last-4 `postokhits`. Hard last-2 **34/48** is not that
-occupancy-free reader.
+occupancy-free reader. Grok-register in-domain last-2 repeats the
+isolated McNemar (12 gains / 3 losses, $p\approx 0.018$) at **34/48**
+with ranking still **8/12**; grok36 last-2 is **91/144** vs last-4
+**77/144** (37/23, $p\approx 0.046$). Do not mix grok12 into any
+train. Do not sell grok **34/48**.
 
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
 interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
@@ -381,7 +387,10 @@ freeze. Distil/Qwen/medium last-2 is in-domain only
 `experiments/2026-09-01-pair-distil-100x4/`,
 `experiments/2026-09-01-pair-qwen-100x4/`,
 `experiments/2026-09-01-pair-gpt2-medium-12x4/`,
-`experiments/2026-09-01-pair-gpt2-medium-100x4/`). Second-key hard is
+`experiments/2026-09-01-pair-gpt2-medium-100x4/`). Grok-register
+in-domain last-2 is `experiments/2026-09-01-pair-grok12x4/` and
+`experiments/2026-09-01-pair-grok36x4/` (not mixed into the original-12
+train). Second-key hard is
 `experiments/2026-09-02-pair-12x4-control-as-marked/`.
 
 **Hypothesis.** Hard last-4 on $\Hw=4$ tournament text is slightly too
@@ -396,7 +405,7 @@ last-1 tail is **100/100**). It is tied to short tournament history:
 **10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
 sell leftover **12/20** or leftover tail **13/20**. Do not sell
 opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
-**66/100**, Qwen **351/400**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
+**66/100**, Qwen **351/400**, grok **34/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
@@ -435,8 +444,9 @@ direction. At n=100 that lift is opening mass kept in the file mean
 (**334/340** of last-2 TPs are 0:4 TPs), not a body window: original-12
 tail **10/12** overstates geography. It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump;
-Distil/Qwen/medium 12 do not repeat the isolated McNemar. Keep
-leftover-20 as the honesty bound on any SynthID width change.
+Distil/Qwen/medium 12 do not repeat the isolated McNemar; Grok-register
+12 does (**34/48**, ranking still **8/12**). Keep leftover-20 as the
+honesty bound on any SynthID width change.
 
 ---
 
