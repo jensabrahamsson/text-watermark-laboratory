@@ -172,6 +172,18 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
         ).read_text()
     )
     assert hard["used_keys"] is False
+    pair12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-pair-12x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    assert pair12["ngram_len"] == 13
+    assert pair12["seed"] == 20260903
+    assert len(pair12["rows"]) == 12
+    assert all(row["marked"]["mean"] > 0.55 for row in pair12["rows"])
     assert hard["n_prompts_marked_above"] == 6
     assert interp["n_prompts_marked_above"] == 6
     assert abs(hard["binary"]["auc"] - 0.544) < 0.001
