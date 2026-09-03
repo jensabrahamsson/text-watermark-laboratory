@@ -30,6 +30,7 @@ def test_protocol_kgw_distil_locks_config_before_generation() -> None:
     log = LOG.read_text()
     assert "PROTOCOL-next-kgw-distil" in log
     assert "--model distilgpt2" in log
+    assert "`1540d3c`" in log
 
 
 def test_protocol_kgw_distil_cli_flag_exists() -> None:

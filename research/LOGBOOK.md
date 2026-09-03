@@ -2289,8 +2289,8 @@ Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jen
 ---
 ## 2026-09-03 DistilGPT2 Kirchenbauer freeze
 
-[PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) frozen before
-generation. Same Hugging Face Kirchenbauer defaults as
+[PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) committed at
+SHA `1540d3c`. Frozen before generation. Same Hugging Face Kirchenbauer defaults as
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md), generator `distilgpt2`,
 original 12 prompt strings, seed **20260904**, `--mixin kgw`.
 Hypotheses H-kgw-d-ctrl, H-kgw-d-group, and H-kgw-d-iso are stated
