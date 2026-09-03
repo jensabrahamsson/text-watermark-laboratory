@@ -39,8 +39,12 @@ def test_installed_get_gvals_docstring_does_not_match_return() -> None:
 
     src = inspect.getsource(SynthIDLogitsProcessor.get_gvals)
     assert "lowest three bits" in src
+    assert "num_apply_hash: int = 12" in src
     assert "(ngram_keys >> 30) % 2" in src
     assert "return (ngram_keys >> 30) % 2" in " ".join(src.split())
+    intro = Path(ROOT / "paper" / "main.tex").read_text()
+    intro = intro.split(r"\section{Introduction}")[1].split(r"\section{Related Work}")[0]
+    assert "12 linear-congruential mixes" in intro or "12 LCG mixes" in intro
 
 
 def test_intro_surfaces_get_gvals_docstring_mismatch() -> None:
