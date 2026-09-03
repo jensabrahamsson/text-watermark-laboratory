@@ -286,8 +286,10 @@ Opening isolated **389/400** is the same grain at both widths
 0:4 TPs (**6** are not). Last-4 full-file keeps **248/254** opening
 TPs. Last-2’s full-file isolated lift is **opening mass that survives
 the file mean**, not a Kirchenbauer-style tail (idea 1 interpolate
-64:128 **100/100**). Last-4 interpolate tail 64:128 is still **3/12**
-on the original 12 and **93/100** at n=100. Do not sell **389/400**.
+64:128 **100/100**). 36-family last-2 windows sit in between: 0:4
+**32/36**, **128/144**, AUC **0.869**; 64:128 **19/36**, AUC **0.543**.
+Last-4 interpolate tail 64:128 is still **3/12** on the original 12
+and **93/100** at n=100. Do not sell **389/400**.
 
 Paired marked-file signs, last-2 vs last-4 on the original 12 (exact
 McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
