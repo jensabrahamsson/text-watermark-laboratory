@@ -75,6 +75,8 @@ def test_no_lab_slang_in_report_body() -> None:
         "remains unopened",
     ):
         assert banned not in body
+    body_main = body.split(r"\appendix")[0]
+    assert "Grok-length" not in body_main
 
 
 def test_readme_matches_revised_title() -> None:
