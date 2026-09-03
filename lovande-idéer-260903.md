@@ -209,7 +209,11 @@ Last-1 hard is **12/12**, **40/48**, unmarked $\le 0$ **48/48**, AUC
 **20/48** versus last-4 interpolate **8/48**; ranking stays **11/12**.
 Confirmatory 100-family last-1 hard (`--skip-nested`): **99/100**,
 **388/400**, AUC **0.989**, unmarked $\le 0$ **399/400**, versus last-4
-**95/100**, **344/400**, 0.950, unmarked **400/400**. Both windows
+**95/100**, **344/400**, 0.950, unmarked **400/400**. Interpolate
+last-1 at n=100 is **100/100**, **296/400**, AUC 0.985, unmarked
+$\le 0$ **400/400**, **26** ranking wins with no isolated TP (last-4
+interpolate **208/400**). Hard last-1 **388/400** remains the isolated
+reader. Both windows
 rank: 0:4 **100/100**, **388/400**, 0.987; 64:128 **99/100**,
 **380/400**, 0.985. That is **not** Kirchenbauer’s tail-only last-1
 split. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
@@ -270,7 +274,7 @@ and 64:128 rank.
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson unigram **24/48**,
-**308/400**, occupancy-free last-1
+**308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
