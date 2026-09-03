@@ -202,6 +202,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "52/96" in PAPER
     intro = PAPER.split(r"\section{Introduction}")[1].split(r"\section{Related Work}")[0]
     assert r"\textbf{76/100}" in intro
+    assert "tab:occ" in intro
     assert r"\textbf{76/100}" in PAPER
     assert r"\textbf{66/100}" in PAPER
     assert "not Distil/Qwen Phase" in PAPER
