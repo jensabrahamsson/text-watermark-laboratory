@@ -193,8 +193,8 @@ last-4 was already saturated at 100 families (**100/100** /
 **376/400**); last-1 is the hard-reader lift.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
-**389/400**, **350/400**, **329/400**, or **100/100** as replacing
-**25/48**. Do not add a method name. Do not retune Kirchenbauer
+**48/48**, **47/48**, **389/400**, **350/400**, **329/400**, or
+**100/100** as replacing **25/48**. Do not add a method name. Do not retune Kirchenbauer
 `context_width` after peeking. Do not run last-1 or unigram as the
 headline SynthID reader. Do not switch Kirchenbauer hard to last-2
 (12×4 collapse; 100×4 is strictly below last-1). Kirchenbauer last-1
@@ -207,12 +207,14 @@ generators. Last-4 does not:
 
 | Train → test | last-1 hard | last-4 hard |
 |---|---|---|
+| GPT-2 100 KGW → GPT-2 12 KGW | **12/12, 48/48, AUC 1.000** | 8/12, 32/48, 0.565 |
 | GPT-2 100 KGW → Distil 12 KGW | **12/12, 47/48, AUC 0.991** | 5/12, 22/48, 0.488 |
 | Distil 100 KGW → GPT-2 12 KGW | **12/12, 42/48, 0.987** | — |
 | Distil 100 KGW → Distil 12 KGW | **12/12, 42/48, 0.982** | — |
 
-`--skip-nested`; isolated is $\tau=0$. Distil in-domain last-1 was
-**46/48**; GPT-2 tables on Distil files are **47/48**. Do not sell
+`--skip-nested`; isolated is $\tau=0$. Unmarked $\le 0$ on GPT-2 12
+is **43/48** (five FPs). Distil in-domain last-1 was **46/48**; GPT-2
+tables on Distil files are **47/48**. Do not sell **48/48** or
 **47/48**. Qwen uses a different tokenizer; this transfer is same-BPE
 only.
 
@@ -227,6 +229,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-last1
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-12x4-kgw \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/xfer-kgw100-last1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-distil-12x4-kgw \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/xfer-kgw100-last1-to-distil12
@@ -236,8 +243,9 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
 understates the green-list leak: 100-family ranking **62/100** →
 **100/100**, isolated **209/400** → **389/400**, AUC **0.573** →
 **0.990**. Same `hard` scorer. At n=100 the hard widths are last-1 >
-last-2 > last-4. Last-1 tables transfer GPT-2 ↔ Distil; last-4
-tables do not. The freeze in
+last-2 > last-4. Last-1 tables transfer GPT-2 ↔ Distil and GPT-2 100 →
+original-12 KGW (**48/48** vs last-4 **32/48**); last-4 tables do not.
+The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion,
@@ -263,10 +271,23 @@ stays better at last-4 on 36×4 ranking. No new `--methods` name:
 | GPT-2 ngram-13 100×4 | 66/100, 215/400, 0.579 | 63/100, 248/400, 0.592 |
 
 12×4 last-2 absolute windows: tail 64:128 hard **10/12**, AUC 0.680,
-isolated **34/48**. Opening 0:4 last-2 hard is **7/12**. Body ranks
-under last-2 on this mixin; last-4 interpolate tail 64:128 is still
-**3/12** on those 12 stems (100-family interpolate 64:128 is
-**93/100**, idea 1).
+isolated **34/48**. Opening 0:4 last-2 hard is **7/12**. That tail
+**10/12** does **not** mean last-2 is a body leak at confirmatory n.
+100-family hard windows (`--skip-nested` on the window slice; full-file
+last-2 matches the LOO dump **94/100 / 340/400**):
+
+| Width | 0:4 | 64:128 | full file |
+|---|---|---|---|
+| last-2 | **100/100**, 0.947, **389/400** | 58/100, 0.554, 237/400 | **94/100**, 0.781, **340/400** |
+| last-4 | 99/100, 0.954, **389/400** | 47/100, 0.483, 189/400 | 67/100, 0.607, 254/400 |
+
+Opening isolated **389/400** is the same grain at both widths
+(388 shared TPs). Of last-2 full-file TPs, **334/340** are already
+0:4 TPs (**6** are not). Last-4 full-file keeps **248/254** opening
+TPs. Last-2’s full-file isolated lift is **opening mass that survives
+the file mean**, not a Kirchenbauer-style tail (idea 1 interpolate
+64:128 **100/100**). Last-4 interpolate tail 64:128 is still **3/12**
+on the original 12 and **93/100** at n=100. Do not sell **389/400**.
 
 Paired marked-file signs, last-2 vs last-4 on the original 12 (exact
 McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
@@ -274,7 +295,8 @@ McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
 gained 12 TN, lost 6. Occupancy leftover-20 (zeros of
 `experiments/2026-09-01-openings-100plusgrok36-to-12x4/coverage.json`):
 last-4 **10/20 vs 11/20**, last-2 **12/20 vs 12/20**. Covered 15/28 →
-**22/28**. Last-2 does **not** fix leftover; the isolated lift is
+**22/28**. Leftover last-2 tail 64:128 is **13/20 vs 12/20**; covered
+tail **21/28**. Last-2 does **not** fix leftover; the isolated lift is
 mostly occupancy-covered files.
 
 Transfer 100×4 → original 12, hard, no method name:
@@ -290,10 +312,31 @@ Last-2 helps the 36-family transfer. It does **not** transfer to
 Distil SynthID 12 (**5/12**, 21/48, AUC 0.510). Kirchenbauer last-1
 cross-generator transfer is idea 2, not this width.
 
-Other generators, in-domain hard only: DistilGPT2 last-2 **33/48** vs
-last-4 **33/48** (no isolated lift; ranking 10/12 vs 11/12). Qwen2-1.5B
-last-2 **23/48** vs last-4 **15/48** (lift from worse-than-chance, not
-a replacement for **25/48**).
+Second-key control-as-marked 12×4 (constructed twins, not a matched
+`pair()`; interpolate freeze stays **7/12 / 30/48**): hard last-2
+**11/12**, **34/48**, AUC **0.730** versus last-4 **9/12**, **32/48**,
+0.616. Isolated McNemar is **10** gains / **8** losses,
+$p\approx 0.41$. Ranking moved; isolated did **not** repeat the public
+16/7. Do not leftover-slice control files. Do not sell **34/48**.
+
+Other generators, in-domain hard (`--model gpt2` on Distil / medium,
+same BPE; Qwen uses `Qwen/Qwen2-1.5B-Instruct`):
+
+| Corpus | last-4 hard | last-2 hard |
+|---|---|---|
+| DistilGPT2 12×4 | 11/12, 33/48, 0.644 | 10/12, 33/48, 0.628 |
+| DistilGPT2 100×4 | 54/100, 147/400, 0.499 | 66/100, 182/400, 0.581 |
+| gpt2-medium 12×4 | 7/12, 21/48, 0.555 | 6/12, 18/48, 0.503 |
+| gpt2-medium 100×4 | 82/100, 274/400, 0.663 | 85/100, **330/400**, 0.719 |
+| Qwen2-1.5B 12×4 | 5/12, 15/48, 0.383 | 9/12, 23/48, 0.520 |
+| Qwen2-1.5B 100×4 | 74/100, 351/400, 0.626 | 74/100, 257/400, 0.620 |
+
+gpt2-medium 12 is chance both widths (official lamp **12/12**). At
+n=100 medium last-2 isolates **330/400** vs last-4 **274/400**; ranking
+only +3. Distil 100 last-4 is chance; last-2 ranking **66/100** is not
+GPT-2 **94/100**; both widths have **108/400** marked zeros. Qwen 100
+ranking is tied; last-4 isolated **351/400** has unmarked $\le 0$ only
+**121/400**. Do not sell **330/400**, **66/100**, or **351/400**.
 
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
 interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
@@ -318,26 +361,34 @@ includes ½.
 `experiments/2026-08-17-pair-12x4/`,
 `experiments/2026-08-31-pair-36x4/`,
 `experiments/2026-09-01-pair-100x4/`. Last-2 was not the headline
-freeze. Distil/Qwen last-2 is in-domain only
+freeze. Distil/Qwen/medium last-2 is in-domain only
 (`experiments/2026-08-31-pair-distilgpt2-12x4/`,
-`experiments/2026-08-31-pair-qwen-12x4/`).
+`experiments/2026-08-31-pair-qwen-12x4/`,
+`experiments/2026-09-01-pair-distil-100x4/`,
+`experiments/2026-09-01-pair-qwen-100x4/`,
+`experiments/2026-09-01-pair-gpt2-medium-12x4/`,
+`experiments/2026-09-01-pair-gpt2-medium-100x4/`). Second-key hard is
+`experiments/2026-09-02-pair-12x4-control-as-marked/`.
 
 **Hypothesis.** Hard last-4 on $\Hw=4$ tournament text is slightly too
-long for isolated sign: last-2 keeps a reusable short context without
-falling into last-1 unigram collapse. That is a **width** effect on
-the published `hard` reader, not a hashed scorer and not leftover
-targeting. It is tied to short tournament history: `ngram_len=13`
-($\Hw=12$) last-2 does not rescue ranking (12×4 isolated **21/48** vs
-last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
+long for **full-file** isolated sign: last-2 keeps opening last-k mass
+in the file mean without falling into last-1 unigram collapse. It is
+not a body-hash match (n=100 last-2 tail **58/100**; Kirchenbauer
+last-1 tail is **100/100**). It is tied to short tournament history:
+`ngram_len=13` ($\Hw=12$) last-2 does not rescue ranking (12×4 isolated
+**21/48** vs last-4 **22/48**; 100×4 ranking **63/100** vs **66/100**).
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
-sell leftover **12/20**. Do not switch interpolate to last-2. Do not
-switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not add
-`hard2` as a method name. Do not present last-2 as matching the
+sell leftover **12/20** or leftover tail **13/20**. Do not sell
+opening **389/400**, second-key **34/48**, medium **330/400**, Distil
+**66/100**, or Qwen **351/400**. Do not switch interpolate to last-2.
+Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
+add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
-repeat the 100-family **94/100** jump). Public last-2 tables trained
-on 100 GPT-2 families do not classify Kirchenbauer original-12
+repeat the 100-family **94/100** jump). Do not present last-2 as a
+Kirchenbauer-style body companion. Public last-2 tables trained on
+100 GPT-2 families do not classify Kirchenbauer original-12
 (isolated **24/48**, AUC 0.554).
 
 ```bash
@@ -353,6 +404,11 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2
 
+python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-windows-ends
+
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-12x4-ngram13-k2
@@ -361,10 +417,12 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
 headline. Last-2 is the one existing-scorer width that moved isolated
 sign on 12, 36, and 100 **public** GPT-2 families in the same
-direction, with a body window that ranks **10/12**. It is not a
-universal shorter-context recipe: longer hash history kills the
-ranking jump. Keep leftover-20 as the honesty bound on any SynthID
-width change.
+direction. At n=100 that lift is opening mass kept in the file mean
+(**334/340** of last-2 TPs are 0:4 TPs), not a body window: original-12
+tail **10/12** overstates geography. It is not a universal
+shorter-context recipe: longer hash history kills the ranking jump;
+Distil/Qwen/medium 12 do not repeat the isolated McNemar. Keep
+leftover-20 as the honesty bound on any SynthID width change.
 
 ---
 
@@ -425,9 +483,10 @@ A freeze of **width and mixin geography** that already moved a grain:
 2. Matching `context_len` to that mixin’s last-1 hash recovers
    isolated hard sign (100-family **389/400** vs last-4 **209/400**).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
-   last-2 than at last-4 for isolated sign, without fixing leftover
-   and without touching interpolate. The jump does not repeat at
-   $\Hw=12$.
+   last-2 than at last-4 for **full-file** isolated sign, without
+   fixing leftover and without touching interpolate. At n=100 that
+   lift is opening mass kept in the file mean, not a body leak. The
+   jump does not repeat at $\Hw=12$.
 
 Keep leftover-20 as the honesty bound on any SynthID width change.
 Do not write `thesis/` from this file.
