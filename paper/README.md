@@ -16,7 +16,8 @@ above the dense abstract. The public \texttt{get\_gvals} docstring
 (``lowest three bits'') does not match the installed
 \texttt{(hash >> 30) \% 2}; the report trusts the code. Hub revisions
 were not recorded at generation; published scores read committed
-strings.
+strings. The laboratory's current \texttt{gpt2} cache is
+\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
 
 ## Files
 
