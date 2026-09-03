@@ -88,8 +88,9 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    interpolate **76/100** (below lock A **99/100**); isolated
    **489/800**. Figure hw12 is the paired-difference
    histogram (mean 0.156 vs lock A 0.520). Original-12 interpolate
-   occupancy is **160** seen versus public $\Hw=4$ **269** seen;
-   100-family occupancy is **5878** versus **10158**
+   occupancy is **160** seen versus public $\Hw=4$ **269** seen
+   (opening $[0{:}4)$ is 71 versus 84);
+   100-family occupancy is **5878** versus **10158** (opening 1287 versus 1633)
    (leave-one-family-out atoms; not a detector). Isolated original-12 remains
    **47/96**; **6/12** and **76/100** are group rankings on $\Hw=12$
    twins.
