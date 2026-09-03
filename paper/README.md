@@ -82,8 +82,9 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    **12/12**; interpolate and hard **6/12**; isolated hard **52/96**.
    Absolute-history 12-LOO mask-*k* remasure (same SHA) leaves hard
    prefix **5/12** and tails **9/12** unchanged versus the reindexed
-   dump. Phase B opened: interpolate **76/100** (below lock A
-   **99/100**); isolated **489/800**. Figure hw12 is the paired-difference
+   dump. Longer-history 100-family readout (not Distil/Qwen Phase B):
+   interpolate **76/100** (below lock A **99/100**); isolated
+   **489/800**. Figure hw12 is the paired-difference
    histogram (mean 0.156 vs lock A 0.520). Do not sell **6/12** or
    **76/100** as replacing **25/48**.
 
