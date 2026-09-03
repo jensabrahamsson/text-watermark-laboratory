@@ -82,6 +82,13 @@
 \frenchspacing
 \maketitle
 
+\noindent\textit{In plain English.}
+A watermark is meant to be checked with a secret key. This report asks
+whether, given matched marked and unmarked samples but no keys, an
+auditor can still tell that Google DeepMind's public SynthID-Text demo
+is on. At the level of prompt groups, yes. On one 128-token file at a
+pre-set threshold, no.
+
 % =========================================================================
 \begin{abstract}
 With matched labeled marked and unmarked reference generations, and with
@@ -134,7 +141,12 @@ member of that family, deployed at scale and released as a public
 reference implementation
 \citep{dathathri2024synthid,deepmind2024synthidcode}. Official detection
 needs the instance keys. Those keys exist in the public reference code;
-this report withholds them from the auditor by design. If a third party
+this report withholds them from the auditor by design. The public
+\texttt{get\_gvals} docstring says $g$-values come from ``the lowest
+three bits'' of the n-gram keys. The installed code does 12
+linear-congruential mixes and then $(\mathrm{hash}\gg 30)\bmod 2$. This
+report trusts the code; that mismatch is a documentation bug in the
+public DeepMind checkout, not a laboratory rewrite. If a third party
 cannot or will not use the vendor's keys, verification is an open
 practical question \citep{deepmind2024issue22,gloaguen2025blackbox,wang2026ttp}.
 
@@ -320,10 +332,10 @@ does not insert hidden characters. It biases which token is sampled
 The public reference configuration is \texttt{public-deepmind-30}:
 $\mathtt{ngram\_len}=5$, hence watermark hash history $\Hw=4$; 30 public
 keys; $\mathtt{context\_history\_size}=1024$. The implementation hashes
-the recent context with a linear congruential generator. Trust the code
-for $g$-values: 12 LCG mixes, then $(\mathrm{hash} \gg 30) \bmod 2$.
-The mixin's docstring (``lowest three bits'') does not match that
-implementation. $g$-values are binary.
+the recent context with a linear congruential generator. As already
+noted in \Cref{sec:intro}, $g$-values are
+$(\mathrm{hash}\gg 30)\bmod 2$ after 12 LCG mixes, not the docstring's
+``lowest three bits.'' $g$-values are binary.
 
 Only the language model's top-$\Ktop$ candidates are reweighted
 ($\Ktop=40$; temperature $1.0$). Repeated context hashes are masked so
@@ -483,10 +495,17 @@ marked draw $j\in\{0,1,2,3\}$ uses $s + (2M+2)r + 2j$; unmarked draw
 $j$ uses one more. Marked and unmarked never share a seed.
 
 Default Hub identifiers: \texttt{gpt2}, \texttt{distilgpt2},
-\texttt{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not pinned at
-generation time. \texttt{transformers==4.57.6}. SynthID-Text is the
-public reference package installed with \texttt{pip install -e \ldots
---no-deps}. Exact frozen dumps and commands are in \Cref{app:artifacts}.
+\texttt{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not recorded when
+the twins were generated. That does not affect the published scores:
+key-free tables and official \texttt{detector\_mean} read the committed
+strings, not a Hub snapshot. It would matter for bitwise re-generation
+of new twins. The laboratory machine's current \texttt{gpt2} cache is
+\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}; DistilGPT-2 and
+Qwen snapshots were not retained. Future \texttt{pair} runs should pass
+a Hub \texttt{revision}. \texttt{transformers==4.57.6}. SynthID-Text is
+the public reference package installed with
+\texttt{pip install -e \ldots --no-deps}. Exact frozen dumps and
+commands are in \Cref{app:artifacts}.
 
 Corpora used in the headline tables:
 
@@ -1473,7 +1492,10 @@ Python $\ge 3.10$; \texttt{transformers==4.57.6}; CPU JAX for official
 \texttt{detector\_mean}; SynthID-Text public checkout installed with
 \texttt{pip install -e \ldots --no-deps}. Hugging Face ids:
 \texttt{gpt2}, \texttt{distilgpt2}, \texttt{Qwen/Qwen2-1.5B-Instruct}.
-Hub commit SHAs were not recorded at generation time.
+Hub commit SHAs were not recorded at generation time. Published scores
+use the committed strings (\Cref{sec:generation}); they do not re-download
+Hub weights. Current laboratory \texttt{gpt2} cache:
+\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
 
 \paragraph{Chronology (confirmatory 100).}
 Protocol freeze SHA \texttt{7001489}. Prompts

@@ -14,6 +14,44 @@ def test_title_exposes_paired_reference_oracle() -> None:
     assert "Public SynthID-Text Instance" in PAPER
 
 
+def test_plain_english_ingress_precedes_the_abstract() -> None:
+    lead = PAPER.split(r"\maketitle")[1].split(r"\begin{abstract}")[0]
+    assert "In plain English" in lead
+    assert "secret key" in lead
+    assert "prompt groups" in lead
+    assert "no keys" in lead
+    assert "76/100" not in lead
+    assert "160" not in lead
+
+
+def test_installed_get_gvals_docstring_does_not_match_return() -> None:
+    import inspect
+
+    from synthid_text.logits_processing import SynthIDLogitsProcessor
+
+    src = inspect.getsource(SynthIDLogitsProcessor.get_gvals)
+    assert "lowest three bits" in src
+    assert "(ngram_keys >> 30) % 2" in src
+    assert "return (ngram_keys >> 30) % 2" in " ".join(src.split())
+
+
+def test_intro_surfaces_get_gvals_docstring_mismatch() -> None:
+    intro = PAPER.split(r"\section{Introduction}")[1].split(
+        r"\section{Related Work}"
+    )[0]
+    assert "lowest three bits" in intro
+    assert r"\gg 30" in intro or ">> 30" in intro
+    assert "documentation bug" in intro
+    assert "not a laboratory rewrite" in intro
+
+
+def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
+    assert "committed strings" in PAPER
+    assert "does not affect the published scores" in PAPER
+    assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
+    assert "bitwise re-generation" in PAPER
+
+
 def test_how_to_read_names_two_grain_hw12_and_occupancy() -> None:
     how = PAPER.split("How to read this report")[1].split(r"\section{Introduction}")[0]
     assert "fig:twograin" in how
