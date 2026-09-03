@@ -164,6 +164,8 @@ def test_protocol_longctx_phase_b_from_dumps() -> None:
     interp_raw = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
     assert interp_raw["n_marked_lr_positive"] == 267
     assert interp_raw["n_unmarked_lr_nonpositive"] == 222
+    assert interp_raw["prompt_sign_p"] < 0.001
+    assert "prompt_sign_p" in PROTOCOL.read_text()
     lo, hi = clopper_pearson(76, 100)
     assert lo > 0.5
     assert "H-long-B-ctrl **holds**" in text

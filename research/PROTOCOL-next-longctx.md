@@ -275,7 +275,8 @@ H-long-B-group **holds**. Interpolate last-4 100-LOO ranking is
 **76/100**, below public-mixin lock A **99/100**. It is not chance
 on this n=100 one-liner set. Phase A **6/12** was small-n; Phase B
 shows attenuation, not collapse. Mean paired file difference is
-$0.156$ (interpolate) / $0.027$ (hard). Do **not** sell **76/100** as
+$0.156$ (interpolate) / $0.027$ (hard). Interpolate
+`prompt_sign_p` is $0.00050$ (2000 prompt-mean sign shuffles). Do **not** sell **76/100** as
 replacing **99/100** or **25/48**.
 
 H-long-B-iso **does not hold as “chance-like vs 47/96”** on this

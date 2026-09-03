@@ -2107,6 +2107,7 @@ first-draw scores and the probe command has been run once, as written.
 [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) Phase B named
 `facc538`. Pair seed **20260903**, `ngram_len=13`, 100 one-liners.
 Official first-draw **100/100** above 0.55 (H-long-B-ctrl holds).
+Post-open extra-draw: **400/400** marked above 0.55, **0/400** unmarked.
 Key-free interpolate last-4 **76/100** (AUC **0.666**, isolated
 **267/400 vs 222/400**, BA **489/800**). Hard **66/100** (AUC
 **0.579**, isolated **215/400 vs 221/400**). `used_keys=false`.
