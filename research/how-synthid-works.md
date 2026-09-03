@@ -32,6 +32,9 @@ The actual `get_gvals` implementation performs 12 LCG mixes followed by:
 ```
 
 The docstring's description of "the lowest three bits" does not match the code.
+The technical report now states that mismatch in the introduction: trust
+the installed return `(hash >> 30) % 2`, not the docstring. Do not edit
+the `synthid-text` checkout.
 
 ## Sampling
 
