@@ -424,6 +424,8 @@ def run_control_only(
 
 def print_pair_run(run: PairRun) -> str:
     chunks: list[str] = []
+    if run.hub_revision:
+        chunks.append(f"hub_revision={run.hub_revision}")
     for row in run.rows:
         nlen = run.ngram_len
         chunks.append(

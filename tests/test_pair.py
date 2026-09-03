@@ -7,6 +7,7 @@ from text_watermark_tools.pair import (
     PairRun,
     collect_prompts,
     persist_pair_run,
+    print_pair_run,
     run_pairs,
 )
 import json
@@ -35,6 +36,19 @@ def test_persist_pair_run_records_unset_hub_revision_as_null(tmp_path: Path) -> 
     assert "hub_revision" in data
     assert data["hub_revision"] is None
     assert "unpinned default" in data["note"]
+
+
+def test_print_pair_run_includes_hub_revision() -> None:
+    run = PairRun(
+        rows=[],
+        max_new_tokens=128,
+        seed=0,
+        hub_revision="abc123",
+    )
+    out = print_pair_run(run)
+    assert "hub_revision=abc123" in out
+    bare = print_pair_run(PairRun(rows=[], max_new_tokens=128, seed=0))
+    assert "hub_revision=" not in bare
 
 
 def test_collect_prompts_from_file(tmp_path: Path) -> None:
