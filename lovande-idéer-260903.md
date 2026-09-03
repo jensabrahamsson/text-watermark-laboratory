@@ -1,0 +1,314 @@
+# Proven-promising ideas (2026-09-03)
+
+Backlog of key-free leads that this laboratory **measured and saw
+move a published grain**, not a wish list. Locked headlines stay
+**9/12**, **25/48**, and **36/36**. Pre-fix **10/12** / **29/48** stay
+in historical JSON. None of these ideas adds a `probe --methods` name
+on the original 12×4 / 36×4 SynthID twins. None replaces **25/48**.
+This laboratory did not refute Christ et al. (2024) or Zhang et al.
+(2024). Author–year citations follow
+[research/CITING.md](research/CITING.md).
+
+`used_keys=false` on every key-free probe below. Official Kirchenbauer
+z-scores and SynthID `detector_mean` are positive controls; they use
+keys.
+
+Reproduce from the committed pair dumps. Exploratory holdouts lived
+under `/tmp/kgw-lab/` on the investigation machine and are not in git.
+
+---
+
+## 1. Kirchenbauer body still ranks (the hole is not “opening hash only”)
+
+**Observation.** On Hugging Face default Kirchenbauer et al. (2023)
+twins (`context_width=1`, `greenlist_ratio=0.25`, `bias=2.0`, seed
+`20260904`, same original-12 prompt strings as the public SynthID
+12×4), leave-one-family-out interpolate last-4 **absolute** windows
+(`score_span`) rank the **body**, not only the opening:
+
+| Window | KGW interpolate | KGW hard | SynthID interpolate | SynthID hard |
+|---|---|---|---|---|
+| 0:4 | 8/12, AUC 0.589 | 6/12 | **9/12**, 0.630 | 5/12 |
+| 4:16 | 11/12 | 7/12 | 8/12 | 7/12 |
+| 16:32 | 11/12, 0.786 | 8/12 | 6/12 | 7/12 |
+| 32:64 | 11/12 | 10/12 | 4/12 | 5/12 |
+| 64:128 | **12/12, 0.904** | 11/12 | **3/12** | 8/12 |
+| full file | 12/12, 0.947, 44/48 | 12/12, 0.703, 35/48 | 7/12, 0.525, 24/48 | 9/12, 0.590, **25/48** |
+
+SynthID twins: `experiments/2026-08-17-pair-12x4/` (public
+`ngram_len=5`, $\Hw=4$). Kirchenbauer twins:
+`experiments/2026-09-03-pair-12x4-kgw/` (opened in
+[research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md)).
+
+Same spatial split on DistilGPT2 Kirchenbauer 12×4: interpolate 0:4
+**9/12**, every later window **12/12**, tail 64:128 AUC **0.836**.
+Qwen2-1.5B Kirchenbauer 12×4: interpolate 0:4 **7/12**, 64:128
+**12/12**, AUC **0.819**. Occupancy-free `postokhits` on GPT-2
+Kirchenbauer openings (`--fit-prefix 4 --pos-bucket 1`) is weak:
+isolated **11/48**. Full-file interpolate **12/12** is not an
+exact-copy detector (atoms: 114 seen vs 12071 unseen).
+
+**Scope.** Local Hugging Face Kirchenbauer on GPT-2 / DistilGPT2 /
+Qwen2-1.5B, original-12 strings, $T=128$, four draws. Pair dumps:
+`experiments/2026-09-03-pair-12x4-kgw/`,
+`experiments/2026-09-03-pair-distil-12x4-kgw/`,
+`experiments/2026-09-03-pair-qwen-12x4-kgw/`. Not production Gemini.
+Not leftover targeting. Windows keep absolute generated indices.
+
+**Hypothesis.** SynthID’s published interpolate collapse in the body
+is consistent with **tournament sampling plus a short reusable hash
+window**, not with “any sampling watermark is opening-only.”
+Kirchenbauer’s green list is a different leak: it keeps ranking after
+token 16.
+
+**Non-claim.** This does not replace **25/48**. Full-file Kirchenbauer
+interpolate **12/12** / **44/48** / **85/96** is a different mixin and
+already opened; do not sell those counts as isolated SynthID
+detection. Occupancy-free KGW openings are **not** the leak. Distil
+100-family Kirchenbauer interpolate **100/100** /
+isolated **683/800** (opened on `main`) is the same construction at
+confirmatory scale, still not **25/48**.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-windows
+
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hard,interpolate --context-len 4 --skip-hashpool \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-synthid-windows
+```
+
+**Why it is a backlog item.** If the next honesty pass needs a
+reader that is not front-loaded, match the mixin: Kirchenbauer count
+tables already rank 64:128. Do not spend another leftover-targeting
+round trying to recover SynthID’s body with last-4 interpolate.
+
+---
+
+## 2. Match `context_len` to Kirchenbauer hash width (last-1)
+
+**Observation.** Kirchenbauer hashes **one** previous token
+(`context_width=1`). The published last-4 hard reader is wider than
+that hash. Switching the **existing** `hard` / `interpolate` readers
+to `--context-len 1` (not a new method name) lifts isolated hard sign
+on every local generator we tried:
+
+| Corpus | last-4 hard | last-1 hard | last-1 interpolate |
+|---|---|---|---|
+| GPT-2 KGW 12×4 | 12/12, 35/48, AUC 0.703 | **12/12, 43/48, 0.911** | 12/12, 44/48, 0.951 |
+| DistilGPT2 KGW 12×4 | 11/12, 34/48, 0.780 | **12/12, 46/48, 0.952** | 12/12, 42/48, 0.945 |
+| Qwen2-1.5B KGW 12×4 | 8/12, 19/48, 0.566 | **12/12, 37/48, 0.786** | 12/12, 36/48, 0.834 |
+
+GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
+isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
+last-1 lift is a **body** lift, same spatial pattern as idea 1.
+
+The same knob on **SynthID** full-file last-1 **collapses**: hard
+**1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
+better.” It matches this mixin’s hash width. (SynthID last-1 window
+0:4 can look strong, **9/12** / **37/48**; that is an opening unigram
+slice, not a reason to replace last-4 on the public mixin.)
+
+Clopper–Pearson 95% (invert `binomial_sf`; not a second freeze):
+Kirchenbauer last-1 hard isolated **43/48** is **[0.773, 0.965]**;
+last-4 hard **35/48** is **[0.582, 0.847]**. Isolated **25/48** still
+includes ½.
+
+**Scope.** Same Kirchenbauer 12×4 dumps as idea 1. Last-1 was not the
+preregistered PROTOCOL-next-kgw reader (that freeze is last-4). This
+is a post-open width match.
+
+**Hypothesis.** When the watermark hash is last-1, last-4 count
+tables smear a one-token green list across unused context tokens.
+Matching reader width to hash width recovers isolated sign without
+keys.
+
+**Non-claim.** Do not sell **43/48**, **46/48**, or **37/48** as
+replacing **25/48**. Do not add a method name. Do not retune
+Kirchenbauer `context_width` after peeking. Do not run last-1 as the
+headline SynthID reader (full-file last-1 dies there).
+
+```bash
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hard,interpolate --context-len 1 --skip-hashpool \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-last1
+```
+
+**Why it is a backlog item.** Confirmatory 100-family Kirchenbauer
+hard last-4 is only **62/100** ranking / **209/400** isolated
+([research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md)).
+Last-1 is the cheap next readout on those same twins: same `hard`
+scorer, `--context-len 1`. If 100-family last-1 hard moves like the
+12×4 lift, the published last-4 Kirchenbauer hard grain understates
+the green-list leak.
+
+---
+
+## 3. Public SynthID: hard last-2 isolated sign (existing `hard`, not a new method)
+
+**Observation.** A post-hoc `context_len` grid $\{1,2,3,4,5\}$ on
+original-12 SynthID hard, then confirmation on 36×4 and 100×4, finds
+**last-2** as the isolated-file lift. Interpolate stays better at
+last-4 on 36×4 ranking. No new `--methods` name: `--context-len 2` on
+`hard`.
+
+| Corpus | last-4 hard | last-2 hard |
+|---|---|---|
+| GPT-2 12×4 LOO | **9/12**, **25/48**, AUC 0.590 | **10/12, 34/48**, 0.702 |
+| GPT-2 36×4 LOO | 26/36, 83/144, 0.606 | 27/36, **106/144**, 0.661 |
+| GPT-2 100×4 LOO | 67/100, 254/400, 0.607 | **94/100, 340/400**, 0.781 |
+
+12×4 last-2 absolute windows: tail 64:128 hard **10/12**, AUC 0.680,
+isolated **34/48**. Opening 0:4 last-2 hard is **7/12**. Body ranks
+under last-2 on this mixin; last-4 interpolate tail 64:128 is still
+**3/12**.
+
+Paired marked-file signs, last-2 vs last-4 on the original 12 (exact
+McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
+18 both / 7 neither. One-sided $p\approx 0.047$. Unmarked $\le 0$:
+gained 12 TN, lost 6. Occupancy leftover-20 (zeros of
+`experiments/2026-09-01-openings-100plusgrok36-to-12x4/coverage.json`):
+last-4 **10/20 vs 11/20**, last-2 **12/20 vs 12/20**. Covered 15/28 →
+**22/28**. Last-2 does **not** fix leftover; the isolated lift is
+mostly occupancy-covered files.
+
+Transfer 100×4 → original 12, hard, no method name:
+
+| Width | Prompt wins | Isolated t=0 | Nested Youden |
+|---|---|---|---|
+| last-4 | 8/12 | 21/48 | 14/48 vs 43/48 |
+| last-2 | 7/12 | **29/48** | **23/48 vs 36/48** |
+
+Other generators, in-domain hard only: DistilGPT2 last-2 **33/48** vs
+last-4 **33/48** (no isolated lift; ranking 10/12 vs 11/12). Qwen2-1.5B
+last-2 **23/48** vs last-4 **15/48** (lift from worse-than-chance, not
+a replacement for **25/48**).
+
+Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
+interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
+same sign count as last-4 interpolate. Keep interpolate at last-4.
+
+Grid losers on original-12 hard: last-1 **1/12** / 22/48 / AUC 0.414;
+last-3 **8/12** / 26/48; last-5 **9/12** / 23/48. Matching mixin
+`ngram_len=5` (`context_len=5`) still does not beat last-4. Last-2 is
+not “match $\Hw=4$.”
+
+Clopper–Pearson 95% (not a freeze): original-12 last-2 isolated
+**34/48** is **[0.559, 0.830]** (excludes ½); locked last-4 **25/48**
+is **[0.372, 0.667]** (includes ½). 100-family last-2 ranking
+**94/100** is **[0.874, 0.978]**. Leftover last-2 **12/20** still
+includes ½.
+
+**Scope.** Public SynthID GPT-2 twins already in git:
+`experiments/2026-08-17-pair-12x4/`,
+`experiments/2026-08-31-pair-36x4/`,
+`experiments/2026-09-01-pair-100x4/`. Last-2 was not the headline
+freeze. Distil/Qwen last-2 is in-domain only
+(`experiments/2026-08-31-pair-distilgpt2-12x4/`,
+`experiments/2026-08-31-pair-qwen-12x4/`).
+
+**Hypothesis.** Hard last-4 on $\Hw=4$ tournament text is slightly too
+long for isolated sign: last-2 keeps a reusable short context without
+falling into last-1 unigram collapse. That is a **width** effect on
+the published `hard` reader, not a hashed scorer and not leftover
+targeting.
+
+**Non-claim.** Do not rewrite the locked headline to **34/48** or
+**10/12**. Do not sell transfer **29/48** or nested **23/48**. Do not
+sell leftover **12/20**. Do not switch interpolate to last-2. Do not
+add `hard2` as a method name. Do not present last-2 as matching the
+keyed hash window (last-5 lost the grid).
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hard,interpolate --context-len 2 --skip-hashpool \
+  --out-dir /tmp/kgw-lab/probe-12x4-synthid-k2
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --methods hard --context-len 2 --skip-hashpool \
+  --out-dir /tmp/kgw-lab/probe-36x4-synthid-k2
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 2 --skip-hashpool \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2
+```
+
+**Why it is a backlog item.** Isolated **25/48** is the honest last-4
+headline. Last-2 is the one existing-scorer width that moved isolated
+sign on 12, 36, and 100 GPT-2 families in the same direction, with a
+body window that ranks **10/12**. Next cheap bound: the same last-2
+hard on `ngram_len=13` ($\Hw=12$) twins
+(`experiments/2026-09-03-pair-12x4-ngram13/`). If last-2 dies there,
+the lift is tied to short tournament history. If it holds, last-2 is
+a reader-width effect even when the keyed hash is longer.
+
+---
+
+## Investigated and not promoted
+
+These were the other 2026-09-03 leads. They did **not** earn a backlog
+slot as improvements to key-free **document** indication.
+
+### Claude finished strings
+
+Premark vs `experiments/claude-sample-2026-09-03/` last-4 ranks
+**35/40**, last-2 **38/40**, unmarked $\le 0$ **40/40**. Window 0:4 is
+**0/40** on both readers; the shift is in the body (4:16 through
+64:128 are 36–39/40). Same-day 19a vs 19b is **19/38**; tail 64:128
+**23/38**. That is a long-timescale GPT-2-BPE style drift, killed by
+the same-day control, not a watermark detector. Do not put **35/40**
+on a detection list. Logbook already records the premark comparison.
+
+### Gloaguen generator queries
+
+Gloaguen et al. (2025) ask whether a **generator** is watermarked, with
+black-box queries and no matched document pairs. Production Table 2 in
+that paper fails to reject GPT-4 / Claude 3 / Gemini 1.0 Pro; the
+authors refuse to conclude. App. F.4 finds no evidence of SynthID on
+Gemini 1.5 Flash. That is their result, not ours.
+
+Locally, a Red-Green fruit/digit matrix on Qwen2-1.5B **sampling**
+(N1=4, N2=6, K=8 valid completions, H=1) held the unmarked null
+($S=1$, $p\approx 0.98$) and **did not reject** Hugging Face
+Kirchenbauer either ($S=1$, $p\approx 0.93$), even though mean
+$p(\texttt{apples})$ moved 0.35 → 0.64 (a global shift, not
+column-consistent t2 structure). Logit-level last-token=t2 on the same
+model **rejected unmarked** ($S=5$, $p\approx 0.001$). GPT-2 digit
+logits also reject unmarked. That is an LM-digit effect, not a
+watermark detector.
+
+Gloaguen remains the right *question* for an API without twins. It is
+not a proven improvement of this lab’s finished-string `indicate` /
+`blind` path at this budget. Do not call paid chat APIs. Wang et al.
+(2026) (TTP-Detect) stays the closest published finished-string analog
+and was not reimplemented.
+
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2
+
+`postokhits` on Kirchenbauer 12×4 is **11/48**. SynthID last-1
+full-file hard is **1/12**. Interpolate last-2 drops 36×4 ranking
+from **34/36** to **32/36**. None of those is a backlog item.
+
+---
+
+## What this file is for
+
+A freeze of **width and mixin geography** that already moved a grain:
+
+1. Kirchenbauer green-list leak is a **body** leak under last-4
+   interpolate.
+2. Matching `context_len` to that mixin’s last-1 hash recovers
+   isolated hard sign.
+3. On public SynthID, the existing `hard` reader is stronger at
+   last-2 than at last-4 for isolated sign, without fixing leftover
+   and without touching interpolate.
+
+Next measurements that would *use* these ideas, not new method names:
+100-family Kirchenbauer last-1 hard; `ngram_len=13` last-2 hard; keep
+leftover-20 as the honesty bound on any SynthID width change.
+
+Do not write `thesis/` from this file.
