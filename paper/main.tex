@@ -76,7 +76,7 @@
     \href{https://github.com/jensabrahamsson}{github.com/jensabrahamsson}
 }
 
-\date{September 2026}
+\date{4 September 2026}
 
 \begin{document}
 \frenchspacing
@@ -122,16 +122,17 @@ key-free indication, empirical likelihood ratio.
 
 \medskip
 \noindent\textit{How to read this report.}
-Prompt-group ranking (exploratory \textbf{36/36}, lock~A \textbf{99/100},
-corrected original \textbf{9/12}) compares four-draw means.
-Isolated detection is a different task: the prespecified $\tau=0$
+The claim is key-free indication under a strong paired oracle: prompt-group
+ranking (exploratory \textbf{36/36}, lock~A \textbf{99/100},
+corrected original \textbf{9/12}) with keys withheld at scoring.
+The limit is isolated detection: the prespecified $\tau=0$
 confusion matrix on 96 files (\textbf{47/96} correct).
-\Cref{fig:twograin} in Results is the original-12 two-grain picture.
-\Cref{fig:hw12} is the preregistered $\Hw=12$ paired-difference
-histogram. \Cref{tab:occ} is leave-one-family-out interpolate occupancy
-under $\Hw=12$ versus public $\Hw=4$. The public \texttt{get\_gvals}
-docstring does not match the code (\Cref{sec:intro}). The auditor is
-paired-reference, not a web-document detector.
+\Cref{fig:twograin} is that two-grain picture.
+\Cref{fig:hw12} and \Cref{tab:occ} are the preregistered $\Hw=12$
+attenuation, not a second headline. Mixin remasures are geography.
+The public \texttt{get\_gvals} docstring does not match the code
+(\Cref{sec:intro}). The auditor is paired-reference, not a
+web-document detector.
 
 % =========================================================================
 \section{Introduction}
@@ -1429,62 +1430,46 @@ $\Hw=12$ \textbf{50/100}. JSON:
 \path{experiments/2026-09-04-probe-qwen-100x4-kgw-windows}.
 That is not \textbf{25/48}.
 
-DistilGPT2 unmarked-LM opening rankpath 12-LOO on the original GPT-2
-twins is ranking \textbf{10/12}, isolated \textbf{32/48 vs 31/48}
-(\path{research/PROTOCOL-isolated-rankpath-lm.md}, freeze SHA
-\texttt{d8e6f7f}). H-rplm-d fails as a raw count. gpt2-medium-LM
-isolated is \textbf{31/48 vs 32/48}. Do not sell \textbf{32/48} or
-\textbf{31/48}. Existing \texttt{rankpath}. Same GPT-2 BPE. Do not
-leftover-slice. That lock is not \textbf{25/48}. Isolated-file
-detection remains unfinished.
-gpt2-medium native opening rankpath on gpt2-medium 12$\times$4 twins is
-ranking \textbf{6/12}, isolated \textbf{22/48 vs 30/48}
-(\path{research/PROTOCOL-isolated-rankpath-m12.md}, freeze SHA
-\texttt{2577771}). H-rpm12 holds. Do not sell \textbf{22/48}. That lock
-is not \textbf{25/48}.
-GPT-2-small LM opening rankpath on those gpt2-medium twins is ranking
-\textbf{8/12}, isolated \textbf{20/48 vs 32/48}
-(\path{research/PROTOCOL-isolated-rankpath-g2m.md}, freeze SHA
-\texttt{336a1fd}). H-rpg2m holds. Do not sell \textbf{20/48}. That lock
-is not \textbf{25/48}.
-Distil LM opening rankpath on those gpt2-medium twins is ranking
-\textbf{11/12}, isolated \textbf{30/48 vs 31/48}
-(\path{research/PROTOCOL-isolated-rankpath-d2m.md}, freeze SHA
-\texttt{b3fd331}). H-rpd2m fails as a raw count. Do not sell
-\textbf{30/48}. That lock is not \textbf{25/48}.
-GPT-2-small LM opening rankpath on Distil 12$\times$4 twins is ranking
-\textbf{6/12}, isolated \textbf{24/48 vs 27/48}
-(\path{research/PROTOCOL-isolated-rankpath-g2d.md}, freeze SHA
-\texttt{d62c732}). H-rpg2d holds. Do not sell \textbf{24/48}. That lock
-is not \textbf{25/48}.
-gpt2-medium LM opening rankpath on Distil 12$\times$4 twins is ranking
-\textbf{9/12}, isolated \textbf{30/48 vs 33/48}
-(\path{research/PROTOCOL-isolated-rankpath-m2d.md}, freeze SHA
-\texttt{571d4f1}). H-rpm2d fails as a raw count. Do not sell
-\textbf{30/48}. That lock is not \textbf{25/48}.
-Opening rankpath on generated tokens $[4{:}16)$ is ranking
-\textbf{7/12}, isolated \textbf{20/48 vs 22/48}
-(\path{research/PROTOCOL-isolated-rankpath-body.md}, freeze SHA
-\texttt{dbc61c5}). H-rpbody holds. Do not sell \textbf{20/48}. That lock
-is not \textbf{25/48}.
-Distil-LM rankpath on generated tokens $[4{:}16)$ is ranking
-\textbf{6/12}, isolated \textbf{24/48 vs 23/48}
-(\path{research/PROTOCOL-isolated-rankpath-dbody.md}, freeze SHA
-\texttt{68b0514}). H-rpdbody holds. Do not sell \textbf{24/48}. That lock
-is not \textbf{25/48}.
-gpt2-medium-LM rankpath on generated tokens $[4{:}16)$ is ranking
-\textbf{9/12}, isolated \textbf{27/48 vs 28/48}
-(\path{research/PROTOCOL-isolated-rankpath-mbody.md}, freeze SHA
-\texttt{3ea80e4}). H-rpmbody fails as a raw count. Do not sell
-\textbf{27/48}. That lock is not \textbf{25/48}.
-Distil native rankpath on generated tokens $[4{:}16)$ is ranking
-\textbf{9/12}, isolated \textbf{25/48 vs 30/48}
-(\path{research/PROTOCOL-isolated-rankpath-d12body.md}, freeze SHA
-\texttt{468a66b}). H-rpd12body holds. Equality with \textbf{25/48} is
-not a win. Do not sell \textbf{25/48}. That lock is not \textbf{25/48}.
-gpt2-medium native rankpath on generated tokens $[4{:}16)$ is named in
-\path{research/PROTOCOL-isolated-rankpath-m12body.md} before those LRs.
-Do not invent those scores. That lock is not \textbf{25/48}.
+Isolated rankpath geography does not replace the locked hard matrix.
+Opening rankpath on the original 12 is \textbf{11/12}, isolated
+\textbf{41/48 vs 35/48}; the same reader on $[4{:}16)$ is \textbf{7/12},
+isolated \textbf{20/48 vs 22/48} (AUC $0.430$). H-rplm-d fails as a raw
+count on Distil-LM openings (\textbf{32/48 vs 31/48}). Equality of any
+later isolated count with \textbf{25/48} is not a win.
+Isolated-file detection remains unfinished.
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}p{0.42\textwidth}l@{}}
+\toprule
+Protocol & Isolated $t{=}0$ / ranking \\
+\midrule
+\path{research/PROTOCOL-isolated-rankpath-lm.md} \texttt{d8e6f7f}
+  & Distil-LM \textbf{32/48 vs 31/48} / \textbf{10/12}; medium-LM \textbf{31/48 vs 32/48} \\
+\path{research/PROTOCOL-isolated-rankpath-m12.md} \texttt{2577771}
+  & \textbf{22/48 vs 30/48} / \textbf{6/12} \\
+\path{research/PROTOCOL-isolated-rankpath-g2m.md} \texttt{336a1fd}
+  & \textbf{20/48 vs 32/48} / \textbf{8/12} \\
+\path{research/PROTOCOL-isolated-rankpath-d2m.md} \texttt{b3fd331}
+  & \textbf{30/48 vs 31/48} / \textbf{11/12} \\
+\path{research/PROTOCOL-isolated-rankpath-g2d.md} \texttt{d62c732}
+  & \textbf{24/48 vs 27/48} / \textbf{6/12} \\
+\path{research/PROTOCOL-isolated-rankpath-m2d.md} \texttt{571d4f1}
+  & \textbf{30/48 vs 33/48} / \textbf{9/12} \\
+\path{research/PROTOCOL-isolated-rankpath-body.md} \texttt{dbc61c5}
+  & $[4{:}16)$ \textbf{20/48 vs 22/48} / \textbf{7/12} \\
+\path{research/PROTOCOL-isolated-rankpath-dbody.md} \texttt{68b0514}
+  & \textbf{24/48 vs 23/48} / \textbf{6/12} \\
+\path{research/PROTOCOL-isolated-rankpath-mbody.md} \texttt{3ea80e4}
+  & \textbf{27/48 vs 28/48} / \textbf{9/12} \\
+\path{research/PROTOCOL-isolated-rankpath-d12body.md} \texttt{468a66b}
+  & \textbf{25/48 vs 30/48} / \textbf{9/12} \\
+\path{research/PROTOCOL-isolated-rankpath-m12body.md}
+  & named before those LRs \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
 
 An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
