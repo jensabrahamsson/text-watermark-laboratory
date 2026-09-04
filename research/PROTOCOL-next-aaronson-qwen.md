@@ -132,3 +132,55 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `1171d5c`. Named `406c91d`. Pair seed **20260905**.
+`--mixin aaronson`. `model=Qwen/Qwen2-1.5B-Instruct`.
+`used_keys=false`. Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Probe and atoms used `--model Qwen/Qwen2-1.5B-Instruct`.
+
+Pair dump: [experiments/2026-09-04-pair-qwen-12x4-aaronson/](../experiments/2026-09-04-pair-qwen-12x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/).
+
+H-aar-q-ctrl **holds**. Official matching z-score is above $3.0$ on all
+12 first marked files (min $10.69$). Unmarked first-draw is **0/12**
+above $3.0$ (max $1.98$). Mixin is on.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **12/12** | 0.993 | 12/48 | 48/48 | 12 36 48 0 | **60/96** |
+| hard last-4 | **12/12** | 0.911 | 24/48 | 48/48 | 24 24 48 0 | **72/96** |
+
+GPT-2 Aaronson interpolate on these prompt *strings* (different twins)
+was **11/12**. Distil interpolate was **7/12** with **0/48** isolated
+TPs. Qwen interpolate is **12/12**, and **9/12** ranking wins have 0
+isolated TPs. Mean $D_p=1.445$ (interpolate) / $0.601$ (hard).
+Decided interpolate precision is 1.000.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **12/12** is
+**[0.735, 1.000]** and does not include ½; BA **60/96** is
+**[0.520, 0.722]**. Isolated **25/48** still includes ½.
+
+H-aar-q-group **holds** as an informative comparison with GPT-2
+Aaronson **11/12** and Distil Aaronson **7/12**. It does not replace
+**25/48**.
+
+H-aar-q-iso **holds**. Isolated interpolate **12/48** marked true
+positives (BA **60/96**) is a different generator from the original-12
+SynthID **47/96**. Do not sell **12/12**, **60/96**, **72/96**, or
+**12/48** as replacing **25/48**. Nested interpolate Youden **44/48**
+is a negative train threshold; do not sell **44/48**.
+
+H-aar-q-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **12/48**. Exact
+next-token overlap is **457** seen versus **11735** unseen (opening
+$[0{:}4)$ is 127 versus 161; tail $[64{:}128)$ includes `'0'→'0'`
+$n=244$). Occupancy is not a detector. Do not sell **457** as replacing
+**25/48**.
+
+JSON: [experiments/2026-09-04-atoms-qwen-12x4-aaronson/](../experiments/2026-09-04-atoms-qwen-12x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
