@@ -48,6 +48,8 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert "--mixin kgw" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "`ed9fb20`" in log
+    assert "re-scored, not regenerated" in log
+    assert "44/100" in log
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in ledger
     assert "`ed9fb20`" in ledger

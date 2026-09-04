@@ -2920,6 +2920,15 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-qwen-100x4-kgw
 ```
 
+## 2026-09-04 Qwen Kirchenbauer 100-family pair resume
+
+Pid **35117** exited at 15:21 CEST with **44/100** complete stems and no
+`results.json`. Resume used the same frozen flags and
+`--out-dir experiments/2026-09-04-pair-qwen-100x4-kgw` (pid **44722**).
+Complete stems are re-scored, not regenerated. Do not invent interpolate
+counts. That lock is not **25/48**. Isolated-file detection is still
+not finished. Do not write `thesis/`.
+
 ## 2026-09-04 PR #7 remains markdown-only
 
 GitHub PR **#7** (`cursor/lovande-ideer-kgw-gloaguen-1051`) was updated
