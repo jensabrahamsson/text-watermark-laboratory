@@ -132,5 +132,13 @@ def test_protocol_longctx_qwen_100_official_and_keyfree_from_dumps() -> None:
     assert occ["n_seen"] == 3535
     assert occ["n_unseen"] == 98064
     assert occ["n_marked_lr_positive"] == 273
+    ledger = " ".join((ROOT / "research" / "results-ledger.md").read_text().split())
+    w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+    assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in ledger
+    assert f"**{w0['n_seen']}** vs **{w0['n_unseen']}**" in ledger
+    assert (
+        f"**{interp['n_marked_lr_positive']}/400 vs {interp['n_unmarked_lr_nonpositive']}/400**"
+        in ledger
+    )
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi

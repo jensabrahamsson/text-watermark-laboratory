@@ -578,22 +578,27 @@ occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains 
 **60/96**. Isolated-file remains open. DistilGPT2 $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
 (freeze SHA `d891622`). Opened: interpolate **88/100** (isolated
-**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**. Isolated-file remains open.
+**557/800**); hard **89/100**; occupancy **11182** seen vs **85493**
+unseen (opening **2036** vs **364**). Do not sell **88/100** or **557/800**. Isolated-file remains open.
 DistilGPT2 Aaronson 100-family is
 [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
 (freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
-**601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
-Isolated-file remains open. Qwen2-1.5B Aaronson 100-family is
+**601/800**); hard **91/100**; occupancy **28824** seen vs **61305**
+unseen (opening **2048** vs **352**); unmarked first-draw z>3 **3/100**.
+Do not sell **96/100** or **601/800**. Isolated-file remains open.
+Qwen2-1.5B Aaronson 100-family is
 [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
 (freeze SHA `a761a7d`). Opened: interpolate **100/100** (isolated
 **616/800**); hard **97/100**. Official first-draw $z>3$ **99/100**.
+Occupancy **8750** seen vs **92842** unseen (opening **1470** vs **930**).
 Do not sell **100/100** or **616/800**. Isolated-file remains open.
 Qwen2-1.5B $\Hw=12$
 100-family is
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
 (freeze SHA `636765c`). Opened: interpolate **76/100** (isolated
 **474/800**); hard **74/100**. Official first-draw mean$>0.55$
-**91/100**. Do not sell **76/100** or **474/800**. Isolated-file remains
+**91/100**. Occupancy **3535** seen vs **98064** unseen (opening
+**1092** vs **1308**). Do not sell **76/100** or **474/800**. Isolated-file remains
 open. Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
 (freeze SHA `ed9fb20`) and is named before generation. Isolated-file remains open.
@@ -682,7 +687,8 @@ JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
 Protocol SHA `d891622`; named `0598357`. Official first-draw **98/100**.
 Interpolate last-4 **88/100**, isolated **325/400 vs 232/400**
 (**557/800**), AUC **0.785**. Hard **89/100**, isolated **544/800**.
-Occupancy **11182** seen vs **85493** unseen. Above GPT-2 $\Hw=12$
+Occupancy **11182** seen vs **85493** unseen (opening **2036** vs
+**364**). Above GPT-2 $\Hw=12$
 interpolate **76/100**. Do not sell **88/100** or **557/800**. Does not
 replace **25/48**.
 
@@ -696,13 +702,39 @@ Protocol SHA `bf05759`; named `bbef06e`. Official first-draw z>3
 **71/100**. Interpolate last-4 **96/100**, isolated **252/400 vs
 349/400** (**601/800**), AUC **0.902**; 36/96 ranking wins have 0
 isolated TPs. Hard **91/100**, isolated **654/800**. Occupancy
-**28824** seen vs **61305** unseen. Below GPT-2 Aaronson interpolate
+**28824** seen vs **61305** unseen (opening **2048** vs **352**).
+Unmarked first-draw z>3 **3/100**. Below GPT-2 Aaronson interpolate
 **100/100**. Do not sell **96/100** or **601/800**. Does not replace
 **25/48**.
 
 JSON: `experiments/2026-09-04-pair-distil-100x4-aaronson/`,
 `experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-100x4-aaronson/`.
+
+## Qwen2-1.5B longer-context two-grain 100-family (`ngram_len=13`)
+
+Protocol SHA `636765c`; named `fd72ec5`. Official first-draw **91/100**.
+Interpolate last-4 **76/100**, isolated **273/400 vs 201/400**
+(**474/800**). Hard **74/100**. Occupancy **3535** seen vs **98064**
+unseen (opening **1092** vs **1308**). Matches GPT-2 $\Hw=12$ interpolate
+**76/100** as a group ranking, not isolated **25/48**. Do not sell
+**76/100** or **474/800**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-ngram13/`.
+
+## Qwen2-1.5B Aaronson–Kirchner 100-family
+
+Protocol SHA `a761a7d`; named `de035df`. Official first-draw z>3 **99/100**. Interpolate
+last-4 **100/100**, isolated **216/400 vs 400/400** (**616/800**).
+Hard **97/100**. Occupancy **8750** seen vs **92842** unseen
+(opening **1470** vs **930**). Do not sell **100/100** or **616/800**.
+Does not replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-aaronson/`,
+`experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-aaronson/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 
