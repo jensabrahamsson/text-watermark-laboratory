@@ -2945,7 +2945,8 @@ watermark detector.
 Gloaguen remains the right *question* for an API without twins. It is
 not a proven improvement of this lab’s finished-string `indicate` /
 `blind` path at this budget. Do not call paid chat APIs. Wang et al.
-(2026) (TTP-Detect; Findings of ACL 2026) stays the closest published finished-string analog
+(2026) (TTP-Detect; Findings of ACL 2026) stays the closest published
+finished-string analog
 and was not reimplemented. Li-Chen and Kim (2026) (ChainMark;
 arXiv:2607.18445) is model-free detection **from the secret key and
 tokenizer**, not `indicate`. Gloaguen et al. (2026) (unified watermark
