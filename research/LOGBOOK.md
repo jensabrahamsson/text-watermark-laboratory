@@ -3031,4 +3031,23 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-kgw 
   --out-dir experiments/2026-09-04-probe-qwen-100x4-kgw-windows
 ```
 
+## 2026-09-04 gpt2-medium native opening rankpath freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)
+named before gpt2-medium native opening rankpath LRs. Existing
+`rankpath` on `experiments/2026-09-01-pair-gpt2-medium-12x4/`. Flags:
+
+```bash
+python -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-12x4 \
+  --model gpt2-medium --skip-hashpool \
+  --fit-prefix 4 --pos-bucket 1 --methods rankpath \
+  --out-dir experiments/2026-09-04-probe-medium-12x4-rankpath-native
+```
+
+Do not leftover-slice. Do not merge PR **#9**. Do not invent those
+scores. Distil native stays **8/12**, isolated **28/48 vs 32/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---

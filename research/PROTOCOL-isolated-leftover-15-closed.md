@@ -175,10 +175,12 @@ outranks 16:32 **6/12**. Do not sell absolute **10/12**. Reindexed
 dumps stay. 12-LOO mask-*k* absolute remasure of
 [PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) is opened
 ([PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md);
-those dumps stay reindexed). The remaining honesty item that is not
-leftover targeting is Distil / gpt2-medium unmarked-LM opening
-rankpath 12-LOO on the original GPT-2 twins
-([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)),
+those dumps stay reindexed). Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
+GPT-2 twins is opened
+([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
+The remaining honesty item that is not leftover targeting is
+gpt2-medium native opening rankpath on gpt2-medium 12×4 twins
+([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)),
 named before those LRs. Isolated-file remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil

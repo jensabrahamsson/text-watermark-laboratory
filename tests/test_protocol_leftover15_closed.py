@@ -59,6 +59,7 @@ def test_protocol_leftover15_closed_refuses_targeting() -> None:
     assert "PROTOCOL-isolated-windows-absolute" in text
     assert "PROTOCOL-isolated-mask" in text
     assert "PROTOCOL-isolated-rankpath-lm" in text
+    assert "PROTOCOL-isolated-rankpath-m12" in text
     assert "H-xkey-iso **fails**" in text
     assert "`570a5c6`" in (ROOT / "research" / "LOGBOOK.md").read_text()
 

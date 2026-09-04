@@ -239,7 +239,10 @@ rankpath 12-LOO on the original GPT-2 twins is named in
 [research/PROTOCOL-isolated-rankpath-lm.md](research/PROTOCOL-isolated-rankpath-lm.md)
 (`d8e6f7f`) before those LRs. Distil-LM isolated is **32/48 vs 31/48**
 (ranking **10/12**). gpt2-medium-LM isolated is **31/48 vs 32/48**.
-Do not sell **32/48** or **31/48**. Do not leftover-slice. Do not merge PR **#9**.
+Do not sell **32/48** or **31/48**. gpt2-medium native opening rankpath
+on gpt2-medium 12×4 is named in
+[research/PROTOCOL-isolated-rankpath-m12.md](research/PROTOCOL-isolated-rankpath-m12.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

@@ -615,6 +615,9 @@ GPT-2 twins is
 H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated
 **31/48 vs 32/48**; H-rplm-m **fails** as a raw count. Do not sell
 **32/48** or **31/48**. Isolated-file remains open.
+gpt2-medium native opening rankpath on gpt2-medium 12×4 is
+[PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)
+and is named before those LRs. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

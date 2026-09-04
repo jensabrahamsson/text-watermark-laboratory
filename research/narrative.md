@@ -140,6 +140,10 @@ twins is ranking **10/12**, isolated **32/48 vs 31/48**
 H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated is
 **31/48 vs 32/48**. Do not sell **32/48** or **31/48**. Occupancy-free leftover unions stay closed.
 Do not leftover-slice. Do not merge PR **#9**.
+gpt2-medium native opening rankpath on gpt2-medium 12×4 is named before
+those LRs
+([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)).
+Do not invent those scores.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed

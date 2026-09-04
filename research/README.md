@@ -56,6 +56,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) | Absolute-history H2: 0:4 **99/100** vs 16:32 **87/100**; paired McNemar **86/13/1/0**; **25/48** CI includes ½; not **25/48** |
 | [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) | Second-key in-domain lock A: interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso fails as a raw count; not **25/48** |
 | [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md) | Distil-LM isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**; not **25/48** |
+| [PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md) | gpt2-medium native opening rankpath 12-LOO; named before those LRs; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
