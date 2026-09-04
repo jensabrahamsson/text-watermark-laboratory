@@ -283,7 +283,11 @@ TP. Tail ranks; isolated t=0 on the tail is below full-file
 **99/100**. Occupancy-free `postokhits` last-1
 on GPT-2 KGW 12 is **9/12**, **33/48**, AUC 0.600, unmarked $\le 0$
 only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
-lifts isolated with FPs; it is not the green-list reader. Public
+lifts isolated with FPs; it is not the green-list reader. Occupancy-free
+`hashtok` last-4 on the same twins is **9/12**, **13/48**, AUC 0.592;
+last-1 is empty (**0/48**, all zeros). Hits last-1 **46/48** is not
+occupancy-free hashing (`--skip-hashpool` silently drops `hashtok`).
+Public
 SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
 not sell **47/48**, **394/400**, Distil last-4 hashpool **95/100**, or
 **149/400**.
@@ -530,7 +534,7 @@ Aaronson last-1 **16/48** / last-2 **24/48**, Distil hits last-4
 GPT-2 100 Aaronson last-1 → Distil **40/48**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
-**33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
+**33/48**, occupancy-free hashtok last-4 **13/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
@@ -624,6 +628,15 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hashpool --context-len 1 \
   --out-dir /tmp/kgw-lab/probe-12x4-kgw-hashpool-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hashtok --context-len 4 --fit-prefix 4 --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-hashtok-k4-ok
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hashtok --context-len 1 --fit-prefix 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-hashtok-k1-ok
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hashpool --context-len 1 --skip-nested \
@@ -1233,7 +1246,9 @@ rankpath is also chance (**8/12**, **26/48**, AUC **0.540**; windows
 tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
 **0/12**. Occupancy-free `postokhits` last-1 is empty on GPT-2, Distil,
 and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
-`postokhits` is opening **32/48** (tail **0/48**). None of those is a backlog item.
+`postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
+`hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
+last-4 is **13/48**. None of those is a backlog item.
 
 ---
 
