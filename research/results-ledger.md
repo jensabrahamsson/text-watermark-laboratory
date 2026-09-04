@@ -607,7 +607,9 @@ Interpolate **96/100** (isolated **620/800**); hard **63/100**; occupancy
 **4858** seen vs **96740** unseen. Do not sell **96/100** or **620/800**.
 Isolated-file remains open. Qwen Kirchenbauer 100-family windows are
 [PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
-(freeze SHA `e270546`) and are named before those LRs. Isolated-file remains open.
+(freeze SHA `e270546`). Opened: interpolate $[0{:}4)$ **84/100**;
+$[64{:}128)$ **97/100** (AUC **0.785**); full-file **96/100**. Do not
+sell **97/100** or **84/100**. Isolated-file remains open.
 Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
 GPT-2 twins is
 [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
@@ -617,7 +619,8 @@ H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated
 **32/48** or **31/48**. Isolated-file remains open.
 gpt2-medium native opening rankpath on gpt2-medium 12×4 is
 [PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)
-and is named before those LRs. Isolated-file remains open.
+(`2577771`): ranking **6/12**, isolated **22/48 vs 30/48**. H-rpm12
+**holds**. Do not sell **22/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

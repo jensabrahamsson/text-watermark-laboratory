@@ -69,10 +69,10 @@ named before those LRs
 Distil-LM isolated is **32/48 vs 31/48** (ranking **10/12**).
 gpt2-medium-LM isolated is **31/48 vs 32/48**. Do not sell **32/48** or
 **31/48**. Do not leftover-slice. That freeze does not replace **25/48**.
-gpt2-medium native opening rankpath on gpt2-medium 12×4 is named before
-those LRs
+gpt2-medium native opening rankpath on gpt2-medium 12×4 is ranking
+**6/12**, isolated **22/48 vs 30/48**
 ([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)).
-Do not invent those scores.
+Do not sell **22/48**.
 
 ## Out-of-family: 24 short 36×4 stems → 12×4
 

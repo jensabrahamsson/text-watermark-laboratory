@@ -356,9 +356,14 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw-qwen-100-windows" in next_sec
     assert "e270546" in next_sec
     assert "before those LRs" in next_sec
+    assert r"\textbf{84/100}" in next_sec
+    assert r"\textbf{97/100}" in next_sec
+    assert "probe-qwen-100x4-kgw-windows" in next_sec
     assert "PROTOCOL-isolated-rankpath-lm" in next_sec
     assert "d8e6f7f" in next_sec
     assert "PROTOCOL-isolated-rankpath-m12" in next_sec
+    assert "22/48" in next_sec
+    assert "2577771" in next_sec
     assert "32/48" in next_sec
     assert "31/48" in next_sec
     assert "H-rplm-d **holds**" not in next_sec
@@ -887,6 +892,8 @@ def test_readme_matches_revised_title() -> None:
     assert "620/800" in README
     assert "PROTOCOL-isolated-rankpath-lm" in README
     assert "d8e6f7f" in README
+    assert "PROTOCOL-isolated-rankpath-m12" in README
+    assert "2577771" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README

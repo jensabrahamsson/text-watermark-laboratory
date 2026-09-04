@@ -27,7 +27,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) | Frozen DistilGPT2 Kirchenbauer; original-12 interpolate **12/12** / **85/96**; 100-family **100/100** / **683/800**; not **25/48** |
 | [PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) | Frozen Qwen2-1.5B Kirchenbauer original-12; interpolate **12/12** / **68/96**; hard **8/12**; not **25/48** |
 | [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md) | Frozen Qwen2-1.5B Kirchenbauer 100-family; freeze SHA `ed9fb20`; named before generation; official z>3 **90/100**; interpolate **96/100** / **620/800**; hard **63/100**; not **25/48** |
-| [PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md) | Frozen Qwen Kirchenbauer 100-family windows; freeze SHA `e270546`; named before those LRs |
+| [PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md) | Frozen Qwen Kirchenbauer 100-family windows; freeze SHA `e270546`; interpolate $[64{:}128)$ **97/100** vs opening **84/100**; not **25/48** |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |
@@ -56,7 +56,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-h2-absolute.md](PROTOCOL-h2-absolute.md) | Absolute-history H2: 0:4 **99/100** vs 16:32 **87/100**; paired McNemar **86/13/1/0**; **25/48** CI includes ½; not **25/48** |
 | [PROTOCOL-isolated-xkey.md](PROTOCOL-isolated-xkey.md) | Second-key in-domain lock A: interpolate **7/12**, isolated **30/48 vs 25/48**; H-xkey-iso fails as a raw count; not **25/48** |
 | [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md) | Distil-LM isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**; not **25/48** |
-| [PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md) | gpt2-medium native opening rankpath 12-LOO; named before those LRs; not **25/48** |
+| [PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md) | gpt2-medium native opening rankpath **6/12**, isolated **22/48 vs 30/48**; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

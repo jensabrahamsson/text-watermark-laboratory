@@ -140,10 +140,10 @@ twins is ranking **10/12**, isolated **32/48 vs 31/48**
 H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated is
 **31/48 vs 32/48**. Do not sell **32/48** or **31/48**. Occupancy-free leftover unions stay closed.
 Do not leftover-slice. Do not merge PR **#9**.
-gpt2-medium native opening rankpath on gpt2-medium 12×4 is named before
-those LRs
+gpt2-medium native opening rankpath on gpt2-medium 12×4 is ranking
+**6/12**, isolated **22/48 vs 30/48**
 ([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)).
-Do not invent those scores.
+H-rpm12 **holds**. Do not sell **22/48**.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed
@@ -319,7 +319,8 @@ z>3 **90/100**; interpolate **96/100** (isolated **620/800**); hard
 **63/100**. Do not sell **96/100** or **620/800**.
 Qwen Kirchenbauer 100-family windows are
 [PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
-(freeze SHA `e270546`) and are named before those LRs.
+(freeze SHA `e270546`). Opened: interpolate $[0{:}4)$ **84/100**;
+$[64{:}128)$ **97/100**. Do not sell **97/100** or **84/100**.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer

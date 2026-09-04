@@ -86,6 +86,8 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "**620/800**" in text
     assert "PROTOCOL-next-kgw-qwen-100-windows" in text
     assert "`e270546`" in text
+    assert "**97/100**" in text
+    assert "**84/100**" in text
     assert "**683/800**" in text
     assert "**68/96**" in text
     assert "**82/100**" in text

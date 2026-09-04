@@ -140,5 +140,14 @@ Human merge of PR **#9** is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the probe has been
-run once, as written)*
+H-rpm12 **holds**. gpt2-medium native opening rankpath on gpt2-medium
+12×4 ranks **6/12**; isolated **22/48 vs 30/48** (AUC **0.641**;
+nested-by-stem Youden **19/48 vs 31/48**). `used_keys=false`.
+`model_name` is `gpt2-medium`. Clopper–Pearson 95% on **22/48**
+includes ½. Distil native stays **8/12**, isolated **28/48 vs 32/48**.
+Do not sell **22/48** or **6/12**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-native/](../experiments/2026-09-04-probe-medium-12x4-rankpath-native/).
+
+H-rpm12-iso **holds**. gpt2-medium native opening rankpath is not a
+universal isolated-file detector. Do not leftover-slice. Do not merge
+PR **#9**. Isolated-file remains open. Do not write `thesis/`.

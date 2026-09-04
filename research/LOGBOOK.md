@@ -3031,6 +3031,19 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-kgw 
   --out-dir experiments/2026-09-04-probe-qwen-100x4-kgw-windows
 ```
 
+## 2026-09-04 Qwen Kirchenbauer 100-family windows opened
+
+[PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
+named `e270546`. Full-file interpolate **96/100** (H-kgw-q100-win-ctrl
+holds). Opening $[0{:}4)$ interpolate **84/100** (AUC **0.679**). Tail
+$[64{:}128)$ interpolate **97/100** (AUC **0.785**, isolated
+**314/400 vs 252/400**, **566/800**). Not chance; not $\Hw=12$
+**50/100**. `used_keys=false`. Do not sell **97/100** or **84/100** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-probe-qwen-100x4-kgw-windows/`.
+
 ## 2026-09-04 gpt2-medium native opening rankpath freeze
 
 This freeze names
@@ -3047,6 +3060,14 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-12x
 
 Do not leftover-slice. Do not merge PR **#9**. Do not invent those
 scores. Distil native stays **8/12**, isolated **28/48 vs 32/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`. Freeze SHA `2577771`.
+
+## 2026-09-04 gpt2-medium native opening rankpath opened
+
+H-rpm12 **holds**. gpt2-medium native opening rankpath on gpt2-medium
+12×4 is ranking **6/12**, isolated **22/48 vs 30/48** (AUC **0.641**;
+nested **19/48 vs 31/48**). `used_keys=false`. Do not sell **22/48**.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 

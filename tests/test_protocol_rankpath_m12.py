@@ -24,6 +24,10 @@ def test_protocol_rankpath_m12_locks_config_before_lrs() -> None:
     assert "25/48" in text
     assert "H-rpm12" in text
     assert "H-rpm12-iso" in text
+    assert "H-rpm12 **holds**" in text
+    assert "H-rpm12-iso **holds**" in text
+    assert "Do not sell **22/48**" in text
+    assert "*(empty until the SHA is named in LOGBOOK.md" not in text
     assert "--methods rankpath --fit-prefix 4 --pos-bucket 1" in text
     assert "--model gpt2-medium" in text
     assert "--skip-hashpool" in text
@@ -57,8 +61,8 @@ def test_protocol_rankpath_m12_locks_config_before_lrs() -> None:
         if ln.startswith("| gpt2-medium native opening rankpath")
     ]
     assert len(agents_rows) == 1
-    assert "named before" in agents_rows[0]
     assert "**25/48**" in agents_rows[0]
+    assert "**22/48 vs 30/48**" in agents_rows[0]
     howto = (ROOT / "HOW-TO.md").read_text()
     assert "PROTOCOL-isolated-rankpath-m12" in howto
     exp_rows = [
@@ -67,14 +71,14 @@ def test_protocol_rankpath_m12_locks_config_before_lrs() -> None:
         if "2026-09-04-probe-medium-12x4-rankpath-native" in ln
     ]
     assert len(exp_rows) == 1
-    assert "named before" in exp_rows[0]
+    assert "**22/48 vs 30/48**" in exp_rows[0]
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
         if "PROTOCOL-isolated-rankpath-m12" in ln
     ]
     assert len(research_rows) == 1
-    assert "named before" in research_rows[0]
+    assert "**22/48 vs 30/48**" in research_rows[0]
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
 
@@ -114,19 +118,23 @@ def test_protocol_rankpath_m12_distil_native_control_stays() -> None:
     assert holdout["n_unmarked_lr_nonpositive"] == 32
 
 
-@pytest.mark.skipif(
-    not (PROBE / "rankpath" / "holdout.json").is_file(),
-    reason="gpt2-medium native opening rankpath not run",
-)
 def test_protocol_rankpath_m12_from_dumps() -> None:
     interp = json.loads((PROBE / "rankpath" / "holdout.json").read_text())
     assert interp["used_keys"] is False
+    assert interp["used_hash_iv"] is False
+    assert interp["used_g_values"] is False
     assert interp["model_name"] == "gpt2-medium"
+    assert interp["n_prompts_marked_above"] == 6
+    assert interp["n_marked_lr_positive"] == 22
+    assert interp["n_unmarked_lr_nonpositive"] == 30
     text = PROTOCOL.read_text()
-    if "H-rpm12 **holds**" not in text and "H-rpm12 **fails**" not in text:
-        pytest.skip("gpt2-medium native rankpath not folded yet")
+    assert "H-rpm12 **holds**" in text
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
-    assert f"**{marked}/48" in text
-    lo, hi = clopper_pearson(25, 48)
+    assert f"**{marked}/48 vs {unmarked}/48**" in text
+    readme = (PROBE / "README.md").read_text()
+    assert f"**{marked}/48 vs {unmarked}/48**" in readme
+    lo, hi = clopper_pearson(marked, 48)
     assert lo <= 0.5 <= hi
+    lo25, hi25 = clopper_pearson(25, 48)
+    assert lo25 <= 0.5 <= hi25

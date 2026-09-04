@@ -153,8 +153,7 @@ Do not sell absolute **10/12**. 12-LOO mask-*k* absolute remasure of
 those dumps stay reindexed). Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
 GPT-2 twins is opened
 ([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
-The remaining honesty item that is not leftover targeting is
-gpt2-medium native opening rankpath on gpt2-medium 12×4 twins
-([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)),
-named before those LRs. Do not sell
+gpt2-medium native opening rankpath on gpt2-medium 12×4 twins is opened
+([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)):
+ranking **6/12**, isolated **22/48 vs 30/48**. Do not sell
 **10/48**, **20/48**, **3/48**, or H2 **87/100**. Do not write `thesis/`.
