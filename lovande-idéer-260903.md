@@ -299,6 +299,15 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-snaprate
 
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-aaronson-snaprate
+
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
@@ -2854,8 +2863,13 @@ scheme design. Zhang et al. (2026) (SemTrace; arXiv:2608.29575) traces
 document exposure with NLI bits, not sampling twins. Feng et al.
 (2026) (Cocktail complementary watermarks; arXiv:2608.12713) is keyed
 dual tournament scores. Park et al. (2026) (WeaveMark;
-arXiv:2609.02177) is keyed multi-bit scheme design. None of those is a finished-string
-key-free reader this laboratory can port.
+arXiv:2609.02177) is keyed multi-bit scheme design. te Lintelo et al.
+(2026) (WoE; arXiv:2608.29151) plants a secret green list in selected
+MoE expert vocabularies and tests with that seed. Gao et al. (2026)
+(PathMark; arXiv:2607.03688) is keyed MoE routing-path IP. Sun et al.
+(2026) (WaterMoE; arXiv:2607.13099) is keyed MoE router perturbation.
+None of those is a finished-string key-free reader this laboratory can
+port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
