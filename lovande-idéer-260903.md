@@ -2095,7 +2095,8 @@ repeats the ranking look at n=12 (last-1 `hard` **12/12**, isolated
 **88/100**, isolated **9/400**, AUC **0.753**, **87** ranking-only
 (newline-loop files). Do not sell those 12-file ranking
 counts; GPT-2 n=100 already killed isolated $\tau=0$. Opening last-1
-**24/48** is not a detector. Do not leftover-target it. The freeze in
+**24/48** is not a detector. Do not leftover-target it. Hashed logistic
+last-1 does not become that ranking look (**61/100**, **56/400**). The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
