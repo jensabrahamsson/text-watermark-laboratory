@@ -980,6 +980,7 @@ def test_readme_matches_revised_title() -> None:
     assert "aea3d76" in README
     assert "a50bc3f" in README
     assert "9d6677c" in README
+    assert "8ea1d0c" in README
     assert "do not add a SHA snapshot per compile" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
