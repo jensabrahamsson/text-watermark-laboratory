@@ -26,8 +26,10 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
   (28 A4 pages, git `a50bc3f`). Prior compile `4c31077`. Compact SHA `ce5f168`. Open SHA `aea3d76`.
-  Ingress SHA `7eea455`. Dated copies in
-  [`../report/`](../report/).
+  Ingress SHA `7eea455`. Current PDF is
+  [`../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf`](../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf)
+  (overwrite in place; do not add a SHA snapshot per compile). Previous compact:
+  [`../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf`](../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
 If a figure is not in those dumps, it is not in the paper.

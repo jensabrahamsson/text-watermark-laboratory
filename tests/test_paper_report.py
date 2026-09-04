@@ -15,6 +15,21 @@ def test_title_exposes_paired_reference_oracle() -> None:
     assert "Public SynthID-Text Instance" in PAPER
 
 
+def test_report_dir_keeps_current_and_one_prior_pdf() -> None:
+    keep = {
+        "Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf",
+        "Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf",
+    }
+    pdfs = {
+        p.name
+        for p in (ROOT / "report").glob("Abrahamsson-*.pdf")
+        if "pending" not in p.name
+    }
+    assert pdfs == keep
+    readme = (ROOT / "report" / "README.md").read_text()
+    assert "Do not add a new SHA-named PDF on every compile" in readme
+
+
 def test_plain_english_ingress_precedes_the_abstract() -> None:
     lead = PAPER.split(r"\maketitle")[1].split(r"\begin{abstract}")[0]
     assert "In plain English" in lead
@@ -947,6 +962,7 @@ def test_readme_matches_revised_title() -> None:
     assert "ce5f168" in README
     assert "aea3d76" in README
     assert "a50bc3f" in README
+    assert "do not add a SHA snapshot per compile" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
