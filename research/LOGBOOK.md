@@ -3381,6 +3381,17 @@ named before rankpath `[16:32)` LRs. Existing `rankpath` on
 Opening `[0:4)` stays **11/12**, isolated **41/48 vs 35/48**. Bucketed
 `[4:16)` stays **7/12**, isolated **20/48 vs 22/48**. Nothing replaces
 **25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`. Freeze SHA `14afbd5`.
+
+## 2026-09-04 GPT-2 rankpath mid-file [16:32) opened
+
+H-rpmid **holds**. Bucketed rankpath on `[16:32)` is ranking **7/12**,
+isolated **23/48 vs 26/48** (AUC **0.506**; nested **9/48 vs 28/48**).
+`used_keys=false`. Opening stays **11/12**, isolated **41/48 vs 35/48**.
+Bucketed `[4:16)` stays **7/12**, isolated **20/48 vs 22/48**. The
+unwindowed fit-prefix-32 file score **28/48** is not the frozen slice.
+File AUC is chance. Do not sell **23/48** or **28/48**. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
 `thesis/`.
 
 ---

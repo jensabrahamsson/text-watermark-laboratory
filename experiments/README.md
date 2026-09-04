@@ -111,7 +111,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-04-probe-distil-12x4-rankpath-gpt2-lm/` | GPT-2-small LM opening rankpath on Distil 12 | ranking **6/12**, isolated **24/48 vs 27/48**; not **25/48** |
 | `2026-09-04-probe-distil-12x4-rankpath-medium-lm/` | gpt2-medium LM opening rankpath on Distil 12 | ranking **9/12**, isolated **30/48 vs 33/48**; not **25/48** |
 | `2026-09-04-probe-12x4-rankpath-w4-16/` | gpt2 opening rankpath `[4:16)` | ranking **7/12**, isolated **20/48 vs 22/48**; not **25/48** |
-| `2026-09-04-probe-12x4-rankpath-w16-32/` | gpt2 opening rankpath `[16:32)` | named before those LRs; not **25/48** |
+| `2026-09-04-probe-12x4-rankpath-w16-32/` | gpt2 opening rankpath `[16:32)` | ranking **7/12**, isolated **23/48 vs 26/48**; not **25/48** |
 | `2026-09-04-probe-12x4-rankpath-distil-w4-16/` | Distil-LM rankpath `[4:16)` on original 12 | ranking **6/12**, isolated **24/48 vs 23/48**; not **25/48** |
 | `2026-09-04-probe-12x4-rankpath-medium-w4-16/` | gpt2-medium-LM rankpath `[4:16)` on original 12 | ranking **9/12**, isolated **27/48 vs 28/48**; not **25/48** |
 | `2026-09-04-probe-distil-12x4-rankpath-w4-16/` | Distil native rankpath `[4:16)` on Distil 12 | ranking **9/12**, isolated **25/48 vs 30/48**; not **25/48** |

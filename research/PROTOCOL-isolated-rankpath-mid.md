@@ -110,5 +110,16 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpmid **holds**. Bucketed rankpath on generated tokens `[16:32)` ranks
+**7/12**; isolated **23/48 vs 26/48** (AUC **0.506**; nested-by-stem Youden
+**9/48 vs 28/48**). `used_keys=false`. `model_name` is `gpt2`.
+Clopper–Pearson 95% on **23/48** includes ½. Opening `[0:4)` stays
+**11/12**, isolated **41/48 vs 35/48**. Bucketed `[4:16)` stays **7/12**,
+isolated **20/48 vs 22/48**. The unwindowed fit-prefix-32 file score on
+this run is **10/12**, isolated **28/48 vs 34/48**; that is not the frozen
+slice. Do not sell **23/48**, **7/12**, or **28/48**. JSON:
+[experiments/2026-09-04-probe-12x4-rankpath-w16-32/window-16-32/](../experiments/2026-09-04-probe-12x4-rankpath-w16-32/window-16-32/).
+
+H-rpmid-iso **holds**. File AUC **0.506** is chance. Opening **41/48**
+does not live in `[16:32)`. Do not leftover-slice. Do not merge PR
+**#9**. Isolated-file remains open. Do not write `thesis/`.

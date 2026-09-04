@@ -70,7 +70,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-rankpath-d2mbody.md](PROTOCOL-isolated-rankpath-d2mbody.md) | Distil LM rankpath `[4:16)` on medium 12: **11/12**, isolated **25/48 vs 33/48**; not **25/48** |
 | [PROTOCOL-isolated-rankpath-g2mbody.md](PROTOCOL-isolated-rankpath-g2mbody.md) | GPT-2-small LM rankpath `[4:16)` on medium 12: **8/12**, isolated **28/48 vs 30/48**; not **25/48** |
 | [PROTOCOL-isolated-rankpath-m2dbody.md](PROTOCOL-isolated-rankpath-m2dbody.md) | gpt2-medium LM rankpath `[4:16)` on Distil 12: **9/12**, isolated **32/48 vs 25/48**; not **25/48** |
-| [PROTOCOL-isolated-rankpath-mid.md](PROTOCOL-isolated-rankpath-mid.md) | gpt2 opening rankpath `[16:32)` on original 12: named before those LRs; not **25/48** |
+| [PROTOCOL-isolated-rankpath-mid.md](PROTOCOL-isolated-rankpath-mid.md) | gpt2 opening rankpath `[16:32)` on original 12: **7/12**, isolated **23/48 vs 26/48**; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |
