@@ -3110,4 +3110,14 @@ gpt2-medium 12×4 is ranking **11/12**, isolated **30/48 vs 31/48** (AUC
 replaces **25/48**. Isolated-file detection is still not finished.
 Do not write `thesis/`.
 
+## 2026-09-04 GPT-2-small LM on Distil 12 freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-g2d.md](PROTOCOL-isolated-rankpath-g2d.md)
+named before GPT-2-on-Distil opening rankpath LRs. Existing `rankpath`
+on `experiments/2026-08-31-pair-distilgpt2-12x4/` with `--model gpt2`.
+Do not leftover-slice. Do not invent those scores. Distil native stays
+**8/12**, isolated **28/48 vs 32/48**. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
 ---
