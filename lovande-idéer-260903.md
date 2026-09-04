@@ -232,16 +232,21 @@ on the same generated-only mats as Distil $\Hw=12$ snaprate is
 Distil $\Hw=12$ opening **85/100**.
 One-feature `pivot-lda` on the **same** generated-only 64:128 rows
 (other choice columns zeroed; existing LDA, not a new method) splits
-that Distil miss. GPT-2 KGW body is mostly **soft gap to the unmarked
-argmax**: `mean_gap` **83/100**, AUC **0.683**, versus binary snaprate
-tail **75/100**, **0.670** and full six-feature LDA **88/100**,
-**0.704**. Distil KGW body is **not** that gap (`mean_gap` **67/100**,
-**0.569**, where snaprate tail was chance **40/100**). Full Distil LDA
-**83/100** needs the combination; `frac_in_topk` ranks **80/100** with
-**22** ranking-only and isolated only **143/400** — not $\tau=0$.
-Public SynthID body stays chance on every single feature (max
-**61/100**). Count tables remain the Kirchenbauer body reader. Do not
-sell Distil `frac_in_topk` **80/100** or GPT-2 `mean_gap` **83/100**.
+that Distil miss. GPT-2 KGW body’s best single feature is **soft gap
+to the unmarked argmax**: `mean_gap` **83/100**, AUC **0.683**, versus
+binary snaprate tail **75/100**, **0.670** and full six-feature LDA
+**88/100**, **0.704**. Dropping `mean_gap` from the six still ranks
+**87/100**, AUC **0.681** — gap is the best 1-D reader, not a unique
+necessary coordinate. Distil KGW `mean_gap` alone is **67/100**,
+**0.569** (snaprate tail chance **40/100**). Full Distil LDA
+**83/100** needs the combination: dropping `mean_gap` falls to
+**75/100** with **18** ranking-only; dropping `mean_logp` to
+**79/100** with **22** ranking-only. `frac_in_topk` alone ranks
+**80/100** with **22** ranking-only and isolated only **143/400** —
+not $\tau=0$. Public SynthID body stays chance on every single
+feature (max **61/100**). Count tables remain the Kirchenbauer body
+reader. Do not sell Distil `frac_in_topk` **80/100**, Distil drop-gap
+**75/100**, or GPT-2 `mean_gap` **83/100**.
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
 $p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
@@ -360,8 +365,10 @@ count-table reader. Kirchenbauer’s green list is a **body** leak.
 SynthID tournament last-4 interpolate is **opening-heavy**; the
 original-12 tail **3/12** overstates how dead the body is at n=100.
 Table-free LDA on unmarked-LM choice features sees that Kirchenbauer
-body on DistilGPT2 where binary snaprate failed (GPT-2 body is mostly
-soft gap to the unmarked argmax; Distil body is not); it does not make a
+body on DistilGPT2 where binary snaprate failed (GPT-2 body’s best
+single feature is soft gap to the unmarked argmax; Distil `mean_gap`
+alone is weak, but dropping it from the six-feature LDA adds
+ranking-only zeros); it does not make a
 SynthID body reader.
 
 **Non-claim.** This does not replace **25/48**. Full-file Kirchenbauer
@@ -3304,8 +3311,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    SynthID pivot is opening-heavy (entropy **97/100**) with a chance
    body. Prompt-context Distil KGW LDA tail stays **82/100**; Distil
    $\Hw=12$ pivot is opening-heavy (**85/100** vs tail **70/100**), not
-   that KGW body. GPT-2 KGW body LDA is mostly soft `mean_gap`
-   (**83/100**); Distil body is not (`mean_gap` **67/100**). Do not sell
+   that KGW body. GPT-2 KGW body’s best single LDA feature is soft
+   `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
+   `mean_gap` alone is **67/100**; dropping it from the six falls to
+   **75/100** with **18** ranking-only. Do not sell
    Distil `frac_in_topk` **80/100**. Do not sell those pivot rankings. Isolated $\tau=0$ still
    fails.
 2. Matching `context_len` to last-1 hash width recovers isolated
