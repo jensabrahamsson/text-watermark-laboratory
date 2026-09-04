@@ -171,6 +171,14 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert f"**{hard['n_prompts_marked_above']}/12**" in row
     assert f"**{ba}/96**" in row
     assert f"**{occ['n_seen']}**" in row
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-probe-12x4-kgw-hard-last4" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
+    assert f"**{ba}/96**" in exp_rows[0]
     assert "H-kgw-ctrl **holds**" in text
     assert "H-kgw-group **holds**" in text
     assert "H-kgw-hard **holds**" in text
@@ -226,6 +234,18 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
         in agents
     )
     assert f"**{occ['n_seen']}**" in agents
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-probe-100x4-kgw-hard-last4" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/100**" in exp_rows[0]
+    assert (
+        f"**{interp['n_marked_lr_positive'] + interp['n_unmarked_lr_nonpositive']}/800**"
+        in exp_rows[0]
+    )
+    assert f"**{hard['n_prompts_marked_above']}/100**" in exp_rows[0]
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991

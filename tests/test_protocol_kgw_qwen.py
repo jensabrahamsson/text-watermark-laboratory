@@ -98,6 +98,15 @@ def test_protocol_kgw_qwen_official_and_keyfree_from_dumps() -> None:
     assert f"**{hard['n_prompts_marked_above']}/12**" in row
     assert f"**{ba}/96**" in row
     assert f"**{occ['n_seen']}**" in row
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-probe-qwen-12x4-kgw-hard-last4" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
+    assert f"**{ba}/96**" in exp_rows[0]
+    assert f"**{hard['n_prompts_marked_above']}/12**" in exp_rows[0]
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 84
     assert occ["n_unseen"] == 12108
