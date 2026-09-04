@@ -137,7 +137,8 @@ ranking **6/12**, isolated **24/48 vs 27/48** (`PROTOCOL-isolated-rankpath-g2d.m
 SHA `d62c732`). Do not sell **24/48**. gpt2-medium LM on Distil 12 is
 ranking **9/12**, isolated **30/48 vs 33/48** (`PROTOCOL-isolated-rankpath-m2d.md`,
 SHA `571d4f1`). Do not sell **30/48**. Opening rankpath on generated
-tokens `[4:16)` is named in `research/PROTOCOL-isolated-rankpath-body.md`
-before those LRs. Do not invent those scores. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+tokens `[4:16)` is ranking **7/12**, isolated **20/48 vs 22/48**
+(`PROTOCOL-isolated-rankpath-body.md`, SHA `dbc61c5`). Do not sell
+**20/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).

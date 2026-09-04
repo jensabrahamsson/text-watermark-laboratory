@@ -639,7 +639,8 @@ gpt2-medium LM opening rankpath on Distil 12×4 is
 **fails** as a raw count. Do not sell **30/48**. Isolated-file remains open.
 Opening rankpath on generated tokens `[4:16)` is
 [PROTOCOL-isolated-rankpath-body.md](PROTOCOL-isolated-rankpath-body.md)
-and is named before those LRs. Isolated-file remains open.
+(`dbc61c5`): ranking **7/12**, isolated **20/48 vs 22/48**. H-rpbody
+**holds**. Do not sell **20/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

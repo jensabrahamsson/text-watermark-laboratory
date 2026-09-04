@@ -103,5 +103,15 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpbody **holds**. Bucketed rankpath on generated tokens `[4:16)` ranks
+**7/12**; isolated **20/48 vs 22/48** (AUC **0.430**; nested-by-stem Youden
+**2/48 vs 43/48**). `used_keys=false`. Clopper–Pearson 95% on **20/48**
+includes ½. Opening `[0:4)` stays **11/12**, isolated **41/48 vs 35/48**.
+The unwindowed fit-prefix-16 file score on this run is **10/12**, isolated
+**29/48 vs 36/48**; that is not the frozen slice. Do not sell **20/48**,
+**7/12**, or **29/48**. JSON:
+[experiments/2026-09-04-probe-12x4-rankpath-w4-16/window-4-16/](../experiments/2026-09-04-probe-12x4-rankpath-w4-16/window-4-16/).
+
+H-rpbody-iso **holds**. File AUC **0.430** is below chance. Opening
+**41/48** does not live in `[4:16)`. Do not leftover-slice. Do not merge
+PR **#9**. Isolated-file remains open. Do not write `thesis/`.

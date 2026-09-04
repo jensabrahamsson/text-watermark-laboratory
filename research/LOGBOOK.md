@@ -3162,6 +3162,16 @@ named before rankpath `[4:16)` LRs. Existing `rankpath` on
 --pos-bucket 1`. Do not leftover-slice. Do not invent those scores.
 Opening `[0:4)` stays **11/12**, isolated **41/48 vs 35/48**. Nothing
 replaces **25/48**. Isolated-file detection is still not finished.
-Do not write `thesis/`.
+Do not write `thesis/`. Freeze SHA `dbc61c5`.
+
+## 2026-09-04 opening rankpath body [4:16) opened
+
+H-rpbody **holds**. Bucketed rankpath on `[4:16)` is ranking **7/12**,
+isolated **20/48 vs 22/48** (AUC **0.430**; nested **2/48 vs 43/48**).
+`used_keys=false`. Opening `[0:4)` stays **11/12**, isolated
+**41/48 vs 35/48**. The unwindowed fit-prefix-16 file score **29/48** is
+not the frozen slice. Do not sell **20/48** or **29/48**. File AUC is
+below chance. Nothing replaces **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
 
 ---
