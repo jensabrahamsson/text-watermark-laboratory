@@ -188,9 +188,10 @@ Distil LM rankpath on gpt2-medium generated tokens `[4:16)` is ranking
 **11/12**, isolated **25/48 vs 33/48**
 ([PROTOCOL-isolated-rankpath-d2mbody.md](PROTOCOL-isolated-rankpath-d2mbody.md)).
 H-rpd2mbody **holds**. Equality with **25/48** is not a win.
-GPT-2-small LM rankpath on gpt2-medium generated tokens `[4:16)` is named
-before those LRs
+GPT-2-small LM rankpath on gpt2-medium generated tokens `[4:16)` is ranking
+**8/12**, isolated **28/48 vs 30/48**
 ([PROTOCOL-isolated-rankpath-g2mbody.md](PROTOCOL-isolated-rankpath-g2mbody.md)).
+H-rpg2mbody **fails** as a raw count. Do not sell **28/48**.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed

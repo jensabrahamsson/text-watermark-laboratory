@@ -112,5 +112,19 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpg2mbody **fails** as a raw count. GPT-2-small unmarked-LM rankpath on
+gpt2-medium generated tokens `[4:16)` ranks **8/12**; isolated **28/48 vs 30/48**
+(AUC **0.624**; nested-by-stem Youden **25/48 vs 28/48**).
+`used_keys=false`. `model_name` is `gpt2`. Clopper–Pearson 95% on
+**28/48** includes ½. GPT-2-on-medium opening `[0:4)` stays **8/12**,
+isolated **20/48 vs 32/48**. Distil-on-medium `[4:16)` stays **11/12**,
+isolated **25/48 vs 33/48**. The unwindowed fit-prefix-16 file score on
+this run is **8/12**, isolated **25/48 vs 31/48**; that is not the frozen
+slice and is not the locked headline **25/48**. Do not sell **28/48**,
+**8/12**, or parent **25/48**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-gpt2-w4-16/window-4-16/](../experiments/2026-09-04-probe-medium-12x4-rankpath-gpt2-w4-16/window-4-16/).
+
+H-rpg2mbody-iso **holds**. Isolated **28/48** is three files above hard
+**25/48** and is not a universal isolated-file detector. Do not
+leftover-slice. Do not merge PR **#9**. Isolated-file remains open. Do
+not write `thesis/`.

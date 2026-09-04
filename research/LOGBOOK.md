@@ -3331,6 +3331,19 @@ on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with `--model gpt2
 Do not invent those scores. GPT-2-on-medium opening stays **8/12**,
 isolated **20/48 vs 32/48**. Distil-on-medium `[4:16)` stays **11/12**,
 isolated **25/48 vs 33/48**. Nothing replaces **25/48**. Isolated-file
-detection is still not finished. Do not write `thesis/`.
+detection is still not finished. Do not write `thesis/`. Freeze SHA
+`587ee69`. Freeze SHA
+`e677a6c`.
+
+## 2026-09-04 GPT-2-on-medium rankpath body [4:16) opened
+
+H-rpg2mbody **fails** as a raw count. GPT-2-on-medium rankpath on
+`[4:16)` is ranking **8/12**, isolated **28/48 vs 30/48** (AUC **0.624**;
+nested **25/48 vs 28/48**). `used_keys=false`. Opening stays **8/12**,
+isolated **20/48 vs 32/48**. Distil-on-medium `[4:16)` stays **11/12**,
+isolated **25/48 vs 33/48**. The unwindowed fit-prefix-16 file score
+**25/48 vs 31/48** is not the frozen slice and is not the locked
+headline **25/48**. Do not sell **28/48**. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
 
 ---
