@@ -2574,6 +2574,19 @@ JSON: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`,
 `experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-12x4-ngram13/`.
 
+## 2026-09-04 resample
+
+**Collection.** `experiments/claude-sample-2026-09-04` — **0** long texts.
+Separate Chrome profile (`--via cdp --no-cdp`) hit Cloudflare
+verification and never logged in. Did not attach to the already-open
+claude.ai tab (that collector navigates the first tab to `/new`). Did
+not quit the live Chrome session to start CDP on :9222. Last successful
+sample remains `experiments/claude-sample-2026-09-03` (**40** texts).
+`assumed_watermark: rumored`. Not a Claude detector. Not a watermark
+claim.
+
+Do not train a Claude detector on the pre-mark pile alone.
+
 
 
 
