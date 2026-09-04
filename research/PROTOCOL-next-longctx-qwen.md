@@ -130,3 +130,57 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `d7303a2`. Named `21a3e1b`. Pair seed **20260903**.
+`ngram_len=13`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`. Probe and atoms used
+`--model Qwen/Qwen2-1.5B-Instruct`.
+
+Pair dump: [experiments/2026-09-04-pair-qwen-12x4-ngram13/](../experiments/2026-09-04-pair-qwen-12x4-ngram13/).
+Probe dump: [experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/](../experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/).
+
+H-long-q-ctrl **fails** as the preregistered 12/12 first-draw. Official
+matching mean with `ngram_len=13` is above $0.55$ on **11/12** first
+marked files. Library first-draw is $0.515$. Unmarked first-draw is
+**0/12** above $0.55$ (max $0.510$). `n_unmasked_ngrams=116` on every
+first marked file. This is not a `ngram_len=5` scoring bug. Mixin is
+on for the other eleven stems. Do not sell **11/12**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **4/12** | 0.400 | 14/48 | 27/48 | 14 34 27 21 | **41/96** |
+| hard last-4 | **4/12** | 0.415 | 16/48 | 31/48 | 16 32 31 17 | **47/96** |
+
+GPT-2 $\Hw=12$ interpolate on these prompt *strings* (different twins)
+was **6/12**. Distil interpolate was **9/12**. Qwen interpolate is
+**4/12**. Mean $D_p=-0.083$ (interpolate) / $-0.032$ (hard). Interpolate
+wins market, rain, office, garden. Hard wins night-bus, market,
+kitchen, station (market has 0 isolated TPs).
+
+Clopper–Pearson 95% (not a second freeze): interpolate **4/12** is
+**[0.099, 0.651]** and includes ½; hard **4/12** is the same interval;
+BA **41/96** is **[0.327, 0.532]**. Isolated **25/48** still includes ½.
+
+H-long-q-group **holds** as an informative comparison with GPT-2
+$\Hw=12$ **6/12** and Distil $\Hw=12$ **9/12**. It does not replace
+**25/48**.
+
+H-long-q-iso **holds**. Isolated interpolate **41/96** is a different
+generator and $\Hw$ from the original-12 SynthID **47/96**. Do not sell
+**4/12**, **41/96**, or **47/96** as replacing **25/48**. Nested
+interpolate Youden **44/48** is a negative train threshold; do not sell
+**44/48**.
+
+H-long-q-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **14/48**. Exact
+next-token overlap is **65** seen versus **12127** unseen (opening
+$[0{:}4)$ is 41 versus 247). Occupancy is not a detector. Do not sell
+**65** as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-qwen-12x4-ngram13/](../experiments/2026-09-04-atoms-qwen-12x4-ngram13/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+

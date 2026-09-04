@@ -14,7 +14,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next.md](PROTOCOL-next.md) | Frozen confirmatory 100×4 protocol; lock A **99/100**; Distil H3 |
 | [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) | Frozen GPT-2 Hw=12; original-12 interpolate **6/12**; 100-family interpolate **76/100**; not **25/48** |
 | [PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md) | Frozen DistilGPT2 Hw=12 12-LOO; interpolate **9/12**, isolated **49/96**; not **25/48** |
-| [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) | Frozen Qwen2-1.5B Hw=12 12-LOO; named, not generated |
+| [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) | Frozen Qwen2-1.5B Hw=12 12-LOO; interpolate **4/12**, isolated **41/96**; official first-draw **11/12**; not **25/48** |
 | [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) | Frozen Aaronson–Kirchner exponential-minimum; 12-LOO interpolate **11/12** isolated **56/96**; 100-family interpolate **100/100** isolated **608/800**; not **25/48** |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |

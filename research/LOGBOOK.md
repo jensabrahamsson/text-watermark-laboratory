@@ -2557,6 +2557,23 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-qwen-12x4-ngram13
 ```
 
+## 2026-09-04 Qwen2-1.5B ngram_len=13 opened
+
+[PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) named
+`21a3e1b`. Pair seed **20260903**, `ngram_len=13`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw mean>0.55
+**11/12** (library $0.515$; H-long-q-ctrl fails as a raw 12/12). Mixin
+is on for the other eleven stems (`n_unmasked_ngrams=116`). Interpolate
+last-4 **4/12** (AUC **0.400**, isolated **14/48 vs 27/48**, BA
+**41/96**). Hard **4/12** (AUC **0.415**, BA **47/96**). Occupancy
+**65** seen vs **12127** unseen. `used_keys=false`. Do not sell
+**4/12** or **41/96** as replacing **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-12x4-ngram13/`.
+
 
 
 
