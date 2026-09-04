@@ -2664,6 +2664,26 @@ JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
 `experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-12x4-aaronson/`.
 
+## 2026-09-04 DistilGPT2 ngram_len=13 100-family freeze
+
+[PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
+frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
+as [PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md),
+generator `distilgpt2`, 100 one-liners, seed **20260903**, Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-long-d100-ctrl,
+H-long-d100-group, H-long-d100-iso, and H-long-d100-occ are stated
+before generation. Do not look at key-free LRs until `pair` has written
+official first-draw scores and the probe command has been run once, as
+written. Do not add a scorer. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260903 \
+  --ngram-len 13 --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-100x4-ngram13
+```
+
 
 
 
