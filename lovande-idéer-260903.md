@@ -479,6 +479,53 @@ hits transfer **44/48**, last-1 transfer **40/48**, Distil hashtok last-4
 **44/48**,
 or rankpath transfer **44/48**.
 
+DistilGPT2 Aaronson 100×4 is the opened freeze
+[research/PROTOCOL-next-aaronson-distil-100.md](research/PROTOCOL-next-aaronson-distil-100.md)
+(`experiments/2026-09-04-pair-distil-100x4-aaronson/`, seed
+**20260905**). Freeze last-4 hard is **91/100**, isolated
+**308/400**, AUC **0.899**, unmarked $\le 0$ **346/400**, **17**
+ranking wins with no isolated TP; interpolate last-4 is **96/100**,
+**252/400**, **0.902**, **36** ranking-only (**601/800**). Official
+first-draw $z>3$ is only **71/100** (twenty-nine degenerate loops).
+Last-1 is post-open (`--model gpt2`, `--skip-nested`). Last-1 hard is
+**94/100**, **372/400**, AUC **0.930**, unmarked **344/400**, **4**
+ranking-only. Last-1 still lifts full-file isolated versus last-4
+(**308/400** → **372/400**). That is **not** GPT-2 Aaronson last-1’s
+both-windows isolated geography (tail **380/400**). Absolute windows
+(`--skip-nested`):
+
+| Reader | full file | 0:4 | 64:128 |
+|---|---|---|---|
+| last-4 hard freeze | 91/100, 308/400, 0.899 | 92/100, **364/400**, 0.881 | 89/100, 196/400, 0.889, **40** ranking-only |
+| last-1 hard | **94/100, 372/400**, 0.930 | 92/100, 356/400, 0.879 | 93/100, 240/400, 0.916, **33** ranking-only |
+| last-1 hits | **97/100, 380/400**, 0.948 | 94/100, 360/400, 0.903 | 96/100, 256/400, 0.947, **32** ranking-only |
+| last-4 hits | 94/100, 376/400, 0.922 | 94/100, **368/400**, 0.901 | **56/100**, 140/400, 0.673 |
+| last-1 hashpool | 97/100, 364/400, 0.935 | 93/100, 348/400, 0.899 | 95/100, 232/400, 0.938, **37** ranking-only |
+| last-4 interpolate freeze | 96/100, 252/400, 0.902, **36** ranking-only | 93/100, **352/400**, 0.908 | 95/100, 128/400, 0.897, **63** ranking-only |
+| last-1 interpolate | 97/100, 296/400, 0.919, **26** ranking-only | 91/100, 348/400, 0.899 | 95/100, 176/400, 0.919, **51** ranking-only |
+
+Opening isolated is already saturated at last-4 hard (**364/400**).
+Last-1 does not add opening TPs (last-1 opening **356/400**). The
+full-file lift is less dilution of that opening in the file mean
+(last-4 full-file **308/400** sits well below opening **364/400**;
+last-1 full-file **372/400** sits with opening **356/400**) plus a
+modest tail isolated lift (**196/400** → **240/400**). Tail ranking
+is ranking-without-isolated-TP, not GPT-2 Aaronson tail isolated
+**380/400**. Distil 12 last-1 hard opening **40/48** that did not
+survive the file mean (**16/48**) is the same dilution; n=100 last-1
+reduces it. Distil 12 last-1 hits tail isolated **32/48** equaled
+full-file; n=100 last-1 hits tail **256/400** is below full-file
+**380/400**. Last-1 hits still recovers tail **ranking** last-4 hits
+missed (**56/100** → **96/100**; Distil 12 tail **0/48** →
+**32/48**). Last-4 hits remains opening overlap (full-file
+**376/400** equals opening **368/400**; tail AUC **0.673**). Freeze
+interpolate **96/100** is the same split: opening isolated
+**352/400**, tail isolated **128/400** with **63** ranking-only. Do
+not sell last-1 **372/400**, hits **380/400**, interpolate ranking
+**96/100**, or tail ranking **95/100**. Last-1 unigrams on Distil
+degenerate loops are not a reason to sell those counts
+(H-aar-d100-ctrl **71/100**).
+
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
 better.” It matches this mixin’s hash width. (SynthID last-1 window
@@ -497,12 +544,14 @@ Nested Youden on 100-family last-1 hard is **376/400 vs 369/400**.
 `experiments/2026-09-03-pair-distil-100x4-kgw/`. Aaronson–Kirchner
 twins: `experiments/2026-09-04-pair-12x4-aaronson/` and
 `experiments/2026-09-04-pair-100x4-aaronson/` (opened freeze is last-4;
-last-1 is post-open). Distil 100 last-1 used
+last-1 is post-open). DistilGPT2 Aaronson 100×4:
+`experiments/2026-09-04-pair-distil-100x4-aaronson/` (opened freeze is
+last-4; last-1 is post-open). Distil 100 last-1 used
 the GPT-2 tokenizer id on Distil text (same BPE). Last-1 was not the
 preregistered PROTOCOL-next-kgw reader (that freeze is last-4). This
 is a post-open width match. Distil 100 has newline-loop files that the
 keyed z-test also flags; last-1 unigrams on those loops are not a
-reason to sell **350/400** or Distil 100 hits last-1 **355/400**. DistilGPT2 Aaronson 12×4:
+reason to sell **350/400** or Distil 100 hits last-1 **355/400**. Distil Aaronson 100 last-1 unigrams on Distil degenerate loops are not a reason to sell **372/400**. DistilGPT2 Aaronson 12×4:
 `experiments/2026-09-04-pair-distil-12x4-aaronson/` (opened freeze is
 last-4). Qwen2-1.5B Aaronson 12×4 is the opened freeze
 [research/PROTOCOL-next-aaronson-qwen.md](research/PROTOCOL-next-aaronson-qwen.md)
@@ -570,10 +619,15 @@ specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
 sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
 the count-table story. Rankpath tail 64:128 matches the full-file
 **44/48**; opening 0:4 is **32/48**. DistilGPT2 Aaronson last-1 still
-lifts `hard` (**8/48** → **16/48**). Last-1 `hits` **hurts** the
-full-file count (**44/48** → **32/48**) because last-4 was opening
+lifts `hard` (**8/48** → **16/48**). At n=100 that lift is
+**308/400** → **372/400** because last-4 dilutes an already-saturated
+opening (**364/400**) in the file mean; tail isolated stays
+**240/400**, not GPT-2 Aaronson **380/400**. Last-1 `hits` **hurts** the
+full-file count on Distil 12 (**44/48** → **32/48**) because last-4 was opening
 copies, but last-1 hits tail **32/48** is above last-4 hits tail
-**0/48**. Hashpool (**32/48** → **20/48**) and occupancy-free
+**0/48**. Distil 100 last-1 hits recovers tail ranking
+(**56/100** → **96/100**) while isolated stays opening-heavy
+(**380/400** sits with 0:4 **360/400**). Hashpool (**32/48** → **20/48**) and occupancy-free
 `postokhits` (**40/48** → **0/48**) still drop. Distil last-4
 hits is opening overlap (tail **0/48**); rankpath is the body reader
 (tail **44/48**). GPT-2 100 Aaronson last-1 tables
@@ -605,7 +659,9 @@ last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Aaronson last-1 hits n=100
 tail **372/400**, last-4 hits n=100 tail **260/400**, Distil
-Aaronson last-1 **16/48** / last-2 **24/48**, Distil hits last-4
+Aaronson last-1 **16/48** / last-2 **24/48**, Distil Aaronson 100 last-1
+hard **372/400** / hits **380/400** / interpolate last-4 tail
+**128/400**, Distil hits last-4
 **44/48**, Distil postokhits last-4 **40/48**, Distil hashpool last-4
 **32/48**, Distil last-1 hits **32/48**, Distil last-1 postokhits
 **0/48**, Aaronson rankpath
@@ -918,6 +974,41 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hard-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hard-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hits-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hits-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-interp-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-interp-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hashpool-k1-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
@@ -1546,8 +1637,12 @@ A freeze of **width and mixin geography** that already moved a grain:
    windows on `hard`; interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
    (**284/400**). Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift. DistilGPT2 Aaronson
-   last-1 still lifts `hard` only; last-4 `hits` **44/48** is opening
-   overlap, not rankpath’s body leak. GPT-2 100 Aaronson last-1 tables
+   last-1 still lifts `hard` only at n=12 (**16/48**); at n=100 last-1
+   hard is **372/400** versus last-4 **308/400** because last-4 dilutes
+   an already-saturated opening, not because Distil grows a GPT-2
+   Aaronson tail (**240/400**, not **380/400**). last-4 `hits` **44/48** is opening
+   overlap, not rankpath’s body leak. Distil 100 last-4 hits stays
+   opening (**376/400** equals 0:4 **368/400**; tail **56/100**). GPT-2 100 Aaronson last-1 tables
    transfer onto Distil files (**40/48** vs last-4 hard **16/48**);
    last-4 hits transfer is also **44/48**. GPT-2 100 → original-12
    last-1 hard is the same isolated **40/48** (tail equals full-file;
