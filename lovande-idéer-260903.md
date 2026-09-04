@@ -526,6 +526,27 @@ not sell last-1 **372/400**, hits **380/400**, interpolate ranking
 degenerate loops are not a reason to sell those counts
 (H-aar-d100-ctrl **71/100**).
 
+GPT-2 Aaronson 100 last-1 `hard` tables copy onto Distil Aaronson 100
+(`--overlap keep`, same 100 one-liners, same BPE): full-file
+**68/100**, isolated **244/400**, AUC **0.698**, unmarked $\le 0$
+**396/400**, **7** ranking-only. Absolute windows are a **body**
+ranking leak: opening 0:4 **66/100**, **248/400**, **0.673**; tail
+64:128 **92/100**, **244/400**, **0.920**, unmarked **387/400**,
+**31** ranking-only. Full-file isolated **244/400** equals the tail.
+Last-4 hard transfer isolated is chance (full-file **188/400**,
+file-level binom $p\approx 0.89$); tail still ranks **92/100** with
+isolated only **176/400** and **48** ranking-only. Distil in-domain
+last-1 **372/400** is opening dilution on Distil text, not this
+GPT-2-table body transfer. Last-1 `hits` transfer ranks **97/100**,
+isolated **240/400**, AUC **0.963**, unmarked **398/400**, **37**
+ranking-only — isolated **240/400** in every window; tail
+**96/100**. Last-4 hits transfer ranks **81/100**, tail **42/100**,
+AUC **0.614**. Do not sell transfer **244/400**, hits ranking
+**97/100**, or tail ranking **92/100**. Distil 12 last-1 hard
+transfer **40/48** (tail equals full-file) is the n=12 slice of this
+body ranking; n=100 full-file ranking **68/100** is dragged by the
+opening.
+
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
 better.” It matches this mixin’s hash width. (SynthID last-1 window
@@ -633,7 +654,9 @@ hits is opening overlap (tail **0/48**); rankpath is the body reader
 (tail **44/48**). GPT-2 100 Aaronson last-1 tables
 still transfer onto those Distil files as a body leak (tail
 **40/48**, unmarked **48/48**; last-4 hard transfer **16/48**); last-4
-hits transfer is opening **44/48**. GPT-2 100 → GPT-2 12 last-1 hard
+hits transfer is opening **44/48**. GPT-2 100 Aaronson last-1 → Distil 100
+is the same body ranking (tail **92/100**, isolated **244/400** equals
+the tail; last-4 isolated **188/400** is chance). GPT-2 100 → GPT-2 12 last-1 hard
 is the same isolated body transfer (tail **40/48** equals full-file;
 opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **36/48**. Last-4 hits 100 → 12 is opening **24/48** (tail AUC
@@ -666,7 +689,8 @@ hard **372/400** / hits **380/400** / interpolate last-4 tail
 **32/48**, Distil last-1 hits **32/48**, Distil last-1 postokhits
 **0/48**, Aaronson rankpath
 **44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**,
-GPT-2 100 Aaronson last-1 → Distil **40/48**, Distil KGW rankpath
+GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Distil 100
+**244/400** / hits ranking **97/100**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, occupancy-free last-1
@@ -1009,6 +1033,30 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hashpool-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-last1-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-last4-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k1-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k4-to-distil100
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
@@ -1644,7 +1692,11 @@ A freeze of **width and mixin geography** that already moved a grain:
    overlap, not rankpath’s body leak. Distil 100 last-4 hits stays
    opening (**376/400** equals 0:4 **368/400**; tail **56/100**). GPT-2 100 Aaronson last-1 tables
    transfer onto Distil files (**40/48** vs last-4 hard **16/48**);
-   last-4 hits transfer is also **44/48**. GPT-2 100 → original-12
+   last-4 hits transfer is also **44/48**. GPT-2 100 Aaronson last-1 →
+   Distil 100 is a body ranking leak (tail **92/100**, isolated
+   **244/400** equals the tail; last-4 isolated **188/400** is chance);
+   Distil in-domain last-1 **372/400** is opening dilution, not that
+   transfer. GPT-2 100 → original-12
    last-1 hard is the same isolated **40/48** (tail equals full-file;
    last-1 hits transfer isolated **36/48**).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
