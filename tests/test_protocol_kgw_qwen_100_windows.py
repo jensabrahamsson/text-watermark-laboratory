@@ -99,8 +99,13 @@ def test_protocol_kgw_qwen_100_windows_from_dumps() -> None:
     )
     assert open_["n_prompt_wins"] == 84
     assert tail["n_prompt_wins"] == 97
+    assert open_["used_keys"] is False
+    assert tail["used_keys"] is False
     assert f"**{open_['n_prompt_wins']}/100**" in text
     assert f"**{tail['n_prompt_wins']}/100**" in text
+    win_readme = (WINDOWS / "README.md").read_text()
+    assert f"**{open_['n_prompt_wins']}/100**" in win_readme
+    assert f"**{tail['n_prompt_wins']}/100**" in win_readme
     assert f"**{full['n_prompts_marked_above']}/100**" in text
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
