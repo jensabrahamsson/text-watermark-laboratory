@@ -1548,7 +1548,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
    $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
    **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
-   **5/12**.
+   **5/12**. Distil $\Hw=12$ interpolate last-4 is front-loaded
+   (opening **90/100**, tail **60/100**, AUC **0.565**), opposite of
+   Kirchenbauer interpolate.
 
 Keep leftover-20 as the honesty bound on any SynthID width change.
 Do not write `thesis/` from this file.
