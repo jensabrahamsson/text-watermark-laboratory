@@ -2960,7 +2960,8 @@ write `thesis/`.
 
 This freeze names
 [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
-named before Distil-LM / gpt2-medium-LM opening rankpath LRs. Existing
+(`d8e6f7f`) named before Distil-LM / gpt2-medium-LM opening rankpath
+LRs. Existing
 `rankpath` on `experiments/2026-08-17-pair-12x4/`. Flags:
 
 ```bash

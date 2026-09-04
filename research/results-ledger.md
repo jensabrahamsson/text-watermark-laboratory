@@ -605,7 +605,7 @@ open. Qwen2-1.5B Kirchenbauer 100-family is
 Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
 GPT-2 twins is
 [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
-and is named before those LRs. Isolated-file remains open.
+(`d8e6f7f`) and is named before those LRs. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

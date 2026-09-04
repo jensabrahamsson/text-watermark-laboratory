@@ -54,6 +54,7 @@ def test_protocol_rankpath_lm_locks_config_before_lrs() -> None:
     assert is_gpt2_name("gpt2-medium") is True
     log = LOG.read_text()
     assert "PROTOCOL-isolated-rankpath-lm" in log
+    assert "`d8e6f7f`" in log
     assert "named before" in log
     assert "--model distilgpt2" in log
     assert "--model gpt2-medium" in log

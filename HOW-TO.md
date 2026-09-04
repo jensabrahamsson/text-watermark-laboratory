@@ -234,7 +234,7 @@ one-liners is named in
 is not **25/48**. DistilGPT2 and gpt2-medium unmarked-LM opening
 rankpath 12-LOO on the original GPT-2 twins is named in
 [research/PROTOCOL-isolated-rankpath-lm.md](research/PROTOCOL-isolated-rankpath-lm.md)
-before those LRs. Existing `rankpath`. Do not invent those scores.
+(`d8e6f7f`) before those LRs. Existing `rankpath`. Do not invent those scores.
 Do not leftover-slice. Do not merge PR **#9**. That lock is not
 **25/48**.
 
