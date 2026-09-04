@@ -269,8 +269,13 @@ already beats hard last-1 isolated **40/48**. Kirchenbauer last-1
 rankpath is only **12/12**, **33/48**, AUC **0.722**, unmarked $\le 0$
 **34/48** — a small lift versus last-4 rankpath **10/12**, **31/48**,
 **0.634**, and still below last-1 hard **43/48**. Count tables remain
-the Kirchenbauer last-1 reader. Do not sell Aaronson rankpath
-**44/48**. n=12 only; no 100-family rankpath.
+the Kirchenbauer last-1 reader. Aaronson rankpath last-4 absolute
+windows: opening 0:4 **9/12**, **32/48**, AUC **0.721**; tail 64:128
+**12/12**, **44/48**, **0.936**, unmarked $\le 0$ **48/48**. That is a
+**body** leak in rank geometry, closer to Kirchenbauer interpolate
+last-4 than to Aaronson hard last-1 (which ranks both windows at
+n=100). Do not sell Aaronson rankpath **44/48**. n=12 only; no
+100-family rankpath.
 
 DistilGPT2 Aaronson 12×4 is an exploratory `/tmp` pair (seed
 **20260905**, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`; not
@@ -279,8 +284,14 @@ first-draw is also $z>3$). Hard last-4 is **7/12**, isolated **8/48**,
 AUC **0.637**, five ranking wins with no isolated TP. Last-1 is
 **9/12**, **16/48**, **0.755**. Last-2 is **9/12**, **24/48**,
 **0.759**. Last-1 still lifts vs last-4. Last-2 isolated wins at this
-n=12; that does not replace GPT-2 Aaronson last-1 **40/48**. Do not
-sell Distil last-2 **24/48** or last-1 **16/48**.
+n=12; that does not replace GPT-2 Aaronson last-1 **40/48**. Existing
+`rankpath` last-4 on these Distil twins is **12/12**, **44/48**, AUC
+**0.998**, unmarked $\le 0$ **48/48** (garden ranks with no isolated
+TP) — the same isolated count as GPT-2 Aaronson rankpath, far above
+Distil last-1 hard **16/48**. Rankpath, not last-1 counts, is the
+Distil Aaronson reader at n=12. Do not
+sell Distil last-2 **24/48**, last-1 **16/48**, or Distil rankpath
+**44/48**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -323,7 +334,8 @@ and 64:128 rank. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
 specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
 sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
-the count-table story.
+the count-table story. Rankpath tail 64:128 matches the full-file
+**44/48**; opening 0:4 is **32/48**.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
@@ -332,7 +344,7 @@ the count-table story.
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
 Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson rankpath
-**44/48**, Aaronson unigram **24/48**,
+**44/48**, Distil Aaronson rankpath **44/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
@@ -436,6 +448,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --out-dir /tmp/kgw-lab/probe-12x4-aaronson-rankpath-k4
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-aaronson-rankpath-k4-windows-ends
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
