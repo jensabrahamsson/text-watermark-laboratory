@@ -109,8 +109,11 @@ public 12×4 snapleave **9/12**, AUC **0.613**, perm $p\approx 0.042$
 dies at n=100 (**52/100**, AUC **0.512**, perm $p\approx 0.18$,
 marked>0 **385/400**, unmarked $\le 0$ **11/400**) and at 36×4
 (**18/36**, AUC **0.482**). Grok-register 12 snapleave **10/12**, AUC
-**0.589**, perm $p\approx 0.040$ is the same n=12 look; do not sell
-it. GPT-2 $\Hw=12$ n=100 AUC **0.507**. Distil public SynthID n=100 is also chance
+**0.589**, perm $p\approx 0.040$ is the same n=12 look; at n=36
+Grok-length families it ranks **25/36**, AUC **0.584**, perm
+$p\approx 0.0015$, unmarked $\le 0$ **3/144**. That is not the locked
+36×4 set (**18/36**) and is not isolated $\tau=0$. Do not sell
+**25/36** or grok12 **10/12**. GPT-2 $\Hw=12$ n=100 AUC **0.507**. Distil public SynthID n=100 is also chance
 (**53/100**, **0.488**). Distil $\Hw=12$ n=100 snapleave ranks
 **73/100**, AUC **0.631**, perm $p\approx 0.0005$, unmarked $\le 0$
 **83/400** (GPT-2 $\Hw=12$ was **11/400**); n=12 was **4/12**, AUC
@@ -127,8 +130,8 @@ Qwen public SynthID 12 snapleave is chance (**6/12**, AUC 0.453);
 Qwen $\Hw=12$ 12 is **9/12**, AUC 0.583, perm $p\approx 0.17$. Do not
 sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 **271/400**, 12-file **10/12**, Qwen **10/12**, Distil **9/12**, Distil
-$\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, or
-36×4 **18/36**. `--snaprate` does not
+$\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
+**25/36**, or 36×4 **18/36**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only).
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
@@ -229,9 +232,10 @@ Qwen2-1.5B, original-12 strings, $T=128$, four draws. Pair dumps:
 `experiments/2026-09-03-pair-distil-100x4-kgw/`. Mixin-negative test
 dirs: `experiments/2026-08-17-pair-12x4/`,
 `experiments/2026-08-31-pair-36x4/`,
+`experiments/2026-09-01-pair-grok12x4/`,
+`experiments/2026-09-01-pair-grok36x4/`,
 `experiments/2026-08-31-pair-distilgpt2-12x4/`,
 `experiments/2026-08-31-pair-qwen-12x4/`,
-`experiments/2026-09-01-pair-grok12x4/`,
 `experiments/2026-09-03-pair-12x4-ngram13/`,
 `experiments/2026-09-03-pair-100x4-ngram13/`,
 `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
@@ -271,7 +275,7 @@ tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
 an isolated-file detector. Do not sell Distil $\Hw=12$ snapleave
 **73/100** or public SynthID snapleave **9/12** / **52/100** /
-grok12 **10/12** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
+grok12 **10/12** / grok36 **25/36** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
 public snapmiss **62/100**, or Distil $\Hw=12$ snapmiss **74/100**.
 
 ```bash
@@ -384,6 +388,10 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
 python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-36x4-synthid-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-grok36x4 \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-grok36x4-synthid-snaprate
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
@@ -2937,7 +2945,7 @@ watermark detector.
 Gloaguen remains the right *question* for an API without twins. It is
 not a proven improvement of this lab’s finished-string `indicate` /
 `blind` path at this budget. Do not call paid chat APIs. Wang et al.
-(2026) (TTP-Detect) stays the closest published finished-string analog
+(2026) (TTP-Detect; Findings of ACL 2026) stays the closest published finished-string analog
 and was not reimplemented. Li-Chen and Kim (2026) (ChainMark;
 arXiv:2607.18445) is model-free detection **from the secret key and
 tokenizer**, not `indicate`. Gloaguen et al. (2026) (unified watermark
@@ -3037,7 +3045,10 @@ is the same chance at confirmatory n: 12×4 snapleave **9/12**, AUC
 **0.512**, perm $p\approx 0.18$, marked>0 **385/400**, unmarked
 $\le 0$ **11/400**). 36×4 is **18/36**, AUC **0.482**. Grok-register
 12 snapleave **10/12**, AUC **0.589**, perm $p\approx 0.040$ is the
-same n=12 look as original-12 **9/12**. Distil public SynthID n=100 is chance
+same n=12 look as original-12 **9/12**. Grok-length 36×4 snapleave
+**25/36**, AUC **0.584**, perm $p\approx 0.0015$, unmarked $\le 0$
+**3/144**; that is not the locked 36×4 set (**18/36**) and is not
+isolated $\tau=0$. Do not sell **25/36**. Distil public SynthID n=100 is chance
 (**53/100**, **0.488**); Qwen public 12 is **6/12**, 0.453. Distil
 $\Hw=12$ n=100 snapleave ranks **73/100**, AUC **0.631**, perm
 $p\approx 0.0005$, unmarked $\le 0$ **83/400**; n=12 was **4/12**,
@@ -3045,7 +3056,7 @@ AUC **0.434**. Qwen $\Hw=12$ 12 is **9/12**, 0.583, perm $p\approx 0.17$.
 Matching tournament width does not make snaprate a public-SynthID
 detector. Distil $\Hw=12$ ranking is not Distil KGW (anti **31/100**)
 and is not isolated $\tau=0$. Do not sell **383/400**, **48/48**,
-**73/100**, public **9/12**, grok12 **10/12**, or 36×4 **18/36**.
+**73/100**, public **9/12**, grok12 **10/12**, grok36 **25/36**, or 36×4 **18/36**.
 `snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
 **0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
 **74/100** are ranking-only. Do not leftover-target those zeros. Do
@@ -3101,8 +3112,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    **40/48**, **35/48**, or **34/48**. Table-free snaprate ranks GPT-2
    KGW (**88/100**) and Distil $\Hw=12$ (**73/100**) without isolated
    $\tau=0$; public SynthID n=100 is chance (**52/100**, **0.512**;
-   36×4 **18/36**).    Do not sell **73/100**, **9/12**, or grok12
-   **10/12**. GPT-2 KGW snapmiss is chance (**56/100**); public
+   36×4 **18/36**). Do not sell **73/100**, **9/12**, grok12
+   **10/12**, or grok36 **25/36**. GPT-2 KGW snapmiss is chance (**56/100**); public
    snapmiss **62/100** is ranking-only.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
