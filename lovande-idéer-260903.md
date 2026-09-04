@@ -2984,8 +2984,15 @@ arXiv:2609.02177) is keyed multi-bit scheme design. te Lintelo et al.
 MoE expert vocabularies and tests with that seed. Gao et al. (2026)
 (PathMark; arXiv:2607.03688) is keyed MoE routing-path IP. Sun et al.
 (2026) (WaterMoE; arXiv:2607.13099) is keyed MoE router perturbation.
-None of those is a finished-string key-free reader this laboratory can
-port.
+Janas et al. (2026) (arXiv:2607.16648) is keyed algebraic model
+fingerprinting. Tamim and Khan (2026) (arXiv:2607.16010) evaluate keyed
+watermark evidence for forensic readiness, not `indicate`. Zheng Gao
+et al. (2026) (TRACE; arXiv:2607.08400) watermarks agent trajectories.
+Li et al. (2026) (SkillWatermark; arXiv:2608.16026) is skill/traffic
+watermarking. Phan et al. (2026) (arXiv:2607.10103) is a deployment
+survey. Boyle et al. (2026) (arXiv:2607.10794) perturbs logits against
+model stealing. None of those is a finished-string key-free reader this
+laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
@@ -3055,7 +3062,9 @@ $\le 0$ **11/400**). 36×4 is **18/36**, AUC **0.482**. Grok-register
 same n=12 look as original-12 **9/12**. Grok-length 36×4 snapleave
 **25/36**, AUC **0.584**, perm $p\approx 0.0015$, unmarked $\le 0$
 **3/144**; that is not the locked 36×4 set (**18/36**) and is not
-isolated $\tau=0$. Do not sell **25/36**. Distil public SynthID n=100 is chance
+isolated $\tau=0$. Do not sell **25/36**. Second-key 12 snapleave
+**8/12**, AUC 0.596, perm $p\approx 0.046$ is the same n=12 look.
+Distil public SynthID n=100 is chance
 (**53/100**, **0.488**); Qwen public 12 is **6/12**, 0.453. Distil
 $\Hw=12$ n=100 snapleave ranks **73/100**, AUC **0.631**, perm
 $p\approx 0.0005$, unmarked $\le 0$ **83/400**; n=12 was **4/12**,
