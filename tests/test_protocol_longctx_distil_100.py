@@ -97,6 +97,10 @@ def test_protocol_longctx_distil_100_official_and_keyfree_from_dumps() -> None:
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 11182
     assert occ["n_unseen"] == 85493
+    ledger = " ".join((ROOT / "research" / "results-ledger.md").read_text().split())
+    w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+    assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in ledger
+    assert f"**{w0['n_seen']}** vs **{w0['n_unseen']}**" in ledger
     assert "H-long-d100-ctrl **fails**" in text
     assert "H-long-d100-group **holds**" in text
     assert "H-long-d100-iso **holds**" in text
