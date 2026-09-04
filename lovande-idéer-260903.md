@@ -502,7 +502,8 @@ last-1 hits 4:16 **96/100** / isolated **314/400**, last-1 hashpool
 4:16 **98/100**, or last-1 interpolate 4:16 **92/100**. Do not sell
 Distil last-1 hits 4:16 **97/100** / isolated **316/400**, Distil
 last-1 hashpool 4:16 **99/100**, or Distil last-1 interpolate 4:16
-**91/100**. Do not sell unigram 4:16 **82/100** / Distil **87/100**.
+**91/100**. Do not sell unigram 4:16 **82/100** / Distil **87/100**. Do not sell
+last-1 hard 4:16 **91/100** / Distil **94/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -1040,7 +1041,11 @@ leftover-target it). Full-file last-1 hits on the GPT-2 probe remains
 **100/100**, **395/400**, 0.996. Do not sell **96/100**, **97/100**,
 **98/100**, **99/100**, **314/400**, **316/400**, or **92/100** /
 **91/100**. See idea 1 for the last-4 mid geography this width match
-recovers. Existing `unigram` (token identity, no context) on the same
+recovers. Last-1 `hard` on the same slices also recovers the body
+(GPT-2 4:16 **91/100**, 0.791, isolated **309/400**; Distil
+**94/100**, 0.776, **310/400**) and sits with last-1 interpolate,
+below last-1 hits/hashpool on GPT-2 4:16 ranking. Do not sell hard
+4:16 **91/100**. Existing `unigram` (token identity, no context) on the same
 GPT-2 and Distil mid slices still ranks the body but sits **below**
 last-1 `hits` (`used_keys=false`, `--skip-nested`; isolated from
 `holdout.md`):
@@ -1602,7 +1607,8 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **92/100**, Distil last-1 hits 4:16 **97/100** / isolated **316/400**,
 Distil last-1 hashpool 4:16 **99/100**, Distil last-1 interpolate 4:16
 **91/100**, unigram 4:16 **82/100** / isolated **270/400**, Distil
-unigram 4:16 **87/100** / isolated **251/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
+unigram 4:16 **87/100** / isolated **251/400**, last-1 hard 4:16
+**91/100** / Distil **94/100** / isolated **309/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
@@ -1957,6 +1963,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hard-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hard-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods unigram --skip-hashpool --skip-nested \
