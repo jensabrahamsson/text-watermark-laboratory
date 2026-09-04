@@ -7,6 +7,6 @@ Abrahamsson-YYYY-MM-DD-paired-reference-key-free-indication-<gitsha>.pdf
 ```
 
 The SHA is the GitHub `main` revision the PDF was compiled from.
-Current file: `Abrahamsson-2026-09-04-paired-reference-key-free-indication-f2f0839.pdf`
+Current file: `Abrahamsson-2026-09-04-paired-reference-key-free-indication-022c5dd.pdf`
 (27 A4 pages; title/author metadata set). Compile with `tectonic` or
 `pdflatex` from `paper/`. Earlier snapshots stay.

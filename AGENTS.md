@@ -232,10 +232,10 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | DistilGPT2 100-family `ngram_len=13` ($\Hw=12$) | official first-draw **98/100**; interpolate **88/100** (isolated **557/800**); hard **89/100**; occupancy **11182** vs **85493**; not **25/48** |
 | Qwen2-1.5B original-12 `ngram_len=13` ($\Hw=12$) | official first-draw **11/12**; interpolate **4/12** (isolated **41/96**); hard **4/12**; occupancy **65** vs **12127**; not **25/48** |
 | Qwen2-1.5B 100-family `ngram_len=13` ($\Hw=12$) | official first-draw **91/100**; interpolate **76/100** (isolated **474/800**); hard **74/100**; occupancy **3535** vs **98064**; not **25/48** |
-| DistilGPT2 Aaronson original-12 | official z>3 **12/12**; interpolate **7/12** (isolated **0/48 vs 48/48**); hard **7/12** (**56/96**); occupancy **196**; not **25/48** |
-| DistilGPT2 Aaronson 100-family | official z>3 **71/100**; interpolate **96/100** (isolated **601/800**); hard **91/100**; occupancy **28824**; not **25/48** |
-| Qwen2-1.5B Aaronson original-12 | official z>3 **12/12**; interpolate **12/12** (isolated **12/48 vs 48/48**, **60/96**); hard **12/12** (**72/96**); occupancy **457**; not **25/48** |
-| Qwen2-1.5B Aaronson 100-family | official z>3 **99/100**; interpolate **100/100** (isolated **616/800**); hard **97/100**; occupancy **8750**; not **25/48** |
+| DistilGPT2 Aaronson original-12 | official z>3 **12/12**; interpolate **7/12** (isolated **0/48 vs 48/48**); hard **7/12** (**56/96**); occupancy **196** vs **11996**; not **25/48** |
+| DistilGPT2 Aaronson 100-family | official z>3 **71/100**; interpolate **96/100** (isolated **601/800**); hard **91/100**; occupancy **28824** vs **61305**; not **25/48** |
+| Qwen2-1.5B Aaronson original-12 | official z>3 **12/12**; interpolate **12/12** (isolated **12/48 vs 48/48**, **60/96**); hard **12/12** (**72/96**); occupancy **457** vs **11735**; not **25/48** |
+| Qwen2-1.5B Aaronson 100-family | official z>3 **99/100**; interpolate **100/100** (isolated **616/800**); hard **97/100**; occupancy **8750** vs **92842**; not **25/48** |
 | GPT-2 Kirchenbauer original-12 | official z>3 **48/48**; interpolate **12/12** (isolated **85/96**); hard **12/12**; occupancy **114**; not **25/48** |
 | GPT-2 Kirchenbauer 100-family | interpolate **100/100** (isolated **747/800**); hard **62/100**; occupancy **4557**; not **25/48** |
 | DistilGPT2 Kirchenbauer original-12 | interpolate **12/12** (isolated **85/96**); hard **11/12**; occupancy **130**; not **25/48** |

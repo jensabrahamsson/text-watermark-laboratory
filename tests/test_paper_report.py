@@ -391,6 +391,10 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "92842" not in abs_
     assert "85493" not in abs_
     assert "61305" not in abs_
+    assert "1092" not in abs_
+    assert "2036" not in abs_
+    assert "1470" not in abs_
+    assert "2048" not in abs_
     assert "ca4c793eaaf77c18" not in abs_
     assert "25167" not in abs_
     assert "49/96" not in abs_
@@ -607,6 +611,8 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
         occ = json.loads((ROOT / rel).read_text())
         assert occ["used_keys"] is False
         assert f"{occ['n_seen']} seen versus {occ['n_unseen']} unseen" in next_sec
+        w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+        assert f"{w0['n_seen']} versus {w0['n_unseen']}" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
@@ -668,6 +674,8 @@ def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
         occ = json.loads((ROOT / rel).read_text())
         assert occ["used_keys"] is False
         assert f"{occ['n_seen']} seen versus {occ['n_unseen']} unseen" in next_sec
+        w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+        assert f"{w0['n_seen']} versus {w0['n_unseen']}" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
 
@@ -734,7 +742,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README
-    assert "f2f0839" in README
+    assert "022c5dd" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
