@@ -3197,4 +3197,17 @@ isolated **20/48 vs 22/48**. The unwindowed fit-prefix-16 file score
 **32/48**. File AUC is below chance. Nothing replaces **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-04 gpt2-medium-LM rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-mbody.md](PROTOCOL-isolated-rankpath-mbody.md)
+named before gpt2-medium-LM rankpath `[4:16)` LRs. Existing `rankpath` on
+`experiments/2026-08-17-pair-12x4/` with `--model gpt2-medium --windows
+4:16 --fit-prefix 16 --pos-bucket 1`. Do not leftover-slice. Do not
+invent those scores. gpt2-medium-LM opening stays **10/12**, isolated
+**31/48 vs 32/48**. Distil-LM `[4:16)` stays **6/12**, isolated
+**24/48 vs 23/48**. GPT-2 `[4:16)` stays **7/12**, isolated
+**20/48 vs 22/48**. Nothing replaces **25/48**. Isolated-file detection
+is still not finished. Do not write `thesis/`.
+
 ---
