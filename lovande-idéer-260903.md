@@ -834,8 +834,11 @@ interpolate **34/36**. Original-12 interpolate last-2 is **7/12**,
 same sign count as last-4 interpolate. Keep interpolate at last-4.
 Hits last-2 on original-12 is also worse ranking than published last-4
 hits: **9/12**, AUC **0.632**, isolated 29/48 versus last-4 hits
-**10/12**, AUC **0.718**, isolated 28/48. The last-2 lift is a
-**hard** width effect, not “shorten every count spec.”
+**10/12**, AUC **0.718**, isolated 28/48. The last-2 lift is a **hard** width effect, not “shorten every count spec.”
+Occupancy-free `hashtok` last-2 on the original 12 is **11/12**,
+**23/48**, AUC **0.788**, unmarked $\le 0$ **48/48** versus last-4
+`hashtok` **11/12**, **24/48**, **0.796** — isolated does not repeat
+the hard last-2 jump. Do not sell hashtok last-2 **23/48**.
 
 Grid losers on original-12 hard: last-1 **1/12** / 22/48 / AUC 0.414;
 last-3 **8/12** / 26/48; last-5 **9/12** / 23/48. Matching mixin
@@ -892,6 +895,8 @@ opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium 
 **66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**,
 xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
+switch occupancy-free `hashtok` to last-2 (**23/48** vs last-4
+**24/48**). Do not
 add `hard2` as a method name. Do not present last-2 as matching the
 keyed hash window (last-5 lost the grid; $\Hw=12$ last-2 does not
 repeat the 100-family **94/100** jump). Matching last-12 to $\Hw=12$
