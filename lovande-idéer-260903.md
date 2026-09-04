@@ -3997,10 +3997,26 @@ chance. Do not sell medium **75/100** or **288/400**. Distil last-2
 chance; **6** ranking-only); last-4 4:128 **51/100**, **146/400**,
 perm $p\approx 0.55$. Distil does not get the GPT-2-family near-front
 remainder. Do not leftover-target those zeros. Do not sell Distil
-**63/100** or **175/400**. Mid slices on the
-same 100 (`used_keys=false`, `--skip-nested`; isolated from
-`holdout.md`) confirm that last-2 is **not** a Kirchenbauer body
-reader:
+**63/100** or **175/400**. Qwen2-1.5B 100 (`--model
+Qwen/Qwen2-1.5B-Instruct`, `--skip-nested`) is the **opposite** of
+that GPT-2-family opening-only split: last-4 4:128 still ranks
+**70/100**, 0.574, **338/400**, unmarked $\le 0$ **117/400**, **3**
+ranking-only (file-level binom $p\approx 2\times 10^{-47}$). Last-2
+4:128 is **66/100**, 0.579, **228/400**, unmarked $\le 0$ **201/400**,
+**2** ranking-only — ranking and isolated do **not** beat last-4.
+That last-4 remainder sits with already-measured last-4 mid: 4:16
+ranking is chance (**48/100**, AUC **0.494**, perm $p\approx 0.39$);
+16:32 **63/100**, **284/400**, 0.554; 32:64 **71/100**, **314/400**,
+0.601. Last-2 4:16 was **56/100**, **223/400**; last-2 16:32 isolated
+**204/400** is chance (binom $p\approx 0.36$); last-2 32:64 ranking
+**71/100** with isolated **211/400** chance (binom $p\approx 0.15$).
+GPT-2/medium last-4 hard at n=100 is opening-only; Qwen last-4 4:128
+still has isolated mass (with FPs). Do not leftover-target the **2** /
+**3** ranking-only. Do not sell Qwen last-4 4:128 **70/100** /
+**338/400**, last-2 **66/100** / **228/400**, or last-4 32:64
+**71/100** / **314/400**. Mid slices on GPT-2 100
+(`used_keys=false`, `--skip-nested`; isolated from `holdout.md`)
+confirm that last-2 is **not** a Kirchenbauer body reader:
 
 | Window | last-2 hard | last-4 hard |
 |---|---|---|
@@ -4311,8 +4327,15 @@ widths have **108/400** marked zeros; Distil last-2 0:4 is only
 **74/100**. Qwen 100 ranking is tied; last-4 isolated **351/400** has
 unmarked $\le 0$ only **121/400**. Qwen last-2 0:4 is **88/100**,
 **325/400**, AUC **0.783**; 64:128 still ranks **71/100**, AUC
-**0.582** (GPT-2 last-2 tail was **58/100**). Do not sell **330/400**,
-**66/100**, **351/400**, or Qwen opening **88/100**. Occupancy-free
+**0.582** (GPT-2 last-2 tail was **58/100**). Masking 0:4 does not
+kill Qwen last-4 the way it kills GPT-2 last-4: 4:128 last-4
+**70/100** / **338/400** versus last-2 **66/100** / **228/400**.
+Last-4 4:16 ranking was chance **48/100**; the 4:128 remainder sits
+with last-4 16:32 **63/100** / **284/400** and 32:64 **71/100** /
+**314/400**, not GPT-2 last-4 mid chance. Do not leftover-target the
+**2** / **3** ranking-only. Do not sell **330/400**,
+**66/100**, **351/400**, Qwen opening **88/100**, or those 4:128
+counts. Occupancy-free
 `postokhits` last-2 on the original 12
 is **9/12 / 23/48**, unmarked $\le 0$ **48/48** — the same isolated
 count as last-4 `postokhits`. Hard last-2 **34/48** is not that
@@ -4377,7 +4400,9 @@ Qwen2-1.5B $\Hw=12$: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`
 long for **full-file** isolated sign: last-2 keeps opening last-k mass
 in the file mean without falling into last-1 unigram collapse. It is
 not a body-hash match (n=100 last-2 tail **58/100**; Kirchenbauer
-last-1 tail is **100/100**). Grok-register 12 last-2 isolated
+last-1 tail is **100/100**). GPT-2/medium last-4 hard at n=100 is
+opening-only after 0:4; Qwen last-4 4:128 still ranks **70/100** /
+**338/400** and last-2 does not beat it. Grok-register 12 last-2 isolated
 **34/48** is not that opening-only split (0:4 **31/48**, tail
 **30/48**). It is tied to short tournament history:
 `ngram_len=13` ($\Hw=12$) last-2 does not rescue ranking (12×4 isolated
@@ -4409,7 +4434,11 @@ or **33/48**. Do not sell n=100 mask 4:128 last-2 **83/100** /
 **294/400**. Do not leftover-slice those mask windows. Do not sell
 medium mask 4:128 **75/100** / **288/400** or last-4 **52/100** /
 **194/400**. Do not sell Distil mask 4:128 **63/100** / **175/400**.
-Do not leftover-target Distil ranking-only zeros. Do not sell
+Do not leftover-target Distil ranking-only zeros. Do not sell Qwen
+mask 4:128 last-4 **70/100** / **338/400**, last-2 **66/100** /
+**228/400**, last-4 4:16 **48/100**, last-4 16:32 **63/100** /
+**284/400**, or last-4 32:64 **71/100** / **314/400**. Do not leftover-target
+those Qwen ranking-only zeros. Do not sell
 transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell grok mask
@@ -4486,6 +4515,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
   --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-k4-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-k2-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-k4-mask-tails
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
   --methods hard --context-len 2 --skip-hashpool \
@@ -4710,12 +4749,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-10
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
 headline. Last-2 is the one existing-scorer width that moved isolated
 sign on 12, 36, and 100 **public** GPT-2 families in the same
-direction. At n=100 last-4 hard is opening-only (mask 4:128 **36/100**,
-**181/400**, chance). Last-2’s remainder after dropping 0:4 is
-near-front 4:16 (**83/100**, **305/400**), not a Kirchenbauer body:
+direction. At n=100 GPT-2 last-4 hard is opening-only (mask 4:128
+**36/100**, **181/400**, chance). Last-2’s remainder after dropping 0:4
+is near-front 4:16 (**83/100**, **305/400**), not a Kirchenbauer body:
 original-12 tail **10/12** and mask **8:128** **10/12** / **32/48**
 overstate geography, and original-12 last-4 mask **9/12** overstates
-**36/100**. It is not a universal
+**36/100**. That opening-only last-4 split is GPT-2/medium, not Qwen:
+Qwen last-4 4:128 still ranks **70/100** / **338/400** (unmarked
+$\le 0$ **117/400**), sitting with last-4 32:64 **71/100** /
+**314/400**; last-2 4:128 **66/100** / **228/400** does not beat it.
+It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump
 (matching last-12 to $\Hw=12$ does not recover it; DistilGPT2 $\Hw=12$
 last-2 ranking is **6/12**); Distil/Qwen/medium public-$\Hw$ 12 do not
@@ -5153,14 +5196,20 @@ A freeze of **width and mixin geography** that already moved a grain:
    ranking **10/12** survives masking the first 8 tokens (**8:128**
    **10/12**, **32/48**); 4:128 isolated **32/48** vs last-4 **29/48**
    is McNemar $p\approx 0.32$, not a $\tau=0$ beat, and does not
-   replace **25/48**. At n=100 last-4 hard is opening-only (mask 4:128
-   **36/100**, **181/400**, chance). Last-2 mask 4:128 still ranks
+   replace **25/48**. At n=100 GPT-2 last-4 hard is opening-only (mask
+   4:128 **36/100**, **181/400**, chance). Last-2 mask 4:128 still ranks
    **83/100**, **305/400** (McNemar **157/33** vs last-4), sitting with mid
    4:16 last-2 **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
    (**38/100**). gpt2-medium repeats that mask split (last-2 4:128
    **75/100**, **288/400**; last-4 **52/100**, **194/400**, chance). Distil
-   100 last-2 4:128 isolated is chance (**175/400**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
+   100 last-2 4:128 isolated is chance (**175/400**). Qwen last-4 4:128
+   still ranks **70/100** / **338/400** (unmarked $\le 0$ **117/400**);
+   last-2 4:128 **66/100** / **228/400** does not beat last-4. That
+   remainder sits with Qwen last-4 16:32 **63/100** / **284/400** and
+   32:64 **71/100** / **314/400**, not GPT-2 last-4 mid chance. Do not
+   leftover-target the **2** / **3** ranking-only. Do not sell those
+   Qwen 4:128 counts. Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
    weak (**75/100**). gpt2-medium last-2 hits 4:16 sits with GPT-2
    (**96/100**); Qwen last-2 hits 4:16 is **79/100**. Last-2 `hashpool`
