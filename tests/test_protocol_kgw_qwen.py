@@ -83,6 +83,9 @@ def test_protocol_kgw_qwen_official_and_keyfree_from_dumps() -> None:
     ]
     assert len(pair_rows) == 1
     assert f"**{n_first}/12**" in pair_rows[0]
+    pair_readme = (PAIR / "README.md").read_text()
+    assert f"**{n_first}/12**" in pair_readme
+    assert str(pair["seed"]) in pair_readme
     interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
     hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
     assert interp["used_keys"] is False

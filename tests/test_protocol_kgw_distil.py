@@ -83,6 +83,9 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     ]
     assert len(pair_rows) == 1
     assert f"**{n_first}/12**" in pair_rows[0]
+    pair_readme = (PAIR / "README.md").read_text()
+    assert f"**{n_first}/12**" in pair_readme
+    assert str(pair["seed"]) in pair_readme
     interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
     hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
     assert interp["used_keys"] is False
@@ -225,6 +228,10 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     ]
     assert len(pair_rows) == 1
     assert f"**{n_first}/100**" in pair_rows[0]
+    pair_readme = (PAIR100 / "README.md").read_text()
+    assert f"**{n_first}/100**" in pair_readme
+    assert pair["hub_revision"] in pair_readme
+    assert str(pair["seed"]) in pair_readme
     n_unmarked_above = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
     assert n_unmarked_above == 16
     interp = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())

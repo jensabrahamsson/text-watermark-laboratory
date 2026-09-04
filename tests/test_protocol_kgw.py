@@ -226,6 +226,10 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert len(pair_rows) == 1
     assert pair["hub_revision"][:8] in pair_rows[0] or "Hub SHA" in pair_rows[0]
     assert n_first == 12
+    pair_readme = (PAIR / "README.md").read_text()
+    assert pair["hub_revision"] in pair_readme
+    assert str(pair["seed"]) in pair_readme
+    assert "--mixin kgw" in pair_readme
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 114
     assert occ["n_unseen"] == 12071
@@ -325,6 +329,10 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
     ]
     assert len(pair_rows) == 1
     assert f"**{n_first}/100**" in pair_rows[0]
+    pair_readme = (PAIR100 / "README.md").read_text()
+    assert f"**{n_first}/100**" in pair_readme
+    assert pair["hub_revision"] in pair_readme
+    assert str(pair["seed"]) in pair_readme
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991
