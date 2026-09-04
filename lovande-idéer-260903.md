@@ -288,9 +288,12 @@ generators; interpolate last-4 remains the ranking winner on GPT-2
 last-4 interpolate isolated (**289/400** / **303/400**).
 Ranking-without-isolated-TP is **0** on last-1 hits mid windows
 (Distil last-1 hashpool 4:16 has **1**; do not leftover-target it).
-Do not sell **96/100**, **97/100**, **98/100**, **99/100**,
-**314/400**, **316/400**, or last-1 interpolate 4:16 **92/100** /
-**91/100**.
+Existing `unigram` on those same slices still ranks (GPT-2 4:16
+**82/100**, Distil **87/100**) but sits below last-1 hits
+(**96/100** / **97/100**); the mid-file leak is not only a bag of
+green tokens. Do not sell **96/100**, **97/100**, **98/100**, **99/100**,
+**314/400**, **316/400**, last-1 interpolate 4:16 **92/100** /
+**91/100**, or unigram 4:16 **82/100** / Distil **87/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -499,7 +502,7 @@ last-1 hits 4:16 **96/100** / isolated **314/400**, last-1 hashpool
 4:16 **98/100**, or last-1 interpolate 4:16 **92/100**. Do not sell
 Distil last-1 hits 4:16 **97/100** / isolated **316/400**, Distil
 last-1 hashpool 4:16 **99/100**, or Distil last-1 interpolate 4:16
-**91/100**.
+**91/100**. Do not sell unigram 4:16 **82/100** / Distil **87/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -561,6 +564,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-unigram-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
@@ -944,8 +957,19 @@ Last-1 hits isolated **46/48** equals unigram on GPT-2 12, with AUC
 last-1 hard **389/400**, with more FPs (unmarked $\le 0$ **383/400**
 versus **399/400**). Qwen last-4 hits is chance; last-1 recovers
 ranking, and isolated **41/48** beats Qwen last-1 hard **37/48**.
-Public SynthID hits last-1 is chance (**4/12**,
-**24/48**, AUC **0.445**). The width match is mixin-specific, not
+Public SynthID hits last-1 is chance at n=12 (**4/12**,
+**24/48**, AUC **0.445**). At confirmatory n last-1 hits ranks
+**99/100**, AUC **0.907**, isolated **358/400**, unmarked $\le 0$
+only **274/400**; mid 4:16 **95/100**, **327/400**, unmarked
+**207/400**. Last-4 hits on the same 100 is the stronger full-file
+overlap reader (**100/100**, **396/400**, 0.993, unmarked
+**288/400**); mid 4:16 **93/100**, isolated **208/400**, **5**
+ranking-only. Last-1 4:16 ranking sits slightly above last-4 hits
+there (**95/100** vs **93/100**) with worse specificity. Geography
+stays opening-heavy, not Kirchenbauer body. Do not shorten SynthID
+`hits` to last-1. Do not leftover-target those ranking-only zeros.
+Do not sell **99/100**, **396/400**, or last-1 4:16 **95/100**.
+The Kirchenbauer width match is mixin-specific, not
 “shorten `hits` everywhere.” Aaronson last-4 hits is already
 **12/12**, **44/48**, AUC **0.920**, unmarked $\le 0$ **39/48** (one
 ranking win with no isolated TP); last-1 hits is **40/48**, **0.988**,
@@ -1016,7 +1040,25 @@ leftover-target it). Full-file last-1 hits on the GPT-2 probe remains
 **100/100**, **395/400**, 0.996. Do not sell **96/100**, **97/100**,
 **98/100**, **99/100**, **314/400**, **316/400**, or **92/100** /
 **91/100**. See idea 1 for the last-4 mid geography this width match
-recovers. Distil 100 hits last-1 also ranks the tail
+recovers. Existing `unigram` (token identity, no context) on the same
+GPT-2 and Distil mid slices still ranks the body but sits **below**
+last-1 `hits` (`used_keys=false`, `--skip-nested`; isolated from
+`holdout.md`):
+
+| Window | last-1 hits | unigram |
+|---|---|---|
+| GPT-2 4:16 | **96/100**, 0.853, **314/400** | 82/100, 0.683, **270/400** |
+| GPT-2 16:32 | **99/100**, 0.905, **341/400** | 93/100, 0.767, **291/400** |
+| GPT-2 32:64 | **100/100**, 0.951, **360/400** | 92/100, 0.771, **299/400** |
+| Distil 4:16 | **97/100**, 0.812, **316/400** | 87/100, 0.703, **251/400** |
+| Distil 16:32 | **100/100**, 0.825, **321/400** | 89/100, 0.703, **232/400** |
+| Distil 32:64 | **99/100**, 0.854, **328/400** | 93/100, 0.724, **227/400** |
+
+The mid-file Kirchenbauer leak is not only a bag of green tokens.
+Last-1 context is the tighter mid-file match. Unigram 4:16 **82/100**
+is not chance. Distil unigram full-file has **13** ranking-only; do
+not leftover-target those zeros. Do not sell unigram 4:16 **82/100**
+or Distil **87/100**. Distil 100 hits last-1 also ranks the tail
 above the opening (**98/100**, AUC **0.924** vs **93/100**, **0.718**);
 isolated tail **214/400** is below full-file **355/400**. Distil 100
 last-1 hard windows (`--skip-nested`) are the same split: 0:4
@@ -1030,6 +1072,10 @@ last-1 windows: opening 0:4 **8/12**, **33/48**, AUC **0.581**,
 unmarked $\le 0$ only **18/48**; tail 64:128 **12/12**, **38/48**,
 **0.893**, unmarked **41/48**. Ranking/AUC is body like GPT-2 and
 Distil. Opening isolated **33/48** has FPs; do not sell it.
+Qwen 12 last-1 hits mid 4:16 is still chance **6/12**, isolated
+**29/48**, AUC **0.582** (last-4 hits 4:16 isolated **0/48**, ranking
+**0/12**). The confirmatory 4:16 last-1 recovery is GPT-2/Distil n=100.
+Do not sell Qwen 4:16 **6/12** or last-4 **0/12**.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -1510,7 +1556,9 @@ lift, and hashpool last-1 is the same width on the hash-pool spec.
 Hits last-1 is the same width on the overlap spec, including the
 mid-file slices in idea 1 (GPT-2 4:16 last-1 hits **96/100** versus
 last-4 hits chance **45/100**; Distil **97/100** versus last-4
-**66/100**). Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
+**66/100**). A context-free unigram still ranks those mid slices
+(GPT-2 4:16 **82/100**; Distil **87/100**) but sits below last-1
+`hits`; the body leak is not only a bag of green tokens. Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
 and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
 last-4 hits tail was **0/48**). Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
@@ -1553,7 +1601,8 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **314/400**, last-1 hashpool 4:16 **98/100**, last-1 interpolate 4:16
 **92/100**, Distil last-1 hits 4:16 **97/100** / isolated **316/400**,
 Distil last-1 hashpool 4:16 **99/100**, Distil last-1 interpolate 4:16
-**91/100**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
+**91/100**, unigram 4:16 **82/100** / isolated **270/400**, Distil
+unigram 4:16 **87/100** / isolated **251/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
@@ -1598,7 +1647,10 @@ GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Di
 hashtok last-4 **384/400**, Qwen Aaronson
 hashtok last-4 **44/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
-**95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
+**95/100**, or **100/100** as replacing **25/48**. Do not sell public
+SynthID last-1 hits n=100 **99/100** / 4:16 **95/100** / isolated
+**358/400**, or last-4 hits **396/400**. Do not sell Qwen last-1 hits
+4:16 **6/12**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
 switch Kirchenbauer hard to last-2 (12×4 collapse; 100×4 is strictly
@@ -1905,6 +1957,26 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hits-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hits-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -2748,7 +2820,8 @@ understates the green-list leak: 100-family ranking **62/100** →
 **100/100**, isolated **209/400** → **389/400**, AUC **0.573** →
 **0.990**. Same `hard` scorer. Existing `hits` last-1 is the overlap
 spec at the same width (100-family **395/400**, AUC **0.996** vs last-4
-hits **254/400**, **0.812**); public SynthID hits last-1 is chance.
+hits **254/400**, **0.812**); public SynthID hits last-1 is chance
+at n=12 and last-4 hits wins the n=100 file.
 Existing `hashpool` last-1 is the same
 width match (100-family **394/400**, AUC **0.995** vs last-4 hashpool
 **304/400**, **0.867**); Qwen last-4 hashpool is chance. At n=100 the
@@ -3516,7 +3589,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    interpolate 4:16 **92/100** sits slightly below last-4 interpolate).
    Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
    **97/100** / hashpool **99/100** (last-1 interpolate 4:16 **91/100**
-   sits slightly above last-4 interpolate **88/100**). GPT-2 last-4 `hashpool` 4:16 **72/100** sits between
+   sits slightly above last-4 interpolate **88/100**). Unigram on those
+   mid slices still ranks (GPT-2 4:16 **82/100**, Distil **87/100**) but
+   sits below last-1 hits. GPT-2 last-4 `hashpool` 4:16 **72/100** sits between
    last-4 hits and last-4 interpolate. GPT-2 KGW body’s best single LDA feature is soft
    `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
    `mean_gap` alone is **67/100**; dropping it from the six falls to
@@ -3527,7 +3602,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
    hashpool **394/400** vs **304/400**) and `hard` on Aaronson–Kirchner
-   (**388/400** vs last-4 **344/400**). Kirchenbauer interpolate last-1
+   (**388/400** vs last-4 **344/400**). Public SynthID hits last-1 is
+   chance at n=12; at n=100 it ranks **99/100** but last-4 hits is the
+   stronger full-file reader (**100/100**, **396/400**, 0.993). Do not
+   shorten SynthID `hits`. Kirchenbauer interpolate last-1
    at 100 families matches last-4 interpolate geography (opening
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
    windows on `hard`; interpolate last-1 isolated at n=100 is
@@ -3535,7 +3613,7 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**284/400**). Freeze interpolate last-4 is the same split
    (opening **380/400**, full-file **208/400** equals the tail). Last-4
    hard opening is already **388/400** with FPs; last-1 recovers tail
-   isolated (**324/400** → **380/400**) and specificity. Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift, including the mid-file slices in idea 1 (GPT-2 4:16 last-1 hits **96/100** versus last-4 hits chance **45/100**; Distil **97/100** versus **66/100**; last-1 hashpool **98/100** / Distil **99/100**). DistilGPT2 Aaronson
+   isolated (**324/400** → **380/400**) and specificity. Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift, including the mid-file slices in idea 1 (GPT-2 4:16 last-1 hits **96/100** versus last-4 hits chance **45/100**; Distil **97/100** versus **66/100**; last-1 hashpool **98/100** / Distil **99/100**; unigram 4:16 **82/100** / Distil **87/100** sits below last-1 hits). DistilGPT2 Aaronson
    last-1 still lifts `hard` only at n=12 (**16/48**); at n=100 last-1
    hard is **372/400** versus last-4 **308/400** because last-4 dilutes
    an already-saturated opening, not because Distil grows a GPT-2
