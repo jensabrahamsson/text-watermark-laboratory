@@ -4299,7 +4299,12 @@ isolated McNemar (12 gains / 3 losses, $p\approx 0.018$) at **34/48**
 with ranking still **8/12**; grok36 last-2 is **91/144** vs last-4
 **77/144** (37/23, $p\approx 0.046$). Grok-register last-2 0:4 is
 **8/12 / 31/48**; 64:128 **6/12 / 30/48** — isolated is not the
-GPT-2-100 opening-only split. Do not mix grok12 into any train. Do
+GPT-2-100 opening-only split. Same grok12 last-2 reader on mask tails
+(`used_keys=false`; do not mix grok12 into train; do not leftover-slice):
+4:128 **8/12**, isolated **29/48** (file-level binom $p\approx 0.097$,
+chance); 8:128 **7/12**, **33/48**. Grok **34/48** does not survive
+4:128 the way original-12 last-2 **10/12** / **32/48** does. Do not
+sell grok mask **29/48** or **33/48**. Do not mix grok12 into any train. Do
 not sell grok **34/48**.
 
 Interpolate last-2 **hurts** 36×4 ranking: **32/36** vs last-4
@@ -4379,7 +4384,8 @@ or **33/48**. Do not sell n=100 mask 4:128 **83/100** / **305/400** or
 8:128 **78/100** / **294/400**. Do not leftover-slice those mask
 windows. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
-**8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
+**8/20**, or leftover 100→12 last-2 **11/20**. Do not sell grok mask
+**29/48** or **33/48**. Do not sell
 opening **389/400**, last-2 4:16 **85/100** / **314/400**, Distil last-2 4:16 **58/100**, Qwen last-2 4:16 **56/100**, medium last-2 4:16 **82/100** / **293/400**, last-4 hard mid **38/100**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
 **66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**,
 xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
@@ -4427,6 +4433,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 2:128,4:128,8:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
+  --methods hard --context-len 2 --skip-hashpool \
+  --windows 2:128,4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-grok12x4-synthid-k2-mask-tails
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
