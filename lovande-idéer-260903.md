@@ -564,8 +564,20 @@ tables recover. Reverse Distil 100 → GPT-2 100 (`--overlap keep`) is
 100 last-1 was only **68/100** / **244/400**: Distil tables on GPT-2
 files outrank GPT-2 tables on Distil files (Distil degenerate loops).
 Last-4 Distil 100 → GPT-2 100 is **96/100**, **252/400**, **33**
-ranking-only. Do not sell Distil 100 → Distil 12 **40/48**, Distil 100
-→ GPT-2 100 **348/400**, or **98/100**.
+ranking-only. Last-1 `hits` Distil 100 → Distil 12 is **12/12**,
+isolated **36/48**, AUC **0.998**, unmarked **48/48**; tail
+**12/12**, **36/48** (equals full-file). Distil 100 → GPT-2 12 last-1
+hits is the same **12/12**, **36/48**, tail **12/12**, **36/48**.
+Hard last-1 remains the isolated transfer on those 12s (**40/48**).
+Last-4 hits Distil 100 → Distil 12 is opening overlap:
+**12/12**, **48/48**, unmarked only **43/48** (FPs); tail **4/12**,
+AUC **0.625**. Distil 100 last-1 hits → GPT-2 100 is **99/100**,
+**356/400**, AUC **0.991**, unmarked **400/400**; opening 0:4 is
+**100/100**, **400/400** with unmarked only **341/400** (FPs); tail
+**99/100**, **320/400**, unmarked **400/400**. Do not sell Distil
+100 → Distil 12 **40/48**, hits **36/48**, last-4 hits **48/48**,
+Distil 100 → GPT-2 100 **348/400** / hits **356/400**, or
+**98/100**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -714,7 +726,8 @@ hard **372/400** / hits **380/400** / interpolate last-4 tail
 **44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**,
 GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Distil 100
 **244/400** / hits ranking **97/100**, Distil 100 Aaronson last-1 → Distil 12
-**40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil KGW rankpath
+**40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil 100 last-1 hits → Distil 12
+**36/48** / GPT-2 100 **356/400**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, occupancy-free last-1
@@ -1116,6 +1129,24 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-last1-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-12x4-aaronson \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hits-k1-to-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hits-k1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hits-k1-to-gpt2100
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
