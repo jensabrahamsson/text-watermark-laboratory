@@ -3924,6 +3924,23 @@ last-2 lift is a **hard** width effect.
 12×4 last-2 absolute windows: tail 64:128 hard **10/12**, AUC 0.680,
 isolated **34/48**. Opening 0:4 last-2 hard is **7/12**. That tail
 **10/12** does **not** mean last-2 is a body leak at confirmatory n.
+The same last-2 reader on the PROTOCOL-isolated-mask-absolute tail
+list (`2:128`, `4:128`, `8:128`; absolute `score_span`; isolated from
+`holdout.md`; `used_keys=false`) keeps ranking **10/12** after the
+opening is dropped. Last-4 numbers are that freeze dump. Do **not**
+leftover-slice these windows.
+
+| Window | last-2 hard | last-4 hard (absolute) |
+|---|---|---|
+| 2:128 | **10/12**, 0.695, **33/48** vs 28/48 | **9/12**, 0.567, 26/48 vs 22/48 |
+| 4:128 | **10/12**, 0.714, **32/48** vs 29/48 | **9/12**, 0.589, 29/48 vs 23/48 |
+| 8:128 | **10/12**, 0.698, **32/48** vs 31/48 | **9/12**, 0.561, 30/48 vs 23/48 |
+| full file | **10/12**, 0.702, **34/48** vs 28/48 | **9/12**, 0.590, **25/48** vs 22/48 |
+
+Ranking-without-isolated-TP is **0/10** on every last-2 mask tail.
+Isolated falls **34→32**. Last-4 tails stay **9/12**. Do not sell
+mask **10/12** or **32/48**. This is not **25/48**.
+
 100-family hard windows (`--skip-nested` on the window slice; full-file
 last-2 matches the LOO dump **94/100 / 340/400**):
 
@@ -3940,7 +3957,25 @@ the file mean**, not a Kirchenbauer-style tail (idea 1 interpolate
 64:128 **100/100**). 36-family last-2 windows sit in between: 0:4
 **32/36**, **128/144**, AUC **0.869**; 64:128 **19/36**, AUC **0.543**.
 Last-4 interpolate tail 64:128 is still **3/12** on the original 12
-and **93/100** at n=100. Do not sell **389/400**. Mid slices on the
+and **93/100** at n=100. Do not sell **389/400**. Confirmatory n=100
+last-2 on the same mask tails (`--skip-nested`; isolated from
+`holdout.md`; ranking-without-isolated-TP **0** on every slice):
+
+| Window | last-2 hard |
+|---|---|
+| full file | **94/100**, 0.781, **340/400** |
+| 2:128 | **90/100**, 0.749, **331/400** |
+| 4:128 | **83/100**, 0.692, **305/400** |
+| 8:128 | **78/100**, 0.649, **294/400** |
+| 4:16 (near-front) | **85/100**, 0.729, **314/400** |
+| 64:128 | 58/100, 0.554, 237/400 |
+
+Masking 0:4 drops n=100 ranking **94→83** and isolated **340→305**;
+8:128 is **78/100**, **294/400**. That remainder sits with near-front
+4:16 **85/100**, not Kirchenbauer interpolate tail **100/100**.
+Original-12 mask **10/12** overstates confirmatory geography the same
+way tail **10/12** does. Do not sell **83/100**, **305/400**,
+**78/100**, or **294/400**. Mid slices on the
 same 100 (`used_keys=false`, `--skip-nested`; isolated from
 `holdout.md`) confirm that last-2 is **not** a Kirchenbauer body
 reader:
@@ -4339,7 +4374,10 @@ Last-1 `hashtok2` likewise sits with last-1 hashtok (GPT-2 **97/100**,
 **313/400**; medium **95/100**, **327/400**).
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
-**10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
+**10/12**. Do not sell original-12 mask last-2 **10/12**, **32/48**,
+or **33/48**. Do not sell n=100 mask 4:128 **83/100** / **305/400** or
+8:128 **78/100** / **294/400**. Do not leftover-slice those mask
+windows. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
 opening **389/400**, last-2 4:16 **85/100** / **314/400**, Distil last-2 4:16 **58/100**, Qwen last-2 4:16 **56/100**, medium last-2 4:16 **82/100** / **293/400**, last-4 hard mid **38/100**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
@@ -4379,6 +4417,16 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-windows-ends
+
+python3 -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --methods hard --context-len 2 --skip-hashpool \
+  --windows 2:128,4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-synthid-k2-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 2:128,4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-mask-tails
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
@@ -4595,7 +4643,9 @@ headline. Last-2 is the one existing-scorer width that moved isolated
 sign on 12, 36, and 100 **public** GPT-2 families in the same
 direction. At n=100 that lift is opening mass kept in the file mean
 (**334/340** of last-2 TPs are 0:4 TPs), not a body window: original-12
-tail **10/12** overstates geography. It is not a universal
+tail **10/12** and mask **8:128** **10/12** / **32/48** overstate
+geography (n=100 mask 4:128 **83/100**, **305/400** sits with 4:16
+**85/100**; 8:128 **78/100**, **294/400**). It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump
 (matching last-12 to $\Hw=12$ does not recover it; DistilGPT2 $\Hw=12$
 last-2 ranking is **6/12**); Distil/Qwen/medium public-$\Hw$ 12 do not
@@ -5029,9 +5079,12 @@ A freeze of **width and mixin geography** that already moved a grain:
    **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
-   fixing leftover and without touching interpolate. At n=100 that
-   lift is opening mass kept in the file mean, not a body leak: mid
-   4:16 last-2 still ranks **85/100** while 16:32 / 32:64 are weak
+   fixing leftover and without touching interpolate. Original-12 last-2
+   ranking **10/12** survives masking the first 8 tokens (**8:128**
+   **10/12**, **32/48**); that does not replace **25/48**. At n=100 that
+   lift is opening mass kept in the file mean, not a body leak: mask
+   4:128 last-2 is **83/100**, **305/400**, sitting with mid
+   4:16 last-2 **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
    (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
