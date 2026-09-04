@@ -140,14 +140,18 @@ dropped=0; `--skip-nested`; last-1 KGW already failed isolated
 | GPT-2 12 → SynthID 12 (`--overlap keep`) | 6/12, **6/48**, 0.546, perm $p\approx 0.45$, **5/6** ranking-only | 7/12, 23/48, 0.502 | 7/12, 12/48, 0.528 |
 | GPT-2 100 → SynthID 36 | 10/36, **8/144**, 0.448, perm $p\approx 0.92$ | 13/36, 28/144, 0.381 | 14/36, 18/144, 0.481 |
 | Distil 100 → Distil SynthID 12 | 4/12, **1/48**, 0.445, perm $p\approx 0.80$ | 8/12, 30/48, 0.617 | 5/12, 4/48, 0.494 |
+| Distil 12 → Distil SynthID 12 (`--overlap keep`) | 7/12, **3/48**, 0.507, perm $p\approx 0.44$ | 8/12, 25/48, 0.560 | 6/12, 6/48, 0.520 |
+| Qwen 12 → Qwen SynthID 12 (`--overlap keep`) | **1/12**, **15/48**, 0.441, perm $p\approx 0.88$ | 5/12, 23/48, 0.457 | 5/12, 14/48, 0.395 |
 
 File-level binomial on isolated $\tau=0$ is $p=1$ on the **0/48**,
-**2/48**, **8/144**, and **1/48** arrows. Same-generator Distil KGW
+**2/48**, **8/144**, **1/48**, and **3/48** arrows. Same-generator Distil KGW
 tables that recover Distil KGW 12 at **42/48** do not classify Distil
-public SynthID (**1/48**). Opening **30/48** on that Distil arrow is
+public SynthID (**1/48** / same-stem **3/48**). Qwen KGW 12 interpolate
+**35/48** does not classify Qwen public SynthID (**15/48**, ranking
+**1/12**). Opening **30/48** on the Distil-100 arrow is
 not a detector (full file **1/48**); do not leftover-target it. The
 body leak is mixin-specific. Do not leftover-target those zeros. Do
-not sell **0/48**, **8/144**, or **1/48**.
+not sell **0/48**, **8/144**, **1/48**, **3/48**, or **15/48**.
 
 Kirchenbauer is **back-loaded**. SynthID is **front-loaded**. Original-12
 SynthID interpolate 64:128 **3/12** is not “the tail is chance at
@@ -164,6 +168,7 @@ Qwen2-1.5B, original-12 strings, $T=128$, four draws. Pair dumps:
 dirs: `experiments/2026-08-17-pair-12x4/`,
 `experiments/2026-08-31-pair-36x4/`,
 `experiments/2026-08-31-pair-distilgpt2-12x4/`,
+`experiments/2026-08-31-pair-qwen-12x4/`,
 `experiments/2026-09-01-pair-grok12x4/`. Not production Gemini.
 Not leftover targeting. Windows keep absolute generated indices.
 
@@ -189,7 +194,8 @@ same Kirchenbauer body reader on 12-file tests, not **25/48**. Do not
 sell those 12-file counts. Last-4 interpolate KGW tables do **not**
 classify public SynthID (**0/48** / **2/48** / **8/144**) or grok12
 (**5/48** / **7/48**); same-stem GPT-2 12 KGW → SynthID 12 is
-**6/48**; Distil KGW 100 → Distil SynthID 12 is **1/48**. Do not sell
+**6/48**; Distil KGW → Distil SynthID is **1/48** / **3/48**; Qwen KGW
+12 → Qwen SynthID 12 is **15/48**. Do not sell
 Distil/Qwen interpolate isolated tails **35/48** / **34/48** or GPT-2
 tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
@@ -313,6 +319,19 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
   --model Qwen/Qwen2-1.5B-Instruct --methods interpolate --context-len 4 \
   --skip-hashpool --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-interp-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw \
+  --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --overlap keep --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil12-kgw-interp-k4-to-synthid-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --test-dir experiments/2026-08-31-pair-qwen-12x4 --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-kgw-interp-k4-to-synthid-qwen12
 ```
 
 **Why it is a backlog item.** If the next honesty pass needs a
@@ -329,7 +348,8 @@ do not sign. Isolated $\tau=0$ on Distil/Qwen 12 interpolate last-4 is
 the same body split (Distil tail **35/48** vs opening **29/48**; Qwen
 tail **34/48** vs opening chance **28/48**). Last-4 interpolate KGW
 tables do not classify public SynthID (**0/48** / **8/144**) or
-Distil public SynthID (**1/48**) or grok12 (**5/48**). Do not leftover-target those
+Distil public SynthID (**1/48** / **3/48**) or Qwen public SynthID
+(**15/48**) or grok12 (**5/48**). Do not leftover-target those
 zeros. Do not spend another leftover-targeting round trying to
 recover SynthID’s original-12 interpolate tail with last-4 tables.
 
@@ -1054,7 +1074,9 @@ also chance: GPT-2 100 → public SynthID **0/48**, AUC 0.527, seven
 ranking-only; Distil 100 → public SynthID **2/48**; GPT-2 100 → grok12
 **5/48**; Distil 100 → grok12 **7/48**; same-stem GPT-2 12 KGW →
 SynthID 12 (`--overlap keep`) **6/48**; GPT-2 100 → SynthID 36
-**8/144**; Distil 100 KGW → Distil public SynthID 12 **1/48**
+**8/144**; Distil 100 KGW → Distil public SynthID 12 **1/48**;
+same-stem Distil 12 KGW → Distil SynthID 12 **3/48**; Qwen 12 KGW →
+Qwen SynthID 12 **15/48**, ranking **1/12**
 (idea 1). Hashpool last-1 transfer to public SynthID
 12 is **2/48**, AUC 0.501. Aaronson last-1 tables trained on 100
 families do **not** classify Kirchenbauer 12 (**0/48**) or public
@@ -2298,7 +2320,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    12 interpolate last-4 sits with the tail (Distil **35/48**, Qwen
    **34/48**), not the opening. Those tables do not classify
    public SynthID (**0/48** / **8/144**) or grok12 (**5/48**) or Distil
-   public SynthID (**1/48**). Do not
+   public SynthID (**1/48** / same-stem **3/48**) or Qwen public SynthID
+   (**15/48**, ranking **1/12**). Do not
    sell **331/400**, **385/400**, **46/48**, **43/48**, **42/48**,
    **40/48**, **35/48**, or **34/48**.
 2. Matching `context_len` to last-1 hash width recovers isolated
