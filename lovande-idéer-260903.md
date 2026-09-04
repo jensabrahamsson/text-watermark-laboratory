@@ -136,8 +136,10 @@ sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
 **25/36**, second-key **8/12**, 36×4 **18/36**, GPT-2 KGW tail
 **75/100**, Distil opening **66/100**, SynthID tail **62/100**,
-prompt-context Distil opening **72/100**, or GPT-2 prompt-context
-opening **47/100**. `--snaprate` does not
+prompt-context Distil opening **72/100**, GPT-2 prompt-context
+opening **47/100**, GPT-2 KGW pivot-lda **97/100**, Distil KGW
+pivot-lda **88/100** / tail **83/100**, or SynthID opening
+pivot-lda-entropy **97/100**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only). Slicing
 those generated-only choice matrices on the same `rotate_snaprate`
 scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
@@ -178,6 +180,29 @@ stronger and does not make a body reader. Public SynthID stays chance
 **60/100**, **0.529**, perm $p\approx 0.044$). Isolated $\tau=0$ still
 fails. Do not sell Distil prompt-context opening **72/100** or GPT-2
 opening **47/100**.
+Existing `pivot-lda` / `pivot-rank` (unmarked-LM choice features;
+`--pivot`, not a new `probe --methods` name) on the **same
+generated-only** choice matrices as the snaprate windows:
+
+| Corpus | full pivot-lda | 0:4 pivot-lda | 64:128 pivot-lda |
+|---|---|---|---|
+| GPT-2 KGW | **97/100**, 0.794, 292/400, unmarked $\le 0$ **299/400** | **52/100**, 0.523, perm $p\approx 0.40$ (chance) | **88/100**, 0.704, 252/400, unmarked $\le 0$ **274/400** |
+| Distil KGW | **88/100**, 0.663, 239/400, unmarked $\le 0$ **270/400** | **75/100**, 0.596 | **83/100**, 0.648, 205/400, unmarked $\le 0$ **294/400** |
+| Public SynthID | 67/100, 0.570 | **92/100**, 0.799; entropy **97/100**, 0.820, 325/400 | **61/100**, 0.541, perm $p\approx 0.068$ (chance) |
+
+GPT-2 KGW n=12 pivot-lda was opening **11/12** / tail **8/12**; opening
+died at n=100 (**52/100**), same n=12 trap as snaprate. Pivot-lda tail
+**88/100**, AUC **0.704** beats snaprate tail **75/100**, **0.670** and
+is still below interpolate last-4 tail **100/100**, **0.953**. Distil
+KGW pivot-lda **ranks the body** (**83/100**) where binary snaprate
+was chance or anti (**40/100** / full-file **31/100**). The Distil
+full-file snaprate anti was an argmax-upset miss, not an absent
+table-free leak. Isolated $\tau=0$ still fails (GPT-2 tail **252/400**;
+Distil tail **205/400**; Distil full-file **239/400**). Public SynthID
+pivot is **front-loaded** (opening entropy **97/100**) with a chance
+body — interpolate geography, not Kirchenbauer’s. Count tables remain
+the Kirchenbauer body reader. Do not sell pivot **97/100**, Distil
+**88/100**, Distil tail **83/100**, or SynthID opening **97/100**.
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
 $p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
@@ -188,7 +213,9 @@ perm $p\approx 0.0005$ is **62** ranking-only, isolated **0/400**;
 Distil $\Hw=12$ snapmiss **74/100**, **0.644**, also **0/400**. Do not
 leftover-target those zeros. Aaronson snapmiss is anti (**2/100**,
 AUC **0.079**); do not invert. Do not sell snapmiss **56/100**,
-**62/100**, or **74/100**.
+**62/100**, or **74/100**. Do not sell pivot-lda **97/100**, Distil
+KGW **88/100** / tail **83/100**, or SynthID opening entropy
+**97/100**.
 
 Same last-4 interpolate tables transfer that body leak across
 same-BPE generators (`--overlap keep`, `--skip-nested`, `--model gpt2`):
@@ -293,6 +320,9 @@ Not leftover targeting. Windows keep absolute generated indices.
 count-table reader. Kirchenbauer’s green list is a **body** leak.
 SynthID tournament last-4 interpolate is **opening-heavy**; the
 original-12 tail **3/12** overstates how dead the body is at n=100.
+Table-free LDA on unmarked-LM choice features sees that Kirchenbauer
+body on DistilGPT2 where binary snaprate failed; it does not make a
+SynthID body reader.
 
 **Non-claim.** This does not replace **25/48**. Full-file Kirchenbauer
 interpolate **12/12** / **44/48** / **85/96** is a different mixin and
@@ -322,6 +352,8 @@ an isolated-file detector. Do not sell Distil $\Hw=12$ snapleave
 **73/100** or public SynthID snapleave **9/12** / **52/100** /
 grok12 **10/12** / grok36 **25/36** / second-key **8/12** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
 public snapmiss **62/100**, or Distil $\Hw=12$ snapmiss **74/100**.
+Do not sell GPT-2 KGW pivot-lda **97/100**, Distil KGW **88/100** /
+tail **83/100**, or SynthID opening pivot-lda-entropy **97/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -477,6 +509,10 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ng
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods snapmiss --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snapmiss
+
+# Existing --pivot / rotate_pivot on the same generated-only choice matrices
+# as the snaprate windows (/tmp/kgw-lab/snaprate-windows-mats/). --pivot does
+# not emit --windows; slices are score_span on those cached mats.
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
@@ -3147,6 +3183,14 @@ rescue GPT-2 KGW opening (**47/100**, AUC **0.522**); tail stays
 full file stays anti **31/100**. Do not sell **75/100**, Distil opening
 **66/100** / **72/100**, SynthID tail **62/100**, **383/400**, **48/48**,
 **73/100**, public **9/12**, grok12 **10/12**, grok36 **25/36**, or 36×4 **18/36**.
+Existing `pivot-lda` on the same generated-only matrices ranks GPT-2
+KGW tail **88/100**, **0.704** (above snaprate **75/100**, below
+interpolate **100/100**) and Distil KGW body **83/100** where snaprate
+was chance **40/100**; full-file Distil pivot-lda **88/100** where
+snaprate was anti **31/100**. Public SynthID pivot is opening entropy
+**97/100** with a chance body (**61/100**). Isolated $\tau=0$ still
+fails. Do not sell pivot **97/100**, Distil **88/100**, Distil tail
+**83/100**, or SynthID opening **97/100**.
 `snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
 **0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
 **74/100** are ranking-only. Do not leftover-target those zeros. Do
@@ -3204,7 +3248,13 @@ A freeze of **width and mixin geography** that already moved a grain:
    $\tau=0$; public SynthID n=100 is chance (**52/100**, **0.512**;
    36×4 **18/36**). Do not sell **73/100**, **9/12**, grok12
    **10/12**, or grok36 **25/36**. GPT-2 KGW snapmiss is chance (**56/100**); public
-   snapmiss **62/100** is ranking-only.
+   snapmiss **62/100** is ranking-only. Existing `pivot-lda` ranks GPT-2
+   KGW tail **88/100** (below interpolate **100/100**) and Distil KGW
+   body **83/100** where snaprate was chance; Distil full-file
+   pivot-lda **88/100** where snaprate was anti **31/100**. Public
+   SynthID pivot is opening-heavy (entropy **97/100**) with a chance
+   body. Do not sell those pivot rankings. Isolated $\tau=0$ still
+   fails.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
