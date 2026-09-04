@@ -108,6 +108,9 @@ def test_protocol_aaronson_distil_100_official_and_keyfree_from_dumps() -> None:
     )
     assert f"**{occ['n_seen']}** vs **{occ['n_unseen']}**" in row
     n_unmarked = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
+    pair_readme = (PAIR / "README.md").read_text()
+    assert f"Unmarked first-draw is **{n_unmarked}/100**" in pair_readme
+    n_unmarked = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
     assert f"z>3 **{n_unmarked}/100**" in ledger
     assert "H-aar-d100-ctrl **fails**" in text
     assert "H-aar-d100-group **holds**" in text

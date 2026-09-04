@@ -2,4 +2,5 @@
 
 Frozen in [PROTOCOL-next-aaronson-qwen-100.md](../../research/PROTOCOL-next-aaronson-qwen-100.md)
 (`a761a7d`). Seed **20260905**. Official first-draw z>3 is **99/100**.
+Unmarked first-draw is **0/100** above 3.0.
 Do not sell a Qwen Aaronson count as replacing **25/48**.

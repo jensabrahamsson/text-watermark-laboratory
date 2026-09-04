@@ -713,6 +713,30 @@ def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
         assert f"{occ['n_seen']} seen versus {occ['n_unseen']} unseen" in next_sec
         w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
         assert f"{w0['n_seen']} versus {w0['n_unseen']}" in next_sec
+    distil_hw12_12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-12x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    qwen_hw12_12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-12x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    n_d12 = sum(
+        row["unmarked_gen"]["mean"] > 0.55 for row in distil_hw12_12["rows"]
+    )
+    n_q12 = sum(
+        row["unmarked_gen"]["mean"] > 0.55 for row in qwen_hw12_12["rows"]
+    )
+    assert f"${n_d12}/12$ above $0.55$" in next_sec
+    assert f"${n_q12}/12$ above $0.55$" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
     distil_aar12 = json.loads(
