@@ -1205,7 +1205,9 @@ isolated **9/400**, 0.753, **87** ranking-only. Do not sell those
 hashlog`, full file, not `--fit-prefix 1` which is empty) on GPT-2
 Aaronson → $\Hw=12$ is **61/100**, isolated **56/400**, AUC **0.557**:
 it does not become interpolate's **100/100** ranking-without-TP look.
-Isolated is chance (binom $p=1$). The last-1 lift is
+Isolated is chance (binom $p=1$). Kirchenbauer hashlog on $\Hw=12$ is
+chance (**49/100**, **170/400**, 0.488). Aaronson hashlog → public
+SynthID 12 is **8/48**, 0.483. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1626,6 +1628,16 @@ python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson 
   --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
   --archs hashlog --context-len 1 --pos-bucket 1 --skip-nested \
   --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-hashlog-k1-full-to-ngram13-100
+
+python -m text_watermark_tools learn experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --archs hashlog --context-len 1 --pos-bucket 1 --skip-nested \
+  --out-dir /tmp/kgw-lab/learn-gpt2100-kgw-hashlog-k1-full-to-ngram13-100
+
+python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --archs hashlog --context-len 1 --pos-bucket 1 --skip-nested \
+  --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-hashlog-k1-to-synthid12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
