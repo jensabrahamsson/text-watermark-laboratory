@@ -610,8 +610,14 @@ lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
 (**60/96**); occupancy **114** seen. 100-family interpolate
-**100/100** (isolated **747/800**); occupancy **4557** seen. Do not
-sell **12/12**, **100/100**, **85/96**, or **747/800** as replacing
+**100/100** (isolated **747/800**); occupancy **4557** seen. DistilGPT2
+Kirchenbauer original-12 interpolate **12/12** (isolated **85/96**);
+hard **11/12**; occupancy **130** seen. Distil 100-family interpolate
+**100/100** (isolated **683/800**); hard **82/100**; occupancy **16170**
+seen. Qwen2-1.5B Kirchenbauer original-12 interpolate **12/12**
+(isolated **68/96**); hard **8/12**; occupancy **84** seen. Do not
+sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
+**82/100**, **68/96**, or **8/12** as replacing
 **25/48**. Isolated-file remains open.
 
 ## DistilGPT2 longer-context two-grain (`ngram_len=13`)

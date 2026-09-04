@@ -51,6 +51,11 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in ledger
     assert "`ed9fb20`" in ledger
+    assert "named before generation" in ledger
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    assert "PROTOCOL-next-kgw-qwen-100" in narrative
+    assert "`ed9fb20`" in narrative
+    assert "named before generation" in narrative
     agents_rows = [
         ln
         for ln in (ROOT / "AGENTS.md").read_text().splitlines()

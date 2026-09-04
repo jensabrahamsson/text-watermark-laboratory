@@ -123,6 +123,15 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     atoms_readme = (ATOMS / "README.md").read_text()
     assert f"**{occ['n_seen']}**" in atoms_readme
     assert f"**{occ['n_unseen']}**" in atoms_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert f"**{ba}/96**" in narrative
+    assert f"**{hard['n_prompts_marked_above']}/12**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{ba}/96**" in ledger
+    assert f"**{hard['n_prompts_marked_above']}/12**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -232,6 +241,10 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     assert f"**{n_first}/100**" in pair_readme
     assert pair["hub_revision"] in pair_readme
     assert str(pair["seed"]) in pair_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert f"**{n_first}/100**" in narrative
+    assert f"**{n_first}/100**" in ledger
     n_unmarked_above = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
     assert n_unmarked_above == 16
     interp = json.loads((PROBE100 / "interpolate" / "holdout.json").read_text())
@@ -271,6 +284,15 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     atoms_readme = (ATOMS100 / "README.md").read_text()
     assert f"**{occ['n_seen']}**" in atoms_readme
     assert f"**{occ['n_unseen']}**" in atoms_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert f"**{ba}/800**" in narrative
+    assert f"**{hard['n_prompts_marked_above']}/100**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{ba}/800**" in ledger
+    assert f"**{hard['n_prompts_marked_above']}/100**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()

@@ -230,6 +230,15 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert pair["hub_revision"] in pair_readme
     assert str(pair["seed"]) in pair_readme
     assert "--mixin kgw" in pair_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/12**" in narrative
+    assert f"**{ba}/96**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{interp['n_prompts_marked_above']}/12**" in ledger
+    assert f"**{ba}/96**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 114
     assert occ["n_unseen"] == 12071
@@ -333,6 +342,16 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
     assert f"**{n_first}/100**" in pair_readme
     assert pair["hub_revision"] in pair_readme
     assert str(pair["seed"]) in pair_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/100**" in narrative
+    assert f"**{ba}/800**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{interp['n_prompts_marked_above']}/100**" in ledger
+    assert f"**{ba}/800**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991
