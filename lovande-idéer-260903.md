@@ -3263,7 +3263,19 @@ reader:
 Last-2 4:16 still ranks (near-front mass after 0:4). Last-2 16:32 /
 32:64 are weak. Last-4 hard mid is chance (perm $p$ 0.73–0.99). Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
-ranking losses with isolated TP (last-2 4:16 has **14**).
+ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
+public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
+last-2 ranking:
+
+| Window | last-2 hard | last-4 hard |
+|---|---|---|
+| Distil 4:16 | 58/100, 0.532, 163/400 | 35/100, 0.435, 116/400 |
+| Distil 16:32 | 55/100, 0.521, 149/400 | 50/100, 0.506, 149/400 |
+| Distil 32:64 | 66/100, 0.541, 165/400 | 59/100, 0.534, 152/400 |
+
+Distil last-2 4:16 perm $p=0.10$. Last-2 mid on Distil is chance, not
+GPT-2 **85/100**. Full-file Distil last-2 **66/100** is not a mid-file
+body. Do not sell Distil last-2 4:16 **58/100**.
 
 Paired marked-file signs, last-2 vs last-4 on the original 12 (exact
 McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
@@ -3416,7 +3428,7 @@ Qwen2-1.5B $\Hw=12$ last-2 ranking is **5/12**; last-12 is **4/12**.
 **10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
-opening **389/400**, last-2 4:16 **85/100** / **314/400**, last-4 hard mid **38/100**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
+opening **389/400**, last-2 4:16 **85/100** / **314/400**, Distil last-2 4:16 **58/100**, last-4 hard mid **38/100**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
 **66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**,
 xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
@@ -3463,6 +3475,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-hard-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hard-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
@@ -3917,7 +3939,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    lift is opening mass kept in the file mean, not a body leak: mid
    4:16 last-2 still ranks **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
-   (**38/100**). The jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
+   (**38/100**). Distil last-2 4:16 is chance (**58/100**). The
+   jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
    $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
    **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
    **5/12**. Distil $\Hw=12$ interpolate last-4 is front-loaded
