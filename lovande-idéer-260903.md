@@ -135,7 +135,9 @@ sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 **271/400**, 12-file **10/12**, Qwen **10/12**, Distil **9/12**, Distil
 $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
 **25/36**, second-key **8/12**, 36×4 **18/36**, GPT-2 KGW tail
-**75/100**, Distil opening **66/100**, or SynthID tail **62/100**. `--snaprate` does not
+**75/100**, Distil opening **66/100**, SynthID tail **62/100**,
+prompt-context Distil opening **72/100**, or GPT-2 prompt-context
+opening **47/100**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only). Slicing
 those generated-only choice matrices on the same `rotate_snaprate`
 scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
@@ -161,6 +163,21 @@ undoing an opening look. Distil interpolate last-4 tail remains
 interpolate last-4 is **99/100**; the weak tail **62/100** / **0.534**
 is not that front-loaded reader. Isolated $\tau=0$ still fails. Do not
 sell **75/100**, Distil opening **66/100**, or SynthID tail **62/100**.
+`--prompt-context` on the same `rotate_snaprate` scorer includes
+generated token 0 (predicted from the prompt; the first green-list
+step). It does **not** rescue GPT-2 KGW opening ranking. n=100
+snapleave full file stays **88/100**, AUC **0.765**; 0:4 is
+**47/100**, AUC **0.522**, perm $p\approx 0.11$ (chance; generated-only
+was **49/100**, $p\approx 0.011$); tail **79/100**, AUC **0.688**,
+unmarked $\le 0$ **57/400**. n=12 is **9/12** on full / opening /
+tail. Distil KGW stays full-file anti (**31/100**, **0.459**) while
+opening **72/100**, AUC **0.634** (generated-only was **66/100**) and
+tail **38/100**, **0.466**. Token 0 makes the Distil opening look
+stronger and does not make a body reader. Public SynthID stays chance
+(full **45/100**, **0.496**; opening **20/100**, **0.371** anti; tail
+**60/100**, **0.529**, perm $p\approx 0.044$). Isolated $\tau=0$ still
+fails. Do not sell Distil prompt-context opening **72/100** or GPT-2
+opening **47/100**.
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
 $p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
@@ -352,6 +369,18 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods snapleave,snapupset --snaprate --prompt-context --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-snaprate-promptctx
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods snapleave,snapupset --snaprate --prompt-context --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snaprate-promptctx
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods snapleave,snapupset --snaprate --prompt-context --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-snaprate-promptctx
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
   --model Qwen/Qwen2-1.5B-Instruct \
@@ -3112,8 +3141,11 @@ detector. Distil $\Hw=12$ ranking is not Distil KGW (full-file anti
 snapleave tail **75/100**, AUC **0.670** is a body ranking below
 interpolate **100/100**, **0.953**; GPT-2 KGW opening **49/100** died.
 Public SynthID snapleave opening is anti (**31/100**) where interpolate
-is **99/100**. Do not sell **75/100**, Distil opening **66/100**,
-SynthID tail **62/100**, **383/400**, **48/48**,
+is **99/100**. `--prompt-context` (token 0 from the prompt) does not
+rescue GPT-2 KGW opening (**47/100**, AUC **0.522**); tail stays
+**79/100**, **0.688**. Distil KGW opening rises to **72/100** and the
+full file stays anti **31/100**. Do not sell **75/100**, Distil opening
+**66/100** / **72/100**, SynthID tail **62/100**, **383/400**, **48/48**,
 **73/100**, public **9/12**, grok12 **10/12**, grok36 **25/36**, or 36×4 **18/36**.
 `snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
 **0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
