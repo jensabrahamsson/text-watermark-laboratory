@@ -1179,13 +1179,27 @@ Qwen 16:32 last-2 hashpool still ranks **96/100** with isolated
 ranking-only: that ranking is not $\tau=0$. Do not leftover-target
 those zeros. Do not sell last-2 hashpool 4:16 **99/100** / **96/100**
 / **348/400** / **236/400** or 16:32 **96/100**. Last-2 `interpolate`
-on GPT-2 Aaronson 4:16 ranks **98/100**, AUC **0.977**, isolated
-**280/400**, unmarked $\le 0$ **400/400**, **28** ranking-only: between
-last-1 interpolate isolated **312/400** (**21** ranking-only) and
-last-4 interpolate **248/400** (**36** ranking-only). Last-2 hits
-isolated is **388/400**. Interpolate is not the isolated last-2
-Aaronson reader. Do not leftover-target those ranking-only zeros. Do
-not sell last-2 interpolate **98/100** / **280/400**. Do not sell last-1 4:16
+on those same Aaronson 4:16 slices **ranks** with last-1 interpolate,
+not with last-2 hits isolated (`used_keys=false`, `--skip-nested`;
+isolated from `holdout.md`):
+
+| Corpus | last-2 hits | last-2 interpolate | last-1 interpolate |
+|---|---|---|---|
+| GPT-2 4:16 | 98/100, 0.973, **388/400** | **98/100**, 0.977, **280/400** | **99/100**, 0.984, **312/400** |
+| Distil 4:16 | 91/100, 0.902, **368/400** | **96/100**, 0.908, **300/400** | **96/100**, 0.918, **320/400** |
+| Qwen 4:16 | 91/100, 0.854, **276/400** | **95/100**, 0.938, **224/400** | **95/100**, 0.942, **244/400** |
+
+GPT-2 last-2 interpolate isolated **280/400** sits between last-1
+interpolate **312/400** (**21** ranking-only) and last-4 interpolate
+**248/400** (**36** ranking-only), with **28** ranking-only and unmarked
+$\le 0$ **400/400**. Distil last-2 interpolate ranking **96/100**
+matches last-1 interpolate; isolated **300/400** (**24** ranking-only)
+is below last-2 hits **368/400**. Qwen ranking **95/100** matches last-1
+interpolate with isolated **224/400** (**39** ranking-only) below last-2
+hits **276/400**. Interpolate is ranking-without-isolated-TP at every
+width. Hits remains the isolated last-2 reader. Do not leftover-target
+those ranking-only zeros. Do not sell last-2 interpolate **98/100** /
+**280/400** / Distil **96/100** / **300/400** / Qwen **224/400**. Do not sell last-1 4:16
 **100/100** / **97/100** / **380/400** / Qwen **356/400**, last-4 mid
 **78/100** / **80/100**, Qwen last-4 mid **25/100**, or Qwen last-1
 full-file **100/100** / AUC **1.000**. That last-1 hits ranking is not
@@ -2390,6 +2404,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson
   --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-interp-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-interp-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
@@ -4367,9 +4391,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-2 hard (Qwen 4:16 **96/100** vs hard **64/100**; GPT-2
    **99/100**; Distil **95/100**). Isolated is weaker than hits (Qwen
    **236/400** vs **276/400**, **37** ranking-only; GPT-2 **348/400**
-   vs **388/400**). Last-2 `interpolate` GPT-2 Aaronson 4:16 **98/100**,
-   isolated **280/400**, **28** ranking-only, is not last-2 hits
-   **388/400**. Kirchenbauer last-2 interpolate sits with last-4
+   vs **388/400**). Last-2 `interpolate` ranks with last-1 interpolate,
+   not last-2 hits isolated (GPT-2 4:16 **98/100**, **280/400**, **28**
+   ranking-only; Distil **96/100**, **300/400**; Qwen **95/100**,
+   **224/400**). Kirchenbauer last-2 interpolate sits with last-4
    interpolate, not the hits width jump. GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
    **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
