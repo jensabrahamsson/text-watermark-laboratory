@@ -471,6 +471,8 @@ def test_readme_matches_revised_title() -> None:
     assert "12/12" in README
     assert "85/96" in README
     assert "747/800" in README
+    assert "PROTOCOL-next-kgw-qwen-100" in README
+    assert "ed9fb20" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "26 A4" in README

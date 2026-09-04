@@ -116,6 +116,8 @@ fitted detector. A Kirchenbauer green-list mixin is frozen in
 20260904). Original-12 interpolate last-4 is **12/12** (isolated
 **85/96**); occupancy **114** seen. 100-family interpolate is
 **100/100** (isolated **747/800**); occupancy **4557** seen. That is
-not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+not **25/48**. Qwen2-1.5B Kirchenbauer on the 100 one-liners is named
+in `research/PROTOCOL-next-kgw-qwen-100.md` (SHA `ed9fb20`) before
+generation. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).
