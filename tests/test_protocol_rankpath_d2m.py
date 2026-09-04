@@ -47,7 +47,8 @@ def test_protocol_rankpath_d2m_locks_config_before_lrs() -> None:
     research = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
-        if "PROTOCOL-isolated-rankpath-d2m" in ln
+        if "PROTOCOL-isolated-rankpath-d2m.md" in ln
+        and "d2mbody" not in ln
     ]
     assert len(research) == 1
     agents = [

@@ -3296,4 +3296,17 @@ File AUC is chance. Ranking **4/12** is below chance. Do not sell
 **26/48** or **28/48**. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-04 Distil-on-medium rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-d2mbody.md](PROTOCOL-isolated-rankpath-d2mbody.md)
+named before Distil-on-medium rankpath `[4:16)` LRs. Existing `rankpath`
+on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with
+`--model distilgpt2 --windows 4:16 --fit-prefix 16 --pos-bucket 1`.
+Do not leftover-slice. Do not invent those scores. Distil-on-medium
+opening stays **11/12**, isolated **30/48 vs 31/48**. Medium native
+`[4:16)` stays **6/12**, isolated **20/48 vs 30/48**. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
 ---
