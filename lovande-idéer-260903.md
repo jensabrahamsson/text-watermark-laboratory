@@ -1197,8 +1197,11 @@ vs $-7.65$). Top GPT-2 marked $\Delta>0$ atoms are dialogue punctuation
 (n=8 `," he said.`). Do not leftover-target those. Same-stem Qwen 12
 Aaronson → Qwen $\Hw=12$ last-1 `hard` ranks **12/12** with isolated
 **1/48**, AUC **0.849**; interpolate last-4 ranks **12/12** with
-**0/48**, **0.914**. Do not sell those 12-file ranking counts. Do not sell ranking
-**98/100**, **100/100**, unigram **73/100**, Qwen **12/12**, or AUC **0.890**. The last-1 lift is
+**0/48**, **0.914**. Distil 100 interpolate last-4 is **88/100**,
+isolated **9/400**, 0.753, **87** ranking-only. Do not sell those
+12-file ranking counts. Do not sell ranking
+**98/100**, **100/100**, unigram **73/100**, Qwen **12/12**, Distil
+**88/100**, or AUC **0.890**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1608,6 +1611,12 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaron
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-qwen12-aaronson-interp-k4-to-qwen-ngram13-12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-ngram13 --overlap keep --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-interp-k4-to-distil-ngram13-100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2073,7 +2082,9 @@ The ranking-without-isolated-TP look is a count-table mean shift, not
 unmarked-LM rankpath. Same-stem Qwen 12 Aaronson → Qwen $\Hw=12$
 repeats the ranking look at n=12 (last-1 `hard` **12/12**, isolated
 **1/48**, AUC **0.849**, **11** ranking-only; interpolate last-4
-**12/12**, **0/48**, **0.914**). Do not sell those 12-file ranking
+**12/12**, **0/48**, **0.914**). Distil 100 interpolate last-4 is
+**88/100**, isolated **9/400**, AUC **0.753**, **87** ranking-only
+(newline-loop files). Do not sell those 12-file ranking
 counts; GPT-2 n=100 already killed isolated $\tau=0$. Opening last-1
 **24/48** is not a detector. Do not leftover-target it. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
@@ -2749,7 +2760,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    with isolated **1/400**; interpolate last-4 **100/100**,
    **0/400**; unigram **73/100**, **0/400**; rankpath **55/100**,
    **0/400**). Do not sell Aaronson
-   ranking **98/100**, unigram **73/100**, Qwen **12/12**, or AUC **0.890**.
+   ranking **98/100**, unigram **73/100**, Qwen **12/12**, Distil
+   interpolate **88/100**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
