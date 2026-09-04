@@ -214,8 +214,13 @@ generation: [research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson
 Do not sell an Aaronson count as replacing **25/48**.
 Original-12 interpolate last-4 is **12/12** (isolated **85/96**);
 occupancy **114** seen. 100-family interpolate is **100/100** (isolated
-**747/800**); occupancy **4557** seen. Do not sell **12/12**,
-**100/100**, **85/96**, or **747/800** as replacing **25/48**. Qwen2-1.5B Kirchenbauer on the 100
+**747/800**); occupancy **4557** seen. DistilGPT2 original-12 interpolate
+is **12/12** (isolated **85/96**); hard **11/12**; occupancy **130** seen.
+Distil 100-family interpolate is **100/100** (isolated **683/800**); hard
+**82/100**; occupancy **16170** seen. Qwen2-1.5B original-12 interpolate
+is **12/12** (isolated **68/96**); hard **8/12**; occupancy **84** seen.
+Do not sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
+**82/100**, **68/96**, or **8/12** as replacing **25/48**. Qwen2-1.5B Kirchenbauer on the 100
 one-liners is named in
 [research/PROTOCOL-next-kgw-qwen-100.md](research/PROTOCOL-next-kgw-qwen-100.md)
 (SHA `ed9fb20`) before generation. Do not invent those scores. That lock
