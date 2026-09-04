@@ -87,7 +87,9 @@ A watermark is meant to be checked with a secret key. This report asks
 whether, given matched marked and unmarked samples but no keys, an
 auditor can still tell that Google DeepMind's public SynthID-Text demo
 is on. At the level of prompt groups, yes. On one 128-token file at a
-pre-set threshold, no. The counts are in the abstract below.
+pre-set threshold, no. That is key-free under a strong paired oracle,
+not a polynomial-time distinguisher, and not a detector for an
+unfamiliar file. The counts are in the abstract below.
 
 % =========================================================================
 \begin{abstract}
@@ -178,9 +180,13 @@ sampling watermark without the vendor's keys (\Cref{sec:related}).
 \citet{gloaguen2025blackbox} test a generator property with black-box
 queries. \citet{wang2026ttp} verify finished strings from paired
 watermarked and unwatermarked references, the closest published analog.
-The increment here is a lightweight count-table likelihood-ratio reader
-together with a two-grain measurement on DeepMind's public mixin: group
-ranking can succeed while a prespecified isolated threshold fails.
+The increment here is a two-grain measurement under a strong paired
+oracle on DeepMind's public mixin: keys are withheld at scoring, but
+matched twins are given. Group ranking can succeed while a prespecified
+isolated threshold fails. Count tables on finished strings are
+ordinary polynomial-time statistics; lock~A \textbf{99/100} is not a
+complexity distinguisher against \citet{christ2024undetectable} or
+\citet{zhang2024sand}. Mixin remasures are geography, not a second claim.
 
 In order:
 
