@@ -406,7 +406,9 @@ dirs: `experiments/2026-08-17-pair-12x4/`,
 Not leftover targeting. Windows keep absolute generated indices.
 
 **Hypothesis.** The two mixins leak in opposite places under the same
-count-table reader. Kirchenbauer’s green list is a **body** leak.
+count-table reader. Kirchenbauer’s green list is a **body** leak;
+at confirmatory n the mid-file count leak is last-4 **interpolate**,
+not shared 4-gram `hits`.
 SynthID tournament last-4 interpolate is **opening-heavy**; the
 original-12 tail **3/12** overstates how dead the body is at n=100.
 Table-free LDA on unmarked-LM choice features sees that Kirchenbauer
