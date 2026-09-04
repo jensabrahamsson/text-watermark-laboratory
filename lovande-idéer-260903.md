@@ -1237,7 +1237,18 @@ opening **14/48** or Distil ranking **10/12**. Tiny token MLP
 (`learn --archs tokmlp`, full file) on GPT-2 Aaronson → $\Hw=12$ is
 chance (**48/100**, **122/400**, 0.514, perm $p\approx 0.15$): it does
 not become interpolate's **100/100** ranking-without-TP look, same as
-hashlog. The last-1 lift is
+hashlog. UTF-8 `surface` (existing byte hashpool; default 8-byte
+context) on the same GPT-2 Aaronson → $\Hw=12$ arrow ranks **83/100**
+with isolated **0/400**, AUC **0.670**, **83** ranking-only (mean
+marked $-1.30$ vs unmarked $-1.33$). That is weaker than interpolate
+**100/100** / **0.890** and last-1 hashpool **99/100** / **0.870**,
+and the windows are near chance (0:4 **53/100**; 64:128 **58/100**).
+Kirchenbauer surface is weak (**56/100**, **92/400**, 0.550, perm
+$p\approx 0.005$). Tiny UTF-8 CNN (`learn --archs charcnn`) is
+anti-correlated (**33/100**, **17/400**, 0.407, perm $p=1$): it does
+not become surface's ranking-without-TP look. Do not sell surface
+ranking **83/100**. Do not leftover-target KGW surface tail isolated
+**190/400**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1730,6 +1741,23 @@ python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson 
   --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
   --archs tokmlp --context-len 1 --pos-bucket 1 --skip-nested \
   --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-tokmlp-k1-full-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods surface --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-surface-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods surface --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-surface-to-ngram13-100
+
+python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --archs charcnn --context-len 1 --pos-bucket 1 --skip-nested \
+  --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-charcnn-k1-full-to-ngram13-100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2887,7 +2915,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    ranking **98/100**, hashpool **99/100**, unigram **73/100**, Qwen
    **12/12**, Distil interpolate **88/100**, Distil hashpool
    **71/100**, Distil hashpool→SynthID ranking **10/12** with isolated
-   **0/48**, hashlog **56/400**, tokmlp **122/400**, or AUC **0.890**.
+   **0/48**, hashlog **56/400**, tokmlp **122/400**, surface ranking
+   **83/100**, charcnn **17/400**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
