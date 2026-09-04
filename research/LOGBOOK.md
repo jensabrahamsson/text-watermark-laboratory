@@ -2684,6 +2684,23 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-distil-100x4-ngram13
 ```
 
+## 2026-09-04 DistilGPT2 ngram_len=13 100-family opened
+
+[PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
+named `0598357`. Pair seed **20260903**, `ngram_len=13`,
+`--model distilgpt2`. Official first-draw mean>0.55 **98/100**
+(H-long-d100-ctrl fails as a raw 100/100; stems 020 and 047 have
+`n_unmasked_ngrams=1`). Interpolate last-4 **88/100** (AUC **0.785**,
+isolated **325/400 vs 232/400**, BA **557/800**). Hard **89/100**
+(AUC **0.829**, BA **544/800**). Occupancy **11182** seen vs **85493**
+unseen. `used_keys=false`. Do not sell **88/100** or **557/800** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-distil-100x4-ngram13/`,
+`experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-100x4-ngram13/`.
+
 
 
 

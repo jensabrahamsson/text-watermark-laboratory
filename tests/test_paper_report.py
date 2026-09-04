@@ -245,7 +245,11 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "bae6d81" in next_sec
     assert "PROTOCOL-next-longctx-distil-100" in next_sec
     assert "d891622" in next_sec
-    assert "has not been generated" in next_sec
+    assert "557/800" in next_sec
+    assert "pair-distil-100x4-ngram13" in next_sec
+    assert "b46a5d5debed1485" in PAPER
+    assert "22d8c29006252a26" in PAPER
+    assert "331dbab436097872" in PAPER
     assert "PROTOCOL-next-longctx-qwen" in next_sec
     assert "d7303a2" in next_sec
     assert "41/96" in next_sec
@@ -284,6 +288,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-distil-12x4-aaronson" not in abs_
     assert "60/96" not in abs_
     assert "pair-qwen-12x4-aaronson" not in abs_
+    assert "557/800" not in abs_
+    assert "pair-distil-100x4-ngram13" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
@@ -723,6 +729,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-qwen-12x4-aaronson/results.json": "12ea3ef1c34f037b",
         "experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/interpolate/holdout.json": "ac41821f88adba14",
         "experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json": "419a2088b2ba8e6e",
+        "experiments/2026-09-04-pair-distil-100x4-ngram13/results.json": "b46a5d5debed1485",
+        "experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/interpolate/holdout.json": "22d8c29006252a26",
+        "experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json": "331dbab436097872",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():

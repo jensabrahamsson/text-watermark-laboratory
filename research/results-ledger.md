@@ -575,7 +575,11 @@ occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains 
 (freeze SHA `1171d5c`). Opened: official z>3 **12/12**; interpolate
 **12/12** (isolated **12/48 vs 48/48**, **60/96**); hard **12/12**
 (**72/96**); occupancy **457** seen. Do not sell **12/12** or
-**60/96**. Isolated-file remains open. Sol's different-mixin two-grain
+**60/96**. Isolated-file remains open. DistilGPT2 $\Hw=12$ 100-family is
+[PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
+(freeze SHA `d891622`). Opened: interpolate **88/100** (isolated
+**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**.
+Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
@@ -640,6 +644,19 @@ Hard **12/12**, isolated **24/48 vs 48/48** (**72/96**). Occupancy
 JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
 `experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-12x4-aaronson/`.
+
+## DistilGPT2 longer-context two-grain 100-family (`ngram_len=13`)
+
+Protocol SHA `d891622`; named `0598357`. Official first-draw **98/100**.
+Interpolate last-4 **88/100**, isolated **325/400 vs 232/400**
+(**557/800**), AUC **0.785**. Hard **89/100**, isolated **544/800**.
+Occupancy **11182** seen vs **85493** unseen. Above GPT-2 $\Hw=12$
+interpolate **76/100**. Do not sell **88/100** or **557/800**. Does not
+replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-distil-100x4-ngram13/`,
+`experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-100x4-ngram13/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

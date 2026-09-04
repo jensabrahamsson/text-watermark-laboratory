@@ -122,3 +122,53 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `d891622`. Named `0598357`. Pair seed **20260903**.
+`ngram_len=13`. `model=distilgpt2`. `used_keys=false`. Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+
+Pair dump: [experiments/2026-09-04-pair-distil-100x4-ngram13/](../experiments/2026-09-04-pair-distil-100x4-ngram13/).
+Probe dump: [experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/](../experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/).
+
+H-long-d100-ctrl **fails** as the preregistered 100/100 first-draw.
+Official matching mean with `ngram_len=13` is above $0.55$ on
+**98/100** first marked files. Stems 020 and 047 have
+`n_unmasked_ngrams=1` and mean $0.533$. Unmarked first-draw is
+**0/100** above $0.55$. Mixin is on for the other 98 stems. This is
+not a `ngram_len=5` scoring bug. Do not sell **98/100**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **88/100** | 0.785 | 325/400 | 232/400 | 325 75 232 168 | **557/800** |
+| hard last-4 | **89/100** | 0.829 | 354/400 | 190/400 | 354 46 190 210 | **544/800** |
+
+GPT-2 $\Hw=12$ interpolate on these prompt *strings* (different twins)
+was **76/100**. Distil interpolate is **88/100**. Mean $D_p=0.322$
+(interpolate) / $0.334$ (hard). Zero ranking wins have 0 isolated TPs.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **88/100** is
+**[0.800, 0.936]** and does not include ½; BA **557/800** is
+**[0.663, 0.728]**. Isolated **25/48** still includes ½.
+
+H-long-d100-group **holds** as an informative comparison with GPT-2
+$\Hw=12$ **76/100**. It does not replace **25/48**.
+
+H-long-d100-iso **holds**. Isolated interpolate **557/800** is a
+different generator and $\Hw$ from the original-12 SynthID **47/96**.
+Do not sell **88/100**, **89/100**, **557/800**, or **544/800** as
+replacing **25/48**.
+
+H-long-d100-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **325/400**. Exact
+next-token overlap is **11182** seen versus **85493** unseen (opening
+$[0{:}4)$ is 2036 versus 364, including Distil newline loops).
+Occupancy is not a detector. Do not sell **11182** as replacing
+**25/48**.
+
+JSON: [experiments/2026-09-04-atoms-distil-100x4-ngram13/](../experiments/2026-09-04-atoms-distil-100x4-ngram13/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
