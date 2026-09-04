@@ -378,7 +378,7 @@ Last-1 hashtok isolated **314/400** equals last-1 hits on GPT-2. Distil ranking 
 | Distil 16:32 | **100/100**, 0.825, **321/400** | **98/100**, 0.821, **296/400** |
 | Distil 32:64 | **99/100**, 0.854, **328/400** | **99/100**, 0.842, **300/400** |
 
-GPT-2 last-1 hashtok 16:32 **99/100** equals last-1 hits. Distil ranking **98/100** sits with last-1 hits **100/100**; isolated **296/400** sits below last-1 hits **321/400**, same hashpool-vs-hits split as 4:16. Distil last-2 hashtok 4:16 ranking **92/100** sits with last-2 hits **93/100**; isolated **247/400** (**6** ranking-only, **7** ranking losses with isolated TP) sits with last-2 hashpool **252/400**, below last-1 hashtok **295/400**. Occupancy-free last-1 hashing is a body reader when not using `--fit-prefix`. Existing `hashtok2` (min_count=2; not a new method; do not pass `--skip-hashpool`) sits with last-1 hashtok on GPT-2 KGW 4:16 (**96/100**, 0.837, **312/400** vs **98/100**, **314/400**); 16:32 **98/100**, **333/400** equals last-1 hashtok isolated. Occupancy-free last-1 body is not a singleton core. In-domain hashtok2 on the original 12 was a sign reshuffle; this 100-family last-1 mid is not that. The empty last-1 hashtok in this file is `--fit-prefix 1` (opening occupancy-free unigrams), not this mid-file reader. Do not switch hashtok to last-2 thinking last-1 is empty. GPT-2 4:16 last-1 hashtok has **2** ranking losses with isolated TP; Distil has **1** ranking-only and **2** losses. Do not leftover-target those zeros. Do not sell last-1 hashtok 4:16 **98/100** / **314/400** / Distil **295/400**, 16:32 **99/100** / Distil **98/100**, last-2 Distil **247/400**, or hashtok2 **96/100** / **312/400**.
+GPT-2 last-1 hashtok 16:32 **99/100** equals last-1 hits. Distil ranking **98/100** sits with last-1 hits **100/100**; isolated **296/400** sits below last-1 hits **321/400**, same hashpool-vs-hits split as 4:16. Distil last-2 hashtok 4:16 ranking **92/100** sits with last-2 hits **93/100**; isolated **247/400** (**6** ranking-only, **7** ranking losses with isolated TP) sits with last-2 hashpool **252/400**, below last-1 hashtok **295/400**. Occupancy-free last-1 hashing is a body reader when not using `--fit-prefix`. Existing `hashtok2` (min_count=2; not a new method; do not pass `--skip-hashpool`) sits with last-1 hashtok on GPT-2 KGW 4:16 (**96/100**, 0.837, **312/400** vs **98/100**, **314/400**); 16:32 **98/100**, **333/400** equals last-1 hashtok isolated. Distil last-1 hashtok2 4:16 is **98/100**, 0.803, **294/400** versus last-1 hashtok **98/100**, **295/400**; 16:32 **98/100**, **293/400** sits with last-1 hashtok **296/400**. Occupancy-free last-1 body is not a singleton core. In-domain hashtok2 on the original 12 was a sign reshuffle; this 100-family last-1 mid is not that. The empty last-1 hashtok in this file is `--fit-prefix 1` (opening occupancy-free unigrams), not this mid-file reader. Do not switch hashtok to last-2 thinking last-1 is empty. GPT-2 4:16 last-1 hashtok has **2** ranking losses with isolated TP; Distil has **1** ranking-only and **2** losses. Do not leftover-target those zeros. Do not sell last-1 hashtok 4:16 **98/100** / **314/400** / Distil **295/400**, 16:32 **99/100** / Distil **98/100**, last-2 Distil **247/400**, hashtok2 **96/100** / **312/400**, or Distil hashtok2 **98/100** / **294/400**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -690,6 +690,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hashtok2 --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashtok2-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hashtok2 --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashtok2-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
@@ -1538,10 +1543,10 @@ Without `--fit-prefix` (same protocol as last-1 hits mid; do not pass
 | Corpus | last-1 hits | last-1 hashpool | last-1 hashtok | last-2 hashtok |
 |---|---|---|---|---|
 | GPT-2 4:16 | **100/100**, 0.988, **380/400** | **100/100**, 0.988, **364/400** | **100/100**, 0.994, **364/400** | **99/100**, 0.982, **344/400** |
-| Distil 4:16 | **97/100**, 0.934, **376/400** | **97/100**, 0.929, **364/400** | **97/100**, 0.933, **360/400** | — |
-| Qwen 4:16 | **97/100**, 0.970, **356/400** | **98/100**, 0.972, **312/400** | 94/100, 0.949, **304/400** | — |
+| Distil 4:16 | **97/100**, 0.934, **376/400** | **97/100**, 0.929, **364/400** | **97/100**, 0.933, **360/400** | 94/100, 0.917, **344/400** |
+| Qwen 4:16 | **97/100**, 0.970, **356/400** | **98/100**, 0.972, **312/400** | 94/100, 0.949, **304/400** | 88/100, 0.861, **212/400** |
 
-Last-1 hashtok isolated **364/400** equals last-1 hashpool on GPT-2 (**9** ranking-only, unmarked $\le 0$ **398/400**), below last-1 hits **380/400**. Distil last-1 hashtok ranking **97/100** matches last-1 hits; isolated **360/400** (**10** ranking-only) sits with last-1 hashpool **364/400**. Qwen ranking **94/100** sits with last-1 hits **97/100**; isolated **304/400** (**18** ranking-only) sits with last-1 hashpool **312/400**, below last-1 hits **356/400**. Later windows stay that split: GPT-2 16:32 last-1 hashtok **99/100**, **356/400**, **10** ranking-only versus last-1 hits **99/100**, **372/400**; Distil 16:32 **97/100**, **356/400**, **11** ranking-only; Qwen 16:32 **99/100**, **308/400**, **22** ranking-only. Hits remains the tighter isolated reader. Existing `hashtok2` last-1 (min_count=2; do not pass `--skip-hashpool`) on GPT-2 Aaronson 4:16 is **100/100**, 0.995, **372/400**, **7** ranking-only — slightly tighter isolated than last-1 hashtok **364/400**, nearer last-1 hits **380/400**. Occupancy-free last-1 body is not a singleton core. Last-2 hashtok isolated **344/400** (**13** ranking-only) is weaker. Do not treat `--fit-prefix 1` emptiness as evidence that occupancy-free hashing cannot read last-1. Do not switch hashtok to last-2. Do not leftover-target those ranking-only zeros. Do not sell last-1 hashtok 4:16 **100/100** / **364/400** / Distil **360/400** / Qwen **94/100** / **304/400** or 16:32 **356/400** / Qwen **308/400** or hashtok2 **372/400**. Qwen last-1 hashtok full-file ranking **100/100** / AUC **1.000** is occupancy-free hashing, not the opened interpolate last-4 freeze. Do not sell AUC **1.000**. Last-4 `hashtok` (no
+Last-1 hashtok isolated **364/400** equals last-1 hashpool on GPT-2 (**9** ranking-only, unmarked $\le 0$ **398/400**), below last-1 hits **380/400**. Distil last-1 hashtok ranking **97/100** matches last-1 hits; isolated **360/400** (**10** ranking-only) sits with last-1 hashpool **364/400**. Qwen ranking **94/100** sits with last-1 hits **97/100**; isolated **304/400** (**18** ranking-only) sits with last-1 hashpool **312/400**, below last-1 hits **356/400**. Later windows stay that split: GPT-2 16:32 last-1 hashtok **99/100**, **356/400**, **10** ranking-only versus last-1 hits **99/100**, **372/400**; Distil 16:32 **97/100**, **356/400**, **11** ranking-only; Qwen 16:32 **99/100**, **308/400**, **22** ranking-only. Hits remains the tighter isolated reader. Existing `hashtok2` last-1 (min_count=2; do not pass `--skip-hashpool`) on GPT-2 Aaronson 4:16 is **100/100**, 0.995, **372/400**, **7** ranking-only — slightly tighter isolated than last-1 hashtok **364/400**, nearer last-1 hits **380/400**. Distil last-1 hashtok2 4:16 is **96/100**, 0.933, **364/400**, **8** ranking-only versus last-1 hashtok **97/100**, **360/400**. Qwen last-1 hashtok2 4:16 is **94/100**, 0.940, **312/400**, **16** ranking-only versus last-1 hashtok **94/100**, **304/400**. Occupancy-free last-1 body is not a singleton core. GPT-2 last-2 hashtok isolated **344/400** (**13** ranking-only) is weaker. Distil last-2 hashtok 4:16 is **94/100**, 0.917, **344/400**, **11** ranking-only, below last-1 hashtok **360/400** and last-2 hits **368/400**. Qwen last-2 hashtok 4:16 is **88/100**, 0.861, **212/400**, **35** ranking-only — ranking-without-isolated-TP, below last-1 hashtok **304/400** and last-2 hits **276/400**. Do not treat `--fit-prefix 1` emptiness as evidence that occupancy-free hashing cannot read last-1. Do not switch hashtok to last-2. Do not leftover-target those ranking-only zeros. Do not sell last-1 hashtok 4:16 **100/100** / **364/400** / Distil **360/400** / Qwen **94/100** / **304/400** or 16:32 **356/400** / Qwen **308/400** or hashtok2 **372/400** / Distil **364/400** / Qwen **312/400** or Distil last-2 hashtok **94/100** / **344/400** or Qwen last-2 hashtok **88/100** / **212/400**. Qwen last-1 hashtok2 full-file ranking **100/100** / AUC **1.000** / isolated **388/400** is occupancy-free hashing, not the opened interpolate last-4 freeze. Do not sell that AUC **1.000**. Qwen last-1 hashtok full-file ranking **100/100** / AUC **1.000** is occupancy-free hashing, not the opened interpolate last-4 freeze. Do not sell AUC **1.000**. Last-4 `hashtok` (no
 `--skip-hashpool`; `--fit-prefix 4`) is **100/100**, **384/400**, AUC
 **0.982**, unmarked $\le 0$ **363/400** (precision **0.912**); 0:4 is
 the same **384/400**; tail **0/100**, **0/400**. Opening overlap with
@@ -2481,10 +2486,30 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok-k2-mid
 
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hashtok-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hashtok-k2-mid
+
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hashtok2 --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok2-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hashtok2 --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hashtok2-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok2 --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hashtok2-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
   --model gpt2 --methods hashpool --context-len 2 --skip-nested \
@@ -2660,6 +2685,26 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hashtok --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-hashtok-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hashtok --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hashtok-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hashtok-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hits-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hits-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hashtok --context-len 2 --skip-nested \
@@ -3634,6 +3679,7 @@ stays better at last-4 on 36×4 ranking. No new `--methods` name:
 | DistilGPT2 ngram-13 12×4 | 6/12, 16/48, 0.485 | 6/12, 25/48, 0.540 |
 | DistilGPT2 ngram-13 100×4 | 89/100, 354/400, 0.829 | 88/100, 313/400, 0.799 |
 | Qwen2-1.5B ngram-13 12×4 | 4/12, 16/48, 0.415 | 5/12, 19/48, 0.445 |
+| Qwen2-1.5B ngram-13 100×4 | 74/100, 361/400, 0.599 | 76/100, 270/400, 0.611 |
 
 Matching `context_len` to $\Hw=12$ does **not** repeat the Kirchenbauer
 last-1 jump. Original-12 ngram-13 hard width grid (k=4 is the freeze
@@ -3746,7 +3792,18 @@ Qwen/Qwen2-1.5B-Instruct`; k=4 is the freeze dump in
 Qwen last-2 ranking stays chance (**5/12**). Freeze interpolate last-4
 is **4/12**, **14/48**, 0.400. Last-12 does not rescue. Official
 first-draw matching mean was **11/12** above $0.55$ (library $0.515$).
-Do not sell Qwen last-2 **19/48** or last-1 **22/48**. Distil
+Do not sell Qwen last-2 **19/48** or last-1 **22/48**. Qwen2-1.5B
+ngram-13 100×4 last-4 hard is the opened freeze (**74/100**,
+**361/400**, AUC **0.599**; interpolate last-4 **76/100**, isolated
+**273/400**, BA **474/800**). Post-open last-2 (`--skip-nested`) is
+**76/100**, **270/400**, **0.611**, **24** ranking losses with isolated
+TP — last-2 does **not** beat last-4 ranking and isolated drops.
+Absolute windows: 0:4 **81/100**, **322/400**, AUC **0.719**; 4:16
+**70/100**, **241/400**, **0.612**; 64:128 **67/100**, **226/400**,
+**0.591**. Opening mass, not a Kirchenbauer body. Last-2 ranking
+**76/100** is not the interpolate freeze **76/100**. Do not sell last-2
+**76/100**, interpolate **76/100**, isolated **270/400**, or opening
+**81/100**. Distil
 interpolate last-2 is **9/12**, **20/48**, AUC
 **0.553** versus freeze last-4 interpolate **9/12**, **21/48**,
 **0.563**: ranking tied, isolated not better. Keep interpolate at
@@ -3879,7 +3936,19 @@ SynthID GPT-2 100 (`used_keys=false`, `--skip-nested`; isolated from
 last-2 16:32 **84/100** drop like last-1 / last-2 hits; last-4 hits
 keeps **97/100**. Do not shorten SynthID `hits`. Do not leftover-target
 last-1 16:32 **19** ranking losses with isolated TP. Do not sell
-last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400**. Do not
+last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400**. Distil
+last-1 hashtok 4:16 is **76/100**, 0.637, **113/400** (**12**
+ranking-only, **10** ranking losses with isolated TP), sitting with
+last-1 hits **72/100**, 0.617, **136/400**, not GPT-2 last-1 hashtok
+**95/100**. Isolated is chance (file-level binom $p=1$ on full-file
+last-1 hashtok **73/400**). Qwen last-1 hashtok 4:16 is **74/100**,
+0.647, **303/400** (**22** ranking losses with isolated TP, unmarked
+$\le 0$ only **182/400**), sitting with last-1 hits **76/100**, 0.653,
+**282/400**. Occupancy-free last-1 hashing follows Distil/Qwen last-1
+hits weakness, not the GPT-2 last-1 **95/100** geography. Do not
+leftover-target those ranking losses. Do not sell Distil last-1 hashtok
+**76/100** / **113/400**, Distil last-1 hits **72/100**, Qwen last-1
+hashtok **74/100** / **303/400**, or Qwen last-1 hits **76/100**. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
 public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
@@ -4047,6 +4116,9 @@ DistilGPT2 $\Hw=12$ last-2 ranking is chance (**6/12**); isolated
 **25/48** vs last-4 **16/48** is a small-n isolated lift, not the
 public GPT-2 **94/100** jump, and is not the locked **25/48**.
 Qwen2-1.5B $\Hw=12$ last-2 ranking is **5/12**; last-12 is **4/12**.
+Qwen $\Hw=12$ 100 last-2 is **76/100**, **270/400**, not last-4
+**74/100**, **361/400**; opening **81/100**, tail **67/100**. Last-2
+ranking **76/100** is not interpolate last-4 **76/100**.
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
@@ -4070,7 +4142,7 @@ GPT-2 $\Hw=12$ last-2 opening **87/100**, last-2 4:16 **48/100**, Distil $\Hw=12
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
 opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
-opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
+opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, Qwen $\Hw=12$ 100 last-2 **76/100** / **270/400**, Qwen interpolate last-4 **76/100**, Distil last-1 hashtok 4:16 **76/100** / **113/400**, Qwen last-1 hashtok 4:16 **74/100** / **303/400**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -4134,6 +4206,12 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-n
   --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-ngram13 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 2 \
+  --skip-hashpool --skip-nested \
+  --windows 0:4,4:16,16:32,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-ngram13-hard-k2
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
@@ -4304,7 +4382,9 @@ scheme design. Zhang et al. (2026) (SemTrace; arXiv:2608.29575) traces
 document exposure with NLI bits, not sampling twins. Feng et al.
 (2026) (Cocktail complementary watermarks; arXiv:2608.12713) is keyed
 dual tournament scores. Park et al. (2026) (WeaveMark;
-arXiv:2609.02177) is keyed multi-bit scheme design. te Lintelo et al.
+arXiv:2609.02177) is keyed multi-bit scheme design. Sun et al. (2026)
+(PROSE; arXiv:2609.02553) fingerprints model ownership from semantic
+response templates, not `indicate` on sampling twins. te Lintelo et al.
 (2026) (WoE; arXiv:2608.29151) plants a secret green list in selected
 MoE expert vocabularies and tests with that seed. Gao et al. (2026)
 (PathMark; arXiv:2607.03688) is keyed MoE routing-path IP. Sun et al.
@@ -4356,7 +4436,9 @@ headline. Distil $\Hw=12$ 100 last-2 is **88/100**, **313/400**,
 below last-4 **89/100**, **354/400**; opening **92/100**, tail
 **70/100**. Distil last-12 is **8/12**, **17/48**. Distil interpolate
 last-2 is **9/12**, **20/48**, not better than last-4 interpolate
-**9/12**, **21/48**. Qwen $\Hw=12$ last-2 ranking is **5/12**. Hashpool last-2 on public 12 is
+**9/12**, **21/48**. Qwen $\Hw=12$ last-2 ranking is **5/12**. Qwen $\Hw=12$ 100 last-2 is **76/100**, **270/400**, below
+last-4 isolated **361/400**; opening **81/100**, tail **67/100**. Do not
+sell last-2 **76/100** or interpolate **76/100**. Hashpool last-2 on public 12 is
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
 **35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
 interpolate **12/12**, AUC **0.904**. DistilGPT2 KGW last-4 rankpath is
@@ -4513,7 +4595,7 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**98/100**, **314/400**); Distil **98/100**, **295/400**. Later windows
    stay with last-1 hits (GPT-2 16:32 **99/100**). Last-2 hashtok **92/100** sits below that
    (Distil isolated **247/400** like last-2 hashpool). `hashtok2` last-1 sits with last-1 hashtok
-   (GPT-2 KGW 4:16 **96/100**, **312/400**), not a singleton core.
+   (GPT-2 KGW 4:16 **96/100**, **312/400**; Distil **98/100**, **294/400**), not a singleton core.
    The empty last-1 hashtok is `--fit-prefix 1`. Last-2 `interpolate` sits with
    last-4 interpolate (GPT-2 4:16 **97/100**, **290/400** vs last-4
    **95/100**, **289/400**; 16:32 **98/100** vs **97/100**), not with
@@ -4567,7 +4649,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-1 hashpool on GPT-2 Aaronson 4:16 (**100/100**, **364/400**,
    **9** ranking-only); Distil **97/100**, **360/400**; Qwen **94/100**,
    **304/400**. `--fit-prefix 1` last-1 hashtok stays empty. `hashtok2` last-1 on GPT-2
-   Aaronson 4:16 is **372/400**, nearer last-1 hits than last-1 hashtok **364/400**.
+   Aaronson 4:16 is **372/400**, nearer last-1 hits than last-1 hashtok **364/400**; Distil **364/400**; Qwen **312/400**.
+   Distil last-2 hashtok 4:16 **94/100**, **344/400**; Qwen **88/100**, **212/400** (**35** ranking-only).
    Do not switch hashtok to last-2. GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
    **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
@@ -4651,15 +4734,19 @@ A freeze of **width and mixin geography** that already moved a grain:
    hits **97/100**. Distil **68/100** and Qwen **73/100** stay weak;
    gpt2-medium **95/100** sits with GPT-2. Interpolate stays last-4.
    Occupancy-free `hashtok` without `--fit-prefix` follows last-1 /
-   last-2 hits geography (last-1 4:16 **95/100**; last-2 **98/100**;
-   16:32 drops). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   last-2 hits geography on GPT-2 (last-1 4:16 **95/100**; last-2 **98/100**;
+   16:32 drops). Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
+   with last-1 hits **72/100**, **136/400**, not GPT-2 **95/100**. Qwen
+   last-1 hashtok 4:16 **74/100**, **303/400** sits with last-1 hits
+   **76/100**. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
    still ranks **86/100**. The jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
    $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
-   **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
-   **5/12**. Distil $\Hw=12$ interpolate last-4 is front-loaded
+   **89/100** (n=100), Qwen2-1.5B $\Hw=12$ last-2 ranking **5/12**, and
+   Qwen $\Hw=12$ 100 last-2 **76/100**, **270/400** (not last-4
+   **74/100**, **361/400**; not interpolate **76/100**). Distil $\Hw=12$ interpolate last-4 is front-loaded
    (opening **90/100**, tail **60/100**, AUC **0.565**), opposite of
    Kirchenbauer interpolate.
 
