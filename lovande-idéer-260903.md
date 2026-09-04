@@ -1011,13 +1011,19 @@ from `holdout.md`):
 | Distil 4:16 | **97/100**, 0.934, **376/400** | 80/100, 0.849, **324/400** |
 | Distil 16:32 | **97/100**, 0.949, **380/400** | 71/100, 0.791, **276/400** |
 | Distil 32:64 | **96/100**, 0.942, **372/400** | 66/100, 0.740, **256/400** |
+| Qwen 4:16 | **97/100**, 0.970, **356/400** | 25/100 chance, 0.548, **12/400** |
+| Qwen 16:32 | **100/100**, 0.979, **340/400** | 31/100 chance, 0.555, **36/400** |
+| Qwen 32:64 | **100/100**, 0.994, **372/400** | 33/100 chance, 0.559, **44/400** |
 
-Last-1 hits is a **mid-file** Aaronson body reader on GPT-2 and Distil,
-not only the 0:4 / 64:128 ends. Last-4 hits weakens through the Distil
-body (4:16 **80/100** → 32:64 **66/100**). Last-4 hits 16:32 has **15**
-ranking-only on GPT-2; Distil last-1 4:16 has **6**. Do not
-leftover-target those zeros. Do not sell last-1 4:16 **100/100** /
-**97/100** / **380/400** or last-4 mid **78/100** / **80/100**. Do not sell **392/400**, **372/400**, or
+Last-1 hits is a **mid-file** Aaronson body reader on GPT-2, Distil,
+and Qwen, not only the 0:4 / 64:128 ends. Qwen last-4 hits mid is
+chance while last-4 full-file still ranks **98/100** (opening mass;
+**12** ranking-only). Last-4 hits 16:32 has **15** ranking-only on
+GPT-2; Qwen last-1 16:32 has **15**; Qwen last-4 4:16 has **22/25**.
+Do not leftover-target those zeros. Do not sell last-1 4:16
+**100/100** / **97/100** / **380/400** / Qwen **356/400**, last-4 mid
+**78/100** / **80/100**, Qwen last-4 mid **25/100**, or Qwen last-1
+full-file **100/100** / AUC **1.000**. Do not sell **392/400**, **372/400**, or
 last-4 hits tail **260/400**. Occupancy-free `postokhits` last-4 is **12/12**, **40/48**,
 AUC **0.892** on GPT-2 Aaronson and **10/12**, **40/48** on Distil;
 last-1 `postokhits` is empty on both (**0/48**, all zeros). Occupancy-free
@@ -1633,7 +1639,8 @@ unigram 4:16 **87/100** / isolated **251/400**, last-1 hard 4:16
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Aaronson last-1 hits 4:16 **100/100** / isolated
 **380/400**, Distil Aaronson last-1 hits 4:16 **97/100** / isolated
-**376/400**, last-4 hits 4:16 **78/100** / Distil **80/100**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
+**376/400**, last-4 hits 4:16 **78/100** / Distil **80/100** / Qwen
+**25/100**, Qwen last-1 hits full-file **388/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
@@ -2036,6 +2043,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-a
   --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hits-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hits-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hits-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3669,7 +3686,7 @@ A freeze of **width and mixin geography** that already moved a grain:
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
    windows on `hard`; last-1 hits mid at n=100 is body (GPT-2 4:16
    **100/100**, **380/400**; Distil **97/100**, **376/400**) versus
-   last-4 hits **78/100** / Distil **80/100**. Interpolate last-1 isolated at n=100 is
+   last-4 hits **78/100** / Distil **80/100** / Qwen chance **25/100**. Interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
    (**284/400**). Freeze interpolate last-4 is the same split
    (opening **380/400**, full-file **208/400** equals the tail). Last-4
