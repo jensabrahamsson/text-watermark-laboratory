@@ -143,7 +143,8 @@ pivot-lda-entropy **97/100**, prompt-context Distil tail **82/100**,
 GPT-2 prompt-context LDA opening **69/100**, SynthID prompt-context
 full-file **78/100**, or Distil $\Hw=12$ pivot opening **85/100**.
 Do not sell Distil `frac_in_topk` **80/100** or GPT-2 body `mean_gap`
-**83/100**. `--snaprate` does not
+**83/100**. Do not sell GPT-2 KGW 32:64 pivot-lda **85/100** or
+SynthID 16:32 **72/100**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only). Slicing
 those generated-only choice matrices on the same `rotate_snaprate`
 scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
@@ -207,6 +208,22 @@ pivot is **front-loaded** (opening entropy **97/100**) with a chance
 body — interpolate geography, not Kirchenbauer’s. Count tables remain
 the Kirchenbauer body reader. Do not sell pivot **97/100**, Distil
 **88/100**, Distil tail **83/100**, or SynthID opening **97/100**.
+Same `pivot-lda` on the remaining generated-only slices (4:16, 16:32,
+32:64) is monotone **back-loaded** on GPT-2 KGW and **not** snaprate’s
+opening-only Distil map:
+
+| Corpus | 0:4 | 4:16 | 16:32 | 32:64 | 64:128 |
+|---|---|---|---|---|---|
+| GPT-2 KGW pivot-lda | **52/100**, 0.523 (chance) | 67/100, 0.575 | 78/100, 0.646 | **85/100**, 0.697 | **88/100**, 0.704 |
+| Distil KGW pivot-lda | 75/100, 0.596 | 74/100, 0.582 | 73/100, 0.609 | 81/100, 0.660 | **83/100**, 0.648 |
+| Public SynthID pivot-lda | **92/100**, 0.799 | 63/100, 0.574 | 72/100, 0.585 | **54/100**, 0.508 (chance) | **61/100**, 0.541 (chance) |
+
+GPT-2 KGW LDA rises toward the tail. Distil KGW LDA ranks every
+slice (snaprate mid **29/100** anti / tail chance). Public SynthID LDA
+is already weak at 4:16 (**63/100**); 16:32 **72/100**, **0.585** is
+not interpolate 16:32 **87/100** and 32:64 is chance. Isolated
+$\tau=0$ still fails. Do not sell 32:64 **85/100** or SynthID 16:32
+**72/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -3311,7 +3328,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    SynthID pivot is opening-heavy (entropy **97/100**) with a chance
    body. Prompt-context Distil KGW LDA tail stays **82/100**; Distil
    $\Hw=12$ pivot is opening-heavy (**85/100** vs tail **70/100**), not
-   that KGW body. GPT-2 KGW body’s best single LDA feature is soft
+   that KGW body. GPT-2 KGW LDA is monotone back-loaded (0:4 chance
+   **52/100** → 32:64 **85/100** → tail **88/100**). Public SynthID LDA
+   is already weak at 4:16. Do not sell 32:64 **85/100** or SynthID
+   16:32 **72/100**. GPT-2 KGW body’s best single LDA feature is soft
    `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
    `mean_gap` alone is **67/100**; dropping it from the six falls to
    **75/100** with **18** ranking-only. Do not sell
