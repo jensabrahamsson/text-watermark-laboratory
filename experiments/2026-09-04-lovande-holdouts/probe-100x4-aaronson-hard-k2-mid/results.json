@@ -1,0 +1,301 @@
+{
+  "pair_dir": "experiments/2026-09-04-pair-100x4-aaronson",
+  "model_name": "gpt2",
+  "context_len": 2,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "max_draws": null,
+  "prefix_lens": [],
+  "windows": [
+    "4:16",
+    "16:32",
+    "32:64"
+  ],
+  "fit_prefix": null,
+  "position_bucket": 16,
+  "include_first": false,
+  "prompt_context": false,
+  "pivot_weights": [],
+  "rankpath_full": false,
+  "rankpath_pos_bucket": null,
+  "cascade_rankpath_end": null,
+  "cascade_when": "coverage",
+  "note": "Key-free scorer comparison. Not detector_mean. Not Claude. AUC is single-file ranking; prompt wins are prompt-group ranking, not per-file accuracy. ranking_without_isolated_tp counts prompt wins with no marked file lr>0 \u2014 those stems rank because unmarked is more negative, not because any isolated file signs. nested-youden-by-stem is a threshold chosen on other prompt families' already-held-out LRs, not a global peek at the same stem. coverage.json is leave-one-out shared last-k fraction by position; it explains a front-loaded reader, not a keyed detector.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "hard",
+      "instance": "key-free-counts",
+      "score_kind": "hard",
+      "n_prompt_wins": 98,
+      "n_prompts": 100,
+      "n_marked_above_unmarked": 389,
+      "n_prompt_wins_ge": 98,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 2,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "038"
+      ],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.97315,
+        "mean_positive": 2.0305656609669027,
+        "mean_negative": -0.2342777206089956,
+        "mean_diff": 2.2648433815758984,
+        "n_positive_above_zero": 388,
+        "n_negative_at_most_zero": 301,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 1.1846773615894553e-98,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.3282144027716033,
+        "youden_sensitivity": 0.95,
+        "youden_specificity": 0.9625,
+        "youden_j": 0.9125000000000001,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 380,
+          "n_unmarked_at_most": 384,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.95,
+          "specificity": 0.96,
+          "mean_threshold": 0.32819809368355346,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 380,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.95,
+          "specificity": 0.9,
+          "mean_threshold": 0.1890897203304981,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "coverage_gate": {
+        "n_marked": 400,
+        "n_unmarked": 400,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 400,
+        "n_unmarked_decided": 400,
+        "decided_tp": 388,
+        "decided_fn": 12,
+        "decided_fp": 99,
+        "decided_tn": 301,
+        "precision": 0.7967145790554415,
+        "decided_accuracy": 0.86125,
+        "recall_including_zeros": 0.97
+      }
+    }
+  ],
+  "prefixes": [],
+  "window_scores": [
+    {
+      "start": 4,
+      "end": 16,
+      "name": "hard",
+      "n_prompt_wins": 94,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 94,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 6,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.9281,
+        "mean_positive": 2.542811032929586,
+        "mean_negative": -0.17955593983226134,
+        "mean_diff": 2.7223669727618476,
+        "n_positive_above_zero": 376,
+        "n_negative_at_most_zero": 245,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 9.279063493961658e-83,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.5859325037989347,
+        "youden_sensitivity": 0.86,
+        "youden_specificity": 0.8625,
+        "youden_j": 0.7225000000000001,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 316,
+          "n_unmarked_at_most": 345,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.79,
+          "specificity": 0.8625,
+          "mean_threshold": 0.5996075221641434,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 328,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.82,
+          "specificity": 0.9,
+          "mean_threshold": 0.7243716323711902,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 16,
+      "end": 32,
+      "name": "hard",
+      "n_prompt_wins": 96,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 96,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 4,
+      "n_prompt_wins_without_isolated_tp": 4,
+      "ranking_without_isolated_tp": [
+        "016",
+        "038",
+        "051",
+        "082"
+      ],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "027"
+      ],
+      "n_marked_positive_on_ranking_losses": 4,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.93375,
+        "mean_positive": 2.2622710465703797,
+        "mean_negative": -0.25351336481723263,
+        "mean_diff": 2.5157844113876124,
+        "n_positive_above_zero": 372,
+        "n_negative_at_most_zero": 276,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 3.759854263443957e-78,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.6876206866040366,
+        "youden_sensitivity": 0.8,
+        "youden_specificity": 0.9325,
+        "youden_j": 0.7324999999999999,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 308,
+          "n_unmarked_at_most": 348,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.77,
+          "specificity": 0.87,
+          "mean_threshold": 0.6412151735792712,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 324,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.81,
+          "specificity": 0.9,
+          "mean_threshold": 0.5940142553493186,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 32,
+      "end": 64,
+      "name": "hard",
+      "n_prompt_wins": 97,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 97,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 3,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "051"
+      ],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 0,
+      "ranking_losses_with_isolated_tp": [],
+      "n_marked_positive_on_ranking_losses": 0,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.944025,
+        "mean_positive": 2.0385338767905092,
+        "mean_negative": -0.19691465183710355,
+        "mean_diff": 2.2354485286276127,
+        "n_positive_above_zero": 384,
+        "n_negative_at_most_zero": 261,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 6.1195443647890355e-93,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.5332330819648485,
+        "youden_sensitivity": 0.86,
+        "youden_specificity": 0.9325,
+        "youden_j": 0.7925,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 340,
+          "n_unmarked_at_most": 369,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.85,
+          "specificity": 0.9225,
+          "mean_threshold": 0.5313300637385154,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 348,
+          "n_unmarked_at_most": 359,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.87,
+          "specificity": 0.8975,
+          "mean_threshold": 0.4413199515099805,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    }
+  ],
+  "has_coverage": false
+}

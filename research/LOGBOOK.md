@@ -2942,4 +2942,17 @@ not add a `probe --methods` name. Do not leftover-target. Nothing
 replaces **25/48**. Isolated-file detection is still not finished.
 Do not write `thesis/`.
 
+## 2026-09-04 lovande holdout JSON (companion to PR #7)
+
+Copied JSON-only exploratory probes from `/tmp/kgw-lab` into
+`experiments/2026-09-04-lovande-holdouts/` on branch
+`cursor/lovande-holdouts-1051`. Catalog notes stay on PR **#7**
+(`lovande-idéer-260903.md` only). `used_keys=false`. Tests:
+`tests/test_lovande_holdouts.py`. Qwen Aaronson last-2 hashtok2 32:64
+isolated **320/400** is occupancy-free hashing, not **25/48**.
+Kirchenbauer last-2 hashpool 32:64 **100/100** / **333/400** is a body
+rank, not leftover-file detection. Do not leftover-target. Do not add a
+`probe --methods` name. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
 ---

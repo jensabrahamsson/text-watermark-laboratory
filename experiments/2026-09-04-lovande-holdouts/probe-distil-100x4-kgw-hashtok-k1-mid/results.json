@@ -1,0 +1,304 @@
+{
+  "pair_dir": "experiments/2026-09-03-pair-distil-100x4-kgw",
+  "model_name": "gpt2",
+  "context_len": 1,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "max_draws": null,
+  "prefix_lens": [],
+  "windows": [
+    "4:16",
+    "16:32",
+    "32:64"
+  ],
+  "fit_prefix": null,
+  "position_bucket": 16,
+  "include_first": false,
+  "prompt_context": false,
+  "pivot_weights": [],
+  "rankpath_full": false,
+  "rankpath_pos_bucket": null,
+  "cascade_rankpath_end": null,
+  "cascade_when": "coverage",
+  "note": "Key-free scorer comparison. Not detector_mean. Not Claude. AUC is single-file ranking; prompt wins are prompt-group ranking, not per-file accuracy. ranking_without_isolated_tp counts prompt wins with no marked file lr>0 \u2014 those stems rank because unmarked is more negative, not because any isolated file signs. nested-youden-by-stem is a threshold chosen on other prompt families' already-held-out LRs, not a global peek at the same stem. coverage.json is leave-one-out shared last-k fraction by position; it explains a front-loaded reader, not a keyed detector.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "hashtok",
+      "instance": "key-free-hashtok",
+      "score_kind": "hashtok",
+      "n_prompt_wins": 99,
+      "n_prompts": 100,
+      "n_marked_above_unmarked": 343,
+      "n_prompt_wins_ge": 99,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 1,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "099"
+      ],
+      "n_marked_positive_on_ranking_losses": 2,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.872696875,
+        "mean_positive": 0.16599838573174336,
+        "mean_negative": -0.3716791975320815,
+        "mean_diff": 0.5376775832638249,
+        "n_positive_above_zero": 312,
+        "n_negative_at_most_zero": 338,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 8.828566753867097e-31,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": -0.23411130212970935,
+        "youden_sensitivity": 0.9825,
+        "youden_specificity": 0.815,
+        "youden_j": 0.7974999999999999,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 393,
+          "n_unmarked_at_most": 325,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.9825,
+          "specificity": 0.8125,
+          "mean_threshold": -0.23413431153285127,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 75,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.1875,
+          "specificity": 0.9,
+          "mean_threshold": 0.34589020398932974,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "coverage_gate": {
+        "n_marked": 400,
+        "n_unmarked": 400,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 400,
+        "n_unmarked_decided": 400,
+        "decided_tp": 312,
+        "decided_fn": 88,
+        "decided_fp": 62,
+        "decided_tn": 338,
+        "precision": 0.8342245989304813,
+        "decided_accuracy": 0.8125,
+        "recall_including_zeros": 0.78
+      }
+    }
+  ],
+  "prefixes": [],
+  "window_scores": [
+    {
+      "start": 4,
+      "end": 16,
+      "name": "hashtok",
+      "n_prompt_wins": 98,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 98,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 2,
+      "n_prompt_wins_without_isolated_tp": 1,
+      "ranking_without_isolated_tp": [
+        "054"
+      ],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 2,
+      "ranking_losses_with_isolated_tp": [
+        "080",
+        "099"
+      ],
+      "n_marked_positive_on_ranking_losses": 4,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.797653125,
+        "mean_positive": 0.15833223912509564,
+        "mean_negative": -0.36400992135946814,
+        "mean_diff": 0.5223421604845637,
+        "n_positive_above_zero": 295,
+        "n_negative_at_most_zero": 312,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 2.718313726891647e-22,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": -0.023872640902904686,
+        "youden_sensitivity": 0.7525,
+        "youden_specificity": 0.775,
+        "youden_j": 0.5274999999999999,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 298,
+          "n_unmarked_at_most": 309,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.745,
+          "specificity": 0.7725,
+          "mean_threshold": -0.023553262395883793,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 92,
+          "n_unmarked_at_most": 359,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.23,
+          "specificity": 0.8975,
+          "mean_threshold": 0.35254435475503987,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 16,
+      "end": 32,
+      "name": "hashtok",
+      "n_prompt_wins": 98,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 98,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 2,
+      "n_prompt_wins_without_isolated_tp": 2,
+      "ranking_without_isolated_tp": [
+        "012",
+        "091"
+      ],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "040"
+      ],
+      "n_marked_positive_on_ranking_losses": 1,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.82070625,
+        "mean_positive": 0.1552550901119084,
+        "mean_negative": -0.36911224872965354,
+        "mean_diff": 0.524367338841562,
+        "n_positive_above_zero": 296,
+        "n_negative_at_most_zero": 322,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 9.576165311994056e-23,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": -0.131286331770018,
+        "youden_sensitivity": 0.8425,
+        "youden_specificity": 0.75,
+        "youden_j": 0.5925,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 337,
+          "n_unmarked_at_most": 297,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.8425,
+          "specificity": 0.7425,
+          "mean_threshold": -0.13162889751219267,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 86,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.215,
+          "specificity": 0.9,
+          "mean_threshold": 0.35012511060075935,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    },
+    {
+      "start": 32,
+      "end": 64,
+      "name": "hashtok",
+      "n_prompt_wins": 99,
+      "n_prompts": 100,
+      "n_prompt_wins_ge": 99,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 1,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 1,
+      "ranking_losses_with_isolated_tp": [
+        "099"
+      ],
+      "n_marked_positive_on_ranking_losses": 3,
+      "binary": {
+        "n_positive": 400,
+        "n_negative": 400,
+        "auc": 0.842109375,
+        "mean_positive": 0.1616902747863529,
+        "mean_negative": -0.3584934579319722,
+        "mean_diff": 0.5201837327183251,
+        "n_positive_above_zero": 300,
+        "n_negative_at_most_zero": 326,
+        "permutation_p": 0.0004997501249375312,
+        "binomial_p_above_zero": 1.2959434534860383e-24,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": -0.12615760535495357,
+        "youden_sensitivity": 0.875,
+        "youden_specificity": 0.785,
+        "youden_j": 0.6600000000000001,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 348,
+          "n_unmarked_at_most": 313,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.87,
+          "specificity": 0.7825,
+          "mean_threshold": -0.12603143588025426,
+          "n_stems": 100,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 75,
+          "n_unmarked_at_most": 360,
+          "n_marked": 400,
+          "n_unmarked": 400,
+          "sensitivity": 0.1875,
+          "specificity": 0.9,
+          "mean_threshold": 0.3501157829896919,
+          "n_stems": 100,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    }
+  ],
+  "has_coverage": false
+}
