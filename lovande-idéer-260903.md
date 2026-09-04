@@ -334,7 +334,15 @@ last-1 (`--skip-nested`) is **100/100**, isolated **372/400**, AUC
 **0.992**, unmarked $\le 0$ **400/400**, **7** ranking wins with no
 isolated TP. Hard last-1 **388/400** remains the isolated reader;
 hashpool last-1 is the specificity companion. Do not sell hashpool
-**372/400** or **100/100**. 100 → 12 last-1 hard
+**372/400** or **100/100**. Hashpool last-1 windows at n=100
+(`--skip-nested`) also rank both ends: 0:4 **100/100**, **388/400**,
+AUC **0.991**, unmarked $\le 0$ only **372/400** (FPs), **3** ranking
+wins with no isolated TP; 64:128 **99/100**, **360/400**, **0.985**,
+unmarked **400/400**, **9** ranking wins with no isolated TP. Opening
+isolated matches hard last-1 **388/400** with FPs; tail isolated is
+below hard last-1 **380/400**. Full-file **372/400** sits with the
+tail. Do not sell hashpool opening **388/400** or tail **360/400**.
+100 → 12 last-1 hard
 is **11/12**, **40/48**, 0.936, unmarked $\le 0$ **48/48**, one ranking
 win with no isolated TP. Absolute windows on that transfer are a
 **body** leak: 0:4 **12/12**, isolated **24/48**, AUC **0.917**,
@@ -557,7 +565,8 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, hits last-1 transfer **48/48** / **44/48**,
-Aaronson last-1 100→12 **40/48** / hits **36/48**,
+Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
+Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
 rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
 Aaronson hashtok last-4 **44/48**, Aaronson hits
@@ -636,20 +645,23 @@ the prompt groups while files mostly do not sign:
 
 | Train → test | last-1 hard | last-4 hard |
 |---|---|---|
-| GPT-2 100 Aaronson → GPT-2 12 Aaronson | **11/12, 40/48, AUC 0.936** | — |
+| GPT-2 100 Aaronson → GPT-2 12 Aaronson | **11/12, 40/48, AUC 0.936** | **10/12, 32/48, 0.885** |
 | GPT-2 100 Aaronson → Distil 12 Aaronson | **11/12, 40/48, AUC 0.915** | **12/12, 16/48, 0.932** |
 | GPT-2 12 Aaronson → Distil 12 (`--overlap keep`) | 10/12, 24/48, 0.825 | — |
 
 `--skip-nested`; isolated is $\tau=0$. Unmarked $\le 0$ on 100 →
-GPT-2 12 and 100 → Distil last-1 is **48/48** (precision **1.000**).
-100 → GPT-2 12 last-1 tail 64:128 is **40/48** (equals full-file);
-opening 0:4 is only **24/48**. Last-1 `hits` 100 → GPT-2 12 ranks
-**12/12** with isolated **36/48**; tail **40/48**. Last-4 transfer
+GPT-2 12 last-1 and last-4, and on 100 → Distil last-1, is **48/48**
+(precision **1.000**). 100 → GPT-2 12 last-1 tail 64:128 is **40/48**
+(equals full-file); opening 0:4 is only **24/48**. Last-4 100 → GPT-2
+12 is a **weaker body** leak: tail 64:128 **10/12**, **32/48**, AUC
+**0.877**, unmarked **48/48** (equals full-file **32/48**); opening
+**24/48**. Last-1 `hits` 100 → GPT-2 12 ranks **12/12** with isolated
+**36/48**; tail **40/48**. Distil last-4 transfer
 ranks **12/12** with **8** ranking wins with no isolated TP. Same
 pattern as Kirchenbauer GPT-2 ↔ Distil: last-1 is the isolated
 transfer. Same-stem n=12 last-1 is thinner (**24/48**). Do not sell
-Aaronson transfer **40/48**, hits transfer **36/48**, or last-4
-**16/48**.
+Aaronson transfer **40/48**, last-4 in-family **32/48**, hits transfer
+**36/48**, or Distil last-4 **16/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -892,6 +904,17 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-last4-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashpool-k1-windows-ends
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
@@ -1302,7 +1325,11 @@ Gloaguen remains the right *question* for an API without twins. It is
 not a proven improvement of this lab’s finished-string `indicate` /
 `blind` path at this budget. Do not call paid chat APIs. Wang et al.
 (2026) (TTP-Detect) stays the closest published finished-string analog
-and was not reimplemented.
+and was not reimplemented. Li-Chen and Kim (2026) (ChainMark;
+arXiv:2607.18445) is model-free detection **from the secret key and
+tokenizer**, not `indicate`. Gloaguen, Staab, Jovanović, and Vechev
+(2026) (unified watermark framework; arXiv:2602.06754) is scheme
+design, not a finished-string reader this laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
