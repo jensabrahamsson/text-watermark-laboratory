@@ -269,13 +269,20 @@ already beats hard last-1 isolated **40/48**. Kirchenbauer last-1
 rankpath is only **12/12**, **33/48**, AUC **0.722**, unmarked $\le 0$
 **34/48** — a small lift versus last-4 rankpath **10/12**, **31/48**,
 **0.634**, and still below last-1 hard **43/48**. Count tables remain
-the Kirchenbauer last-1 reader. Aaronson rankpath last-4 absolute
+the Kirchenbauer last-1 reader. DistilGPT2 Kirchenbauer last-4
+rankpath is chance (**4/12**, **20/48**, AUC **0.397**). Rankpath
+**44/48** is Aaronson-specific, not a general last-1-mixin recipe.
+Aaronson rankpath last-4 absolute
 windows: opening 0:4 **9/12**, **32/48**, AUC **0.721**; tail 64:128
 **12/12**, **44/48**, **0.936**, unmarked $\le 0$ **48/48**. That is a
 **body** leak in rank geometry, closer to Kirchenbauer interpolate
 last-4 than to Aaronson hard last-1 (which ranks both windows at
-n=100). Do not sell Aaronson rankpath **44/48**. n=12 only; no
-100-family rankpath.
+n=100). Do not sell Aaronson rankpath **44/48**. Aaronson rankpath
+tables trained on the original 12 (`--overlap keep`, same stems,
+different mixin) do **not** classify public SynthID 12 (isolated
+**0/48**, AUC **0.541**, seven ranking wins with no isolated TP) or
+Kirchenbauer 12 (**0/48**, AUC **0.568**). Mixin-specific. n=12 only;
+no 100-family rankpath.
 
 DistilGPT2 Aaronson 12×4 is an exploratory `/tmp` pair (seed
 **20260905**, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`; not
@@ -344,7 +351,8 @@ the count-table story. Rankpath tail 64:128 matches the full-file
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
 Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson rankpath
-**44/48**, Distil Aaronson rankpath **44/48**, Aaronson unigram **24/48**,
+**44/48**, Distil Aaronson rankpath **44/48**, Distil KGW rankpath
+**20/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
@@ -359,7 +367,8 @@ Grok-register SynthID 12 (**6/12**, **8/48**, AUC 0.523, two ranking
 wins with no isolated TP). Hashpool last-1 transfer to public SynthID
 12 is **2/48**, AUC 0.501. Aaronson last-1 tables trained on 100
 families do **not** classify Kirchenbauer 12 (**0/48**) or public
-SynthID 12 (**0/48**, ten ranking wins with no isolated TP). The
+SynthID 12 (**0/48**, ten ranking wins with no isolated TP). Aaronson
+rankpath 12 → public SynthID 12 is also isolated **0/48**. The
 last-1 lift is mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
@@ -453,6 +462,12 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-12x4-aaronson-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --test-dir experiments/2026-08-17-pair-12x4 --overlap keep \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested \
+  --out-dir /tmp/kgw-lab/xfer-aaronson12-rankpath-to-synthid12
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
