@@ -1085,7 +1085,12 @@ Qwen SynthID 12 **15/48**, ranking **1/12**
 (idea 1). Hashpool last-1 transfer to public SynthID
 12 is **2/48**, AUC 0.501. Aaronson last-1 tables trained on 100
 families do **not** classify Kirchenbauer 12 (**0/48**) or public
-SynthID 12 (**0/48**, ten ranking wins with no isolated TP). Aaronson
+SynthID 12 (**0/48**, ten ranking wins with no isolated TP). Last-4
+interpolate on those arrows is also isolated **0/48** (GPT-2 Aaronson
+100 → KGW 12 ranks 7/12, AUC 0.507, seven ranking-only; → SynthID 12
+ranks 8/12, AUC 0.600, perm $p\approx 0.065$, eight ranking-only;
+Distil Aaronson 100 → Distil KGW 12 ranks 5/12, **0/48**, 0.476).
+Aaronson
 rankpath 12 → public SynthID 12 is also isolated **0/48**. The
 last-1 lift is mixin-specific.
 
@@ -1300,6 +1305,24 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-last1-to-synthid36
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-12x4-kgw \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-interp-k4-to-kgw12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-distil-12x4-kgw --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-interp-k4-to-distil-kgw12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-interp-k4-to-synthid12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hashpool --context-len 1 \
