@@ -130,6 +130,17 @@ sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, or
 36×4 **18/36**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only).
+`snapmiss` (chosen token missed the unmarked top-k) does **not**
+carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
+$p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
+snapmiss is anti (**32/100**, **0.385**), same direction as Distil
+snapleave. The table-free KGW ranking is in-topk argmax upsets, not
+missing the top-k. Public SynthID snapmiss **62/100**, AUC **0.577**,
+perm $p\approx 0.0005$ is **62** ranking-only, isolated **0/400**;
+Distil $\Hw=12$ snapmiss **74/100**, **0.644**, also **0/400**. Do not
+leftover-target those zeros. Aaronson snapmiss is anti (**2/100**,
+AUC **0.079**); do not invert. Do not sell snapmiss **56/100**,
+**62/100**, or **74/100**.
 
 Same last-4 interpolate tables transfer that body leak across
 same-BPE generators (`--overlap keep`, `--skip-nested`, `--model gpt2`):
@@ -260,7 +271,8 @@ tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
 an isolated-file detector. Do not sell Distil $\Hw=12$ snapleave
 **73/100** or public SynthID snapleave **9/12** / **52/100** /
-grok12 **10/12** / 36×4 **18/36**.
+grok12 **10/12** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
+public snapmiss **62/100**, or Distil $\Hw=12$ snapmiss **74/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -376,6 +388,26 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-12x4-aaronson-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods snapmiss --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-snapmiss
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods snapmiss --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-snapmiss
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods snapmiss --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-snapmiss
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ngram13 \
+  --model gpt2 --methods snapmiss --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-snapmiss
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods snapmiss --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snapmiss
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
@@ -2990,7 +3022,8 @@ invert that sign into a detector. Do not sell **0/100** or inverted
 AUC **1.000**. Distil Aaronson n=100 is the same anti-correlation
 (snapleave **0/100**, **0/400**, AUC **0.077**). Distil Aaronson 12 is
 the same anti-correlation (snapleave **0/12**, **0/48**, AUC
-**0.000**). Qwen Aaronson 12 is
+**0.000**). Aaronson `snapmiss` n=100 is also anti (**2/100**, AUC
+**0.079**, isolated **0/400**); do not invert. Qwen Aaronson 12 is
 anti at n=12 (snapleave **6/12**, AUC 0.444, perm $p\approx 0.9995$).
 Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
 12×4 snapleave **7/12**, marked>0 **48/48** with unmarked $\le 0$
@@ -3012,7 +3045,11 @@ AUC **0.434**. Qwen $\Hw=12$ 12 is **9/12**, 0.583, perm $p\approx 0.17$.
 Matching tournament width does not make snaprate a public-SynthID
 detector. Distil $\Hw=12$ ranking is not Distil KGW (anti **31/100**)
 and is not isolated $\tau=0$. Do not sell **383/400**, **48/48**,
-**73/100**, or public **9/12**.
+**73/100**, public **9/12**, grok12 **10/12**, or 36×4 **18/36**.
+`snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
+**0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
+**74/100** are ranking-only. Do not leftover-target those zeros. Do
+not sell **62/100** or **74/100**.
 Occupancy-free `postokhits` last-1 is empty on GPT-2, Distil,
 and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
@@ -3064,8 +3101,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **40/48**, **35/48**, or **34/48**. Table-free snaprate ranks GPT-2
    KGW (**88/100**) and Distil $\Hw=12$ (**73/100**) without isolated
    $\tau=0$; public SynthID n=100 is chance (**52/100**, **0.512**;
-   36×4 **18/36**). Do not sell **73/100**, **9/12**, or grok12
-   **10/12**.
+   36×4 **18/36**).    Do not sell **73/100**, **9/12**, or grok12
+   **10/12**. GPT-2 KGW snapmiss is chance (**56/100**); public
+   snapmiss **62/100** is ranking-only.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
