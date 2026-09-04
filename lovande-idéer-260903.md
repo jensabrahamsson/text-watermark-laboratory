@@ -1103,7 +1103,13 @@ AUC **0.646**, isolated **20/48**. Tail last-1 ranks **9/12** with the
 same isolated **20/48**. Ranking without a majority isolated sign is
 not a detector. Qwen 12 KGW → Qwen Aaronson interpolate is **20/48**,
 AUC 0.609, perm $p\approx 0.39$. Do not sell Distil ranking **8/12**
-or **20/48**. Aaronson
+or **20/48**. Confirmatory n=100 `--overlap keep` (same 100 one-liners)
+kills that Distil ranking look: last-1 **54/100**, isolated
+**180/400**, AUC **0.519**, perm $p\approx 0.63$; interpolate last-4
+**58/100**, **188/400**, 0.587, perm $p\approx 0.43$. GPT-2 100 last-1
+is **45/100**, **112/400**, 0.434; interpolate last-4 **36/100**,
+**76/400**, 0.410, perm $p=1$. Do not sell Distil 12 ranking **8/12**,
+**20/48**, or n=100 **180/400**. Aaronson
 rankpath 12 → public SynthID 12 is also isolated **0/48**. The
 last-1 lift is mixin-specific.
 
@@ -1156,7 +1162,7 @@ interpolate **385/400**, last-4 interpolate 100 → original-12
 **46/48** / **43/48** / **42/48**, last-1 Distil 100 → Distil SynthID
 **0/48** (`hard` / `hits` / `hashpool`), last-1 GPT-2 100 → SynthID 36
 **7/144**, or Distil KGW last-1 → Distil Aaronson **20/48** / ranking
-**8/12**. Qwen uses a
+**8/12** or n=100 **180/400**. Qwen uses a
 different tokenizer; this transfer is same-BPE only.
 
 Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
@@ -1375,6 +1381,30 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kg
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-distil100-kgw-last1-to-distil-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep --model gpt2 \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-last1-to-distil-aaronson100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-interp-k4-to-distil-aaronson100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-100x4-aaronson --overlap keep \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-last1-to-aaronson100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-100x4-aaronson --overlap keep \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-interp-k4-to-aaronson100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2488,7 +2518,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **53/400**); GPT-2 100 KGW → Distil 100 last-1 is **247/400** (Distil
    tables on GPT-2 files outrank GPT-2 tables on Distil files). Last-1
    KGW tables do not classify public SynthID (Distil 100 → Distil
-   SynthID **0/48**; GPT-2 100 → SynthID 36 **7/144**).
+   SynthID **0/48**; GPT-2 100 → SynthID 36 **7/144**) or Aaronson
+   (n=100 Distil last-1 **180/400**, AUC 0.519; Distil 12 ranking
+   **8/12** does not survive confirmatory n).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
