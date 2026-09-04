@@ -179,6 +179,12 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert len(exp_rows) == 1
     assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
     assert f"**{ba}/96**" in exp_rows[0]
+    probe_readme = (PROBE / "README.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/12**" in probe_readme
+    assert f"**{ba}/96**" in probe_readme
+    atoms_readme = (ATOMS / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -220,6 +226,19 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert len(pair_rows) == 1
     assert pair["hub_revision"][:8] in pair_rows[0] or "Hub SHA" in pair_rows[0]
     assert n_first == 12
+    pair_readme = (PAIR / "README.md").read_text()
+    assert pair["hub_revision"] in pair_readme
+    assert str(pair["seed"]) in pair_readme
+    assert "--mixin kgw" in pair_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/12**" in narrative
+    assert f"**{ba}/96**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{interp['n_prompts_marked_above']}/12**" in ledger
+    assert f"**{ba}/96**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 114
     assert occ["n_unseen"] == 12071
@@ -275,6 +294,17 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
         in exp_rows[0]
     )
     assert f"**{hard['n_prompts_marked_above']}/100**" in exp_rows[0]
+    probe_readme = (PROBE100 / "README.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/100**" in probe_readme
+    assert (
+        f"**{interp['n_marked_lr_positive'] + interp['n_unmarked_lr_nonpositive']}/800**"
+        in probe_readme
+    )
+    assert f"**{hard['n_prompts_marked_above']}/100**" in probe_readme
+    atoms_readme = (ATOMS100 / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
+    assert f"**{interp['n_marked_lr_positive']}/400**" in atoms_readme
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -308,6 +338,20 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
     ]
     assert len(pair_rows) == 1
     assert f"**{n_first}/100**" in pair_rows[0]
+    pair_readme = (PAIR100 / "README.md").read_text()
+    assert f"**{n_first}/100**" in pair_readme
+    assert pair["hub_revision"] in pair_readme
+    assert str(pair["seed"]) in pair_readme
+    narrative = (ROOT / "research" / "narrative.md").read_text()
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/100**" in narrative
+    assert f"**{ba}/800**" in narrative
+    assert f"**{occ['n_seen']}**" in narrative
+    assert f"**{occ['n_unseen']}**" in narrative
+    assert f"**{interp['n_prompts_marked_above']}/100**" in ledger
+    assert f"**{ba}/800**" in ledger
+    assert f"**{occ['n_seen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991
