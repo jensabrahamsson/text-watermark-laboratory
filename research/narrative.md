@@ -276,7 +276,8 @@ sell **12/12** or **60/96**. DistilGPT2 $\Hw=12$ 100-family is
 **557/800**); hard **89/100**. Do not sell **88/100** or **557/800**.
 Qwen2-1.5B $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
-(freeze SHA `636765c`) and has not been generated.
+(freeze SHA `636765c`). Opened: interpolate **76/100** (isolated
+**474/800**); hard **74/100**. Do not sell **76/100** or **474/800**.
 Whether $\Hw=12$ interpolate **76/100** is a weaker body reader or an
 opening residual is
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)

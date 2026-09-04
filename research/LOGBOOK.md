@@ -2880,4 +2880,21 @@ JSON: `experiments/2026-09-04-pair-qwen-100x4-aaronson/`,
 `experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-100x4-aaronson/`.
 
+## 2026-09-04 Qwen2-1.5B ngram_len=13 100-family opened
+
+[PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
+named `fd72ec5`. Pair seed **20260903**, `ngram_len=13`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw mean>0.55
+**91/100** (H-long-q100-ctrl fails as a raw 100/100). Unmarked
+**0/100** above $0.55$. Interpolate last-4 **76/100** (AUC **0.647**,
+isolated **273/400 vs 201/400**, BA **474/800**). Hard **74/100**
+(AUC **0.599**, BA **476/800**). Occupancy **3535** seen vs **98064**
+unseen. `used_keys=false`. Do not sell **76/100** or **474/800** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-ngram13/`.
+
 ---

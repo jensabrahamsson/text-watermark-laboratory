@@ -334,11 +334,12 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
     assert "a761a7d" in next_sec
     assert "616/800" in next_sec
-    assert "has not been generated" in next_sec
     assert "pair-qwen-100x4-aaronson" in next_sec
     assert "PROTOCOL-next-longctx-qwen-100" in next_sec
     assert "636765c" in next_sec
     assert "pair-qwen-100x4-ngram13" in next_sec
+    assert "474/800" in next_sec
+    assert "has not been generated" not in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec
     assert "50/100" in next_sec
@@ -431,6 +432,8 @@ def test_readme_matches_revised_title() -> None:
     assert "93/100" in README
     assert "a761a7d" in README
     assert "616/800" in README
+    assert "636765c" in README
+    assert "474/800" in README
     assert "PROTOCOL-next-kgw" in README
     assert "--mixin kgw" in README
     assert "12/12" in README

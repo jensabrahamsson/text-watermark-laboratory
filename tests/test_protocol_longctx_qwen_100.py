@@ -1,11 +1,17 @@
 """Qwen2-1.5B ngram_len=13 100-family freeze, locked before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-longctx-qwen-100.md"
 PROMPTS = ROOT / "experiments" / "2026-09-01-prompts-100"
 LOG = ROOT / "research" / "LOGBOOK.md"
+PAIR = ROOT / "experiments" / "2026-09-04-pair-qwen-100x4-ngram13"
+PROBE = ROOT / "experiments" / "2026-09-04-probe-qwen-100x4-ngram13-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-04-atoms-qwen-100x4-ngram13"
 
 
 def test_protocol_longctx_qwen_100_locks_config_before_generation() -> None:
@@ -33,7 +39,13 @@ def test_protocol_longctx_qwen_100_locks_config_before_generation() -> None:
     assert "no chat template" in text
     assert "GPT-2 tokenizer" in text
     assert "--model Qwen/Qwen2-1.5B-Instruct" in text
-    assert "H-long-q100-ctrl **holds**" not in text
+    assert "H-long-q100-ctrl **fails**" in text
+    assert "H-long-q100-group **holds**" in text
+    assert "H-long-q100-iso **holds**" in text
+    assert "H-long-q100-occ **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **76/100**" in collapsed
+    assert text.count("## Results") == 1
     assert PROMPTS.is_dir()
     assert len(list(PROMPTS.glob("*.txt"))) == 100
     log = LOG.read_text()
@@ -41,10 +53,11 @@ def test_protocol_longctx_qwen_100_locks_config_before_generation() -> None:
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "--ngram-len 13" in log
     assert "`636765c`" in log
+    assert "**76/100**" in log
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-longctx-qwen-100" in ledger
     assert "`636765c`" in ledger
-    assert "has not been generated" in ledger
+    assert "**474/800**" in ledger
 
 
 def test_protocol_longctx_qwen_100_cli_flag_exists() -> None:
@@ -92,3 +105,32 @@ def test_protocol_longctx_qwen_100_cli_flag_exists() -> None:
     )
     assert probe.model == "Qwen/Qwen2-1.5B-Instruct"
     assert probe.skip_hashpool is True
+
+
+def test_protocol_longctx_qwen_100_official_and_keyfree_from_dumps() -> None:
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["ngram_len"] == 13
+    assert pair["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert pair["seed"] == 20260903
+    assert pair["hub_revision"] == "ba1cf1846d7df0a0591d6c00649f57e798519da8"
+    assert pair["instance"] == "public-deepmind-30"
+    assert len(pair["rows"]) == 100
+    n_first = sum(row["marked"]["mean"] > 0.55 for row in pair["rows"])
+    assert n_first == 91
+    assert all(row["unmarked_gen"]["mean"] <= 0.55 for row in pair["rows"])
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert interp["n_prompts_marked_above"] == 76
+    assert hard["n_prompts_marked_above"] == 74
+    assert interp["n_marked_lr_positive"] == 273
+    assert interp["n_unmarked_lr_nonpositive"] == 201
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 474
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 3535
+    assert occ["n_unseen"] == 98064
+    assert occ["n_marked_lr_positive"] == 273
+    lo, hi = clopper_pearson(25, 48)
+    assert lo <= 0.5 <= hi

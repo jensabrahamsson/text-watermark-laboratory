@@ -130,3 +130,55 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `636765c`. Named `fd72ec5`. Pair seed **20260903**.
+`ngram_len=13`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+
+Pair dump: [experiments/2026-09-04-pair-qwen-100x4-ngram13/](../experiments/2026-09-04-pair-qwen-100x4-ngram13/).
+Probe dump: [experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/](../experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/).
+
+H-long-q100-ctrl **fails** as the preregistered 100/100 first-draw.
+Official matching mean with `ngram_len=13` is above $0.55$ on
+**91/100** first marked files. Nine stems sit at $0.515$–$0.547$ with
+`n_unmasked_ngrams=116` (Hw=12 expected; stem 058 has $111$). Unmarked
+first-draw is **0/100** above $0.55$. Mixin is on for the other 91
+stems. This is not a `ngram_len=5` scoring bug. Do not sell **91/100**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **76/100** | 0.647 | 273/400 | 201/400 | 273 127 201 199 | **474/800** |
+| hard last-4 | **74/100** | 0.599 | 361/400 | 115/400 | 361 39 115 285 | **476/800** |
+
+GPT-2 $\Hw=12$ interpolate on these prompt *strings* (different twins)
+was **76/100**. Distil interpolate is **88/100**. Qwen interpolate is
+**76/100**. Mean $D_p=0.299$ (interpolate) / $0.181$ (hard). One
+ranking win has 0 isolated TPs (stem 064).
+
+Clopper–Pearson 95% (not a second freeze): interpolate **76/100** is
+**[0.664, 0.840]** and does not include ½; BA **474/800** is
+**[0.558, 0.627]**. Isolated **25/48** still includes ½.
+
+H-long-q100-group **holds** as an informative comparison with GPT-2
+$\Hw=12$ **76/100** and Distil $\Hw=12$ **88/100**. It does not
+replace **25/48**.
+
+H-long-q100-iso **holds**. Isolated interpolate **474/800** is a
+different generator and $\Hw$ from the original-12 SynthID **47/96**.
+Do not sell **76/100**, **74/100**, **474/800**, or **476/800** as
+replacing **25/48**.
+
+H-long-q100-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **273/400**. Exact
+next-token overlap is **3535** seen versus **98064** unseen (opening
+$[0{:}4)$ is 1092 versus 1308, including `'The'→' day'` n=44).
+Occupancy is not a detector. Do not sell **3535** or `'The'→' day'`
+as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-qwen-100x4-ngram13/](../experiments/2026-09-04-atoms-qwen-100x4-ngram13/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
