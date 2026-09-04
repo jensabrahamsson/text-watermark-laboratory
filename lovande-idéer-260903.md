@@ -198,6 +198,9 @@ unmarked **400/400**. Hits last-4 already matches Aaronson rankpath
 **44/48** and beats hard last-4 **24/48**. On Aaronson the last-1
 width jump is a `hard` / `hashpool` story, not `hits`. Do not sell
 **46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
+GPT-2 KGW hits last-1 absolute windows: opening 0:4 **8/12**,
+**24/48**, AUC **0.558**; tail 64:128 **12/12**, **45/48**, **0.932**.
+Same body geography as hard last-1.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -285,7 +288,12 @@ windows: opening 0:4 **9/12**, **32/48**, AUC **0.721**; tail 64:128
 **12/12**, **44/48**, **0.936**, unmarked $\le 0$ **48/48**. That is a
 **body** leak in rank geometry, closer to Kirchenbauer interpolate
 last-4 than to Aaronson hard last-1 (which ranks both windows at
-n=100). Do not sell Aaronson rankpath **44/48**. Aaronson rankpath
+n=100). Do not sell Aaronson rankpath **44/48**. Existing `rankuni` last-4 on
+Aaronson 12 is the same **12/12**, **44/48**, AUC **1.000** — rank
+unigrams suffice; the path of last-k ranks is not required. Table-free
+`snapleave` on these twins is anti-correlated (**0/12**, **0/48**, AUC
+**0.000**). Rank *tables*, not snap-rate, are the Aaronson geometry
+reader. Aaronson rankpath
 tables trained on the original 12 (`--overlap keep`, same stems,
 different mixin) do **not** classify public SynthID 12 (isolated
 **0/48**, AUC **0.541**, seven ranking wins with no isolated TP) or
@@ -360,7 +368,7 @@ last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
 Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson rankpath
-**44/48**, Distil Aaronson rankpath **44/48**, Distil KGW rankpath
+**44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**, Distil KGW rankpath
 **20/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
@@ -853,7 +861,7 @@ not a proven improvement of this lab’s finished-string `indicate` /
 (2026) (TTP-Detect) stays the closest published finished-string analog
 and was not reimplemented.
 
-### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; SynthID hashpool last-1/last-2
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; SynthID hashpool last-1/last-2; Aaronson snapleave
 
 `postokhits` on Kirchenbauer 12×4 last-4 is **11/48**; last-1 is
 **33/48** with unmarked $\le 0$ only **25/48**. SynthID last-1
@@ -870,7 +878,8 @@ last-2 is **9/12**, **20/48**, not better than last-4 interpolate
 **9/12**, **21/48**. Hashpool last-2 on public 12 is
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
 **35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
-interpolate **12/12**, AUC **0.904**. None of those is a backlog item.
+interpolate **12/12**, AUC **0.904**. Aaronson `snapleave` is
+**0/12**. None of those is a backlog item.
 
 ---
 
