@@ -33,6 +33,7 @@ def test_protocol_aaronson_distil_locks_config_before_generation() -> None:
     assert "PROTOCOL-next-aaronson-distil" in log
     assert "--mixin aaronson" in log
     assert "--model distilgpt2" in log
+    assert "`9bdf12a`" in log
 
 
 def test_protocol_aaronson_distil_cli_flag_exists() -> None:

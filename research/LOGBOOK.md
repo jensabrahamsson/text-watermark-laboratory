@@ -2590,7 +2590,7 @@ Do not train a Claude detector on the pre-mark pile alone.
 ## 2026-09-04 DistilGPT2 Aaronson freeze
 
 [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
-frozen before generation. Same laboratory Aaronson–Kirchner
+committed at SHA `9bdf12a`. Frozen before generation. Same laboratory Aaronson–Kirchner
 exponential-minimum as [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md),
 generator `distilgpt2`, original 12 prompt strings, seed **20260905**,
 `--mixin aaronson`, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`.

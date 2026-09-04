@@ -200,6 +200,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "bae6d81" in PAPER
     assert "PROTOCOL-next-longctx-qwen" in PAPER
     assert "d7303a2" in PAPER
+    assert "PROTOCOL-next-aaronson-distil" in PAPER
+    assert "9bdf12a" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -241,6 +243,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "d7303a2" in next_sec
     assert "41/96" in next_sec
     assert "pair-qwen-12x4-ngram13" in next_sec
+    assert "PROTOCOL-next-aaronson-distil" in next_sec
+    assert "9bdf12a" in next_sec
+    assert "has not been generated" in next_sec
     assert "905c76810744421d" in PAPER
     assert "617663de48b81879" in PAPER
     assert "d7867f4c81b21ca2" in PAPER
