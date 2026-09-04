@@ -2786,4 +2786,39 @@ Last-1 ahead of last-4 is the style-shift order. Last-4 ahead of last-1 is the p
 
 Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-04-resample-work`.
 
+## 2026-09-04 Qwen2-1.5B Aaronson 100-family pair resume
+
+Host crashed while `pair` was writing
+`experiments/2026-09-04-pair-qwen-100x4-aaronson/` (37/100 complete
+stems on disk; no `results.json`). Resume used the same frozen flags
+(seed **20260905**, `--mixin aaronson`, Hub SHA
+`ba1cf1846d7df0a0591d6c00649f57e798519da8`) and the same `--out-dir`.
+`pair` re-scores complete stems and regenerates the rest. Do not look
+at key-free LRs until official first-draw z-scores and the probe
+command have been run once, as written. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-04 Qwen2-1.5B ngram_len=13 100-family freeze
+
+[PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
+committed before generation. Same public keys and `ngram_len=13`
+($\Hw=12$) as [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md),
+generator `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260903**,
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Hypotheses H-long-q100-ctrl, H-long-q100-group, H-long-q100-iso, and
+H-long-q100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw scores and the probe
+command has been run once, as written. Probe and `atoms` must pass
+`--model Qwen/Qwen2-1.5B-Instruct`. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260903 --ngram-len 13 \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-100x4-ngram13
+```
+
 ---
