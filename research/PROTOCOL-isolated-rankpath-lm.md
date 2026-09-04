@@ -177,5 +177,25 @@ Human merge of PR **#9** is out of scope for this file.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and both probes have been
-run once, as written)*
+H-rplm-d **fails** as a raw count. DistilGPT2 unmarked-LM opening
+rankpath on the original GPT-2 12×4 ranks **10/12**; isolated
+**32/48 vs 31/48** (AUC **0.761**; nested-by-stem Youden
+**28/48 vs 37/48**). `used_keys=false`. `model_name` is `distilgpt2`.
+Clopper–Pearson 95% on **32/48** excludes ½. Same-LM GPT-2-small
+recount stays **41/48 vs 35/48**. Distil native opening rankpath on
+Distil twins stays chance (**8/12**, AUC **0.579**). Do not sell **32/48**.
+JSON:
+[experiments/2026-09-04-probe-12x4-rankpath-distil-lm/](../experiments/2026-09-04-probe-12x4-rankpath-distil-lm/).
+
+H-rplm-m **fails** as a raw count. gpt2-medium unmarked-LM opening
+rankpath on the original GPT-2 12×4 ranks **10/12**; isolated
+**31/48 vs 32/48** (AUC **0.679**; nested-by-stem Youden
+**31/48 vs 30/48**). `used_keys=false`. `model_name` is `gpt2-medium`.
+Clopper–Pearson 95% on **31/48** includes ½. Do not sell **31/48**.
+JSON:
+[experiments/2026-09-04-probe-12x4-rankpath-medium-lm/](../experiments/2026-09-04-probe-12x4-rankpath-medium-lm/).
+
+H-rplm-iso **holds**. Distil-LM **32/48** and medium-LM **31/48** are
+not a universal isolated-file detector. Same-LM GPT-2-small remains
+**41/48 vs 35/48**. Do not leftover-slice. Do not merge PR **#9**.
+Isolated-file remains open. Do not write `thesis/`.

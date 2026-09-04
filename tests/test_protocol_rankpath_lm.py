@@ -24,9 +24,12 @@ def test_protocol_rankpath_lm_locks_config_before_lrs() -> None:
     assert "H-rplm-d" in text
     assert "H-rplm-m" in text
     assert "H-rplm-iso" in text
-    assert "H-rplm-d **holds**" not in text
-    assert "H-rplm-m **holds**" not in text
-    assert "*(empty until the SHA is named in LOGBOOK.md" in text
+    assert "H-rplm-d **fails**" in text
+    assert "H-rplm-m **fails**" in text
+    assert "H-rplm-iso **holds**" in text
+    assert "Do not sell **32/48**" in text
+    assert "Do not sell **31/48**" in text
+    assert "*(empty until the SHA is named in LOGBOOK.md" not in text
     assert "--methods rankpath --fit-prefix 4 --pos-bucket 1" in text
     assert "--model distilgpt2" in text
     assert "--model gpt2-medium" in text
@@ -70,31 +73,35 @@ def test_protocol_rankpath_lm_locks_config_before_lrs() -> None:
         if ln.startswith("| Distil / gpt2-medium unmarked-LM opening rankpath")
     ]
     assert len(agents_rows) == 1
-    assert "named before" in agents_rows[0]
     assert "**25/48**" in agents_rows[0]
     assert "41/48" not in agents_rows[0]
+    assert "**32/48 vs 31/48**" in agents_rows[0]
     howto = (ROOT / "HOW-TO.md").read_text()
     assert "PROTOCOL-isolated-rankpath-lm" in howto
-    assert "Do not invent those scores" in howto
-    for stem in (
-        "2026-09-04-probe-12x4-rankpath-distil-lm",
-        "2026-09-04-probe-12x4-rankpath-medium-lm",
-    ):
-        exp_rows = [
-            ln
-            for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
-            if stem in ln
-        ]
-        assert len(exp_rows) == 1
-        assert "named before" in exp_rows[0]
-        assert "41/48" not in exp_rows[0]
+    assert "Do not sell **32/48**" in howto
+    distil_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-04-probe-12x4-rankpath-distil-lm" in ln
+    ]
+    assert len(distil_rows) == 1
+    assert "**32/48 vs 31/48**" in distil_rows[0]
+    assert "41/48" not in distil_rows[0]
+    medium_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-04-probe-12x4-rankpath-medium-lm" in ln
+    ]
+    assert len(medium_rows) == 1
+    assert "**31/48 vs 32/48**" in medium_rows[0]
+    assert "41/48" not in medium_rows[0]
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
         if "PROTOCOL-isolated-rankpath-lm" in ln
     ]
     assert len(research_rows) == 1
-    assert "named before" in research_rows[0]
+    assert "**32/48 vs 31/48**" in research_rows[0]
     rankpath_note = (ROOT / "research" / "key-free-rankpath.md").read_text()
     assert "PROTOCOL-isolated-rankpath-lm" in rankpath_note
     lo, hi = clopper_pearson(25, 48)
@@ -168,38 +175,48 @@ def test_protocol_rankpath_lm_same_lm_control_stays() -> None:
     assert nested["n_unmarked_at_most"] == 41
 
 
-@pytest.mark.skipif(
-    not (DISTIL / "rankpath" / "holdout.json").is_file(),
-    reason="Distil-LM opening rankpath not run",
-)
 def test_protocol_rankpath_lm_distil_from_dumps() -> None:
     interp = json.loads((DISTIL / "rankpath" / "holdout.json").read_text())
     assert interp["used_keys"] is False
+    assert interp["used_hash_iv"] is False
+    assert interp["used_g_values"] is False
     assert interp["model_name"] == "distilgpt2"
+    assert interp["n_prompts_marked_above"] == 10
+    assert interp["n_marked_lr_positive"] == 32
+    assert interp["n_unmarked_lr_nonpositive"] == 31
     text = PROTOCOL.read_text()
-    if "H-rplm-d **holds**" not in text:
-        pytest.skip("Distil-LM rankpath not folded yet")
+    assert "H-rplm-d **fails**" in text
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
-    assert f"**{marked}/48" in text
-    assert f"**{unmarked}/48" in text
-    lo, hi = clopper_pearson(25, 48)
-    assert lo <= 0.5 <= hi
+    assert f"**{marked}/48 vs {unmarked}/48**" in text
+    readme = (DISTIL / "README.md").read_text()
+    assert f"**{marked}/48 vs {unmarked}/48**" in readme
+    assert interp["used_keys"] is False
+    lo, hi = clopper_pearson(marked, 48)
+    assert lo > 0.5
+    lo25, hi25 = clopper_pearson(25, 48)
+    assert lo25 <= 0.5 <= hi25
 
 
-@pytest.mark.skipif(
-    not (MEDIUM / "rankpath" / "holdout.json").is_file(),
-    reason="gpt2-medium-LM opening rankpath not run",
-)
 def test_protocol_rankpath_lm_medium_from_dumps() -> None:
     interp = json.loads((MEDIUM / "rankpath" / "holdout.json").read_text())
     assert interp["used_keys"] is False
+    assert interp["used_hash_iv"] is False
+    assert interp["used_g_values"] is False
     assert interp["model_name"] == "gpt2-medium"
+    assert interp["n_prompts_marked_above"] == 10
+    assert interp["n_marked_lr_positive"] == 31
+    assert interp["n_unmarked_lr_nonpositive"] == 32
     text = PROTOCOL.read_text()
-    if "H-rplm-m **holds**" not in text:
-        pytest.skip("medium-LM rankpath not folded yet")
+    assert "H-rplm-m **fails**" in text
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
-    assert f"**{marked}/48" in text
+    assert f"**{marked}/48 vs {unmarked}/48**" in text
+    readme = (MEDIUM / "README.md").read_text()
+    assert f"**{marked}/48 vs {unmarked}/48**" in readme
+    lo, hi = clopper_pearson(marked, 48)
+    assert lo <= 0.5 <= hi
+    lo25, hi25 = clopper_pearson(25, 48)
+    assert lo25 <= 0.5 <= hi25
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi

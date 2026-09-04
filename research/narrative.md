@@ -134,11 +134,12 @@ scorers → Distil / Qwen are chance.
 
 ## What remains (isolated-file)
 
-DistilGPT2 and gpt2-medium unmarked-LM opening rankpath 12-LOO on the
-original GPT-2 twins is named before those LRs
+DistilGPT2 unmarked-LM opening rankpath 12-LOO on the original GPT-2
+twins is ranking **10/12**, isolated **32/48 vs 31/48**
 ([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
-Occupancy-free leftover unions stay closed. Do not leftover-slice. Do
-not merge PR **#9**. Do not invent those scores.
+H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated is
+**31/48 vs 32/48**. Do not sell **32/48** or **31/48**. Occupancy-free leftover unions stay closed.
+Do not leftover-slice. Do not merge PR **#9**.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed
@@ -309,7 +310,9 @@ Qwen2-1.5B Aaronson 100-family is
 unseen (opening **1470** vs **930**). Do not sell **100/100** or **616/800**.
 Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
-(freeze SHA `ed9fb20`) and is named before generation.
+(freeze SHA `ed9fb20`) and is named before generation. Opened: official
+z>3 **90/100**; interpolate **96/100** (isolated **620/800**); hard
+**63/100**. Do not sell **96/100** or **620/800**.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer

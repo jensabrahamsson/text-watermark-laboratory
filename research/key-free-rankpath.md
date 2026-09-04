@@ -66,8 +66,9 @@ misses letter d2. Keep prefix-4. See
 unmarked-LM opening rankpath 12-LOO on the original GPT-2 twins is
 named before those LRs
 ([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
-Do not invent those scores. Do not leftover-slice. That freeze does
-not replace **25/48**.
+Distil-LM isolated is **32/48 vs 31/48** (ranking **10/12**).
+gpt2-medium-LM isolated is **31/48 vs 32/48**. Do not sell **32/48** or
+**31/48**. Do not leftover-slice. That freeze does not replace **25/48**.
 
 ## Out-of-family: 24 short 36×4 stems → 12×4
 

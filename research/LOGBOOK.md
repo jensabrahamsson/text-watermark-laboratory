@@ -2982,4 +2982,33 @@ Same-LM GPT-2-small recount stays **11/12**, isolated **41/48 vs 35/48**.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-04 Distil unmarked-LM opening rankpath opened
+
+H-rplm-d **fails** as a raw count. DistilGPT2 unmarked-LM opening
+rankpath on original GPT-2 12×4 is ranking **10/12**, isolated
+**32/48 vs 31/48** (AUC **0.761**; nested **28/48 vs 37/48**).
+`used_keys=false`. Do not sell **32/48**. gpt2-medium-LM isolated is
+**31/48 vs 32/48** (ranking **10/12**, AUC **0.679**). H-rplm-m **fails**
+as a raw count. Do not sell **31/48**. Qwen Kirchenbauer 100 official
+first-draw z>3 is **90/100**; unmarked **0/100**; interpolate **96/100**
+/ **620/800**. H-kgw-q100-ctrl **fails**. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-04 Qwen2-1.5B Kirchenbauer 100-family opened
+
+[PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
+named `ed9fb20`. Pair seed **20260904**, `--mixin kgw`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw z>3
+**90/100** (H-kgw-q100-ctrl fails as a raw 100/100). Unmarked
+**0/100** above $3.0$. Interpolate last-4 **96/100** (AUC **0.870**,
+isolated **346/400 vs 274/400**, BA **620/800**). Hard **63/100**
+(AUC **0.562**, BA **430/800**). Occupancy **4858** seen vs **96740**
+unseen. `used_keys=false`. Do not sell **96/100** or **620/800** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-kgw/`,
+`experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-kgw/`.
+
 ---

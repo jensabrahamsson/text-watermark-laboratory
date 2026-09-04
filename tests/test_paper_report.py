@@ -346,10 +346,15 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "ed9fb20" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "before generation" in next_sec
+    assert r"\textbf{96/100}" in next_sec
+    assert "620/800" in next_sec
+    assert r"\textbf{63/100}" in next_sec
+    assert "4858" in next_sec
+    assert "96740" in next_sec
     assert "PROTOCOL-isolated-rankpath-lm" in next_sec
     assert "d8e6f7f" in next_sec
-    assert "before those LRs" in next_sec
-    assert "rankpath-distil-lm" in next_sec or "d8e6f7f" in next_sec
+    assert "32/48" in next_sec
+    assert "31/48" in next_sec
     assert "H-rplm-d **holds**" not in next_sec
     assert "tab:kgwq100" in next_sec
     assert "15485863" in next_sec
@@ -418,6 +423,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "4557" not in abs_
     assert "pair-qwen-100x4-kgw" not in abs_
     assert "ed9fb20" not in abs_
+    assert "620/800" not in abs_
+    assert "4858" not in abs_
     assert "d8e6f7f" not in abs_
     assert "tab:kgwq100" not in abs_
     assert "context_width" in next_sec or "context\\_width" in next_sec
@@ -573,6 +580,36 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
     assert "ed9fb20" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "before generation" in next_sec
+    qwen_100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-probe-qwen-100x4-kgw-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    qwen_100_hard = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-probe-qwen-100x4-kgw-hard-last4"
+            / "hard"
+            / "holdout.json"
+        ).read_text()
+    )
+    occ_q100 = json.loads(
+        (
+            ROOT / "experiments" / "2026-09-04-atoms-qwen-100x4-kgw" / "atoms.json"
+        ).read_text()
+    )
+    ba_q100 = qwen_100["n_marked_lr_positive"] + qwen_100["n_unmarked_lr_nonpositive"]
+    assert qwen_100["used_keys"] is False
+    assert f"{qwen_100['n_prompts_marked_above']}/100" in next_sec
+    assert f"{ba_q100}/800" in next_sec
+    assert f"{qwen_100_hard['n_prompts_marked_above']}/100" in next_sec
+    assert str(occ_q100["n_seen"]) in next_sec
+    assert str(occ_q100["n_unseen"]) in next_sec
 
 
 def test_paper_opened_100_family_counts_match_dumps() -> None:
@@ -840,6 +877,8 @@ def test_readme_matches_revised_title() -> None:
     assert "747/800" in README
     assert "PROTOCOL-next-kgw-qwen-100" in README
     assert "ed9fb20" in README
+    assert "96/100" in README
+    assert "620/800" in README
     assert "PROTOCOL-isolated-rankpath-lm" in README
     assert "d8e6f7f" in README
     assert "8f09aa6" in README

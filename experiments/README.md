@@ -40,7 +40,11 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-pair-qwen-12x4-kgw/` | Qwen2-1.5B Kirchenbauer, original 12 | official z>3 **12/12** |
 | `2026-09-03-probe-qwen-12x4-kgw-hard-last4/` | 12-LOO on those twins | interpolate **12/12** / **68/96**; hard **8/12** |
 | `2026-09-03-atoms-qwen-12x4-kgw/` | Qwen Kirchenbauer occupancy | **84** seen vs **12108** unseen |
-| `2026-09-04-pair-qwen-100x4-kgw/` | Qwen2-1.5B Kirchenbauer, 100 one-liners | freeze SHA `ed9fb20`; named before generation |
+| `2026-09-04-pair-qwen-100x4-kgw/` | Qwen2-1.5B Kirchenbauer, 100 one-liners | freeze SHA `ed9fb20`; named before generation; official z>3 **90/100**; unmarked **0/100** |
+| `2026-09-04-probe-qwen-100x4-kgw-hard-last4/` | Qwen Kirchenbauer 100-LOO hard/interpolate | interpolate **96/100** / **620/800**; hard **63/100** |
+| `2026-09-04-atoms-qwen-100x4-kgw/` | Qwen Kirchenbauer 100-family occupancy | **4858** seen vs **96740** unseen |
+| `2026-09-04-probe-qwen-100x4-kgw-hard-last4/` | Qwen Kirchenbauer 100-LOO hard/interpolate | interpolate **96/100** / **620/800**; hard **63/100** |
+| `2026-09-04-atoms-qwen-100x4-kgw/` | Qwen Kirchenbauer 100-family occupancy | **4858** seen vs **96740** unseen |
 | `2026-09-03-probe-12x4-headline-windows-absolute/` | Absolute-history 12-LOO mask-*k* | prefixes equal reindexed; hard tails **9/12**; interpolate 8:128 rose 3→4 |
 | `2026-09-03-pair-12x4-ngram13/` | Public keys, `ngram_len=13`, original 12 | official **48/48** marked above 0.55 |
 | `2026-09-03-probe-12x4-ngram13-hard-last4/` | 12-LOO hard/interpolate on those twins | interpolate and hard **6/12**; isolated hard **52/96** |
@@ -100,8 +104,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-01-probe-12x4-recount-hits/` | Rechecked hits | **10/12**, AUC **0.718**, **28/48 vs 31/48** |
 | `2026-09-01-probe-12x4-recount-opening-poshits/` | Opening poshits after recount | **9/12**, **23/48 vs 48/48** |
 | `2026-09-01-probe-12x4-recount-opening-rankpath/` | Opening rankpath + first symbol | **11/12**, isolated **41/48 vs 35/48** |
-| `2026-09-04-probe-12x4-rankpath-distil-lm/` | DistilGPT2 unmarked-LM opening rankpath on original 12 | named before Distil-LM LRs; not **25/48** |
-| `2026-09-04-probe-12x4-rankpath-medium-lm/` | gpt2-medium unmarked-LM opening rankpath on original 12 | named before medium-LM LRs; not **25/48** |
+| `2026-09-04-probe-12x4-rankpath-distil-lm/` | DistilGPT2 unmarked-LM opening rankpath on original 12 | ranking **10/12**, isolated **32/48 vs 31/48**; not **25/48** |
+| `2026-09-04-probe-12x4-rankpath-medium-lm/` | gpt2-medium unmarked-LM opening rankpath on original 12 | ranking **10/12**, isolated **31/48 vs 32/48**; not **25/48** |
 | `2026-09-01-probe-36x4-recount-hits/` | Rechecked 36×4 hits | still **36/36**, AUC **0.930** |
 | `2026-08-31-probe-12x4/` | Key-free scorer comparison on the same 12×4 twins | `hits` **11/12** AUC **0.737**; hashpool **11/12** isolated **35/48** |
 | `2026-08-31-probe-36/` | Same scorers on 36 GPT-2 topics × 1 | hashpool **31/36** AUC **0.877**; hard last-4 **20/36** |

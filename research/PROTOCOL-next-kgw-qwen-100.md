@@ -134,3 +134,60 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `ed9fb20`. Named `7db0674`. Pair seed **20260904**.
+`mixin=kgw`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`. First `pair` died
+after 44 complete stems; same flags resumed (pid 44722). Complete
+stems were re-scored.
+
+Pair dump: [experiments/2026-09-04-pair-qwen-100x4-kgw/](../experiments/2026-09-04-pair-qwen-100x4-kgw/).
+Probe dump: [experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/](../experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/).
+
+H-kgw-q100-ctrl **fails** as the preregistered every-first-draw 100/100.
+Official matching z-score is above $3.0$ on **90/100** first marked files
+(min passer $3.33$). Unmarked first-draw is **0/100** above $3.0$
+(max $2.10$). Mixin is on. Ten misses (stems 003, 017, 021, 033, 041,
+058, 065, 069, 081, 097) are Chinese quiz-format completions, not empty
+files. Not a GPT-2 tokenizer bug (`--model Qwen/Qwen2-1.5B-Instruct`).
+Do not sell **90/100**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **96/100** | 0.870 | 346/400 | 274/400 | 346 54 274 126 | **620/800** |
+| hard last-4 | **63/100** | 0.562 | 290/400 | 140/400 | 290 110 140 260 | **430/800** |
+
+GPT-2 Kirchenbauer interpolate on these prompt *strings* (different
+twins) was **100/100** / **747/800**. Distil interpolate is **100/100** /
+**683/800**. Qwen interpolate is **96/100**. Mean $D_p=0.486$
+(interpolate) / $0.064$ (hard). Zero ranking wins have 0 isolated TPs.
+Four ranking losses have isolated TPs (017, 045, 069, 071).
+
+Clopper–Pearson 95% (not a second freeze): interpolate **96/100** is
+**[0.901, 0.989]** and does not include ½; hard **63/100** is
+**[0.528, 0.724]**; BA **620/800** is **[0.744, 0.804]**. Isolated
+**25/48** still includes ½.
+
+H-kgw-q100-group **holds** as an informative comparison with GPT-2
+Kirchenbauer **100/100** and Distil **100/100**. It does not replace
+**25/48**.
+
+H-kgw-q100-iso **holds**. Isolated interpolate **620/800** is a different
+generator and mixin from the original-12 SynthID **47/96**. Do not sell
+**96/100**, **63/100**, **620/800**, or **430/800** as replacing
+**25/48**.
+
+H-kgw-q100-occ **holds**. Leave-one-family-out interpolate atoms
+(`atoms --leave-one-out`; `used_keys=false`). File LRs match
+interpolate holdout (marked `lr>0` **346/400**). Exact next-token
+overlap is **4858** seen versus **96740** unseen (opening $[0{:}4)$ is
+1319 versus 1081). The top opening atom is `'A' '.' → ' �'` (n=25;
+quiz-format). Occupancy is a mechanistic intermediate, not a detector.
+Do not sell **4858** or `'A.'` as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-qwen-100x4-kgw/](../experiments/2026-09-04-atoms-qwen-100x4-kgw/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.

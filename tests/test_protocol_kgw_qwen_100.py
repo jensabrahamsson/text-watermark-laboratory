@@ -40,6 +40,7 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert "no chat template" in text
     assert "GPT-2 tokenizer" in text
     assert "--model Qwen/Qwen2-1.5B-Instruct" in text
+    assert "H-kgw-q100-ctrl **fails**" in text
     assert "H-kgw-q100-ctrl **holds**" not in text
     assert PROMPTS.is_dir()
     assert len(list(PROMPTS.glob("*.txt"))) == 100
@@ -68,12 +69,21 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert "`ed9fb20`" in row
     assert "named before generation" in row
     assert "**25/48**" in row
-    assert "100/100" not in row
-    assert "/800" not in row
+    assert "**90/100**" in row
+    assert "**96/100**" in row
+    assert "**620/800**" in row
+    assert "**63/100**" in row
+    assert "**4858**" in row
+    assert "H-kgw-q100-group **holds**" in text
+    assert "H-kgw-q100-iso **holds**" in text
+    assert "H-kgw-q100-occ **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **96/100**" in collapsed
+    assert text.count("## Results") == 1
     howto = (ROOT / "HOW-TO.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in howto
     assert "`ed9fb20`" in howto
-    assert "Do not invent those scores" in howto
+    assert "Do not sell **96/100**" in howto
     exp_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -82,7 +92,7 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert len(exp_rows) == 1
     assert "`ed9fb20`" in exp_rows[0]
     assert "named before generation" in exp_rows[0]
-    assert "100/100" not in exp_rows[0]
+    assert "**90/100**" in exp_rows[0]
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
@@ -91,7 +101,8 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert len(research_rows) == 1
     assert "`ed9fb20`" in research_rows[0]
     assert "named before generation" in research_rows[0]
-    assert "100/100" not in research_rows[0]
+    assert "**96/100**" in research_rows[0]
+    assert "**620/800**" in research_rows[0]
 
 
 def test_protocol_kgw_qwen_100_cli_flag_exists() -> None:
@@ -162,10 +173,16 @@ def test_protocol_kgw_qwen_100_official_from_dumps() -> None:
     n_unmarked = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
     text = PROTOCOL.read_text()
     log = LOG.read_text()
-    if "H-kgw-q100-ctrl **holds**" not in text:
-        pytest.skip("official first-draw not folded yet")
+    assert n_first == 90
+    assert n_unmarked == 0
     assert f"**{n_first}/100**" in text
+    assert f"**{n_unmarked}/100**" in text
     assert f"**{n_first}/100**" in log
+    assert "**96/100**" in log
+    assert "**620/800**" in log
+    pair_readme = (PAIR / "README.md").read_text()
+    assert f"**{n_first}/100**" in pair_readme
+    assert f"**{n_unmarked}/100**" in pair_readme
     assert n_unmarked < 100
 
 
@@ -180,9 +197,11 @@ def test_protocol_kgw_qwen_100_keyfree_from_dumps() -> None:
     assert hard["used_keys"] is False
     assert interp["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
     text = PROTOCOL.read_text()
-    if "H-kgw-q100-group **holds**" not in text:
-        pytest.skip("key-free two-grain counts not folded yet")
+    assert "H-kgw-q100-group **holds**" in text
     wins = interp["n_prompts_marked_above"]
+    assert wins == 96
+    assert hard["n_prompts_marked_above"] == 63
+    assert interp["n_marked_lr_positive"] == 346
     hard_wins = hard["n_prompts_marked_above"]
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
@@ -190,9 +209,21 @@ def test_protocol_kgw_qwen_100_keyfree_from_dumps() -> None:
     assert f"**{wins}/100**" in text
     assert f"**{hard_wins}/100**" in text
     assert f"**{ba}/800**" in text
+    probe_readme = (PROBE / "README.md").read_text()
+    assert f"**{wins}/100**" in probe_readme
+    assert f"**{ba}/800**" in probe_readme
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
-    if (ATOMS / "atoms.json").is_file():
-        occ = json.loads((ATOMS / "atoms.json").read_text())
-        assert occ["used_keys"] is False
-        assert occ["n_marked_lr_positive"] == marked
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_marked_lr_positive"] == marked
+    assert occ["n_seen"] == 4858
+    assert occ["n_unseen"] == 96740
+    atoms_readme = (ATOMS / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
+    ledger = " ".join((ROOT / "research" / "results-ledger.md").read_text().split())
+    assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in ledger or (
+        f"**{occ['n_seen']}**" in (ROOT / "research" / "results-ledger.md").read_text()
+        and f"**{occ['n_unseen']}**" in (ROOT / "research" / "results-ledger.md").read_text()
+    )

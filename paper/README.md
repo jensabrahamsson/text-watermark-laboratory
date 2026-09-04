@@ -120,9 +120,12 @@ fitted detector. A Kirchenbauer green-list mixin is frozen in
 **100/100** (isolated **747/800**); occupancy **4557** seen. That is
 not **25/48**. Qwen2-1.5B Kirchenbauer on the 100 one-liners is named
 in `research/PROTOCOL-next-kgw-qwen-100.md` (SHA `ed9fb20`) before
-generation. That lock is not **25/48**. Distil / gpt2-medium unmarked-LM
+generation. Official first-draw $z>3$ is **90/100**. Interpolate last-4
+is **96/100** (isolated **620/800**); hard is **63/100**. That lock is
+not **25/48**. Distil / gpt2-medium unmarked-LM
 opening rankpath 12-LOO is named in
-`research/PROTOCOL-isolated-rankpath-lm.md` (SHA `d8e6f7f`) before
-those LRs. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+`research/PROTOCOL-isolated-rankpath-lm.md` (SHA `d8e6f7f`). Distil-LM
+isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**. Do not sell
+**32/48** or **31/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).

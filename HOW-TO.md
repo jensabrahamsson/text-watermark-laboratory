@@ -230,13 +230,18 @@ Do not sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
 **82/100**, **68/96**, or **8/12** as replacing **25/48**. Qwen2-1.5B Kirchenbauer on the 100
 one-liners is named in
 [research/PROTOCOL-next-kgw-qwen-100.md](research/PROTOCOL-next-kgw-qwen-100.md)
-(SHA `ed9fb20`) before generation. Do not invent those scores. That lock
+(SHA `ed9fb20`) before generation. Official first-draw $z>3$ is
+**90/100**. Interpolate last-4 is **96/100** (isolated **620/800**);
+hard is **63/100**. Occupancy **4858** seen versus **96740** unseen.
+Do not sell **96/100** or **620/800**. Do not invent those scores. That lock
 is not **25/48**. DistilGPT2 and gpt2-medium unmarked-LM opening
 rankpath 12-LOO on the original GPT-2 twins is named in
 [research/PROTOCOL-isolated-rankpath-lm.md](research/PROTOCOL-isolated-rankpath-lm.md)
-(`d8e6f7f`) before those LRs. Existing `rankpath`. Do not invent those scores.
-Do not leftover-slice. Do not merge PR **#9**. That lock is not
-**25/48**.
+(`d8e6f7f`) before those LRs. Distil-LM isolated is **32/48 vs 31/48**
+(ranking **10/12**). gpt2-medium-LM isolated is **31/48 vs 32/48**.
+Do not sell **32/48** or **31/48**. Do not leftover-slice. Do not merge PR **#9**.
+Do not invent those scores.
+That lock is not **25/48**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \

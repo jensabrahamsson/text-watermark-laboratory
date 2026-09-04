@@ -601,11 +601,18 @@ Qwen2-1.5B $\Hw=12$
 **1092** vs **1308**). Do not sell **76/100** or **474/800**. Isolated-file remains
 open. Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
-(freeze SHA `ed9fb20`) and is named before generation. Isolated-file remains open.
+(freeze SHA `ed9fb20`) and is named before generation. Official first-draw
+z>3 is **90/100**; unmarked **0/100**. H-kgw-q100-ctrl **fails**.
+Interpolate **96/100** (isolated **620/800**); hard **63/100**; occupancy
+**4858** seen vs **96740** unseen. Do not sell **96/100** or **620/800**.
+Isolated-file remains open.
 Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
 GPT-2 twins is
 [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
-(`d8e6f7f`) and is named before those LRs. Isolated-file remains open.
+(`d8e6f7f`). Distil-LM isolated **32/48 vs 31/48** (ranking **10/12**);
+H-rplm-d **fails** as a raw count. gpt2-medium-LM isolated
+**31/48 vs 32/48**; H-rplm-m **fails** as a raw count. Do not sell
+**32/48** or **31/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
