@@ -132,6 +132,10 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     assert f"**{ba}/96**" in ledger
     assert f"**{hard['n_prompts_marked_above']}/12**" in ledger
     assert f"**{occ['n_seen']}**" in ledger
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert f"**{ba}/96**" in howto
+    assert f"**{hard['n_prompts_marked_above']}/12**" in howto
+    assert f"**{occ['n_seen']}**" in howto
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -293,6 +297,10 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     assert f"**{ba}/800**" in ledger
     assert f"**{hard['n_prompts_marked_above']}/100**" in ledger
     assert f"**{occ['n_seen']}**" in ledger
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert f"**{ba}/800**" in howto
+    assert f"**{hard['n_prompts_marked_above']}/100**" in howto
+    assert f"**{occ['n_seen']}**" in howto
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
