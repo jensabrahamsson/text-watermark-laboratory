@@ -14,7 +14,10 @@ z-scores and SynthID `detector_mean` are positive controls; they use
 keys.
 
 Reproduce from the committed pair dumps. Exploratory holdouts lived
-under `/tmp/kgw-lab/` on the investigation machine and are not in git.
+under `/tmp/kgw-lab/` on the investigation machine. JSON copies of the
+last-1 / last-2 `hits` / `hashpool` / `hashtok` / `hashtok2` probes are
+the companion dumps PR (`experiments/2026-09-04-lovande-holdouts/` on
+`cursor/lovande-holdouts-1051`). That dump is not this markdown file.
 
 ---
 
@@ -4055,9 +4058,20 @@ ranks **92/100**, 0.697, isolated **224/400**, above last-2 hits
 **81/100**, **251/400** and last-2 hashtok **81/100**, **220/400** —
 occupancy ranking, not occupancy-free isolated. GPT-2 last-2 hashpool
 32:64 **87/100**, **249/400** sits with last-2 hits **88/100**,
-**273/400**. Do not sell medium last-2 hashpool 32:64 **92/100**. Do not shorten SynthID `hits`. Do not leftover-target
+**273/400**. Last-2 `hashtok2` 32:64 does **not** import the Aaronson
+Qwen isolated rescue (**208/400** → **320/400**). GPT-2 **86/100**,
+0.681, **251/400** sits with last-2 hashtok **82/100**, **242/400**;
+gpt2-medium **83/100**, 0.663, **235/400** sits with last-2 hashtok
+**81/100**, **220/400**. Distil is **66/100**, 0.589, **70/400**, **32**
+ranking-only (file-level binom $p=1$). Qwen is **71/100**, 0.598,
+**284/400**, **3** ranking-only versus last-2 hashtok **71/100**,
+**273/400** — not **320/400**. min_count=2 does not crack public
+SynthID isolated sign at 32:64. Do not switch occupancy-free hashing to
+last-2 hashtok2 on this mixin. Do not leftover-target Distil’s **32**
+ranking-only zeros. Do not sell Distil last-2 hashtok2 32:64 **66/100** /
+**70/400** or Qwen **284/400**. Do not sell medium last-2 hashpool 32:64 **92/100**. Do not shorten SynthID `hits`. Do not leftover-target
 last-1 16:32 **19** ranking losses with isolated TP. Do not sell
-last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400** / last-2 32:64 **82/100** / Distil **71/100** / **75/400** / Qwen **71/100** / **273/400** / medium **81/100** / **220/400** / Distil last-2 hashpool 32:64 **75/100** / **74/400** / medium last-2 hashpool 32:64 **92/100** / **224/400**. Distil
+last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400** / last-2 32:64 **82/100** / Distil **71/100** / **75/400** / Qwen **71/100** / **273/400** / medium **81/100** / **220/400** / Distil last-2 hashpool 32:64 **75/100** / **74/400** / medium last-2 hashpool 32:64 **92/100** / **224/400** / Distil last-2 hashtok2 32:64 **66/100** / **70/400** / Qwen last-2 hashtok2 32:64 **71/100** / **284/400**. Distil
 last-1 hashtok 4:16 is **76/100**, 0.637, **113/400** (**12**
 ranking-only, **10** ranking losses with isolated TP), sitting with
 last-1 hits **72/100**, 0.617, **136/400**, not GPT-2 last-1 hashtok
@@ -5041,7 +5055,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    medium **81/100** sits with GPT-2. Last-2 `hashpool` 32:64 Distil
    **75/100**, **74/400** (**31** ranking-only); medium ranking
    **92/100** is occupancy, isolated **224/400** below last-2 hits
-   **81/100**. Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
+   **81/100**. Last-2 `hashtok2` 32:64 does not import the Aaronson Qwen
+   isolated rescue: Distil **66/100**, **70/400**, **32** ranking-only
+   (chance); Qwen **71/100**, **284/400** sits with last-2 hashtok
+   **273/400**, not **320/400**. Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
    with last-1 hits **72/100**, **136/400**, not GPT-2 **95/100**. Qwen
    last-1 hashtok 4:16 **74/100**, **303/400** sits with last-1 hits
    **76/100**. gpt2-medium last-1 hashtok 4:16 **97/100**, **323/400**
