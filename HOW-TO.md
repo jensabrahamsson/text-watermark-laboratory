@@ -284,8 +284,8 @@ tokens `[4:16)` is named in
 **28/48**. gpt2-medium LM rankpath on Distil generated tokens `[4:16)` is
 named in
 [research/PROTOCOL-isolated-rankpath-m2dbody.md](research/PROTOCOL-isolated-rankpath-m2dbody.md)
-before those LRs. Do not leftover-slice. Do not merge PR **#9**.
-Do not invent those scores.
+(`a550cb6`). Ranking **9/12**, isolated **32/48 vs 25/48**. Do not sell
+**32/48**. Do not leftover-slice. Do not merge PR **#9**.
 That lock is not **25/48**.
 
 ```bash

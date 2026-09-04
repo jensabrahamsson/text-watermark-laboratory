@@ -1,0 +1,177 @@
+{
+  "pair_dir": "experiments/2026-08-31-pair-distilgpt2-12x4",
+  "model_name": "gpt2-medium",
+  "context_len": 4,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "max_draws": null,
+  "prefix_lens": [],
+  "windows": [
+    "4:16"
+  ],
+  "fit_prefix": 16,
+  "position_bucket": 1,
+  "include_first": false,
+  "prompt_context": false,
+  "pivot_weights": [
+    "uniform"
+  ],
+  "rankpath_full": false,
+  "rankpath_pos_bucket": 1,
+  "cascade_rankpath_end": null,
+  "cascade_when": "coverage",
+  "note": "Key-free scorer comparison. Not detector_mean. Not Claude. AUC is single-file ranking; prompt wins are prompt-group ranking, not per-file accuracy. ranking_without_isolated_tp counts prompt wins with no marked file lr>0 \u2014 those stems rank because unmarked is more negative, not because any isolated file signs. nested-youden-by-stem is a threshold chosen on other prompt families' already-held-out LRs, not a global peek at the same stem. coverage.json is leave-one-out shared last-k fraction by position; it explains a front-loaded reader, not a keyed detector.",
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "methods": [
+    {
+      "name": "rankpath",
+      "instance": "key-free-rankpath",
+      "score_kind": "rankpath",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "n_marked_above_unmarked": 35,
+      "n_prompt_wins_ge": 9,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 3,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 2,
+      "ranking_losses_with_isolated_tp": [
+        "02-night-bus",
+        "07-rain"
+      ],
+      "n_marked_positive_on_ranking_losses": 4,
+      "used_keys": false,
+      "used_hash_iv": false,
+      "used_g_values": false,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6649305555555556,
+        "mean_positive": 0.12041933453190791,
+        "mean_negative": -0.07486056780733334,
+        "mean_diff": 0.19527990233924125,
+        "n_positive_above_zero": 28,
+        "n_negative_at_most_zero": 31,
+        "permutation_p": 0.0009995002498750624,
+        "binomial_p_above_zero": 0.15616340373663462,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.25328742115093594,
+        "youden_sensitivity": 0.3333333333333333,
+        "youden_specificity": 0.9583333333333334,
+        "youden_j": 0.29166666666666674,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 17,
+          "n_unmarked_at_most": 38,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3541666666666667,
+          "specificity": 0.7916666666666666,
+          "mean_threshold": 0.21157398993882992,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 17,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.3541666666666667,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.22254470157761594,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "coverage_gate": {
+        "n_marked": 48,
+        "n_unmarked": 48,
+        "n_marked_zero": 0,
+        "n_unmarked_zero": 0,
+        "n_marked_decided": 48,
+        "n_unmarked_decided": 48,
+        "decided_tp": 28,
+        "decided_fn": 20,
+        "decided_fp": 17,
+        "decided_tn": 31,
+        "precision": 0.6222222222222222,
+        "decided_accuracy": 0.6145833333333334,
+        "recall_including_zeros": 0.5833333333333334
+      }
+    }
+  ],
+  "prefixes": [],
+  "window_scores": [
+    {
+      "start": 4,
+      "end": 16,
+      "name": "rankpath",
+      "n_prompt_wins": 9,
+      "n_prompts": 12,
+      "n_prompt_wins_ge": 9,
+      "n_prompt_ties": 0,
+      "n_prompt_losses": 3,
+      "n_prompt_wins_without_isolated_tp": 0,
+      "ranking_without_isolated_tp": [],
+      "ranking_ties_without_isolated_tp": [],
+      "n_ranking_losses_with_isolated_tp": 3,
+      "ranking_losses_with_isolated_tp": [
+        "01-harbour",
+        "02-night-bus",
+        "07-rain"
+      ],
+      "n_marked_positive_on_ranking_losses": 7,
+      "binary": {
+        "n_positive": 48,
+        "n_negative": 48,
+        "auc": 0.6258680555555556,
+        "mean_positive": 0.08789682070820821,
+        "mean_negative": -0.019614702275281396,
+        "mean_diff": 0.10751152298348961,
+        "n_positive_above_zero": 32,
+        "n_negative_at_most_zero": 25,
+        "permutation_p": 0.022988505747126436,
+        "binomial_p_above_zero": 0.01465247336026465,
+        "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+        "youden_threshold": 0.17964551119064542,
+        "youden_sensitivity": 0.4166666666666667,
+        "youden_specificity": 0.8125,
+        "youden_j": 0.22916666666666674,
+        "n_perm": 2000
+      },
+      "nested_stem": {
+        "nested-youden-by-stem": {
+          "n_marked_above": 21,
+          "n_unmarked_at_most": 31,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.4375,
+          "specificity": 0.6458333333333334,
+          "mean_threshold": 0.13416942367338133,
+          "n_stems": 12,
+          "source": "nested-youden-by-stem"
+        },
+        "nested-fpr10-by-stem": {
+          "n_marked_above": 12,
+          "n_unmarked_at_most": 43,
+          "n_marked": 48,
+          "n_unmarked": 48,
+          "sensitivity": 0.25,
+          "specificity": 0.8958333333333334,
+          "mean_threshold": 0.29578458734648894,
+          "n_stems": 12,
+          "source": "nested-fpr10-by-stem"
+        }
+      },
+      "used_keys": false
+    }
+  ],
+  "has_coverage": false
+}

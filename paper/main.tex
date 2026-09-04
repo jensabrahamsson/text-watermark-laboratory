@@ -20,9 +20,14 @@
 \usepackage{enumitem}
 \usepackage{microtype}
 \usepackage{tikz}
+% ASCII ``--'' in typewriter; TeX's en-dash ligature is not a CLI flag.
+\newcommand{\ddash}{\mbox{-}\mbox{-}}
 \usepackage[round,authoryear]{natbib}
 \usepackage{url}
 \usepackage{xurl}
+% Break \path/\url only at path punctuation, not inside identifiers
+% (xurl's default letter breaks produced pai / r-distil).
+\def\UrlBreaks{\do\/\do\_\do.}
 \usepackage{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
 \captionsetup{font=small,labelfont=bf,skip=6pt,justification=raggedright}
@@ -462,10 +467,19 @@ No twin is shown at test time. The headline isolated result uses the
 prespecified $\tau=0$, not a Youden threshold \citep{youden1950index}
 fit on the same stem. The primary isolated statistic is the $2\times 2$
 confusion matrix and the balanced accuracy
-$({\mathrm{TP}}+{\mathrm{TN}})/96$ on the original set.
+$\tfrac12\bigl(\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})+\mathrm{TN}/(\mathrm{TN}+\mathrm{FP})\bigr)$.
+On the original 96 files the two classes each have 48 files, so that
+quantity equals ordinary accuracy $({\mathrm{TP}}+{\mathrm{TN}})/96=\textbf{47/96}$.
+The binomial interval $[0.386,0.594]$ is for 47 of 96 correct decisions
+under a shared Bernoulli model, not a general interval for balanced
+accuracy with separate sensitivity and specificity. Sensitivity and
+specificity keep their own intervals. Prompt-clustered sign-flip of
+balanced accuracy is reported below.
 
 The independent ranking unit is the prompt family. Leave-one-prompt-out
-tables share training mass, so families are weakly dependent.
+tables share training mass: each LOFO fit on the 100-family lock uses
+the other 99 families, so consecutive models share 98 of 99 training
+families. Results are dependent through that overlapping fit-set.
 Clopper--Pearson intervals \citep{clopper1934binomial} on win counts
 are descriptive under an independent Bernoulli model that the design
 only approximates. File-level label-shuffle permutation $p$-values
@@ -517,10 +531,11 @@ strings, not a Hub snapshot. It would matter for bitwise re-generation
 of new twins. The laboratory machine's current \texttt{gpt2} cache is
 \texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
 Qwen snapshots were not retained. Future \texttt{pair} runs should pass
-a Hub \texttt{revision} (\texttt{pair --hub-revision}).
+a Hub \texttt{revision} (\texttt{pair \ddash hub-revision}).
 \texttt{transformers==4.57.6}. SynthID-Text is
 the public reference package installed with
-\texttt{pip install -e \ldots --no-deps}. Exact frozen dumps and
+\texttt{pip install -e . \ddash no-deps}
+(the public \texttt{synthid-text} checkout). Exact frozen dumps and
 commands are in \Cref{app:artifacts}.
 \par}
 
@@ -552,8 +567,16 @@ $\alpha=0.5$ \citep{lidstone1920note}. For a context $c$ and token $y$,
 \label{eq:lidstone}
 \end{equation}
 where $V_{\mathrm{obs}}$ is the size of the union of next tokens observed in the marked
-and unmarked training unigrams, not $|\V|$. Logs are natural. If a
-context is seen in one table and unseen in the other, the unseen side
+and unmarked training unigrams, not $|\V|$. Logs are natural.
+If an evaluation token $y\notin V_{\mathrm{obs}}$, the implementation does
+not map $y$ to \texttt{UNK} and does not skip the position. The unigram
+term is $(C(\varepsilon,y)+\alpha)/(n+\alpha V_{\mathrm{obs}})$ with
+$C(\varepsilon,y)=0$, so occupancy mass $\alpha/(n+\alpha V_{\mathrm{obs}})$
+is assigned outside the training-support partition; the evaluation
+conditional is therefore not a normalized distribution over
+$V_{\mathrm{obs}}\cup\{y\}$. Interpolate tries Witten--Bell backoff
+first; the occupancy formula still applies at the empty context.
+If a context is seen in one table and unseen in the other, the unseen side
 uses unigram Lidstone (hard) or Witten--Bell backoff (interpolate).
 
 The file score is the \emph{mean} per scored position:
@@ -689,8 +712,8 @@ headline).\\
 \textbf{end for}
 \end{minipage}
 \caption{Tables for family $p$ never contain $p$'s own files. They do
-contain every other family. Shared training mass induces weak
-dependence among the $N$ wins.}
+contain every other family. Consecutive LOFO models share $N-2$ of
+$N-1$ training families, so the $N$ wins are dependent.}
 \label{alg:loo}
 \end{figure}
 
@@ -739,17 +762,19 @@ Before generating the 100 new GPT-2 families, three readers were named
 
 \begin{itemize}[leftmargin=*]
 \item \textbf{Lock A.} Interpolate last-4
-(\texttt{--methods interpolate}, \texttt{--context-len 4}).
+(\texttt{\ddash methods interpolate}, \texttt{\ddash context-len 4}).
 \item \textbf{Lock B.} Opening poshits
-(\texttt{--methods poshits --fit-prefix 4 --pos-bucket 1}).
+(\texttt{\ddash methods poshits \ddash fit-prefix 4 \ddash pos-bucket 1}).
 \item \textbf{Lock C.} Opening rankpath
-(\texttt{--rankpath --fit-prefix 4 --pos-bucket 1}).
+(\texttt{\ddash rankpath \ddash fit-prefix 4 \ddash pos-bucket 1}).
 \end{itemize}
 
 \begin{hypothesis}[H1]
 \label{hyp:h1}
 On new GPT-2 prompt families, lock~A prompt ranking
-\eqref{eq:ranking} exceeds chance (primary confirmatory endpoint).
+\eqref{eq:ranking} is the primary confirmatory endpoint. H1--H3 are
+directed predictions with descriptive evaluation; no $\alpha$ or
+rejection rule was predeclared.
 \end{hypothesis}
 
 \begin{hypothesis}[H2]
@@ -760,10 +785,11 @@ $[16{:}32)$ (opening sufficient in-domain).
 
 \begin{hypothesis}[H3]
 \label{hyp:h3}
-Lock~C (rankpath) is more generator-specific than lock~B (opening
-poshits): on DistilGPT-2 and Qwen2-1.5B, the number of GPT-2 ranking
-wins lost under native refitting is larger for rankpath than for
-poshits.
+Native-refit rankpath ranking is less stable across generator families
+than native-refit poshits: on DistilGPT-2 and Qwen2-1.5B, the number of
+GPT-2 ranking wins lost under native refitting is larger for rankpath
+than for poshits. Both readers are refit natively; this is not frozen
+GPT-2 transfer.
 \end{hypothesis}
 
 H1--H3 are predictions about prompt ranking. Isolated $\tau=0$ is
@@ -979,51 +1005,56 @@ Isolated $\tau=0$ is the full confusion matrix, not sensitivity alone.
 \begin{table}[t]
 \centering
 \footnotesize
-\caption{Locked headlines. Descriptive Clopper--Pearson 95\% intervals
+\caption{Two-grain results. Status marks exploratory versus prospective
+locks versus keyed controls. Descriptive Clopper--Pearson 95\% intervals
 invert the binomial \citep{clopper1934binomial} and ignore shared
-tables. File AUC permutation is a 2000-shuffle label permutation on
-files \citep{ernst2004permutation}, conservative $+1/(n_{\mathrm{perm}}+1)$,
-and is not a clustered test. Isolated TP/TN is marked $\LLR>0$ /
-unmarked $\LLR\le 0$ at $\tau=0$. Precision is $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$.}
+tables. Isolated TP/TN is marked $\LLR>0$ / unmarked $\LLR\le 0$ at
+$\tau=0$. Precision is $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$.
+Balanced accuracy is $\tfrac12(\mathrm{sens}+\mathrm{spec})$; on this
+$48{+}48$ set it equals accuracy $47/96$. The interval $[0.386,0.594]$
+is binomial for 47 of 96 correct decisions, not a general BA interval.
+File AUC permutation is a 2000-shuffle of file labels
+\citep{ernst2004permutation}; it ignores prompt clustering and pairing
+and is not inferential support for $\tau=0$.}
 \label{tab:headline}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm} c c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.4cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm} l c c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.6cm}@{}}
 \toprule
-Protocol & Keys & Unit & Ranking or control & Isolated $\tau=0$ \\
+Protocol & Status & Keys & Unit & Prompt-group ranking & Isolated $\tau=0$ \\
 \midrule
 Official mean, original 12 (first draw)
-  & yes & prompt & 12/12 & --- \\
+  & control & yes & prompt & 12/12 & --- \\
 \midrule
-\multicolumn{5}{l}{\emph{Key-free prompt-group ranking}} \\
+\multicolumn{6}{l}{\emph{Prompt-group ranking}} \\
 12-LOO hard last-4
-  & no & prompt & \textbf{9/12} $[0.428,0.945]$ & TP/TN 25/22 \\
+  & diagnostic & no & prompt & \textbf{9/12} $[0.428,0.945]$ & TP/TN 25/22 \\
 Hits, 36$\times$4 LOO
-  & no & prompt & \textbf{36/36} $[0.903,1.000]$; AUC $0.930$ & 136/72 \\
+  & exploratory & no & prompt & \textbf{36/36} $[0.903,1.000]$; AUC $0.930$ & 136/72 \\
 GPT-2 100$\times$4 lock~A LOO
-  & no & prompt & \textbf{99/100} $[0.946,1.000]$; AUC $0.898$ & 352/290 \\
+  & prospective & no & prompt & \textbf{99/100} $[0.946,1.000]$; AUC $0.898$ & 352/290 \\
 DistilGPT-2 lock~B native LOO
-  & no & prompt & \textbf{88/100} $[0.800,0.936]$ (1 tie) & --- \\
+  & prospective & no & prompt & \textbf{88/100} $[0.800,0.936]$ (1 tie) & --- \\
 Qwen2-1.5B lock~B native LOO
-  & no & prompt & \textbf{95/100} $[0.887,0.984]$ & --- \\
+  & prospective & no & prompt & \textbf{95/100} $[0.887,0.984]$ & --- \\
 \midrule
-\multicolumn{5}{l}{\emph{Isolated original 12, hard last-4, $\tau=0$}} \\
+\multicolumn{6}{l}{\emph{Isolated original 12, hard last-4, $\tau=0$}} \\
 Confusion matrix
-  & no & file & --- & TP 25, FN 23, TN 22, FP 26 \\
+  & diagnostic & no & file & --- & TP 25, FN 23, TN 22, FP 26 \\
 Sensitivity / specificity
-  & no & file & --- & 25/48 $[0.372,0.667]$, 22/48 $[0.314,0.608]$ \\
+  & diagnostic & no & file & --- & 25/48 $[0.372,0.667]$, 22/48 $[0.314,0.608]$ \\
 Precision
-  & no & file & --- & 25/51 $[0.348,0.634]$ \\
-Balanced accuracy (primary isolated)
-  & no & file & \textbf{47/96} ($48.96\%$) $[0.386,0.594]$ & --- \\
+  & diagnostic & no & file & --- & 25/51 $[0.348,0.634]$ \\
+Accuracy / BA (primary isolated)
+  & diagnostic & no & file & --- & \textbf{47/96} ($48.96\%$); BA equals accuracy here \\
 Prompt-clustered BA permutation
-  & no & file & stem-flip $p=0.703$ & chance under the clustered null \\
+  & diagnostic & no & file & --- & stem-flip $p=0.703$ (compatible with chance) \\
 File AUC
-  & no & file & $0.590$ (file-shuffle perm.\ $p=0.040$) & not a $\tau=0$ test \\
+  & diagnostic & no & file & --- & $0.590$ (file-shuffle $p=0.040$, unclustered) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 Hard last-4 \textbf{9/12} includes $1/2$ in its descriptive interval.
-Isolated balanced accuracy \textbf{47/96} also includes $1/2$. Mean
+Isolated accuracy / balanced accuracy \textbf{47/96} also includes $1/2$. Mean
 marked $\LLR$ on those 48 files is $+0.023$; mean unmarked is $-0.002$.
 The distributions overlap. Precision at $\tau=0$ is $25/51$
 ($[0.348,0.634]$). A prompt-clustered sign-flip of marked/unmarked
@@ -1033,7 +1064,8 @@ large as $47/96$; a within-stem $4/4$ reshuffle yields $p=0.672$.
 Zero-threshold accuracy is chance under those clustered nulls. A weakly
 informative score can still have AUC above $0.5$: AUC asks whether
 marked files tend to rank above unmarked files across thresholds
-\citep{fawcett2006roc}; the file-shuffle AUC permutation $p=0.040$ does
+\citep{fawcett2006roc}; the file-shuffle AUC permutation $p=0.040$
+ignores prompt clustering and pairing and does
 not test whether threshold zero is calibrated. The defensible isolated
 statement is: \emph{the prespecified zero threshold does not yield
 useful isolated-file decisions on this set; threshold-free file ranking
@@ -1168,8 +1200,9 @@ control from key-free four-draw ranking.
 \caption{Two different endpoints. Keyed column: first-draw official
 \texttt{detector\_mean}, marked mean $>$ unmarked mean (one file each).
 Lock B/C: four-draw empirical-$\LLR$ ranking. Distil keyed 70/100 is a
-lower official pass rate on that control, not a standalone measure of
-``watermark strength.'' Historical JSON printed Distil 89/100 and
+paired first-draw keyed-control win rate (marked mean $>$ unmarked mean),
+not a standalone official detector pass rate.
+Historical JSON printed Distil 89/100 and
 69/100 under a non-strict comparison; locked counts treat a tie as not
 a win.}
 \label{tab:cross}
@@ -1203,8 +1236,8 @@ on C, and 6 on both. Exact one-sided McNemar
 $P(X\ge 25\mid \mathrm{Bin}(31,1/2))\approx 0.00044$.
 Qwen lock~B loses 5 and gains none (net $100\to 95$); lock~C loses 15
 and gains 3 (net $96\to 84$). Qwen B-only drops 2, C-only 12, both 3;
-$P(X\ge 12\mid \mathrm{Bin}(14,1/2))\approx 0.0065$. Rankpath loses more
-GPT-2 wins than poshits on both generators. This is a post hoc
+$P(X\ge 12\mid \mathrm{Bin}(14,1/2))\approx 0.0065$. Native-refit rankpath ranking lost more GPT-2 wins than native-refit
+poshits on both generators. This is a post hoc
 clustered description of already collected scores, not a second
 preregistration.
 Lock~B starts at 100/100 and lock~C at 96/100 on GPT-2, so raw
@@ -1354,13 +1387,15 @@ Multi-key replication of the public mixin is not started. Isolated-file
 research is not finished.
 
 % =========================================================================
-\section{A Locked Next Experiment}
+\section{Preregistered extensions}
 \label{sec:next}
 
-Editorial revision cannot raise the venue ceiling by itself. The
-preregistered longer-history replication is freeze SHA \texttt{b70986d}
+The preregistered longer-history replication is freeze SHA \texttt{b70986d}
 (\path{research/PROTOCOL-next-longctx.md}), named in the laboratory
-logbook before generation (\Cref{tab:nextlock}). It lengthens the public
+logbook before generation (\Cref{tab:nextlock}). The same commit also
+names the absolute-history mask remasure
+(\path{research/PROTOCOL-isolated-mask-absolute.md}); they share a freeze
+SHA, not a dump. It lengthens the public
 mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
 checkout.
 
@@ -1384,23 +1419,23 @@ DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
 (isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
-\textbf{25/48}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is named
-in \path{research/PROTOCOL-next-kgw-qwen-100.md} (freeze SHA
-\texttt{ed9fb20};
-\path{experiments/2026-09-04-pair-qwen-100x4-kgw}) before generation
-(\Cref{tab:kgwq100}). Isolated-file detection remains unfinished.
+\textbf{25/48}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is freeze SHA
+\texttt{ed9fb20}
+(\path{research/PROTOCOL-next-kgw-qwen-100.md};
+\path{experiments/2026-09-04-pair-qwen-100x4-kgw}).
+Observed counts are in \Cref{tab:kgwq100} and the paragraph below.
+Isolated-file detection remains unfinished.
 
 \begin{table}[ht]
 \centering
 \small
-\caption{Preregistered Qwen2-1.5B Kirchenbauer 100-family measurement,
-locked before generation (protocol SHA \texttt{ed9fb20}). Observed
-key-free counts follow in the paragraph below after \texttt{results.json}
-and the frozen probe. That lock is not \textbf{25/48}.}
+\caption{Qwen2-1.5B Kirchenbauer 100-family measurement
+(protocol SHA \texttt{ed9fb20}). Flags were locked before generation.
+Observed key-free counts are dump-backed. That lock is not \textbf{25/48}.}
 \label{tab:kgwq100}
 \begin{tabular}{ll}
 \toprule
-Locked before generation & Value \\
+Item & Value \\
 \midrule
 Mixin & Hugging Face \texttt{WatermarkLogitsProcessor} (\texttt{mixin=kgw}) \\
 Generator & \texttt{Qwen/Qwen2-1.5B-Instruct} \\
@@ -1411,21 +1446,20 @@ Prompt frame & 100 one-liners, $T=128$, seed 20260904, four draws \\
 Official control & matching \texttt{WatermarkDetector} $z>3$ \\
 Reader & hard and interpolate last-4; \texttt{used\_keys=false} \\
 Fold topology & leave-one-family-out \\
-Primary isolated metric & $\tau=0$ matrix; not \textbf{25/48} \\
+Primary isolated endpoint & balanced accuracy at $\tau=0$, with the $2\times 2$ matrix \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Opened: official first-draw $z>3$ is \textbf{90/100} (unmarked 0/100).
+Official first-draw $z>3$ is \textbf{90/100} (unmarked 0/100).
 Interpolate last-4 is \textbf{96/100} (isolated \textbf{620/800});
 hard is \textbf{63/100}. Occupancy is \textbf{4858} seen versus
-\textbf{96740} unseen. That is not \textbf{25/48}.
+\textbf{96740} unseen. That lock is not \textbf{25/48}.
 Whether interpolate \textbf{96/100} is a body reader or an opening
-residual is named in
-\path{research/PROTOCOL-next-kgw-qwen-100-windows.md}
-(freeze SHA \texttt{e270546}) before those LRs.
-Opened: interpolate $[0{:}4)$ \textbf{84/100}; $[64{:}128)$
-\textbf{97/100} (AUC \textbf{0.785}). That is not chance, and not
+residual is freeze SHA \texttt{e270546}
+(\path{research/PROTOCOL-next-kgw-qwen-100-windows.md}).
+Interpolate $[0{:}4)$ is \textbf{84/100}; $[64{:}128)$ is
+\textbf{97/100} (AUC \textbf{0.785}). That is not compatible with chance, and not
 $\Hw=12$ \textbf{50/100}. JSON:
 \path{experiments/2026-09-04-probe-qwen-100x4-kgw-windows}.
 That is not \textbf{25/48}.
@@ -1438,46 +1472,57 @@ count on Distil-LM openings (\textbf{32/48 vs 31/48}). Equality of any
 later isolated count with \textbf{25/48} is not a win.
 Isolated-file detection remains unfinished.
 
-{\footnotesize
-\begin{center}
-\begin{tabular}{@{}p{0.42\textwidth}l@{}}
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Unmarked-LM rankpath cemetery on GPT-2-family twins (12-LOO).
+Isolated counts are marked $\LLR>0$ versus unmarked $\LLR\le 0$ at
+$\tau=0$. None of these isolated counts replace the original-12 hard
+headline \textbf{25/48}. Protocol files live under \texttt{research/}.}
+\label{tab:rankpath}
+\begin{tabular}{@{}llcc@{}}
 \toprule
-Protocol & Isolated $t{=}0$ / ranking \\
+Reader & Freeze & Isolated $\tau=0$ & Ranking \\
 \midrule
-\path{research/PROTOCOL-isolated-rankpath-lm.md} \texttt{d8e6f7f}
-  & Distil-LM \textbf{32/48 vs 31/48} / \textbf{10/12}; medium-LM \textbf{31/48 vs 32/48} \\
-\path{research/PROTOCOL-isolated-rankpath-m12.md} \texttt{2577771}
-  & \textbf{22/48 vs 30/48} / \textbf{6/12} \\
-\path{research/PROTOCOL-isolated-rankpath-g2m.md} \texttt{336a1fd}
-  & \textbf{20/48 vs 32/48} / \textbf{8/12} \\
-\path{research/PROTOCOL-isolated-rankpath-d2m.md} \texttt{b3fd331}
-  & \textbf{30/48 vs 31/48} / \textbf{11/12} \\
-\path{research/PROTOCOL-isolated-rankpath-g2d.md} \texttt{d62c732}
-  & \textbf{24/48 vs 27/48} / \textbf{6/12} \\
-\path{research/PROTOCOL-isolated-rankpath-m2d.md} \texttt{571d4f1}
-  & \textbf{30/48 vs 33/48} / \textbf{9/12} \\
-\path{research/PROTOCOL-isolated-rankpath-body.md} \texttt{dbc61c5}
-  & $[4{:}16)$ \textbf{20/48 vs 22/48} / \textbf{7/12} \\
-\path{research/PROTOCOL-isolated-rankpath-dbody.md} \texttt{68b0514}
-  & \textbf{24/48 vs 23/48} / \textbf{6/12} \\
-\path{research/PROTOCOL-isolated-rankpath-mbody.md} \texttt{3ea80e4}
-  & \textbf{27/48 vs 28/48} / \textbf{9/12} \\
-\path{research/PROTOCOL-isolated-rankpath-d12body.md} \texttt{468a66b}
-  & \textbf{25/48 vs 30/48} / \textbf{9/12} \\
-\path{research/PROTOCOL-isolated-rankpath-m12body.md} \texttt{37a2c43}
-  & \textbf{20/48 vs 30/48} / \textbf{6/12} \\
-\path{research/PROTOCOL-isolated-rankpath-g2dbody.md} \texttt{08b89ee}
-  & \textbf{26/48 vs 21/48} / \textbf{4/12} \\
-\path{research/PROTOCOL-isolated-rankpath-d2mbody.md} \texttt{1b4c541}
-  & \textbf{25/48 vs 33/48} / \textbf{11/12} \\
-\path{research/PROTOCOL-isolated-rankpath-g2mbody.md} \texttt{e677a6c}
-  & \textbf{28/48 vs 30/48} / \textbf{8/12} \\
-\path{research/PROTOCOL-isolated-rankpath-m2dbody.md}
-  & named before those LRs \\
+Distil-LM on GPT-2, opening & \texttt{d8e6f7f} & 32/48 vs 31/48 & 10/12 \\
+medium-LM on GPT-2, opening & \texttt{d8e6f7f} & 31/48 vs 32/48 & 10/12 \\
+medium native, opening & \texttt{2577771} & 22/48 vs 30/48 & 6/12 \\
+GPT-2-on-medium, opening & \texttt{336a1fd} & 20/48 vs 32/48 & 8/12 \\
+Distil-on-medium, opening & \texttt{b3fd331} & 30/48 vs 31/48 & 11/12 \\
+GPT-2-on-Distil, opening & \texttt{d62c732} & 24/48 vs 27/48 & 6/12 \\
+medium-on-Distil, opening & \texttt{571d4f1} & 30/48 vs 33/48 & 9/12 \\
+GPT-2 body $[4{:}16)$ & \texttt{dbc61c5} & 20/48 vs 22/48 & 7/12 \\
+Distil-LM body $[4{:}16)$ & \texttt{68b0514} & 24/48 vs 23/48 & 6/12 \\
+medium-LM body $[4{:}16)$ & \texttt{3ea80e4} & 27/48 vs 28/48 & 9/12 \\
+Distil native body $[4{:}16)$ & \texttt{468a66b} & 25/48 vs 30/48 & 9/12 \\
+medium native body $[4{:}16)$ & \texttt{37a2c43} & 20/48 vs 30/48 & 6/12 \\
+GPT-2-on-Distil body $[4{:}16)$ & \texttt{08b89ee} & 26/48 vs 21/48 & 4/12 \\
+Distil-on-medium body $[4{:}16)$ & \texttt{1b4c541} & 25/48 vs 33/48 & 11/12 \\
+GPT-2-on-medium body $[4{:}16)$ & \texttt{e677a6c} & 28/48 vs 30/48 & 8/12 \\
+medium-on-Distil body $[4{:}16)$ & \texttt{a550cb6} & 32/48 vs 25/48 & 9/12 \\
 \bottomrule
 \end{tabular}
-\end{center}
-}
+\end{table}
+
+Protocol notes:
+\texttt{PROTOCOL-isolated-rankpath-lm.md},
+\texttt{PROTOCOL-isolated-rankpath-m12.md},
+\texttt{PROTOCOL-isolated-rankpath-g2m.md},
+\texttt{PROTOCOL-isolated-rankpath-d2m.md},
+\texttt{PROTOCOL-isolated-rankpath-g2d.md},
+\texttt{PROTOCOL-isolated-rankpath-m2d.md},
+\texttt{PROTOCOL-isolated-rankpath-body.md},
+\texttt{PROTOCOL-isolated-rankpath-dbody.md},
+\texttt{PROTOCOL-isolated-rankpath-mbody.md},
+\texttt{PROTOCOL-isolated-rankpath-d12body.md},
+\texttt{PROTOCOL-isolated-rankpath-m12body.md},
+\texttt{PROTOCOL-isolated-rankpath-g2dbody.md},
+\texttt{PROTOCOL-isolated-rankpath-d2mbody.md},
+\texttt{PROTOCOL-isolated-rankpath-g2mbody.md},
+\texttt{PROTOCOL-isolated-rankpath-m2dbody.md}.
+Window dumps live under \texttt{experiments/2026-09-04-probe-*-w4-16/}.
+The frozen slice is always \texttt{window-4-16/}, not the unwindowed
+fit-prefix-16 file score. Equality with \textbf{25/48} is not a win.
 
 An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
@@ -1588,7 +1633,7 @@ Reader & hard and interpolate last-4 (lock~A analog) \\
 Fold topology & Algorithm~1 leave-one-family-out \\
 Zero / abstention & $n=0\Rightarrow\LLR=0$; coverage reported \\
 Primary group metric & $D_p$ sign count, strict $>$ \\
-Primary isolated metric & $\tau=0$ matrix, balanced accuracy, AUC \\
+Primary isolated endpoint & balanced accuracy at $\tau=0$, with the $2\times 2$ matrix \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1623,8 +1668,9 @@ Phase~B). Official matching $\mathtt{ngram\_len}=13$ is above $0.55$ on
 ranks \textbf{76/100} (AUC $0.666$; $\tau=0$ is 267 TP, 133 FN, 222 TN,
 178 FP; balanced accuracy $489/800$), below public-mixin lock~A
 \textbf{99/100} on these prompt strings. Hard is \textbf{66/100}
-(AUC $0.579$; balanced accuracy $436/800$). The original-12 $\Hw=12$ set \textbf{6/12} was
-small-$n$; the 100-family readout shows attenuation, not collapse.
+(AUC $0.579$; balanced accuracy $436/800$). The original-12 $\Hw=12$ set \textbf{6/12} is
+imprecisely estimated at $n=12$; the 100-family readout is a cross-run
+contrast, not a one-factor proof that longer history drops ranking.
 Prompt-clustered sign permutation on interpolate $D_p$ is
 $p\approx 0.0005$ (2000 prompt-mean sign shuffles). Isolated
 $489/800$ is a different corpus from the original-12 \textbf{47/96}.
@@ -1640,7 +1686,12 @@ lock~A (\Cref{fig:locka}, mean $0.520$).
 \caption{Leave-one-family-out interpolate occupancy: exact next-token
 events versus Witten--Bell backoff. File LRs match the interpolate
 holdouts. Occupancy is a mechanistic intermediate, not an isolated-file
-detector.}
+detector. Opening rows sum to $96\times 3$ and $800\times 3$ (token 0
+skipped). Full-file seen$+$unseen is a few events short of $N\times 127$
+(6 on original-12 $\Hw=12$; 11 on public original-12; 98 and 89 on the
+100-family frame): the atoms decoder counts interpolate traces and
+omits a position when context selection returns none. We report observed
+traces, not a padded 127-slot grid.}
 \label{tab:occ}
 \begin{tabular}{lrrrr}
 \toprule
@@ -1809,17 +1860,18 @@ permutation of balanced accuracy is consistent with chance. Official
 keyed leftover detection remains 20/20 where the empirical reader is
 chance (\Cref{tab:split}).
 
-These results establish paired-reference indication at the group grain
-for one public SynthID-Text instance. They do not establish calibrated
+These results demonstrate paired-reference indication at the group grain
+within the studied setting for one public SynthID-Text instance. They do not establish calibrated
 standalone indication on an unfamiliar file, a universal key-free
 detector, key recovery, or a refutation of
 \citet{christ2024undetectable} or \citet{zhang2024sand}. A preregistered
 lengthening of the public mixin to $\Hw=12$ (freeze SHA \texttt{b70986d})
-drops interpolate last-4 ranking from lock~A \textbf{99/100} to
-\textbf{76/100} on 100 one-liners, while official matching scores remain
+is a cross-run contrast on the same prompt strings with new twins:
+interpolate last-4 ranking is \textbf{76/100} against lock~A
+\textbf{99/100} on 100 one-liners, while official matching scores remain
 above $0.55$ on all 400 marked files. Exact next-token occupancy is
 lower than under public $\Hw=4$ (\Cref{tab:occ}). The original-12 readout is
-\textbf{6/12} (underpowered; clustered permutation $p=0.247$). Isolated
+\textbf{6/12} (imprecisely estimated at $n=12$; clustered permutation $p=0.247$). Isolated
 $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
 \textbf{25/48} sensitivity and \textbf{47/96} correct. On a Kirchenbauer
 green-list mixin with one-token seeding, interpolate last-4 ranks
@@ -1839,7 +1891,8 @@ Code and frozen JSON:
 \paragraph{Software.}
 Python $\ge 3.10$; \texttt{transformers==4.57.6}; CPU JAX for official
 \texttt{detector\_mean}; SynthID-Text public checkout installed with
-\texttt{pip install -e \ldots --no-deps}. Hugging Face ids:
+\texttt{pip install -e . \ddash no-deps} in the public \texttt{synthid-text}
+checkout. Hugging Face ids:
 \texttt{gpt2}, \texttt{distilgpt2}, \texttt{Qwen/Qwen2-1.5B-Instruct}.
 Hub commit SHAs were not recorded at generation time. Published scores
 use the committed strings (\Cref{sec:generation}); they do not re-download
@@ -1857,25 +1910,28 @@ Analysis-code SHA \texttt{bbc802e} (truncated-context recount). Flags
 were not changed after the first run.
 
 \paragraph{Headline commands.}
+Variables: \texttt{PAIR12}=\texttt{experiments/2026-08-17-pair-12x4},
+\texttt{PAIR36}=\texttt{experiments/2026-08-17-pair-36},
+\texttt{PAIRDIR} is a new pair out-dir.
 {\raggedright\scriptsize
-\texttt{python -m text\_watermark\_tools probe PAIR12 --methods hard --context-len 4}\\
-\texttt{python -m text\_watermark\_tools probe PAIR36 --methods hits}\\
+\texttt{python -m text\_watermark\_tools probe PAIR12 \ddash methods hard \ddash context-len 4}\\
+\texttt{python -m text\_watermark\_tools probe PAIR36 \ddash methods hits}\\
 \texttt{python -m text\_watermark\_tools pair experiments/2026-09-01-prompts-100}\\
-\texttt{\hspace{1em}--n-samples 4 --max-new-tokens 128 --seed 20260901}\\
+\texttt{\hspace{1em}\ddash n-samples 4 \ddash max-new-tokens 128 \ddash seed 20260901}\\
 \texttt{python -m text\_watermark\_tools probe experiments/2026-09-01-pair-100x4}\\
-\texttt{\hspace{1em}--methods interpolate --context-len 4}\\
-\texttt{python -m text\_watermark\_tools atoms --leave-one-out}\\
-\texttt{\hspace{1em}--test-dir experiments/2026-09-03-pair-12x4-ngram13}\\
-\texttt{python -m text\_watermark\_tools pair PAIRDIR --hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{\hspace{1em}\ddash methods interpolate \ddash context-len 4}\\
+\texttt{python -m text\_watermark\_tools atoms \ddash leave-one-out}\\
+\texttt{\hspace{1em}\ddash test-dir experiments/2026-09-03-pair-12x4-ngram13}\\
+\texttt{python -m text\_watermark\_tools pair PAIRDIR \ddash hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
 \texttt{python -m text\_watermark\_tools pair experiments/2026-08-17-grok-prompts}\\
-\texttt{\hspace{1em}--n-samples 4 --max-new-tokens 128 --seed 20260904 --mixin kgw}\\
-\texttt{\hspace{1em}--hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
-\texttt{\hspace{1em}--out-dir experiments/2026-09-03-pair-12x4-kgw}\\
+\texttt{\hspace{1em}\ddash n-samples 4 \ddash max-new-tokens 128 \ddash seed 20260904 \ddash mixin kgw}\\
+\texttt{\hspace{1em}\ddash hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{\hspace{1em}\ddash out-dir experiments/2026-09-03-pair-12x4-kgw}\\
 \par}
 
 Distil/Qwen Phase~B replace the model flag and run locks B and C only
-(\texttt{--methods poshits --fit-prefix 4 --pos-bucket 1};
-\texttt{--rankpath --fit-prefix 4 --pos-bucket 1}).
+(\texttt{\ddash methods poshits \ddash fit-prefix 4 \ddash pos-bucket 1};
+\texttt{\ddash rankpath \ddash fit-prefix 4 \ddash pos-bucket 1}).
 
 \paragraph{Frozen result files.}
 SHA-256 prefixes (first 16 hex digits) identify the JSON dumps.
@@ -2089,19 +2145,18 @@ Qwen Aaronson 100 occupancy:
 \path{experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json}
 (\texttt{d3932e3b1346789b}; 8750 seen versus 92842 unseen).
 Qwen Kirchenbauer 100-family freeze: \texttt{ed9fb20}.
-Named before generation. Pair out-dir:
+Pair out-dir:
 \path{experiments/2026-09-04-pair-qwen-100x4-kgw}.
-Do not invent interpolate counts while that pair is running.
-That lock is not \textbf{25/48}.
+Official first-draw $z>3$ \textbf{90/100}; interpolate \textbf{96/100}
+(isolated \textbf{620/800}). That lock is not \textbf{25/48}.
 Distil / gpt2-medium unmarked-LM opening rankpath freeze:
 \texttt{d8e6f7f}. Distil-LM isolated $32/48$ vs $31/48$ (ranking $10/12$).
-gpt2-medium-LM isolated $31/48$ vs $32/48$. Do not sell $32/48$ or
-$31/48$. Twins:
+gpt2-medium-LM isolated $31/48$ vs $32/48$. Those isolated counts are
+not \textbf{25/48}. Twins:
 \path{experiments/2026-08-17-pair-12x4}.
 Out-dirs:
 \path{experiments/2026-09-04-probe-12x4-rankpath-distil-lm},
 \path{experiments/2026-09-04-probe-12x4-rankpath-medium-lm}.
-Do not invent those scores. That lock is not \textbf{25/48}.
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
@@ -2166,8 +2221,9 @@ $[8{:}128)$ & $9/12$ & $9/12$ & $4/12$ & $3/12$ \\
 Main-text \Cref{sec:next}: $\Hw=12$ interpolate ranking is
 \textbf{76/100} on 100 one-liners and \textbf{6/12} on the original 12
 strings. Official matching scores remain above $0.55$. Group ranking
-\textbf{76/100} is below lock~A \textbf{99/100}; isolated original-12
-remains \textbf{47/96}. Exact next-token occupancy is lower under
+\textbf{76/100} is below lock~A \textbf{99/100}. The public $\Hw=4$
+headline remains \textbf{47/96}; the new $\Hw=12$ twins yield isolated
+$52/96$. Exact next-token occupancy is lower under
 $\Hw=12$ than under public $\Hw=4$ (\Cref{tab:occ}).
 
 \paragraph{Control keys.}

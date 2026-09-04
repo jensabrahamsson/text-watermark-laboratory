@@ -117,5 +117,20 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpm2dbody **fails** as a raw count. gpt2-medium unmarked-LM rankpath on
+Distil generated tokens `[4:16)` ranks **9/12**; isolated **32/48 vs 25/48**
+(AUC **0.626**; nested-by-stem Youden **21/48 vs 31/48**).
+`used_keys=false`. `model_name` is `gpt2-medium`. Clopper–Pearson 95% on
+**32/48** excludes ½. Medium-on-Distil opening `[0:4)` stays **9/12**,
+isolated **30/48 vs 33/48**. Distil native `[4:16)` stays **9/12**,
+isolated **25/48 vs 30/48**. GPT-2-on-Distil `[4:16)` stays **4/12**,
+isolated **26/48 vs 21/48**. The unwindowed fit-prefix-16 file score on
+this run is **9/12**, isolated **28/48 vs 31/48**; that is not the frozen
+slice and is not the locked headline **25/48**. Do not sell **32/48**,
+**9/12**, or parent **28/48**. JSON:
+[experiments/2026-09-04-probe-distil-12x4-rankpath-medium-w4-16/window-4-16/](../experiments/2026-09-04-probe-distil-12x4-rankpath-medium-w4-16/window-4-16/).
+
+H-rpm2dbody-iso **holds**. Isolated **32/48** is seven files above hard
+**25/48** and is not a universal isolated-file detector. Do not
+leftover-slice. Do not merge PR **#9**. Isolated-file remains open. Do
+not write `thesis/`.

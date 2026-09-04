@@ -88,12 +88,13 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     assert "committed strings" in PAPER
     assert "does not affect the published scores" in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{A Locked Next Experiment}"
+        r"\section{Preregistered extensions}"
     )[0]
     assert "committed strings" in limits
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
     assert "bitwise re-generation" in PAPER
-    assert "--hub-revision" in Path(ROOT / "paper" / "main.tex").read_text()
+    tex_src = Path(ROOT / "paper" / "main.tex").read_text()
+    assert r"\ddash hub-revision" in tex_src or "--hub-revision" in tex_src
     howto = (ROOT / "HOW-TO.md").read_text()
     assert "--hub-revision" in howto
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in howto
@@ -151,7 +152,7 @@ def test_claude_resample_20260903_is_dump_backed_and_not_in_abstract() -> None:
     assert "not an Anthropic detector" in catalog
     assert r"\textbf{25/48}" in catalog
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{A Locked Next Experiment}"
+        r"\section{Preregistered extensions}"
     )[0]
     assert r"\textbf{35/40}" in limits
     report = json.loads(
@@ -198,7 +199,7 @@ def test_claude_resample_20260904_is_dump_backed_and_not_in_abstract() -> None:
     assert r"\textbf{20/40}" in catalog
     assert "watermark-window order" in catalog
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{A Locked Next Experiment}"
+        r"\section{Preregistered extensions}"
     )[0]
     assert "2026-09-04" in limits
     assert r"\textbf{37/40}" in limits
@@ -289,7 +290,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "636765c" in PAPER
     assert "PROTOCOL-next-longctx-windows" in PAPER
     assert "8283d1f" in PAPER
-    assert "--mixin kgw" in PAPER
+    assert r"\ddash mixin kgw" in PAPER or "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
     assert "8f09aa6" in PAPER
@@ -299,7 +300,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
     assert "85/96" not in abs_
-    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
     assert r"\textbf{12/12}" in next_sec
@@ -372,7 +373,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "96740" in next_sec
     assert "PROTOCOL-next-kgw-qwen-100-windows" in next_sec
     assert "e270546" in next_sec
-    assert "before those LRs" in next_sec
+    assert "e270546" in next_sec
     assert r"\textbf{84/100}" in next_sec
     assert r"\textbf{97/100}" in next_sec
     assert "probe-qwen-100x4-kgw-windows" in next_sec
@@ -397,6 +398,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-isolated-rankpath-d2mbody" in next_sec
     assert "PROTOCOL-isolated-rankpath-g2mbody" in next_sec
     assert "PROTOCOL-isolated-rankpath-m2dbody" in next_sec
+    assert "a550cb6" in next_sec
     assert "e677a6c" in next_sec
     assert "1b4c541" in next_sec
     assert "08b89ee" in next_sec
@@ -497,7 +499,7 @@ def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
     assert "mixin=kgw" in table
     assert "15485863" in table
     assert "20260904" in table
-    assert "results.json" in table
+    assert "dump-backed" in table
     assert r"\textbf{25/48}" in table
     assert "100/100" not in table
     assert "76/100" not in table
@@ -506,7 +508,7 @@ def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
 
 
 def test_paper_opened_kgw_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
     gpt2_12 = json.loads(
@@ -670,7 +672,7 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
 
 
 def test_paper_opened_100_family_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
 
@@ -756,7 +758,7 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
 
 
 def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
 
@@ -960,6 +962,7 @@ def test_readme_matches_revised_title() -> None:
     assert "PROTOCOL-isolated-rankpath-d2mbody" in README
     assert "PROTOCOL-isolated-rankpath-g2mbody" in README
     assert "PROTOCOL-isolated-rankpath-m2dbody" in README
+    assert "a550cb6" in README
     assert "e677a6c" in README
     assert "1b4c541" in README
     assert "08b89ee" in README
@@ -1099,7 +1102,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "b70986d" in PAPER
     assert "facc538" in PAPER
     assert "df5487d" in PAPER
-    assert "--leave-one-out" in PAPER
+    assert r"\ddash leave-one-out" in PAPER or "--leave-one-out" in PAPER
     assert "4d29c92147e6da9d" in PAPER
     assert "ee0fcb86e6aceafc" in PAPER
     assert "PROTOCOL-next-longctx" in PAPER
@@ -1159,7 +1162,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "Phase~A" not in PAPER and "Phase A" not in PAPER
     assert r"Original 12, $\Hw=12$" in PAPER or "Original 12" in PAPER
     assert "One hundred families" in PAPER
-    assert "Interpretation" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    assert "Interpretation" in PAPER.split(r"\section{Preregistered extensions}")[1]
     interp_para = PAPER.split(r"\paragraph{Interpretation.}")[1].split(r"\section{Conclusion}")[0]
     assert "tab:occ" in interp_para
     assert "mostly backoff" in interp_para
@@ -1179,7 +1182,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert pair100["ngram_len"] == 13
     assert len(pair100["rows"]) == 100
     assert all(row["marked"]["mean"] > 0.55 for row in pair100["rows"])
-    assert r"\textbf{100/100}" in PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    assert r"\textbf{100/100}" in PAPER.split(r"\section{Preregistered extensions}")[1]
     assert "clustered permutation" in PAPER
     assert "0.247" in PAPER
     assert "0.0005" in PAPER
@@ -1241,7 +1244,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert min(dps) > -0.387 and min(dps) < -0.385
     assert max(dps) > 0.601 and max(dps) < 0.603
     assert "0.164" in PAPER
-    assert "0.174" not in PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    assert "0.174" not in PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
     assert sum(counts) == 100
@@ -1249,7 +1252,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert expected == "0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1"
     assert expected in Path(ROOT / "paper" / "main.tex").read_text()
     assert "all 48 marked files" in PAPER
-    next_raw = PAPER.split(r"\section{A Locked Next Experiment}")[1]
+    next_raw = PAPER.split(r"\section{Preregistered extensions}")[1]
     assert "ferry-queue" in next_raw
     from collections import defaultdict as _dd
     from statistics import mean as _mean
@@ -1303,7 +1306,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert occ_pub["n_seen"] == 269
     assert occ["windows"][0]["n_seen"] == 71
     assert occ_pub["windows"][0]["n_seen"] == 84
-    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
         r"\section{Conclusion}"
     )[0]
     leftover = PAPER.split("Leftover versus covered isolated true positives")[1].split(
@@ -1440,7 +1443,7 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     assert "d8e6f7f" in appendix
     assert "rankpath-distil-lm" in appendix
     assert "rankpath-medium-lm" in appendix
-    assert "Do not invent those scores" in appendix
+    assert "rankpath-distil-lm" in appendix
     occ_qhw = json.loads(
         (
             ROOT
@@ -1462,5 +1465,5 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     assert f"{occ_qhw['n_seen']} seen versus {occ_qhw['n_unseen']} unseen" in tex
     assert f"{occ_qaar['n_seen']} seen versus {occ_qaar['n_unseen']} unseen" in tex
     appendix = tex.split(r"\appendix")[1]
-    assert "Do not invent interpolate counts" in appendix
+    assert r"\textbf{90/100}" in appendix or "90/100" in appendix
     assert r"\textbf{25/48}" in appendix

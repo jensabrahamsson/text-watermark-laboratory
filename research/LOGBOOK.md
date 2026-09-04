@@ -3359,4 +3359,16 @@ isolated **26/48 vs 21/48**. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`. Freeze SHA
 `a550cb6`.
 
+## 2026-09-04 medium-on-Distil rankpath body [4:16) opened
+
+H-rpm2dbody **fails** as a raw count. Medium-on-Distil rankpath on
+`[4:16)` is ranking **9/12**, isolated **32/48 vs 25/48** (AUC **0.626**;
+nested **21/48 vs 31/48**). `used_keys=false`. Opening stays **9/12**,
+isolated **30/48 vs 33/48**. Distil native `[4:16)` stays **9/12**,
+isolated **25/48 vs 30/48**. GPT-2-on-Distil `[4:16)` stays **4/12**,
+isolated **26/48 vs 21/48**. The unwindowed fit-prefix-16 file score
+**28/48 vs 31/48** is not the frozen slice. Do not sell **32/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---
