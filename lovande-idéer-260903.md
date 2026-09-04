@@ -1076,7 +1076,33 @@ weaker isolated than last-1 interpolate (GPT-2 **248/400** vs
 interpolate slightly beat last-1 interpolate ranking. Interpolate is
 not the isolated Aaronson mid-file reader at either width. Do not
 leftover-target those zeros. Do not sell interpolate last-4 4:16
-**98/100** / **248/400** / Qwen **188/400**. Do not sell
+**98/100** / **248/400** / Qwen **188/400**. Existing `unigram` (token
+identity, no context; not a new method name) ranks Aaronson mid on
+GPT-2 / Distil but isolated sits with interpolate, below last-1
+hits/hard (`used_keys=false`, `--skip-nested`; isolated
+from `holdout.md`):
+
+| Window | last-1 hits | unigram |
+|---|---|---|
+| GPT-2 4:16 | **100/100**, 0.988, **380/400** | 95/100, 0.936, **308/400** |
+| GPT-2 16:32 | **99/100**, 0.983, **372/400** | 94/100, 0.945, **332/400** |
+| GPT-2 32:64 | **100/100**, 0.985, **368/400** | 95/100, 0.946, **288/400** |
+| Distil 4:16 | **97/100**, 0.934, **376/400** | 91/100, 0.868, **320/400** |
+| Distil 16:32 | **97/100**, 0.949, **380/400** | 92/100, 0.870, **316/400** |
+| Distil 32:64 | **96/100**, 0.942, **372/400** | 91/100, 0.860, **300/400** |
+| Qwen 4:16 | **97/100**, 0.970, **356/400** | 84/100, 0.792, **180/400** |
+| Qwen 16:32 | **100/100**, 0.979, **340/400** | 90/100, 0.844, **232/400** |
+| Qwen 32:64 | **100/100**, 0.994, **372/400** | 95/100, 0.902, **228/400** |
+
+GPT-2 unigram 4:16 has **18** ranking-only; Qwen 4:16 has **39**.
+Qwen unigram 4:16 isolated **180/400** is chance at $\tau=0$
+(file-level binom $p\approx 0.98$); last-1 hits **356/400** is not.
+Distil unigram 4:16 has **1** ranking loss with isolated TP; do not
+leftover-target it. The Aaronson mid-file leak is not a bag of tokens.
+Same qualitative split as Kirchenbauer unigram mid sitting below
+last-1 hits. Do not leftover-target those zeros. Do not sell unigram
+4:16 **95/100** / **308/400** / Distil **320/400** / Qwen **180/400**.
+Do not sell
 interpolate last-1 4:16 **99/100** / **312/400** / Qwen **244/400**. Do not leftover-target last-1 ranking-only zeros. Do
 not sell last-4 hard 4:16 **92/100** / Qwen **62/100** /
 **172/400**. Do not sell hard 4:16 **99/100** / **384/400** / Distil **94/100** / Qwen
@@ -1655,8 +1681,13 @@ and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
    isolated (GPT-2 4:16 **384/400**). Last-4 hard mid sits below that
    width (Qwen 4:16 **62/100**). Last-1 interpolate ranks the Aaronson
    mid with ranking-without-isolated-TP (GPT-2 4:16 **312/400**). Last-4
-   interpolate mid isolated is weaker (Qwen 4:16 **188/400**). Do not leftover-target
-   those zeros. Aaronson last-2 at n=100 matches last-1 isolated
+   interpolate mid isolated is weaker (Qwen 4:16 **188/400**). Existing
+   `unigram` ranks Aaronson mid on GPT-2 / Distil (4:16 **95/100** /
+   **91/100**) but isolated sits below hits (GPT-2 **308/400** vs
+   **380/400**; Distil **320/400** vs **376/400**). Qwen unigram 4:16
+   isolated **180/400** is chance (file-level binom $p\approx 0.98$)
+   versus last-1 hits **356/400**. The Aaronson body leak is not a bag
+   of tokens. Do not leftover-target those zeros. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
 specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
 sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
@@ -1710,7 +1741,8 @@ Qwen interpolate last-4 freeze **216/400 vs 400/400**, Aaronson last-1 hashpool 
 **384/400** / Distil ranking **94/100** / Qwen **360/400**, Aaronson last-4 hard 4:16
 **92/100** / Qwen **62/100** / isolated **172/400**, Aaronson last-1 interpolate 4:16
 **312/400** / Qwen **244/400**, Aaronson last-4 interpolate 4:16
-**248/400** / Qwen **188/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
+**248/400** / Qwen **188/400**, Aaronson unigram 4:16 **95/100** /
+**308/400** / Distil **320/400** / Qwen **180/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
@@ -2198,6 +2230,21 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aar
   --model Qwen/Qwen2-1.5B-Instruct --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-interp-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods unigram --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-unigram-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3925,7 +3972,11 @@ A freeze of **width and mixin geography** that already moved a grain:
    **360/400**). Last-4 hard mid sits below that width (GPT-2 4:16
    **92/100**, **328/400**; Qwen **62/100**, AUC **0.612**, **172/400**). Last-1 interpolate ranks those slices with
    ranking-without-isolated-TP (GPT-2 4:16 **312/400**, **21** ranking-only). Last-4 interpolate mid isolated is weaker
-   (GPT-2 4:16 **248/400**; Qwen **188/400**). Interpolate last-1 isolated at n=100 is
+   (GPT-2 4:16 **248/400**; Qwen **188/400**). Existing `unigram` ranks
+   Aaronson mid on GPT-2 / Distil (4:16 **95/100** / **91/100**) with
+   isolated below hits (**308/400** / **320/400** vs **380/400** /
+   **376/400**); Qwen unigram 4:16 isolated **180/400** is chance.
+   Interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
    (**284/400**). Freeze interpolate last-4 is the same split
    (opening **380/400**, full-file **208/400** equals the tail). Last-4
