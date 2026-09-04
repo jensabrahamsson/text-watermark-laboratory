@@ -4011,9 +4011,16 @@ ranking is chance (**48/100**, AUC **0.494**, perm $p\approx 0.39$);
 **204/400** is chance (binom $p\approx 0.36$); last-2 32:64 ranking
 **71/100** with isolated **211/400** chance (binom $p\approx 0.15$).
 GPT-2/medium last-4 hard at n=100 is opening-only; Qwen last-4 4:128
-still has isolated mass (with FPs). Do not leftover-target the **2** /
+still has isolated mass (with FPs). Last-4 8:128 is **75/100**, 0.594,
+**346/400**, unmarked $\le 0$ **117/400**, **3** ranking-only; last-4
+64:128 is **74/100**, 0.608, **336/400**, unmarked $\le 0$ **134/400**,
+**2** ranking-only. That tail sits with full-file last-4 **74/100** /
+**351/400** and with last-2 tail ranking **71/100**, not GPT-2 last-4
+8:128 **37/100** / **175/400** or 64:128 **47/100**. Qwen last-4 hard
+is not opening-only. Do not leftover-target the **2** /
 **3** ranking-only. Do not sell Qwen last-4 4:128 **70/100** /
-**338/400**, last-2 **66/100** / **228/400**, or last-4 32:64
+**338/400**, last-2 **66/100** / **228/400**, last-4 8:128 **75/100**
+/ **346/400**, last-4 64:128 **74/100** / **336/400**, or last-4 32:64
 **71/100** / **314/400**. Mid slices on GPT-2 100
 (`used_keys=false`, `--skip-nested`; isolated from `holdout.md`)
 confirm that last-2 is **not** a Kirchenbauer body reader:
@@ -4332,10 +4339,13 @@ kill Qwen last-4 the way it kills GPT-2 last-4: 4:128 last-4
 **70/100** / **338/400** versus last-2 **66/100** / **228/400**.
 Last-4 4:16 ranking was chance **48/100**; the 4:128 remainder sits
 with last-4 16:32 **63/100** / **284/400** and 32:64 **71/100** /
-**314/400**, not GPT-2 last-4 mid chance. Do not leftover-target the
+**314/400**, not GPT-2 last-4 mid chance. Last-4 8:128 **75/100** /
+**346/400** and 64:128 **74/100** / **336/400** sit with full-file
+last-4 **74/100** / **351/400**, not GPT-2 last-4 8:128 **37/100** or
+64:128 **47/100**. Do not leftover-target the
 **2** / **3** ranking-only. Do not sell **330/400**,
-**66/100**, **351/400**, Qwen opening **88/100**, or those 4:128
-counts. Occupancy-free
+**66/100**, **351/400**, Qwen opening **88/100**, or those 4:128 /
+8:128 / 64:128 counts. Occupancy-free
 `postokhits` last-2 on the original 12
 is **9/12 / 23/48**, unmarked $\le 0$ **48/48** — the same isolated
 count as last-4 `postokhits`. Hard last-2 **34/48** is not that
@@ -4402,7 +4412,9 @@ in the file mean without falling into last-1 unigram collapse. It is
 not a body-hash match (n=100 last-2 tail **58/100**; Kirchenbauer
 last-1 tail is **100/100**). GPT-2/medium last-4 hard at n=100 is
 opening-only after 0:4; Qwen last-4 4:128 still ranks **70/100** /
-**338/400** and last-2 does not beat it. Grok-register 12 last-2 isolated
+**338/400** and last-2 does not beat it. Qwen last-4 8:128 **75/100**
+/ **346/400** and 64:128 **74/100** / **336/400** sit with full-file
+last-4, not GPT-2 last-4 tail chance. Grok-register 12 last-2 isolated
 **34/48** is not that opening-only split (0:4 **31/48**, tail
 **30/48**). It is tied to short tournament history:
 `ngram_len=13` ($\Hw=12$) last-2 does not rescue ranking (12×4 isolated
@@ -4436,8 +4448,9 @@ medium mask 4:128 **75/100** / **288/400** or last-4 **52/100** /
 **194/400**. Do not sell Distil mask 4:128 **63/100** / **175/400**.
 Do not leftover-target Distil ranking-only zeros. Do not sell Qwen
 mask 4:128 last-4 **70/100** / **338/400**, last-2 **66/100** /
-**228/400**, last-4 4:16 **48/100**, last-4 16:32 **63/100** /
-**284/400**, or last-4 32:64 **71/100** / **314/400**. Do not leftover-target
+**228/400**, last-4 8:128 **75/100** / **346/400**, last-4 64:128
+**74/100** / **336/400**, last-4 4:16 **48/100**, last-4 16:32
+**63/100** / **284/400**, or last-4 32:64 **71/100** / **314/400**. Do not leftover-target
 those Qwen ranking-only zeros. Do not sell
 transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
@@ -4525,6 +4538,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
   --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:128 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-k4-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 8:128,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-k4-mask-tail-ends
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
   --methods hard --context-len 2 --skip-hashpool \
@@ -4758,6 +4776,8 @@ overstate geography, and original-12 last-4 mask **9/12** overstates
 Qwen last-4 4:128 still ranks **70/100** / **338/400** (unmarked
 $\le 0$ **117/400**), sitting with last-4 32:64 **71/100** /
 **314/400**; last-2 4:128 **66/100** / **228/400** does not beat it.
+Last-4 8:128 **75/100** / **346/400** and 64:128 **74/100** /
+**336/400** sit with full-file last-4, not GPT-2 last-4 tail chance.
 It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump
 (matching last-12 to $\Hw=12$ does not recover it; DistilGPT2 $\Hw=12$
@@ -5207,9 +5227,12 @@ A freeze of **width and mixin geography** that already moved a grain:
    still ranks **70/100** / **338/400** (unmarked $\le 0$ **117/400**);
    last-2 4:128 **66/100** / **228/400** does not beat last-4. That
    remainder sits with Qwen last-4 16:32 **63/100** / **284/400** and
-   32:64 **71/100** / **314/400**, not GPT-2 last-4 mid chance. Do not
-   leftover-target the **2** / **3** ranking-only. Do not sell those
-   Qwen 4:128 counts. Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
+   32:64 **71/100** / **314/400**, not GPT-2 last-4 mid chance. Last-4
+   8:128 **75/100** / **346/400** and 64:128 **74/100** / **336/400**
+   sit with full-file last-4 **74/100** / **351/400**, not GPT-2 last-4
+   8:128 **37/100** or 64:128 **47/100**. Do not leftover-target the
+   **2** / **3** ranking-only. Do not sell those Qwen 4:128 / 8:128 /
+   64:128 counts. Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
    weak (**75/100**). gpt2-medium last-2 hits 4:16 sits with GPT-2
    (**96/100**); Qwen last-2 hits 4:16 is **79/100**. Last-2 `hashpool`
