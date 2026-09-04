@@ -2647,6 +2647,23 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-qwen-12x4-aaronson
 ```
 
+## 2026-09-04 Qwen2-1.5B Aaronson opened
+
+[PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md) named
+`406c91d`. Pair seed **20260905**, `--mixin aaronson`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw z>3 **12/12**
+(H-aar-q-ctrl holds; unmarked **0/12**). Interpolate last-4 **12/12**
+(AUC **0.993**, isolated **12/48 vs 48/48**, BA **60/96**; 9/12 ranking
+wins have 0 isolated TPs). Hard **12/12** (AUC **0.911**, isolated
+**24/48 vs 48/48**, BA **72/96**). Occupancy **457** seen vs **11735**
+unseen. `used_keys=false`. Do not sell **12/12** or **60/96** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
+`experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-12x4-aaronson/`.
+
 
 
 

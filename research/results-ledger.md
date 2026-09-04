@@ -570,7 +570,12 @@ not sell **4/12** or **41/96**. Isolated-file remains open. DistilGPT2 Aaronson
 12-LOO is [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
 (freeze SHA `9bdf12a`). Opened: official z>3 **12/12**; interpolate
 **7/12** (isolated **0/48 vs 48/48**); hard **7/12** (**56/96**);
-occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains open. Sol's different-mixin two-grain
+occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains open. Qwen2-1.5B Aaronson
+12-LOO is [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md)
+(freeze SHA `1171d5c`). Opened: official z>3 **12/12**; interpolate
+**12/12** (isolated **12/48 vs 48/48**, **60/96**); hard **12/12**
+(**72/96**); occupancy **457** seen. Do not sell **12/12** or
+**60/96**. Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
@@ -621,6 +626,20 @@ or **0/48**. Does not replace **25/48**.
 JSON: `experiments/2026-09-04-pair-distil-12x4-aaronson/`,
 `experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-12x4-aaronson/`.
+
+## Qwen2-1.5B Aaronson–Kirchner 12-LOO
+
+Protocol SHA `1171d5c`; named `406c91d`. Official first-draw z>3
+**12/12**. Interpolate last-4 **12/12**, isolated **12/48 vs 48/48**
+(**60/96**), AUC **0.993**; 9/12 ranking wins have 0 isolated TPs.
+Hard **12/12**, isolated **24/48 vs 48/48** (**72/96**). Occupancy
+**457** seen vs **11735** unseen. Above Distil Aaronson interpolate
+**7/12**. Do not sell **12/12** or **60/96**. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
+`experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-12x4-aaronson/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

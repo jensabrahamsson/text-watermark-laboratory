@@ -266,7 +266,11 @@ $0.515$). Do not sell **4/12** or **41/96**. DistilGPT2 Aaronson 12-LOO is
 [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
 (freeze SHA `9bdf12a`). Opened: interpolate **7/12** (isolated
 **0/48 vs 48/48**); hard **7/12** (**56/96**). Do not sell **7/12**
-or **0/48**. Isolated-file detection is still not
+or **0/48**. Qwen2-1.5B Aaronson 12-LOO is
+[PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md)
+(freeze SHA `1171d5c`). Opened: interpolate **12/12** (isolated
+**12/48 vs 48/48**, **60/96**); hard **12/12** (**72/96**). Do not
+sell **12/12** or **60/96**. Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
 defaults, `--mixin kgw`, seed **20260904**). Opened: official z>3
@@ -284,7 +288,7 @@ occupancy **4557** seen vs **96991** unseen. Do not sell **12/12**,
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
-  interpolate **12/18**, Distil $\Hw=12$ **9/12** / **49/96**, Qwen $\Hw=12$ **4/12** / **41/96**, Distil Aaronson **7/12** / **0/48**, Distil occupancy-free **22/48**, leftover Distil
+  interpolate **12/18**, Distil $\Hw=12$ **9/12** / **49/96**, Qwen $\Hw=12$ **4/12** / **41/96**, Distil Aaronson **7/12** / **0/48**, Qwen Aaronson **12/12** / **60/96**, Distil occupancy-free **22/48**, leftover Distil
   **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, absolute OOD 32:64 **10/12**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.

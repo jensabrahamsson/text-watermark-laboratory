@@ -1262,6 +1262,7 @@ survived. Pre-fix JSON is historical.
 
 \subsection{Laplace occupancy versus observed tokens}
 
+{\sloppy
 On a 4-token new-topic gate, poshits isolated $\tau=0$ is 39/48 vs.\
 41/48. Occupancy-free \texttt{postokhits} is 16/48, with decided
 precision~$1.000$ when $n_{\mathrm{used}}>0$. Isolated observed-token
@@ -1270,6 +1271,7 @@ That identity does not create a denser isolated-file detector.
 Comparing marked recall alone with 25/48 is not a sufficient evaluation
 rule. A low-recall, high-specificity abstaining reader is a different
 operating point.
+\par}
 
 \subsection{H2 windows}
 
@@ -1397,11 +1399,13 @@ same 12 strings is frozen in
 Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
 marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
 (isolated \textbf{56/96}). That is not \textbf{25/48}. Qwen2-1.5B
-Aaronson on the same 12 strings is named in
+Aaronson on the same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen.md}
 (freeze SHA \texttt{1171d5c};
-\path{experiments/2026-09-04-pair-qwen-12x4-aaronson}) and has not
-been generated.
+\path{experiments/2026-09-04-pair-qwen-12x4-aaronson}). Qwen Aaronson
+interpolate last-4 is \textbf{12/12} (isolated \textbf{12/48} marked
+true positives, BA \textbf{60/96}); hard is \textbf{12/12}
+(isolated \textbf{72/96}). That is not \textbf{25/48}.
 
 \begin{table}[ht]
 \centering
@@ -1527,6 +1531,7 @@ $\Hw=4$, not a longer-history result. Isolated \textbf{85/96} is a
 different construction from the original-12 SynthID \textbf{47/96}.
 
 \paragraph{One hundred families, Kirchenbauer green-list.}
+{\sloppy
 Same freeze, same Hub SHA, seed 20260904, named \texttt{8f09aa6} before
 generation. Official matching $z$-scores are above $3.0$ on
 \textbf{100/100} first marked files (min $6.61$). Leave-one-family-out
@@ -1540,6 +1545,7 @@ below public $\Hw=4$ 100-family occupancy 10158 seen and below
 $\Hw=12$ 5878 seen. Interpolate \textbf{100/100} is therefore not an
 exact 4-gram copy detector. It is a different construction from lock~A
 \textbf{99/100} and from the original-12 SynthID \textbf{47/96}.
+\par}
 
 \paragraph{Original 12, DistilGPT2 Kirchenbauer.}
 Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
@@ -1861,6 +1867,16 @@ Distil Aaronson interpolate:
 Distil Aaronson occupancy:
 \path{experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json}
 (\texttt{cc5ad2fcf035fdca}; 196 seen).
+Qwen Aaronson freeze: \texttt{1171d5c}.
+Qwen Aaronson pair:
+\path{experiments/2026-09-04-pair-qwen-12x4-aaronson/results.json}
+(\texttt{12ea3ef1c34f037b}).
+Qwen Aaronson interpolate:
+\path{experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/interpolate/holdout.json}
+(\texttt{ac41821f88adba14}; $12/12$, $12/48$ marked TP).
+Qwen Aaronson occupancy:
+\path{experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json}
+(\texttt{419a2088b2ba8e6e}; 457 seen).
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a

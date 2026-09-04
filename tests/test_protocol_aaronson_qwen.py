@@ -1,6 +1,9 @@
 """Aaronson–Kirchner on Qwen2-1.5B, locked before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-aaronson-qwen.md"
@@ -29,7 +32,6 @@ def test_protocol_aaronson_qwen_locks_config_before_generation() -> None:
     assert "no chat template" in text
     assert "GPT-2 tokenizer" in text
     assert "--model Qwen/Qwen2-1.5B-Instruct" in text
-    assert "H-aar-q-ctrl **holds**" not in text
     assert PROMPTS.is_dir()
     assert len(list(PROMPTS.glob("*.txt"))) == 12
     log = LOG.read_text()
@@ -84,3 +86,40 @@ def test_protocol_aaronson_qwen_cli_flag_exists() -> None:
     )
     assert probe.model == "Qwen/Qwen2-1.5B-Instruct"
     assert probe.skip_hashpool is True
+
+
+PAIR = ROOT / "experiments" / "2026-09-04-pair-qwen-12x4-aaronson"
+PROBE = ROOT / "experiments" / "2026-09-04-probe-qwen-12x4-aaronson-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-04-atoms-qwen-12x4-aaronson"
+
+
+def test_protocol_aaronson_qwen_official_and_keyfree_from_dumps() -> None:
+    text = PROTOCOL.read_text()
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["mixin"] == "aaronson"
+    assert pair["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert pair["seed"] == 20260905
+    assert pair["hub_revision"] == "ba1cf1846d7df0a0591d6c00649f57e798519da8"
+    assert len(pair["rows"]) == 12
+    assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    assert all(row["unmarked_gen"]["z_score"] <= 3.0 for row in pair["rows"])
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert interp["n_prompts_marked_above"] == 12
+    assert hard["n_prompts_marked_above"] == 12
+    assert interp["n_marked_lr_positive"] == 12
+    assert interp["n_unmarked_lr_nonpositive"] == 48
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 60
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 457
+    assert occ["n_unseen"] == 11735
+    assert "H-aar-q-ctrl **holds**" in text
+    assert "H-aar-q-group **holds**" in text
+    assert "H-aar-q-iso **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **12/12**" in collapsed
+    lo, hi = clopper_pearson(25, 48)
+    assert lo <= 0.5 <= hi

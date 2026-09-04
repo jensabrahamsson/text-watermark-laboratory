@@ -251,7 +251,11 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-distil-12x4-aaronson" in next_sec
     assert "PROTOCOL-next-aaronson-qwen" in next_sec
     assert "1171d5c" in next_sec
-    assert "has not been generated" in next_sec
+    assert "60/96" in next_sec
+    assert "pair-qwen-12x4-aaronson" in next_sec
+    assert "12ea3ef1c34f037b" in PAPER
+    assert "ac41821f88adba14" in PAPER
+    assert "419a2088b2ba8e6e" in PAPER
     assert "ab8f1a9f340960c5" in PAPER
     assert "c36caf9745da2ce3" in PAPER
     assert "cc5ad2fcf035fdca" in PAPER
@@ -273,6 +277,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "49/96" not in abs_
     assert "41/96" not in abs_
     assert "pair-distil-12x4-aaronson" not in abs_
+    assert "60/96" not in abs_
+    assert "pair-qwen-12x4-aaronson" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
@@ -332,7 +338,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "25 A4" in README
-    assert "7c4cd34" in README
+    assert "77bc2d6" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
@@ -709,6 +715,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-distil-12x4-aaronson/results.json": "ab8f1a9f340960c5",
         "experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/interpolate/holdout.json": "c36caf9745da2ce3",
         "experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json": "cc5ad2fcf035fdca",
+        "experiments/2026-09-04-pair-qwen-12x4-aaronson/results.json": "12ea3ef1c34f037b",
+        "experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/interpolate/holdout.json": "ac41821f88adba14",
+        "experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json": "419a2088b2ba8e6e",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():
