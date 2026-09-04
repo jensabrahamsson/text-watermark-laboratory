@@ -2897,4 +2897,27 @@ JSON: `experiments/2026-09-04-pair-qwen-100x4-ngram13/`,
 `experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-100x4-ngram13/`.
 
+## 2026-09-04 Qwen2-1.5B Kirchenbauer 100-family freeze
+
+[PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
+committed before generation. Same Hugging Face Kirchenbauer defaults as
+[PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md), generator
+`Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260904**,
+`--mixin kgw`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Hypotheses H-kgw-q100-ctrl, H-kgw-q100-group, H-kgw-q100-iso, and
+H-kgw-q100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Probe and `atoms` must pass
+`--model Qwen/Qwen2-1.5B-Instruct`. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260904 --mixin kgw \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-100x4-kgw
+```
+
 ---

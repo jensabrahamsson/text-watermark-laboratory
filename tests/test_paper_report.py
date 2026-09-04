@@ -250,6 +250,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw" in PAPER
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
+    assert "PROTOCOL-next-kgw-qwen-100" in PAPER
     assert "PROTOCOL-next-longctx-distil" in PAPER
     assert "bae6d81" in PAPER
     assert "PROTOCOL-next-longctx-distil-100" in PAPER
@@ -340,6 +341,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-100x4-ngram13" in next_sec
     assert "474/800" in next_sec
     assert "has not been generated" not in next_sec
+    assert "PROTOCOL-next-kgw-qwen-100" in next_sec
+    assert "before generation" in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec
     assert "50/100" in next_sec
