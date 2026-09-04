@@ -148,7 +148,13 @@ last-1 windows (`--skip-nested`) match last-4 interpolate geography:
 **258/400**, **0.694**; 64:128 **100/100**, **364/400**, **0.953**.
 Full-file interpolate last-1 **383/400** vs last-4 **376/400**. Same
 body reader. Do not sell interpolate last-1 opening **83/100** or tail
-**367/400**.
+**367/400**. Distil 100 interpolate last-1 windows match last-4
+interpolate the same way: 0:4 **80/100**, **281/400**, AUC **0.675**;
+64:128 **99/100**, isolated **194/400**, **0.885**, unmarked $\le 0$
+**370/400**, **18** ranking wins with no isolated TP. Last-4
+interpolate tail was **98/100**, **194/400**, **0.880**. Isolated tail
+**194/400** is the Distil newline-loop files, not a last-1 jump. Do
+not sell Distil interpolate last-1 tail **194/400** or **99/100**.
 
 GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
 isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
@@ -577,6 +583,7 @@ Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
 last-4 hits 100→12 **24/48**,
 Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
 KGW interpolate last-1 n=100 opening **83/100** / tail **367/400**,
+Distil interpolate last-1 n=100 tail **194/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
 rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
 Aaronson hashtok last-4 **44/48**, Aaronson hits
@@ -692,6 +699,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-interp-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-interp-k1-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-12x4-kgw \
@@ -1408,10 +1420,12 @@ A freeze of **width and mixin geography** that already moved a grain:
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
    hashpool **394/400** vs **304/400**) and `hard` on Aaronson–Kirchner
-   (**388/400** vs last-4 **344/400**). Aaronson last-1 ranks both
+   (**388/400** vs last-4 **344/400**). Kirchenbauer interpolate last-1
+   at 100 families matches last-4 interpolate geography (opening
+   **83/100**, tail **100/100**). Aaronson last-1 ranks both
    windows on `hard`; interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
-   (**284/400**). Kirchenbauer last-1 is a body lift. DistilGPT2 Aaronson
+   (**284/400**). Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift. DistilGPT2 Aaronson
    last-1 still lifts `hard` only; last-4 `hits` **44/48** is opening
    overlap, not rankpath’s body leak. GPT-2 100 Aaronson last-1 tables
    transfer onto Distil files (**40/48** vs last-4 hard **16/48**);
