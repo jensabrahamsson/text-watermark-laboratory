@@ -1876,7 +1876,8 @@ hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 SynthID last-1 hits n=100 **99/100** / isolated **358/400** / 4:16
 **95/100** / **327/400**, last-1 16:32 **82/100**, or last-4 hits
 **396/400** / 16:32 **97/100**, last-2 hits 4:16 **100/100** /
-**350/400**, or Distil last-2 hits 4:16 **75/100**. Do not sell Qwen last-1 hits
+**350/400**, or Distil last-2 hits 4:16 **75/100**, or medium last-2
+hits 4:16 **96/100** / **345/400**. Do not sell Qwen last-1 hits
 4:16 **6/12**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
@@ -2380,6 +2381,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hits-k2-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3468,8 +3474,12 @@ drops like last-1 at 16:32 (**82/100**). Last-4 hits keeps later-window
 ranking. Unmarked $\le 0$ at 4:16 is **221/400** (last-4 hits
 **367/400**). Distil last-2 hits 4:16 is weak (**75/100**, 0.636,
 **194/400**, **20** ranking losses with isolated TP), sitting with
-Distil last-2 hard chance **58/100**. Do not sell last-2 hits 4:16
-**100/100** / **350/400** or Distil **75/100**. Do not leftover-target
+Distil last-2 hard chance **58/100**. gpt2-medium last-2 hits 4:16 sits
+with GPT-2 (**96/100**, 0.837, **345/400**), then 16:32 **82/100** like
+GPT-2 last-1 / last-2 hits. Near-front is a GPT-2-family hits effect
+too, not Distil. Do not sell last-2 hits 4:16
+**100/100** / **350/400**, Distil **75/100**, or medium **96/100** /
+**345/400**. Do not leftover-target
 those zeros. Do not shorten SynthID `hits`. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
@@ -4196,7 +4206,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**65/100** / **66/100**) and last-4 hard mid is chance
    (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
-   weak (**75/100**). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   weak (**75/100**). gpt2-medium last-2 hits 4:16 sits with GPT-2
+   (**96/100**). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
