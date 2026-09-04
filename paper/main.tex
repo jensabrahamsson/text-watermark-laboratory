@@ -93,8 +93,12 @@ whether, given matched marked and unmarked samples but no keys, an
 auditor can still tell that Google DeepMind's public SynthID-Text demo
 is on. At the level of prompt groups, yes. On one 128-token file at a
 pre-set threshold, no. That is key-free under a strong paired oracle,
-not a polynomial-time distinguisher, and not a detector for an
-unfamiliar file. The counts are in the abstract below.
+not a polynomial-time distinguisher, and not a detector validated for
+an unfamiliar web document. \Cref{fig:twograin} is the two-grain picture;
+\Cref{fig:hw12} and \Cref{tab:occ} are the preregistered $\Hw=12$
+attenuation, not a second headline. The public \texttt{get\_gvals}
+docstring does not match the code (\Cref{sec:intro}). The counts are in
+the abstract below.
 
 % =========================================================================
 \begin{abstract}
@@ -113,31 +117,19 @@ These group successes are not standalone file detection. On the original
 negatives, 22 true negatives, and 26 false positives: sensitivity
 \textbf{25/48}, specificity \textbf{22/48}, and
 \textbf{47/96} correct decisions ($48.96\%$ balanced accuracy).
-Threshold-free file AUC is $0.590$. The official keyed detector still
-separates files that the empirical reader cannot decide from
-observed tokens. The method is key-free, not reference-free: it requires
-a strong paired oracle on one short-context public instance. It does not
-recover keys, does not classify an unfamiliar web document, and does not
+Threshold-free file AUC is $0.590$. On 20 occupancy-unseen marked files
+the official keyed mean still exceeds the laboratory threshold $0.55$
+(\textbf{20/20} positive-control sensitivity; unmarked files in that
+slice are not a matched negative class). The method is key-free,
+not reference-free: it requires a strong paired oracle on one
+short-context public instance. It does not recover keys, has not been
+validated or calibrated for unfamiliar web documents, and does not
 refute \citet{christ2024undetectable} or \citet{zhang2024sand}.
 \end{abstract}
 
 \noindent\textbf{Keywords:}
 statistical text watermarking, SynthID-Text, paired-reference auditing,
 key-free indication, empirical likelihood ratio.
-
-\medskip
-\noindent\textit{How to read this report.}
-The claim is key-free indication under a strong paired oracle: prompt-group
-ranking (exploratory \textbf{36/36}, lock~A \textbf{99/100},
-corrected original \textbf{9/12}) with keys withheld at scoring.
-The limit is isolated detection: the prespecified $\tau=0$
-confusion matrix on 96 files (\textbf{47/96} correct).
-\Cref{fig:twograin} is that two-grain picture.
-\Cref{fig:hw12} and \Cref{tab:occ} are the preregistered $\Hw=12$
-attenuation, not a second headline. Mixin remasures are geography.
-The public \texttt{get\_gvals} docstring does not match the code
-(\Cref{sec:intro}). The auditor is paired-reference, not a
-web-document detector.
 
 % =========================================================================
 \section{Introduction}
@@ -158,6 +150,14 @@ The public \texttt{get\_gvals} docstring says $g$-values come from
 12 linear-congruential mixes and then $(\mathrm{hash}\gg 30)\bmod 2$.
 This report trusts the code. That mismatch is a documentation bug in
 the public DeepMind checkout, not a laboratory rewrite.
+
+\paragraph{Isolated-headline scope.}
+The locked isolated headline is the original-12 hard last-4 matrix:
+sensitivity \textbf{25/48}, specificity \textbf{22/48}, accuracy
+\textbf{47/96}, file AUC $0.590$. Later isolated counts---other
+generators, mixins, windows, nested thresholds, or occupancy-free
+readouts---do not replace that headline. That is not \textbf{25/48}
+as a refrain: the rule is this paragraph and table footnotes.
 
 If a third party cannot or will not use the vendor's keys, verification
 is an open practical question
@@ -192,7 +192,8 @@ matched twins are given. Group ranking can succeed while a prespecified
 isolated threshold fails. Count tables on finished strings are
 ordinary polynomial-time statistics; lock~A \textbf{99/100} is not a
 complexity distinguisher against \citet{christ2024undetectable} or
-\citet{zhang2024sand}. Mixin remasures are geography, not a second claim.
+\citet{zhang2024sand}. Cross-construction measurements are contextual
+comparisons, not a second headline.
 
 In order:
 
@@ -211,7 +212,7 @@ DistilGPT-2 lock~B \textbf{88/100} (one tie), Qwen2-1.5B lock~B
 generators (paired McNemar on GPT-2-win losses).
 \item Artifact controls: a truncated-context overcount correction, a
 Laplace occupancy versus observed-token split, and a key-free argmax
-perturbation that returns official scores to chance at a large
+perturbation that moves the official mean close to $0.5$ at a large
 rewrite cost.
 \item A preregistered longer-history replication: public keys at
 $\Hw=12$ ($\mathtt{ngram\_len}=13$). Official matching scores remain
@@ -883,7 +884,7 @@ last-4 \textbf{12/12} with mostly Witten--Bell backoff (\Cref{sec:next}).
 That is a shorter hash window than $\Hw=4$, not a longer-history result.
 An Aaronson mixin (freeze SHA \texttt{747f3cd}) ranks interpolate last-4
 \textbf{11/12} on the original 12 strings with isolated balanced accuracy
-$56/96$. That is not \textbf{25/48}.
+$56/96$.
 
 Christ et al.\ and Zhang et al.\ apply to different constructions and
 oracles (\Cref{sec:related}). Isolated chance accuracy at $\tau=0$ is
@@ -1061,7 +1062,7 @@ The distributions overlap. Precision at $\tau=0$ is $25/51$
 group labels within each stem (20{,}000 draws, conservative
 $(n_{\ge}+1)/(N+1)$) yields $p=0.703$ for balanced accuracy at least as
 large as $47/96$; a within-stem $4/4$ reshuffle yields $p=0.672$.
-Zero-threshold accuracy is chance under those clustered nulls. A weakly
+Zero-threshold accuracy is compatible with chance under those clustered nulls. A weakly
 informative score can still have AUC above $0.5$: AUC asks whether
 marked files tend to rank above unmarked files across thresholds
 \citep{fawcett2006roc}; the file-shuffle AUC permutation $p=0.040$
@@ -1245,9 +1246,9 @@ percentage-point drops also differ by ceiling.
 
 Count tables are not a tokenizer-universal isolated detector. GPT-2
 learned scorers transferred to Distil/Qwen are chance. Native Distil
-opening rankpath on the original 12 is chance (\textbf{8/12}, AUC
-$0.579$) even though Distil official first-draw on those 12 is
-\textbf{12/12}.
+opening rankpath on the original 12 is compatible with chance
+(\textbf{8/12}, AUC $0.579$) even though Distil official first-draw on
+those 12 is \textbf{12/12}.
 
 \subsection{Leftover versus covered isolated true positives}
 \label{sec:leftover}
@@ -1262,8 +1263,10 @@ set with the headline 25 isolated true positives gives \Cref{tab:split}.
 \centering
 \small
 \caption{Headline isolated $\tau=0$ split by mixed occupancy-free
-opening coverage. Leftover last-4 is chance. Official keyed leftover
-marked files are still above $0.55$ (\textbf{20/20}). Ranking-loss TPs
+opening coverage. Leftover last-4 is compatible with chance.
+Official keyed leftover \textbf{20/20} is positive-control sensitivity
+on marked files at the laboratory threshold $0.55$, not a two-class
+detection claim (no unmarked leftover column). Ranking-loss TPs
 (station, office, ferry-queue) are all leftover.}
 \label{tab:split}
 \begin{tabular}{l c c c c}
@@ -1278,10 +1281,10 @@ Original 12$\times$4 & 48 & 25/48 & 22/48 & 48/48 \\
 \end{tabular}
 \end{table}
 
-Official keyed mean on leftover-20 marked files is $0.624$. Leftover
-key-free chance is not ``the mixin missed these files.'' The keyed
-detector can still succeed where the empirical reader has no useful
-zero-threshold signal.
+Official keyed mean on leftover-20 marked files is $0.624$. That is
+positive-control sensitivity at $0.55$, not evidence that the keyed
+detector separates leftover files the empirical reader cannot decide:
+unmarked leftover files are not scored as a matched negative class here.
 
 Further leftover unions, Distil occupancy-free transfer, and mask-$m$
 tails are catalogued in \Cref{app:catalog}. They refine the same
@@ -1347,8 +1350,8 @@ and not a practical removal attack.
 
 The public instance is a short-context ($\Hw=4$) demo, not a proprietary
 production key. Group ranking needs matched draws per prompt. Isolated
-classification of one 128-token file at $\tau=0$ is chance-like on the
-original set. File AUC $0.590$ is weak and was not a confirmatory
+classification of one 128-token file at $\tau=0$ is compatible with
+chance on the original set. File AUC $0.590$ is weak and was not a confirmatory
 endpoint.
 
 The auditor is strong: marked and unmarked twins, finished strings, a
@@ -1362,7 +1365,7 @@ Nested Youden is not fully nested. The $0.02$ margin is not a valid
 chance test. Prompt sets are designed, not sampled from a stated
 population. Lock~A \textbf{99/100} is prospectively specified
 leave-one-family-out, not evaluation of one frozen fitted table on a
-later corpus. Distil keyed 70/100 is a first-draw official comparison,
+later corpus. Distil keyed 70/100 is a paired first-draw keyed-control win rate,
 not the four-draw key-free endpoint. Isolated balanced accuracy at
 $\tau=0$ is not distinguishable from chance under a prompt-clustered
 sign-flip.
@@ -1372,15 +1375,7 @@ measured on this public mixin: $\Hw=12$ attenuates group ranking from lock~A
 \textbf{99/100} to \textbf{76/100} on the same 100 prompt strings
 (different twins). Interpolate occupancy is lower under $\Hw=12$ than
 under public $\Hw=4$ on both prompt frames (\Cref{tab:occ}).
-Production Gemini and Anthropic keys were not measured. A rumored-mark
-Claude resample on 2026-09-04 (40 prompts; \Cref{app:catalog}) ranks
-last-4 \textbf{37/40} against the August pre-mark pile and
-\textbf{19/40} against the previous committed sample (2026-09-03).
-Last-4 is slightly ahead of last-1 versus pre-mark (\textbf{36/40}):
-that is the public-mixin watermark-window order on this draw, not a
-vendor detector, and not the original-12 SynthID \textbf{25/48}.
-Versus the previous sample both grains are chance. The 2026-09-03
-draw was last-4 \textbf{35/40} / last-1 \textbf{37/40} versus pre-mark.
+Production Gemini and Anthropic keys were not measured.
 Hub revisions were not recorded at generation; published scores read
 committed strings (\Cref{sec:generation}).
 Multi-key replication of the public mixin is not started. Isolated-file
@@ -1408,18 +1403,15 @@ with SynthID \texttt{detector\_mean} would be a harness bug.
 DistilGPT2 with the same Kirchenbauer defaults is frozen in
 \path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{1540d3c}). Distil interpolate last-4 is \textbf{12/12}
-(isolated \textbf{85/96}); hard is \textbf{11/12}. That is not
-\textbf{25/48}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
+(isolated \textbf{85/96}); hard is \textbf{11/12}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
 in \path{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
 \texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
-(isolated \textbf{68/96}); hard is \textbf{8/12}. That is not
-\textbf{25/48}.
+(isolated \textbf{68/96}); hard is \textbf{8/12}.
 
 DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
-(isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
-\textbf{25/48}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is freeze SHA
+(isolated \textbf{683/800}); hard is \textbf{82/100}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is freeze SHA
 \texttt{ed9fb20}
 (\path{research/PROTOCOL-next-kgw-qwen-100.md};
 \path{experiments/2026-09-04-pair-qwen-100x4-kgw}).
@@ -1462,7 +1454,6 @@ Interpolate $[0{:}4)$ is \textbf{84/100}; $[64{:}128)$ is
 \textbf{97/100} (AUC \textbf{0.785}). That is not compatible with chance, and not
 $\Hw=12$ \textbf{50/100}. JSON:
 \path{experiments/2026-09-04-probe-qwen-100x4-kgw-windows}.
-That is not \textbf{25/48}.
 
 Isolated rankpath geography does not replace the locked hard matrix.
 Opening rankpath on the original 12 is \textbf{11/12}, isolated
@@ -1524,13 +1515,13 @@ Protocol notes:
 \texttt{PROTOCOL-isolated-rankpath-mid.md}.
 Window dumps live under \texttt{experiments/2026-09-04-probe-*-w4-16/}.
 The frozen slice is always \texttt{window-4-16/}, not the unwindowed
-fit-prefix-16 file score. Equality with \textbf{25/48} is not a win.
+fit-prefix-16 file score (isolated-headline scope).
 
 An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
 \textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the
 100 one-liners interpolate last-4 is \textbf{100/100} (isolated
-\textbf{608/800}). That is not \textbf{25/48}. The protocol note is
+\textbf{608/800}). The protocol note is
 \path{research/PROTOCOL-next-aaronson.md}. DistilGPT2 $\Hw=12$ on the
 same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
 (freeze SHA \texttt{bae6d81};
@@ -1538,8 +1529,7 @@ same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
 interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
 \textbf{6/12}. Official first-draw mean$>0.55$ is 12/12.
 Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 175 seen versus 11994 unseen
-(opening $[0{:}4)$ is 111 versus 177).
-That is not \textbf{25/48}. DistilGPT2 $\Hw=12$ on the
+(opening $[0{:}4)$ is 111 versus 177). DistilGPT2 $\Hw=12$ on the
 100 one-liners is frozen in
 \path{research/PROTOCOL-next-longctx-distil-100.md}
 (freeze SHA \texttt{d891622};
@@ -1548,16 +1538,14 @@ $\Hw=12$ interpolate last-4 is \textbf{88/100} (isolated
 \textbf{557/800}); hard is \textbf{89/100}. Official first-draw
 mean$>0.55$ is 98/100. Unmarked first-draw is $0/100$ above $0.55$.
 Occupancy is 11182 seen versus 85493 unseen
-(opening $[0{:}4)$ is 2036 versus 364).
-That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the
+(opening $[0{:}4)$ is 2036 versus 364). Qwen2-1.5B $\Hw=12$ on the
 same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-qwen.md}
 (freeze SHA \texttt{d7303a2};
 \path{experiments/2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
 interpolate last-4 is \textbf{4/12} (isolated \textbf{41/96}); hard is
 \textbf{4/12}. Official first-draw mean$>0.55$ is 11/12 (library
 $0.515$). Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 65 seen versus 12127 unseen
-(opening $[0{:}4)$ is 41 versus 247).
-That is not \textbf{25/48}. DistilGPT2 Aaronson on the
+(opening $[0{:}4)$ is 41 versus 247). DistilGPT2 Aaronson on the
 same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-distil.md}
 (freeze SHA \texttt{9bdf12a};
@@ -1566,8 +1554,7 @@ Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
 marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
 (isolated \textbf{56/96}). Occupancy is 196 seen versus 11996 unseen
 (opening $[0{:}4)$ is 133 versus 155).
-Unmarked first-draw is $1/12$ above $3.0$.
-That is not \textbf{25/48}. DistilGPT2
+Unmarked first-draw is $1/12$ above $3.0$. DistilGPT2
 Aaronson on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-aaronson-distil-100.md}
 (freeze SHA \texttt{bf05759};
@@ -1576,8 +1563,7 @@ Aaronson interpolate last-4 is \textbf{96/100} (isolated
 \textbf{601/800}); hard is \textbf{91/100}. Official first-draw $z>3$
 is 71/100. Unmarked first-draw is $3/100$ above $3.0$.
 Occupancy is 28824 seen versus 61305 unseen
-(opening $[0{:}4)$ is 2048 versus 352).
-That is not \textbf{25/48}. Qwen2-1.5B
+(opening $[0{:}4)$ is 2048 versus 352). Qwen2-1.5B
 Aaronson on the same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen.md}
 (freeze SHA \texttt{1171d5c};
@@ -1586,8 +1572,7 @@ interpolate last-4 is \textbf{12/12} (isolated \textbf{12/48} marked
 true positives, BA \textbf{60/96}); hard is \textbf{12/12}
 (isolated \textbf{72/96}). Unmarked first-draw is $0/12$ above $3.0$.
 Occupancy is 457 seen versus 11735 unseen
-(opening $[0{:}4)$ is 127 versus 161).
-That is not \textbf{25/48}. Qwen2-1.5B
+(opening $[0{:}4)$ is 127 versus 161). Qwen2-1.5B
 Aaronson on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen-100.md}
 (freeze SHA \texttt{a761a7d};
@@ -1596,7 +1581,7 @@ interpolate last-4 is \textbf{100/100} (isolated \textbf{616/800});
 hard is \textbf{97/100}. Official first-draw $z>3$ is 99/100.
 Unmarked first-draw is $0/100$ above $3.0$.
 Occupancy is 8750 seen versus 92842 unseen
-(opening $[0{:}4)$ is 1470 versus 930). That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
+(opening $[0{:}4)$ is 1470 versus 930). Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-longctx-qwen-100.md}
 (freeze SHA \texttt{636765c};
 \path{experiments/2026-09-04-pair-qwen-100x4-ngram13}). Qwen $\Hw=12$
@@ -1604,7 +1589,7 @@ interpolate last-4 is \textbf{76/100} (isolated \textbf{474/800});
 hard is \textbf{74/100}. Official first-draw mean$>0.55$ is 91/100.
 Unmarked first-draw is $0/100$ above $0.55$.
 Occupancy is 3535 seen versus 98064 unseen
-(opening $[0{:}4)$ is 1092 versus 1308). That is not \textbf{25/48}. Whether $\Hw=12$ interpolate \textbf{76/100} is a
+(opening $[0{:}4)$ is 1092 versus 1308). Whether $\Hw=12$ interpolate \textbf{76/100} is a
 weaker body reader or an opening residual is named in
 \path{research/PROTOCOL-next-longctx-windows.md}
 (freeze SHA \texttt{8283d1f}).
@@ -1614,7 +1599,6 @@ opening $[0{:}4)$ \textbf{86/100}.
 JSON:
 \path{experiments/2026-09-04-probe-100x4-ngram13-windows},
 \path{experiments/2026-09-04-probe-100x4-public-w64-128}.
-That is not \textbf{25/48}.
 
 \begin{table}[ht]
 \centering
@@ -1770,7 +1754,7 @@ $3.0$ on all 12 first marked files. Interpolate last-4 ranks
 accuracy $85/96$; mean $D_p=0.504$). Hard is \textbf{11/12} (AUC
 $0.780$; $66/96$). Occupancy is 130 seen versus 11972 unseen. Hub
 revision was unpinned at generation; published scores read committed
-strings. That is not \textbf{25/48}.
+strings.
 
 \paragraph{Original 12, Qwen2-1.5B Kirchenbauer.}
 Same mixin defaults, generator \path{Qwen/Qwen2-1.5B-Instruct}, freeze
@@ -1781,7 +1765,7 @@ files. Interpolate last-4 ranks \textbf{12/12} (AUC $0.814$; 35 TP,
 Hard is \textbf{8/12} (AUC $0.566$; $50/96$). Occupancy is 84 seen
 versus 12108 unseen. Hub revision was unpinned at generation. Group
 ranking holds; isolated balanced accuracy is below Distil and GPT-2
-Kirchenbauer \textbf{85/96}. That is not \textbf{25/48}.
+Kirchenbauer \textbf{85/96}.
 
 \paragraph{One hundred families, DistilGPT2 Kirchenbauer.}
 \begin{sloppypar}
@@ -1800,8 +1784,7 @@ versus 71541 unseen (opening $[0{:}4)$ is 1800 versus 600). The top
 opening atom is a newline loop. First-draw newline-only files are
 $40/100$ marked and $12/100$ unmarked. Group ranking matches GPT-2
 Kirchenbauer \textbf{100/100} on these strings; isolated balanced
-accuracy is below GPT-2 Kirchenbauer \textbf{747/800}. That is not
-\textbf{25/48}.
+accuracy is below GPT-2 Kirchenbauer \textbf{747/800}.
 \end{sloppypar}
 
 \paragraph{Original 12, Aaronson--Kirchner exponential-minimum.}
@@ -1814,7 +1797,7 @@ Unmarked first-draw is $0/12$ above $3.0$. Interpolate last-4 ranks
 accuracy $56/96$; mean $D_p=1.738$; loses station). Hard is
 \textbf{12/12} (AUC $0.976$; $72/96$). Occupancy is 573 seen versus
 11618 unseen. Nine of eleven interpolate ranking wins have no isolated
-true positive. That is not \textbf{25/48}.
+true positive.
 
 \paragraph{One hundred families, Aaronson--Kirchner exponential-minimum.}
 Same freeze SHA \texttt{747f3cd}, seed 20260905, dump
@@ -1825,7 +1808,7 @@ last-4 ranks \textbf{100/100} (AUC $0.986$; 208 TP, 192 FN, 400 TN,
 0 FP; balanced accuracy $608/800$; mean $D_p=4.368$). Hard is
 \textbf{95/100} (AUC $0.950$; $744/800$). Occupancy is 25167 seen versus
 76418 unseen. Forty-eight of one hundred interpolate ranking wins have
-no isolated true positive. That is not \textbf{25/48}.
+no isolated true positive.
 
 \paragraph{Interpretation.}
 If group ranking had survived when short-context reuse should drop, the
@@ -1858,13 +1841,14 @@ corrected original hard-reader diagnostic is 9/12. On the original 96
 individual files, the prespecified zero threshold yields 25/48
 sensitivity, 22/48 specificity, precision 25/51, and 47/96 correct
 decisions, while threshold-free file AUC is 0.590. Prompt-clustered
-permutation of balanced accuracy is consistent with chance. Official
-keyed leftover detection remains 20/20 where the empirical reader is
-chance (\Cref{tab:split}).
+permutation of balanced accuracy is compatible with chance. Official
+keyed leftover marked files still exceed $0.55$ (\textbf{20/20}
+positive-control sensitivity; \Cref{tab:split}).
 
 These results demonstrate paired-reference indication at the group grain
 within the studied setting for one public SynthID-Text instance. They do not establish calibrated
-standalone indication on an unfamiliar file, a universal key-free
+standalone indication on an unfamiliar file (the method has not been
+validated or calibrated for unfamiliar web documents), a universal key-free
 detector, key recovery, or a refutation of
 \citet{christ2024undetectable} or \citet{zhang2024sand}. A preregistered
 lengthening of the public mixin to $\Hw=12$ (freeze SHA \texttt{b70986d})
@@ -1889,6 +1873,10 @@ Code and frozen JSON:
 \appendix
 \section{Artifact identifiers and commands}
 \label{app:artifacts}
+
+Full dump paths and SHA-256 prefixes (first 16 hex digits) are listed in
+\path{paper/artifacts.json}. Identifiers below are short ids plus those
+prefixes; do not hyphenate them as English.
 
 \paragraph{Software.}
 Python $\ge 3.10$; \texttt{transformers==4.57.6}; CPU JAX for official
@@ -1936,7 +1924,9 @@ Distil/Qwen Phase~B replace the model flag and run locks B and C only
 \texttt{\ddash rankpath \ddash fit-prefix 4 \ddash pos-bucket 1}).
 
 \paragraph{Frozen result files.}
+{\sloppy
 SHA-256 prefixes (first 16 hex digits) identify the JSON dumps.
+Full paths are in \path{paper/artifacts.json}.
 Original-12 hard: \path{experiments/2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json}
 (\texttt{e4f758305b631761}; $9/12$, $25/48$ vs $22/48$, AUC $0.590$).
 Lock~A interpolate: \path{experiments/2026-09-01-probe-100x4-hard-last4/interpolate/holdout.json}
@@ -2159,6 +2149,7 @@ not \textbf{25/48}. Twins:
 Out-dirs:
 \path{experiments/2026-09-04-probe-12x4-rankpath-distil-lm},
 \path{experiments/2026-09-04-probe-12x4-rankpath-medium-lm}.
+\par}
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
@@ -2169,7 +2160,8 @@ occurred under the same short context in training.
 \section{Additional transfer catalog}
 \label{app:catalog}
 
-These measurements are real and checked in. They are not headlines.
+Transfer and leftover catalog. These rows are not headlines
+(isolated-headline scope).
 
 \paragraph{Out-of-family lock A on the original 12.}
 Tables from the 100 one-liners, nested Youden (post hoc)
@@ -2195,8 +2187,8 @@ prompt ranking. \Cref{tab:maskabs} is the absolute-history remasure
 (protocol SHA \texttt{b70986d}; reindexed dumps stay). Prefix
 $[0{:}4)$ and hard tails stay at the reindexed ranks; interpolate
 $[8{:}128)$ rises $3\to 4$. Hard $[4{:}128)$ leftover is $11/20$ vs.\
-$11/20$. Isolated $\tau=0$ stays chance-like on every slice; the
-original-12 matrix remains \textbf{47/96}. That is not \textbf{25/48}.
+$11/20$. Isolated $\tau=0$ stays compatible with chance on every slice; the
+original-12 matrix remains \textbf{47/96}.
 
 \begin{table}[ht]
 \centering
@@ -2235,37 +2227,6 @@ matching control keys ($0.624$). Key-free opening poshits trained on
 public twins assign $\LLR>0$ to $0/48$ control files. Public vs.\
 control still ranks $12/12$ (AUC $0.906$). The reader is
 instance-specific without recovering keys.
-
-\paragraph{Claude resample, 2026-09-03.}
-Same 40 \texttt{PROMPTS} as the August pre-mark pile, collected on
-claude.ai (\texttt{assumed\_watermark=rumored};
-\path{experiments/claude-sample-2026-09-03/}). Key-free last-$k$
-leave-one-prompt-out, one file per prompt, GPT-2 tokenizer.
-\texttt{used\_keys=false}. Versus pre-mark: last-1 \textbf{37/40},
-last-4 \textbf{35/40} (isolated last-4 marked $\LLR>0$ is $32/40$;
-three ranking wins have no isolated TP). Versus the previous committed
-sample with a manifest (\texttt{claude-sample-2026-08-21}): last-1
-\textbf{33/40}, last-4 \textbf{29/40}. Last-1 ahead of last-4 is
-style-shift order. This is not an Anthropic detector, not
-\texttt{public-deepmind-30} \texttt{score}, and not the original-12
-hard $\tau=0$ matrix \textbf{25/48} / \textbf{47/96}. Do not train a
-Claude classifier on the pre-mark pile alone.
-
-\paragraph{Claude resample, 2026-09-04.}
-Same 40 \texttt{PROMPTS}, collected on claude.ai after the 04:00 host
-job wrote zero texts (\texttt{assumed\_watermark=rumored};
-\path{experiments/claude-sample-2026-09-04/}). Key-free last-$k$
-leave-one-prompt-out, one file per prompt, GPT-2 tokenizer.
-\texttt{used\_keys=false}. Versus pre-mark: last-1 \textbf{36/40},
-last-4 \textbf{37/40} (isolated last-4 marked $\LLR>0$ is $32/40$;
-five ranking wins have no isolated TP). Versus the previous committed
-sample (\texttt{claude-sample-2026-09-03}): last-1 \textbf{20/40},
-last-4 \textbf{19/40}. Last-4 slightly ahead of last-1 versus pre-mark
-is watermark-window order on this draw. Versus the previous sample both
-grains are chance. This is not an Anthropic detector, not
-\texttt{public-deepmind-30} \texttt{score}, and not the original-12
-hard $\tau=0$ matrix \textbf{25/48} / \textbf{47/96}. Do not train a
-Claude classifier on the pre-mark pile alone.
 
 % =========================================================================
 {\raggedright\sloppy\interlinepenalty=10000

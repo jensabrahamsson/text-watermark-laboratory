@@ -22,6 +22,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 ## Files
 
 - [`main.tex`](main.tex): article (abstract through bibliography).
+- [`artifacts.json`](artifacts.json): dump paths and SHA-256 prefixes.
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build

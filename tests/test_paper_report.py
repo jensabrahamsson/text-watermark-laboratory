@@ -106,13 +106,15 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
 
 
 def test_how_to_read_names_two_grain_hw12_and_occupancy() -> None:
-    how = PAPER.split("How to read this report")[1].split(r"\section{Introduction}")[0]
-    assert "fig:twograin" in how
-    assert "fig:hw12" in how
-    assert "tab:occ" in how
-    assert r"get\_gvals" in how
-    assert r"\textbf{36/36}" in how
-    assert r"\textbf{47/96}" in how
+    assert "How to read this report" not in PAPER
+    lead = PAPER.split(r"\maketitle")[1].split(r"\section{Introduction}")[0]
+    assert "In plain English" in lead
+    assert "fig:twograin" in lead
+    assert "fig:hw12" in lead
+    assert "tab:occ" in lead
+    assert r"get\_gvals" in lead
+    assert r"\textbf{36/36}" in PAPER.split(r"\begin{abstract}")[1]
+    assert r"\textbf{47/96}" in PAPER.split(r"\begin{abstract}")[1]
 
 
 def test_abstract_leads_with_group_then_full_isolated_matrix() -> None:
@@ -142,19 +144,13 @@ def test_claude_resample_20260903_is_dump_backed_and_not_in_abstract() -> None:
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "35/40" not in abs_
     assert "37/40" not in abs_
-    catalog = PAPER.split(r"\section{Additional transfer catalog}")[1]
-    assert r"\textbf{35/40}" in catalog
-    assert r"\textbf{37/40}" in catalog
-    assert r"\textbf{29/40}" in catalog
-    assert r"\textbf{33/40}" in catalog
-    assert "style-shift order" in catalog
-    assert "claude-sample-2026-08-21" in catalog
-    assert "not an Anthropic detector" in catalog
-    assert r"\textbf{25/48}" in catalog
+    assert "claude-sample-2026-09-03" not in PAPER
+    assert r"\textbf{35/40}" not in PAPER
+    assert "style-shift order" not in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
         r"\section{Preregistered extensions}"
     )[0]
-    assert r"\textbf{35/40}" in limits
+    assert r"\textbf{35/40}" not in limits
     report = json.loads(
         (
             ROOT
@@ -192,18 +188,14 @@ def test_claude_resample_20260904_is_dump_backed_and_not_in_abstract() -> None:
     assert "20/40" not in abs_
     assert "36/40" not in abs_
     assert "37/40" not in abs_
-    catalog = PAPER.split(r"\section{Additional transfer catalog}")[1]
-    assert "claude-sample-2026-09-04" in catalog
-    assert r"\textbf{36/40}" in catalog
-    assert r"\textbf{19/40}" in catalog
-    assert r"\textbf{20/40}" in catalog
-    assert "watermark-window order" in catalog
+    assert "claude-sample-2026-09-04" not in PAPER
+    assert r"\textbf{36/40}" not in PAPER
+    assert "watermark-window order" not in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
         r"\section{Preregistered extensions}"
     )[0]
-    assert "2026-09-04" in limits
-    assert r"\textbf{37/40}" in limits
-    assert r"\textbf{19/40}" in limits
+    assert r"\textbf{37/40}" not in limits
+    assert r"\textbf{19/40}" not in limits
     report = json.loads(
         (
             ROOT
@@ -1472,3 +1464,42 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     appendix = tex.split(r"\appendix")[1]
     assert r"\textbf{90/100}" in appendix or "90/100" in appendix
     assert r"\textbf{25/48}" in appendix
+    art = json.loads((ROOT / "paper" / "artifacts.json").read_text())
+    by_path = {row["path"]: row for row in art["artifacts"]}
+    for rel, prefix in mapping.items():
+        assert by_path[rel]["sha256_16"] == prefix
+        assert by_path[rel]["sha256"].startswith(prefix)
+    assert "paper/artifacts.json" in tex
+
+
+def test_sol_publication_hygiene() -> None:
+    tex = (ROOT / "paper" / "main.tex").read_text()
+    assert "How to read this report" not in tex
+    assert "In plain English" in tex
+    assert r"\section{A Locked Next Experiment}" not in tex
+    assert r"\section{Preregistered extensions}" in tex
+    assert "still running" not in tex
+    assert "Do not invent interpolate" not in tex
+    assert "Do not invent" not in tex
+    assert "Do not sell" not in tex
+    assert "Do not train" not in tex
+    assert tex.count(r"That is not \textbf{25/48}") <= 3
+    assert "claude-sample-2026-09-03" not in tex
+    assert "claude-sample-2026-09-04" not in tex
+    assert "Isolated-headline scope" in tex
+    assert "positive-control sensitivity" in tex
+    assert "validated or calibrated for unfamiliar web documents" in tex
+    assert "compatible with chance" in tex
+    assert r"\label{tab:rankpath}" in tex
+    assert r"\ddash" in tex
+    assert (ROOT / "paper" / "artifacts.json").is_file()
+    keep = {
+        "Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf",
+        "Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf",
+    }
+    pdfs = {
+        p.name
+        for p in (ROOT / "report").glob("Abrahamsson-*.pdf")
+        if "pending" not in p.name
+    }
+    assert pdfs == keep
