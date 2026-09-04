@@ -360,7 +360,8 @@ count-table reader. Kirchenbauer’s green list is a **body** leak.
 SynthID tournament last-4 interpolate is **opening-heavy**; the
 original-12 tail **3/12** overstates how dead the body is at n=100.
 Table-free LDA on unmarked-LM choice features sees that Kirchenbauer
-body on DistilGPT2 where binary snaprate failed; it does not make a
+body on DistilGPT2 where binary snaprate failed (GPT-2 body is mostly
+soft gap to the unmarked argmax; Distil body is not); it does not make a
 SynthID body reader.
 
 **Non-claim.** This does not replace **25/48**. Full-file Kirchenbauer
