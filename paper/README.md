@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (27 A4 pages, git `d88319c`). Dated copy in
+  (27 A4 pages, git `4b76166`). Dated copy in
   [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
@@ -120,6 +120,9 @@ fitted detector. A Kirchenbauer green-list mixin is frozen in
 **100/100** (isolated **747/800**); occupancy **4557** seen. That is
 not **25/48**. Qwen2-1.5B Kirchenbauer on the 100 one-liners is named
 in `research/PROTOCOL-next-kgw-qwen-100.md` (SHA `ed9fb20`) before
-generation. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+generation. That lock is not **25/48**. Distil / gpt2-medium unmarked-LM
+opening rankpath 12-LOO is named in
+`research/PROTOCOL-isolated-rankpath-lm.md` (SHA `d8e6f7f`) before
+those LRs. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).

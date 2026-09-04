@@ -346,6 +346,11 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "ed9fb20" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "before generation" in next_sec
+    assert "PROTOCOL-isolated-rankpath-lm" in next_sec
+    assert "d8e6f7f" in next_sec
+    assert "before those LRs" in next_sec
+    assert "rankpath-distil-lm" in next_sec or "d8e6f7f" in next_sec
+    assert "H-rplm-d **holds**" not in next_sec
     assert "tab:kgwq100" in next_sec
     assert "15485863" in next_sec
     assert "ba1cf1846d7df0a0591d6c00649f57e798519da8" in next_sec
@@ -413,6 +418,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "4557" not in abs_
     assert "pair-qwen-100x4-kgw" not in abs_
     assert "ed9fb20" not in abs_
+    assert "d8e6f7f" not in abs_
     assert "tab:kgwq100" not in abs_
     assert "context_width" in next_sec or "context\\_width" in next_sec
 
@@ -834,10 +840,12 @@ def test_readme_matches_revised_title() -> None:
     assert "747/800" in README
     assert "PROTOCOL-next-kgw-qwen-100" in README
     assert "ed9fb20" in README
+    assert "PROTOCOL-isolated-rankpath-lm" in README
+    assert "d8e6f7f" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README
-    assert "d88319c" in README
+    assert "4b76166" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
@@ -1298,6 +1306,13 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     assert "2026-09-03-pair-12x4-kgw" in tex
     assert "ed9fb20" in tex
     assert "pair-qwen-100x4-kgw" in tex
+    assert "d8e6f7f" in tex
+    assert "PROTOCOL-isolated-rankpath-lm" in tex
+    appendix = tex.split(r"\appendix")[1]
+    assert "d8e6f7f" in appendix
+    assert "rankpath-distil-lm" in appendix
+    assert "rankpath-medium-lm" in appendix
+    assert "Do not invent those scores" in appendix
     occ_qhw = json.loads(
         (
             ROOT
