@@ -2739,11 +2739,28 @@ JSON: `experiments/2026-09-04-pair-distil-100x4-aaronson/`,
 `experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-100x4-aaronson/`.
 
+## 2026-09-04 Qwen2-1.5B Aaronson 100-family freeze
 
+[PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
+frozen before generation. Same laboratory Aaronson–Kirchner
+exponential-minimum as [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md),
+generator `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260905**,
+`--mixin aaronson`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Hypotheses H-aar-q100-ctrl, H-aar-q100-group, H-aar-q100-iso, and
+H-aar-q100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Probe and `atoms` must pass
+`--model Qwen/Qwen2-1.5B-Instruct`. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
 
-
-
-
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260905 --mixin aaronson \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-100x4-aaronson
+```
 
 ## 2026-09-04 resample
 
