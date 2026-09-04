@@ -578,7 +578,11 @@ occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains 
 **60/96**. Isolated-file remains open. DistilGPT2 $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
 (freeze SHA `d891622`). Opened: interpolate **88/100** (isolated
-**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**.
+**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**. Isolated-file remains open.
+DistilGPT2 Aaronson 100-family is
+[PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
+(freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
+**601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
 Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
@@ -657,6 +661,20 @@ replace **25/48**.
 JSON: `experiments/2026-09-04-pair-distil-100x4-ngram13/`,
 `experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-100x4-ngram13/`.
+
+## DistilGPT2 Aaronson–Kirchner 100-family
+
+Protocol SHA `bf05759`; named `bbef06e`. Official first-draw z>3
+**71/100**. Interpolate last-4 **96/100**, isolated **252/400 vs
+349/400** (**601/800**), AUC **0.902**; 36/96 ranking wins have 0
+isolated TPs. Hard **91/100**, isolated **654/800**. Occupancy
+**28824** seen vs **61305** unseen. Below GPT-2 Aaronson interpolate
+**100/100**. Do not sell **96/100** or **601/800**. Does not replace
+**25/48**.
+
+JSON: `experiments/2026-09-04-pair-distil-100x4-aaronson/`,
+`experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-100x4-aaronson/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

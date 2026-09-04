@@ -124,3 +124,55 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `bf05759`. Named `bbef06e`. Pair seed **20260905**.
+`--mixin aaronson`. `model=distilgpt2`. `used_keys=false`. Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+
+Pair dump: [experiments/2026-09-04-pair-distil-100x4-aaronson/](../experiments/2026-09-04-pair-distil-100x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/).
+
+H-aar-d100-ctrl **fails** as the preregistered 100/100 first-draw.
+Official matching z-score is above $3.0$ on **71/100** first marked
+files. Twenty-nine first marked files share $z=-5.52$ (`mean_u=0.359$),
+a Distil degenerate loop, not a `detector_mean` scoring bug. Unmarked
+first-draw is **3/100** above $3.0$. Mixin is on for the other 71
+stems. Do not sell **71/100**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **96/100** | 0.902 | 252/400 | 349/400 | 252 148 349 51 | **601/800** |
+| hard last-4 | **91/100** | 0.899 | 308/400 | 346/400 | 308 92 346 54 | **654/800** |
+
+GPT-2 Aaronson interpolate on these prompt *strings* (different twins)
+was **100/100** (isolated **608/800**). Distil interpolate is
+**96/100**, and **36/96** ranking wins have 0 isolated TPs. Mean
+$D_p=3.616$ (interpolate) / $1.860$ (hard).
+
+Clopper–Pearson 95% (not a second freeze): interpolate **96/100** is
+**[0.901, 0.989]** and does not include ½; BA **601/800** is
+**[0.720, 0.781]**. Isolated **25/48** still includes ½.
+
+H-aar-d100-group **holds** as an informative comparison with GPT-2
+Aaronson **100/100**. It does not replace **25/48**.
+
+H-aar-d100-iso **holds**. Isolated interpolate **601/800** is a
+different generator from the original-12 SynthID **47/96**. Do not sell
+**96/100**, **91/100**, **601/800**, or **654/800** as replacing
+**25/48**. Nested interpolate Youden **368/400** is a negative train
+threshold; do not sell **368/400**.
+
+H-aar-d100-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **252/400**. Exact
+next-token overlap is **28824** seen versus **61305** unseen (opening
+$[0{:}4)$ is 2048 versus 352, including Distil newline loops).
+Occupancy is not a detector. Do not sell **28824** as replacing
+**25/48**.
+
+JSON: [experiments/2026-09-04-atoms-distil-100x4-aaronson/](../experiments/2026-09-04-atoms-distil-100x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
