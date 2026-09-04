@@ -3249,7 +3249,21 @@ the file mean**, not a Kirchenbauer-style tail (idea 1 interpolate
 64:128 **100/100**). 36-family last-2 windows sit in between: 0:4
 **32/36**, **128/144**, AUC **0.869**; 64:128 **19/36**, AUC **0.543**.
 Last-4 interpolate tail 64:128 is still **3/12** on the original 12
-and **93/100** at n=100. Do not sell **389/400**.
+and **93/100** at n=100. Do not sell **389/400**. Mid slices on the
+same 100 (`used_keys=false`, `--skip-nested`; isolated from
+`holdout.md`) confirm that last-2 is **not** a Kirchenbauer body
+reader:
+
+| Window | last-2 hard | last-4 hard |
+|---|---|---|
+| 4:16 | 85/100, 0.729, **314/400** | 38/100 chance, 0.458, 186/400 |
+| 16:32 | 65/100, 0.566, 242/400 | 46/100 chance, 0.500, 183/400 |
+| 32:64 | 66/100, 0.575, 246/400 | 39/100 chance, 0.476, 174/400 |
+
+Last-2 4:16 still ranks (near-front mass after 0:4). Last-2 16:32 /
+32:64 are weak. Last-4 hard mid is chance (perm $p$ 0.73–0.99). Do not
+sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
+ranking losses with isolated TP (last-2 4:16 has **14**).
 
 Paired marked-file signs, last-2 vs last-4 on the original 12 (exact
 McNemar; McNemar, 1947; not a freeze): **16** gains / **7** losses /
@@ -3402,7 +3416,7 @@ Qwen2-1.5B $\Hw=12$ last-2 ranking is **5/12**; last-12 is **4/12**.
 **10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell
-opening **389/400**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
+opening **389/400**, last-2 4:16 **85/100** / **314/400**, last-4 hard mid **38/100**, second-key **34/48**, second-key opening **47/48**, medium **330/400**, Distil
 **66/100**, Qwen **351/400**, grok **34/48**, transfer grok **29/48**,
 xkey transfer **19/48**, Distil→GPT-2 last-2 **26/48**, or occupancy-free last-2 **23/48**. Do not switch interpolate to last-2.
 Do not switch `hits` to last-2 (ranking **9/12**, AUC 0.632). Do not
@@ -3439,6 +3453,16 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-windows-ends
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hard-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
@@ -3890,8 +3914,10 @@ A freeze of **width and mixin geography** that already moved a grain:
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
-   lift is opening mass kept in the file mean, not a body leak. The
-   jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
+   lift is opening mass kept in the file mean, not a body leak: mid
+   4:16 last-2 still ranks **85/100** while 16:32 / 32:64 are weak
+   (**65/100** / **66/100**) and last-4 hard mid is chance
+   (**38/100**). The jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
    $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
    **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
    **5/12**. Distil $\Hw=12$ interpolate last-4 is front-loaded
