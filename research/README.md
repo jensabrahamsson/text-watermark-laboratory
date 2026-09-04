@@ -73,6 +73,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [paired-corpus.md](paired-corpus.md) | Before/after protocol for a future real-world key-free test |
 | [dipper-local.md](dipper-local.md) | Why the official 11B DIPPER checkpoint is not part of the current setup |
 | [HOW-TO.md](../HOW-TO.md) | Installation and practical commands |
+| [../experiments/2026-09-04-lovande-holdouts/](../experiments/2026-09-04-lovande-holdouts/) | JSON holdouts for PR #7 width ideas (last-1 / last-2 hits, hashpool, hashtok, hashtok2); not **25/48** |
 
 The conceptual split is simple:
 

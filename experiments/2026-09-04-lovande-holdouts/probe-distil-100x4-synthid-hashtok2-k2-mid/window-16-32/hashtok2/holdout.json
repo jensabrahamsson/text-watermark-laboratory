@@ -1,0 +1,4880 @@
+{
+  "mode": "rotate",
+  "n_prompts": 100,
+  "n_files": 800,
+  "n_marked_above_unmarked": 242,
+  "n_prompts_marked_above": 70,
+  "n_prompts_marked_ge": 71,
+  "n_prompt_ties": 1,
+  "n_prompt_losses": 29,
+  "n_prompt_wins_without_isolated_tp": 16,
+  "ranking_without_isolated_tp": [
+    "006",
+    "015",
+    "018",
+    "033",
+    "038",
+    "047",
+    "048",
+    "050",
+    "059",
+    "063",
+    "067",
+    "077",
+    "078",
+    "090",
+    "095",
+    "099"
+  ],
+  "ranking_ties_without_isolated_tp": [
+    "016"
+  ],
+  "n_ranking_losses_with_isolated_tp": 9,
+  "ranking_losses_with_isolated_tp": [
+    "002",
+    "009",
+    "013",
+    "040",
+    "064",
+    "074",
+    "081",
+    "087",
+    "094"
+  ],
+  "n_marked_positive_on_ranking_losses": 11,
+  "n_marked_lr_positive": 98,
+  "n_unmarked_lr_nonpositive": 343,
+  "margin": 0.0,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "context_len": 2,
+  "model_name": "gpt2",
+  "instance": "key-free-hashtok2",
+  "score_kind": "hashtok2@w16-32",
+  "comparison": "strict-gt",
+  "prompt_sign_p": 0.0004997501249375312,
+  "inference_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+  "binary": {
+    "n_positive": 400,
+    "n_negative": 400,
+    "auc": 0.6313875,
+    "mean_positive": -0.0656461155469941,
+    "mean_negative": -0.20491123036541192,
+    "mean_diff": 0.13926511481841783,
+    "n_positive_above_zero": 98,
+    "n_negative_at_most_zero": 343,
+    "permutation_p": 0.0004997501249375312,
+    "binomial_p_above_zero": 0.9999999999999994,
+    "permutation_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "binomial_p_note": "File-level permutation_p and binomial_p_above_zero shuffle or test individual files. Draws are paired and clustered by prompt family; score 0 is not a calibrated null. Those p-values are descriptive, not valid clustered inference. Use permutation_prompt_sign_p on prompt-mean differences.",
+    "youden_threshold": -0.007762737025262081,
+    "youden_sensitivity": 0.5275,
+    "youden_specificity": 0.7325,
+    "youden_j": 0.26,
+    "n_perm": 2000
+  },
+  "caveat": "Not detector_mean. Not Claude. Not Anthropic. \u22480 is not \u201chuman\u201d and not \u201cClaude has no mark\u201d.",
+  "files": [
+    {
+      "file": "001-marked.txt",
+      "lr": -0.6804158230343278,
+      "stem": "001",
+      "sample": 1
+    },
+    {
+      "file": "001-unmarked-gen.txt",
+      "lr": 0.029543824311874568,
+      "stem": "001",
+      "sample": 1
+    },
+    {
+      "file": "001-marked-2.txt",
+      "lr": -0.5095358342157125,
+      "stem": "001",
+      "sample": 2
+    },
+    {
+      "file": "001-unmarked-gen-2.txt",
+      "lr": -0.5195916715695044,
+      "stem": "001",
+      "sample": 2
+    },
+    {
+      "file": "001-marked-3.txt",
+      "lr": -0.6905042500772671,
+      "stem": "001",
+      "sample": 3
+    },
+    {
+      "file": "001-unmarked-gen-3.txt",
+      "lr": -0.38082133198319973,
+      "stem": "001",
+      "sample": 3
+    },
+    {
+      "file": "001-marked-4.txt",
+      "lr": -0.30499829440323506,
+      "stem": "001",
+      "sample": 4
+    },
+    {
+      "file": "001-unmarked-gen-4.txt",
+      "lr": -0.506546018544498,
+      "stem": "001",
+      "sample": 4
+    },
+    {
+      "file": "002-marked.txt",
+      "lr": 0.0,
+      "stem": "002",
+      "sample": 1
+    },
+    {
+      "file": "002-unmarked-gen.txt",
+      "lr": -0.011221606701207754,
+      "stem": "002",
+      "sample": 1
+    },
+    {
+      "file": "002-marked-2.txt",
+      "lr": 0.18196386845695756,
+      "stem": "002",
+      "sample": 2
+    },
+    {
+      "file": "002-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "002",
+      "sample": 2
+    },
+    {
+      "file": "002-marked-3.txt",
+      "lr": 0.4449898140368536,
+      "stem": "002",
+      "sample": 3
+    },
+    {
+      "file": "002-unmarked-gen-3.txt",
+      "lr": 0.5159798676048742,
+      "stem": "002",
+      "sample": 3
+    },
+    {
+      "file": "002-marked-4.txt",
+      "lr": -0.1580077923059149,
+      "stem": "002",
+      "sample": 4
+    },
+    {
+      "file": "002-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "002",
+      "sample": 4
+    },
+    {
+      "file": "003-marked.txt",
+      "lr": 0.0,
+      "stem": "003",
+      "sample": 1
+    },
+    {
+      "file": "003-unmarked-gen.txt",
+      "lr": -0.1909654659225243,
+      "stem": "003",
+      "sample": 1
+    },
+    {
+      "file": "003-marked-2.txt",
+      "lr": 0.0,
+      "stem": "003",
+      "sample": 2
+    },
+    {
+      "file": "003-unmarked-gen-2.txt",
+      "lr": -0.10350644476386232,
+      "stem": "003",
+      "sample": 2
+    },
+    {
+      "file": "003-marked-3.txt",
+      "lr": -0.23259698166113738,
+      "stem": "003",
+      "sample": 3
+    },
+    {
+      "file": "003-unmarked-gen-3.txt",
+      "lr": -0.2538800948826002,
+      "stem": "003",
+      "sample": 3
+    },
+    {
+      "file": "003-marked-4.txt",
+      "lr": -0.5730972635736721,
+      "stem": "003",
+      "sample": 4
+    },
+    {
+      "file": "003-unmarked-gen-4.txt",
+      "lr": -0.13801156704205506,
+      "stem": "003",
+      "sample": 4
+    },
+    {
+      "file": "004-marked.txt",
+      "lr": 0.07508903086736701,
+      "stem": "004",
+      "sample": 1
+    },
+    {
+      "file": "004-unmarked-gen.txt",
+      "lr": -0.3542611186163574,
+      "stem": "004",
+      "sample": 1
+    },
+    {
+      "file": "004-marked-2.txt",
+      "lr": -0.48952678535493444,
+      "stem": "004",
+      "sample": 2
+    },
+    {
+      "file": "004-unmarked-gen-2.txt",
+      "lr": 0.08317508810708402,
+      "stem": "004",
+      "sample": 2
+    },
+    {
+      "file": "004-marked-3.txt",
+      "lr": -0.4293619385770001,
+      "stem": "004",
+      "sample": 3
+    },
+    {
+      "file": "004-unmarked-gen-3.txt",
+      "lr": -0.4909891436111414,
+      "stem": "004",
+      "sample": 3
+    },
+    {
+      "file": "004-marked-4.txt",
+      "lr": -0.03833014179089158,
+      "stem": "004",
+      "sample": 4
+    },
+    {
+      "file": "004-unmarked-gen-4.txt",
+      "lr": -0.241574327232236,
+      "stem": "004",
+      "sample": 4
+    },
+    {
+      "file": "005-marked.txt",
+      "lr": -0.2940122789297663,
+      "stem": "005",
+      "sample": 1
+    },
+    {
+      "file": "005-unmarked-gen.txt",
+      "lr": 0.007095019007037268,
+      "stem": "005",
+      "sample": 1
+    },
+    {
+      "file": "005-marked-2.txt",
+      "lr": -0.09797152509194863,
+      "stem": "005",
+      "sample": 2
+    },
+    {
+      "file": "005-unmarked-gen-2.txt",
+      "lr": -0.1627290317237907,
+      "stem": "005",
+      "sample": 2
+    },
+    {
+      "file": "005-marked-3.txt",
+      "lr": 0.31154035962013893,
+      "stem": "005",
+      "sample": 3
+    },
+    {
+      "file": "005-unmarked-gen-3.txt",
+      "lr": -0.24317581006097924,
+      "stem": "005",
+      "sample": 3
+    },
+    {
+      "file": "005-marked-4.txt",
+      "lr": 0.4178783088675768,
+      "stem": "005",
+      "sample": 4
+    },
+    {
+      "file": "005-unmarked-gen-4.txt",
+      "lr": -0.20085661467027782,
+      "stem": "005",
+      "sample": 4
+    },
+    {
+      "file": "006-marked.txt",
+      "lr": 0.0,
+      "stem": "006",
+      "sample": 1
+    },
+    {
+      "file": "006-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "006",
+      "sample": 1
+    },
+    {
+      "file": "006-marked-2.txt",
+      "lr": 0.0,
+      "stem": "006",
+      "sample": 2
+    },
+    {
+      "file": "006-unmarked-gen-2.txt",
+      "lr": -0.37082284917607805,
+      "stem": "006",
+      "sample": 2
+    },
+    {
+      "file": "006-marked-3.txt",
+      "lr": 0.0,
+      "stem": "006",
+      "sample": 3
+    },
+    {
+      "file": "006-unmarked-gen-3.txt",
+      "lr": -0.049134856130822836,
+      "stem": "006",
+      "sample": 3
+    },
+    {
+      "file": "006-marked-4.txt",
+      "lr": 0.0,
+      "stem": "006",
+      "sample": 4
+    },
+    {
+      "file": "006-unmarked-gen-4.txt",
+      "lr": -0.14354351711916624,
+      "stem": "006",
+      "sample": 4
+    },
+    {
+      "file": "007-marked.txt",
+      "lr": 0.07098840213564218,
+      "stem": "007",
+      "sample": 1
+    },
+    {
+      "file": "007-unmarked-gen.txt",
+      "lr": -0.18904606922326128,
+      "stem": "007",
+      "sample": 1
+    },
+    {
+      "file": "007-marked-2.txt",
+      "lr": -0.44462541265576794,
+      "stem": "007",
+      "sample": 2
+    },
+    {
+      "file": "007-unmarked-gen-2.txt",
+      "lr": -0.16485294555347738,
+      "stem": "007",
+      "sample": 2
+    },
+    {
+      "file": "007-marked-3.txt",
+      "lr": 0.19720083089670695,
+      "stem": "007",
+      "sample": 3
+    },
+    {
+      "file": "007-unmarked-gen-3.txt",
+      "lr": -0.009122561809066274,
+      "stem": "007",
+      "sample": 3
+    },
+    {
+      "file": "007-marked-4.txt",
+      "lr": 0.20349487228561886,
+      "stem": "007",
+      "sample": 4
+    },
+    {
+      "file": "007-unmarked-gen-4.txt",
+      "lr": -0.2978309568982287,
+      "stem": "007",
+      "sample": 4
+    },
+    {
+      "file": "008-marked.txt",
+      "lr": 0.0,
+      "stem": "008",
+      "sample": 1
+    },
+    {
+      "file": "008-unmarked-gen.txt",
+      "lr": -0.1914010256634593,
+      "stem": "008",
+      "sample": 1
+    },
+    {
+      "file": "008-marked-2.txt",
+      "lr": -0.17855370417797622,
+      "stem": "008",
+      "sample": 2
+    },
+    {
+      "file": "008-unmarked-gen-2.txt",
+      "lr": -0.24953539474040293,
+      "stem": "008",
+      "sample": 2
+    },
+    {
+      "file": "008-marked-3.txt",
+      "lr": -0.4598662716057256,
+      "stem": "008",
+      "sample": 3
+    },
+    {
+      "file": "008-unmarked-gen-3.txt",
+      "lr": -0.33148655040877817,
+      "stem": "008",
+      "sample": 3
+    },
+    {
+      "file": "008-marked-4.txt",
+      "lr": 0.2757965923172828,
+      "stem": "008",
+      "sample": 4
+    },
+    {
+      "file": "008-unmarked-gen-4.txt",
+      "lr": -0.34398149262791233,
+      "stem": "008",
+      "sample": 4
+    },
+    {
+      "file": "009-marked.txt",
+      "lr": -0.38188511622806004,
+      "stem": "009",
+      "sample": 1
+    },
+    {
+      "file": "009-unmarked-gen.txt",
+      "lr": 0.11791461565681952,
+      "stem": "009",
+      "sample": 1
+    },
+    {
+      "file": "009-marked-2.txt",
+      "lr": -0.4792683538572139,
+      "stem": "009",
+      "sample": 2
+    },
+    {
+      "file": "009-unmarked-gen-2.txt",
+      "lr": -0.6856384999422287,
+      "stem": "009",
+      "sample": 2
+    },
+    {
+      "file": "009-marked-3.txt",
+      "lr": 0.5959037425966692,
+      "stem": "009",
+      "sample": 3
+    },
+    {
+      "file": "009-unmarked-gen-3.txt",
+      "lr": -0.17995542983591833,
+      "stem": "009",
+      "sample": 3
+    },
+    {
+      "file": "009-marked-4.txt",
+      "lr": -0.5661250089261296,
+      "stem": "009",
+      "sample": 4
+    },
+    {
+      "file": "009-unmarked-gen-4.txt",
+      "lr": 0.2995177761403023,
+      "stem": "009",
+      "sample": 4
+    },
+    {
+      "file": "010-marked.txt",
+      "lr": -0.3638586165219537,
+      "stem": "010",
+      "sample": 1
+    },
+    {
+      "file": "010-unmarked-gen.txt",
+      "lr": -0.15992535182185694,
+      "stem": "010",
+      "sample": 1
+    },
+    {
+      "file": "010-marked-2.txt",
+      "lr": -0.5889401306836546,
+      "stem": "010",
+      "sample": 2
+    },
+    {
+      "file": "010-unmarked-gen-2.txt",
+      "lr": -0.223640797942483,
+      "stem": "010",
+      "sample": 2
+    },
+    {
+      "file": "010-marked-3.txt",
+      "lr": -0.7798619657733465,
+      "stem": "010",
+      "sample": 3
+    },
+    {
+      "file": "010-unmarked-gen-3.txt",
+      "lr": -0.4871774084932866,
+      "stem": "010",
+      "sample": 3
+    },
+    {
+      "file": "010-marked-4.txt",
+      "lr": -0.4327542926610286,
+      "stem": "010",
+      "sample": 4
+    },
+    {
+      "file": "010-unmarked-gen-4.txt",
+      "lr": -0.5334983810068387,
+      "stem": "010",
+      "sample": 4
+    },
+    {
+      "file": "011-marked.txt",
+      "lr": -0.05497392321974974,
+      "stem": "011",
+      "sample": 1
+    },
+    {
+      "file": "011-unmarked-gen.txt",
+      "lr": -0.1280689653905208,
+      "stem": "011",
+      "sample": 1
+    },
+    {
+      "file": "011-marked-2.txt",
+      "lr": 0.0,
+      "stem": "011",
+      "sample": 2
+    },
+    {
+      "file": "011-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "011",
+      "sample": 2
+    },
+    {
+      "file": "011-marked-3.txt",
+      "lr": 0.8808191045485825,
+      "stem": "011",
+      "sample": 3
+    },
+    {
+      "file": "011-unmarked-gen-3.txt",
+      "lr": -0.554038870422129,
+      "stem": "011",
+      "sample": 3
+    },
+    {
+      "file": "011-marked-4.txt",
+      "lr": 0.0018867763631749477,
+      "stem": "011",
+      "sample": 4
+    },
+    {
+      "file": "011-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "011",
+      "sample": 4
+    },
+    {
+      "file": "012-marked.txt",
+      "lr": -0.47160857778441745,
+      "stem": "012",
+      "sample": 1
+    },
+    {
+      "file": "012-unmarked-gen.txt",
+      "lr": -0.34123039404631805,
+      "stem": "012",
+      "sample": 1
+    },
+    {
+      "file": "012-marked-2.txt",
+      "lr": -0.2764796658094986,
+      "stem": "012",
+      "sample": 2
+    },
+    {
+      "file": "012-unmarked-gen-2.txt",
+      "lr": -0.09952441125429372,
+      "stem": "012",
+      "sample": 2
+    },
+    {
+      "file": "012-marked-3.txt",
+      "lr": -0.5670799244755165,
+      "stem": "012",
+      "sample": 3
+    },
+    {
+      "file": "012-unmarked-gen-3.txt",
+      "lr": -0.12822874660276218,
+      "stem": "012",
+      "sample": 3
+    },
+    {
+      "file": "012-marked-4.txt",
+      "lr": -0.18369743812745745,
+      "stem": "012",
+      "sample": 4
+    },
+    {
+      "file": "012-unmarked-gen-4.txt",
+      "lr": -0.1683864798098588,
+      "stem": "012",
+      "sample": 4
+    },
+    {
+      "file": "013-marked.txt",
+      "lr": -0.07463011178348376,
+      "stem": "013",
+      "sample": 1
+    },
+    {
+      "file": "013-unmarked-gen.txt",
+      "lr": -0.2467775715060558,
+      "stem": "013",
+      "sample": 1
+    },
+    {
+      "file": "013-marked-2.txt",
+      "lr": 0.0023469655807202916,
+      "stem": "013",
+      "sample": 2
+    },
+    {
+      "file": "013-unmarked-gen-2.txt",
+      "lr": -0.15854951647721002,
+      "stem": "013",
+      "sample": 2
+    },
+    {
+      "file": "013-marked-3.txt",
+      "lr": -0.3177038639396483,
+      "stem": "013",
+      "sample": 3
+    },
+    {
+      "file": "013-unmarked-gen-3.txt",
+      "lr": -0.0463812394335889,
+      "stem": "013",
+      "sample": 3
+    },
+    {
+      "file": "013-marked-4.txt",
+      "lr": -0.6151636973721748,
+      "stem": "013",
+      "sample": 4
+    },
+    {
+      "file": "013-unmarked-gen-4.txt",
+      "lr": -0.41469063444951854,
+      "stem": "013",
+      "sample": 4
+    },
+    {
+      "file": "014-marked.txt",
+      "lr": -0.24096538867430595,
+      "stem": "014",
+      "sample": 1
+    },
+    {
+      "file": "014-unmarked-gen.txt",
+      "lr": -0.9813132822428348,
+      "stem": "014",
+      "sample": 1
+    },
+    {
+      "file": "014-marked-2.txt",
+      "lr": -0.19355785171372636,
+      "stem": "014",
+      "sample": 2
+    },
+    {
+      "file": "014-unmarked-gen-2.txt",
+      "lr": 0.007347288344108638,
+      "stem": "014",
+      "sample": 2
+    },
+    {
+      "file": "014-marked-3.txt",
+      "lr": 0.38059221168420654,
+      "stem": "014",
+      "sample": 3
+    },
+    {
+      "file": "014-unmarked-gen-3.txt",
+      "lr": -0.22496047266519323,
+      "stem": "014",
+      "sample": 3
+    },
+    {
+      "file": "014-marked-4.txt",
+      "lr": -0.26968725896226586,
+      "stem": "014",
+      "sample": 4
+    },
+    {
+      "file": "014-unmarked-gen-4.txt",
+      "lr": -0.18732638812832192,
+      "stem": "014",
+      "sample": 4
+    },
+    {
+      "file": "015-marked.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 1
+    },
+    {
+      "file": "015-unmarked-gen.txt",
+      "lr": -0.4331336455979868,
+      "stem": "015",
+      "sample": 1
+    },
+    {
+      "file": "015-marked-2.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 2
+    },
+    {
+      "file": "015-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 2
+    },
+    {
+      "file": "015-marked-3.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 3
+    },
+    {
+      "file": "015-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 3
+    },
+    {
+      "file": "015-marked-4.txt",
+      "lr": 0.0,
+      "stem": "015",
+      "sample": 4
+    },
+    {
+      "file": "015-unmarked-gen-4.txt",
+      "lr": -0.5188457439681218,
+      "stem": "015",
+      "sample": 4
+    },
+    {
+      "file": "016-marked.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 1
+    },
+    {
+      "file": "016-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 1
+    },
+    {
+      "file": "016-marked-2.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 2
+    },
+    {
+      "file": "016-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 2
+    },
+    {
+      "file": "016-marked-3.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 3
+    },
+    {
+      "file": "016-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 3
+    },
+    {
+      "file": "016-marked-4.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 4
+    },
+    {
+      "file": "016-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "016",
+      "sample": 4
+    },
+    {
+      "file": "017-marked.txt",
+      "lr": -0.4134511557673924,
+      "stem": "017",
+      "sample": 1
+    },
+    {
+      "file": "017-unmarked-gen.txt",
+      "lr": -0.4552573034453463,
+      "stem": "017",
+      "sample": 1
+    },
+    {
+      "file": "017-marked-2.txt",
+      "lr": 0.0,
+      "stem": "017",
+      "sample": 2
+    },
+    {
+      "file": "017-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "017",
+      "sample": 2
+    },
+    {
+      "file": "017-marked-3.txt",
+      "lr": -0.6159656810971056,
+      "stem": "017",
+      "sample": 3
+    },
+    {
+      "file": "017-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "017",
+      "sample": 3
+    },
+    {
+      "file": "017-marked-4.txt",
+      "lr": 0.0,
+      "stem": "017",
+      "sample": 4
+    },
+    {
+      "file": "017-unmarked-gen-4.txt",
+      "lr": -0.2851763390667481,
+      "stem": "017",
+      "sample": 4
+    },
+    {
+      "file": "018-marked.txt",
+      "lr": -0.039180747163077095,
+      "stem": "018",
+      "sample": 1
+    },
+    {
+      "file": "018-unmarked-gen.txt",
+      "lr": -0.9131695503414827,
+      "stem": "018",
+      "sample": 1
+    },
+    {
+      "file": "018-marked-2.txt",
+      "lr": 0.0,
+      "stem": "018",
+      "sample": 2
+    },
+    {
+      "file": "018-unmarked-gen-2.txt",
+      "lr": -0.06636006335381958,
+      "stem": "018",
+      "sample": 2
+    },
+    {
+      "file": "018-marked-3.txt",
+      "lr": 0.0,
+      "stem": "018",
+      "sample": 3
+    },
+    {
+      "file": "018-unmarked-gen-3.txt",
+      "lr": -0.4489402550616502,
+      "stem": "018",
+      "sample": 3
+    },
+    {
+      "file": "018-marked-4.txt",
+      "lr": 0.0,
+      "stem": "018",
+      "sample": 4
+    },
+    {
+      "file": "018-unmarked-gen-4.txt",
+      "lr": -0.17073234036309182,
+      "stem": "018",
+      "sample": 4
+    },
+    {
+      "file": "019-marked.txt",
+      "lr": 0.0,
+      "stem": "019",
+      "sample": 1
+    },
+    {
+      "file": "019-unmarked-gen.txt",
+      "lr": -0.4316987298054295,
+      "stem": "019",
+      "sample": 1
+    },
+    {
+      "file": "019-marked-2.txt",
+      "lr": 1.1261915968322116,
+      "stem": "019",
+      "sample": 2
+    },
+    {
+      "file": "019-unmarked-gen-2.txt",
+      "lr": -0.16680884201024795,
+      "stem": "019",
+      "sample": 2
+    },
+    {
+      "file": "019-marked-3.txt",
+      "lr": -0.400390119409159,
+      "stem": "019",
+      "sample": 3
+    },
+    {
+      "file": "019-unmarked-gen-3.txt",
+      "lr": -0.3418017601986539,
+      "stem": "019",
+      "sample": 3
+    },
+    {
+      "file": "019-marked-4.txt",
+      "lr": 0.1564600085286463,
+      "stem": "019",
+      "sample": 4
+    },
+    {
+      "file": "019-unmarked-gen-4.txt",
+      "lr": -0.06710170854153821,
+      "stem": "019",
+      "sample": 4
+    },
+    {
+      "file": "020-marked.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 1
+    },
+    {
+      "file": "020-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 1
+    },
+    {
+      "file": "020-marked-2.txt",
+      "lr": 0.4706077636873363,
+      "stem": "020",
+      "sample": 2
+    },
+    {
+      "file": "020-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 2
+    },
+    {
+      "file": "020-marked-3.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 3
+    },
+    {
+      "file": "020-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 3
+    },
+    {
+      "file": "020-marked-4.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 4
+    },
+    {
+      "file": "020-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "020",
+      "sample": 4
+    },
+    {
+      "file": "021-marked.txt",
+      "lr": 0.0363467595914821,
+      "stem": "021",
+      "sample": 1
+    },
+    {
+      "file": "021-unmarked-gen.txt",
+      "lr": -0.2260095619300057,
+      "stem": "021",
+      "sample": 1
+    },
+    {
+      "file": "021-marked-2.txt",
+      "lr": -0.23631973676001117,
+      "stem": "021",
+      "sample": 2
+    },
+    {
+      "file": "021-unmarked-gen-2.txt",
+      "lr": -0.8559850668145051,
+      "stem": "021",
+      "sample": 2
+    },
+    {
+      "file": "021-marked-3.txt",
+      "lr": 0.29336686170460974,
+      "stem": "021",
+      "sample": 3
+    },
+    {
+      "file": "021-unmarked-gen-3.txt",
+      "lr": -0.7931534245086451,
+      "stem": "021",
+      "sample": 3
+    },
+    {
+      "file": "021-marked-4.txt",
+      "lr": -0.24350276305129076,
+      "stem": "021",
+      "sample": 4
+    },
+    {
+      "file": "021-unmarked-gen-4.txt",
+      "lr": -0.5182436817291095,
+      "stem": "021",
+      "sample": 4
+    },
+    {
+      "file": "022-marked.txt",
+      "lr": -0.32036704075918926,
+      "stem": "022",
+      "sample": 1
+    },
+    {
+      "file": "022-unmarked-gen.txt",
+      "lr": -0.4880593315907751,
+      "stem": "022",
+      "sample": 1
+    },
+    {
+      "file": "022-marked-2.txt",
+      "lr": -0.3929738393228122,
+      "stem": "022",
+      "sample": 2
+    },
+    {
+      "file": "022-unmarked-gen-2.txt",
+      "lr": -0.3832269973509419,
+      "stem": "022",
+      "sample": 2
+    },
+    {
+      "file": "022-marked-3.txt",
+      "lr": 0.0,
+      "stem": "022",
+      "sample": 3
+    },
+    {
+      "file": "022-unmarked-gen-3.txt",
+      "lr": -0.34685197217840763,
+      "stem": "022",
+      "sample": 3
+    },
+    {
+      "file": "022-marked-4.txt",
+      "lr": 0.33025659196982793,
+      "stem": "022",
+      "sample": 4
+    },
+    {
+      "file": "022-unmarked-gen-4.txt",
+      "lr": -0.059022604392916865,
+      "stem": "022",
+      "sample": 4
+    },
+    {
+      "file": "023-marked.txt",
+      "lr": -0.07784912822614921,
+      "stem": "023",
+      "sample": 1
+    },
+    {
+      "file": "023-unmarked-gen.txt",
+      "lr": -0.42028173228037286,
+      "stem": "023",
+      "sample": 1
+    },
+    {
+      "file": "023-marked-2.txt",
+      "lr": 0.020386325810061893,
+      "stem": "023",
+      "sample": 2
+    },
+    {
+      "file": "023-unmarked-gen-2.txt",
+      "lr": -0.18066665941516477,
+      "stem": "023",
+      "sample": 2
+    },
+    {
+      "file": "023-marked-3.txt",
+      "lr": -0.28470115697822457,
+      "stem": "023",
+      "sample": 3
+    },
+    {
+      "file": "023-unmarked-gen-3.txt",
+      "lr": -0.5160525206652162,
+      "stem": "023",
+      "sample": 3
+    },
+    {
+      "file": "023-marked-4.txt",
+      "lr": -0.4279325421466598,
+      "stem": "023",
+      "sample": 4
+    },
+    {
+      "file": "023-unmarked-gen-4.txt",
+      "lr": 0.1410966113470732,
+      "stem": "023",
+      "sample": 4
+    },
+    {
+      "file": "024-marked.txt",
+      "lr": 0.0,
+      "stem": "024",
+      "sample": 1
+    },
+    {
+      "file": "024-unmarked-gen.txt",
+      "lr": 0.20166493838138866,
+      "stem": "024",
+      "sample": 1
+    },
+    {
+      "file": "024-marked-2.txt",
+      "lr": -0.3647216661143165,
+      "stem": "024",
+      "sample": 2
+    },
+    {
+      "file": "024-unmarked-gen-2.txt",
+      "lr": -0.2024747689218209,
+      "stem": "024",
+      "sample": 2
+    },
+    {
+      "file": "024-marked-3.txt",
+      "lr": 0.0,
+      "stem": "024",
+      "sample": 3
+    },
+    {
+      "file": "024-unmarked-gen-3.txt",
+      "lr": 0.16015654494508724,
+      "stem": "024",
+      "sample": 3
+    },
+    {
+      "file": "024-marked-4.txt",
+      "lr": -0.19929958001444317,
+      "stem": "024",
+      "sample": 4
+    },
+    {
+      "file": "024-unmarked-gen-4.txt",
+      "lr": -0.20001164886126346,
+      "stem": "024",
+      "sample": 4
+    },
+    {
+      "file": "025-marked.txt",
+      "lr": 1.1018909553334844,
+      "stem": "025",
+      "sample": 1
+    },
+    {
+      "file": "025-unmarked-gen.txt",
+      "lr": -0.08529854020776811,
+      "stem": "025",
+      "sample": 1
+    },
+    {
+      "file": "025-marked-2.txt",
+      "lr": -0.052274208867820394,
+      "stem": "025",
+      "sample": 2
+    },
+    {
+      "file": "025-unmarked-gen-2.txt",
+      "lr": -0.4266838404499112,
+      "stem": "025",
+      "sample": 2
+    },
+    {
+      "file": "025-marked-3.txt",
+      "lr": -0.2782733087941192,
+      "stem": "025",
+      "sample": 3
+    },
+    {
+      "file": "025-unmarked-gen-3.txt",
+      "lr": -0.07268076220615266,
+      "stem": "025",
+      "sample": 3
+    },
+    {
+      "file": "025-marked-4.txt",
+      "lr": -0.17936342375788483,
+      "stem": "025",
+      "sample": 4
+    },
+    {
+      "file": "025-unmarked-gen-4.txt",
+      "lr": -0.4197597843211936,
+      "stem": "025",
+      "sample": 4
+    },
+    {
+      "file": "026-marked.txt",
+      "lr": 0.20436863979203024,
+      "stem": "026",
+      "sample": 1
+    },
+    {
+      "file": "026-unmarked-gen.txt",
+      "lr": 0.10988720389094696,
+      "stem": "026",
+      "sample": 1
+    },
+    {
+      "file": "026-marked-2.txt",
+      "lr": 1.518831155858886,
+      "stem": "026",
+      "sample": 2
+    },
+    {
+      "file": "026-unmarked-gen-2.txt",
+      "lr": -0.6228335555386141,
+      "stem": "026",
+      "sample": 2
+    },
+    {
+      "file": "026-marked-3.txt",
+      "lr": 0.4889024160659441,
+      "stem": "026",
+      "sample": 3
+    },
+    {
+      "file": "026-unmarked-gen-3.txt",
+      "lr": -0.3382730122549544,
+      "stem": "026",
+      "sample": 3
+    },
+    {
+      "file": "026-marked-4.txt",
+      "lr": 0.8887366909786671,
+      "stem": "026",
+      "sample": 4
+    },
+    {
+      "file": "026-unmarked-gen-4.txt",
+      "lr": -0.4695539680405023,
+      "stem": "026",
+      "sample": 4
+    },
+    {
+      "file": "027-marked.txt",
+      "lr": 0.0,
+      "stem": "027",
+      "sample": 1
+    },
+    {
+      "file": "027-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "027",
+      "sample": 1
+    },
+    {
+      "file": "027-marked-2.txt",
+      "lr": 0.2019024025220982,
+      "stem": "027",
+      "sample": 2
+    },
+    {
+      "file": "027-unmarked-gen-2.txt",
+      "lr": -0.05919089865557398,
+      "stem": "027",
+      "sample": 2
+    },
+    {
+      "file": "027-marked-3.txt",
+      "lr": -0.05224068105280382,
+      "stem": "027",
+      "sample": 3
+    },
+    {
+      "file": "027-unmarked-gen-3.txt",
+      "lr": -0.3129034906483321,
+      "stem": "027",
+      "sample": 3
+    },
+    {
+      "file": "027-marked-4.txt",
+      "lr": 1.1332755692740724,
+      "stem": "027",
+      "sample": 4
+    },
+    {
+      "file": "027-unmarked-gen-4.txt",
+      "lr": -0.1355554937890409,
+      "stem": "027",
+      "sample": 4
+    },
+    {
+      "file": "028-marked.txt",
+      "lr": 0.3284805810106201,
+      "stem": "028",
+      "sample": 1
+    },
+    {
+      "file": "028-unmarked-gen.txt",
+      "lr": 0.19807333002955818,
+      "stem": "028",
+      "sample": 1
+    },
+    {
+      "file": "028-marked-2.txt",
+      "lr": -0.3562556483581411,
+      "stem": "028",
+      "sample": 2
+    },
+    {
+      "file": "028-unmarked-gen-2.txt",
+      "lr": -0.3952847000031622,
+      "stem": "028",
+      "sample": 2
+    },
+    {
+      "file": "028-marked-3.txt",
+      "lr": 0.08833946060741316,
+      "stem": "028",
+      "sample": 3
+    },
+    {
+      "file": "028-unmarked-gen-3.txt",
+      "lr": -0.5560956695862609,
+      "stem": "028",
+      "sample": 3
+    },
+    {
+      "file": "028-marked-4.txt",
+      "lr": -0.369513196886639,
+      "stem": "028",
+      "sample": 4
+    },
+    {
+      "file": "028-unmarked-gen-4.txt",
+      "lr": -0.09145986416384935,
+      "stem": "028",
+      "sample": 4
+    },
+    {
+      "file": "029-marked.txt",
+      "lr": 0.0,
+      "stem": "029",
+      "sample": 1
+    },
+    {
+      "file": "029-unmarked-gen.txt",
+      "lr": 0.3857328390406308,
+      "stem": "029",
+      "sample": 1
+    },
+    {
+      "file": "029-marked-2.txt",
+      "lr": -0.2175566711222547,
+      "stem": "029",
+      "sample": 2
+    },
+    {
+      "file": "029-unmarked-gen-2.txt",
+      "lr": -0.2518922058069678,
+      "stem": "029",
+      "sample": 2
+    },
+    {
+      "file": "029-marked-3.txt",
+      "lr": 0.0,
+      "stem": "029",
+      "sample": 3
+    },
+    {
+      "file": "029-unmarked-gen-3.txt",
+      "lr": -0.11967034624638426,
+      "stem": "029",
+      "sample": 3
+    },
+    {
+      "file": "029-marked-4.txt",
+      "lr": -0.2673557571971522,
+      "stem": "029",
+      "sample": 4
+    },
+    {
+      "file": "029-unmarked-gen-4.txt",
+      "lr": 0.03264914194824098,
+      "stem": "029",
+      "sample": 4
+    },
+    {
+      "file": "030-marked.txt",
+      "lr": -0.2277485612188305,
+      "stem": "030",
+      "sample": 1
+    },
+    {
+      "file": "030-unmarked-gen.txt",
+      "lr": -0.2298423022475423,
+      "stem": "030",
+      "sample": 1
+    },
+    {
+      "file": "030-marked-2.txt",
+      "lr": -0.3080871480129708,
+      "stem": "030",
+      "sample": 2
+    },
+    {
+      "file": "030-unmarked-gen-2.txt",
+      "lr": -0.1999477652058072,
+      "stem": "030",
+      "sample": 2
+    },
+    {
+      "file": "030-marked-3.txt",
+      "lr": -1.0344415577780242,
+      "stem": "030",
+      "sample": 3
+    },
+    {
+      "file": "030-unmarked-gen-3.txt",
+      "lr": -0.020348708738279625,
+      "stem": "030",
+      "sample": 3
+    },
+    {
+      "file": "030-marked-4.txt",
+      "lr": -0.3057938084094438,
+      "stem": "030",
+      "sample": 4
+    },
+    {
+      "file": "030-unmarked-gen-4.txt",
+      "lr": -0.4912743456813258,
+      "stem": "030",
+      "sample": 4
+    },
+    {
+      "file": "031-marked.txt",
+      "lr": -0.2888250490610625,
+      "stem": "031",
+      "sample": 1
+    },
+    {
+      "file": "031-unmarked-gen.txt",
+      "lr": 0.034324325902165435,
+      "stem": "031",
+      "sample": 1
+    },
+    {
+      "file": "031-marked-2.txt",
+      "lr": 0.29656725011479995,
+      "stem": "031",
+      "sample": 2
+    },
+    {
+      "file": "031-unmarked-gen-2.txt",
+      "lr": -0.03136922879711046,
+      "stem": "031",
+      "sample": 2
+    },
+    {
+      "file": "031-marked-3.txt",
+      "lr": 0.0,
+      "stem": "031",
+      "sample": 3
+    },
+    {
+      "file": "031-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "031",
+      "sample": 3
+    },
+    {
+      "file": "031-marked-4.txt",
+      "lr": 0.0,
+      "stem": "031",
+      "sample": 4
+    },
+    {
+      "file": "031-unmarked-gen-4.txt",
+      "lr": -0.6862835265383711,
+      "stem": "031",
+      "sample": 4
+    },
+    {
+      "file": "032-marked.txt",
+      "lr": -0.1764167663533334,
+      "stem": "032",
+      "sample": 1
+    },
+    {
+      "file": "032-unmarked-gen.txt",
+      "lr": -0.18435771688945157,
+      "stem": "032",
+      "sample": 1
+    },
+    {
+      "file": "032-marked-2.txt",
+      "lr": -0.3882034979925065,
+      "stem": "032",
+      "sample": 2
+    },
+    {
+      "file": "032-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "032",
+      "sample": 2
+    },
+    {
+      "file": "032-marked-3.txt",
+      "lr": 0.0,
+      "stem": "032",
+      "sample": 3
+    },
+    {
+      "file": "032-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "032",
+      "sample": 3
+    },
+    {
+      "file": "032-marked-4.txt",
+      "lr": -0.2574049506893459,
+      "stem": "032",
+      "sample": 4
+    },
+    {
+      "file": "032-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "032",
+      "sample": 4
+    },
+    {
+      "file": "033-marked.txt",
+      "lr": 0.0,
+      "stem": "033",
+      "sample": 1
+    },
+    {
+      "file": "033-unmarked-gen.txt",
+      "lr": -0.3806992485597432,
+      "stem": "033",
+      "sample": 1
+    },
+    {
+      "file": "033-marked-2.txt",
+      "lr": -0.06317750786662917,
+      "stem": "033",
+      "sample": 2
+    },
+    {
+      "file": "033-unmarked-gen-2.txt",
+      "lr": -0.32952150210411685,
+      "stem": "033",
+      "sample": 2
+    },
+    {
+      "file": "033-marked-3.txt",
+      "lr": -0.19824202202531,
+      "stem": "033",
+      "sample": 3
+    },
+    {
+      "file": "033-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "033",
+      "sample": 3
+    },
+    {
+      "file": "033-marked-4.txt",
+      "lr": 0.0,
+      "stem": "033",
+      "sample": 4
+    },
+    {
+      "file": "033-unmarked-gen-4.txt",
+      "lr": -0.7490776090934292,
+      "stem": "033",
+      "sample": 4
+    },
+    {
+      "file": "034-marked.txt",
+      "lr": -0.2175450740796742,
+      "stem": "034",
+      "sample": 1
+    },
+    {
+      "file": "034-unmarked-gen.txt",
+      "lr": 0.17394041601146623,
+      "stem": "034",
+      "sample": 1
+    },
+    {
+      "file": "034-marked-2.txt",
+      "lr": -0.3387712066694075,
+      "stem": "034",
+      "sample": 2
+    },
+    {
+      "file": "034-unmarked-gen-2.txt",
+      "lr": -0.4544682399931528,
+      "stem": "034",
+      "sample": 2
+    },
+    {
+      "file": "034-marked-3.txt",
+      "lr": -0.07223962438161417,
+      "stem": "034",
+      "sample": 3
+    },
+    {
+      "file": "034-unmarked-gen-3.txt",
+      "lr": -0.18451289814065952,
+      "stem": "034",
+      "sample": 3
+    },
+    {
+      "file": "034-marked-4.txt",
+      "lr": 0.26795958561327526,
+      "stem": "034",
+      "sample": 4
+    },
+    {
+      "file": "034-unmarked-gen-4.txt",
+      "lr": -0.1025893932184617,
+      "stem": "034",
+      "sample": 4
+    },
+    {
+      "file": "035-marked.txt",
+      "lr": 0.08221897610210119,
+      "stem": "035",
+      "sample": 1
+    },
+    {
+      "file": "035-unmarked-gen.txt",
+      "lr": -0.7464339975256703,
+      "stem": "035",
+      "sample": 1
+    },
+    {
+      "file": "035-marked-2.txt",
+      "lr": 0.0,
+      "stem": "035",
+      "sample": 2
+    },
+    {
+      "file": "035-unmarked-gen-2.txt",
+      "lr": 0.10549974138845242,
+      "stem": "035",
+      "sample": 2
+    },
+    {
+      "file": "035-marked-3.txt",
+      "lr": 0.0,
+      "stem": "035",
+      "sample": 3
+    },
+    {
+      "file": "035-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "035",
+      "sample": 3
+    },
+    {
+      "file": "035-marked-4.txt",
+      "lr": -0.35239340901897886,
+      "stem": "035",
+      "sample": 4
+    },
+    {
+      "file": "035-unmarked-gen-4.txt",
+      "lr": -0.17399020086113967,
+      "stem": "035",
+      "sample": 4
+    },
+    {
+      "file": "036-marked.txt",
+      "lr": -0.7570905498208367,
+      "stem": "036",
+      "sample": 1
+    },
+    {
+      "file": "036-unmarked-gen.txt",
+      "lr": 0.17325666203790568,
+      "stem": "036",
+      "sample": 1
+    },
+    {
+      "file": "036-marked-2.txt",
+      "lr": 0.7561351604814414,
+      "stem": "036",
+      "sample": 2
+    },
+    {
+      "file": "036-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "036",
+      "sample": 2
+    },
+    {
+      "file": "036-marked-3.txt",
+      "lr": -0.2930602720701057,
+      "stem": "036",
+      "sample": 3
+    },
+    {
+      "file": "036-unmarked-gen-3.txt",
+      "lr": -0.5474373337775648,
+      "stem": "036",
+      "sample": 3
+    },
+    {
+      "file": "036-marked-4.txt",
+      "lr": -0.19740561636740656,
+      "stem": "036",
+      "sample": 4
+    },
+    {
+      "file": "036-unmarked-gen-4.txt",
+      "lr": -0.5436297077657903,
+      "stem": "036",
+      "sample": 4
+    },
+    {
+      "file": "037-marked.txt",
+      "lr": -0.47589492578296544,
+      "stem": "037",
+      "sample": 1
+    },
+    {
+      "file": "037-unmarked-gen.txt",
+      "lr": -0.37174446638587955,
+      "stem": "037",
+      "sample": 1
+    },
+    {
+      "file": "037-marked-2.txt",
+      "lr": 0.47135463996349203,
+      "stem": "037",
+      "sample": 2
+    },
+    {
+      "file": "037-unmarked-gen-2.txt",
+      "lr": -0.26809132566474225,
+      "stem": "037",
+      "sample": 2
+    },
+    {
+      "file": "037-marked-3.txt",
+      "lr": -0.2720788961644205,
+      "stem": "037",
+      "sample": 3
+    },
+    {
+      "file": "037-unmarked-gen-3.txt",
+      "lr": -0.39725975236806604,
+      "stem": "037",
+      "sample": 3
+    },
+    {
+      "file": "037-marked-4.txt",
+      "lr": -0.18811177513050548,
+      "stem": "037",
+      "sample": 4
+    },
+    {
+      "file": "037-unmarked-gen-4.txt",
+      "lr": -0.08164103981303243,
+      "stem": "037",
+      "sample": 4
+    },
+    {
+      "file": "038-marked.txt",
+      "lr": -0.3507962790227091,
+      "stem": "038",
+      "sample": 1
+    },
+    {
+      "file": "038-unmarked-gen.txt",
+      "lr": -0.2738756819828797,
+      "stem": "038",
+      "sample": 1
+    },
+    {
+      "file": "038-marked-2.txt",
+      "lr": -0.006988476901789486,
+      "stem": "038",
+      "sample": 2
+    },
+    {
+      "file": "038-unmarked-gen-2.txt",
+      "lr": -0.29026326547445486,
+      "stem": "038",
+      "sample": 2
+    },
+    {
+      "file": "038-marked-3.txt",
+      "lr": -0.18352002452542973,
+      "stem": "038",
+      "sample": 3
+    },
+    {
+      "file": "038-unmarked-gen-3.txt",
+      "lr": -0.37166825645089346,
+      "stem": "038",
+      "sample": 3
+    },
+    {
+      "file": "038-marked-4.txt",
+      "lr": -0.0481425961687608,
+      "stem": "038",
+      "sample": 4
+    },
+    {
+      "file": "038-unmarked-gen-4.txt",
+      "lr": -0.11265019909711217,
+      "stem": "038",
+      "sample": 4
+    },
+    {
+      "file": "039-marked.txt",
+      "lr": -0.19486652069479887,
+      "stem": "039",
+      "sample": 1
+    },
+    {
+      "file": "039-unmarked-gen.txt",
+      "lr": -0.32764322471268126,
+      "stem": "039",
+      "sample": 1
+    },
+    {
+      "file": "039-marked-2.txt",
+      "lr": 0.0,
+      "stem": "039",
+      "sample": 2
+    },
+    {
+      "file": "039-unmarked-gen-2.txt",
+      "lr": 0.20076619451713348,
+      "stem": "039",
+      "sample": 2
+    },
+    {
+      "file": "039-marked-3.txt",
+      "lr": -0.04975740602805412,
+      "stem": "039",
+      "sample": 3
+    },
+    {
+      "file": "039-unmarked-gen-3.txt",
+      "lr": -0.3608303226141532,
+      "stem": "039",
+      "sample": 3
+    },
+    {
+      "file": "039-marked-4.txt",
+      "lr": 0.08001806755570835,
+      "stem": "039",
+      "sample": 4
+    },
+    {
+      "file": "039-unmarked-gen-4.txt",
+      "lr": -0.12407517369823028,
+      "stem": "039",
+      "sample": 4
+    },
+    {
+      "file": "040-marked.txt",
+      "lr": -0.2745664584891791,
+      "stem": "040",
+      "sample": 1
+    },
+    {
+      "file": "040-unmarked-gen.txt",
+      "lr": 0.14359472810189008,
+      "stem": "040",
+      "sample": 1
+    },
+    {
+      "file": "040-marked-2.txt",
+      "lr": 0.4899857418923243,
+      "stem": "040",
+      "sample": 2
+    },
+    {
+      "file": "040-unmarked-gen-2.txt",
+      "lr": 0.0634458700520904,
+      "stem": "040",
+      "sample": 2
+    },
+    {
+      "file": "040-marked-3.txt",
+      "lr": -0.29633323859639543,
+      "stem": "040",
+      "sample": 3
+    },
+    {
+      "file": "040-unmarked-gen-3.txt",
+      "lr": -0.007762737025262081,
+      "stem": "040",
+      "sample": 3
+    },
+    {
+      "file": "040-marked-4.txt",
+      "lr": -0.42740918341334116,
+      "stem": "040",
+      "sample": 4
+    },
+    {
+      "file": "040-unmarked-gen-4.txt",
+      "lr": -0.1518046008037248,
+      "stem": "040",
+      "sample": 4
+    },
+    {
+      "file": "041-marked.txt",
+      "lr": -0.1829491543435049,
+      "stem": "041",
+      "sample": 1
+    },
+    {
+      "file": "041-unmarked-gen.txt",
+      "lr": 0.023539185206199065,
+      "stem": "041",
+      "sample": 1
+    },
+    {
+      "file": "041-marked-2.txt",
+      "lr": -0.015227835845745951,
+      "stem": "041",
+      "sample": 2
+    },
+    {
+      "file": "041-unmarked-gen-2.txt",
+      "lr": -0.42360701432201125,
+      "stem": "041",
+      "sample": 2
+    },
+    {
+      "file": "041-marked-3.txt",
+      "lr": -0.5912841339233403,
+      "stem": "041",
+      "sample": 3
+    },
+    {
+      "file": "041-unmarked-gen-3.txt",
+      "lr": 0.20614682544486226,
+      "stem": "041",
+      "sample": 3
+    },
+    {
+      "file": "041-marked-4.txt",
+      "lr": -0.5162212825416576,
+      "stem": "041",
+      "sample": 4
+    },
+    {
+      "file": "041-unmarked-gen-4.txt",
+      "lr": -0.14418219879898894,
+      "stem": "041",
+      "sample": 4
+    },
+    {
+      "file": "042-marked.txt",
+      "lr": -0.372171317042908,
+      "stem": "042",
+      "sample": 1
+    },
+    {
+      "file": "042-unmarked-gen.txt",
+      "lr": -0.4041990399433722,
+      "stem": "042",
+      "sample": 1
+    },
+    {
+      "file": "042-marked-2.txt",
+      "lr": 0.0,
+      "stem": "042",
+      "sample": 2
+    },
+    {
+      "file": "042-unmarked-gen-2.txt",
+      "lr": -0.2197459541255727,
+      "stem": "042",
+      "sample": 2
+    },
+    {
+      "file": "042-marked-3.txt",
+      "lr": 0.0,
+      "stem": "042",
+      "sample": 3
+    },
+    {
+      "file": "042-unmarked-gen-3.txt",
+      "lr": 0.04923189337769846,
+      "stem": "042",
+      "sample": 3
+    },
+    {
+      "file": "042-marked-4.txt",
+      "lr": 0.0,
+      "stem": "042",
+      "sample": 4
+    },
+    {
+      "file": "042-unmarked-gen-4.txt",
+      "lr": 0.2351563118360708,
+      "stem": "042",
+      "sample": 4
+    },
+    {
+      "file": "043-marked.txt",
+      "lr": -0.28101810253658055,
+      "stem": "043",
+      "sample": 1
+    },
+    {
+      "file": "043-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 1
+    },
+    {
+      "file": "043-marked-2.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 2
+    },
+    {
+      "file": "043-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 2
+    },
+    {
+      "file": "043-marked-3.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 3
+    },
+    {
+      "file": "043-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 3
+    },
+    {
+      "file": "043-marked-4.txt",
+      "lr": -0.4745292681273374,
+      "stem": "043",
+      "sample": 4
+    },
+    {
+      "file": "043-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "043",
+      "sample": 4
+    },
+    {
+      "file": "044-marked.txt",
+      "lr": 0.009754205987114278,
+      "stem": "044",
+      "sample": 1
+    },
+    {
+      "file": "044-unmarked-gen.txt",
+      "lr": -0.2612298507782322,
+      "stem": "044",
+      "sample": 1
+    },
+    {
+      "file": "044-marked-2.txt",
+      "lr": 0.0,
+      "stem": "044",
+      "sample": 2
+    },
+    {
+      "file": "044-unmarked-gen-2.txt",
+      "lr": -0.44837321932271046,
+      "stem": "044",
+      "sample": 2
+    },
+    {
+      "file": "044-marked-3.txt",
+      "lr": 0.0,
+      "stem": "044",
+      "sample": 3
+    },
+    {
+      "file": "044-unmarked-gen-3.txt",
+      "lr": 0.010746771271340196,
+      "stem": "044",
+      "sample": 3
+    },
+    {
+      "file": "044-marked-4.txt",
+      "lr": 0.27780054237820395,
+      "stem": "044",
+      "sample": 4
+    },
+    {
+      "file": "044-unmarked-gen-4.txt",
+      "lr": -0.8152230616104844,
+      "stem": "044",
+      "sample": 4
+    },
+    {
+      "file": "045-marked.txt",
+      "lr": -0.6200454216079635,
+      "stem": "045",
+      "sample": 1
+    },
+    {
+      "file": "045-unmarked-gen.txt",
+      "lr": -0.5379254058946044,
+      "stem": "045",
+      "sample": 1
+    },
+    {
+      "file": "045-marked-2.txt",
+      "lr": 0.04555933386795015,
+      "stem": "045",
+      "sample": 2
+    },
+    {
+      "file": "045-unmarked-gen-2.txt",
+      "lr": -0.3003180606757869,
+      "stem": "045",
+      "sample": 2
+    },
+    {
+      "file": "045-marked-3.txt",
+      "lr": -0.2576879036000914,
+      "stem": "045",
+      "sample": 3
+    },
+    {
+      "file": "045-unmarked-gen-3.txt",
+      "lr": -0.41038071708894464,
+      "stem": "045",
+      "sample": 3
+    },
+    {
+      "file": "045-marked-4.txt",
+      "lr": 0.41076991165493126,
+      "stem": "045",
+      "sample": 4
+    },
+    {
+      "file": "045-unmarked-gen-4.txt",
+      "lr": -0.5445427331464999,
+      "stem": "045",
+      "sample": 4
+    },
+    {
+      "file": "046-marked.txt",
+      "lr": 0.0,
+      "stem": "046",
+      "sample": 1
+    },
+    {
+      "file": "046-unmarked-gen.txt",
+      "lr": -0.0650625821703039,
+      "stem": "046",
+      "sample": 1
+    },
+    {
+      "file": "046-marked-2.txt",
+      "lr": -0.202459204702006,
+      "stem": "046",
+      "sample": 2
+    },
+    {
+      "file": "046-unmarked-gen-2.txt",
+      "lr": -0.010155319394203676,
+      "stem": "046",
+      "sample": 2
+    },
+    {
+      "file": "046-marked-3.txt",
+      "lr": 0.005055127185816799,
+      "stem": "046",
+      "sample": 3
+    },
+    {
+      "file": "046-unmarked-gen-3.txt",
+      "lr": -0.3991547208262891,
+      "stem": "046",
+      "sample": 3
+    },
+    {
+      "file": "046-marked-4.txt",
+      "lr": 0.0,
+      "stem": "046",
+      "sample": 4
+    },
+    {
+      "file": "046-unmarked-gen-4.txt",
+      "lr": -0.19250552580484218,
+      "stem": "046",
+      "sample": 4
+    },
+    {
+      "file": "047-marked.txt",
+      "lr": 0.0,
+      "stem": "047",
+      "sample": 1
+    },
+    {
+      "file": "047-unmarked-gen.txt",
+      "lr": -0.4437054035964702,
+      "stem": "047",
+      "sample": 1
+    },
+    {
+      "file": "047-marked-2.txt",
+      "lr": 0.0,
+      "stem": "047",
+      "sample": 2
+    },
+    {
+      "file": "047-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "047",
+      "sample": 2
+    },
+    {
+      "file": "047-marked-3.txt",
+      "lr": -0.24949247117014456,
+      "stem": "047",
+      "sample": 3
+    },
+    {
+      "file": "047-unmarked-gen-3.txt",
+      "lr": -0.37842217113186327,
+      "stem": "047",
+      "sample": 3
+    },
+    {
+      "file": "047-marked-4.txt",
+      "lr": 0.0,
+      "stem": "047",
+      "sample": 4
+    },
+    {
+      "file": "047-unmarked-gen-4.txt",
+      "lr": -0.18486963094353043,
+      "stem": "047",
+      "sample": 4
+    },
+    {
+      "file": "048-marked.txt",
+      "lr": 0.0,
+      "stem": "048",
+      "sample": 1
+    },
+    {
+      "file": "048-unmarked-gen.txt",
+      "lr": -0.2772169560577641,
+      "stem": "048",
+      "sample": 1
+    },
+    {
+      "file": "048-marked-2.txt",
+      "lr": -0.5390096917331813,
+      "stem": "048",
+      "sample": 2
+    },
+    {
+      "file": "048-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "048",
+      "sample": 2
+    },
+    {
+      "file": "048-marked-3.txt",
+      "lr": -0.0035672625374778555,
+      "stem": "048",
+      "sample": 3
+    },
+    {
+      "file": "048-unmarked-gen-3.txt",
+      "lr": -0.3500326923429154,
+      "stem": "048",
+      "sample": 3
+    },
+    {
+      "file": "048-marked-4.txt",
+      "lr": -0.4008827010113284,
+      "stem": "048",
+      "sample": 4
+    },
+    {
+      "file": "048-unmarked-gen-4.txt",
+      "lr": -1.0557049598480204,
+      "stem": "048",
+      "sample": 4
+    },
+    {
+      "file": "049-marked.txt",
+      "lr": -0.26294936968323257,
+      "stem": "049",
+      "sample": 1
+    },
+    {
+      "file": "049-unmarked-gen.txt",
+      "lr": -0.29245687175319374,
+      "stem": "049",
+      "sample": 1
+    },
+    {
+      "file": "049-marked-2.txt",
+      "lr": 0.2878475213468844,
+      "stem": "049",
+      "sample": 2
+    },
+    {
+      "file": "049-unmarked-gen-2.txt",
+      "lr": -0.5275826875624512,
+      "stem": "049",
+      "sample": 2
+    },
+    {
+      "file": "049-marked-3.txt",
+      "lr": -0.3829798392726406,
+      "stem": "049",
+      "sample": 3
+    },
+    {
+      "file": "049-unmarked-gen-3.txt",
+      "lr": -0.3976868747760395,
+      "stem": "049",
+      "sample": 3
+    },
+    {
+      "file": "049-marked-4.txt",
+      "lr": -0.14341406783119082,
+      "stem": "049",
+      "sample": 4
+    },
+    {
+      "file": "049-unmarked-gen-4.txt",
+      "lr": -0.32930877038046047,
+      "stem": "049",
+      "sample": 4
+    },
+    {
+      "file": "050-marked.txt",
+      "lr": -0.22541717280521759,
+      "stem": "050",
+      "sample": 1
+    },
+    {
+      "file": "050-unmarked-gen.txt",
+      "lr": -0.5441781509135537,
+      "stem": "050",
+      "sample": 1
+    },
+    {
+      "file": "050-marked-2.txt",
+      "lr": -0.04314126060153143,
+      "stem": "050",
+      "sample": 2
+    },
+    {
+      "file": "050-unmarked-gen-2.txt",
+      "lr": -0.42096487549488265,
+      "stem": "050",
+      "sample": 2
+    },
+    {
+      "file": "050-marked-3.txt",
+      "lr": -0.5143647834957608,
+      "stem": "050",
+      "sample": 3
+    },
+    {
+      "file": "050-unmarked-gen-3.txt",
+      "lr": -0.24284298494142043,
+      "stem": "050",
+      "sample": 3
+    },
+    {
+      "file": "050-marked-4.txt",
+      "lr": -0.3898431899503523,
+      "stem": "050",
+      "sample": 4
+    },
+    {
+      "file": "050-unmarked-gen-4.txt",
+      "lr": -0.3130133353338897,
+      "stem": "050",
+      "sample": 4
+    },
+    {
+      "file": "051-marked.txt",
+      "lr": -0.11842502751146465,
+      "stem": "051",
+      "sample": 1
+    },
+    {
+      "file": "051-unmarked-gen.txt",
+      "lr": -0.6047268261712629,
+      "stem": "051",
+      "sample": 1
+    },
+    {
+      "file": "051-marked-2.txt",
+      "lr": -0.2794561373260611,
+      "stem": "051",
+      "sample": 2
+    },
+    {
+      "file": "051-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "051",
+      "sample": 2
+    },
+    {
+      "file": "051-marked-3.txt",
+      "lr": -0.4161748246653374,
+      "stem": "051",
+      "sample": 3
+    },
+    {
+      "file": "051-unmarked-gen-3.txt",
+      "lr": 0.2124460902479162,
+      "stem": "051",
+      "sample": 3
+    },
+    {
+      "file": "051-marked-4.txt",
+      "lr": -0.3042313450214578,
+      "stem": "051",
+      "sample": 4
+    },
+    {
+      "file": "051-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "051",
+      "sample": 4
+    },
+    {
+      "file": "052-marked.txt",
+      "lr": 0.0,
+      "stem": "052",
+      "sample": 1
+    },
+    {
+      "file": "052-unmarked-gen.txt",
+      "lr": -0.027839151037998357,
+      "stem": "052",
+      "sample": 1
+    },
+    {
+      "file": "052-marked-2.txt",
+      "lr": 0.0,
+      "stem": "052",
+      "sample": 2
+    },
+    {
+      "file": "052-unmarked-gen-2.txt",
+      "lr": -0.22806028487347998,
+      "stem": "052",
+      "sample": 2
+    },
+    {
+      "file": "052-marked-3.txt",
+      "lr": 0.05815016374198112,
+      "stem": "052",
+      "sample": 3
+    },
+    {
+      "file": "052-unmarked-gen-3.txt",
+      "lr": -0.0956518338120236,
+      "stem": "052",
+      "sample": 3
+    },
+    {
+      "file": "052-marked-4.txt",
+      "lr": 0.0,
+      "stem": "052",
+      "sample": 4
+    },
+    {
+      "file": "052-unmarked-gen-4.txt",
+      "lr": -0.2851921655904283,
+      "stem": "052",
+      "sample": 4
+    },
+    {
+      "file": "053-marked.txt",
+      "lr": 0.0845193015919319,
+      "stem": "053",
+      "sample": 1
+    },
+    {
+      "file": "053-unmarked-gen.txt",
+      "lr": -0.6214078648678408,
+      "stem": "053",
+      "sample": 1
+    },
+    {
+      "file": "053-marked-2.txt",
+      "lr": 0.11550652644919047,
+      "stem": "053",
+      "sample": 2
+    },
+    {
+      "file": "053-unmarked-gen-2.txt",
+      "lr": -0.22702082638827328,
+      "stem": "053",
+      "sample": 2
+    },
+    {
+      "file": "053-marked-3.txt",
+      "lr": -0.3872917445690243,
+      "stem": "053",
+      "sample": 3
+    },
+    {
+      "file": "053-unmarked-gen-3.txt",
+      "lr": -0.39286281713400556,
+      "stem": "053",
+      "sample": 3
+    },
+    {
+      "file": "053-marked-4.txt",
+      "lr": 0.19872623966157724,
+      "stem": "053",
+      "sample": 4
+    },
+    {
+      "file": "053-unmarked-gen-4.txt",
+      "lr": -0.4607362374917234,
+      "stem": "053",
+      "sample": 4
+    },
+    {
+      "file": "054-marked.txt",
+      "lr": 0.016864571740674482,
+      "stem": "054",
+      "sample": 1
+    },
+    {
+      "file": "054-unmarked-gen.txt",
+      "lr": -0.2945681791589705,
+      "stem": "054",
+      "sample": 1
+    },
+    {
+      "file": "054-marked-2.txt",
+      "lr": -0.28114074591772403,
+      "stem": "054",
+      "sample": 2
+    },
+    {
+      "file": "054-unmarked-gen-2.txt",
+      "lr": -0.24871043303097753,
+      "stem": "054",
+      "sample": 2
+    },
+    {
+      "file": "054-marked-3.txt",
+      "lr": 0.0,
+      "stem": "054",
+      "sample": 3
+    },
+    {
+      "file": "054-unmarked-gen-3.txt",
+      "lr": 0.21605050215902588,
+      "stem": "054",
+      "sample": 3
+    },
+    {
+      "file": "054-marked-4.txt",
+      "lr": -0.2505671898058649,
+      "stem": "054",
+      "sample": 4
+    },
+    {
+      "file": "054-unmarked-gen-4.txt",
+      "lr": -0.23497449560504738,
+      "stem": "054",
+      "sample": 4
+    },
+    {
+      "file": "055-marked.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 1
+    },
+    {
+      "file": "055-unmarked-gen.txt",
+      "lr": -0.09635591421861106,
+      "stem": "055",
+      "sample": 1
+    },
+    {
+      "file": "055-marked-2.txt",
+      "lr": -0.21178010369888733,
+      "stem": "055",
+      "sample": 2
+    },
+    {
+      "file": "055-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 2
+    },
+    {
+      "file": "055-marked-3.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 3
+    },
+    {
+      "file": "055-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 3
+    },
+    {
+      "file": "055-marked-4.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 4
+    },
+    {
+      "file": "055-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "055",
+      "sample": 4
+    },
+    {
+      "file": "056-marked.txt",
+      "lr": 0.04164748924166704,
+      "stem": "056",
+      "sample": 1
+    },
+    {
+      "file": "056-unmarked-gen.txt",
+      "lr": 0.03630882015395542,
+      "stem": "056",
+      "sample": 1
+    },
+    {
+      "file": "056-marked-2.txt",
+      "lr": -0.4628122105440381,
+      "stem": "056",
+      "sample": 2
+    },
+    {
+      "file": "056-unmarked-gen-2.txt",
+      "lr": -0.35787062401544306,
+      "stem": "056",
+      "sample": 2
+    },
+    {
+      "file": "056-marked-3.txt",
+      "lr": -0.024211825971493236,
+      "stem": "056",
+      "sample": 3
+    },
+    {
+      "file": "056-unmarked-gen-3.txt",
+      "lr": -0.015154252706311495,
+      "stem": "056",
+      "sample": 3
+    },
+    {
+      "file": "056-marked-4.txt",
+      "lr": 0.09056883472117039,
+      "stem": "056",
+      "sample": 4
+    },
+    {
+      "file": "056-unmarked-gen-4.txt",
+      "lr": -0.3490655707284649,
+      "stem": "056",
+      "sample": 4
+    },
+    {
+      "file": "057-marked.txt",
+      "lr": 0.0,
+      "stem": "057",
+      "sample": 1
+    },
+    {
+      "file": "057-unmarked-gen.txt",
+      "lr": -0.33073198776099133,
+      "stem": "057",
+      "sample": 1
+    },
+    {
+      "file": "057-marked-2.txt",
+      "lr": 0.11767906009494097,
+      "stem": "057",
+      "sample": 2
+    },
+    {
+      "file": "057-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "057",
+      "sample": 2
+    },
+    {
+      "file": "057-marked-3.txt",
+      "lr": 0.222326012646552,
+      "stem": "057",
+      "sample": 3
+    },
+    {
+      "file": "057-unmarked-gen-3.txt",
+      "lr": 0.43426731173659067,
+      "stem": "057",
+      "sample": 3
+    },
+    {
+      "file": "057-marked-4.txt",
+      "lr": 0.0,
+      "stem": "057",
+      "sample": 4
+    },
+    {
+      "file": "057-unmarked-gen-4.txt",
+      "lr": -0.4375058675034729,
+      "stem": "057",
+      "sample": 4
+    },
+    {
+      "file": "058-marked.txt",
+      "lr": 0.0,
+      "stem": "058",
+      "sample": 1
+    },
+    {
+      "file": "058-unmarked-gen.txt",
+      "lr": -0.17887456935358775,
+      "stem": "058",
+      "sample": 1
+    },
+    {
+      "file": "058-marked-2.txt",
+      "lr": 0.3268362696248447,
+      "stem": "058",
+      "sample": 2
+    },
+    {
+      "file": "058-unmarked-gen-2.txt",
+      "lr": -0.1392249702980249,
+      "stem": "058",
+      "sample": 2
+    },
+    {
+      "file": "058-marked-3.txt",
+      "lr": -0.2734855187979236,
+      "stem": "058",
+      "sample": 3
+    },
+    {
+      "file": "058-unmarked-gen-3.txt",
+      "lr": -0.1013585538636845,
+      "stem": "058",
+      "sample": 3
+    },
+    {
+      "file": "058-marked-4.txt",
+      "lr": 0.5243573567625317,
+      "stem": "058",
+      "sample": 4
+    },
+    {
+      "file": "058-unmarked-gen-4.txt",
+      "lr": -0.4189283767029617,
+      "stem": "058",
+      "sample": 4
+    },
+    {
+      "file": "059-marked.txt",
+      "lr": 0.0,
+      "stem": "059",
+      "sample": 1
+    },
+    {
+      "file": "059-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "059",
+      "sample": 1
+    },
+    {
+      "file": "059-marked-2.txt",
+      "lr": 0.0,
+      "stem": "059",
+      "sample": 2
+    },
+    {
+      "file": "059-unmarked-gen-2.txt",
+      "lr": -0.16234091486727548,
+      "stem": "059",
+      "sample": 2
+    },
+    {
+      "file": "059-marked-3.txt",
+      "lr": -0.10779070925095031,
+      "stem": "059",
+      "sample": 3
+    },
+    {
+      "file": "059-unmarked-gen-3.txt",
+      "lr": -0.4997265013164583,
+      "stem": "059",
+      "sample": 3
+    },
+    {
+      "file": "059-marked-4.txt",
+      "lr": -0.3023744804063622,
+      "stem": "059",
+      "sample": 4
+    },
+    {
+      "file": "059-unmarked-gen-4.txt",
+      "lr": -0.4191897721043861,
+      "stem": "059",
+      "sample": 4
+    },
+    {
+      "file": "060-marked.txt",
+      "lr": -0.2600874451719765,
+      "stem": "060",
+      "sample": 1
+    },
+    {
+      "file": "060-unmarked-gen.txt",
+      "lr": -0.38908177479678757,
+      "stem": "060",
+      "sample": 1
+    },
+    {
+      "file": "060-marked-2.txt",
+      "lr": -0.2452957322968819,
+      "stem": "060",
+      "sample": 2
+    },
+    {
+      "file": "060-unmarked-gen-2.txt",
+      "lr": 0.15485682801953043,
+      "stem": "060",
+      "sample": 2
+    },
+    {
+      "file": "060-marked-3.txt",
+      "lr": -0.07412616431403775,
+      "stem": "060",
+      "sample": 3
+    },
+    {
+      "file": "060-unmarked-gen-3.txt",
+      "lr": -0.02252707464217026,
+      "stem": "060",
+      "sample": 3
+    },
+    {
+      "file": "060-marked-4.txt",
+      "lr": -0.4875590866907451,
+      "stem": "060",
+      "sample": 4
+    },
+    {
+      "file": "060-unmarked-gen-4.txt",
+      "lr": -0.0881332753414585,
+      "stem": "060",
+      "sample": 4
+    },
+    {
+      "file": "061-marked.txt",
+      "lr": 0.356374926156256,
+      "stem": "061",
+      "sample": 1
+    },
+    {
+      "file": "061-unmarked-gen.txt",
+      "lr": 0.7776480864551194,
+      "stem": "061",
+      "sample": 1
+    },
+    {
+      "file": "061-marked-2.txt",
+      "lr": -0.17399214313268743,
+      "stem": "061",
+      "sample": 2
+    },
+    {
+      "file": "061-unmarked-gen-2.txt",
+      "lr": -0.18715338195724993,
+      "stem": "061",
+      "sample": 2
+    },
+    {
+      "file": "061-marked-3.txt",
+      "lr": -0.07961700466354747,
+      "stem": "061",
+      "sample": 3
+    },
+    {
+      "file": "061-unmarked-gen-3.txt",
+      "lr": -0.12318580600160102,
+      "stem": "061",
+      "sample": 3
+    },
+    {
+      "file": "061-marked-4.txt",
+      "lr": 0.5974102796486,
+      "stem": "061",
+      "sample": 4
+    },
+    {
+      "file": "061-unmarked-gen-4.txt",
+      "lr": -0.11818272845773281,
+      "stem": "061",
+      "sample": 4
+    },
+    {
+      "file": "062-marked.txt",
+      "lr": 0.0,
+      "stem": "062",
+      "sample": 1
+    },
+    {
+      "file": "062-unmarked-gen.txt",
+      "lr": -0.5869213133286628,
+      "stem": "062",
+      "sample": 1
+    },
+    {
+      "file": "062-marked-2.txt",
+      "lr": 0.5660570921908945,
+      "stem": "062",
+      "sample": 2
+    },
+    {
+      "file": "062-unmarked-gen-2.txt",
+      "lr": -0.43969369701943445,
+      "stem": "062",
+      "sample": 2
+    },
+    {
+      "file": "062-marked-3.txt",
+      "lr": 0.756700124742545,
+      "stem": "062",
+      "sample": 3
+    },
+    {
+      "file": "062-unmarked-gen-3.txt",
+      "lr": -0.6556918532527087,
+      "stem": "062",
+      "sample": 3
+    },
+    {
+      "file": "062-marked-4.txt",
+      "lr": 0.0,
+      "stem": "062",
+      "sample": 4
+    },
+    {
+      "file": "062-unmarked-gen-4.txt",
+      "lr": -0.34772482727776177,
+      "stem": "062",
+      "sample": 4
+    },
+    {
+      "file": "063-marked.txt",
+      "lr": 0.0,
+      "stem": "063",
+      "sample": 1
+    },
+    {
+      "file": "063-unmarked-gen.txt",
+      "lr": -0.44946006527386173,
+      "stem": "063",
+      "sample": 1
+    },
+    {
+      "file": "063-marked-2.txt",
+      "lr": 0.0,
+      "stem": "063",
+      "sample": 2
+    },
+    {
+      "file": "063-unmarked-gen-2.txt",
+      "lr": -0.3422675882056429,
+      "stem": "063",
+      "sample": 2
+    },
+    {
+      "file": "063-marked-3.txt",
+      "lr": 0.0,
+      "stem": "063",
+      "sample": 3
+    },
+    {
+      "file": "063-unmarked-gen-3.txt",
+      "lr": -0.4479085942404811,
+      "stem": "063",
+      "sample": 3
+    },
+    {
+      "file": "063-marked-4.txt",
+      "lr": -0.2775484034526475,
+      "stem": "063",
+      "sample": 4
+    },
+    {
+      "file": "063-unmarked-gen-4.txt",
+      "lr": -0.07834802336421934,
+      "stem": "063",
+      "sample": 4
+    },
+    {
+      "file": "064-marked.txt",
+      "lr": -0.0021473447647502365,
+      "stem": "064",
+      "sample": 1
+    },
+    {
+      "file": "064-unmarked-gen.txt",
+      "lr": 0.38830507954975607,
+      "stem": "064",
+      "sample": 1
+    },
+    {
+      "file": "064-marked-2.txt",
+      "lr": 0.4313642231372492,
+      "stem": "064",
+      "sample": 2
+    },
+    {
+      "file": "064-unmarked-gen-2.txt",
+      "lr": -0.10573191244714093,
+      "stem": "064",
+      "sample": 2
+    },
+    {
+      "file": "064-marked-3.txt",
+      "lr": -0.2941062924674169,
+      "stem": "064",
+      "sample": 3
+    },
+    {
+      "file": "064-unmarked-gen-3.txt",
+      "lr": 0.11607453044019748,
+      "stem": "064",
+      "sample": 3
+    },
+    {
+      "file": "064-marked-4.txt",
+      "lr": -0.2994014419124201,
+      "stem": "064",
+      "sample": 4
+    },
+    {
+      "file": "064-unmarked-gen-4.txt",
+      "lr": -0.3894277896079721,
+      "stem": "064",
+      "sample": 4
+    },
+    {
+      "file": "065-marked.txt",
+      "lr": 0.07237952286243464,
+      "stem": "065",
+      "sample": 1
+    },
+    {
+      "file": "065-unmarked-gen.txt",
+      "lr": -0.3020524273780222,
+      "stem": "065",
+      "sample": 1
+    },
+    {
+      "file": "065-marked-2.txt",
+      "lr": 0.43356560771723684,
+      "stem": "065",
+      "sample": 2
+    },
+    {
+      "file": "065-unmarked-gen-2.txt",
+      "lr": 0.06639619963202115,
+      "stem": "065",
+      "sample": 2
+    },
+    {
+      "file": "065-marked-3.txt",
+      "lr": -0.8279064567267636,
+      "stem": "065",
+      "sample": 3
+    },
+    {
+      "file": "065-unmarked-gen-3.txt",
+      "lr": -0.20167458911578776,
+      "stem": "065",
+      "sample": 3
+    },
+    {
+      "file": "065-marked-4.txt",
+      "lr": -0.09128997405873711,
+      "stem": "065",
+      "sample": 4
+    },
+    {
+      "file": "065-unmarked-gen-4.txt",
+      "lr": -0.729229057146016,
+      "stem": "065",
+      "sample": 4
+    },
+    {
+      "file": "066-marked.txt",
+      "lr": 0.0,
+      "stem": "066",
+      "sample": 1
+    },
+    {
+      "file": "066-unmarked-gen.txt",
+      "lr": -0.524820131150341,
+      "stem": "066",
+      "sample": 1
+    },
+    {
+      "file": "066-marked-2.txt",
+      "lr": -0.2183369845101853,
+      "stem": "066",
+      "sample": 2
+    },
+    {
+      "file": "066-unmarked-gen-2.txt",
+      "lr": -0.16441961188767626,
+      "stem": "066",
+      "sample": 2
+    },
+    {
+      "file": "066-marked-3.txt",
+      "lr": -0.4311567060309643,
+      "stem": "066",
+      "sample": 3
+    },
+    {
+      "file": "066-unmarked-gen-3.txt",
+      "lr": -0.09118336964331569,
+      "stem": "066",
+      "sample": 3
+    },
+    {
+      "file": "066-marked-4.txt",
+      "lr": 0.29208664301523407,
+      "stem": "066",
+      "sample": 4
+    },
+    {
+      "file": "066-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "066",
+      "sample": 4
+    },
+    {
+      "file": "067-marked.txt",
+      "lr": -0.15540313636230138,
+      "stem": "067",
+      "sample": 1
+    },
+    {
+      "file": "067-unmarked-gen.txt",
+      "lr": 0.21935687449477798,
+      "stem": "067",
+      "sample": 1
+    },
+    {
+      "file": "067-marked-2.txt",
+      "lr": 0.0,
+      "stem": "067",
+      "sample": 2
+    },
+    {
+      "file": "067-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "067",
+      "sample": 2
+    },
+    {
+      "file": "067-marked-3.txt",
+      "lr": 0.0,
+      "stem": "067",
+      "sample": 3
+    },
+    {
+      "file": "067-unmarked-gen-3.txt",
+      "lr": -0.5140101622336652,
+      "stem": "067",
+      "sample": 3
+    },
+    {
+      "file": "067-marked-4.txt",
+      "lr": 0.0,
+      "stem": "067",
+      "sample": 4
+    },
+    {
+      "file": "067-unmarked-gen-4.txt",
+      "lr": -0.048205871275093834,
+      "stem": "067",
+      "sample": 4
+    },
+    {
+      "file": "068-marked.txt",
+      "lr": -0.1285500854661764,
+      "stem": "068",
+      "sample": 1
+    },
+    {
+      "file": "068-unmarked-gen.txt",
+      "lr": -0.2193415554768523,
+      "stem": "068",
+      "sample": 1
+    },
+    {
+      "file": "068-marked-2.txt",
+      "lr": 0.3305775742997033,
+      "stem": "068",
+      "sample": 2
+    },
+    {
+      "file": "068-unmarked-gen-2.txt",
+      "lr": -0.35230718270010974,
+      "stem": "068",
+      "sample": 2
+    },
+    {
+      "file": "068-marked-3.txt",
+      "lr": 0.0,
+      "stem": "068",
+      "sample": 3
+    },
+    {
+      "file": "068-unmarked-gen-3.txt",
+      "lr": 0.010479343387378737,
+      "stem": "068",
+      "sample": 3
+    },
+    {
+      "file": "068-marked-4.txt",
+      "lr": 0.0,
+      "stem": "068",
+      "sample": 4
+    },
+    {
+      "file": "068-unmarked-gen-4.txt",
+      "lr": -0.32119436657288264,
+      "stem": "068",
+      "sample": 4
+    },
+    {
+      "file": "069-marked.txt",
+      "lr": -0.6263194628535104,
+      "stem": "069",
+      "sample": 1
+    },
+    {
+      "file": "069-unmarked-gen.txt",
+      "lr": -0.4653876539209133,
+      "stem": "069",
+      "sample": 1
+    },
+    {
+      "file": "069-marked-2.txt",
+      "lr": 0.08456133688791409,
+      "stem": "069",
+      "sample": 2
+    },
+    {
+      "file": "069-unmarked-gen-2.txt",
+      "lr": 0.028415480804849458,
+      "stem": "069",
+      "sample": 2
+    },
+    {
+      "file": "069-marked-3.txt",
+      "lr": -0.2848417032392791,
+      "stem": "069",
+      "sample": 3
+    },
+    {
+      "file": "069-unmarked-gen-3.txt",
+      "lr": -0.4457293840637574,
+      "stem": "069",
+      "sample": 3
+    },
+    {
+      "file": "069-marked-4.txt",
+      "lr": -0.16743501787848739,
+      "stem": "069",
+      "sample": 4
+    },
+    {
+      "file": "069-unmarked-gen-4.txt",
+      "lr": -0.39659393351464445,
+      "stem": "069",
+      "sample": 4
+    },
+    {
+      "file": "070-marked.txt",
+      "lr": -0.13052194388189564,
+      "stem": "070",
+      "sample": 1
+    },
+    {
+      "file": "070-unmarked-gen.txt",
+      "lr": -0.5407028318430679,
+      "stem": "070",
+      "sample": 1
+    },
+    {
+      "file": "070-marked-2.txt",
+      "lr": -0.2126648005304448,
+      "stem": "070",
+      "sample": 2
+    },
+    {
+      "file": "070-unmarked-gen-2.txt",
+      "lr": -0.43328126203084694,
+      "stem": "070",
+      "sample": 2
+    },
+    {
+      "file": "070-marked-3.txt",
+      "lr": 0.0,
+      "stem": "070",
+      "sample": 3
+    },
+    {
+      "file": "070-unmarked-gen-3.txt",
+      "lr": -0.08649034396895523,
+      "stem": "070",
+      "sample": 3
+    },
+    {
+      "file": "070-marked-4.txt",
+      "lr": 0.09715526315194926,
+      "stem": "070",
+      "sample": 4
+    },
+    {
+      "file": "070-unmarked-gen-4.txt",
+      "lr": -0.42665856021879556,
+      "stem": "070",
+      "sample": 4
+    },
+    {
+      "file": "071-marked.txt",
+      "lr": 0.31655086936568155,
+      "stem": "071",
+      "sample": 1
+    },
+    {
+      "file": "071-unmarked-gen.txt",
+      "lr": -0.5205054714053265,
+      "stem": "071",
+      "sample": 1
+    },
+    {
+      "file": "071-marked-2.txt",
+      "lr": 0.05099370220148172,
+      "stem": "071",
+      "sample": 2
+    },
+    {
+      "file": "071-unmarked-gen-2.txt",
+      "lr": -0.09187325768088901,
+      "stem": "071",
+      "sample": 2
+    },
+    {
+      "file": "071-marked-3.txt",
+      "lr": 0.0,
+      "stem": "071",
+      "sample": 3
+    },
+    {
+      "file": "071-unmarked-gen-3.txt",
+      "lr": -0.5552249115960151,
+      "stem": "071",
+      "sample": 3
+    },
+    {
+      "file": "071-marked-4.txt",
+      "lr": -0.1776259528365477,
+      "stem": "071",
+      "sample": 4
+    },
+    {
+      "file": "071-unmarked-gen-4.txt",
+      "lr": -0.11024898386919464,
+      "stem": "071",
+      "sample": 4
+    },
+    {
+      "file": "072-marked.txt",
+      "lr": 0.0,
+      "stem": "072",
+      "sample": 1
+    },
+    {
+      "file": "072-unmarked-gen.txt",
+      "lr": -0.29018463892325147,
+      "stem": "072",
+      "sample": 1
+    },
+    {
+      "file": "072-marked-2.txt",
+      "lr": 0.0,
+      "stem": "072",
+      "sample": 2
+    },
+    {
+      "file": "072-unmarked-gen-2.txt",
+      "lr": -0.26741679011042346,
+      "stem": "072",
+      "sample": 2
+    },
+    {
+      "file": "072-marked-3.txt",
+      "lr": 0.0,
+      "stem": "072",
+      "sample": 3
+    },
+    {
+      "file": "072-unmarked-gen-3.txt",
+      "lr": -0.3507799226858513,
+      "stem": "072",
+      "sample": 3
+    },
+    {
+      "file": "072-marked-4.txt",
+      "lr": 0.6373043743451791,
+      "stem": "072",
+      "sample": 4
+    },
+    {
+      "file": "072-unmarked-gen-4.txt",
+      "lr": 0.4967037791928292,
+      "stem": "072",
+      "sample": 4
+    },
+    {
+      "file": "073-marked.txt",
+      "lr": 0.908052655079846,
+      "stem": "073",
+      "sample": 1
+    },
+    {
+      "file": "073-unmarked-gen.txt",
+      "lr": -0.2581578567044119,
+      "stem": "073",
+      "sample": 1
+    },
+    {
+      "file": "073-marked-2.txt",
+      "lr": -0.39951869404125007,
+      "stem": "073",
+      "sample": 2
+    },
+    {
+      "file": "073-unmarked-gen-2.txt",
+      "lr": -0.026141247604346284,
+      "stem": "073",
+      "sample": 2
+    },
+    {
+      "file": "073-marked-3.txt",
+      "lr": 0.7354518027442845,
+      "stem": "073",
+      "sample": 3
+    },
+    {
+      "file": "073-unmarked-gen-3.txt",
+      "lr": -0.1425545920729852,
+      "stem": "073",
+      "sample": 3
+    },
+    {
+      "file": "073-marked-4.txt",
+      "lr": -0.4707185057133282,
+      "stem": "073",
+      "sample": 4
+    },
+    {
+      "file": "073-unmarked-gen-4.txt",
+      "lr": -0.3571801290582748,
+      "stem": "073",
+      "sample": 4
+    },
+    {
+      "file": "074-marked.txt",
+      "lr": 0.25673148823604575,
+      "stem": "074",
+      "sample": 1
+    },
+    {
+      "file": "074-unmarked-gen.txt",
+      "lr": 0.4844254952636423,
+      "stem": "074",
+      "sample": 1
+    },
+    {
+      "file": "074-marked-2.txt",
+      "lr": -0.2733800239505099,
+      "stem": "074",
+      "sample": 2
+    },
+    {
+      "file": "074-unmarked-gen-2.txt",
+      "lr": -0.20379279523465205,
+      "stem": "074",
+      "sample": 2
+    },
+    {
+      "file": "074-marked-3.txt",
+      "lr": 0.2496281715791475,
+      "stem": "074",
+      "sample": 3
+    },
+    {
+      "file": "074-unmarked-gen-3.txt",
+      "lr": -0.1314354905936594,
+      "stem": "074",
+      "sample": 3
+    },
+    {
+      "file": "074-marked-4.txt",
+      "lr": -0.41566204437133164,
+      "stem": "074",
+      "sample": 4
+    },
+    {
+      "file": "074-unmarked-gen-4.txt",
+      "lr": -0.14259263686368115,
+      "stem": "074",
+      "sample": 4
+    },
+    {
+      "file": "075-marked.txt",
+      "lr": 0.0,
+      "stem": "075",
+      "sample": 1
+    },
+    {
+      "file": "075-unmarked-gen.txt",
+      "lr": -0.3672994392878271,
+      "stem": "075",
+      "sample": 1
+    },
+    {
+      "file": "075-marked-2.txt",
+      "lr": 0.0,
+      "stem": "075",
+      "sample": 2
+    },
+    {
+      "file": "075-unmarked-gen-2.txt",
+      "lr": -0.19131243010994559,
+      "stem": "075",
+      "sample": 2
+    },
+    {
+      "file": "075-marked-3.txt",
+      "lr": 0.0,
+      "stem": "075",
+      "sample": 3
+    },
+    {
+      "file": "075-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "075",
+      "sample": 3
+    },
+    {
+      "file": "075-marked-4.txt",
+      "lr": 0.7384833988607695,
+      "stem": "075",
+      "sample": 4
+    },
+    {
+      "file": "075-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "075",
+      "sample": 4
+    },
+    {
+      "file": "076-marked.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 1
+    },
+    {
+      "file": "076-unmarked-gen.txt",
+      "lr": 0.20739825220941266,
+      "stem": "076",
+      "sample": 1
+    },
+    {
+      "file": "076-marked-2.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 2
+    },
+    {
+      "file": "076-unmarked-gen-2.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 2
+    },
+    {
+      "file": "076-marked-3.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 3
+    },
+    {
+      "file": "076-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 3
+    },
+    {
+      "file": "076-marked-4.txt",
+      "lr": 0.0,
+      "stem": "076",
+      "sample": 4
+    },
+    {
+      "file": "076-unmarked-gen-4.txt",
+      "lr": 0.3002448585023696,
+      "stem": "076",
+      "sample": 4
+    },
+    {
+      "file": "077-marked.txt",
+      "lr": -0.501555298156192,
+      "stem": "077",
+      "sample": 1
+    },
+    {
+      "file": "077-unmarked-gen.txt",
+      "lr": -0.29175963173073577,
+      "stem": "077",
+      "sample": 1
+    },
+    {
+      "file": "077-marked-2.txt",
+      "lr": -0.21530479570600158,
+      "stem": "077",
+      "sample": 2
+    },
+    {
+      "file": "077-unmarked-gen-2.txt",
+      "lr": -0.2608778631067206,
+      "stem": "077",
+      "sample": 2
+    },
+    {
+      "file": "077-marked-3.txt",
+      "lr": 0.0,
+      "stem": "077",
+      "sample": 3
+    },
+    {
+      "file": "077-unmarked-gen-3.txt",
+      "lr": -1.5050410692151421,
+      "stem": "077",
+      "sample": 3
+    },
+    {
+      "file": "077-marked-4.txt",
+      "lr": 0.0,
+      "stem": "077",
+      "sample": 4
+    },
+    {
+      "file": "077-unmarked-gen-4.txt",
+      "lr": -0.24200353330306007,
+      "stem": "077",
+      "sample": 4
+    },
+    {
+      "file": "078-marked.txt",
+      "lr": -0.061523170909988725,
+      "stem": "078",
+      "sample": 1
+    },
+    {
+      "file": "078-unmarked-gen.txt",
+      "lr": -0.21145124943981805,
+      "stem": "078",
+      "sample": 1
+    },
+    {
+      "file": "078-marked-2.txt",
+      "lr": -0.2569991793851594,
+      "stem": "078",
+      "sample": 2
+    },
+    {
+      "file": "078-unmarked-gen-2.txt",
+      "lr": -0.46411189099343353,
+      "stem": "078",
+      "sample": 2
+    },
+    {
+      "file": "078-marked-3.txt",
+      "lr": -0.02367005474365173,
+      "stem": "078",
+      "sample": 3
+    },
+    {
+      "file": "078-unmarked-gen-3.txt",
+      "lr": -0.06239122415075231,
+      "stem": "078",
+      "sample": 3
+    },
+    {
+      "file": "078-marked-4.txt",
+      "lr": -0.007838499387274678,
+      "stem": "078",
+      "sample": 4
+    },
+    {
+      "file": "078-unmarked-gen-4.txt",
+      "lr": -0.3433546662924295,
+      "stem": "078",
+      "sample": 4
+    },
+    {
+      "file": "079-marked.txt",
+      "lr": -0.2559955989549427,
+      "stem": "079",
+      "sample": 1
+    },
+    {
+      "file": "079-unmarked-gen.txt",
+      "lr": -0.3008031309807476,
+      "stem": "079",
+      "sample": 1
+    },
+    {
+      "file": "079-marked-2.txt",
+      "lr": -1.228922169632455,
+      "stem": "079",
+      "sample": 2
+    },
+    {
+      "file": "079-unmarked-gen-2.txt",
+      "lr": -0.3934694571961955,
+      "stem": "079",
+      "sample": 2
+    },
+    {
+      "file": "079-marked-3.txt",
+      "lr": 0.0,
+      "stem": "079",
+      "sample": 3
+    },
+    {
+      "file": "079-unmarked-gen-3.txt",
+      "lr": -0.12112771399992238,
+      "stem": "079",
+      "sample": 3
+    },
+    {
+      "file": "079-marked-4.txt",
+      "lr": -0.3370875636958279,
+      "stem": "079",
+      "sample": 4
+    },
+    {
+      "file": "079-unmarked-gen-4.txt",
+      "lr": -0.1790367679368255,
+      "stem": "079",
+      "sample": 4
+    },
+    {
+      "file": "080-marked.txt",
+      "lr": -0.07775803728069391,
+      "stem": "080",
+      "sample": 1
+    },
+    {
+      "file": "080-unmarked-gen.txt",
+      "lr": -0.6173501987854326,
+      "stem": "080",
+      "sample": 1
+    },
+    {
+      "file": "080-marked-2.txt",
+      "lr": -0.28144887613528374,
+      "stem": "080",
+      "sample": 2
+    },
+    {
+      "file": "080-unmarked-gen-2.txt",
+      "lr": 0.0746093622491648,
+      "stem": "080",
+      "sample": 2
+    },
+    {
+      "file": "080-marked-3.txt",
+      "lr": 0.008476351772694336,
+      "stem": "080",
+      "sample": 3
+    },
+    {
+      "file": "080-unmarked-gen-3.txt",
+      "lr": 0.08914384511513213,
+      "stem": "080",
+      "sample": 3
+    },
+    {
+      "file": "080-marked-4.txt",
+      "lr": 0.1163137770616448,
+      "stem": "080",
+      "sample": 4
+    },
+    {
+      "file": "080-unmarked-gen-4.txt",
+      "lr": -0.24680432105278144,
+      "stem": "080",
+      "sample": 4
+    },
+    {
+      "file": "081-marked.txt",
+      "lr": 0.0,
+      "stem": "081",
+      "sample": 1
+    },
+    {
+      "file": "081-unmarked-gen.txt",
+      "lr": 0.0,
+      "stem": "081",
+      "sample": 1
+    },
+    {
+      "file": "081-marked-2.txt",
+      "lr": -0.24030823857854272,
+      "stem": "081",
+      "sample": 2
+    },
+    {
+      "file": "081-unmarked-gen-2.txt",
+      "lr": -0.07946860858320066,
+      "stem": "081",
+      "sample": 2
+    },
+    {
+      "file": "081-marked-3.txt",
+      "lr": 0.13689715025247678,
+      "stem": "081",
+      "sample": 3
+    },
+    {
+      "file": "081-unmarked-gen-3.txt",
+      "lr": 0.1186376290455853,
+      "stem": "081",
+      "sample": 3
+    },
+    {
+      "file": "081-marked-4.txt",
+      "lr": 0.0,
+      "stem": "081",
+      "sample": 4
+    },
+    {
+      "file": "081-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "081",
+      "sample": 4
+    },
+    {
+      "file": "082-marked.txt",
+      "lr": -0.196580060663518,
+      "stem": "082",
+      "sample": 1
+    },
+    {
+      "file": "082-unmarked-gen.txt",
+      "lr": -0.2483886408936371,
+      "stem": "082",
+      "sample": 1
+    },
+    {
+      "file": "082-marked-2.txt",
+      "lr": 0.12051761636069691,
+      "stem": "082",
+      "sample": 2
+    },
+    {
+      "file": "082-unmarked-gen-2.txt",
+      "lr": -0.3648169440687775,
+      "stem": "082",
+      "sample": 2
+    },
+    {
+      "file": "082-marked-3.txt",
+      "lr": 0.002872468268225744,
+      "stem": "082",
+      "sample": 3
+    },
+    {
+      "file": "082-unmarked-gen-3.txt",
+      "lr": -0.15859039305965553,
+      "stem": "082",
+      "sample": 3
+    },
+    {
+      "file": "082-marked-4.txt",
+      "lr": -0.23551095459421054,
+      "stem": "082",
+      "sample": 4
+    },
+    {
+      "file": "082-unmarked-gen-4.txt",
+      "lr": -3.3106211530308265,
+      "stem": "082",
+      "sample": 4
+    },
+    {
+      "file": "083-marked.txt",
+      "lr": 0.0,
+      "stem": "083",
+      "sample": 1
+    },
+    {
+      "file": "083-unmarked-gen.txt",
+      "lr": 0.20813561039489195,
+      "stem": "083",
+      "sample": 1
+    },
+    {
+      "file": "083-marked-2.txt",
+      "lr": -0.12978472674944108,
+      "stem": "083",
+      "sample": 2
+    },
+    {
+      "file": "083-unmarked-gen-2.txt",
+      "lr": 0.23578915299688302,
+      "stem": "083",
+      "sample": 2
+    },
+    {
+      "file": "083-marked-3.txt",
+      "lr": 0.16011822594112388,
+      "stem": "083",
+      "sample": 3
+    },
+    {
+      "file": "083-unmarked-gen-3.txt",
+      "lr": -0.38437085377449604,
+      "stem": "083",
+      "sample": 3
+    },
+    {
+      "file": "083-marked-4.txt",
+      "lr": 0.0,
+      "stem": "083",
+      "sample": 4
+    },
+    {
+      "file": "083-unmarked-gen-4.txt",
+      "lr": -0.2011710500527635,
+      "stem": "083",
+      "sample": 4
+    },
+    {
+      "file": "084-marked.txt",
+      "lr": 0.0675751284762661,
+      "stem": "084",
+      "sample": 1
+    },
+    {
+      "file": "084-unmarked-gen.txt",
+      "lr": -0.848827162844704,
+      "stem": "084",
+      "sample": 1
+    },
+    {
+      "file": "084-marked-2.txt",
+      "lr": -0.15819055630770046,
+      "stem": "084",
+      "sample": 2
+    },
+    {
+      "file": "084-unmarked-gen-2.txt",
+      "lr": 0.05057572879968399,
+      "stem": "084",
+      "sample": 2
+    },
+    {
+      "file": "084-marked-3.txt",
+      "lr": -0.06822370573282648,
+      "stem": "084",
+      "sample": 3
+    },
+    {
+      "file": "084-unmarked-gen-3.txt",
+      "lr": -0.2559943456501642,
+      "stem": "084",
+      "sample": 3
+    },
+    {
+      "file": "084-marked-4.txt",
+      "lr": -0.33371997491620986,
+      "stem": "084",
+      "sample": 4
+    },
+    {
+      "file": "084-unmarked-gen-4.txt",
+      "lr": -0.12010029940279834,
+      "stem": "084",
+      "sample": 4
+    },
+    {
+      "file": "085-marked.txt",
+      "lr": -0.3628933693234837,
+      "stem": "085",
+      "sample": 1
+    },
+    {
+      "file": "085-unmarked-gen.txt",
+      "lr": 0.00018784417838309885,
+      "stem": "085",
+      "sample": 1
+    },
+    {
+      "file": "085-marked-2.txt",
+      "lr": 0.0,
+      "stem": "085",
+      "sample": 2
+    },
+    {
+      "file": "085-unmarked-gen-2.txt",
+      "lr": -0.26106195000518384,
+      "stem": "085",
+      "sample": 2
+    },
+    {
+      "file": "085-marked-3.txt",
+      "lr": -0.5183093372212931,
+      "stem": "085",
+      "sample": 3
+    },
+    {
+      "file": "085-unmarked-gen-3.txt",
+      "lr": 0.1009014719252519,
+      "stem": "085",
+      "sample": 3
+    },
+    {
+      "file": "085-marked-4.txt",
+      "lr": -0.08832093271391006,
+      "stem": "085",
+      "sample": 4
+    },
+    {
+      "file": "085-unmarked-gen-4.txt",
+      "lr": -0.020314840107550268,
+      "stem": "085",
+      "sample": 4
+    },
+    {
+      "file": "086-marked.txt",
+      "lr": -1.1106593385790042,
+      "stem": "086",
+      "sample": 1
+    },
+    {
+      "file": "086-unmarked-gen.txt",
+      "lr": 0.08351151004673639,
+      "stem": "086",
+      "sample": 1
+    },
+    {
+      "file": "086-marked-2.txt",
+      "lr": 0.0,
+      "stem": "086",
+      "sample": 2
+    },
+    {
+      "file": "086-unmarked-gen-2.txt",
+      "lr": -0.4909941479339523,
+      "stem": "086",
+      "sample": 2
+    },
+    {
+      "file": "086-marked-3.txt",
+      "lr": 0.0,
+      "stem": "086",
+      "sample": 3
+    },
+    {
+      "file": "086-unmarked-gen-3.txt",
+      "lr": -0.4181752828997393,
+      "stem": "086",
+      "sample": 3
+    },
+    {
+      "file": "086-marked-4.txt",
+      "lr": 0.0,
+      "stem": "086",
+      "sample": 4
+    },
+    {
+      "file": "086-unmarked-gen-4.txt",
+      "lr": -0.2316240196517951,
+      "stem": "086",
+      "sample": 4
+    },
+    {
+      "file": "087-marked.txt",
+      "lr": 0.613822078889887,
+      "stem": "087",
+      "sample": 1
+    },
+    {
+      "file": "087-unmarked-gen.txt",
+      "lr": 1.8956511746192322,
+      "stem": "087",
+      "sample": 1
+    },
+    {
+      "file": "087-marked-2.txt",
+      "lr": -0.20018852370613915,
+      "stem": "087",
+      "sample": 2
+    },
+    {
+      "file": "087-unmarked-gen-2.txt",
+      "lr": -0.4243945158014656,
+      "stem": "087",
+      "sample": 2
+    },
+    {
+      "file": "087-marked-3.txt",
+      "lr": -0.175293567797442,
+      "stem": "087",
+      "sample": 3
+    },
+    {
+      "file": "087-unmarked-gen-3.txt",
+      "lr": -0.08861936670445729,
+      "stem": "087",
+      "sample": 3
+    },
+    {
+      "file": "087-marked-4.txt",
+      "lr": 0.0,
+      "stem": "087",
+      "sample": 4
+    },
+    {
+      "file": "087-unmarked-gen-4.txt",
+      "lr": -0.1360318567177447,
+      "stem": "087",
+      "sample": 4
+    },
+    {
+      "file": "088-marked.txt",
+      "lr": 0.36862357912574806,
+      "stem": "088",
+      "sample": 1
+    },
+    {
+      "file": "088-unmarked-gen.txt",
+      "lr": -0.21246049783194781,
+      "stem": "088",
+      "sample": 1
+    },
+    {
+      "file": "088-marked-2.txt",
+      "lr": -0.5447875425398442,
+      "stem": "088",
+      "sample": 2
+    },
+    {
+      "file": "088-unmarked-gen-2.txt",
+      "lr": 0.05134577822035147,
+      "stem": "088",
+      "sample": 2
+    },
+    {
+      "file": "088-marked-3.txt",
+      "lr": 0.25291698444935434,
+      "stem": "088",
+      "sample": 3
+    },
+    {
+      "file": "088-unmarked-gen-3.txt",
+      "lr": -0.5317378261920925,
+      "stem": "088",
+      "sample": 3
+    },
+    {
+      "file": "088-marked-4.txt",
+      "lr": 0.0955136368336649,
+      "stem": "088",
+      "sample": 4
+    },
+    {
+      "file": "088-unmarked-gen-4.txt",
+      "lr": -0.4997922955225479,
+      "stem": "088",
+      "sample": 4
+    },
+    {
+      "file": "089-marked.txt",
+      "lr": 1.9574385521669093,
+      "stem": "089",
+      "sample": 1
+    },
+    {
+      "file": "089-unmarked-gen.txt",
+      "lr": -0.20958182693233057,
+      "stem": "089",
+      "sample": 1
+    },
+    {
+      "file": "089-marked-2.txt",
+      "lr": -0.22396893626821351,
+      "stem": "089",
+      "sample": 2
+    },
+    {
+      "file": "089-unmarked-gen-2.txt",
+      "lr": -0.2591337208960588,
+      "stem": "089",
+      "sample": 2
+    },
+    {
+      "file": "089-marked-3.txt",
+      "lr": 0.23635655397847077,
+      "stem": "089",
+      "sample": 3
+    },
+    {
+      "file": "089-unmarked-gen-3.txt",
+      "lr": -0.3318286632791362,
+      "stem": "089",
+      "sample": 3
+    },
+    {
+      "file": "089-marked-4.txt",
+      "lr": -0.7364034150172134,
+      "stem": "089",
+      "sample": 4
+    },
+    {
+      "file": "089-unmarked-gen-4.txt",
+      "lr": -0.26486657084442555,
+      "stem": "089",
+      "sample": 4
+    },
+    {
+      "file": "090-marked.txt",
+      "lr": -0.5227029837664279,
+      "stem": "090",
+      "sample": 1
+    },
+    {
+      "file": "090-unmarked-gen.txt",
+      "lr": -0.2312310288230983,
+      "stem": "090",
+      "sample": 1
+    },
+    {
+      "file": "090-marked-2.txt",
+      "lr": 0.0,
+      "stem": "090",
+      "sample": 2
+    },
+    {
+      "file": "090-unmarked-gen-2.txt",
+      "lr": -0.3142765761774438,
+      "stem": "090",
+      "sample": 2
+    },
+    {
+      "file": "090-marked-3.txt",
+      "lr": 0.0,
+      "stem": "090",
+      "sample": 3
+    },
+    {
+      "file": "090-unmarked-gen-3.txt",
+      "lr": 0.0,
+      "stem": "090",
+      "sample": 3
+    },
+    {
+      "file": "090-marked-4.txt",
+      "lr": 0.0,
+      "stem": "090",
+      "sample": 4
+    },
+    {
+      "file": "090-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "090",
+      "sample": 4
+    },
+    {
+      "file": "091-marked.txt",
+      "lr": -0.5248849652375065,
+      "stem": "091",
+      "sample": 1
+    },
+    {
+      "file": "091-unmarked-gen.txt",
+      "lr": 0.07228028435159263,
+      "stem": "091",
+      "sample": 1
+    },
+    {
+      "file": "091-marked-2.txt",
+      "lr": 0.018064128638848785,
+      "stem": "091",
+      "sample": 2
+    },
+    {
+      "file": "091-unmarked-gen-2.txt",
+      "lr": 0.02621216901439287,
+      "stem": "091",
+      "sample": 2
+    },
+    {
+      "file": "091-marked-3.txt",
+      "lr": 0.3285200750296423,
+      "stem": "091",
+      "sample": 3
+    },
+    {
+      "file": "091-unmarked-gen-3.txt",
+      "lr": -0.000807721955704973,
+      "stem": "091",
+      "sample": 3
+    },
+    {
+      "file": "091-marked-4.txt",
+      "lr": -0.08966306071951395,
+      "stem": "091",
+      "sample": 4
+    },
+    {
+      "file": "091-unmarked-gen-4.txt",
+      "lr": -0.38709568677263273,
+      "stem": "091",
+      "sample": 4
+    },
+    {
+      "file": "092-marked.txt",
+      "lr": 0.18866446770200673,
+      "stem": "092",
+      "sample": 1
+    },
+    {
+      "file": "092-unmarked-gen.txt",
+      "lr": -0.12906587267982944,
+      "stem": "092",
+      "sample": 1
+    },
+    {
+      "file": "092-marked-2.txt",
+      "lr": -0.3623183268992191,
+      "stem": "092",
+      "sample": 2
+    },
+    {
+      "file": "092-unmarked-gen-2.txt",
+      "lr": -0.5047284969174818,
+      "stem": "092",
+      "sample": 2
+    },
+    {
+      "file": "092-marked-3.txt",
+      "lr": -0.34767634625969496,
+      "stem": "092",
+      "sample": 3
+    },
+    {
+      "file": "092-unmarked-gen-3.txt",
+      "lr": -0.11536706760663101,
+      "stem": "092",
+      "sample": 3
+    },
+    {
+      "file": "092-marked-4.txt",
+      "lr": -0.4188264029873365,
+      "stem": "092",
+      "sample": 4
+    },
+    {
+      "file": "092-unmarked-gen-4.txt",
+      "lr": -0.24567346123507305,
+      "stem": "092",
+      "sample": 4
+    },
+    {
+      "file": "093-marked.txt",
+      "lr": 0.23962310398539477,
+      "stem": "093",
+      "sample": 1
+    },
+    {
+      "file": "093-unmarked-gen.txt",
+      "lr": -0.18708540798032292,
+      "stem": "093",
+      "sample": 1
+    },
+    {
+      "file": "093-marked-2.txt",
+      "lr": -0.2680863990660483,
+      "stem": "093",
+      "sample": 2
+    },
+    {
+      "file": "093-unmarked-gen-2.txt",
+      "lr": -0.673020116830735,
+      "stem": "093",
+      "sample": 2
+    },
+    {
+      "file": "093-marked-3.txt",
+      "lr": 0.09811128357141526,
+      "stem": "093",
+      "sample": 3
+    },
+    {
+      "file": "093-unmarked-gen-3.txt",
+      "lr": -0.30936915779500257,
+      "stem": "093",
+      "sample": 3
+    },
+    {
+      "file": "093-marked-4.txt",
+      "lr": 0.16264364217610383,
+      "stem": "093",
+      "sample": 4
+    },
+    {
+      "file": "093-unmarked-gen-4.txt",
+      "lr": -0.3688202992066916,
+      "stem": "093",
+      "sample": 4
+    },
+    {
+      "file": "094-marked.txt",
+      "lr": -0.23138123678974437,
+      "stem": "094",
+      "sample": 1
+    },
+    {
+      "file": "094-unmarked-gen.txt",
+      "lr": -0.050740153881679885,
+      "stem": "094",
+      "sample": 1
+    },
+    {
+      "file": "094-marked-2.txt",
+      "lr": 0.0,
+      "stem": "094",
+      "sample": 2
+    },
+    {
+      "file": "094-unmarked-gen-2.txt",
+      "lr": -0.21638214725272822,
+      "stem": "094",
+      "sample": 2
+    },
+    {
+      "file": "094-marked-3.txt",
+      "lr": -0.4354122187771063,
+      "stem": "094",
+      "sample": 3
+    },
+    {
+      "file": "094-unmarked-gen-3.txt",
+      "lr": -0.6459600072933261,
+      "stem": "094",
+      "sample": 3
+    },
+    {
+      "file": "094-marked-4.txt",
+      "lr": 0.16739380140562662,
+      "stem": "094",
+      "sample": 4
+    },
+    {
+      "file": "094-unmarked-gen-4.txt",
+      "lr": 1.165747102684526,
+      "stem": "094",
+      "sample": 4
+    },
+    {
+      "file": "095-marked.txt",
+      "lr": 0.0,
+      "stem": "095",
+      "sample": 1
+    },
+    {
+      "file": "095-unmarked-gen.txt",
+      "lr": -0.5357404764855438,
+      "stem": "095",
+      "sample": 1
+    },
+    {
+      "file": "095-marked-2.txt",
+      "lr": -0.31052900062647054,
+      "stem": "095",
+      "sample": 2
+    },
+    {
+      "file": "095-unmarked-gen-2.txt",
+      "lr": -0.2185561511338292,
+      "stem": "095",
+      "sample": 2
+    },
+    {
+      "file": "095-marked-3.txt",
+      "lr": -0.2516007031665147,
+      "stem": "095",
+      "sample": 3
+    },
+    {
+      "file": "095-unmarked-gen-3.txt",
+      "lr": -0.5239028515001237,
+      "stem": "095",
+      "sample": 3
+    },
+    {
+      "file": "095-marked-4.txt",
+      "lr": -0.1207494161805645,
+      "stem": "095",
+      "sample": 4
+    },
+    {
+      "file": "095-unmarked-gen-4.txt",
+      "lr": -0.03862915695177535,
+      "stem": "095",
+      "sample": 4
+    },
+    {
+      "file": "096-marked.txt",
+      "lr": -0.12366727217780699,
+      "stem": "096",
+      "sample": 1
+    },
+    {
+      "file": "096-unmarked-gen.txt",
+      "lr": -0.16919577043962847,
+      "stem": "096",
+      "sample": 1
+    },
+    {
+      "file": "096-marked-2.txt",
+      "lr": -0.2858224264175756,
+      "stem": "096",
+      "sample": 2
+    },
+    {
+      "file": "096-unmarked-gen-2.txt",
+      "lr": -0.2335548565438567,
+      "stem": "096",
+      "sample": 2
+    },
+    {
+      "file": "096-marked-3.txt",
+      "lr": -0.6600267733517093,
+      "stem": "096",
+      "sample": 3
+    },
+    {
+      "file": "096-unmarked-gen-3.txt",
+      "lr": -0.3928948111326868,
+      "stem": "096",
+      "sample": 3
+    },
+    {
+      "file": "096-marked-4.txt",
+      "lr": -0.04719204223448553,
+      "stem": "096",
+      "sample": 4
+    },
+    {
+      "file": "096-unmarked-gen-4.txt",
+      "lr": -0.03533042921989928,
+      "stem": "096",
+      "sample": 4
+    },
+    {
+      "file": "097-marked.txt",
+      "lr": 0.9670471215587239,
+      "stem": "097",
+      "sample": 1
+    },
+    {
+      "file": "097-unmarked-gen.txt",
+      "lr": -0.23617871654957265,
+      "stem": "097",
+      "sample": 1
+    },
+    {
+      "file": "097-marked-2.txt",
+      "lr": 0.019033582070505168,
+      "stem": "097",
+      "sample": 2
+    },
+    {
+      "file": "097-unmarked-gen-2.txt",
+      "lr": -0.03922217833366603,
+      "stem": "097",
+      "sample": 2
+    },
+    {
+      "file": "097-marked-3.txt",
+      "lr": -0.2317239493684364,
+      "stem": "097",
+      "sample": 3
+    },
+    {
+      "file": "097-unmarked-gen-3.txt",
+      "lr": -0.322913188184709,
+      "stem": "097",
+      "sample": 3
+    },
+    {
+      "file": "097-marked-4.txt",
+      "lr": -0.21515567826120716,
+      "stem": "097",
+      "sample": 4
+    },
+    {
+      "file": "097-unmarked-gen-4.txt",
+      "lr": -0.1691581817939728,
+      "stem": "097",
+      "sample": 4
+    },
+    {
+      "file": "098-marked.txt",
+      "lr": -0.06812844378621986,
+      "stem": "098",
+      "sample": 1
+    },
+    {
+      "file": "098-unmarked-gen.txt",
+      "lr": -0.3461391786042761,
+      "stem": "098",
+      "sample": 1
+    },
+    {
+      "file": "098-marked-2.txt",
+      "lr": 0.0,
+      "stem": "098",
+      "sample": 2
+    },
+    {
+      "file": "098-unmarked-gen-2.txt",
+      "lr": -0.4144360765321435,
+      "stem": "098",
+      "sample": 2
+    },
+    {
+      "file": "098-marked-3.txt",
+      "lr": 0.08568274748615382,
+      "stem": "098",
+      "sample": 3
+    },
+    {
+      "file": "098-unmarked-gen-3.txt",
+      "lr": -0.3742936271847201,
+      "stem": "098",
+      "sample": 3
+    },
+    {
+      "file": "098-marked-4.txt",
+      "lr": 0.06155277751422177,
+      "stem": "098",
+      "sample": 4
+    },
+    {
+      "file": "098-unmarked-gen-4.txt",
+      "lr": -0.1320000219292935,
+      "stem": "098",
+      "sample": 4
+    },
+    {
+      "file": "099-marked.txt",
+      "lr": 0.0,
+      "stem": "099",
+      "sample": 1
+    },
+    {
+      "file": "099-unmarked-gen.txt",
+      "lr": -0.3530844219885115,
+      "stem": "099",
+      "sample": 1
+    },
+    {
+      "file": "099-marked-2.txt",
+      "lr": 0.0,
+      "stem": "099",
+      "sample": 2
+    },
+    {
+      "file": "099-unmarked-gen-2.txt",
+      "lr": -0.06375380486852403,
+      "stem": "099",
+      "sample": 2
+    },
+    {
+      "file": "099-marked-3.txt",
+      "lr": 0.0,
+      "stem": "099",
+      "sample": 3
+    },
+    {
+      "file": "099-unmarked-gen-3.txt",
+      "lr": -0.11762530516814311,
+      "stem": "099",
+      "sample": 3
+    },
+    {
+      "file": "099-marked-4.txt",
+      "lr": 0.0,
+      "stem": "099",
+      "sample": 4
+    },
+    {
+      "file": "099-unmarked-gen-4.txt",
+      "lr": 0.0,
+      "stem": "099",
+      "sample": 4
+    },
+    {
+      "file": "100-marked.txt",
+      "lr": -0.04791437054228597,
+      "stem": "100",
+      "sample": 1
+    },
+    {
+      "file": "100-unmarked-gen.txt",
+      "lr": -0.26241167801268545,
+      "stem": "100",
+      "sample": 1
+    },
+    {
+      "file": "100-marked-2.txt",
+      "lr": 0.13264467855105183,
+      "stem": "100",
+      "sample": 2
+    },
+    {
+      "file": "100-unmarked-gen-2.txt",
+      "lr": -0.4924107599561983,
+      "stem": "100",
+      "sample": 2
+    },
+    {
+      "file": "100-marked-3.txt",
+      "lr": -0.14176967187487835,
+      "stem": "100",
+      "sample": 3
+    },
+    {
+      "file": "100-unmarked-gen-3.txt",
+      "lr": 0.34701130293262805,
+      "stem": "100",
+      "sample": 3
+    },
+    {
+      "file": "100-marked-4.txt",
+      "lr": -0.43880743662773486,
+      "stem": "100",
+      "sample": 4
+    },
+    {
+      "file": "100-unmarked-gen-4.txt",
+      "lr": -0.5658974466791594,
+      "stem": "100",
+      "sample": 4
+    }
+  ]
+}
