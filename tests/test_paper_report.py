@@ -369,6 +369,14 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "8dc1d84856d1df5d" in PAPER
     assert "e8ac790aebdb8919" in PAPER
     assert "e0ccc7de1f47a79c" in PAPER
+    assert "ca4c793eaaf77c18" in PAPER
+    assert "d051137c566c5629" in PAPER
+    assert "1d0ae9837b3cd4e0" in PAPER
+    assert "4fb67051fb89839b" in PAPER
+    assert "9bb1cf87dc11328e" in PAPER
+    assert "d3932e3b1346789b" in PAPER
+    assert "3535" in PAPER
+    assert "8750" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "68/96" not in abs_
     assert "pair-distil-100x4-kgw" not in abs_
@@ -377,6 +385,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "56/96" not in abs_
     assert "573" not in abs_
     assert "608/800" not in abs_
+    assert "3535" not in abs_
+    assert "8750" not in abs_
+    assert "ca4c793eaaf77c18" not in abs_
     assert "25167" not in abs_
     assert "49/96" not in abs_
     assert "41/96" not in abs_
@@ -1087,6 +1098,12 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-distil-100x4-aaronson/results.json": "a043578f9795a7be",
         "experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/interpolate/holdout.json": "89d3b8c7f8d5d0e0",
         "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json": "06b4d85a772626d4",
+        "experiments/2026-09-04-pair-qwen-100x4-ngram13/results.json": "ca4c793eaaf77c18",
+        "experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/interpolate/holdout.json": "d051137c566c5629",
+        "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json": "1d0ae9837b3cd4e0",
+        "experiments/2026-09-04-pair-qwen-100x4-aaronson/results.json": "4fb67051fb89839b",
+        "experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/interpolate/holdout.json": "9bb1cf87dc11328e",
+        "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json": "d3932e3b1346789b",
         "experiments/2026-09-04-resample-work/report.json": "c54c5beb6da07adb",
         "experiments/2026-09-04-resample-work/blind-premark-vs-new-k4/results.json": "4a8f0fba8cbda791",
         "experiments/2026-09-04-resample-work/blind-previous-vs-new-k4/results.json": "b31a564d60ade346",
@@ -1098,3 +1115,28 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         assert prefix in tex, f"appendix missing {prefix} for {rel}"
     assert "PROTOCOL-next-kgw" in tex
     assert "2026-09-03-pair-12x4-kgw" in tex
+    assert "ed9fb20" in tex
+    assert "pair-qwen-100x4-kgw" in tex
+    occ_qhw = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-atoms-qwen-100x4-ngram13"
+            / "atoms.json"
+        ).read_text()
+    )
+    occ_qaar = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-atoms-qwen-100x4-aaronson"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert occ_qhw["used_keys"] is False
+    assert occ_qaar["used_keys"] is False
+    assert f"{occ_qhw['n_seen']} seen" in tex
+    assert f"{occ_qaar['n_seen']} seen" in tex
+    appendix = tex.split(r"\appendix")[1]
+    assert "Do not invent interpolate counts" in appendix
+    assert r"\textbf{25/48}" in appendix
