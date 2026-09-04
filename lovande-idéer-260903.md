@@ -107,8 +107,10 @@ marked more negative). The same reader on GPT-2 public SynthID
 ($\Hw=4$) and GPT-2 $\Hw=12$ is chance ranking at confirmatory n:
 public 12×4 snapleave **9/12**, AUC **0.613**, perm $p\approx 0.042$
 dies at n=100 (**52/100**, AUC **0.512**, perm $p\approx 0.18$,
-marked>0 **385/400**, unmarked $\le 0$ **11/400**); $\Hw=12$ n=100
-AUC **0.507**. Distil public SynthID n=100 is also chance
+marked>0 **385/400**, unmarked $\le 0$ **11/400**) and at 36×4
+(**18/36**, AUC **0.482**). Grok-register 12 snapleave **10/12**, AUC
+**0.589**, perm $p\approx 0.040$ is the same n=12 look; do not sell
+it. GPT-2 $\Hw=12$ n=100 AUC **0.507**. Distil public SynthID n=100 is also chance
 (**53/100**, **0.488**). Distil $\Hw=12$ n=100 snapleave ranks
 **73/100**, AUC **0.631**, perm $p\approx 0.0005$, unmarked $\le 0$
 **83/400** (GPT-2 $\Hw=12$ was **11/400**); n=12 was **4/12**, AUC
@@ -125,7 +127,8 @@ Qwen public SynthID 12 snapleave is chance (**6/12**, AUC 0.453);
 Qwen $\Hw=12$ 12 is **9/12**, AUC 0.583, perm $p\approx 0.17$. Do not
 sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 **271/400**, 12-file **10/12**, Qwen **10/12**, Distil **9/12**, Distil
-$\Hw=12$ **73/100**, or public SynthID **9/12**. `--snaprate` does not
+$\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, or
+36×4 **18/36**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only).
 
 Same last-4 interpolate tables transfer that body leak across
@@ -256,7 +259,8 @@ Distil/Qwen interpolate isolated tails **35/48** / **34/48** or GPT-2
 tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
 an isolated-file detector. Do not sell Distil $\Hw=12$ snapleave
-**73/100** or public SynthID snapleave **9/12** / **52/100**.
+**73/100** or public SynthID snapleave **9/12** / **52/100** /
+grok12 **10/12** / 36×4 **18/36**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -360,6 +364,18 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-ngram
   --model Qwen/Qwen2-1.5B-Instruct \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-qwen-12x4-ngram13-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-grok12x4-synthid-snaprate
+
+python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-36x4-synthid-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-12x4-aaronson-snaprate
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
@@ -2986,7 +3002,9 @@ chance (**224/400** vs **189/400**). GPT-2 public SynthID ($\Hw=4$)
 is the same chance at confirmatory n: 12×4 snapleave **9/12**, AUC
 **0.613**, perm $p\approx 0.042$ dies at n=100 (**52/100**, AUC
 **0.512**, perm $p\approx 0.18$, marked>0 **385/400**, unmarked
-$\le 0$ **11/400**). Distil public SynthID n=100 is chance
+$\le 0$ **11/400**). 36×4 is **18/36**, AUC **0.482**. Grok-register
+12 snapleave **10/12**, AUC **0.589**, perm $p\approx 0.040$ is the
+same n=12 look as original-12 **9/12**. Distil public SynthID n=100 is chance
 (**53/100**, **0.488**); Qwen public 12 is **6/12**, 0.453. Distil
 $\Hw=12$ n=100 snapleave ranks **73/100**, AUC **0.631**, perm
 $p\approx 0.0005$, unmarked $\le 0$ **83/400**; n=12 was **4/12**,
@@ -3045,8 +3063,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    sell **331/400**, **385/400**, **46/48**, **43/48**, **42/48**,
    **40/48**, **35/48**, or **34/48**. Table-free snaprate ranks GPT-2
    KGW (**88/100**) and Distil $\Hw=12$ (**73/100**) without isolated
-   $\tau=0$; public SynthID n=100 is chance (**52/100**, **0.512**).
-   Do not sell **73/100** or **9/12**.
+   $\tau=0$; public SynthID n=100 is chance (**52/100**, **0.512**;
+   36×4 **18/36**). Do not sell **73/100**, **9/12**, or grok12
+   **10/12**.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
