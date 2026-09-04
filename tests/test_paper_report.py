@@ -549,6 +549,45 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
     assert "before generation" in next_sec
 
 
+def test_paper_opened_100_family_counts_match_dumps() -> None:
+    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+
+    def ba(path: Path) -> tuple[int, int]:
+        interp = json.loads((path / "interpolate" / "holdout.json").read_text())
+        assert interp["used_keys"] is False
+        wins = interp["n_prompts_marked_above"]
+        balanced = (
+            interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+        )
+        return wins, balanced
+
+    qwen_aar = ba(
+        ROOT / "experiments" / "2026-09-04-probe-qwen-100x4-aaronson-hard-last4"
+    )
+    qwen_hw12 = ba(
+        ROOT / "experiments" / "2026-09-04-probe-qwen-100x4-ngram13-hard-last4"
+    )
+    distil_hw12 = ba(
+        ROOT / "experiments" / "2026-09-04-probe-distil-100x4-ngram13-hard-last4"
+    )
+    distil_aar = ba(
+        ROOT / "experiments" / "2026-09-04-probe-distil-100x4-aaronson-hard-last4"
+    )
+    assert f"{qwen_aar[0]}/100" in next_sec
+    assert f"{qwen_aar[1]}/800" in next_sec
+    assert f"{qwen_hw12[0]}/100" in next_sec
+    assert f"{qwen_hw12[1]}/800" in next_sec
+    assert f"{distil_hw12[0]}/100" in next_sec
+    assert f"{distil_hw12[1]}/800" in next_sec
+    assert f"{distil_aar[0]}/100" in next_sec
+    assert f"{distil_aar[1]}/800" in next_sec
+    assert "pair-qwen-100x4-kgw" in next_sec
+    assert "ed9fb20" in next_sec
+    assert "before generation" in next_sec
+
+
 def test_maskabs_table_is_dump_backed() -> None:
     tex = Path(ROOT / "paper" / "main.tex").read_text()
     assert r"\label{tab:maskabs}" in tex
