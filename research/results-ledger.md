@@ -623,7 +623,8 @@ gpt2-medium native opening rankpath on gpt2-medium 12×4 is
 **holds**. Do not sell **22/48**. Isolated-file remains open.
 GPT-2-small LM opening rankpath on gpt2-medium 12×4 is
 [PROTOCOL-isolated-rankpath-g2m.md](PROTOCOL-isolated-rankpath-g2m.md)
-and is named before those LRs. Isolated-file remains open.
+(`336a1fd`): ranking **8/12**, isolated **20/48 vs 32/48**. H-rpg2m
+**holds**. Do not sell **20/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

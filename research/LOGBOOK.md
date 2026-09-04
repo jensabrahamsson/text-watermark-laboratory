@@ -3080,6 +3080,14 @@ named before GPT-2-small-on-medium opening rankpath LRs. Existing
 `--model gpt2`. Do not leftover-slice. Do not invent those scores.
 Medium native stays **6/12**, isolated **22/48 vs 30/48**. Nothing
 replaces **25/48**. Isolated-file detection is still not finished.
-Do not write `thesis/`.
+Do not write `thesis/`. Freeze SHA `336a1fd`.
+
+## 2026-09-04 GPT-2-small LM on gpt2-medium 12 opened
+
+H-rpg2m **holds**. GPT-2-small LM opening rankpath on gpt2-medium 12×4
+is ranking **8/12**, isolated **20/48 vs 32/48** (AUC **0.619**; nested
+**17/48 vs 47/48**). `used_keys=false`. Do not sell **20/48**. GPT-2-small
+on GPT-2 twins stays **41/48**. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
 
 ---

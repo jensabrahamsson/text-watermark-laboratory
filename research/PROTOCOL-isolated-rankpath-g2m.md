@@ -105,5 +105,15 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the probe has been
-run once, as written)*
+H-rpg2m **holds**. GPT-2-small unmarked-LM opening rankpath on
+gpt2-medium 12×4 ranks **8/12**; isolated **20/48 vs 32/48** (AUC
+**0.619**; nested-by-stem Youden **17/48 vs 47/48**). `used_keys=false`.
+`model_name` is `gpt2`. Clopper–Pearson 95% on **20/48** includes ½.
+Medium native stays **6/12**, isolated **22/48 vs 30/48**. GPT-2-small
+on GPT-2 twins stays **41/48 vs 35/48**. Do not sell **20/48** or
+**8/12**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-gpt2-lm/](../experiments/2026-09-04-probe-medium-12x4-rankpath-gpt2-lm/).
+
+H-rpg2m-iso **holds**. Cross-size opening rankpath is not a universal
+isolated-file detector. Do not leftover-slice. Do not merge PR **#9**.
+Isolated-file remains open. Do not write `thesis/`.

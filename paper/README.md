@@ -128,6 +128,8 @@ opening rankpath 12-LOO is named in
 isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**. Do not sell
 **32/48** or **31/48**. gpt2-medium native opening rankpath is ranking
 **6/12**, isolated **22/48 vs 30/48** (`PROTOCOL-isolated-rankpath-m12.md`,
-SHA `2577771`). Do not sell **22/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+SHA `2577771`). Do not sell **22/48**. GPT-2-small LM on gpt2-medium 12
+is ranking **8/12**, isolated **20/48 vs 32/48** (`PROTOCOL-isolated-rankpath-g2m.md`,
+SHA `336a1fd`). Do not sell **20/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).
