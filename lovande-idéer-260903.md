@@ -1068,7 +1068,15 @@ those mid slices too (GPT-2 4:16 **99/100**, AUC **0.984**; Distil
 (GPT-2 **312/400** vs hits **380/400**, **21** ranking-only; Qwen
 **244/400** vs **356/400**, **34** ranking-only). Interpolate last-1
 is ranking-without-isolated-TP on the Aaronson body, not the isolated
-width match. Do not leftover-target those zeros. Do not sell
+width match. Last-4 interpolate on those same slices still ranks
+(GPT-2 4:16 **98/100**, Distil **95/100**, Qwen **93/100**) with
+weaker isolated than last-1 interpolate (GPT-2 **248/400** vs
+**312/400**, **36** ranking-only; Qwen **188/400** vs **244/400**,
+**46** ranking-only). Opposite of Kirchenbauer 4:16, where last-4
+interpolate slightly beat last-1 interpolate ranking. Interpolate is
+not the isolated Aaronson mid-file reader at either width. Do not
+leftover-target those zeros. Do not sell interpolate last-4 4:16
+**98/100** / **248/400** / Qwen **188/400**. Do not sell
 interpolate last-1 4:16 **99/100** / **312/400** / Qwen **244/400**. Do not leftover-target last-1 ranking-only zeros. Do
 not sell last-4 hard 4:16 **92/100** / Qwen **62/100** /
 **172/400**. Do not sell hard 4:16 **99/100** / **384/400** / Distil **94/100** / Qwen
@@ -1646,7 +1654,8 @@ and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
    **312/400** vs hits **356/400**). Last-1 hard sits with hits
    isolated (GPT-2 4:16 **384/400**). Last-4 hard mid sits below that
    width (Qwen 4:16 **62/100**). Last-1 interpolate ranks the Aaronson
-   mid with ranking-without-isolated-TP (GPT-2 4:16 **312/400**). Do not leftover-target
+   mid with ranking-without-isolated-TP (GPT-2 4:16 **312/400**). Last-4
+   interpolate mid isolated is weaker (Qwen 4:16 **188/400**). Do not leftover-target
    those zeros. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
 specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
@@ -1700,7 +1709,8 @@ Qwen interpolate last-4 freeze **216/400 vs 400/400**, Aaronson last-1 hashpool 
 **364/400** / Distil **364/400** / Qwen **312/400**, Aaronson last-1 hard 4:16
 **384/400** / Distil ranking **94/100** / Qwen **360/400**, Aaronson last-4 hard 4:16
 **92/100** / Qwen **62/100** / isolated **172/400**, Aaronson last-1 interpolate 4:16
-**312/400** / Qwen **244/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
+**312/400** / Qwen **244/400**, Aaronson last-4 interpolate 4:16
+**248/400** / Qwen **188/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
@@ -2173,6 +2183,21 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aar
   --model Qwen/Qwen2-1.5B-Instruct --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-interp-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-interp-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-interp-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3813,7 +3838,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    with hits isolated (GPT-2 4:16 **384/400**; Distil **376/400**; Qwen
    **360/400**). Last-4 hard mid sits below that width (GPT-2 4:16
    **92/100**, **328/400**; Qwen **62/100**, AUC **0.612**, **172/400**). Last-1 interpolate ranks those slices with
-   ranking-without-isolated-TP (GPT-2 4:16 **312/400**, **21** ranking-only). Interpolate last-1 isolated at n=100 is
+   ranking-without-isolated-TP (GPT-2 4:16 **312/400**, **21** ranking-only). Last-4 interpolate mid isolated is weaker
+   (GPT-2 4:16 **248/400**; Qwen **188/400**). Interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
    (**284/400**). Freeze interpolate last-4 is the same split
    (opening **380/400**, full-file **208/400** equals the tail). Last-4
