@@ -1018,7 +1018,8 @@ full-file hard is **1/12**; SynthID hashpool last-1 is **5/12**,
 **34/36** to **32/36**. Mix last-1+last-4 and backoff on public
 SynthID 12 are chance (**6/12**). Occupancy-free `postokhits` last-2
 on public 12 is **23/48**, same as last-4 `postokhits`, below
-**25/48**. Matching last-12 / last-6 / last-13 to $\Hw=12$ leaves
+**25/48**. Occupancy-free `hashtok` last-2 is **23/48** versus last-4
+**24/48**. Matching last-12 / last-6 / last-13 to $\Hw=12$ leaves
 ngram-13 isolated at **21–24/48**. DistilGPT2 $\Hw=12$ last-2 ranking is
 chance (**6/12**); isolated **25/48** is not the locked public last-4
 headline. Distil last-12 is **8/12**, **17/48**. Distil interpolate
