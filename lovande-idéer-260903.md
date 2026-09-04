@@ -300,21 +300,23 @@ different mixin) do **not** classify public SynthID 12 (isolated
 Kirchenbauer 12 (**0/48**, AUC **0.568**). Mixin-specific. n=12 only;
 no 100-family rankpath.
 
-DistilGPT2 Aaronson 12×4 is an exploratory `/tmp` pair (seed
-**20260905**, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`; not
-in git). Official first-draw $z>3$ is **12/12** (one unmarked
-first-draw is also $z>3$). Hard last-4 is **7/12**, isolated **8/48**,
-AUC **0.637**, five ranking wins with no isolated TP. Last-1 is
-**9/12**, **16/48**, **0.755**. Last-2 is **9/12**, **24/48**,
-**0.759**. Last-1 still lifts vs last-4. Last-2 isolated wins at this
-n=12; that does not replace GPT-2 Aaronson last-1 **40/48**. Existing
-`rankpath` last-4 on these Distil twins is **12/12**, **44/48**, AUC
-**0.998**, unmarked $\le 0$ **48/48** (garden ranks with no isolated
-TP) — the same isolated count as GPT-2 Aaronson rankpath, far above
-Distil last-1 hard **16/48**. Rankpath, not last-1 counts, is the
-Distil Aaronson reader at n=12. Do not
-sell Distil last-2 **24/48**, last-1 **16/48**, or Distil rankpath
-**44/48**.
+DistilGPT2 Aaronson 12×4 is the opened freeze
+[research/PROTOCOL-next-aaronson-distil.md](research/PROTOCOL-next-aaronson-distil.md)
+(`experiments/2026-09-04-pair-distil-12x4-aaronson/`, seed
+**20260905**, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`).
+Official first-draw $z>3$ is **12/12** (one unmarked first-draw is
+also $z>3$). Freeze last-4 hard is **7/12**, isolated **8/48**, AUC
+**0.637**, five ranking wins with no isolated TP; interpolate last-4
+is **7/12**, **0/48**. Last-1 hard is **9/12**, **16/48**, **0.755**.
+Last-2 is **9/12**, **24/48**, **0.759**. Last-1 still lifts vs last-4.
+Last-2 isolated wins at this n=12; that does not replace GPT-2
+Aaronson last-1 **40/48**. Existing `rankpath` last-4 on these Distil
+twins is **12/12**, **44/48**, AUC **0.998**, unmarked $\le 0$
+**48/48** (garden ranks with no isolated TP) — the same isolated
+count as GPT-2 Aaronson rankpath, far above Distil last-1 hard
+**16/48**. Rankpath, not last-1 counts, is the Distil Aaronson reader
+at n=12. Do not sell Distil last-2 **24/48**, last-1 **16/48**,
+interpolate **0/48**, or Distil rankpath **44/48**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
@@ -339,7 +341,9 @@ the GPT-2 tokenizer id on Distil text (same BPE). Last-1 was not the
 preregistered PROTOCOL-next-kgw reader (that freeze is last-4). This
 is a post-open width match. Distil 100 has newline-loop files that the
 keyed z-test also flags; last-1 unigrams on those loops are not a
-reason to sell **350/400**.
+reason to sell **350/400**. DistilGPT2 Aaronson 12×4:
+`experiments/2026-09-04-pair-distil-12x4-aaronson/` (opened freeze is
+last-4).
 
 **Hypothesis.** When the watermark hash is last-1, last-4 count
 tables smear that one-token seed across unused context tokens.
@@ -463,6 +467,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hits --context-len 1 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-12x4-kgw-hits-k1
 
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-hits-k1-windows-ends
+
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-k1
@@ -537,6 +546,7 @@ stays better at last-4 on 36×4 ranking. No new `--methods` name:
 | GPT-2 ngram-13 12×4 | 6/12, 22/48, 0.544 | 8/12, 21/48, 0.481 |
 | GPT-2 ngram-13 100×4 | 66/100, 215/400, 0.579 | 63/100, 248/400, 0.592 |
 | DistilGPT2 ngram-13 12×4 | 6/12, 16/48, 0.485 | 6/12, 25/48, 0.540 |
+| Qwen2-1.5B ngram-13 12×4 | 4/12, 16/48, 0.415 | 5/12, 19/48, 0.445 |
 
 Matching `context_len` to $\Hw=12$ does **not** repeat the Kirchenbauer
 last-1 jump. Original-12 ngram-13 hard width grid (k=4 is the freeze
@@ -574,7 +584,23 @@ the locked public GPT-2 last-4 **25/48**. Ranking stays chance
 (**6/12**); freeze interpolate last-4 on these twins is **9/12**,
 **21/48**, 0.563. Last-12 matches $\Hw=12$ and does not rescue
 (ranking **8/12**, isolated **17/48**). Do not sell Distil last-2
-**25/48**. Distil interpolate last-2 is **9/12**, **20/48**, AUC
+**25/48**. Qwen2-1.5B ngram-13 12×4 hard width grid (`--model
+Qwen/Qwen2-1.5B-Instruct`; k=4 is the freeze dump in
+[research/PROTOCOL-next-longctx-qwen.md](research/PROTOCOL-next-longctx-qwen.md)):
+
+| Width | Prompt | Isolated | unmarked $\le 0$ | AUC |
+|---|---|---|---|---|
+| last-1 | 5/12 | 22/48 | 28/48 | 0.505 |
+| last-2 | 5/12 | 19/48 | 26/48 | 0.445 |
+| last-4 freeze | 4/12 | 16/48 | 31/48 | 0.415 |
+| last-6 | 4/12 | 14/48 | 30/48 | 0.410 |
+| last-12 | 4/12 | 15/48 | 30/48 | 0.417 |
+
+Qwen last-2 ranking stays chance (**5/12**). Freeze interpolate last-4
+is **4/12**, **14/48**, 0.400. Last-12 does not rescue. Official
+first-draw matching mean was **11/12** above $0.55$ (library $0.515$).
+Do not sell Qwen last-2 **19/48** or last-1 **22/48**. Distil
+interpolate last-2 is **9/12**, **20/48**, AUC
 **0.553** versus freeze last-4 interpolate **9/12**, **21/48**,
 **0.563**: ranking tied, isolated not better. Keep interpolate at
 last-4. Hashpool last-2 on public
@@ -729,6 +755,8 @@ train). Second-key hard is
 `experiments/2026-09-02-pair-12x4-control-as-marked/`. DistilGPT2
 $\Hw=12$ twins: `experiments/2026-09-04-pair-distil-12x4-ngram13/`
 (opened freeze is last-4 interpolate **9/12** / hard **6/12**).
+Qwen2-1.5B $\Hw=12$: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`
+(opened freeze is last-4 interpolate **4/12** / hard **4/12**).
 
 **Hypothesis.** Hard last-4 on $\Hw=4$ tournament text is slightly too
 long for **full-file** isolated sign: last-2 keeps opening last-k mass
@@ -744,6 +772,7 @@ ranking **71/100**, isolated **226/400**, below last-2 **248/400**).
 DistilGPT2 $\Hw=12$ last-2 ranking is chance (**6/12**); isolated
 **25/48** vs last-4 **16/48** is a small-n isolated lift, not the
 public GPT-2 **94/100** jump, and is not the locked **25/48**.
+Qwen2-1.5B $\Hw=12$ last-2 ranking is **5/12**; last-12 is **4/12**.
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
@@ -761,7 +790,7 @@ does not replace last-2 (100-family isolated **226/400** vs last-2
 companion. Public last-2 tables trained on 100 GPT-2 families do not
 classify Kirchenbauer original-12 (isolated **24/48**, AUC 0.554). Do
 not sell ngram-13 last-12 **71/100**, Distil ngram-13 last-2 **25/48**,
-Distil last-12 **8/12**, or hashpool last-2 **31/48**.
+Distil last-12 **8/12**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -804,6 +833,10 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngr
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
   --model gpt2 --methods interpolate --context-len 2 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-distil-12x4-ngram13-interp-k2
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-ngram13 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 2 \
+  --skip-hashpool --out-dir /tmp/kgw-lab/probe-qwen-12x4-ngram13-k2
 ```
 
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
@@ -875,7 +908,7 @@ ngram-13 isolated at **21–24/48**. DistilGPT2 $\Hw=12$ last-2 ranking is
 chance (**6/12**); isolated **25/48** is not the locked public last-4
 headline. Distil last-12 is **8/12**, **17/48**. Distil interpolate
 last-2 is **9/12**, **20/48**, not better than last-4 interpolate
-**9/12**, **21/48**. Hashpool last-2 on public 12 is
+**9/12**, **21/48**. Qwen $\Hw=12$ last-2 ranking is **5/12**. Hashpool last-2 on public 12 is
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
 **35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
 interpolate **12/12**, AUC **0.904**. Aaronson `snapleave` is
@@ -899,8 +932,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
    lift is opening mass kept in the file mean, not a body leak. The
-   jump does not repeat at $\Hw=12$, including last-12 and DistilGPT2
-   $\Hw=12$ last-2 ranking **6/12**.
+   jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
+   $\Hw=12$ last-2 ranking **6/12**, and Qwen2-1.5B $\Hw=12$ last-2
+   ranking **5/12**.
 
 Keep leftover-20 as the honesty bound on any SynthID width change.
 Do not write `thesis/` from this file.
