@@ -281,7 +281,10 @@ named in
 tokens `[4:16)` is named in
 [research/PROTOCOL-isolated-rankpath-g2mbody.md](research/PROTOCOL-isolated-rankpath-g2mbody.md)
 (`e677a6c`). Ranking **8/12**, isolated **28/48 vs 30/48**. Do not sell
-**28/48**. Do not leftover-slice. Do not merge PR **#9**.
+**28/48**. gpt2-medium LM rankpath on Distil generated tokens `[4:16)` is
+named in
+[research/PROTOCOL-isolated-rankpath-m2dbody.md](research/PROTOCOL-isolated-rankpath-m2dbody.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

@@ -3332,7 +3332,6 @@ Do not invent those scores. GPT-2-on-medium opening stays **8/12**,
 isolated **20/48 vs 32/48**. Distil-on-medium `[4:16)` stays **11/12**,
 isolated **25/48 vs 33/48**. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`. Freeze SHA
-`587ee69`. Freeze SHA
 `e677a6c`.
 
 ## 2026-09-04 GPT-2-on-medium rankpath body [4:16) opened
@@ -3345,5 +3344,18 @@ isolated **25/48 vs 33/48**. The unwindowed fit-prefix-16 file score
 **25/48 vs 31/48** is not the frozen slice and is not the locked
 headline **25/48**. Do not sell **28/48**. Nothing replaces **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
+
+## 2026-09-04 medium-on-Distil rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-m2dbody.md](PROTOCOL-isolated-rankpath-m2dbody.md)
+named before medium-on-Distil rankpath `[4:16)` LRs. Existing `rankpath`
+on `experiments/2026-08-31-pair-distilgpt2-12x4/` with `--model gpt2-medium
+--windows 4:16 --fit-prefix 16 --pos-bucket 1`. Do not leftover-slice.
+Do not invent those scores. Medium-on-Distil opening stays **9/12**,
+isolated **30/48 vs 33/48**. Distil native `[4:16)` stays **9/12**,
+isolated **25/48 vs 30/48**. GPT-2-on-Distil `[4:16)` stays **4/12**,
+isolated **26/48 vs 21/48**. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
 
 ---

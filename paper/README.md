@@ -160,6 +160,9 @@ ranking **11/12**, isolated **25/48 vs 33/48** (`PROTOCOL-isolated-rankpath-d2mb
 SHA `1b4c541`). Equality with **25/48** is not a win. GPT-2-small LM
 rankpath on gpt2-medium generated tokens `[4:16)` is ranking **8/12**,
 isolated **28/48 vs 30/48** (`PROTOCOL-isolated-rankpath-g2mbody.md`,
-SHA `e677a6c`). Do not sell **28/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+SHA `e677a6c`). Do not sell **28/48**. gpt2-medium LM rankpath on Distil
+generated tokens `[4:16)` is named in
+`research/PROTOCOL-isolated-rankpath-m2dbody.md` before those LRs.
+Do not invent those scores. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).
