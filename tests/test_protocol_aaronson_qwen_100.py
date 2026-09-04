@@ -40,6 +40,10 @@ def test_protocol_aaronson_qwen_100_locks_config_before_generation() -> None:
     assert "--mixin aaronson" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "`a761a7d`" in log
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert "PROTOCOL-next-aaronson-qwen-100" in ledger
+    assert "`a761a7d`" in ledger
+    assert "has not been generated" in ledger
 
 
 def test_protocol_aaronson_qwen_100_cli_flag_exists() -> None:
