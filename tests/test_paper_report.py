@@ -390,7 +390,28 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
+    assert "pair-qwen-100x4-kgw" not in abs_
+    assert "ed9fb20" not in abs_
+    assert "tab:kgwq100" not in abs_
     assert "context_width" in next_sec or "context\\_width" in next_sec
+
+
+def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
+    tex = Path(ROOT / "paper" / "main.tex").read_text()
+    before, after = tex.split(r"\label{tab:kgwq100}", 1)
+    caption = before.rsplit(r"\begin{table}", 1)[1]
+    body = after.split(r"\end{table}", 1)[0]
+    table = caption + body
+    assert "ed9fb20" in table
+    assert "mixin=kgw" in table
+    assert "15485863" in table
+    assert "20260904" in table
+    assert "results.json" in table
+    assert r"\textbf{25/48}" in table
+    assert "100/100" not in table
+    assert "76/100" not in table
+    assert "/800" not in table
+    assert "H-kgw-q100-ctrl **holds**" not in table
 
 
 def test_maskabs_table_is_dump_backed() -> None:
