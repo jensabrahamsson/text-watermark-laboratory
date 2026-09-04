@@ -305,7 +305,9 @@ last-1 is empty (**0/48**, all zeros). Distil KGW last-1 `hashtok` is
 also empty. Distil KGW last-4 `hashtok` is opening **7/12**,
 **14/48**, AUC **0.605**, unmarked $\le 0$ only **40/48**; tail
 **0/12**, **0/48**. Occupancy-free hashing is not the Kirchenbauer
-last-1 body reader. Hits last-1 **46/48** is not
+last-1 body reader. Qwen KGW last-4 `hashtok` is anti-correlated
+ranking **2/12**, isolated **14/48**, AUC **0.432** (opening; tail
+**0/48**). Last-1 is empty (**0/48**). Hits last-1 **46/48** is not
 occupancy-free hashing (`--skip-hashpool` silently drops `hashtok`).
 Public
 SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
@@ -597,7 +599,7 @@ KGW interpolate last-1 n=100 opening **83/100** / tail **367/400**,
 Distil interpolate last-1 n=100 tail **194/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
 rankpath **16/48** / last-1 rankpath **28/48**, Distil KGW hashtok last-4
-**14/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
+**14/48**, Qwen KGW hashtok last-4 **2/12** / **14/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
 Aaronson hashtok last-4 **44/48**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
@@ -941,6 +943,16 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw
   --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 \
   --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-12x4-kgw-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
+  --fit-prefix 4 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 1 \
+  --fit-prefix 1 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hashtok-k1
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods rankpath --context-len 1 \
@@ -1423,7 +1435,9 @@ and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
 `hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
 last-4 is **13/48**. Distil KGW last-4 `hashtok` is opening **7/12**,
-**14/48**, AUC **0.605** (tail **0/48**); last-1 is empty. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
+**14/48**, AUC **0.605** (tail **0/48**); last-1 is empty. Qwen KGW
+last-4 `hashtok` is anti-correlated **2/12**, **14/48**, AUC **0.432**
+(tail **0/48**); last-1 is empty. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
 are empty too; Aaronson last-4 `hashtok` is opening **40/48**. Qwen
 Aaronson last-4 `hashtok` is opening **11/12**, **44/48**, AUC
 **0.966** (tail **0/48**), above `postokhits` last-4 **32/48**, still
