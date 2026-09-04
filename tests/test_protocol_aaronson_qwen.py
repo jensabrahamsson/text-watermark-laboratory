@@ -116,6 +116,10 @@ def test_protocol_aaronson_qwen_official_and_keyfree_from_dumps() -> None:
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 457
     assert occ["n_unseen"] == 11735
+    ledger = " ".join((ROOT / "research" / "results-ledger.md").read_text().split())
+    w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+    assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in ledger
+    assert f"**{w0['n_seen']}** vs **{w0['n_unseen']}**" in ledger
     assert "H-aar-q-ctrl **holds**" in text
     assert "H-aar-q-group **holds**" in text
     assert "H-aar-q-iso **holds**" in text
