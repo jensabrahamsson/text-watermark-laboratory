@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (26 A4 pages, git `0bd91c6`). Dated copy in
+  (27 A4 pages, git `f2f0839`). Dated copy in
   [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
