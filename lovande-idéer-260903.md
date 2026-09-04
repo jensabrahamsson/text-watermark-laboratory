@@ -2500,6 +2500,26 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hits-k2-mid
 
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hashpool-k2-mid
+
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
@@ -3610,7 +3630,31 @@ Distil **75/100**, not GPT-2 **100/100**. Near-front is a GPT-2-family hits effe
 too, not Distil/Qwen. Do not sell last-2 hits 4:16
 **100/100** / **350/400**, Distil **75/100**, medium **96/100** /
 **345/400**, or Qwen **79/100**. Do not leftover-target
-those zeros. Do not shorten SynthID `hits`. Do not
+those zeros. Do not shorten SynthID `hits`. Last-2 `hashpool` on
+those same 4:16 slices **ranks** with last-2 hits, not last-2 hard
+(`used_keys=false`; isolated from `holdout.md`; `--skip-hashpool`
+would drop this reader):
+
+| Corpus | last-2 hits | last-2 hashpool | last-2 hard |
+|---|---|---|---|
+| GPT-2 4:16 | **100/100**, 0.864, **350/400** | **100/100**, 0.869, **346/400** | 85/100, 0.729, **314/400** |
+| gpt2-medium 4:16 | **96/100**, 0.837, **345/400** | **98/100**, 0.856, **338/400** | 82/100, 0.674, **293/400** |
+| Distil 4:16 | 75/100, 0.636, **194/400** | 79/100, 0.679, **131/400** | 58/100 chance, 0.532, 163/400 |
+| Qwen 4:16 | 79/100, 0.658, **242/400** | 78/100, 0.673, **294/400** | 56/100, 0.572, **223/400** |
+
+GPT-2 last-2 hashpool ranking matches last-2 hits (**100/100**,
+isolated **346/400** vs **350/400**). gpt2-medium sits with that
+family (**98/100**, **338/400**). Distil ranking **79/100** has
+chance isolated (**131/400**, file-level binom $p=1$, **13**
+ranking-only). Qwen ranking **78/100** sits with Distil, not GPT-2;
+isolated **294/400** is above last-2 hits **242/400** with **19**
+ranking losses with isolated TP and unmarked $\le 0$ only
+**189/400**. GPT-2 16:32 last-2 hashpool drops like last-2 hits
+(**86/100**, **14** ranking losses with isolated TP). Same GPT-2-family
+near-front geography. Do not leftover-target those zeros. Do not sell
+last-2 hashpool 4:16 **100/100** / **346/400**, medium **98/100**,
+Distil **79/100** / **131/400**, or Qwen **78/100** / **294/400**. Do
+not shorten SynthID `hits`. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
 public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
@@ -4349,7 +4393,12 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
    weak (**75/100**). gpt2-medium last-2 hits 4:16 sits with GPT-2
-   (**96/100**); Qwen last-2 hits 4:16 is **79/100**. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   (**96/100**); Qwen last-2 hits 4:16 is **79/100**. Last-2 `hashpool`
+   ranks with last-2 hits on the GPT-2 family (GPT-2 4:16 **100/100**,
+   **346/400**; medium **98/100**, **338/400**), not last-2 hard
+   (**85/100** / **82/100**). Distil last-2 hashpool 4:16 **79/100** has
+   chance isolated (**131/400**); Qwen ranking **78/100** sits with
+   Distil, isolated **294/400**. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
