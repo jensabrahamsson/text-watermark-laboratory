@@ -2904,7 +2904,10 @@ tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
 isolated **0/400**, AUC **0.000**, mean marked $-0.34$ vs unmarked
 $+0.10$ (marked text stays at the unmarked argmax more often). Do not
 invert that sign into a detector. Do not sell **0/100** or inverted
-AUC **1.000**. Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
+AUC **1.000**. Distil Aaronson n=100 is the same anti-correlation
+(snapleave **0/100**, **0/400**, AUC **0.077**). Qwen Aaronson 12 is
+anti at n=12 (snapleave **6/12**, AUC 0.444, perm $p\approx 0.9995$).
+Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
 12×4 snapleave **7/12**, marked>0 **48/48** with unmarked $\le 0$
 **0/48**, AUC 0.523, perm $p\approx 0.33$; snapupset **6/12**. At n=100
 snapleave **51/100**, marked>0 **383/400** with unmarked $\le 0$ only
