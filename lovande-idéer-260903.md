@@ -547,6 +547,26 @@ transfer **40/48** (tail equals full-file) is the n=12 slice of this
 body ranking; n=100 full-file ranking **68/100** is dragged by the
 opening.
 
+The reverse Distil Aaronson 100 last-1 tables (`--model gpt2`) recover
+that body leak on Distil 12, where Distil 12 in-domain last-1 was only
+**16/48**: Distil 100 → Distil 12 is **12/12**, isolated **40/48**,
+AUC **0.944**, unmarked $\le 0$ **48/48**; tail 64:128 **11/12**,
+**40/48**, **0.931** (equals full-file). Distil 100 → GPT-2 12 is
+**10/12**, **40/48**, **0.898**, unmarked **48/48**; tail **10/12**,
+**40/48** (equals full-file). Last-4 Distil 100 → Distil 12 is
+**9/12**, **20/48**; Distil 100 → GPT-2 12 ranks **11/12** with
+isolated only **16/48** and **7** ranking-only. Distil 12 in-domain
+last-1 **16/48** understated the body leak that Distil 100 last-1
+tables recover. Reverse Distil 100 → GPT-2 100 (`--overlap keep`) is
+**98/100**, **348/400**, AUC **0.976**, unmarked **400/400**; tail
+**96/100**, **340/400**, **0.953**. Opening 0:4 is **99/100**,
+**384/400** with unmarked only **313/400** (FPs). GPT-2 100 → Distil
+100 last-1 was only **68/100** / **244/400**: Distil tables on GPT-2
+files outrank GPT-2 tables on Distil files (Distil degenerate loops).
+Last-4 Distil 100 → GPT-2 100 is **96/100**, **252/400**, **33**
+ranking-only. Do not sell Distil 100 → Distil 12 **40/48**, Distil 100
+→ GPT-2 100 **348/400**, or **98/100**.
+
 The same knob on **SynthID** full-file last-1 **collapses**: hard
 **1/12**, AUC **0.414**. Last-1 is not a universal “shorter is
 better.” It matches this mixin’s hash width. (SynthID last-1 window
@@ -656,7 +676,10 @@ still transfer onto those Distil files as a body leak (tail
 **40/48**, unmarked **48/48**; last-4 hard transfer **16/48**); last-4
 hits transfer is opening **44/48**. GPT-2 100 Aaronson last-1 → Distil 100
 is the same body ranking (tail **92/100**, isolated **244/400** equals
-the tail; last-4 isolated **188/400** is chance). GPT-2 100 → GPT-2 12 last-1 hard
+the tail; last-4 isolated **188/400** is chance). Distil 100 last-1 →
+Distil 12 recovers the body leak in-domain last-1 missed
+(**40/48**, tail equals full-file, versus **16/48**). Distil 100 →
+GPT-2 12 is **40/48**; Distil 100 → GPT-2 100 is **348/400**. GPT-2 100 → GPT-2 12 last-1 hard
 is the same isolated body transfer (tail **40/48** equals full-file;
 opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **36/48**. Last-4 hits 100 → 12 is opening **24/48** (tail AUC
@@ -690,7 +713,8 @@ hard **372/400** / hits **380/400** / interpolate last-4 tail
 **0/48**, Aaronson rankpath
 **44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**,
 GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Distil 100
-**244/400** / hits ranking **97/100**, Distil KGW rankpath
+**244/400** / hits ranking **97/100**, Distil 100 Aaronson last-1 → Distil 12
+**40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, occupancy-free last-1
@@ -736,6 +760,23 @@ Distil 100 hashpool last-1 → GPT-2 12 is **12/12, 44/48**, AUC
 **12/12, 40/48**, 0.991, unmarked $\le 0$ **47/48**.
 Do not sell **48/48**, **47/48**, **44/48**, or **40/48**. Qwen uses a
 different tokenizer; this transfer is same-BPE only.
+
+Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
+`drop-from-train`, dropped=0; Distil 100 ↔ GPT-2 100 uses `--overlap
+keep`):
+
+| Train → test | last-1 hard | last-4 hard |
+|---|---|---|
+| Distil 100 Aaronson → Distil 12 | **12/12, 40/48, 0.944** | 9/12, 20/48, 0.804 |
+| Distil 100 Aaronson → GPT-2 12 | **10/12, 40/48, 0.898** | 11/12, 16/48, 0.908 |
+| Distil 100 Aaronson → GPT-2 100 | **98/100, 348/400, 0.976** | 96/100, 252/400, 0.946 |
+| GPT-2 100 Aaronson → Distil 100 | 68/100, 244/400, 0.698 | 69/100, 188/400, 0.683 |
+
+GPT-2 100 → Distil 12 last-1 remains **11/12, 40/48**. Distil 12
+in-domain last-1 **16/48** is not the Distil 100 → Distil 12 transfer.
+Last-4 Distil 100 → GPT-2 12 ranks **11/12** with isolated only
+**16/48**. Last-1 is the isolated transfer here too. Do not sell
+**40/48** or **348/400**.
 
 Same last-1 `hits` tables transfer like `hard` last-1:
 
@@ -1057,6 +1098,24 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k4-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-12x4-aaronson \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-last1-to-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-last1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-last1-to-gpt2100
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
@@ -1696,7 +1755,11 @@ A freeze of **width and mixin geography** that already moved a grain:
    Distil 100 is a body ranking leak (tail **92/100**, isolated
    **244/400** equals the tail; last-4 isolated **188/400** is chance);
    Distil in-domain last-1 **372/400** is opening dilution, not that
-   transfer. GPT-2 100 → original-12
+   transfer. Distil 100 last-1 tables recover the Distil 12 body leak
+   in-domain last-1 missed (**12/12**, **40/48**, tail equals
+   full-file, versus in-domain **16/48**); Distil 100 → GPT-2 12 is
+   the same isolated **40/48**; Distil 100 → GPT-2 100 is **98/100**,
+   **348/400**. GPT-2 100 → original-12
    last-1 hard is the same isolated **40/48** (tail equals full-file;
    last-1 hits transfer isolated **36/48**).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
