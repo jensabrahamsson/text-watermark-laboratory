@@ -1187,7 +1187,9 @@ detector and still has no isolated TPs. Kirchenbauer unigram on that
 arrow is chance (**54/100**, **97/400**, 0.514, perm $p\approx 0.27$).
 Do not leftover-target Aaronson last-4 hits opening
 **204/400** (full-file isolated **145/400**) or KGW unigram opening
-**256/400**. Do not sell ranking
+**256/400**. Last-4 `rankpath` on GPT-2 Aaronson → $\Hw=12$ is chance
+(**55/100**, **0/400**, 0.532); Kirchenbauer rankpath is **54/100**,
+**153/400**, 0.516. Do not sell ranking
 **98/100**, **100/100**, unigram **73/100**, or AUC **0.890**. The last-1 lift is
 mixin-specific.
 
@@ -1566,6 +1568,18 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods unigram --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-unigram-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-rankpath-k4-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-rankpath-k4-to-ngram13-100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2024,7 +2038,11 @@ KGW tables do not classify $\Hw=12$ (GPT-2 **49/400**, Distil
 **98/100** with isolated **1/400** (interpolate last-4 **100/100**,
 **0/400**). Ranking without isolated sign is not a detector. Unigram
 on that Aaronson arrow is **73/100** with isolated **0/400**, below
-last-1 hard. The freeze in
+last-1 hard. Last-4 `rankpath` on the same arrow is chance
+(**55/100**, isolated **0/400**, AUC **0.532**, perm $p\approx 0.14$);
+Kirchenbauer rankpath is also chance (**54/100**, **153/400**, 0.516).
+The ranking-without-isolated-TP look is a count-table mean shift, not
+unmarked-LM rankpath. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
@@ -2696,7 +2714,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    **8/12** does not survive confirmatory n) or $\Hw=12$ (last-1 KGW
    **49/400** / Distil **20/400**; Aaronson last-1 ranking **98/100**
    with isolated **1/400**; interpolate last-4 **100/100**,
-   **0/400**; unigram **73/100**, **0/400**). Do not sell Aaronson
+   **0/400**; unigram **73/100**, **0/400**; rankpath **55/100**,
+   **0/400**). Do not sell Aaronson
    ranking **98/100**, unigram **73/100**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
