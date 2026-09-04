@@ -3140,6 +3140,17 @@ named before gpt2-medium-on-Distil opening rankpath LRs. Existing
 scores. Distil native stays **8/12**, isolated **28/48 vs 32/48**.
 GPT-2-small on Distil stays **6/12**, isolated **24/48 vs 27/48**.
 Nothing replaces **25/48**. Isolated-file detection is still not
-finished. Do not write `thesis/`.
+finished. Do not write `thesis/`. Freeze SHA `571d4f1`.
+
+## 2026-09-04 gpt2-medium LM on Distil 12 opened
+
+H-rpm2d **fails** as a raw count. gpt2-medium LM opening rankpath on
+Distil 12×4 is ranking **9/12**, isolated **30/48 vs 33/48** (AUC
+**0.638**; nested **26/48 vs 34/48**). `used_keys=false`. Do not sell
+**30/48** or **9/12**. Distil native stays **8/12**, isolated
+**28/48 vs 32/48**. GPT-2-small on Distil stays **6/12**, isolated
+**24/48 vs 27/48**. Prompt ranking is a different grain. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
 
 ---

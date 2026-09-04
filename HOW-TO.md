@@ -254,7 +254,8 @@ on gpt2-medium 12×4 is named in
 (`d62c732`). Ranking **6/12**, isolated **24/48 vs 27/48**. Do not sell
 **24/48**. gpt2-medium LM on Distil 12×4 is named in
 [research/PROTOCOL-isolated-rankpath-m2d.md](research/PROTOCOL-isolated-rankpath-m2d.md)
-before those LRs. Do not leftover-slice. Do not merge PR **#9**.
+(`571d4f1`). Ranking **9/12**, isolated **30/48 vs 33/48**. Do not sell
+**30/48**. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

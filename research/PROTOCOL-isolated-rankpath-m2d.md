@@ -110,5 +110,16 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpm2d **fails** as a raw count. gpt2-medium unmarked-LM opening rankpath
+on Distil 12×4 ranks **9/12**; isolated **30/48 vs 33/48** (AUC **0.638**;
+nested-by-stem Youden **26/48 vs 34/48**). `used_keys=false`.
+`model_name` is `gpt2-medium`. Clopper–Pearson 95% on **30/48** includes
+½. Distil native stays **8/12**, isolated **28/48 vs 32/48**. GPT-2-small
+on Distil stays **6/12**, isolated **24/48 vs 27/48**. Do not sell **30/48**
+or **9/12**. JSON:
+[experiments/2026-09-04-probe-distil-12x4-rankpath-medium-lm/](../experiments/2026-09-04-probe-distil-12x4-rankpath-medium-lm/).
+
+H-rpm2d-iso **holds**. Cross-size opening rankpath is not a universal
+isolated-file detector. Prompt ranking **9/12** is a different grain from
+isolated **30/48**. File AUC **0.638** is not **25/48**. Do not leftover-slice.
+Do not merge PR **#9**. Isolated-file remains open. Do not write `thesis/`.

@@ -635,7 +635,8 @@ GPT-2-small LM opening rankpath on Distil 12×4 is
 **holds**. Do not sell **24/48**. Isolated-file remains open.
 gpt2-medium LM opening rankpath on Distil 12×4 is
 [PROTOCOL-isolated-rankpath-m2d.md](PROTOCOL-isolated-rankpath-m2d.md)
-and is named before those LRs. Isolated-file remains open.
+(`571d4f1`): ranking **9/12**, isolated **30/48 vs 33/48**. H-rpm2d
+**fails** as a raw count. Do not sell **30/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
