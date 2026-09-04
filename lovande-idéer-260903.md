@@ -101,9 +101,10 @@ marked>0 **386/400** with unmarked $\le 0$ **15/400**; snapupset
 n=100 is **271/400** vs **302/400** (snapleave) and **290/400** vs
 **281/400** (snapupset). Both classes leave the unmarked argmax;
 $\tau=0$ is not a detector. DistilGPT2 Kirchenbauer snaprate does
-**not** replicate: 12×4 snapleave **9/12**, AUC 0.658, perm
+**not** replicate on the full file: 12×4 snapleave **9/12**, AUC 0.658, perm
 $p\approx 0.21$; n=100 **31/100**, AUC **0.447**, perm $p=1$ (mean
-marked more negative). The same reader on GPT-2 public SynthID
+marked more negative). Window slices reverse that Distil headline
+(below). The same reader on GPT-2 public SynthID
 ($\Hw=4$) and GPT-2 $\Hw=12$ is chance ranking at confirmatory n:
 public 12×4 snapleave **9/12**, AUC **0.613**, perm $p\approx 0.042$
 dies at n=100 (**52/100**, AUC **0.512**, perm $p\approx 0.18$,
@@ -133,8 +134,33 @@ Qwen $\Hw=12$ 12 is **9/12**, AUC 0.583, perm $p\approx 0.17$. Do not
 sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 **271/400**, 12-file **10/12**, Qwen **10/12**, Distil **9/12**, Distil
 $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
-**25/36**, second-key **8/12**, or 36×4 **18/36**. `--snaprate` does not
-emit `--windows` slices (it scores the generated path only).
+**25/36**, second-key **8/12**, 36×4 **18/36**, GPT-2 KGW tail
+**75/100**, Distil opening **66/100**, or SynthID tail **62/100**. `--snaprate` does not
+emit `--windows` slices (it scores the generated path only). Slicing
+those generated-only choice matrices on the same `rotate_snaprate`
+scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
+n=100 geography, not a new `probe --methods` name:
+
+| Corpus | full | 0:4 | 16:32 | 64:128 |
+|---|---|---|---|---|
+| GPT-2 KGW snapleave | **88/100**, 0.755 | **49/100**, 0.549, perm $p\approx 0.011$ | 73/100, 0.623 | **75/100**, 0.670, 371/400, unmarked $\le 0$ **54/400** |
+| Distil KGW snapleave | **31/100**, 0.447 (anti) | **66/100**, 0.599 | 29/100, 0.419 (anti) | **40/100**, 0.474 (chance) |
+| Public SynthID snapleave | 52/100, 0.512 | 31/100, 0.421 (anti) | 45/100, 0.502 | 62/100, 0.534, perm $p\approx 0.027$ |
+| Distil $\Hw=12$ snapleave | 73/100, 0.631 | 61/100, 0.573 | 62/100, 0.582 | 66/100, 0.598 |
+
+GPT-2 KGW n=12 windows were opening **10/12** / mid **5/12** / tail
+**9/12**. Opening died at n=100 (**49/100**); mid rose; tail held
+directionally at **75/100**, AUC **0.670**, far below interpolate
+last-4 tail **100/100**, **0.953**. Table-free snaprate on GPT-2
+Kirchenbauer is a **body** ranking at confirmatory n, not an
+opening-hash-only hole, and is still not the count-table body reader.
+Distil KGW is the **opposite geography**: opening **66/100** while the
+body is anti or chance, so the full-file anti **31/100** is the body
+undoing an opening look. Distil interpolate last-4 tail remains
+**98/100**. Public SynthID snaprate opening is anti (**31/100**) where
+interpolate last-4 is **99/100**; the weak tail **62/100** / **0.534**
+is not that front-loaded reader. Isolated $\tau=0$ still fails. Do not
+sell **75/100**, Distil opening **66/100**, or SynthID tail **62/100**.
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
 $p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
@@ -2991,7 +3017,17 @@ et al. (2026) (TRACE; arXiv:2607.08400) watermarks agent trajectories.
 Li et al. (2026) (SkillWatermark; arXiv:2608.16026) is skill/traffic
 watermarking. Phan et al. (2026) (arXiv:2607.10103) is a deployment
 survey. Boyle et al. (2026) (arXiv:2607.10794) perturbs logits against
-model stealing. None of those is a finished-string key-free reader this
+model stealing. Liu et al. (2026) (in-context watermark instructions;
+arXiv:2608.29030) train a model to follow keyed ICW prompts; detection
+is still that instruction’s statistical test. Xiao et al. (2026)
+(WorldMark; arXiv:2608.06416) modulate a host watermark’s strength from
+a knowledge graph. Blanchet et al. (2026) (arXiv:2608.14906) localize
+keyed pivot statistics in mixed-source text. Nemecek et al. (2026)
+(arXiv:2608.20047) audit cross-lingual fairness of keyed detectors.
+Corradetti (2026) (arXiv:2608.19369) is a decay identity for keyed
+residual statistics under paraphrase. Li and He (2026) (SAC-Copula;
+arXiv:2608.20839; Findings of EMNLP 2026) watermark diffusion LMs.
+None of those is a finished-string key-free reader this
 laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
@@ -3070,8 +3106,14 @@ $\Hw=12$ n=100 snapleave ranks **73/100**, AUC **0.631**, perm
 $p\approx 0.0005$, unmarked $\le 0$ **83/400**; n=12 was **4/12**,
 AUC **0.434**. Qwen $\Hw=12$ 12 is **9/12**, 0.583, perm $p\approx 0.17$.
 Matching tournament width does not make snaprate a public-SynthID
-detector. Distil $\Hw=12$ ranking is not Distil KGW (anti **31/100**)
-and is not isolated $\tau=0$. Do not sell **383/400**, **48/48**,
+detector. Distil $\Hw=12$ ranking is not Distil KGW (full-file anti
+**31/100**; Distil KGW opening snapleave **66/100** while tail
+**40/100** is chance) and is not isolated $\tau=0$. GPT-2 KGW
+snapleave tail **75/100**, AUC **0.670** is a body ranking below
+interpolate **100/100**, **0.953**; GPT-2 KGW opening **49/100** died.
+Public SynthID snapleave opening is anti (**31/100**) where interpolate
+is **99/100**. Do not sell **75/100**, Distil opening **66/100**,
+SynthID tail **62/100**, **383/400**, **48/48**,
 **73/100**, public **9/12**, grok12 **10/12**, grok36 **25/36**, or 36×4 **18/36**.
 `snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
 **0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
