@@ -134,6 +134,8 @@ SHA `336a1fd`). Do not sell **20/48**. Distil LM on gpt2-medium 12 is
 ranking **11/12**, isolated **30/48 vs 31/48** (`PROTOCOL-isolated-rankpath-d2m.md`,
 SHA `b3fd331`). Do not sell **30/48**. GPT-2-small LM on Distil 12 is
 ranking **6/12**, isolated **24/48 vs 27/48** (`PROTOCOL-isolated-rankpath-g2d.md`,
-SHA `d62c732`). Do not sell **24/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+SHA `d62c732`). Do not sell **24/48**. gpt2-medium LM on Distil 12 is
+named in `research/PROTOCOL-isolated-rankpath-m2d.md` before those LRs.
+Do not invent those scores. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).

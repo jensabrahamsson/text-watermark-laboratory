@@ -3130,4 +3130,16 @@ native stays **8/12**, isolated **28/48 vs 32/48**. File AUC is chance.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-04 gpt2-medium LM on Distil 12 freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-m2d.md](PROTOCOL-isolated-rankpath-m2d.md)
+named before gpt2-medium-on-Distil opening rankpath LRs. Existing
+`rankpath` on `experiments/2026-08-31-pair-distilgpt2-12x4/` with
+`--model gpt2-medium`. Do not leftover-slice. Do not invent those
+scores. Distil native stays **8/12**, isolated **28/48 vs 32/48**.
+GPT-2-small on Distil stays **6/12**, isolated **24/48 vs 27/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---

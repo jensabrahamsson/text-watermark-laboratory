@@ -156,6 +156,8 @@ GPT-2-small LM on Distil 12×4 is ranking **6/12**, isolated
 **24/48 vs 27/48**
 ([PROTOCOL-isolated-rankpath-g2d.md](PROTOCOL-isolated-rankpath-g2d.md)).
 H-rpg2d **holds**. Do not sell **24/48**.
+gpt2-medium LM on Distil 12×4 is named before those LRs
+([PROTOCOL-isolated-rankpath-m2d.md](PROTOCOL-isolated-rankpath-m2d.md)).
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed
