@@ -213,7 +213,10 @@ GPT-2 KGW hits last-1 absolute windows: opening 0:4 **8/12**,
 Same body geography as hard last-1. 100-family hits last-1 windows
 (`--skip-nested`): opening 0:4 **94/100**, **258/400**, AUC **0.753**;
 tail 64:128 **100/100**, **379/400**, **0.986**. Body at confirmatory
-n. Do not sell **379/400**.
+n. Do not sell **379/400**. Distil 100 hits last-1 also ranks the tail
+above the opening (**98/100**, AUC **0.924** vs **93/100**, **0.718**);
+isolated tail **214/400** is below full-file **355/400**. Distil 100
+has newline-loop files; do not sell **355/400**.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -391,7 +394,7 @@ the GPT-2 tokenizer id on Distil text (same BPE). Last-1 was not the
 preregistered PROTOCOL-next-kgw reader (that freeze is last-4). This
 is a post-open width match. Distil 100 has newline-loop files that the
 keyed z-test also flags; last-1 unigrams on those loops are not a
-reason to sell **350/400**. DistilGPT2 Aaronson 12×4:
+reason to sell **350/400** or Distil 100 hits last-1 **355/400**. DistilGPT2 Aaronson 12×4:
 `experiments/2026-09-04-pair-distil-12x4-aaronson/` (opened freeze is
 last-4).
 
