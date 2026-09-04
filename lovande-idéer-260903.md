@@ -210,7 +210,9 @@ last-1 `postokhits` is empty on both (**0/48**, all zeros). Do not sell
 **46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
 GPT-2 KGW hits last-1 absolute windows: opening 0:4 **8/12**,
 **24/48**, AUC **0.558**; tail 64:128 **12/12**, **45/48**, **0.932**.
-Same body geography as hard last-1. 100-family hits last-1 windows
+Same body geography as hard last-1. Distil 12 hits last-1 windows:
+opening 0:4 **9/12**, **31/48**, AUC **0.704**; tail 64:128 **12/12**,
+**37/48**, **0.882**. 100-family hits last-1 windows
 (`--skip-nested`): opening 0:4 **94/100**, **258/400**, AUC **0.753**;
 tail 64:128 **100/100**, **379/400**, **0.986**. Body at confirmatory
 n. Do not sell **379/400**. Distil 100 hits last-1 also ranks the tail
