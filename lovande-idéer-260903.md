@@ -315,10 +315,18 @@ width match. Do not sell last-2 **388/400**. Interpolate
 last-1 at n=100 is **100/100**, **296/400**, AUC 0.985, unmarked
 $\le 0$ **400/400**, **26** ranking wins with no isolated TP (last-4
 interpolate **208/400**). Hard last-1 **388/400** remains the isolated
-reader. Both windows
-rank: 0:4 **100/100**, **388/400**, 0.987; 64:128 **99/100**,
-**380/400**, 0.985. That is **not** Kirchenbauer’s tail-only last-1
-split. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
+reader. Hard last-1 windows both rank: 0:4 **100/100**, **388/400**,
+0.987; 64:128 **99/100**, **380/400**, 0.985. That is **not**
+Kirchenbauer’s tail-only last-1 split. Interpolate last-1 windows
+(`--skip-nested`) are **not** that both-windows isolated geography:
+0:4 **100/100**, **380/400**, AUC **0.993**, unmarked $\le 0$
+**391/400**, **5** ranking wins with no isolated TP; 64:128
+**99/100**, **284/400**, **0.980**, unmarked **400/400**, **28**
+ranking wins with no isolated TP. Full-file interpolate last-1
+**296/400** sits with the tail. Interpolate last-1 isolated is
+opening-heavy; tail ranking is ranking-without-isolated-TP. Hard
+last-1 is the body isolated reader. Do not sell interpolate last-1
+opening **380/400** or tail **284/400**. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
 unmarked $\le 0$ **48/48** (below hard last-1). Last-1 hashpool
 windows also rank both ends: 0:4 **12/12**, **40/48**, 0.950; 64:128
 **10/12**, **36/48**, 0.877. 100-family hashpool
@@ -479,12 +487,18 @@ hard is **12/12**, **36/48**, AUC **0.946**, unmarked **48/48** — above
 last-4 **24/48**, below last-1 **44/48**. Occupancy-free `postokhits`
 last-4 is **8/12**, **32/48** (opening; tail **0/48**, 16 marked zeros),
 matching last-4 hits; last-1 `postokhits` is empty (**0/48**, all
-zeros), same as GPT-2 and Distil Aaronson. Interpolate last-1 isolated
+zeros), same as GPT-2 and Distil Aaronson. Occupancy-free `hashtok`
+last-4 (no `--skip-hashpool`; `--fit-prefix 4`) is **11/12**,
+**44/48**, AUC **0.966**, unmarked $\le 0$ **47/48**, 4 marked zeros;
+0:4 **11/12**, **44/48**; tail **0/12**, **0/48**. Opening overlap,
+stronger isolated than `postokhits` last-4 **32/48**, not a body
+reader. Last-1 hits **48/48** remains the isolated body reader. Do not
+sell hashtok **44/48** as body. Interpolate last-1 isolated
 is **24/48** (last-4 interpolate **12/48**); tail ranks **12/12** with
 isolated only **20/48**. Last-1 hits **48/48** remains the isolated
 reader. Do not
 sell **44/48**, **48/48**, last-2 **36/48**, interpolate last-1
-**24/48**, or rankpath **16/48**. Last-1
+**24/48**, hashtok last-4 **44/48**, or rankpath **16/48**. Last-1
 on those twins is a post-open width match, not the freeze.
 
 **Hypothesis.** When the watermark hash is last-1, last-4 count
@@ -537,8 +551,10 @@ Aaronson last-1 **16/48** / last-2 **24/48**, Distil hits last-4
 **44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**,
 GPT-2 100 Aaronson last-1 → Distil **40/48**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
-**308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
-**33/48**, occupancy-free hashtok last-4 **13/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
+**308/400**, Aaronson interpolate last-1 **296/400** / opening
+**380/400** / tail **284/400**, occupancy-free last-1
+**33/48**, occupancy-free hashtok last-4 **13/48**, Qwen Aaronson
+hashtok last-4 **44/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
@@ -813,6 +829,16 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
+  --fit-prefix 4 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-aaronson-hashtok-k4
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
@@ -835,7 +861,10 @@ Hits last-1 and hashpool last-1 are the other existing-scorer
 companions, not a fourth method name. Aaronson–Kirchner last-1 is the same width match on a
 third mixin (`context_width=1`): isolated **24/48** → **40/48** at
 n=12 and **344/400** → **388/400** at n=100, without selling those
-counts. Existing `rankpath` on Aaronson 12 is **44/48** at last-4
+counts. Aaronson interpolate last-1 at n=100 ranks both windows but
+isolated **296/400** is opening-heavy (**380/400**) plus tail
+ranking-without-TP (**284/400**); hard last-1 remains the body
+isolated reader. Existing `rankpath` on Aaronson 12 is **44/48** at last-4
 already, not a width match. DistilGPT2 Aaronson 12 last-1 still lifts
 `hard` vs last-4 (**16/48** vs **8/48**). Last-4 `hits` **44/48** is
 opening overlap (Distil tail **0/48**; GPT-2 last-4 hits tail isolated
@@ -1253,7 +1282,10 @@ and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
 `hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
 last-4 is **13/48**. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
-are empty too; Aaronson last-4 `hashtok` is opening **40/48**. None of those is a backlog item.
+are empty too; Aaronson last-4 `hashtok` is opening **40/48**. Qwen
+Aaronson last-4 `hashtok` is opening **11/12**, **44/48**, AUC
+**0.966** (tail **0/48**), above `postokhits` last-4 **32/48**, still
+not last-1 hits **48/48**. None of those is a backlog item.
 
 ---
 
@@ -1268,7 +1300,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
    hashpool **394/400** vs **304/400**) and `hard` on Aaronson–Kirchner
    (**388/400** vs last-4 **344/400**). Aaronson last-1 ranks both
-   windows; Kirchenbauer last-1 is a body lift. DistilGPT2 Aaronson
+   windows on `hard`; interpolate last-1 isolated at n=100 is
+   opening-heavy (**380/400**) plus tail ranking-without-TP
+   (**284/400**). Kirchenbauer last-1 is a body lift. DistilGPT2 Aaronson
    last-1 still lifts `hard` only; last-4 `hits` **44/48** is opening
    overlap, not rankpath’s body leak. GPT-2 100 Aaronson last-1 tables
    transfer onto Distil files (**40/48** vs last-4 hard **16/48**);
