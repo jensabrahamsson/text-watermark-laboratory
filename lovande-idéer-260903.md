@@ -2640,7 +2640,15 @@ detection with the provider key. Ceppi and Sanchez (2026) (Stateless
 Bernoulli Watermarking; arXiv:2609.03844) is keyed z-score scheme
 design. Tolstokorov et al. (2026) (DirBucket / Rent-a-RAG;
 arXiv:2609.03749) watermarks RAG documents in embedding space, not
-`indicate` on sampling twins. None of those is a finished-string
+`indicate` on sampling twins. Bakshi et al. (2026) (OpenStamp;
+arXiv:2608.27899) implants a keyed mark in the unembedding layer and
+detects with an LLR against a privately held base checkpoint.
+Diaa et al. (2026) ($k$-SwordStamp; arXiv:2608.27666) is semantic
+scheme design. Zhang et al. (2026) (SemTrace; arXiv:2608.29575) traces
+document exposure with NLI bits, not sampling twins. Feng et al.
+(2026) (Cocktail complementary watermarks; arXiv:2608.12713) is keyed
+dual tournament scores. Park et al. (2026) (WeaveMark;
+arXiv:2609.02177) is keyed multi-bit scheme design. None of those is a finished-string
 key-free reader this laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
