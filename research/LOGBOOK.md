@@ -2920,4 +2920,17 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-qwen-100x4-kgw
 ```
 
+## 2026-09-04 PR #7 remains markdown-only
+
+GitHub PR **#7** (`cursor/lovande-ideer-kgw-gloaguen-1051`) was updated
+on the remote and stays **unmerged**. Those notes are not this
+laboratory's dump-backed lock. Do not copy `/tmp` holdouts from that
+file into the report. Qwen2-1.5B Kirchenbauer 100-family
+([PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md), freeze
+`ed9fb20`) is the in-flight pair. Window remasure of those twins, if
+any, waits until `results.json` and the frozen last-4 probe exist. Do
+not add a `probe --methods` name. Do not leftover-target. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
 ---
