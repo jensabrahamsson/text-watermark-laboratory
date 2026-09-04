@@ -257,7 +257,13 @@ tail 64:128 **100/100**, **379/400**, **0.986**. Body at confirmatory
 n. Do not sell **379/400**. Distil 100 hits last-1 also ranks the tail
 above the opening (**98/100**, AUC **0.924** vs **93/100**, **0.718**);
 isolated tail **214/400** is below full-file **355/400**. Distil 100
-has newline-loop files; do not sell **355/400**. Qwen2-1.5B KGW hits
+last-1 hard windows (`--skip-nested`) are the same split: 0:4
+**90/100**, **253/400**, AUC **0.709**, **2** ranking-only; 64:128
+**98/100**, isolated **202/400**, **0.893**, unmarked $\le 0$
+**370/400**, **18** ranking-only. Tail ranks; isolated t=0 on the tail
+is chance (file-level binom $p\approx 0.44$). Full-file **350/400** is
+not that tail. Distil 100 has newline-loop files; do not sell
+**355/400** or Distil last-1 hard tail **202/400**. Qwen2-1.5B KGW hits
 last-1 windows: opening 0:4 **8/12**, **33/48**, AUC **0.581**,
 unmarked $\le 0$ only **18/48**; tail 64:128 **12/12**, **38/48**,
 **0.893**, unmarked **41/48**. Ranking/AUC is body like GPT-2 and
@@ -744,7 +750,11 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **46/48** / **395/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
-last-1 tail **182/400**, hits last-1 transfer **48/48** / **44/48**,
+last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
+hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
+last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
+last-1 **247/400** / hits **253/400**, last-4 Distil → GPT-2 100
+**53/400**,
 Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
 last-4 hits 100→12 **24/48**,
 Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
@@ -803,20 +813,35 @@ generators. Last-4 does not:
 | GPT-2 100 KGW → Distil 12 KGW | **12/12, 47/48, AUC 0.991** | 5/12, 22/48, 0.488 |
 | Distil 100 KGW → GPT-2 12 KGW | **12/12, 42/48, 0.987** | 11/12, 15/48, 0.685 |
 | Distil 100 KGW → Distil 12 KGW | **12/12, 42/48, 0.982** | 7/12, 6/48, 0.519 |
+| Distil 100 KGW → GPT-2 100 (`--overlap keep`) | **100/100, 338/400, 0.986** | 81/100, 53/400, 0.662 |
+| GPT-2 100 KGW → Distil 100 (`--overlap keep`) | 99/100, 247/400, 0.921 | 78/100, 287/400, 0.670 |
 
 `--skip-nested`; isolated is $\tau=0$. Unmarked $\le 0$ on GPT-2 12
 hard last-1 is **43/48** (five FPs). Distil in-domain last-1 was
 **46/48**; GPT-2 tables on Distil files are **47/48**. Distil last-4
 → GPT-2 12 ranks **11/12** with isolated only **15/48** (two ranking
 wins with no isolated TP). Distil last-4 → Distil 12 is chance
-isolated **6/48**. Last-1 is the isolated transfer; last-4 ranking can
+isolated **6/48**. Distil 100 → GPT-2 100 last-1 is a **body** leak:
+tail 64:128 **100/100**, **327/400**, AUC **0.948**, unmarked
+**373/400**; opening 0:4 **85/100**, **218/400**, **0.714**. Full-file
+**338/400** sits with the tail. Last-4 Distil → GPT-2 100 ranks
+**81/100** with isolated only **53/400** and **45** ranking-only; tail
+isolated **66/400**. GPT-2 100 → Distil 100 last-1 ranks **99/100**
+with isolated **247/400**, **10** ranking-only; tail **94/100**,
+**230/400**, **0.887** (equals full-file isolated). Distil in-domain
+last-1 **350/400** is stronger: Distil tables on GPT-2 files outrank
+GPT-2 tables on Distil files (newline-loop files), same as Aaronson
+Distil 100 ↔ GPT-2 100. Last-4 GPT-2 → Distil 100 isolated
+**287/400** has unmarked $\le 0$ only **222/400** (FPs). Last-1 is the
+isolated transfer; last-4 ranking can
 look fine while files do not sign. Same last-1 `hashpool` tables:
 GPT-2 100 → GPT-2 12 **12/12, 48/48**, AUC **0.998**, unmarked $\le 0$
 **40/48** (eight FPs); GPT-2 100 → Distil 12 **12/12, 47/48**, 0.994.
 Distil 100 hashpool last-1 → GPT-2 12 is **12/12, 44/48**, AUC
 **0.994**, unmarked $\le 0$ **47/48**; Distil 100 → Distil 12 is
 **12/12, 40/48**, 0.991, unmarked $\le 0$ **47/48**.
-Do not sell **48/48**, **47/48**, **44/48**, or **40/48**. Qwen uses a
+Do not sell **48/48**, **47/48**, **44/48**, **40/48**, **338/400**,
+or **247/400**. Qwen uses a
 different tokenizer; this transfer is same-BPE only.
 
 Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
@@ -844,10 +869,17 @@ Same last-1 `hits` tables transfer like `hard` last-1:
 | GPT-2 100 KGW → Distil 12 KGW | **12/12, 47/48, 0.993** |
 | Distil 100 KGW → GPT-2 12 KGW | **12/12, 46/48, 0.995** |
 | Distil 100 KGW → Distil 12 KGW | **12/12, 44/48, 0.992** |
+| Distil 100 KGW → GPT-2 100 | **100/100, 343/400, 0.996** |
+| GPT-2 100 KGW → Distil 100 | 99/100, 253/400, 0.945 |
 
 `--skip-nested`. Unmarked $\le 0$ is **43/48**, **43/48**, **45/48**,
 **46/48**. Distil 100 → Distil 12 hits last-1 **44/48** is above that
-pair’s hard last-1 **42/48**. Do not sell **48/48** or **44/48**.
+pair’s hard last-1 **42/48**. Distil 100 → GPT-2 100 last-1 hits is
+**100/100**, **343/400**, AUC **0.996**, unmarked **399/400**; tail
+**100/100**, **320/400**, **0.976**. GPT-2 100 → Distil 100 last-1
+hits is **99/100**, **253/400**, **0.945**, **9** ranking-only; tail
+**96/100**, **242/400**, **0.921**. Do not sell **48/48**, **44/48**,
+**343/400**, or **253/400**.
 
 Same mixin, shared GPT-2 BPE, Aaronson last-1 **does** transfer
 100 GPT-2 families onto DistilGPT2 original-12 files. Last-4 ranks
@@ -907,6 +939,47 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-distil-12x4-kgw \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/xfer-kgw100-last1-to-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-last1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-kgw100-last1-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-kgw100-last4-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-kgw100-hits-k1-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-distil-100x4-kgw --overlap keep --model gpt2 \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2-kgw100-last1-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-distil-100x4-kgw --overlap keep --model gpt2 \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2-kgw100-last4-to-distil100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-distil-100x4-kgw --overlap keep --model gpt2 \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2-kgw100-hits-k1-to-distil100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hashpool --context-len 1 \
@@ -1329,8 +1402,9 @@ width match (100-family **394/400**, AUC **0.995** vs last-4 hashpool
 **304/400**, **0.867**); Qwen last-4 hashpool is chance. At n=100 the
 hard widths are last-1 > last-2 > last-4. Last-1 tables transfer
 GPT-2 ↔ Distil and GPT-2 100 → original-12 KGW (**48/48** vs last-4
-**32/48**); last-4 tables do not (Distil 100 last-4 → Distil 12 is
-isolated **6/48**). The freeze in
+**32/48**); Distil 100 → GPT-2 100 last-1 is **338/400** vs last-4
+**53/400**; GPT-2 100 → Distil 100 last-1 is **247/400**. Last-4 tables
+do not (Distil 100 last-4 → Distil 12 is isolated **6/48**). The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
@@ -1407,7 +1481,15 @@ windows (`--skip-nested`): 0:4 **82/100**, **293/400**, AUC
 **0.763**; 64:128 **59/100**, **192/400**, **0.545**. Full-file
 **71/100** sits below the opening. Tail AUC is chance. Matching
 last-12 to $\Hw=12$ is still opening mass, not a body rescue. Do not
-sell last-12 opening **82/100** or **293/400**.
+sell last-12 opening **82/100** or **293/400**. Occupancy-free
+`hashtok` last-4 on these $\Hw=12$ twins is **opening overlap**, not a
+body rescue: GPT-2 12 **11/12**, **23/48**, AUC **0.724** (0:4 equals
+full-file; tail **0/12**; isolated chance, file-level binom
+$p\approx 0.67$); GPT-2 100 **95/100**, **313/400**, **0.888**, **12**
+ranking-only (0:4 equals full-file; tail **0/100**). Distil 12
+**9/12**, **28/48**, **0.727**; Distil 100 **98/100**, **369/400**,
+**0.943**; tail **0**. Last-1 `hashtok` is empty on both generators.
+Do not sell **313/400** or **369/400**.
 
 DistilGPT2 ngram-13 12×4 hard
 width grid (`--model gpt2`, same BPE; k=4 is the freeze dump in
@@ -1672,7 +1754,7 @@ GPT-2 $\Hw=12$ last-2 opening **87/100**, last-12 opening **82/100**, Distil las
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
 opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
-opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
+opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, or Distil $\Hw=12$ hashtok last-4 **369/400**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -1749,6 +1831,36 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngr
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-ngram13 \
   --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 2 \
   --skip-hashpool --out-dir /tmp/kgw-lab/probe-qwen-12x4-ngram13-k2
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
+  --methods hashtok --context-len 4 --fit-prefix 4 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-ngram13-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
+  --methods hashtok --context-len 1 --fit-prefix 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-ngram13-hashtok-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods hashtok --context-len 4 --fit-prefix 4 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-ngram13-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods hashtok --context-len 1 --fit-prefix 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-ngram13-hashtok-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
+  --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-12x4-ngram13-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ngram13 \
+  --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-hashtok-k4
 ```
 
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
@@ -1808,9 +1920,17 @@ and was not reimplemented. Li-Chen and Kim (2026) (ChainMark;
 arXiv:2607.18445) is model-free detection **from the secret key and
 tokenizer**, not `indicate`. Gloaguen et al. (2026) (unified watermark
 framework; arXiv:2602.06754) is scheme design, not a finished-string
-reader this laboratory can port.
+reader this laboratory can port. Signature filtering
+(arXiv:2606.18430) is a detection-time n-gram filter in front of a
+**keyed** statistic $Z(T)$; the filter itself is key-free, the test is
+not `indicate`. DHMark (arXiv:2608.03093) is public-key scheme design.
+Rao–Blackwellized e-processes (arXiv:2607.21958) reconstruct the
+Gumbel-max PRNG from the secret key. Attribute-based undetectable
+watermarking (arXiv:2608.03174) is keyed cryptographic delegation.
+None of those is a finished-string key-free reader this laboratory can
+port.
 
-### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
+### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
 `postokhits` on Kirchenbauer 12×4 last-4 is **11/48**; last-1 is
 **33/48** with unmarked $\le 0$ only **25/48**. SynthID last-1
@@ -1821,7 +1941,17 @@ SynthID 12 are chance (**6/12**). Occupancy-free `postokhits` last-2
 on public 12 is **23/48**, same as last-4 `postokhits`, below
 **25/48**. Occupancy-free `hashtok` last-2 is **23/48** versus last-4
 **24/48**. Matching last-12 / last-6 / last-13 to $\Hw=12$ leaves
-ngram-13 isolated at **21–24/48**. DistilGPT2 $\Hw=12$ last-2 ranking is
+ngram-13 isolated at **21–24/48**. Occupancy-free `hashtok` last-4 on
+GPT-2 $\Hw=12$ 12×4 is opening **11/12**, **23/48**, AUC **0.724**
+(0:4 equals full-file; tail **0/12**); isolated is chance (file-level
+binom $p\approx 0.67$). Last-1 is empty (**0/48**). At n=100 last-4 is
+**95/100**, **313/400**, **0.888**, **12** ranking-only; 0:4 equals
+full-file; tail **0/100**. Distil $\Hw=12$ last-4 hashtok is the same
+split: 12×4 **9/12**, **28/48**, **0.727** (0:4 equals full-file; tail
+**0/12**); 100×4 **98/100**, **369/400**, **0.943**; tail **0/100**.
+Last-1 empty on both generators. Occupancy-free hashing is not a
+$\Hw=12$ body reader and does not repeat last-2. Do not sell
+**313/400** or **369/400**. DistilGPT2 $\Hw=12$ last-2 ranking is
 chance (**6/12**); isolated **25/48** is not the locked public last-4
 headline. Distil $\Hw=12$ 100 last-2 is **88/100**, **313/400**,
 below last-4 **89/100**, **354/400**; opening **92/100**, tail
@@ -1900,7 +2030,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    the same isolated **40/48**; Distil 100 → GPT-2 100 is **98/100**,
    **348/400**. GPT-2 100 → original-12
    last-1 hard is the same isolated **40/48** (tail equals full-file;
-   last-1 hits transfer isolated **36/48**).
+   last-1 hits transfer isolated **36/48**). Distil 100 KGW → GPT-2 100
+   last-1 is a body leak (**338/400**, tail **327/400** vs last-4
+   **53/400**); GPT-2 100 KGW → Distil 100 last-1 is **247/400** (Distil
+   tables on GPT-2 files outrank GPT-2 tables on Distil files).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
