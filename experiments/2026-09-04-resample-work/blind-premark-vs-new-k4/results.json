@@ -1,0 +1,552 @@
+{
+  "n_pairs": 40,
+  "n_marked_wins": 37,
+  "n_prompt_ties": 0,
+  "n_prompt_losses": 3,
+  "accuracy": 0.925,
+  "n_prompt_wins": 37,
+  "n_prompt_wins_ge": 37,
+  "n_prompt_wins_without_isolated_tp": 5,
+  "ranking_without_isolated_tp": [
+    "01-write-a-600-word-travel-essay",
+    "03-a-short-story-about-two-neighbours",
+    "07-explain-sourdough-as-if-you-have",
+    "18-a-short-story-about-two-people",
+    "25-a-short-story-about-a-community"
+  ],
+  "ranking_ties_without_isolated_tp": [],
+  "n_ranking_losses_with_isolated_tp": 0,
+  "ranking_losses_with_isolated_tp": [],
+  "n_marked_positive_on_ranking_losses": 0,
+  "n_marked_lr_positive": 32,
+  "context_len": 4,
+  "backoff": false,
+  "margin": 0.0,
+  "alpha": 0.5,
+  "used_keys": false,
+  "used_hash_iv": false,
+  "used_g_values": false,
+  "note": "Likelihood ratio from token counts only. Positive marked_lr means the held-out text looks more like the marked train pile. n_marked_wins is prompt-mean ranking, not per-file accuracy. ranking_without_isolated_tp lists ranking wins with no marked file lr>0. Isolated sign is hard lr>0 even when margin is nonzero. No keys / hash_iv / g-values.",
+  "folds": [
+    {
+      "stem": "01-write-a-600-word-travel-essay",
+      "marked_lr": -1.4991101377281453,
+      "unmarked_lr": -1.6166471453658349,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -1.4991101377281453
+      ],
+      "unmarked_file_lrs": [
+        -1.6166471453658349
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "02-explain-how-a-municipal-library-actually",
+      "marked_lr": 3.1447263291195218,
+      "unmarked_lr": -1.291728050241555,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1447263291195218
+      ],
+      "unmarked_file_lrs": [
+        -1.291728050241555
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "03-a-short-story-about-two-neighbours",
+      "marked_lr": -1.1903084271128803,
+      "unmarked_lr": -1.1958598263767906,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -1.1903084271128803
+      ],
+      "unmarked_file_lrs": [
+        -1.1958598263767906
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "04-describe-a-rainy-tuesday-commute-in",
+      "marked_lr": 3.0497323722750216,
+      "unmarked_lr": -1.4202178415722162,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.0497323722750216
+      ],
+      "unmarked_file_lrs": [
+        -1.4202178415722162
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "05-write-600-words-on-why-people",
+      "marked_lr": -1.4393431204929594,
+      "unmarked_lr": -1.4064234805514493,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        -1.4393431204929594
+      ],
+      "unmarked_file_lrs": [
+        -1.4064234805514493
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "06-a-letter-from-a-retired-ferry",
+      "marked_lr": 3.2687318614423533,
+      "unmarked_lr": -1.418384142790066,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2687318614423533
+      ],
+      "unmarked_file_lrs": [
+        -1.418384142790066
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "07-explain-sourdough-as-if-you-have",
+      "marked_lr": -1.3475280235579317,
+      "unmarked_lr": -1.3492564174132957,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -1.3475280235579317
+      ],
+      "unmarked_file_lrs": [
+        -1.3492564174132957
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "08-a-600-word-scene-in-a",
+      "marked_lr": 2.876959140375357,
+      "unmarked_lr": -1.235580364921287,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.876959140375357
+      ],
+      "unmarked_file_lrs": [
+        -1.235580364921287
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "09-write-about-500-words-as-a",
+      "marked_lr": 3.205320952359909,
+      "unmarked_lr": -1.4983653271812065,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.205320952359909
+      ],
+      "unmarked_file_lrs": [
+        -1.4983653271812065
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "10-describe-a-weekday-morning-in-a",
+      "marked_lr": 3.110073614445493,
+      "unmarked_lr": -1.453829691200458,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.110073614445493
+      ],
+      "unmarked_file_lrs": [
+        -1.453829691200458
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "11-a-short-story-about-a-chess",
+      "marked_lr": 2.935435086873363,
+      "unmarked_lr": -1.2598341675905802,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.935435086873363
+      ],
+      "unmarked_file_lrs": [
+        -1.2598341675905802
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "12-a-letter-from-someone-who-just",
+      "marked_lr": 3.1824307463281043,
+      "unmarked_lr": -1.381584055416457,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1824307463281043
+      ],
+      "unmarked_file_lrs": [
+        -1.381584055416457
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "13-write-about-500-words-on-a",
+      "marked_lr": 3.10368951168965,
+      "unmarked_lr": -1.4013164449423574,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.10368951168965
+      ],
+      "unmarked_file_lrs": [
+        -1.4013164449423574
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "14-describe-the-last-hour-of-a",
+      "marked_lr": 3.051161592329726,
+      "unmarked_lr": -1.4083828016231763,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.051161592329726
+      ],
+      "unmarked_file_lrs": [
+        -1.4083828016231763
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "15-a-500-word-scene-in-a",
+      "marked_lr": 2.943662133117741,
+      "unmarked_lr": -1.0242811424708043,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.943662133117741
+      ],
+      "unmarked_file_lrs": [
+        -1.0242811424708043
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "16-explain-ice-fishing-as-if-you",
+      "marked_lr": -1.4430388400845113,
+      "unmarked_lr": -1.3701863140805228,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        -1.4430388400845113
+      ],
+      "unmarked_file_lrs": [
+        -1.3701863140805228
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "17-write-about-500-words-as-a",
+      "marked_lr": 3.1897311996941218,
+      "unmarked_lr": -1.514896361143081,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1897311996941218
+      ],
+      "unmarked_file_lrs": [
+        -1.514896361143081
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "18-a-short-story-about-two-people",
+      "marked_lr": -1.1650852549011153,
+      "unmarked_lr": -1.3350815851124729,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -1.1650852549011153
+      ],
+      "unmarked_file_lrs": [
+        -1.3350815851124729
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "19-describe-an-allotment-garden-in-late",
+      "marked_lr": 3.055826115419069,
+      "unmarked_lr": -1.2020981873339236,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.055826115419069
+      ],
+      "unmarked_file_lrs": [
+        -1.2020981873339236
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "20-a-letter-from-a-lighthouse-keeper",
+      "marked_lr": 3.216998138109773,
+      "unmarked_lr": -1.3804438547037372,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.216998138109773
+      ],
+      "unmarked_file_lrs": [
+        -1.3804438547037372
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "21-write-about-500-words-on-a",
+      "marked_lr": 3.2289588067165513,
+      "unmarked_lr": -1.3062421061675278,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2289588067165513
+      ],
+      "unmarked_file_lrs": [
+        -1.3062421061675278
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "22-a-500-word-scene-in-a",
+      "marked_lr": 2.8900697201865007,
+      "unmarked_lr": -1.1100933951860645,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.8900697201865007
+      ],
+      "unmarked_file_lrs": [
+        -1.1100933951860645
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "23-describe-a-night-receptionist-in-a",
+      "marked_lr": 3.374548688309847,
+      "unmarked_lr": -1.3468150733604412,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.374548688309847
+      ],
+      "unmarked_file_lrs": [
+        -1.3468150733604412
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "24-explain-bicycle-repair-as-if-you",
+      "marked_lr": -1.318815542753996,
+      "unmarked_lr": -1.2364265720179457,
+      "marked_wins": false,
+      "marked_file_lrs": [
+        -1.318815542753996
+      ],
+      "unmarked_file_lrs": [
+        -1.2364265720179457
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "25-a-short-story-about-a-community",
+      "marked_lr": -1.0919919947858703,
+      "unmarked_lr": -1.1533700379028529,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        -1.0919919947858703
+      ],
+      "unmarked_file_lrs": [
+        -1.1533700379028529
+      ],
+      "n_marked_positive": 0
+    },
+    {
+      "stem": "26-write-about-500-words-as-a",
+      "marked_lr": 3.113944841991596,
+      "unmarked_lr": -1.2498951303542964,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.113944841991596
+      ],
+      "unmarked_file_lrs": [
+        -1.2498951303542964
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "27-a-letter-from-a-market-stall",
+      "marked_lr": 3.132136514251187,
+      "unmarked_lr": -1.3478271567989966,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.132136514251187
+      ],
+      "unmarked_file_lrs": [
+        -1.3478271567989966
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "28-describe-a-hiking-hut-on-a",
+      "marked_lr": 3.2273880967379602,
+      "unmarked_lr": -1.329184132424697,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2273880967379602
+      ],
+      "unmarked_file_lrs": [
+        -1.329184132424697
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "29-a-500-word-scene-in-a",
+      "marked_lr": 2.6610729320160735,
+      "unmarked_lr": -1.131862439718397,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.6610729320160735
+      ],
+      "unmarked_file_lrs": [
+        -1.131862439718397
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "30-write-about-500-words-on-an",
+      "marked_lr": 3.2507409280262416,
+      "unmarked_lr": -1.3272515227909407,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2507409280262416
+      ],
+      "unmarked_file_lrs": [
+        -1.3272515227909407
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "31-explain-printing-a-local-newspaper-as",
+      "marked_lr": 3.0988220870277687,
+      "unmarked_lr": -1.2103110555439012,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.0988220870277687
+      ],
+      "unmarked_file_lrs": [
+        -1.2103110555439012
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "32-a-short-story-about-walking-other",
+      "marked_lr": 3.1679756351751713,
+      "unmarked_lr": -1.2452875857988757,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1679756351751713
+      ],
+      "unmarked_file_lrs": [
+        -1.2452875857988757
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "33-describe-a-fishing-village-in-january",
+      "marked_lr": 3.0550818174055308,
+      "unmarked_lr": -1.3480534674060412,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.0550818174055308
+      ],
+      "unmarked_file_lrs": [
+        -1.3480534674060412
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "34-a-letter-from-a-night-train",
+      "marked_lr": 3.2070453176983933,
+      "unmarked_lr": -1.4494549491264812,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2070453176983933
+      ],
+      "unmarked_file_lrs": [
+        -1.4494549491264812
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "35-write-about-500-words-as-someone",
+      "marked_lr": 3.149283767027945,
+      "unmarked_lr": -1.3755892243116243,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.149283767027945
+      ],
+      "unmarked_file_lrs": [
+        -1.3755892243116243
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "36-a-500-word-scene-in-a",
+      "marked_lr": 2.6606868592810144,
+      "unmarked_lr": -1.2217764819563244,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        2.6606868592810144
+      ],
+      "unmarked_file_lrs": [
+        -1.2217764819563244
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "37-describe-a-rooftop-greenhouse-that-is",
+      "marked_lr": 3.1812856535124356,
+      "unmarked_lr": -1.2852577621279895,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1812856535124356
+      ],
+      "unmarked_file_lrs": [
+        -1.2852577621279895
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "38-a-short-story-about-neighbours-sharing",
+      "marked_lr": 3.2395793176914656,
+      "unmarked_lr": -1.2502434827395954,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2395793176914656
+      ],
+      "unmarked_file_lrs": [
+        -1.2502434827395954
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "39-write-about-500-words-on-a",
+      "marked_lr": 3.1465077692947814,
+      "unmarked_lr": -1.3126192027459356,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.1465077692947814
+      ],
+      "unmarked_file_lrs": [
+        -1.3126192027459356
+      ],
+      "n_marked_positive": 1
+    },
+    {
+      "stem": "40-a-letter-from-a-retired-teacher",
+      "marked_lr": 3.2566557279327055,
+      "unmarked_lr": -1.4781860786305958,
+      "marked_wins": true,
+      "marked_file_lrs": [
+        3.2566557279327055
+      ],
+      "unmarked_file_lrs": [
+        -1.4781860786305958
+      ],
+      "n_marked_positive": 1
+    }
+  ]
+}
