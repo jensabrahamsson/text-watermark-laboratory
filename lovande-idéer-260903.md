@@ -1093,7 +1093,17 @@ interpolate on those arrows is also isolated **0/48** (GPT-2 Aaronson
 100 → KGW 12 ranks 7/12, AUC 0.507, seven ranking-only; → SynthID 12
 ranks 8/12, AUC 0.600, perm $p\approx 0.065$, eight ranking-only;
 Distil Aaronson 100 → Distil KGW 12 ranks 5/12, **0/48**, 0.476).
-Aaronson
+Reverse: Kirchenbauer tables do **not** classify Aaronson on GPT-2
+(100 interpolate last-4 → Aaronson 12 isolated **12/48**, AUC 0.361,
+perm $p\approx 0.95$; last-1 **8/48**, 0.332). Distil 100 KGW last-1 →
+Distil Aaronson 12 ranks **8/12**, AUC **0.682**, perm $p\approx 0.001$
+while isolated stays **20/48** (file-level binom $p\approx 0.90$,
+unmarked $\le 0$ **46/48**, three ranking-only); interpolate last-4 is
+AUC **0.646**, isolated **20/48**. Tail last-1 ranks **9/12** with the
+same isolated **20/48**. Ranking without a majority isolated sign is
+not a detector. Qwen 12 KGW → Qwen Aaronson interpolate is **20/48**,
+AUC 0.609, perm $p\approx 0.39$. Do not sell Distil ranking **8/12**
+or **20/48**. Aaronson
 rankpath 12 → public SynthID 12 is also isolated **0/48**. The
 last-1 lift is mixin-specific.
 
@@ -1144,7 +1154,9 @@ Do not sell **48/48**, **47/48**, **44/48**, **40/48**, **338/400**,
 **247/400**, last-4 interpolate **331/400**, GPT-2 → Distil
 interpolate **385/400**, last-4 interpolate 100 → original-12
 **46/48** / **43/48** / **42/48**, last-1 Distil 100 → Distil SynthID
-**0/48**, or last-1 GPT-2 100 → SynthID 36 **7/144**. Qwen uses a
+**0/48** (`hard` / `hits` / `hashpool`), last-1 GPT-2 100 → SynthID 36
+**7/144**, or Distil KGW last-1 → Distil Aaronson **20/48** / ranking
+**8/12**. Qwen uses a
 different tokenizer; this transfer is same-BPE only.
 
 Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
@@ -1326,6 +1338,43 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-aaronson100-interp-k4-to-synthid12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-interp-k4-to-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-distil-12x4-aaronson --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-interp-k4-to-distil-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson --overlap keep \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt212-kgw-interp-k4-to-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --test-dir experiments/2026-09-04-pair-qwen-12x4-aaronson --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-kgw-interp-k4-to-qwen-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-last1-to-aaronson12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-distil-12x4-aaronson --model gpt2 \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-last1-to-distil-aaronson12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
