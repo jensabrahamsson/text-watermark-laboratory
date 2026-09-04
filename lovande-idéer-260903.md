@@ -999,7 +999,20 @@ still opening-heavy: 0:4 **100/100**, **392/400**, **0.991**; 64:128
 **90/100**, **260/400**, **0.837**, unmarked $\le 0$ **360/400**,
 **25** ranking wins with no isolated TP. n=12 last-4 hits tail
 **0/48** was the extreme; n=100 last-4 hits has some tail, and last-1
-hits is the body match. Do not sell **392/400**, **372/400**, or
+hits is the body match. The same last-1 vs last-4 split holds on
+Aaronson mid slices (`used_keys=false`, `--skip-nested`; isolated
+from `holdout.md`):
+
+| Window | last-1 hits | last-4 hits |
+|---|---|---|
+| 4:16 | **100/100**, 0.988, **380/400** | 78/100, 0.850, **304/400** |
+| 16:32 | **99/100**, 0.983, **372/400** | 73/100, 0.783, **232/400** |
+| 32:64 | **100/100**, 0.985, **368/400** | 84/100, 0.834, **276/400** |
+
+Last-1 hits is a **mid-file** Aaronson body reader, not only the
+0:4 / 64:128 ends. Last-4 hits 16:32 has **15** ranking-only; last-1
+4:16 has **5**. Do not leftover-target those zeros. Do not sell
+last-1 4:16 **100/100** / **380/400** or last-4 mid **78/100**. Do not sell **392/400**, **372/400**, or
 last-4 hits tail **260/400**. Occupancy-free `postokhits` last-4 is **12/12**, **40/48**,
 AUC **0.892** on GPT-2 Aaronson and **10/12**, **40/48** on Distil;
 last-1 `postokhits` is empty on both (**0/48**, all zeros). Occupancy-free
@@ -1565,7 +1578,10 @@ last-4 hits chance **45/100**; Distil **97/100** versus last-4
 (GPT-2 4:16 **82/100**; Distil **87/100**) but sits below last-1
 `hits`; the body leak is not only a bag of green tokens. Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
 and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
-last-4 hits tail was **0/48**). Aaronson last-2 at n=100 matches last-1 isolated
+   last-4 hits tail was **0/48**). Aaronson last-1 hits mid at n=100 is
+   the same body (4:16 **100/100**, **380/400**; last-4 hits 4:16
+   **78/100** with **15** ranking-only at 16:32). Do not leftover-target
+   those zeros. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
 specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
 sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
@@ -1610,7 +1626,8 @@ Distil last-1 hashpool 4:16 **99/100**, Distil last-1 interpolate 4:16
 unigram 4:16 **87/100** / isolated **251/400**, last-1 hard 4:16
 **91/100** / Distil **94/100** / isolated **309/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
-tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
+tail **40/48**, Aaronson last-1 hits 4:16 **100/100** / isolated
+**380/400**, last-4 hits 4:16 **78/100**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
@@ -1993,6 +2010,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-hits-k4-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k4-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3624,7 +3651,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    shorten SynthID `hits`. Kirchenbauer interpolate last-1
    at 100 families matches last-4 interpolate geography (opening
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
-   windows on `hard`; interpolate last-1 isolated at n=100 is
+   windows on `hard`; last-1 hits mid at n=100 is body (4:16
+   **100/100**, **380/400**) versus last-4 hits **78/100**. Interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
    (**284/400**). Freeze interpolate last-4 is the same split
    (opening **380/400**, full-file **208/400** equals the tail). Last-4
