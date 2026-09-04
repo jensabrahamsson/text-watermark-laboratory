@@ -2880,4 +2880,44 @@ JSON: `experiments/2026-09-04-pair-qwen-100x4-aaronson/`,
 `experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-100x4-aaronson/`.
 
+## 2026-09-04 Qwen2-1.5B ngram_len=13 100-family opened
+
+[PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
+named `fd72ec5`. Pair seed **20260903**, `ngram_len=13`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw mean>0.55
+**91/100** (H-long-q100-ctrl fails as a raw 100/100). Unmarked
+**0/100** above $0.55$. Interpolate last-4 **76/100** (AUC **0.647**,
+isolated **273/400 vs 201/400**, BA **474/800**). Hard **74/100**
+(AUC **0.599**, BA **476/800**). Occupancy **3535** seen vs **98064**
+unseen. `used_keys=false`. Do not sell **76/100** or **474/800** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-ngram13/`.
+
+## 2026-09-04 Qwen2-1.5B Kirchenbauer 100-family freeze
+
+[PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
+named `ed9fb20` before generation. Same Hugging Face Kirchenbauer defaults as
+[PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md), generator
+`Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260904**,
+`--mixin kgw`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Hypotheses H-kgw-q100-ctrl, H-kgw-q100-group, H-kgw-q100-iso, and
+H-kgw-q100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Probe and `atoms` must pass
+`--model Qwen/Qwen2-1.5B-Instruct`. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260904 --mixin kgw \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-100x4-kgw
+```
+
 ---

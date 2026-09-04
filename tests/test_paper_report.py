@@ -250,6 +250,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw" in PAPER
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
+    assert "PROTOCOL-next-kgw-qwen-100" in PAPER
     assert "PROTOCOL-next-longctx-distil" in PAPER
     assert "bae6d81" in PAPER
     assert "PROTOCOL-next-longctx-distil-100" in PAPER
@@ -334,11 +335,15 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
     assert "a761a7d" in next_sec
     assert "616/800" in next_sec
-    assert "has not been generated" in next_sec
     assert "pair-qwen-100x4-aaronson" in next_sec
     assert "PROTOCOL-next-longctx-qwen-100" in next_sec
     assert "636765c" in next_sec
     assert "pair-qwen-100x4-ngram13" in next_sec
+    assert "474/800" in next_sec
+    assert "has not been generated" not in next_sec
+    assert "PROTOCOL-next-kgw-qwen-100" in next_sec
+    assert "ed9fb20" in next_sec
+    assert "before generation" in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec
     assert "50/100" in next_sec
@@ -431,6 +436,8 @@ def test_readme_matches_revised_title() -> None:
     assert "93/100" in README
     assert "a761a7d" in README
     assert "616/800" in README
+    assert "636765c" in README
+    assert "474/800" in README
     assert "PROTOCOL-next-kgw" in README
     assert "--mixin kgw" in README
     assert "12/12" in README
@@ -439,7 +446,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "26 A4" in README
-    assert "1fd84c0" in README
+    assert "4de53b5" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README

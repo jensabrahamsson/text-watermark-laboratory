@@ -57,6 +57,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-04-pair-qwen-12x4-ngram13/` | Qwen2-1.5B, public keys, `ngram_len=13`, original 12 | official first-draw **11/12** above 0.55 |
 | `2026-09-04-probe-qwen-12x4-ngram13-hard-last4/` | Qwen Hw=12 12-LOO hard/interpolate | interpolate **4/12** / **41/96**; hard **4/12** |
 | `2026-09-04-atoms-qwen-12x4-ngram13/` | Qwen Hw=12 interpolate occupancy | **65** seen vs **12127** unseen |
+| `2026-09-04-pair-qwen-100x4-ngram13/` | Qwen2-1.5B, public keys, `ngram_len=13`, 100 one-liners | official first-draw **91/100** above 0.55 |
+| `2026-09-04-probe-qwen-100x4-ngram13-hard-last4/` | Qwen Hw=12 100-LOO hard/interpolate | interpolate **76/100** / **474/800**; hard **74/100** |
+| `2026-09-04-atoms-qwen-100x4-ngram13/` | Qwen Hw=12 100-family occupancy | **3535** seen vs **98064** unseen |
 | `2026-09-04-pair-distil-12x4-aaronson/` | DistilGPT2 Aaronson, original 12 | official first-draw z>3 **12/12** |
 | `2026-09-04-probe-distil-12x4-aaronson-hard-last4/` | Distil Aaronson 12-LOO hard/interpolate | interpolate **7/12** / **0/48**; hard **7/12** / **56/96** |
 | `2026-09-04-atoms-distil-12x4-aaronson/` | Distil Aaronson interpolate occupancy | **196** seen vs **11996** unseen |
