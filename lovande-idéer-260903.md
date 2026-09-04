@@ -2761,6 +2761,21 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-10
   --windows 4:16,16:32 \
   --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashtok-k2-mid
 
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hashtok-k2-3264
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hashtok-k2-3264
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashtok-k2-3264
+
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hashtok2 --context-len 2 --skip-nested \
   --windows 4:16,16:32 \
@@ -4026,9 +4041,15 @@ SynthID GPT-2 100 (`used_keys=false`, `--skip-nested`; isolated from
 last-2 16:32 **84/100** drop like last-1 / last-2 hits; last-4 hits
 keeps **97/100**. Last-2 hashtok 32:64 **82/100**, 0.683, **242/400**
 continues that drop (last-1 hashtok 32:64 **83/100**, **234/400**),
-opposite of Kirchenbauer last-2 hashtok 32:64 **98/100**. Do not shorten SynthID `hits`. Do not leftover-target
+opposite of Kirchenbauer last-2 hashtok 32:64 **98/100**. Distil last-2
+hashtok 32:64 is **71/100**, 0.610, **75/400** (**31** ranking-only,
+file-level binom $p=1$). Qwen is **71/100**, 0.598, **273/400** (**25**
+ranking losses, unmarked $\le 0$ **173/400**). gpt2-medium is
+**81/100**, 0.666, **220/400** (**17** ranking losses), sitting with
+GPT-2 **82/100**, not KGW **98/100**. Last-2 occupancy-free hashing on
+public SynthID does not become a Kirchenbauer body at 32:64. Do not shorten SynthID `hits`. Do not leftover-target
 last-1 16:32 **19** ranking losses with isolated TP. Do not sell
-last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400** / last-2 32:64 **82/100**. Distil
+last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400** / last-2 32:64 **82/100** / Distil **71/100** / **75/400** / Qwen **71/100** / **273/400** / medium **81/100** / **220/400**. Distil
 last-1 hashtok 4:16 is **76/100**, 0.637, **113/400** (**12**
 ranking-only, **10** ranking losses with isolated TP), sitting with
 last-1 hits **72/100**, 0.617, **136/400**, not GPT-2 last-1 hashtok
@@ -4317,7 +4338,7 @@ GPT-2 $\Hw=12$ last-2 opening **87/100**, last-2 4:16 **48/100**, Distil $\Hw=12
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
 opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
-opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, Qwen $\Hw=12$ 100 last-2 **76/100** / **270/400**, Qwen interpolate last-4 **76/100**, Distil last-1 hashtok 4:16 **76/100** / **113/400**, Qwen last-1 hashtok 4:16 **74/100** / **303/400**, medium last-1 hashtok 4:16 **97/100** / **323/400**, Distil last-2 hashtok 4:16 **73/100** / **132/400**, Qwen last-2 hashtok 4:16 **79/100** / **290/400**, medium last-2 hashtok 4:16 **96/100** / **333/400**, GPT-2 last-2 hashtok2 4:16 **98/100** / **340/400**, Distil last-2 hashtok2 4:16 **71/100** / **123/400**, Qwen last-2 hashtok2 4:16 **78/100** / **300/400**, medium last-2 hashtok2 4:16 **95/100** / **326/400**, GPT-2 last-1 hashtok2 4:16 **97/100** / **329/400**, Distil last-1 hashtok2 4:16 **81/100** / **112/400**, Qwen last-1 hashtok2 4:16 **76/100** / **313/400**, medium last-1 hashtok2 4:16 **95/100** / **327/400**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
+opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, Qwen $\Hw=12$ 100 last-2 **76/100** / **270/400**, Qwen interpolate last-4 **76/100**, Distil last-1 hashtok 4:16 **76/100** / **113/400**, Qwen last-1 hashtok 4:16 **74/100** / **303/400**, medium last-1 hashtok 4:16 **97/100** / **323/400**, Distil last-2 hashtok 4:16 **73/100** / **132/400**, Qwen last-2 hashtok 4:16 **79/100** / **290/400**, medium last-2 hashtok 4:16 **96/100** / **333/400**, GPT-2 last-2 hashtok2 4:16 **98/100** / **340/400**, Distil last-2 hashtok2 4:16 **71/100** / **123/400**, Qwen last-2 hashtok2 4:16 **78/100** / **300/400**, medium last-2 hashtok2 4:16 **95/100** / **326/400**, GPT-2 last-1 hashtok2 4:16 **97/100** / **329/400**, Distil last-1 hashtok2 4:16 **81/100** / **112/400**, Qwen last-1 hashtok2 4:16 **76/100** / **313/400**, medium last-1 hashtok2 4:16 **95/100** / **327/400**, Distil last-2 hashtok 32:64 **71/100** / **75/400**, Qwen last-2 hashtok 32:64 **71/100** / **273/400**, medium last-2 hashtok 32:64 **81/100** / **220/400**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -4490,6 +4511,21 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-10
   --model gpt2 --methods hashtok --context-len 2 --skip-nested \
   --windows 4:16,16:32 \
   --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashtok-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hashtok-k2-3264
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hashtok-k2-3264
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 32:64 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashtok-k2-3264
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hashtok2 --context-len 2 --skip-nested \
@@ -4978,7 +5014,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    Occupancy-free `hashtok` without `--fit-prefix` follows last-1 /
    last-2 hits geography on GPT-2 (last-1 4:16 **95/100**; last-2 **98/100**;
    16:32 drops; last-2 hashtok 32:64 **82/100**, opposite of KGW last-2
-   hashtok 32:64 **98/100**). Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
+   hashtok 32:64 **98/100**). Distil last-2 hashtok 32:64 **71/100**,
+   **75/400** (**31** ranking-only); Qwen **71/100**, **273/400**;
+   medium **81/100** sits with GPT-2. Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
    with last-1 hits **72/100**, **136/400**, not GPT-2 **95/100**. Qwen
    last-1 hashtok 4:16 **74/100**, **303/400** sits with last-1 hits
    **76/100**. gpt2-medium last-1 hashtok 4:16 **97/100**, **323/400**
