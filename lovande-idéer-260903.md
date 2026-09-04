@@ -4790,6 +4790,7 @@ $\le 0$ **117/400**), sitting with last-4 32:64 **71/100** /
 **314/400**; last-2 4:128 **66/100** / **228/400** does not beat it.
 Last-4 8:128 **75/100** / **346/400** and 64:128 **74/100** /
 **336/400** sit with full-file last-4, not GPT-2 last-4 tail chance.
+Distil last-4 8:128 **52/100** and 64:128 **46/100** stay chance.
 It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump
 (matching last-12 to $\Hw=12$ does not recover it; DistilGPT2 $\Hw=12$
