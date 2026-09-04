@@ -20,11 +20,7 @@ def test_report_dir_keeps_current_and_one_prior_pdf() -> None:
         "Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf",
         "Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf",
     }
-    pdfs = {
-        p.name
-        for p in (ROOT / "report").glob("Abrahamsson-*.pdf")
-        if "pending" not in p.name
-    }
+    pdfs = {p.name for p in (ROOT / "report").glob("Abrahamsson-*.pdf")}
     assert pdfs == keep
     readme = (ROOT / "report" / "README.md").read_text()
     assert "Do not add a new SHA-named PDF on every compile" in readme
@@ -1388,9 +1384,6 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-03-pair-100x4-kgw/results.json": "d96793694eaa2ab1",
         "experiments/2026-09-03-probe-100x4-kgw-hard-last4/interpolate/holdout.json": "dce85a6796def442",
         "experiments/2026-09-03-atoms-100x4-kgw/atoms.json": "e59753393fdc1d3e",
-        "experiments/2026-09-03-resample-work/report.json": "e7a1a62a10585d1d",
-        "experiments/2026-09-03-resample-work/blind-premark-vs-new-k4/results.json": "31894db2db724064",
-        "experiments/2026-09-03-resample-work/blind-previous-vs-new-k4/results.json": "f852be4c7fd1dcf1",
         "experiments/2026-09-03-pair-distil-12x4-kgw/results.json": "f17ba689c14ecf21",
         "experiments/2026-09-03-probe-distil-12x4-kgw-hard-last4/interpolate/holdout.json": "845af54db1aeb37f",
         "experiments/2026-09-03-atoms-distil-12x4-kgw/atoms.json": "52c8fe2505a567c0",
@@ -1421,9 +1414,6 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-qwen-100x4-aaronson/results.json": "4fb67051fb89839b",
         "experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/interpolate/holdout.json": "9bb1cf87dc11328e",
         "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json": "d3932e3b1346789b",
-        "experiments/2026-09-04-resample-work/report.json": "c54c5beb6da07adb",
-        "experiments/2026-09-04-resample-work/blind-premark-vs-new-k4/results.json": "4a8f0fba8cbda791",
-        "experiments/2026-09-04-resample-work/blind-previous-vs-new-k4/results.json": "b31a564d60ade346",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():
@@ -1486,6 +1476,12 @@ def test_sol_publication_hygiene() -> None:
     assert tex.count(r"That is not \textbf{25/48}") <= 3
     assert "claude-sample-2026-09-03" not in tex
     assert "claude-sample-2026-09-04" not in tex
+    assert "Claude 2026-09-0" not in tex
+    assert "resample-work" not in tex
+    assert "35/40" not in tex
+    assert "29/40" not in tex
+    assert "37/40" not in tex
+    assert "19/40" not in tex
     assert "Isolated-headline scope" in tex
     assert "positive-control sensitivity" in tex
     assert "validated or calibrated for unfamiliar web documents" in tex
@@ -1497,9 +1493,5 @@ def test_sol_publication_hygiene() -> None:
         "Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf",
         "Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf",
     }
-    pdfs = {
-        p.name
-        for p in (ROOT / "report").glob("Abrahamsson-*.pdf")
-        if "pending" not in p.name
-    }
+    pdfs = {p.name for p in (ROOT / "report").glob("Abrahamsson-*.pdf")}
     assert pdfs == keep
