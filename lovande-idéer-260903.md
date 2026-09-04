@@ -310,7 +310,21 @@ ranking **93/100** sits between last-4 **66/100** and last-1
 last-2 4:16 has **2** ranking-only and **4** ranking losses with
 isolated TP (last-1 also has **4** losses); Distil last-2 has **7**
 losses. Do not leftover-target those zeros. Do not sell last-2 4:16
-**96/100** / **290/400** / Distil **93/100** / **303/400**.
+**96/100** / **290/400** / Distil **93/100** / **303/400**. Last-2
+`hard` on those same slices does **not** recover the body
+(`used_keys=false`, `--skip-nested`; isolated from `holdout.md`):
+
+| Corpus | last-2 hits | last-2 hard | last-1 hard |
+|---|---|---|---|
+| GPT-2 4:16 | **96/100**, 0.789, **290/400** | 55/100, 0.553, **225/400** | **91/100**, 0.791, **309/400** |
+| Distil 4:16 | 93/100, 0.746, **303/400** | 72/100, 0.601, **281/400** | **94/100**, 0.776, **310/400** |
+
+GPT-2 last-2 hard 4:16 is weak (AUC **0.553**, prompt-sign $p\approx 0.01$,
+**41** ranking losses with isolated TP). Distil last-2 hard **72/100**
+sits below last-2 hits **93/100** and last-1 hard **94/100**. The
+Kirchenbauer mid-file reader at width 2 is `hits`, not `hard`. Do not
+switch Kirchenbauer hard to last-2. Do not leftover-target those
+losses. Do not sell last-2 hard 4:16 **55/100** / Distil **72/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -1201,7 +1215,9 @@ leftover-target it). Full-file last-1 hits on the GPT-2 probe remains
 **91/100**. Last-2 `hits` on Kirchenbauer 4:16 sits between last-4
 smear and last-1 width (GPT-2 ranking **96/100** matches last-1 while
 isolated drops **314/400** → **290/400**, AUC **0.853** → **0.789**;
-Distil ranking **93/100** / isolated **303/400**). See idea 1 for the last-4 mid geography this width match
+Distil ranking **93/100** / isolated **303/400**). Last-2 `hard` on
+those slices does not recover (GPT-2 4:16 **55/100**, AUC **0.553**;
+Distil **72/100** vs last-1 hard **94/100**). See idea 1 for the last-4 mid geography this width match
 recovers. Last-1 `hard` on the same slices also recovers the body
 (GPT-2 4:16 **91/100**, 0.791, isolated **309/400**; Distil
 **94/100**, 0.776, **310/400**) and sits with last-1 interpolate,
@@ -1727,7 +1743,9 @@ last-4 hits chance **45/100**; Distil **97/100** versus last-4
 **314/400** → **290/400**; Distil ranking **93/100** / **303/400**;
 Aaronson Qwen last-2 4:16 **91/100** / **276/400** recovers ranking
 from last-4 chance **25/100**; GPT-2 Aaronson last-2 isolated
-**388/400** collapses unmarked $\le 0$ to **309/400**). A context-free unigram still ranks those mid slices
+**388/400** collapses unmarked $\le 0$ to **309/400**). Last-2 `hard`
+does not recover the Kirchenbauer body (GPT-2 4:16 **55/100**; Distil
+**72/100**). A context-free unigram still ranks those mid slices
 (GPT-2 4:16 **82/100**; Distil **87/100**) but sits below last-1
 `hits`; the body leak is not only a bag of green tokens. Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
 and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
@@ -1793,7 +1811,8 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **92/100**, Distil last-1 hits 4:16 **97/100** / isolated **316/400**,
 Distil last-1 hashpool 4:16 **99/100**, Distil last-1 interpolate 4:16
 **91/100**, last-2 hits 4:16 **96/100** / isolated **290/400** / Distil
-**93/100** / **303/400**, Aaronson last-2 hits 4:16 **388/400** / Qwen
+**93/100** / **303/400**, last-2 hard 4:16 **55/100** / Distil
+**72/100**, Aaronson last-2 hits 4:16 **388/400** / Qwen
 **91/100** / **276/400**, unigram 4:16 **82/100** / isolated **270/400**, Distil
 unigram 4:16 **87/100** / isolated **251/400**, last-1 hard 4:16
 **91/100** / Distil **94/100** / isolated **309/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
@@ -1856,7 +1875,8 @@ hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not sell public
 SynthID last-1 hits n=100 **99/100** / isolated **358/400** / 4:16
 **95/100** / **327/400**, last-1 16:32 **82/100**, or last-4 hits
-**396/400** / 16:32 **97/100**. Do not sell Qwen last-1 hits
+**396/400** / 16:32 **97/100**, last-2 hits 4:16 **100/100** /
+**350/400**, or Distil last-2 hits 4:16 **75/100**. Do not sell Qwen last-1 hits
 4:16 **6/12**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
@@ -2339,6 +2359,26 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aar
   --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hard-k2-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3411,7 +3451,25 @@ reader:
 | 32:64 | 66/100, 0.575, 246/400 | 39/100 chance, 0.476, 174/400 |
 
 Last-2 4:16 still ranks (near-front mass after 0:4). Last-2 16:32 /
-32:64 are weak. Last-4 hard mid is chance (perm $p$ 0.73–0.99). Do not
+32:64 are weak. Last-4 hard mid is chance (perm $p$ 0.73–0.99). Last-2
+`hits` on the same GPT-2 100 mid slices is **not** that hard-only
+near-front (`used_keys=false`, `--skip-nested`; isolated from
+`holdout.md`):
+
+| Window | last-4 hits | last-2 hits | last-1 hits | last-2 hard |
+|---|---|---|---|---|
+| 4:16 | 93/100, 0.752, 208/400 | **100/100**, 0.864, **350/400** | **95/100**, 0.819, **327/400** | 85/100, 0.729, **314/400** |
+| 16:32 | **97/100**, 0.743, 211/400 | 82/100, 0.700, **294/400** | 82/100, 0.672, **259/400** | 65/100, 0.566, 242/400 |
+| 32:64 | **93/100**, 0.776, 249/400 | 88/100, 0.694, **273/400** | 80/100, 0.655, **232/400** | 66/100, 0.575, 246/400 |
+
+Last-2 hits 4:16 ranks **100/100** with isolated **350/400**, then
+drops like last-1 at 16:32 (**82/100**). Last-4 hits keeps later-window
+ranking. Unmarked $\le 0$ at 4:16 is **221/400** (last-4 hits
+**367/400**). Distil last-2 hits 4:16 is weak (**75/100**, 0.636,
+**194/400**, **20** ranking losses with isolated TP), sitting with
+Distil last-2 hard chance **58/100**. Do not sell last-2 hits 4:16
+**100/100** / **350/400** or Distil **75/100**. Do not leftover-target
+those zeros. Do not shorten SynthID `hits`. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
 public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
@@ -4057,7 +4115,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    stronger full-file reader (**100/100**, **396/400**, 0.993). Mid
    last-1 4:16 **95/100** sits slightly above last-4 **93/100** with
    worse specificity; 16:32 last-4 keeps **97/100** while last-1 drops
-   to **82/100**. Do not
+   to **82/100**. Last-2 hits 4:16 ranks **100/100** then drops like
+   last-1 at 16:32; last-4 hits keeps later ranking. Do not
    shorten SynthID `hits`. Kirchenbauer interpolate last-1
    at 100 families matches last-4 interpolate geography (opening
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
@@ -4066,7 +4125,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-4 hits **78/100** / Distil **80/100** / Qwen chance **25/100**.
    Last-2 `hits` 4:16 recovers that ranking (Qwen **91/100**, isolated
    **276/400**; GPT-2 KGW **96/100** matches last-1 while isolated drops
-   **314/400** → **290/400**). GPT-2 Aaronson last-2 hits 4:16 isolated
+   **314/400** → **290/400**). Last-2 `hard` does not (GPT-2 KGW 4:16
+   **55/100**; Distil **72/100**). GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
    **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
    weaker (Qwen 4:16 **312/400** vs hits **356/400**; GPT-2 **364/400**
@@ -4133,7 +4193,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    lift is opening mass kept in the file mean, not a body leak: mid
    4:16 last-2 still ranks **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
-   (**38/100**). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
+   drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
+   weak (**75/100**). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
