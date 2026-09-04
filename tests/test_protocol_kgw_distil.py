@@ -114,6 +114,12 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
     assert f"**{ba}/96**" in exp_rows[0]
     assert f"**{hard['n_prompts_marked_above']}/12**" in exp_rows[0]
+    probe_readme = (PROBE / "README.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/12**" in probe_readme
+    assert f"**{ba}/96**" in probe_readme
+    atoms_readme = (ATOMS / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
@@ -252,6 +258,12 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     assert f"**{interp['n_prompts_marked_above']}/100**" in exp_rows[0]
     assert f"**{ba}/800**" in exp_rows[0]
     assert f"**{hard['n_prompts_marked_above']}/100**" in exp_rows[0]
+    probe_readme = (PROBE100 / "README.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/100**" in probe_readme
+    assert f"**{ba}/800**" in probe_readme
+    atoms_readme = (ATOMS100 / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
     atom_rows = [
         ln
         for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()

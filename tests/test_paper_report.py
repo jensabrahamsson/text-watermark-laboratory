@@ -498,6 +498,11 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
             ROOT / "experiments" / "2026-09-03-atoms-distil-100x4-kgw" / "atoms.json"
         ).read_text()
     )
+    occ_q12 = json.loads(
+        (
+            ROOT / "experiments" / "2026-09-03-atoms-qwen-12x4-kgw" / "atoms.json"
+        ).read_text()
+    )
     assert gpt2_12["used_keys"] is False
     assert gpt2_100["used_keys"] is False
     ba12 = gpt2_12["n_marked_lr_positive"] + gpt2_12["n_unmarked_lr_nonpositive"]
@@ -518,6 +523,7 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
     assert str(occ_d100["n_seen"]) in next_sec
     assert f"{ba_q}/96" in next_sec
     assert f"{qwen_12_hard['n_prompts_marked_above']}/12" in next_sec
+    assert str(occ_q12["n_seen"]) in next_sec
     assert "ed9fb20" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "before generation" in next_sec
