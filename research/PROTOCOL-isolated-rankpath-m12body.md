@@ -115,5 +115,18 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpm12body **holds**. gpt2-medium native rankpath on generated tokens
+`[4:16)` ranks **6/12**; isolated **20/48 vs 30/48** (AUC **0.497**;
+nested-by-stem Youden **20/48 vs 18/48** at a negative train threshold).
+`used_keys=false`. `model_name` is `gpt2-medium`. Clopper–Pearson 95% on
+**20/48** includes ½. gpt2-medium native opening `[0:4)` stays **6/12**,
+isolated **22/48 vs 30/48**. Distil native `[4:16)` stays **9/12**,
+isolated **25/48 vs 30/48**. The unwindowed fit-prefix-16 file score on
+this run is **6/12**, isolated **21/48 vs 31/48**; that is not the frozen
+slice. Do not sell **20/48**, **6/12**, or **21/48**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-w4-16/window-4-16/](../experiments/2026-09-04-probe-medium-12x4-rankpath-w4-16/window-4-16/).
+
+H-rpm12body-iso **holds**. File AUC **0.497** is chance. Native opening
+**22/48** does not become a universal isolated-file detector in
+`[4:16)`. Do not leftover-slice. Do not merge PR **#9**. Isolated-file
+remains open. Do not write `thesis/`.
