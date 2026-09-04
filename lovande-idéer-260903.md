@@ -113,7 +113,9 @@ marked>0 **385/400**, unmarked $\le 0$ **11/400**) and at 36×4
 Grok-length families it ranks **25/36**, AUC **0.584**, perm
 $p\approx 0.0015$, unmarked $\le 0$ **3/144**. That is not the locked
 36×4 set (**18/36**) and is not isolated $\tau=0$. Do not sell
-**25/36** or grok12 **10/12**. GPT-2 $\Hw=12$ n=100 AUC **0.507**. Distil public SynthID n=100 is also chance
+**25/36** or grok12 **10/12**. Second-key control-as-marked 12
+snapleave **8/12**, AUC 0.596, perm $p\approx 0.046$ is the same n=12
+look (not a matched `pair()` run). GPT-2 $\Hw=12$ n=100 AUC **0.507**. Distil public SynthID n=100 is also chance
 (**53/100**, **0.488**). Distil $\Hw=12$ n=100 snapleave ranks
 **73/100**, AUC **0.631**, perm $p\approx 0.0005$, unmarked $\le 0$
 **83/400** (GPT-2 $\Hw=12$ was **11/400**); n=12 was **4/12**, AUC
@@ -131,7 +133,7 @@ Qwen $\Hw=12$ 12 is **9/12**, AUC 0.583, perm $p\approx 0.17$. Do not
 sell snapleave ranking **88/100**, marked>0 **386/400**, nested
 **271/400**, 12-file **10/12**, Qwen **10/12**, Distil **9/12**, Distil
 $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
-**25/36**, or 36×4 **18/36**. `--snaprate` does not
+**25/36**, second-key **8/12**, or 36×4 **18/36**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only).
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
@@ -275,7 +277,7 @@ tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
 an isolated-file detector. Do not sell Distil $\Hw=12$ snapleave
 **73/100** or public SynthID snapleave **9/12** / **52/100** /
-grok12 **10/12** / grok36 **25/36** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
+grok12 **10/12** / grok36 **25/36** / second-key **8/12** / 36×4 **18/36**. Do not sell snapmiss **56/100**,
 public snapmiss **62/100**, or Distil $\Hw=12$ snapmiss **74/100**.
 
 ```bash
@@ -392,6 +394,10 @@ python -m text_watermark_tools probe experiments/2026-08-31-pair-36x4 \
 python -m text_watermark_tools probe experiments/2026-09-01-pair-grok36x4 \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-grok36x4-synthid-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-02-pair-12x4-control-as-marked \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-12x4-xkey-snaprate
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
