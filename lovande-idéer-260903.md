@@ -178,13 +178,16 @@ Existing `hits` (shared last-k only; not a new method name) at
 |---|---|---|
 | GPT-2 KGW 12×4 | 8/12, 26/48, 0.616 | **12/12, 46/48, 0.975** |
 | DistilGPT2 KGW 12×4 | 9/12, 27/48, 0.603 | **12/12, 43/48, 0.971** |
+| Qwen2-1.5B KGW 12×4 | 7/12, 22/48, 0.485 | **12/12, 41/48, 0.899** |
 | GPT-2 KGW 100×4 | 93/100, 254/400, 0.812 | **100/100, 395/400, 0.996** |
 
 Last-1 hits isolated **46/48** equals unigram on GPT-2 12, with AUC
 **0.975** versus unigram **0.791** and unmarked $\le 0$ **40/48** versus
 **27/48**. At n=100, last-1 hits isolated **395/400** slightly beats
 last-1 hard **389/400**, with more FPs (unmarked $\le 0$ **383/400**
-versus **399/400**). Public SynthID hits last-1 is chance (**4/12**,
+versus **399/400**). Qwen last-4 hits is chance; last-1 recovers
+ranking, and isolated **41/48** beats Qwen last-1 hard **37/48**.
+Public SynthID hits last-1 is chance (**4/12**,
 **24/48**, AUC **0.445**). The width match is mixin-specific, not
 “shorten `hits` everywhere.” Do not sell **46/48** or **395/400**.
 
@@ -257,6 +260,18 @@ unmarked $\le 0$ **400/400**, **19** ranking wins with no isolated TP
 companion the way Kirchenbauer unigram is. Do not sell unigram
 **12/12** or **308/400**.
 
+Existing `rankpath` (unmarked-LM five-symbol ranks; not a new method
+name) on Aaronson 12 is already saturated at last-4: **12/12**,
+isolated **44/48**, AUC **1.000**, unmarked $\le 0$ **48/48**, one
+ranking win with no isolated TP (kitchen). Last-1 rankpath is the same
+**44/48**. That is **not** a last-1 width match. Rankpath last-4
+already beats hard last-1 isolated **40/48**. Kirchenbauer last-1
+rankpath is only **12/12**, **33/48**, AUC **0.722**, unmarked $\le 0$
+**34/48** — a small lift versus last-4 rankpath **10/12**, **31/48**,
+**0.634**, and still below last-1 hard **43/48**. Count tables remain
+the Kirchenbauer last-1 reader. Do not sell Aaronson rankpath
+**44/48**. n=12 only; no 100-family rankpath.
+
 DistilGPT2 Aaronson 12×4 is an exploratory `/tmp` pair (seed
 **20260905**, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`; not
 in git). Official first-draw $z>3$ is **12/12** (one unmarked
@@ -306,15 +321,18 @@ lift, and hashpool last-1 is the same width on the hash-pool spec.
 Hits last-1 is the same width on the overlap spec. Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
 and 64:128 rank. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
-specificity (**399/400**).
+specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
+sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
+the count-table story.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, KGW hits last-1
-**46/48** / **395/400**, Aaronson last-1
+**46/48** / **395/400**, Qwen hits last-1 **41/48**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
-Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson unigram **24/48**,
+Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson rankpath
+**44/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400**, occupancy-free last-1
 **33/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
@@ -410,6 +428,14 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 \
+  --skip-hashpool --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hits-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --out-dir /tmp/kgw-lab/probe-12x4-aaronson-rankpath-k4
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
@@ -432,7 +458,8 @@ Hits last-1 and hashpool last-1 are the other existing-scorer
 companions, not a fourth method name. Aaronson–Kirchner last-1 is the same width match on a
 third mixin (`context_width=1`): isolated **24/48** → **40/48** at
 n=12 and **344/400** → **388/400** at n=100, without selling those
-counts. DistilGPT2 Aaronson 12 last-1 still lifts vs last-4
+counts. Existing `rankpath` on Aaronson 12 is **44/48** at last-4
+already, not a width match. DistilGPT2 Aaronson 12 last-1 still lifts vs last-4
 (**16/48** vs **8/48**); last-2 isolated **24/48** wins at that n=12
 and is not GPT-2 last-1 **40/48**. The freeze in
 [research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson.md)
