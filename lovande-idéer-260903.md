@@ -83,6 +83,23 @@ $\tau=0$ while ranking still **82/100**. Count tables, not rankpath,
 remain the Kirchenbauer body reader at confirmatory n. Do not sell
 **248/400**, **199/400**, or ranking **82/100**.
 
+Same last-4 interpolate tables transfer that body leak across
+same-BPE generators (`--overlap keep`, `--skip-nested`, `--model gpt2`):
+
+| Train → test | full file | 0:4 | 64:128 |
+|---|---|---|---|
+| Distil 100 → GPT-2 100 | **100/100, 331/400, 0.975**, unmarked **392/400** | 84/100, 223/400, 0.666 | **100/100, 306/400, 0.924**, unmarked **366/400**, **2** ranking-only |
+| GPT-2 100 → Distil 100 | 99/100, **385/400**, 0.935, unmarked **323/400**, one ranking-loss-with-TP | 84/100, **309/400**, 0.696 | **100/100**, isolated **223/400**, 0.888, **16** ranking-only |
+
+Last-4 hard Distil → GPT-2 100 was **81/100**, isolated only
+**53/400**. Interpolate last-4 on the same transfer is a **body** leak:
+full-file **331/400** sits with the tail **306/400**. GPT-2 → Distil
+interpolate ranks the tail **100/100** while isolated **385/400** sits
+with the opening **309/400** (Distil newline-loop files; tail isolated
+**223/400**). Distil tables on GPT-2 files remain the cleaner body
+isolated count, same as last-1. Do not sell **331/400**, **385/400**,
+or tail ranking **100/100**.
+
 Kirchenbauer is **back-loaded**. SynthID is **front-loaded**. Original-12
 SynthID interpolate 64:128 **3/12** is not “the tail is chance at
 every n”: 100-family interpolate 64:128 still ranks **93/100**. Do not
@@ -92,7 +109,9 @@ sell **93/100** or **100/100** as replacing **25/48**.
 Qwen2-1.5B, original-12 strings, $T=128$, four draws. Pair dumps:
 `experiments/2026-09-03-pair-12x4-kgw/`,
 `experiments/2026-09-03-pair-distil-12x4-kgw/`,
-`experiments/2026-09-03-pair-qwen-12x4-kgw/`. Not production Gemini.
+`experiments/2026-09-03-pair-qwen-12x4-kgw/`,
+`experiments/2026-09-03-pair-100x4-kgw/`,
+`experiments/2026-09-03-pair-distil-100x4-kgw/`. Not production Gemini.
 Not leftover targeting. Windows keep absolute generated indices.
 
 **Hypothesis.** The two mixins leak in opposite places under the same
@@ -109,9 +128,11 @@ on Kirchenbauer 12 is below interpolate; do not sell **31/48**. Distil
 isolated **683/800** (opened on `main`) is the same construction at
 confirmatory scale, still not **25/48**. Confirmatory n=100 rankpath
 is not the interpolate body reader; do not sell **248/400**, Distil
-isolated **199/400**, or ranking **82/100**. Do not sell confirmatory
-tail **100/100** or SynthID tail **93/100** as an isolated-file
-detector.
+isolated **199/400**, or ranking **82/100**. Distil → GPT-2 last-4
+interpolate **331/400** is a different mixin and a transfer, not
+**25/48**. Do not sell **331/400** or GPT-2 → Distil **385/400**. Do
+not sell confirmatory tail **100/100** or SynthID tail **93/100** as
+an isolated-file detector.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -143,6 +164,18 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kg
   --model gpt2 --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-interp-k4-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-distil-100x4-kgw --overlap keep --model gpt2 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-interp-k4-to-distil100
 ```
 
 **Why it is a backlog item.** If the next honesty pass needs a
@@ -150,9 +183,11 @@ reader that is not front-loaded, match the mixin: Kirchenbauer count
 tables rank 64:128 at both 12 and 100 families. Confirmatory n=100
 rankpath last-4 does not become that body reader (GPT-2 tail **71/100**
 / **222/400** versus interpolate **100/100** / **364/400**; Distil
-isolated **199/400** is chance). Do not spend another leftover-targeting
-round trying to recover SynthID’s original-12 interpolate tail with
-last-4 tables.
+isolated **199/400** is chance). Last-4 interpolate tables transfer
+the same body leak across Distil and GPT-2 at n=100 (**331/400** vs
+last-4 hard **53/400**); last-4 hard ranking can look fine while files
+do not sign. Do not spend another leftover-targeting round trying to
+recover SynthID’s original-12 interpolate tail with last-4 tables.
 
 ---
 
@@ -824,7 +859,8 @@ last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
 last-1 **247/400** / hits **253/400**, last-4 Distil → GPT-2 100
-**53/400**,
+**53/400**, last-4 interpolate Distil → GPT-2 100 **331/400** /
+GPT-2 → Distil **385/400**,
 Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
 last-4 hits 100→12 **24/48**,
 Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
@@ -876,8 +912,10 @@ SynthID 12 (**0/48**, ten ranking wins with no isolated TP). Aaronson
 rankpath 12 → public SynthID 12 is also isolated **0/48**. The
 last-1 lift is mixin-specific.
 
-Same mixin, shared GPT-2 BPE, last-1 **does** transfer across
-generators. Last-4 does not:
+Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
+generators. Last-4 hard does not. Last-4 interpolate on the same
+n=100 `--overlap keep` pairs **does** (idea 1): Distil → GPT-2
+**331/400** versus last-4 hard **53/400**. Last-4 **hard** transfer:
 
 | Train → test | last-1 hard | last-4 hard |
 |---|---|---|
@@ -913,7 +951,8 @@ Distil 100 hashpool last-1 → GPT-2 12 is **12/12, 44/48**, AUC
 **0.994**, unmarked $\le 0$ **47/48**; Distil 100 → Distil 12 is
 **12/12, 40/48**, 0.991, unmarked $\le 0$ **47/48**.
 Do not sell **48/48**, **47/48**, **44/48**, **40/48**, **338/400**,
-or **247/400**. Qwen uses a
+**247/400**, last-4 interpolate **331/400**, or GPT-2 → Distil
+interpolate **385/400**. Qwen uses a
 different tokenizer; this transfer is same-BPE only.
 
 Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
@@ -2011,8 +2050,11 @@ not `indicate`. DHMark (arXiv:2608.03093) is public-key scheme design.
 Rao–Blackwellized e-processes (arXiv:2607.21958) reconstruct the
 Gumbel-max PRNG from the secret key. Attribute-based undetectable
 watermarking (arXiv:2608.03174) is keyed cryptographic delegation.
-None of those is a finished-string key-free reader this laboratory can
-port.
+Mansouri et al. (2026) (Pattern Stability Score; arXiv:2608.18102) is
+keyed local z-score plus paraphrase-depth stability, not `indicate`.
+Luan et al. (2026) (VOW; arXiv:2604.27666) is Verifiable Oblivious PRF
+detection with the provider key. None of those is a finished-string
+key-free reader this laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; ngram-13 hashtok; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
@@ -2091,6 +2133,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    interpolate (100-family tail **100/100**, opening **88/100**).
    Confirmatory n=100 rankpath is not that body reader (GPT-2 tail
    **71/100** / **222/400**; Distil isolated **199/400** is chance).
+   Distil → GPT-2 last-4 interpolate transfers the body (**331/400**,
+   tail **306/400**) where last-4 hard isolated **53/400**. GPT-2 →
+   Distil interpolate isolated **385/400** is opening-heavy. Do not
+   sell **331/400** or **385/400**.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
