@@ -291,7 +291,8 @@ rankpath is only **12/12**, **33/48**, AUC **0.722**, unmarked $\le 0$
 **34/48** — a small lift versus last-4 rankpath **10/12**, **31/48**,
 **0.634**, and still below last-1 hard **43/48**. Count tables remain
 the Kirchenbauer last-1 reader. DistilGPT2 Kirchenbauer last-4
-rankpath is chance (**4/12**, **20/48**, AUC **0.397**). Rankpath
+rankpath is chance (**4/12**, **20/48**, AUC **0.397**). Last-1 Distil
+KGW rankpath is still weak (**8/12**, **27/48**, AUC **0.602**). Rankpath
 **44/48** is Aaronson-specific, not a general last-1-mixin recipe.
 Aaronson rankpath last-4 absolute
 windows: opening 0:4 **9/12**, **32/48**, AUC **0.721**; tail 64:128
@@ -1021,7 +1022,8 @@ last-2 is **9/12**, **20/48**, not better than last-4 interpolate
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
 **35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
 interpolate **12/12**, AUC **0.904**. DistilGPT2 KGW last-4 rankpath is
-chance (**4/12**, **20/48**, AUC **0.397**). Qwen2-1.5B KGW last-4
+chance (**4/12**, **20/48**, AUC **0.397**). Last-1 Distil KGW rankpath
+is **8/12**, **27/48**, AUC **0.602**. Qwen2-1.5B KGW last-4
 rankpath is also chance (**8/12**, **26/48**, AUC **0.540**; windows
 0:4 **3/12** / 64:128 **3/12**). Last-1 Qwen KGW rankpath is
 **10/12**, **29/48**, AUC **0.668**, unmarked $\le 0$ only **28/48**
