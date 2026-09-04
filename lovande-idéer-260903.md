@@ -3996,8 +3996,13 @@ chance. Do not sell medium **75/100** or **288/400**. Distil last-2
 **63/100**, **175/400**, file-level binom $p\approx 0.995$ (isolated
 chance; **6** ranking-only); last-4 4:128 **51/100**, **146/400**,
 perm $p\approx 0.55$. Distil does not get the GPT-2-family near-front
-remainder. Do not leftover-target those zeros. Do not sell Distil
-**63/100** or **175/400**. Qwen2-1.5B 100 (`--model
+remainder. Distil last-4 8:128 is **52/100**, **146/400**, 0.491, perm
+$p\approx 0.39$ (chance; **7** ranking-only); 64:128 **46/100**,
+**147/400**, 0.498, perm $p\approx 0.28$. Distil last-4 stays chance
+into the tail, unlike Qwen last-4 64:128 **74/100** / **336/400**. Do
+not leftover-target those zeros. Do not sell Distil
+**63/100** or **175/400**, last-4 8:128 **52/100**, or 64:128
+**46/100**. Qwen2-1.5B 100 (`--model
 Qwen/Qwen2-1.5B-Instruct`, `--skip-nested`) is the **opposite** of
 that GPT-2-family opening-only split: last-4 4:128 still ranks
 **70/100**, 0.574, **338/400**, unmarked $\le 0$ **117/400**, **3**
@@ -4446,7 +4451,9 @@ or **33/48**. Do not sell n=100 mask 4:128 last-2 **83/100** /
 **294/400**. Do not leftover-slice those mask windows. Do not sell
 medium mask 4:128 **75/100** / **288/400** or last-4 **52/100** /
 **194/400**. Do not sell Distil mask 4:128 **63/100** / **175/400**.
-Do not leftover-target Distil ranking-only zeros. Do not sell Qwen
+Do not leftover-target Distil ranking-only zeros. Do not sell Distil
+last-4 8:128 **52/100** / **146/400** or 64:128 **46/100** /
+**147/400**. Do not sell Qwen
 mask 4:128 last-4 **70/100** / **338/400**, last-2 **66/100** /
 **228/400**, last-4 8:128 **75/100** / **346/400**, last-4 64:128
 **74/100** / **336/400**, last-4 4:16 **48/100**, last-4 16:32
@@ -4528,6 +4535,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
   --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-k4-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-distil-100x4 \
+  --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 8:128,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-synthid-k4-mask-tail-ends
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
   --model Qwen/Qwen2-1.5B-Instruct --methods hard --context-len 2 --skip-hashpool --skip-nested \
@@ -5223,7 +5235,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**65/100** / **66/100**) and last-4 hard mid is chance
    (**38/100**). gpt2-medium repeats that mask split (last-2 4:128
    **75/100**, **288/400**; last-4 **52/100**, **194/400**, chance). Distil
-   100 last-2 4:128 isolated is chance (**175/400**). Qwen last-4 4:128
+   100 last-2 4:128 isolated is chance (**175/400**). Distil last-4 8:128
+   **52/100** / **146/400** and 64:128 **46/100** / **147/400** stay
+   chance, unlike Qwen last-4 64:128 **74/100** / **336/400**. Qwen last-4 4:128
    still ranks **70/100** / **338/400** (unmarked $\le 0$ **117/400**);
    last-2 4:128 **66/100** / **228/400** does not beat last-4. That
    remainder sits with Qwen last-4 16:32 **63/100** / **284/400** and
