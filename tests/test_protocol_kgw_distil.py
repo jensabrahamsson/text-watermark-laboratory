@@ -85,6 +85,18 @@ def test_protocol_kgw_distil_official_and_keyfree_from_dumps() -> None:
     assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 85
     assert abs(interp["binary"]["auc"] - 0.947) < 0.001
     occ = json.loads((ATOMS / "atoms.json").read_text())
+    agents_rows = [
+        ln
+        for ln in (ROOT / "AGENTS.md").read_text().splitlines()
+        if ln.startswith("| DistilGPT2 Kirchenbauer original-12")
+    ]
+    assert len(agents_rows) == 1
+    row = agents_rows[0]
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/12**" in row
+    assert f"**{hard['n_prompts_marked_above']}/12**" in row
+    assert f"**{ba}/96**" in row
+    assert f"**{occ['n_seen']}**" in row
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 130
     assert occ["n_unseen"] == 11972
@@ -179,6 +191,18 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 683
     assert abs(interp["binary"]["auc"] - 0.915) < 0.001
     occ = json.loads((ATOMS100 / "atoms.json").read_text())
+    agents_rows = [
+        ln
+        for ln in (ROOT / "AGENTS.md").read_text().splitlines()
+        if ln.startswith("| DistilGPT2 Kirchenbauer 100-family")
+    ]
+    assert len(agents_rows) == 1
+    row = agents_rows[0]
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/100**" in row
+    assert f"**{hard['n_prompts_marked_above']}/100**" in row
+    assert f"**{ba}/800**" in row
+    assert f"**{occ['n_seen']}**" in row
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 16170
     assert occ["n_unseen"] == 71541

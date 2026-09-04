@@ -51,6 +51,18 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in ledger
     assert "`ed9fb20`" in ledger
+    agents_rows = [
+        ln
+        for ln in (ROOT / "AGENTS.md").read_text().splitlines()
+        if ln.startswith("| Qwen2-1.5B Kirchenbauer 100-family")
+    ]
+    assert len(agents_rows) == 1
+    row = agents_rows[0]
+    assert "`ed9fb20`" in row
+    assert "named before generation" in row
+    assert "**25/48**" in row
+    assert "100/100" not in row
+    assert "/800" not in row
 
 
 def test_protocol_kgw_qwen_100_cli_flag_exists() -> None:

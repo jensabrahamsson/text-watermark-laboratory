@@ -86,6 +86,18 @@ def test_protocol_kgw_qwen_official_and_keyfree_from_dumps() -> None:
     assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 68
     assert abs(interp["binary"]["auc"] - 0.814) < 0.001
     occ = json.loads((ATOMS / "atoms.json").read_text())
+    agents_rows = [
+        ln
+        for ln in (ROOT / "AGENTS.md").read_text().splitlines()
+        if ln.startswith("| Qwen2-1.5B Kirchenbauer original-12")
+    ]
+    assert len(agents_rows) == 1
+    row = agents_rows[0]
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/12**" in row
+    assert f"**{hard['n_prompts_marked_above']}/12**" in row
+    assert f"**{ba}/96**" in row
+    assert f"**{occ['n_seen']}**" in row
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 84
     assert occ["n_unseen"] == 12108
