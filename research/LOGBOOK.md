@@ -3307,6 +3307,18 @@ Do not leftover-slice. Do not invent those scores. Distil-on-medium
 opening stays **11/12**, isolated **30/48 vs 31/48**. Medium native
 `[4:16)` stays **6/12**, isolated **20/48 vs 30/48**. Nothing replaces
 **25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`. Freeze SHA `1b4c541`.
+
+## 2026-09-04 Distil-on-medium rankpath body [4:16) opened
+
+H-rpd2mbody **holds**. Distil-on-medium rankpath on `[4:16)` is ranking
+**11/12**, isolated **25/48 vs 33/48** (AUC **0.646**; nested
+**36/48 vs 16/48** at a negative threshold). `used_keys=false`. Opening
+stays **11/12**, isolated **30/48 vs 31/48**. Medium native `[4:16)` stays
+**6/12**, isolated **20/48 vs 30/48**. The unwindowed fit-prefix-16 file
+score **33/48** is not the frozen slice. Equality with **25/48** is not
+a win. Do not sell **25/48** or nested **36/48**. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
 `thesis/`.
 
 ---

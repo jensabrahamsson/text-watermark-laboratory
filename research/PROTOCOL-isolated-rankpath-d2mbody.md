@@ -110,5 +110,18 @@ the logbook names this SHA.
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the analysis command
-has been run once.)*
+H-rpd2mbody **holds**. Distil unmarked-LM rankpath on gpt2-medium generated
+tokens `[4:16)` ranks **11/12**; isolated **25/48 vs 33/48** (AUC **0.646**;
+nested-by-stem Youden **36/48 vs 16/48** at a negative train threshold).
+`used_keys=false`. `model_name` is `distilgpt2`. Clopper–Pearson 95% on
+**25/48** includes ½. Equality with hard **25/48** is not a win.
+Distil-on-medium opening stays **11/12**, isolated **30/48 vs 31/48**.
+Medium native `[4:16)` stays **6/12**, isolated **20/48 vs 30/48**. The
+unwindowed fit-prefix-16 file score is **11/12**, isolated **33/48 vs 33/48**;
+that is not the frozen slice. Do not sell **25/48**, **11/12**, nested
+**36/48**, or **33/48**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-distil-w4-16/window-4-16/](../experiments/2026-09-04-probe-medium-12x4-rankpath-distil-w4-16/window-4-16/).
+
+H-rpd2mbody-iso **holds**. Distil-on-medium opening **11/12** is a different
+grain from isolated **25/48**. Do not leftover-slice. Do not merge PR **#9**.
+Isolated-file remains open. Do not write `thesis/`.
