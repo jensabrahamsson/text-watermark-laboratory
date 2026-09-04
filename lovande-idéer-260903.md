@@ -141,7 +141,14 @@ reader: full-file **44/48** (last-4 interpolate **44/48**); opening
 0:4 **9/12**, **29/48**, 0.681; 64:128 **12/12**, **36/48**, 0.839.
 Qwen interpolate last-1: 0:4 **7/12**, **28/48**, 0.529 (chance);
 64:128 **12/12**, **34/48**, 0.832. The last-1 jump is `hard` / `hits`
-/ `hashpool`, not interpolate.
+/ `hashpool`, not interpolate. Confirmatory 100-family interpolate
+last-1 windows (`--skip-nested`) match last-4 interpolate geography:
+0:4 **83/100**, **259/400**, AUC **0.685**; 64:128 **100/100**,
+**367/400**, **0.957**. Last-4 interpolate was 0:4 **88/100**,
+**258/400**, **0.694**; 64:128 **100/100**, **364/400**, **0.953**.
+Full-file interpolate last-1 **383/400** vs last-4 **376/400**. Same
+body reader. Do not sell interpolate last-1 opening **83/100** or tail
+**367/400**.
 
 GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
 isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
@@ -569,6 +576,7 @@ last-1 tail **182/400**, hits last-1 transfer **48/48** / **44/48**,
 Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
 last-4 hits 100→12 **24/48**,
 Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
+KGW interpolate last-1 n=100 opening **83/100** / tail **367/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
 rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
 Aaronson hashtok last-4 **44/48**, Aaronson hits
@@ -679,6 +687,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hard,interpolate --context-len 1 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-last1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-interp-k1-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-12x4-kgw \
@@ -1340,9 +1353,9 @@ not a proven improvement of this lab’s finished-string `indicate` /
 (2026) (TTP-Detect) stays the closest published finished-string analog
 and was not reimplemented. Li-Chen and Kim (2026) (ChainMark;
 arXiv:2607.18445) is model-free detection **from the secret key and
-tokenizer**, not `indicate`. Gloaguen, Staab, Jovanović, and Vechev
-(2026) (unified watermark framework; arXiv:2602.06754) is scheme
-design, not a finished-string reader this laboratory can port.
+tokenizer**, not `indicate`. Gloaguen et al. (2026) (unified watermark
+framework; arXiv:2602.06754) is scheme design, not a finished-string
+reader this laboratory can port.
 
 ### Occupancy-free KGW openings; SynthID last-1 full file; interpolate last-2; mix/backoff; occupancy-free last-2; ngram-13 last-12; Distil ngram-13 last-2/last-12; SynthID hashpool last-1/last-2; Aaronson snapleave; Qwen KGW rankpath
 
