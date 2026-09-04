@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (27 A4 pages, git `022c5dd`). Dated copy in
+  (27 A4 pages, git `f3d0f3f`). Dated copy in
   [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
@@ -103,10 +103,12 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    **50/100** versus public $\Hw=4$ **93/100**; opening **86/100**.
    That is not **25/48**. Qwen2-1.5B $\Hw=12$ on the 100 one-liners
    (SHA `636765c`): interpolate **76/100** (isolated **474/800**);
-   hard **74/100**; official **91/100**. That is not **25/48**.
+   hard **74/100**; official **91/100**; occupancy **3535** seen versus
+   **98064** unseen (opening **1092** versus **1308**). That is not **25/48**.
    Qwen2-1.5B Aaronson on the 100 one-liners
    (SHA `a761a7d`): interpolate **100/100** (isolated **616/800**);
-   hard **97/100**; official $z>3$ **99/100**. That is not **25/48**.
+   hard **97/100**; official $z>3$ **99/100**; occupancy **8750** seen
+   versus **92842** unseen (opening **1470** versus **930**). That is not **25/48**.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A

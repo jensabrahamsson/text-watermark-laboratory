@@ -219,6 +219,13 @@ is **12/12** (isolated **85/96**); hard **11/12**; occupancy **130** seen.
 Distil 100-family interpolate is **100/100** (isolated **683/800**); hard
 **82/100**; occupancy **16170** seen. Qwen2-1.5B original-12 interpolate
 is **12/12** (isolated **68/96**); hard **8/12**; occupancy **84** seen.
+DistilGPT2 $\Hw=12$ 100-family occupancy is **11182** seen versus **85493**
+unseen (opening **2036** versus **364**). Qwen $\Hw=12$ 100-family occupancy
+is **3535** seen versus **98064** unseen (opening **1092** versus **1308**).
+Distil Aaronson 100-family occupancy is **28824** seen versus **61305**
+unseen (opening **2048** versus **352**). Qwen Aaronson 100-family occupancy
+is **8750** seen versus **92842** unseen (opening **1470** versus **930**).
+Do not sell those occupancy counts as replacing **25/48**.
 Do not sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
 **82/100**, **68/96**, or **8/12** as replacing **25/48**. Qwen2-1.5B Kirchenbauer on the 100
 one-liners is named in

@@ -1,5 +1,7 @@
 """Narrative freeze: two grains, not a failure paper."""
 
+import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -97,6 +99,50 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "Master of Science" in text
     assert "Do not write `thesis/`" in text or "Do **not** write `thesis/`" in text
     assert "`004397c`" in (ROOT / "research" / "LOGBOOK.md").read_text()
+
+
+def test_narrative_mixin_occupancy_from_atoms() -> None:
+    text = re.sub(r"\s+", " ", NARRATIVE.read_text())
+    dumps = (
+        "experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json",
+    )
+    for rel in dumps:
+        occ = json.loads((ROOT / rel).read_text())
+        assert occ["used_keys"] is False
+        w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+        assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in text
+        assert f"**{w0['n_seen']}** vs **{w0['n_unseen']}**" in text
+    distil_aar12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-12x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    distil_aar100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-100x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    n12 = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in distil_aar12["rows"])
+    n100 = sum(
+        row["unmarked_gen"]["z_score"] > 3.0 for row in distil_aar100["rows"]
+    )
+    assert f"z>3 **{n12}/12**" in text
+    assert f"z>3 **{n100}/100**" in text
+    assert "`ed9fb20`" in text
+    assert "named before generation" in text
 
 
 def test_narrative_tables_do_not_replace_25() -> None:

@@ -395,6 +395,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "2036" not in abs_
     assert "1470" not in abs_
     assert "2048" not in abs_
+    assert "3/100" not in abs_
     assert "ca4c793eaaf77c18" not in abs_
     assert "25167" not in abs_
     assert "49/96" not in abs_
@@ -678,6 +679,28 @@ def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
         assert f"{w0['n_seen']} versus {w0['n_unseen']}" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
+    distil_aar12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-12x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    distil_aar100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-100x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    n12 = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in distil_aar12["rows"])
+    n100 = sum(
+        row["unmarked_gen"]["z_score"] > 3.0 for row in distil_aar100["rows"]
+    )
+    assert f"${n12}/12$ above $3.0$" in next_sec
+    assert f"${n100}/100$ above $3.0$" in next_sec
 
 
 def test_maskabs_table_is_dump_backed() -> None:
@@ -742,10 +765,66 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README
-    assert "022c5dd" in README
+    assert "f3d0f3f" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
+    qhw = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-atoms-qwen-100x4-ngram13"
+            / "atoms.json"
+        ).read_text()
+    )
+    qaar = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-atoms-qwen-100x4-aaronson"
+            / "atoms.json"
+        ).read_text()
+    )
+    assert qhw["used_keys"] is False
+    assert qaar["used_keys"] is False
+    readme_flat = re.sub(r"\s+", " ", README)
+    assert f"**{qhw['n_seen']}** seen versus **{qhw['n_unseen']}** unseen" in readme_flat
+    assert f"**{qaar['n_seen']}** seen versus **{qaar['n_unseen']}** unseen" in readme_flat
+    w_hw = next(w for w in qhw["windows"] if w["start"] == 0 and w["end"] == 4)
+    w_aar = next(w for w in qaar["windows"] if w["start"] == 0 and w["end"] == 4)
+    assert f"**{w_hw['n_seen']}** versus **{w_hw['n_unseen']}**" in readme_flat
+    assert f"**{w_aar['n_seen']}** versus **{w_aar['n_unseen']}**" in readme_flat
+
+
+def test_experiments_readme_mixin_opening_occupancy_from_atoms() -> None:
+    readme = (ROOT / "experiments" / "README.md").read_text()
+    howto = re.sub(r"\s+", " ", (ROOT / "HOW-TO.md").read_text())
+    dumps = (
+        "experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json",
+    )
+    for rel in dumps:
+        occ = json.loads((ROOT / rel).read_text())
+        assert occ["used_keys"] is False
+        w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
+        stem = rel.split("/")[1]
+        row = next(ln for ln in readme.splitlines() if stem in ln)
+        assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in row
+        assert f"opening **{w0['n_seen']}** vs **{w0['n_unseen']}**" in row
+        if "100x4" in stem:
+            assert (
+                f"**{occ['n_seen']}** seen versus **{occ['n_unseen']}** unseen"
+                in howto
+            )
+            assert f"**{w0['n_seen']}** versus **{w0['n_unseen']}**" in howto
+    assert "Do not invent those scores" in howto
+    assert "ed9fb20" in howto
 
 
 def test_keys_withheld_by_design() -> None:
