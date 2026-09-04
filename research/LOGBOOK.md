@@ -2587,6 +2587,26 @@ claim.
 
 Do not train a Claude detector on the pre-mark pile alone.
 
+## 2026-09-04 DistilGPT2 Aaronson freeze
+
+[PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
+frozen before generation. Same laboratory Aaronson–Kirchner
+exponential-minimum as [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md),
+generator `distilgpt2`, original 12 prompt strings, seed **20260905**,
+`--mixin aaronson`, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+Hypotheses H-aar-d-ctrl, H-aar-d-group, H-aar-d-iso, and H-aar-d-occ
+are stated before generation. Do not look at key-free LRs until `pair`
+has written official first-draw z-scores and the probe command has been
+run once, as written. Do not add a scorer. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260905 \
+  --mixin aaronson --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-12x4-aaronson
+```
+
 
 
 
