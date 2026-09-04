@@ -293,7 +293,24 @@ Existing `unigram` on those same slices still ranks (GPT-2 4:16
 (**96/100** / **97/100**); the mid-file leak is not only a bag of
 green tokens. Do not sell **96/100**, **97/100**, **98/100**, **99/100**,
 **314/400**, **316/400**, last-1 interpolate 4:16 **92/100** /
-**91/100**, or unigram 4:16 **82/100** / Distil **87/100**.
+**91/100**, or unigram 4:16 **82/100** / Distil **87/100**. Last-2
+`hits` (`--context-len 2`; existing `hits`, not a new method) sits
+**between** last-4 smear and last-1 width on the same 4:16 slices
+(`used_keys=false`, `--skip-nested`; isolated from `holdout.md`):
+
+| Corpus | last-4 hits | last-2 hits | last-1 hits |
+|---|---|---|---|
+| GPT-2 4:16 | 45/100 chance, 0.506, 26/400 | **96/100**, 0.789, **290/400** | **96/100**, 0.853, **314/400** |
+| Distil 4:16 | 66/100, 0.593, 182/400 | 93/100, 0.746, **303/400** | **97/100**, 0.812, **316/400** |
+
+One extra unused context token does not kill GPT-2 ranking
+(**96/100** matches last-1) but drops AUC and isolated. Distil last-2
+ranking **93/100** sits between last-4 **66/100** and last-1
+**97/100**. Last-4 is the smear that kills GPT-2 4:16 ranking. GPT-2
+last-2 4:16 has **2** ranking-only and **4** ranking losses with
+isolated TP (last-1 also has **4** losses); Distil last-2 has **7**
+losses. Do not leftover-target those zeros. Do not sell last-2 4:16
+**96/100** / **290/400** / Distil **93/100** / **303/400**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -1020,7 +1037,28 @@ and Qwen, not only the 0:4 / 64:128 ends. Qwen last-4 hits mid is
 chance while last-4 full-file still ranks **98/100** (opening mass;
 **12** ranking-only). Last-4 hits 16:32 has **15** ranking-only on
 GPT-2; Qwen last-1 16:32 has **15**; Qwen last-4 4:16 has **22/25**.
-Do not leftover-target those zeros. Do not sell last-1 4:16
+Do not leftover-target those zeros. Last-2 `hits` on those same 4:16
+slices recovers ranking from last-4 smear and still sits below last-1
+on Qwen isolated (`used_keys=false`, `--skip-nested`; isolated from
+`holdout.md`):
+
+| Corpus | last-4 hits | last-2 hits | last-1 hits |
+|---|---|---|---|
+| GPT-2 4:16 | 78/100, 0.850, 304/400 | 98/100, 0.973, **388/400** | **100/100**, 0.988, **380/400** |
+| Distil 4:16 | 80/100, 0.849, 324/400 | 91/100, 0.902, **368/400** | **97/100**, 0.934, **376/400** |
+| Qwen 4:16 | 25/100 chance, 0.548, 12/400 | 91/100, 0.854, **276/400** | **97/100**, 0.970, **356/400** |
+
+GPT-2 last-2 isolated **388/400** is above last-1 **380/400** while
+unmarked $\le 0$ collapses (**309/400** vs last-1 **389/400**). Last-1
+keeps specificity. Qwen last-2 recovers ranking from last-4 chance
+**25/100** with **22** ranking-only; isolated **276/400** is below
+last-1 **356/400**. Distil last-2 ranking **91/100** sits between
+last-4 **80/100** and last-1 **97/100** (one ranking loss with
+isolated TP; do not leftover-target it). Same Kirchenbauer last-2
+story on 4:16 (GPT-2 ranking **96/100** matches last-1 while isolated
+drops **314/400** → **290/400**; Distil **93/100** / **303/400**).
+Do not leftover-target Qwen’s **22** ranking-only zeros. Do not sell
+last-2 4:16 **388/400** / Qwen **91/100** / **276/400**. Do not sell last-1 4:16
 **100/100** / **97/100** / **380/400** / Qwen **356/400**, last-4 mid
 **78/100** / **80/100**, Qwen last-4 mid **25/100**, or Qwen last-1
 full-file **100/100** / AUC **1.000**. That last-1 hits ranking is not
@@ -1148,7 +1186,10 @@ last-1 hits (Distil last-1 hashpool 4:16 has **1**; do not
 leftover-target it). Full-file last-1 hits on the GPT-2 probe remains
 **100/100**, **395/400**, 0.996. Do not sell **96/100**, **97/100**,
 **98/100**, **99/100**, **314/400**, **316/400**, or **92/100** /
-**91/100**. See idea 1 for the last-4 mid geography this width match
+**91/100**. Last-2 `hits` on Kirchenbauer 4:16 sits between last-4
+smear and last-1 width (GPT-2 ranking **96/100** matches last-1 while
+isolated drops **314/400** → **290/400**, AUC **0.853** → **0.789**;
+Distil ranking **93/100** / isolated **303/400**). See idea 1 for the last-4 mid geography this width match
 recovers. Last-1 `hard` on the same slices also recovers the body
 (GPT-2 4:16 **91/100**, 0.791, isolated **309/400**; Distil
 **94/100**, 0.776, **310/400**) and sits with last-1 interpolate,
@@ -1669,7 +1710,12 @@ lift, and hashpool last-1 is the same width on the hash-pool spec.
 Hits last-1 is the same width on the overlap spec, including the
 mid-file slices in idea 1 (GPT-2 4:16 last-1 hits **96/100** versus
 last-4 hits chance **45/100**; Distil **97/100** versus last-4
-**66/100**). A context-free unigram still ranks those mid slices
+**66/100**). Last-2 `hits` sits between that smear and last-1 width
+(GPT-2 4:16 ranking **96/100** matches last-1 while isolated drops
+**314/400** → **290/400**; Distil ranking **93/100** / **303/400**;
+Aaronson Qwen last-2 4:16 **91/100** / **276/400** recovers ranking
+from last-4 chance **25/100**; GPT-2 Aaronson last-2 isolated
+**388/400** collapses unmarked $\le 0$ to **309/400**). A context-free unigram still ranks those mid slices
 (GPT-2 4:16 **82/100**; Distil **87/100**) but sits below last-1
 `hits`; the body leak is not only a bag of green tokens. Aaronson last-1 is not Kirchenbauer’s tail-only geography: both 0:4
 and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
@@ -1687,7 +1733,13 @@ and 64:128 rank, including last-1 `hits` (tail **11/12**, **40/48**;
    **380/400**; Distil **320/400** vs **376/400**). Qwen unigram 4:16
    isolated **180/400** is chance (file-level binom $p\approx 0.98$)
    versus last-1 hits **356/400**. The Aaronson body leak is not a bag
-   of tokens. Do not leftover-target those zeros. Aaronson last-2 at n=100 matches last-1 isolated
+   of tokens. Last-2 `hits` mid 4:16 recovers ranking from last-4 smear
+   (Qwen **91/100** vs chance **25/100**; GPT-2 KGW **96/100** matches
+   last-1) and still sits below last-1 isolated on Qwen (**276/400** vs
+   **356/400**). GPT-2 Aaronson last-2 hits 4:16 isolated **388/400** is
+   above last-1 **380/400** with unmarked $\le 0$ collapsed
+   (**309/400** vs **389/400**). Last-1 keeps specificity. Do not
+   leftover-target Qwen’s **22** ranking-only zeros. Do not leftover-target those zeros. Aaronson last-2 at n=100 matches last-1 isolated
 **388/400** with unmarked $\le 0$ only **301/400**; last-1 keeps
 specificity (**399/400**). Existing `rankpath` on Aaronson 12 already
 sees the leak at last-4 (**44/48**, AUC **1.000**); last-1 width is
@@ -1728,7 +1780,9 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 **314/400**, last-1 hashpool 4:16 **98/100**, last-1 interpolate 4:16
 **92/100**, Distil last-1 hits 4:16 **97/100** / isolated **316/400**,
 Distil last-1 hashpool 4:16 **99/100**, Distil last-1 interpolate 4:16
-**91/100**, unigram 4:16 **82/100** / isolated **270/400**, Distil
+**91/100**, last-2 hits 4:16 **96/100** / isolated **290/400** / Distil
+**93/100** / **303/400**, Aaronson last-2 hits 4:16 **388/400** / Qwen
+**91/100** / **276/400**, unigram 4:16 **82/100** / isolated **270/400**, Distil
 unigram 4:16 **87/100** / isolated **251/400**, last-1 hard 4:16
 **91/100** / Distil **94/100** / isolated **309/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
@@ -1742,7 +1796,9 @@ Qwen interpolate last-4 freeze **216/400 vs 400/400**, Aaronson last-1 hashpool 
 **92/100** / Qwen **62/100** / isolated **172/400**, Aaronson last-1 interpolate 4:16
 **312/400** / Qwen **244/400**, Aaronson last-4 interpolate 4:16
 **248/400** / Qwen **188/400**, Aaronson unigram 4:16 **95/100** /
-**308/400** / Distil **320/400** / Qwen **180/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
+**308/400** / Distil **320/400** / Qwen **180/400**, last-2 hits 4:16
+KGW **96/100** / **290/400** / Distil **93/100** / **303/400**,
+Aaronson last-2 hits 4:16 **388/400** / Qwen **91/100** / **276/400**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, Distil 100 last-1 hard tail **202/400**,
 hits last-1 transfer **48/48** / **44/48**, Distil 100 KGW → GPT-2 100
 last-1 **338/400** / hits **343/400**, GPT-2 100 KGW → Distil 100
@@ -2245,6 +2301,31 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aar
   --model Qwen/Qwen2-1.5B-Instruct --methods unigram --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-unigram-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --model gpt2 --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hits-k2-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 1 --skip-hashpool --skip-nested \
@@ -3941,7 +4022,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **45/100**). Last-1 `hits` / `hashpool` (idea 2 width) recovers
    that body (4:16 last-1 hits **96/100**, hashpool **98/100**; last-1
    interpolate 4:16 **92/100** sits slightly below last-4 interpolate).
-   Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
+   Last-2 `hits` 4:16 ranking matches last-1 on GPT-2 (**96/100**) while
+   isolated drops (**290/400** vs **314/400**); Distil last-2 **93/100**
+   sits between last-4 **66/100** and last-1 **97/100**. Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
    **97/100** / hashpool **99/100** (last-1 interpolate 4:16 **91/100**
    sits slightly above last-4 interpolate **88/100**). Unigram on those
    mid slices still ranks (GPT-2 4:16 **82/100**, Distil **87/100**) but
@@ -3965,7 +4048,11 @@ A freeze of **width and mixin geography** that already moved a grain:
    windows on `hard`; last-1 hits mid at n=100 is body (GPT-2 4:16
    **100/100**, **380/400**; Distil **97/100**, **376/400**) versus
    last-4 hits **78/100** / Distil **80/100** / Qwen chance **25/100**.
-   Last-1 hashpool ranks those mid slices with hits but isolated is
+   Last-2 `hits` 4:16 recovers that ranking (Qwen **91/100**, isolated
+   **276/400**; GPT-2 KGW **96/100** matches last-1 while isolated drops
+   **314/400** → **290/400**). GPT-2 Aaronson last-2 hits 4:16 isolated
+   **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
+   **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
    weaker (Qwen 4:16 **312/400** vs hits **356/400**; GPT-2 **364/400**
    vs **380/400**; Distil **364/400** vs **376/400**). Last-1 hard sits
    with hits isolated (GPT-2 4:16 **384/400**; Distil **376/400**; Qwen
