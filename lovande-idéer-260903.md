@@ -335,7 +335,16 @@ last-1 (`--skip-nested`) is **100/100**, isolated **372/400**, AUC
 isolated TP. Hard last-1 **388/400** remains the isolated reader;
 hashpool last-1 is the specificity companion. Do not sell hashpool
 **372/400** or **100/100**. 100 → 12 last-1 hard
-is **11/12**, **40/48**, 0.936, unmarked $\le 0$ **48/48**. Aaronson
+is **11/12**, **40/48**, 0.936, unmarked $\le 0$ **48/48**, one ranking
+win with no isolated TP. Absolute windows on that transfer are a
+**body** leak: 0:4 **12/12**, isolated **24/48**, AUC **0.917**,
+unmarked **44/48**, **6** ranking wins with no isolated TP; 64:128
+**11/12**, **40/48**, **0.915**, unmarked **48/48**. Full-file
+**40/48** equals the tail. Last-1 `hits` 100 → 12 ranks **12/12**
+with isolated only **36/48**, AUC **1.000**, unmarked **48/48**,
+**3** ranking wins with no isolated TP; tail 64:128 is **12/12**,
+**40/48**, **0.997**. Hard last-1 remains the isolated transfer
+reader. Aaronson
 last-1 tables do **not** classify Kirchenbauer 12 (isolated **0/48**,
 AUC 0.504) or public SynthID 12 (**0/48**, AUC 0.597, ten ranking wins
 with no isolated TP). Do not sell **40/48**, **388/400**, or **99/100**.
@@ -409,7 +418,11 @@ windows stay opening-heavy: 0:4 **11/12**, **36/48**, **0.847**; tail
 **40/48**, **0.925**, unmarked $\le 0$ **45/48** (matches hits 0:4
 isolated **40/48**); last-1
 `postokhits` is empty (**0/12**, **0/48**, all 48 marked zeros).
-Hashpool last-4 **10/12**, **32/48**, **0.762** beats last-1
+Occupancy-free `hashtok` last-4 (no `--skip-hashpool`; `--fit-prefix 4`)
+is **10/12**, **44/48**, AUC **0.944**, unmarked $\le 0$ only
+**40/48** (8 FPs, precision **0.846**); 0:4 is the same **44/48**;
+tail **0/12**, **0/48**. Opening overlap with FPs, not rankpath’s
+body leak. Last-1 `hashtok` is empty (**0/48**, all zeros). Hashpool last-4 **10/12**, **32/48**, **0.762** beats last-1
 **8/12**, **20/48**, **0.682**. Interpolate last-1 stays **7/12**,
 **0/48**. On Distil Aaronson, last-1 is a small `hard` lift. Last-1
 `hits` recovers a tail last-4 hits missed (**32/48** vs **0/48**)
@@ -436,7 +449,8 @@ four ranking wins with no isolated TP) — that hits copy is opening
 overlap, not the last-1 body transfer. Do not sell Distil last-2 **24/48**, last-1
 **16/48**, interpolate **0/48**, Distil hits last-4 **44/48**,
 hits opening **40/48**, last-1 hard opening **40/48**, postokhits **40/48**, hashpool **32/48**, Distil rankpath **44/48**,
-hits transfer **44/48**, last-1 transfer **40/48**,
+hits transfer **44/48**, last-1 transfer **40/48**, Distil hashtok last-4
+**44/48**,
 or rankpath transfer **44/48**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
@@ -493,7 +507,9 @@ last-4 (no `--skip-hashpool`; `--fit-prefix 4`) is **11/12**,
 0:4 **11/12**, **44/48**; tail **0/12**, **0/48**. Opening overlap,
 stronger isolated than `postokhits` last-4 **32/48**, not a body
 reader. Last-1 hits **48/48** remains the isolated body reader. Do not
-sell hashtok **44/48** as body. Interpolate last-1 isolated
+sell hashtok **44/48** as body. Occupancy-free `hashtok` last-1 is
+empty (**0/48**, all zeros), same as GPT-2 and Distil Aaronson.
+Interpolate last-1 isolated
 is **24/48** (last-4 interpolate **12/48**); tail ranks **12/12** with
 isolated only **20/48**. Last-1 hits **48/48** remains the isolated
 reader. Do not
@@ -529,7 +545,10 @@ hits is opening overlap (tail **0/48**); rankpath is the body reader
 (tail **44/48**). GPT-2 100 Aaronson last-1 tables
 still transfer onto those Distil files as a body leak (tail
 **40/48**, unmarked **48/48**; last-4 hard transfer **16/48**); last-4
-hits transfer is opening **44/48**.
+hits transfer is opening **44/48**. GPT-2 100 → GPT-2 12 last-1 hard
+is the same isolated body transfer (tail **40/48** equals full-file;
+opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
+**36/48**.
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
@@ -538,8 +557,10 @@ hits transfer is opening **44/48**.
 **38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson last-1 hits
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, hits last-1 transfer **48/48** / **44/48**,
+Aaronson last-1 100→12 **40/48** / hits **36/48**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
-rankpath **16/48**, Aaronson hits
+rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
+Aaronson hashtok last-4 **44/48**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Aaronson last-1 hits n=100
@@ -615,15 +636,20 @@ the prompt groups while files mostly do not sign:
 
 | Train → test | last-1 hard | last-4 hard |
 |---|---|---|
+| GPT-2 100 Aaronson → GPT-2 12 Aaronson | **11/12, 40/48, AUC 0.936** | — |
 | GPT-2 100 Aaronson → Distil 12 Aaronson | **11/12, 40/48, AUC 0.915** | **12/12, 16/48, 0.932** |
 | GPT-2 12 Aaronson → Distil 12 (`--overlap keep`) | 10/12, 24/48, 0.825 | — |
 
 `--skip-nested`; isolated is $\tau=0$. Unmarked $\le 0$ on 100 →
-Distil last-1 is **48/48** (precision **1.000**). Last-4 transfer
+GPT-2 12 and 100 → Distil last-1 is **48/48** (precision **1.000**).
+100 → GPT-2 12 last-1 tail 64:128 is **40/48** (equals full-file);
+opening 0:4 is only **24/48**. Last-1 `hits` 100 → GPT-2 12 ranks
+**12/12** with isolated **36/48**; tail **40/48**. Last-4 transfer
 ranks **12/12** with **8** ranking wins with no isolated TP. Same
 pattern as Kirchenbauer GPT-2 ↔ Distil: last-1 is the isolated
 transfer. Same-stem n=12 last-1 is thinner (**24/48**). Do not sell
-Aaronson transfer **40/48** or **16/48**.
+Aaronson transfer **40/48**, hits transfer **36/48**, or last-4
+**16/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -839,6 +865,33 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaron
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
   --fit-prefix 4 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-qwen-aaronson-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 1 \
+  --fit-prefix 1 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-aaronson-hashtok-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-aaronson \
+  --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-aaronson-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-aaronson \
+  --model gpt2 --methods hashtok --context-len 1 --fit-prefix 1 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-aaronson-hashtok-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-last1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k1-to-gpt212
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
@@ -1285,7 +1338,10 @@ last-4 is **13/48**. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
 are empty too; Aaronson last-4 `hashtok` is opening **40/48**. Qwen
 Aaronson last-4 `hashtok` is opening **11/12**, **44/48**, AUC
 **0.966** (tail **0/48**), above `postokhits` last-4 **32/48**, still
-not last-1 hits **48/48**. None of those is a backlog item.
+not last-1 hits **48/48**. Distil Aaronson last-4 `hashtok` is opening
+**10/12**, **44/48**, AUC **0.944**, unmarked $\le 0$ only **40/48**
+(8 FPs); tail **0/48**. Last-1 `hashtok` is empty on Distil and Qwen
+Aaronson too (**0/48**). None of those is a backlog item.
 
 ---
 
@@ -1306,7 +1362,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-1 still lifts `hard` only; last-4 `hits` **44/48** is opening
    overlap, not rankpath’s body leak. GPT-2 100 Aaronson last-1 tables
    transfer onto Distil files (**40/48** vs last-4 hard **16/48**);
-   last-4 hits transfer is also **44/48**.
+   last-4 hits transfer is also **44/48**. GPT-2 100 → original-12
+   last-1 hard is the same isolated **40/48** (tail equals full-file;
+   last-1 hits transfer isolated **36/48**).
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
