@@ -3405,7 +3405,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    slices (GPT-2 4:16 **95/100**, 16:32 **97/100**). Shared-4-gram
    `hits` on those GPT-2 mid slices is not that reader (4:16 chance
    **45/100**). Distil hits 4:16 still ranks **66/100** below
-   interpolate **88/100**. GPT-2 KGW body’s best single LDA feature is soft
+   interpolate **88/100**. GPT-2 `hashpool` 4:16 **72/100** sits between
+   hits and interpolate. GPT-2 KGW body’s best single LDA feature is soft
    `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
    `mean_gap` alone is **67/100**; dropping it from the six falls to
    **75/100** with **18** ranking-only. Do not sell
