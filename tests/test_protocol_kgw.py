@@ -217,6 +217,7 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert f"**{interp['n_prompts_marked_above']}/12**" in howto
     assert f"**{ba}/96**" in howto
     assert f"**{occ['n_seen']}**" in howto
+    assert f"**{occ['n_unseen']}**" in howto
     n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
     pair_rows = [
         ln
@@ -239,6 +240,7 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert f"**{interp['n_prompts_marked_above']}/12**" in ledger
     assert f"**{ba}/96**" in ledger
     assert f"**{occ['n_seen']}**" in ledger
+    assert f"**{occ['n_unseen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 114
     assert occ["n_unseen"] == 12071
@@ -330,6 +332,7 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
         in howto
     )
     assert f"**{occ['n_seen']}**" in howto
+    assert f"**{occ['n_unseen']}**" in howto
     n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
     pair_rows = [
         ln
@@ -352,6 +355,7 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
     assert f"**{interp['n_prompts_marked_above']}/100**" in ledger
     assert f"**{ba}/800**" in ledger
     assert f"**{occ['n_seen']}**" in ledger
+    assert f"**{occ['n_unseen']}**" in ledger
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991

@@ -602,6 +602,10 @@ Qwen2-1.5B $\Hw=12$
 open. Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
 (freeze SHA `ed9fb20`) and is named before generation. Isolated-file remains open.
+Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
+GPT-2 twins is
+[PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
+(`d8e6f7f`) and is named before those LRs. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
@@ -614,13 +618,13 @@ Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
-(**60/96**); occupancy **114** seen. 100-family interpolate
-**100/100** (isolated **747/800**); occupancy **4557** seen. DistilGPT2
+(**60/96**); occupancy **114** seen versus **12071** unseen. 100-family interpolate
+**100/100** (isolated **747/800**); occupancy **4557** seen versus **96991** unseen. DistilGPT2
 Kirchenbauer original-12 interpolate **12/12** (isolated **85/96**);
-hard **11/12**; occupancy **130** seen. Distil 100-family interpolate
+hard **11/12**; occupancy **130** seen versus **11972** unseen. Distil 100-family interpolate
 **100/100** (isolated **683/800**); hard **82/100**; occupancy **16170**
-seen. Qwen2-1.5B Kirchenbauer original-12 interpolate **12/12**
-(isolated **68/96**); hard **8/12**; occupancy **84** seen. Do not
+seen versus **71541** unseen. Qwen2-1.5B Kirchenbauer original-12 interpolate **12/12**
+(isolated **68/96**); hard **8/12**; occupancy **84** seen versus **12108** unseen. Do not
 sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
 **82/100**, **68/96**, or **8/12** as replacing
 **25/48**. Isolated-file remains open.

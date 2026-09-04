@@ -58,6 +58,7 @@ def test_protocol_leftover18_closed_refuses_more_holdout_reslices() -> None:
     assert "PROTOCOL-h2-absolute" in text
     assert "PROTOCOL-isolated-xkey" in text
     assert "PROTOCOL-isolated-windows-absolute" in text
+    assert "PROTOCOL-isolated-rankpath-lm" in text
 
 
 def test_leftover18_published_readers_are_not_leftover_file_detectors() -> None:

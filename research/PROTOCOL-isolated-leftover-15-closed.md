@@ -172,10 +172,14 @@ in [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md
 grok12 0:4 **7/12** (equals reindexed); 32:64 **10/12** (rose versus
 reindexed **9/12**); 64:128 **9/12**. Original 12 0:4 **9/12**
 outranks 16:32 **6/12**. Do not sell absolute **10/12**. Reindexed
-dumps stay. The remaining honesty item that is not leftover targeting
-is 12-LOO mask-*k* absolute remasure of
-[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
-stay reindexed). Isolated-file remains open. Do not
+dumps stay. 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) is opened
+([PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md);
+those dumps stay reindexed). The remaining honesty item that is not
+leftover targeting is Distil / gpt2-medium unmarked-LM opening
+rankpath 12-LOO on the original GPT-2 twins
+([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)),
+named before those LRs. Isolated-file remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

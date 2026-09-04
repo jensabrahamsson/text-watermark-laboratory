@@ -146,6 +146,18 @@ def test_protocol_longctx_qwen_100_official_and_keyfree_from_dumps() -> None:
     n_unmarked = sum(row["unmarked_gen"]["mean"] > 0.55 for row in pair["rows"])
     pair_readme = (PAIR / "README.md").read_text()
     assert f"Unmarked first-draw is **{n_unmarked}/100**" in pair_readme
+    probe_readme = (PROBE / "README.md").read_text()
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    hard_ba = hard["n_marked_lr_positive"] + hard["n_unmarked_lr_nonpositive"]
+    assert interp["used_keys"] is False
+    assert f"**{interp['n_prompts_marked_above']}/100**" in probe_readme
+    assert f"**{ba}/800**" in probe_readme
+    assert f"**{hard['n_prompts_marked_above']}/100**" in probe_readme
+    assert f"**{hard_ba}/800**" in probe_readme
+    atoms_readme = (ATOMS / "README.md").read_text()
+    assert f"**{occ['n_seen']}**" in atoms_readme
+    assert f"**{occ['n_unseen']}**" in atoms_readme
+    assert occ["used_keys"] is False
     assert (
         f"**{interp['n_marked_lr_positive']}/400 vs {interp['n_unmarked_lr_nonpositive']}/400**"
         in ledger
