@@ -1,11 +1,19 @@
 """Kirchenbauer on Qwen2-1.5B 100-family, locked before generation."""
 
+import json
 from pathlib import Path
+
+import pytest
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-kgw-qwen-100.md"
 PROMPTS = ROOT / "experiments" / "2026-09-01-prompts-100"
 LOG = ROOT / "research" / "LOGBOOK.md"
+PAIR = ROOT / "experiments" / "2026-09-04-pair-qwen-100x4-kgw"
+PROBE = ROOT / "experiments" / "2026-09-04-probe-qwen-100x4-kgw-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-04-atoms-qwen-100x4-kgw"
 
 
 def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
@@ -90,3 +98,60 @@ def test_protocol_kgw_qwen_100_cli_flag_exists() -> None:
     )
     assert probe.model == "Qwen/Qwen2-1.5B-Instruct"
     assert probe.skip_hashpool is True
+
+
+@pytest.mark.skipif(
+    not (PAIR / "results.json").is_file(),
+    reason="Qwen Kirchenbauer 100-family pair still generating",
+)
+def test_protocol_kgw_qwen_100_official_from_dumps() -> None:
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["mixin"] == "kgw"
+    assert pair["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert pair["seed"] == 20260904
+    assert pair["hub_revision"] == "ba1cf1846d7df0a0591d6c00649f57e798519da8"
+    assert pair["kgw"]["hashing_key"] == 15485863
+    assert pair["kgw"]["greenlist_ratio"] == 0.25
+    assert pair["kgw"]["bias"] == 2.0
+    assert pair["kgw"]["seeding_scheme"] == "lefthash"
+    assert pair["kgw"]["context_width"] == 1
+    assert pair["kgw"]["z_threshold"] == 3.0
+    assert len(pair["rows"]) == 100
+    n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    n_unmarked = sum(row["unmarked_gen"]["z_score"] > 3.0 for row in pair["rows"])
+    text = PROTOCOL.read_text()
+    log = LOG.read_text()
+    if "H-kgw-q100-ctrl **holds**" not in text:
+        pytest.skip("official first-draw not folded yet")
+    assert f"**{n_first}/100**" in text
+    assert f"**{n_first}/100**" in log
+    assert n_unmarked < 100
+
+
+@pytest.mark.skipif(
+    not (PROBE / "interpolate" / "holdout.json").is_file(),
+    reason="frozen probe not run",
+)
+def test_protocol_kgw_qwen_100_keyfree_from_dumps() -> None:
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert hard["used_keys"] is False
+    assert interp["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    text = PROTOCOL.read_text()
+    if "H-kgw-q100-group **holds**" not in text:
+        pytest.skip("key-free two-grain counts not folded yet")
+    wins = interp["n_prompts_marked_above"]
+    hard_wins = hard["n_prompts_marked_above"]
+    marked = interp["n_marked_lr_positive"]
+    unmarked = interp["n_unmarked_lr_nonpositive"]
+    ba = marked + unmarked
+    assert f"**{wins}/100**" in text
+    assert f"**{hard_wins}/100**" in text
+    assert f"**{ba}/800**" in text
+    lo, hi = clopper_pearson(25, 48)
+    assert lo <= 0.5 <= hi
+    if (ATOMS / "atoms.json").is_file():
+        occ = json.loads((ATOMS / "atoms.json").read_text())
+        assert occ["used_keys"] is False
+        assert occ["n_marked_lr_positive"] == marked
