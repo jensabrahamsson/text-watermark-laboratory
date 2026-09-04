@@ -2607,6 +2607,23 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-distil-12x4-aaronson
 ```
 
+## 2026-09-04 DistilGPT2 Aaronson opened
+
+[PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
+named `40a6300`. Pair seed **20260905**, `--mixin aaronson`,
+`--model distilgpt2`. Official first-draw z>3 **12/12** (H-aar-d-ctrl
+holds; unmarked **1/12** above 3, night-bus $3.029$). Interpolate
+last-4 **7/12** (AUC **0.618**, isolated **0/48 vs 48/48**, BA
+**48/96**; all 7 ranking wins have 0 isolated TPs). Hard **7/12**
+(AUC **0.637**, isolated **8/48 vs 48/48**, BA **56/96**). Occupancy
+**196** seen vs **11996** unseen. `used_keys=false`. Do not sell
+**7/12** or **0/48** as replacing **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-distil-12x4-aaronson/`,
+`experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-12x4-aaronson/`.
+
 
 
 

@@ -124,3 +124,50 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `9bdf12a`. Named `40a6300`. Pair seed **20260905**.
+`--mixin aaronson`. `model=distilgpt2`. `used_keys=false`. Hub SHA
+`2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+
+Pair dump: [experiments/2026-09-04-pair-distil-12x4-aaronson/](../experiments/2026-09-04-pair-distil-12x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/).
+
+H-aar-d-ctrl **holds**. Official matching z-score is above $3.0$ on all
+12 first marked files (min $10.50$). Unmarked first-draw is **1/12**
+above $3.0$ (night-bus $3.029$), not all twelve. Mixin is on.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **7/12** | 0.618 | 0/48 | 48/48 | 0 48 48 0 | **48/96** |
+| hard last-4 | **7/12** | 0.637 | 8/48 | 48/48 | 8 40 48 0 | **56/96** |
+
+GPT-2 Aaronson interpolate on these prompt *strings* (different twins)
+was **11/12** (isolated **56/96**; 9/11 ranking wins had 0 isolated
+TPs). Distil interpolate is **7/12**, and **all seven** ranking wins
+have 0 isolated TPs. Mean $D_p=0.277$ (interpolate) / $0.208$ (hard).
+
+Clopper–Pearson 95% (not a second freeze): interpolate **7/12** is
+**[0.277, 0.848]** and includes ½; BA **48/96** is **[0.396, 0.604]**.
+Isolated **25/48** still includes ½.
+
+H-aar-d-group **holds** as an informative comparison with GPT-2
+Aaronson **11/12**. It does not replace **25/48**.
+
+H-aar-d-iso **holds**. Isolated interpolate **0/48** marked true
+positives (BA **48/96**) is a different generator from GPT-2 Aaronson
+**56/96**. Do not sell **7/12**, **0/48**, **48/96**, or **56/96** as
+replacing **25/48**.
+
+H-aar-d-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **0/48**. Exact
+next-token overlap is **196** seen versus **11996** unseen (opening
+$[0{:}4)$ is 133 versus 155). Occupancy is not a detector. Do not sell
+**196** as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-distil-12x4-aaronson/](../experiments/2026-09-04-atoms-distil-12x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
