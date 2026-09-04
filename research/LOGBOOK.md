@@ -3356,6 +3356,7 @@ Do not invent those scores. Medium-on-Distil opening stays **9/12**,
 isolated **30/48 vs 33/48**. Distil native `[4:16)` stays **9/12**,
 isolated **25/48 vs 30/48**. GPT-2-on-Distil `[4:16)` stays **4/12**,
 isolated **26/48 vs 21/48**. Nothing replaces **25/48**. Isolated-file
-detection is still not finished. Do not write `thesis/`.
+detection is still not finished. Do not write `thesis/`. Freeze SHA
+`a550cb6`.
 
 ---
