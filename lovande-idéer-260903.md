@@ -1180,9 +1180,15 @@ Last-4 interpolate is **100/100**, **0/400**, AUC **0.890**, unmarked
 $\le 0$ **400/400**, **100** ranking-only (mean marked $-3.59$ vs
 unmarked $-7.65$). Distil 100 last-1 `hard` is **75/100**, **9/400**,
 0.679, **74** ranking-only. Ranking without isolated $\tau=0$ is not a
-detector. Do not leftover-target Aaronson last-4 hits opening
-**204/400** (full-file isolated **145/400**). Do not sell ranking
-**98/100**, **100/100**, or AUC **0.890**. The last-1 lift is
+detector. Unigram on the same GPT-2 Aaronson → $\Hw=12$ arrow is
+weaker ranking (**73/100**, AUC **0.628**) with the same isolated
+**0/400**, **73** ranking-only: the ranking look is not a bag-of-tokens
+detector and still has no isolated TPs. Kirchenbauer unigram on that
+arrow is chance (**54/100**, **97/400**, 0.514, perm $p\approx 0.27$).
+Do not leftover-target Aaronson last-4 hits opening
+**204/400** (full-file isolated **145/400**) or KGW unigram opening
+**256/400**. Do not sell ranking
+**98/100**, **100/100**, unigram **73/100**, or AUC **0.890**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1548,6 +1554,18 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-hits-k1-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods unigram --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-unigram-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods unigram --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-unigram-to-ngram13-100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2004,7 +2022,9 @@ do not (Distil 100 last-4 → Distil 12 is isolated **6/48**). Last-1
 KGW tables do not classify $\Hw=12$ (GPT-2 **49/400**, Distil
 **20/400**, 12-file **3/48**); Aaronson last-1 ranks those twins
 **98/100** with isolated **1/400** (interpolate last-4 **100/100**,
-**0/400**). Ranking without isolated sign is not a detector. The freeze in
+**0/400**). Ranking without isolated sign is not a detector. Unigram
+on that Aaronson arrow is **73/100** with isolated **0/400**, below
+last-1 hard. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
@@ -2676,8 +2696,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    **8/12** does not survive confirmatory n) or $\Hw=12$ (last-1 KGW
    **49/400** / Distil **20/400**; Aaronson last-1 ranking **98/100**
    with isolated **1/400**; interpolate last-4 **100/100**,
-   **0/400**). Do not sell Aaronson ranking **98/100** or AUC
-   **0.890**.
+   **0/400**; unigram **73/100**, **0/400**). Do not sell Aaronson
+   ranking **98/100**, unigram **73/100**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
