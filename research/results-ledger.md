@@ -583,6 +583,15 @@ DistilGPT2 Aaronson 100-family is
 [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
 (freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
 **601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
+Isolated-file remains open. Qwen2-1.5B Aaronson 100-family is
+[PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
+(freeze SHA `a761a7d`) and has not been generated. Qwen2-1.5B $\Hw=12$
+100-family is
+[PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
+(freeze SHA `636765c`) and has not been generated.
+[PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
+(freeze SHA `8283d1f`) names the $\Hw=12$ vs $\Hw=4$ $[64{:}128)$
+remasure and has not been dumped. Do not sell a named-not-generated freeze as replacing **25/48**.
 Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:

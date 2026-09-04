@@ -41,6 +41,10 @@ def test_protocol_longctx_qwen_100_locks_config_before_generation() -> None:
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "--ngram-len 13" in log
     assert "`636765c`" in log
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert "PROTOCOL-next-longctx-qwen-100" in ledger
+    assert "`636765c`" in ledger
+    assert "has not been generated" in ledger
 
 
 def test_protocol_longctx_qwen_100_cli_flag_exists() -> None:
