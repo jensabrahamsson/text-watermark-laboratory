@@ -340,7 +340,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-100x4-ngram13" in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec
-    assert "has not been dumped" in next_sec
+    assert "50/100" in next_sec
+    assert "93/100" in next_sec
+    assert "has not been dumped" not in next_sec
     assert "12ea3ef1c34f037b" in PAPER
     assert "ac41821f88adba14" in PAPER
     assert "419a2088b2ba8e6e" in PAPER

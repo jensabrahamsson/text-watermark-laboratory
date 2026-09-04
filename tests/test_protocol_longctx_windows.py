@@ -35,6 +35,43 @@ def test_protocol_longctx_windows_locks_config_before_lrs() -> None:
     log = LOG.read_text()
     assert "PROTOCOL-next-longctx-windows" in log
     assert "`8283d1f`" in log
+    assert "**50/100**" in log
+    assert "**93/100**" in log
+
+
+def test_protocol_longctx_windows_dumps_match_freeze() -> None:
+    import json
+
+    hw12 = ROOT / "experiments" / "2026-09-04-probe-100x4-ngram13-windows" / "results.json"
+    pub = ROOT / "experiments" / "2026-09-04-probe-100x4-public-w64-128" / "results.json"
+    assert hw12.is_file()
+    assert pub.is_file()
+    hw12_data = json.loads(hw12.read_text())
+    pub_data = json.loads(pub.read_text())
+    assert hw12_data["used_keys"] is False
+    assert pub_data["used_keys"] is False
+    hw12_full = {m["name"]: m["n_prompt_wins"] for m in hw12_data["methods"]}
+    assert hw12_full["interpolate"] == 76
+    pub_full = {m["name"]: m["n_prompt_wins"] for m in pub_data["methods"]}
+    assert pub_full["interpolate"] == 99
+    hw12_tail = [
+        w
+        for w in hw12_data["window_scores"]
+        if w["start"] == 64 and w["end"] == 128 and w["name"] == "interpolate"
+    ]
+    pub_tail = [
+        w
+        for w in pub_data["window_scores"]
+        if w["start"] == 64 and w["end"] == 128 and w["name"] == "interpolate"
+    ]
+    assert hw12_tail and hw12_tail[0]["n_prompt_wins"] == 50
+    assert pub_tail and pub_tail[0]["n_prompt_wins"] == 93
+    hw12_open = [
+        w
+        for w in hw12_data["window_scores"]
+        if w["start"] == 0 and w["end"] == 4 and w["name"] == "interpolate"
+    ]
+    assert hw12_open and hw12_open[0]["n_prompt_wins"] == 86
 
 
 def test_protocol_longctx_windows_cli_flag_exists() -> None:

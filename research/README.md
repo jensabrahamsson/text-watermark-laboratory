@@ -17,7 +17,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md) | Frozen DistilGPT2 Hw=12 100-family; interpolate **88/100**, isolated **557/800**; not **25/48** |
 | [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) | Frozen Qwen2-1.5B Hw=12 12-LOO; interpolate **4/12**, isolated **41/96**; official first-draw **11/12**; not **25/48** |
 | [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md) | Frozen Qwen2-1.5B Hw=12 100-family; named, not generated |
-| [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md) | Frozen Hw=12 vs Hw=4 64:128 remasure on existing twins; named, not dumped |
+| [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md) | Frozen Hw=12 vs Hw=4 64:128 remasure; interpolate **50/100** vs public **93/100**; not **25/48** |
 | [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) | Frozen Aaronson–Kirchner exponential-minimum; 12-LOO interpolate **11/12** isolated **56/96**; 100-family interpolate **100/100** isolated **608/800**; not **25/48** |
 | [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md) | Frozen DistilGPT2 Aaronson 12-LOO; interpolate **7/12**, isolated **0/48 vs 48/48**; not **25/48** |
 | [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md) | Frozen DistilGPT2 Aaronson 100-family; interpolate **96/100**, isolated **601/800**; not **25/48** |

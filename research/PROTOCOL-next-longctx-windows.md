@@ -135,3 +135,18 @@ start these probes while a Qwen `pair` still holds the CPU.
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Opened two-grain counts (after SHA `8283d1f`)
+
+JSON:
+`experiments/2026-09-04-probe-100x4-ngram13-windows/`,
+`experiments/2026-09-04-probe-100x4-public-w64-128/`.
+`used_keys=false`. Full-file interpolate stayed **76/100** ($\Hw=12$)
+and **99/100** (public). Interpolate last-4 on $[64{:}128)$ is
+**50/100**, AUC **0.501**, isolated **184/400** versus unmarked
+$\le 0$ **212/400** under $\Hw=12$, and **93/100**, AUC **0.726**,
+isolated **259/400** versus unmarked $\le 0$ **258/400** under public
+$\Hw=4$. Opening $[0{:}4)$ under $\Hw=12$ is **86/100**, AUC **0.823**.
+Hits full-file **91/100** sits with $[0{:}4)$ **95/100**, not with
+$[64{:}128)$ **53/100**. Do not sell **50/100**, **93/100**, **86/100**,
+or **91/100** as replacing **25/48**.

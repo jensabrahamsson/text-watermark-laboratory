@@ -2848,4 +2848,19 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --out-dir experiments/2026-09-04-probe-100x4-public-w64-128
 ```
 
+## 2026-09-04 Hw=12 vs Hw=4 body-window dumps
+
+The two freeze commands were run once, as written, into
+`experiments/2026-09-04-probe-100x4-ngram13-windows/` and
+`experiments/2026-09-04-probe-100x4-public-w64-128/`.
+`used_keys=false`. Full-file interpolate stayed **76/100** ($\Hw=12$)
+and **99/100** (public lock A). Interpolate last-4 on $[64{:}128)$ is
+**50/100**, AUC **0.501** under $\Hw=12$ and **93/100**, AUC **0.726**
+under public $\Hw=4$. Opening $[0{:}4)$ under $\Hw=12$ is **86/100**.
+Hits full-file **91/100** sits with the opening (**95/100**), not the
+tail (**53/100**). Those `/tmp` window-end previews were the same two
+grains; git now has the freeze dumps. Do not sell **50/100** or
+**93/100** as replacing **25/48**. Isolated-file detection is still
+not finished. Do not write `thesis/`.
+
 ---
