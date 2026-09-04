@@ -139,7 +139,11 @@ $\Hw=12$ **73/100**, public SynthID **9/12**, grok12 **10/12**, grok36
 prompt-context Distil opening **72/100**, GPT-2 prompt-context
 opening **47/100**, GPT-2 KGW pivot-lda **97/100**, Distil KGW
 pivot-lda **88/100** / tail **83/100**, or SynthID opening
-pivot-lda-entropy **97/100**. `--snaprate` does not
+pivot-lda-entropy **97/100**, prompt-context Distil tail **82/100**,
+GPT-2 prompt-context LDA opening **69/100**, SynthID prompt-context
+full-file **78/100**, or Distil $\Hw=12$ pivot opening **85/100**.
+Do not sell Distil `frac_in_topk` **80/100** or GPT-2 body `mean_gap`
+**83/100**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only). Slicing
 those generated-only choice matrices on the same `rotate_snaprate`
 scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
@@ -203,6 +207,41 @@ pivot is **front-loaded** (opening entropy **97/100**) with a chance
 body — interpolate geography, not Kirchenbauer’s. Count tables remain
 the Kirchenbauer body reader. Do not sell pivot **97/100**, Distil
 **88/100**, Distil tail **83/100**, or SynthID opening **97/100**.
+`--prompt-context` pivot-lda (token 0 from the prompt; same cached
+prompt-context mats as snaprate) does **not** undo that Distil body
+ranking:
+
+| Corpus | full pivot-lda | 0:4 pivot-lda | 64:128 pivot-lda |
+|---|---|---|---|
+| GPT-2 KGW | **97/100**, 0.828, 301/400 | **69/100**, 0.601 | **85/100**, 0.720, 257/400 |
+| Distil KGW | **81/100**, 0.664, 230/400 | **80/100**, 0.630 | **82/100**, 0.651, 189/400 |
+| Public SynthID | 78/100, 0.616 | **88/100**, 0.726 | **62/100**, 0.555 |
+
+Token 0 lifts GPT-2 KGW LDA opening from chance **52/100** to
+**69/100**, **0.601** (snaprate opening stayed chance **47/100**) and
+is still below interpolate opening **88/100**. Distil KGW tail stays
+**82/100** where snaprate tail was anti **38/100**. Public SynthID
+stays front-loaded with a chance body (generated-only opening entropy
+**97/100** was tokens 1–4, not token 0). Isolated $\tau=0$ still
+fails. Do not sell prompt-context Distil tail **82/100**, GPT-2 opening
+**69/100**, or SynthID full-file **78/100**. Distil $\Hw=12$ pivot-lda
+on the same generated-only mats as Distil $\Hw=12$ snaprate is
+**opening-heavy**: 0:4 entropy **85/100**, **0.778**, 332/400; tail
+**70/100**, **0.622**; full-file **75/100**, **0.648** (snaprate was
+**73/100**). That is not Distil KGW LDA body geography. Do not sell
+Distil $\Hw=12$ opening **85/100**.
+One-feature `pivot-lda` on the **same** generated-only 64:128 rows
+(other choice columns zeroed; existing LDA, not a new method) splits
+that Distil miss. GPT-2 KGW body is mostly **soft gap to the unmarked
+argmax**: `mean_gap` **83/100**, AUC **0.683**, versus binary snaprate
+tail **75/100**, **0.670** and full six-feature LDA **88/100**,
+**0.704**. Distil KGW body is **not** that gap (`mean_gap` **67/100**,
+**0.569**, where snaprate tail was chance **40/100**). Full Distil LDA
+**83/100** needs the combination; `frac_in_topk` ranks **80/100** with
+**22** ranking-only and isolated only **143/400** — not $\tau=0$.
+Public SynthID body stays chance on every single feature (max
+**61/100**). Count tables remain the Kirchenbauer body reader. Do not
+sell Distil `frac_in_topk` **80/100** or GPT-2 `mean_gap` **83/100**.
 `snapmiss` (chosen token missed the unmarked top-k) does **not**
 carry the GPT-2 KGW ranking: n=100 is **56/100**, AUC **0.518**, perm
 $p\approx 0.29$, isolated **0/400**, **56** ranking-only. Distil KGW
@@ -354,6 +393,10 @@ grok12 **10/12** / grok36 **25/36** / second-key **8/12** / 36×4 **18/36**. Do 
 public snapmiss **62/100**, or Distil $\Hw=12$ snapmiss **74/100**.
 Do not sell GPT-2 KGW pivot-lda **97/100**, Distil KGW **88/100** /
 tail **83/100**, or SynthID opening pivot-lda-entropy **97/100**.
+Do not sell prompt-context Distil tail **82/100**, GPT-2 LDA opening
+**69/100**, SynthID prompt-context **78/100**, or Distil $\Hw=12$
+pivot opening **85/100**. Do not sell Distil `frac_in_topk` **80/100**
+or GPT-2 body `mean_gap` **83/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -3188,9 +3231,14 @@ KGW tail **88/100**, **0.704** (above snaprate **75/100**, below
 interpolate **100/100**) and Distil KGW body **83/100** where snaprate
 was chance **40/100**; full-file Distil pivot-lda **88/100** where
 snaprate was anti **31/100**. Public SynthID pivot is opening entropy
-**97/100** with a chance body (**61/100**). Isolated $\tau=0$ still
+**97/100** with a chance body (**61/100**). Prompt-context Distil KGW
+LDA tail stays **82/100**; Distil $\Hw=12$ pivot is opening-heavy
+(**85/100** vs tail **70/100**). Isolated $\tau=0$ still
 fails. Do not sell pivot **97/100**, Distil **88/100**, Distil tail
-**83/100**, or SynthID opening **97/100**.
+**83/100**, or SynthID opening **97/100**. Do not sell prompt-context
+Distil tail **82/100**, GPT-2 LDA opening **69/100**, or Distil
+$\Hw=12$ pivot opening **85/100**. Do not sell Distil `frac_in_topk`
+**80/100** or GPT-2 body `mean_gap` **83/100**.
 `snapmiss` on GPT-2 KGW is chance (**56/100**, **0.518**, isolated
 **0/400**); public SynthID snapmiss **62/100** / Distil $\Hw=12$
 **74/100** are ranking-only. Do not leftover-target those zeros. Do
@@ -3253,7 +3301,11 @@ A freeze of **width and mixin geography** that already moved a grain:
    body **83/100** where snaprate was chance; Distil full-file
    pivot-lda **88/100** where snaprate was anti **31/100**. Public
    SynthID pivot is opening-heavy (entropy **97/100**) with a chance
-   body. Do not sell those pivot rankings. Isolated $\tau=0$ still
+   body. Prompt-context Distil KGW LDA tail stays **82/100**; Distil
+   $\Hw=12$ pivot is opening-heavy (**85/100** vs tail **70/100**), not
+   that KGW body. GPT-2 KGW body LDA is mostly soft `mean_gap`
+   (**83/100**); Distil body is not (`mean_gap` **67/100**). Do not sell
+   Distil `frac_in_topk` **80/100**. Do not sell those pivot rankings. Isolated $\tau=0$ still
    fails.
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
