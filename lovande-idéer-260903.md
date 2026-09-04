@@ -1072,8 +1072,11 @@ Grok-register SynthID 12 (**6/12**, **8/48**, AUC 0.523, two ranking
 wins with no isolated TP). Last-1 on same-generator public SynthID is
 also chance: Distil 100 → Distil SynthID 12 **0/48**, AUC 0.410, perm
 $p\approx 0.94$, five ranking-only; Distil 12 → Distil SynthID 12
-(`--overlap keep`) **7/48**, 0.473; Qwen 12 → Qwen SynthID 12 **12/48**,
-0.505; GPT-2 100 → SynthID 36 **7/144**, 0.422, perm $p\approx 0.99$.
+(`--overlap keep`) **7/48**, 0.473; last-1 `hits` / `hashpool` on Distil
+100 → Distil SynthID 12 are also **0/48** (AUC 0.398 / 0.383);
+Qwen 12 → Qwen SynthID 12 **12/48**,
+0.505; GPT-2 100 → SynthID 36 **7/144**, 0.422, perm $p\approx 0.99$;
+last-1 `hits` on that 36-file arrow is **5/144**, 0.391.
 Last-4 interpolate on the same arrows is
 also chance: GPT-2 100 → public SynthID **0/48**, AUC 0.527, seven
 ranking-only; Distil 100 → public SynthID **2/48**; GPT-2 100 → grok12
@@ -1323,6 +1326,24 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-aaronson100-interp-k4-to-synthid12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-hits-k1-to-synthid-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-hashpool-k1-to-synthid-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-08-31-pair-36x4 \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-hits-k1-to-synthid36
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods hashpool --context-len 1 \
