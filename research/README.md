@@ -14,15 +14,15 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next.md](PROTOCOL-next.md) | Frozen confirmatory 100×4 protocol; lock A **99/100**; Distil H3 |
 | [PROTOCOL-next-longctx.md](PROTOCOL-next-longctx.md) | Frozen GPT-2 Hw=12; original-12 interpolate **6/12**; 100-family interpolate **76/100**; not **25/48** |
 | [PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md) | Frozen DistilGPT2 Hw=12 12-LOO; interpolate **9/12**, isolated **49/96**; not **25/48** |
-| [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md) | Frozen DistilGPT2 Hw=12 100-family; interpolate **88/100**, isolated **557/800**; not **25/48** |
+| [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md) | Frozen DistilGPT2 Hw=12 100-family; interpolate **88/100**, isolated **557/800**; occupancy **11182** vs **85493**; not **25/48** |
 | [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) | Frozen Qwen2-1.5B Hw=12 12-LOO; interpolate **4/12**, isolated **41/96**; official first-draw **11/12**; not **25/48** |
-| [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md) | Frozen Qwen2-1.5B Hw=12 100-family; interpolate **76/100**, isolated **474/800**; not **25/48** |
+| [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md) | Frozen Qwen2-1.5B Hw=12 100-family; interpolate **76/100**, isolated **474/800**; occupancy **3535** vs **98064**; not **25/48** |
 | [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md) | Frozen Hw=12 vs Hw=4 64:128 remasure; interpolate **50/100** vs public **93/100**; not **25/48** |
 | [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) | Frozen Aaronson–Kirchner exponential-minimum; 12-LOO interpolate **11/12** isolated **56/96**; 100-family interpolate **100/100** isolated **608/800**; not **25/48** |
 | [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md) | Frozen DistilGPT2 Aaronson 12-LOO; interpolate **7/12**, isolated **0/48 vs 48/48**; not **25/48** |
-| [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md) | Frozen DistilGPT2 Aaronson 100-family; interpolate **96/100**, isolated **601/800**; not **25/48** |
+| [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md) | Frozen DistilGPT2 Aaronson 100-family; interpolate **96/100**, isolated **601/800**; occupancy **28824** vs **61305**; not **25/48** |
 | [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md) | Frozen Qwen2-1.5B Aaronson 12-LOO; interpolate **12/12**, isolated **12/48 vs 48/48**; not **25/48** |
-| [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md) | Frozen Qwen2-1.5B Aaronson 100-family; interpolate **100/100**, isolated **616/800**; not **25/48** |
+| [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md) | Frozen Qwen2-1.5B Aaronson 100-family; interpolate **100/100**, isolated **616/800**; occupancy **8750** vs **92842**; not **25/48** |
 | [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) | Frozen GPT-2 Kirchenbauer; original-12 interpolate **12/12** / **85/96**; 100-family **100/100** / **747/800**; not **25/48** |
 | [PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) | Frozen DistilGPT2 Kirchenbauer; original-12 interpolate **12/12** / **85/96**; 100-family **100/100** / **683/800**; not **25/48** |
 | [PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) | Frozen Qwen2-1.5B Kirchenbauer original-12; interpolate **12/12** / **68/96**; hard **8/12**; not **25/48** |

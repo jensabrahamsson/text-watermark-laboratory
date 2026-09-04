@@ -603,6 +603,42 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
     assert f"{distil_hw12[1]}/800" in next_sec
     assert f"{distil_aar[0]}/100" in next_sec
     assert f"{distil_aar[1]}/800" in next_sec
+    distil_hw12_pair = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-distil-100x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    n_unmarked = sum(
+        row["unmarked_gen"]["mean"] > 0.55 for row in distil_hw12_pair["rows"]
+    )
+    assert f"${n_unmarked}/100$ above $0.55$" in next_sec
+    qwen_hw12_pair = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-100x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    qwen_aar_pair = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-100x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    n_qhw = sum(
+        row["unmarked_gen"]["mean"] > 0.55 for row in qwen_hw12_pair["rows"]
+    )
+    n_qaar = sum(
+        row["unmarked_gen"]["z_score"] > 3.0 for row in qwen_aar_pair["rows"]
+    )
+    assert f"${n_qhw}/100$ above $0.55$" in next_sec
+    assert f"${n_qaar}/100$ above $3.0$" in next_sec
     for rel in (
         "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json",
         "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json",
@@ -765,7 +801,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README
-    assert "f3d0f3f" in README
+    assert "92edbba" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README

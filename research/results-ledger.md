@@ -630,7 +630,7 @@ sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
 Protocol SHA `bae6d81`; named `c120dc4`. Official first-draw matching
 `ngram_len=13` **12/12** above 0.55. Key-free interpolate last-4
 **9/12**, isolated **21/48 vs 28/48** (**49/96**), AUC **0.563**. Hard
-**6/12**, isolated **42/96**. Occupancy **175** seen vs **11994** unseen.
+**6/12**, isolated **42/96**. Occupancy **175** seen vs **11994** unseen (opening **111** vs **177**).
 Above GPT-2 $\Hw=12$ interpolate **6/12** on these prompt strings
 (different twins). Clopper–Pearson on **9/12** includes ½. Do not sell
 **9/12** or **49/96**. Does not replace **25/48**.
@@ -645,7 +645,7 @@ Protocol SHA `d7303a2`; named `21a3e1b`. Official first-draw matching
 `ngram_len=13` **11/12** above 0.55 (library $0.515$). Key-free
 interpolate last-4 **4/12**, isolated **14/48 vs 27/48** (**41/96**),
 AUC **0.400**. Hard **4/12**, isolated **47/96**. Occupancy **65** seen
-vs **12127** unseen. Below Distil $\Hw=12$ interpolate **9/12** and
+vs **12127** unseen (opening **41** vs **247**). Below Distil $\Hw=12$ interpolate **9/12** and
 GPT-2 $\Hw=12$ **6/12** on these prompt strings (different twins).
 Clopper–Pearson on **4/12** includes ½. Do not sell **4/12** or
 **41/96**. Does not replace **25/48**.
@@ -660,7 +660,8 @@ Protocol SHA `9bdf12a`; named `40a6300`. Official first-draw z>3
 **12/12**. Interpolate last-4 **7/12**, isolated **0/48 vs 48/48**
 (**48/96**), AUC **0.618**; all 7 ranking wins have 0 isolated TPs.
 Hard **7/12**, isolated **8/48 vs 48/48** (**56/96**). Occupancy
-**196** seen vs **11996** unseen. Below GPT-2 Aaronson interpolate
+**196** seen vs **11996** unseen (opening **133** vs **155**). Unmarked
+first-draw z>3 **1/12**. Below GPT-2 Aaronson interpolate
 **11/12**. Clopper–Pearson on **7/12** includes ½. Do not sell **7/12**
 or **0/48**. Does not replace **25/48**.
 
@@ -674,7 +675,7 @@ Protocol SHA `1171d5c`; named `406c91d`. Official first-draw z>3
 **12/12**. Interpolate last-4 **12/12**, isolated **12/48 vs 48/48**
 (**60/96**), AUC **0.993**; 9/12 ranking wins have 0 isolated TPs.
 Hard **12/12**, isolated **24/48 vs 48/48** (**72/96**). Occupancy
-**457** seen vs **11735** unseen. Above Distil Aaronson interpolate
+**457** seen vs **11735** unseen (opening **127** vs **161**). Above Distil Aaronson interpolate
 **7/12**. Do not sell **12/12** or **60/96**. Does not replace
 **25/48**.
 
