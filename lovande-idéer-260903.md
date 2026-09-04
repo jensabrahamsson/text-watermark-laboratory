@@ -1189,7 +1189,12 @@ Do not leftover-target Aaronson last-4 hits opening
 **204/400** (full-file isolated **145/400**) or KGW unigram opening
 **256/400**. Last-4 `rankpath` on GPT-2 Aaronson → $\Hw=12$ is chance
 (**55/100**, **0/400**, 0.532); Kirchenbauer rankpath is **54/100**,
-**153/400**, 0.516. Do not sell ranking
+**153/400**, 0.516. Interpolate atoms on that GPT-2 Aaronson → $\Hw=12$
+transfer (`used_keys=false`) mix seen and unseen (21415 vs 32087);
+full-file marked $\mathrm{lr}>0$ stays **0**; window means sit with the
+scores (0:4 marked $\Delta$ $-2.92$ vs unmarked $-6.75$; tail $-3.58$
+vs $-7.65$). Top marked $\Delta>0$ atoms are dialogue punctuation
+(n=8 `," he said.`). Do not leftover-target those. Do not sell ranking
 **98/100**, **100/100**, unigram **73/100**, or AUC **0.890**. The last-1 lift is
 mixin-specific.
 
@@ -1580,6 +1585,12 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-rankpath-k4-to-ngram13-100
+
+python -m text_watermark_tools atoms \
+  /tmp/kgw-lab/xfer-gpt2100-aaronson-interp-k4-to-ngram13-100/tables-counts \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/atoms-aaronson100-interp-k4-to-ngram13-100
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
