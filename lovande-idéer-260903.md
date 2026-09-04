@@ -1200,14 +1200,34 @@ Aaronson → Qwen $\Hw=12$ last-1 `hard` ranks **12/12** with isolated
 **0/48**, **0.914**. Distil 100 interpolate last-4 is **88/100**,
 isolated **9/400**, 0.753, **87** ranking-only. Do not sell those
 12-file ranking counts. Do not sell ranking
-**98/100**, **100/100**, unigram **73/100**, Qwen **12/12**, Distil
-**88/100**, or AUC **0.890**. Hashed logistic last-1 (`learn --archs
+**98/100**, **100/100**, hashpool **99/100**, unigram **73/100**, Qwen
+**12/12**, Distil **88/100**, or AUC **0.890**. Hashed logistic last-1 (`learn --archs
 hashlog`, full file, not `--fit-prefix 1` which is empty) on GPT-2
 Aaronson → $\Hw=12$ is **61/100**, isolated **56/400**, AUC **0.557**:
 it does not become interpolate's **100/100** ranking-without-TP look.
 Isolated is chance (binom $p=1$). Kirchenbauer hashlog on $\Hw=12$ is
 chance (**49/100**, **170/400**, 0.488). Aaronson hashlog → public
-SynthID 12 is **8/48**, 0.483. The last-1 lift is
+SynthID 12 is **8/48**, 0.483. Last-1 `hashpool` (existing hashed
+context pool; no `--skip-hashpool`) **does** sit with the count-table
+look: GPT-2 100 Aaronson → $\Hw=12$ is **99/100**, isolated **0/400**,
+AUC **0.870**, perm $p\approx 0.0005$, **99** ranking-only (mean marked
+$-1.12$ vs unmarked $-1.53$). Distil 100 last-1 hashpool is
+**71/100**, **9/400**, 0.709, **70** ranking-only (same isolated as
+Distil last-1 `hard` **9/400**). Same-stem Qwen 12 last-1 hashpool
+ranks **12/12** with isolated **0/48**, AUC **0.891**; n=12 ranking
+without isolated $\tau=0$ is not a detector. Kirchenbauer last-1
+hashpool on $\Hw=12$ is chance (GPT-2 100 **57/100**, **19/400**,
+0.537, perm $p\approx 0.025$; Distil 100 **47/100**, **12/400**, 0.485,
+perm $p=1$). Do not leftover-target Aaronson hashpool opening
+**33/400**, KGW hashpool opening **120/400**, or Qwen hashpool opening
+**14/48**. Distil Aaronson last-4 `rankpath` → Distil $\Hw=12$ is
+anti-correlated (**31/100**, **12/400**, 0.397, perm $p=1$). Qwen 12
+Aaronson rankpath ranks **10/12** with isolated **0/48**, AUC 0.622;
+GPT-2 n=100 rankpath was already chance **55/100**. Ranking-without-TP
+onto $\Hw=12$ is a count-table LR mean shift (`hard` / `hits` /
+interpolate / `hashpool`), not rankpath and not hashed logistic. Do
+not sell hashpool ranking **99/100**, Distil **71/100**, Qwen
+**12/12**, or Qwen rankpath **10/12**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1262,7 +1282,8 @@ interpolate **385/400**, last-4 interpolate 100 → original-12
 **8/12** or n=100 **180/400**, last-1 KGW → $\Hw=12$ **49/400** /
 Distil **20/400** / 12-file **3/48**, or Aaronson last-1 → $\Hw=12$
 ranking **98/100** with isolated **1/400** (interpolate last-4
-**100/100**, **0/400**, AUC **0.890**). Qwen uses a
+**100/100**, **0/400**, AUC **0.890**; last-1 hashpool **99/100**,
+**0/400**, 0.870). Qwen uses a
 different tokenizer; this transfer is same-BPE only.
 
 Same last-1 on Aaronson–Kirchner (Distil 100 → 12 uses default
@@ -1638,6 +1659,50 @@ python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson 
   --test-dir experiments/2026-08-17-pair-12x4 \
   --archs hashlog --context-len 1 --pos-bucket 1 --skip-nested \
   --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-hashlog-k1-to-synthid12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-hashpool-k1-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-kgw-hashpool-k1-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-ngram13 --overlap keep --model gpt2 \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-hashpool-k1-to-distil-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-ngram13 --overlap keep --model gpt2 \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-kgw-hashpool-k1-to-distil-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-ngram13 --overlap keep --model gpt2 \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-rankpath-k4-to-distil-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-qwen-12x4-ngram13 --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-aaronson-rankpath-k4-to-qwen-ngram13-12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-qwen-12x4-ngram13 --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-aaronson-hashpool-k1-to-qwen-ngram13-12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2786,12 +2851,15 @@ A freeze of **width and mixin geography** that already moved a grain:
    SynthID **0/48**; GPT-2 100 → SynthID 36 **7/144**) or Aaronson
    (n=100 Distil last-1 **180/400**, AUC 0.519; Distil 12 ranking
    **8/12** does not survive confirmatory n) or $\Hw=12$ (last-1 KGW
-   **49/400** / Distil **20/400**; Aaronson last-1 ranking **98/100**
+   **49/400** / Distil **20/400**; last-1 KGW hashpool **19/400** /
+   Distil **12/400**; Aaronson last-1 ranking **98/100**
    with isolated **1/400**; interpolate last-4 **100/100**,
-   **0/400**; unigram **73/100**, **0/400**; rankpath **55/100**,
-   **0/400**). Do not sell Aaronson
-   ranking **98/100**, unigram **73/100**, Qwen **12/12**, Distil
-   interpolate **88/100**, hashlog **56/400**, or AUC **0.890**.
+   **0/400**; last-1 hashpool **99/100**, **0/400**; unigram **73/100**,
+   **0/400**; rankpath **55/100**, **0/400**; Distil rankpath
+   **31/100**, **12/400**). Do not sell Aaronson
+   ranking **98/100**, hashpool **99/100**, unigram **73/100**, Qwen
+   **12/12**, Distil interpolate **88/100**, Distil hashpool
+   **71/100**, hashlog **56/400**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
