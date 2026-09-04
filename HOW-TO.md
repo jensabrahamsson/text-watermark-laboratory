@@ -213,12 +213,12 @@ are the matching mean-\(r\) z-test, not `detector_mean`. Frozen before
 generation: [research/PROTOCOL-next-aaronson.md](research/PROTOCOL-next-aaronson.md).
 Do not sell an Aaronson count as replacing **25/48**.
 Original-12 interpolate last-4 is **12/12** (isolated **85/96**);
-occupancy **114** seen. 100-family interpolate is **100/100** (isolated
-**747/800**); occupancy **4557** seen. DistilGPT2 original-12 interpolate
-is **12/12** (isolated **85/96**); hard **11/12**; occupancy **130** seen.
+occupancy **114** seen versus **12071** unseen. 100-family interpolate is **100/100** (isolated
+**747/800**); occupancy **4557** seen versus **96991** unseen. DistilGPT2 original-12 interpolate
+is **12/12** (isolated **85/96**); hard **11/12**; occupancy **130** seen versus **11972** unseen.
 Distil 100-family interpolate is **100/100** (isolated **683/800**); hard
-**82/100**; occupancy **16170** seen. Qwen2-1.5B original-12 interpolate
-is **12/12** (isolated **68/96**); hard **8/12**; occupancy **84** seen.
+**82/100**; occupancy **16170** seen versus **71541** unseen. Qwen2-1.5B original-12 interpolate
+is **12/12** (isolated **68/96**); hard **8/12**; occupancy **84** seen versus **12108** unseen.
 DistilGPT2 $\Hw=12$ 100-family occupancy is **11182** seen versus **85493**
 unseen (opening **2036** versus **364**). Qwen $\Hw=12$ 100-family occupancy
 is **3535** seen versus **98064** unseen (opening **1092** versus **1308**).
@@ -231,7 +231,12 @@ Do not sell **12/12**, **100/100**, **85/96**, **747/800**, **683/800**,
 one-liners is named in
 [research/PROTOCOL-next-kgw-qwen-100.md](research/PROTOCOL-next-kgw-qwen-100.md)
 (SHA `ed9fb20`) before generation. Do not invent those scores. That lock
-is not **25/48**.
+is not **25/48**. DistilGPT2 and gpt2-medium unmarked-LM opening
+rankpath 12-LOO on the original GPT-2 twins is named in
+[research/PROTOCOL-isolated-rankpath-lm.md](research/PROTOCOL-isolated-rankpath-lm.md)
+before those LRs. Existing `rankpath`. Do not invent those scores.
+Do not leftover-slice. Do not merge PR **#9**. That lock is not
+**25/48**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \

@@ -62,7 +62,12 @@ headline (different protocol, 128-token files). Nested-by-stem Youden is
 **37/48 vs 39/48**. Isolated `--fit-prefix 5` (four symbols, last row =
 the first official 5-gram) is **11/12**, **30/48 vs 36/48** and still
 misses letter d2. Keep prefix-4. See
-[key-free-cascade.md](key-free-cascade.md).
+[key-free-cascade.md](key-free-cascade.md). DistilGPT2 and gpt2-medium
+unmarked-LM opening rankpath 12-LOO on the original GPT-2 twins is
+named before those LRs
+([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
+Do not invent those scores. Do not leftover-slice. That freeze does
+not replace **25/48**.
 
 ## Out-of-family: 24 short 36×4 stems → 12×4
 

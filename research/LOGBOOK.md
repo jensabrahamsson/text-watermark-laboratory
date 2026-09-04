@@ -2942,4 +2942,43 @@ not add a `probe --methods` name. Do not leftover-target. Nothing
 replaces **25/48**. Isolated-file detection is still not finished.
 Do not write `thesis/`.
 
+## 2026-09-04 PR #9 inspected, stays unmerged
+
+GitHub PR **#9** (`cursor/lovande-holdouts-1051`) copies 146 JSON
+holdouts from exploratory `/tmp` probes (`used_keys=false`). It stays
+**unmerged**. Public SynthID original-12 last-2 hits is **29/48**
+(ranking **9/12**, AUC **0.632**). Last-1 hits is **24/48** (ranking
+**4/12**, AUC **0.445**). Neither replaces hard last-4 **25/48**.
+Kirchenbauer original-12 last-1 hits **46/48** (AUC **0.975**) is a
+different mixin (`context_width=1` body leak). Qwen Aaronson last-1
+hits **48/48 vs 48/48** is a different mixin. Do not copy those
+`/tmp` files onto `main`. Do not add a `probe --methods` name. Do not
+leftover-target. Isolated-file detection is still not finished. Do not
+write `thesis/`.
+
+## 2026-09-04 Distil / gpt2-medium unmarked-LM opening rankpath freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)
+named before Distil-LM / gpt2-medium-LM opening rankpath LRs. Existing
+`rankpath` on `experiments/2026-08-17-pair-12x4/`. Flags:
+
+```bash
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --model distilgpt2 --skip-hashpool \
+  --fit-prefix 4 --pos-bucket 1 --methods rankpath \
+  --out-dir experiments/2026-09-04-probe-12x4-rankpath-distil-lm
+
+python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
+  --model gpt2-medium --skip-hashpool \
+  --fit-prefix 4 --pos-bucket 1 --methods rankpath \
+  --out-dir experiments/2026-09-04-probe-12x4-rankpath-medium-lm
+```
+
+Do not start while the Qwen Kirchenbauer 100 `pair` holds the CPU. Do
+not leftover-slice. Do not merge PR **#9**. Do not invent those scores.
+Same-LM GPT-2-small recount stays **11/12**, isolated **41/48 vs 35/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---

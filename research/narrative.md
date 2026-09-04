@@ -134,6 +134,12 @@ scorers → Distil / Qwen are chance.
 
 ## What remains (isolated-file)
 
+DistilGPT2 and gpt2-medium unmarked-LM opening rankpath 12-LOO on the
+original GPT-2 twins is named before those LRs
+([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)).
+Occupancy-free leftover unions stay closed. Do not leftover-slice. Do
+not merge PR **#9**. Do not invent those scores.
+
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed
 opening rankpath is **12/20 vs 14/20**. In-domain opening rankpath

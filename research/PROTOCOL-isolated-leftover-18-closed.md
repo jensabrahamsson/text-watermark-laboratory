@@ -147,8 +147,12 @@ as a raw count. Do not sell **30/48**. Absolute-history OOD windows
 are opened in
 [PROTOCOL-isolated-windows-absolute.md](PROTOCOL-isolated-windows-absolute.md):
 grok12 0:4 **7/12**; 32:64 **10/12** (rose versus reindexed **9/12**).
-Do not sell absolute **10/12**. The remaining honesty item that is not
-leftover targeting is 12-LOO mask-*k* absolute remasure of
-[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) (those dumps
-stay reindexed). Do not sell
+Do not sell absolute **10/12**. 12-LOO mask-*k* absolute remasure of
+[PROTOCOL-isolated-mask.md](PROTOCOL-isolated-mask.md) is opened
+([PROTOCOL-isolated-mask-absolute.md](PROTOCOL-isolated-mask-absolute.md);
+those dumps stay reindexed). The remaining honesty item that is not
+leftover targeting is Distil / gpt2-medium unmarked-LM opening
+rankpath 12-LOO on the original GPT-2 twins
+([PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)),
+named before those LRs. Do not sell
 **10/48**, **20/48**, **3/48**, or H2 **87/100**. Do not write `thesis/`.
