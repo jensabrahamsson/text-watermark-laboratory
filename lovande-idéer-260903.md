@@ -325,6 +325,26 @@ sits below last-2 hits **93/100** and last-1 hard **94/100**. The
 Kirchenbauer mid-file reader at width 2 is `hits`, not `hard`. Do not
 switch Kirchenbauer hard to last-2. Do not leftover-target those
 losses. Do not sell last-2 hard 4:16 **55/100** / Distil **72/100**.
+Last-2 `hashpool` on those same slices **ranks** with last-2 hits, not
+last-2 hard (`used_keys=false`; isolated from `holdout.md`;
+`--skip-hashpool` would drop this reader):
+
+| Corpus | last-2 hits | last-2 hashpool | last-2 hard |
+|---|---|---|---|
+| GPT-2 4:16 | **96/100**, 0.789, **290/400** | **94/100**, 0.789, **294/400** | 55/100, 0.553, **225/400** |
+| Distil 4:16 | 93/100, 0.746, **303/400** | 93/100, 0.750, **252/400** | 72/100, 0.601, **281/400** |
+
+GPT-2 last-2 hashpool ranking **94/100** sits with last-2 hits
+**96/100** (same AUC **0.789**, isolated **294/400** vs **290/400**),
+not last-2 hard **55/100**. Distil ranking **93/100** matches last-2
+hits while isolated drops (**252/400** vs **303/400**, below last-2
+hard **281/400**). Hashing at width 2 keeps the ranking reader and
+costs Distil isolated. GPT-2 4:16 has **5** ranking losses with
+isolated TP; Distil has **5** ranking-only and **7** losses. Later
+windows still rank (GPT-2 16:32 **98/100**, isolated **315/400**;
+Distil **96/100**, **255/400**). Do not leftover-target those zeros.
+Do not sell last-2 hashpool 4:16 **94/100** / **294/400** / Distil
+**93/100** / **252/400**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -596,6 +616,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods unigram --skip-hashpool --skip-nested \
@@ -1083,8 +1113,12 @@ last-4 **80/100** and last-1 **97/100** (one ranking loss with
 isolated TP; do not leftover-target it). Same Kirchenbauer last-2
 story on 4:16 (GPT-2 ranking **96/100** matches last-1 while isolated
 drops **314/400** → **290/400**; Distil **93/100** / **303/400**).
-Do not leftover-target Qwen’s **22** ranking-only zeros. Do not sell
-last-2 4:16 **388/400** / Qwen **91/100** / **276/400**. Last-2 `hard`
+Kirchenbauer last-2 `hashpool` ranks with last-2 hits, not last-2 hard
+(GPT-2 4:16 **94/100**, 0.789, **294/400**; Distil **93/100**, 0.750,
+isolated **252/400** vs hits **303/400**). Do not leftover-target
+Qwen’s **22** ranking-only zeros. Do not sell last-2 4:16 **388/400** /
+Qwen **91/100** / **276/400** / Kirchenbauer hashpool **94/100** /
+Distil **252/400**. Last-2 `hard`
 on those same 4:16 slices is **not** Kirchenbauer’s last-2 hard
 collapse (`used_keys=false`, `--skip-nested`; isolated from
 `holdout.md`):
@@ -2367,6 +2401,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hits --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hits-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hashpool --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hits --context-len 2 --skip-hashpool --skip-nested \
@@ -4149,7 +4193,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    interpolate 4:16 **92/100** sits slightly below last-4 interpolate).
    Last-2 `hits` 4:16 ranking matches last-1 on GPT-2 (**96/100**) while
    isolated drops (**290/400** vs **314/400**); Distil last-2 **93/100**
-   sits between last-4 **66/100** and last-1 **97/100**. Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
+   sits between last-4 **66/100** and last-1 **97/100**. Last-2
+   `hashpool` ranks with last-2 hits, not last-2 hard (GPT-2 4:16
+   **94/100**, **294/400**; Distil ranking **93/100**, isolated
+   **252/400** vs hits **303/400**). Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
    **97/100** / hashpool **99/100** (last-1 interpolate 4:16 **91/100**
    sits slightly above last-4 interpolate **88/100**). Unigram on those
    mid slices still ranks (GPT-2 4:16 **82/100**, Distil **87/100**) but
@@ -4180,7 +4227,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    Last-2 `hits` 4:16 recovers that ranking (Qwen **91/100**, isolated
    **276/400**; GPT-2 KGW **96/100** matches last-1 while isolated drops
    **314/400** → **290/400**). Last-2 `hard` does not (GPT-2 KGW 4:16
-   **55/100**; Distil **72/100**). Aaronson last-2 hard still ranks on
+   **55/100**; Distil **72/100**). Kirchenbauer last-2 `hashpool` ranks
+   with last-2 hits (GPT-2 4:16 **94/100**, **294/400**; Distil
+   **93/100**, isolated **252/400**). Aaronson last-2 hard still ranks on
    GPT-2 / Distil 4:16 (**94/100** / **92/100**) and is weak on Qwen
    (**64/100**). GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
