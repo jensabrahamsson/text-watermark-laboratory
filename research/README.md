@@ -27,6 +27,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next-kgw-distil.md](PROTOCOL-next-kgw-distil.md) | Frozen DistilGPT2 Kirchenbauer; original-12 interpolate **12/12** / **85/96**; 100-family **100/100** / **683/800**; not **25/48** |
 | [PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md) | Frozen Qwen2-1.5B Kirchenbauer original-12; interpolate **12/12** / **68/96**; hard **8/12**; not **25/48** |
 | [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md) | Frozen Qwen2-1.5B Kirchenbauer 100-family; freeze SHA `ed9fb20`; named before generation; official z>3 **90/100**; interpolate **96/100** / **620/800**; hard **63/100**; not **25/48** |
+| [PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md) | Frozen Qwen Kirchenbauer 100-family windows; freeze SHA `e270546`; named before those LRs |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |

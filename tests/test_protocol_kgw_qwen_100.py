@@ -54,6 +54,8 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in ledger
     assert "`ed9fb20`" in ledger
+    assert "PROTOCOL-next-kgw-qwen-100-windows" in (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "`e270546`" in (ROOT / "research" / "LOGBOOK.md").read_text()
     assert "named before generation" in ledger
     narrative = (ROOT / "research" / "narrative.md").read_text()
     assert "PROTOCOL-next-kgw-qwen-100" in narrative
@@ -96,7 +98,7 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
-        if "PROTOCOL-next-kgw-qwen-100" in ln
+        if ln.startswith("| [PROTOCOL-next-kgw-qwen-100.md]")
     ]
     assert len(research_rows) == 1
     assert "`ed9fb20`" in research_rows[0]

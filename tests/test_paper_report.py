@@ -252,6 +252,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-next-kgw-distil" in PAPER
     assert "PROTOCOL-next-kgw-qwen" in PAPER
     assert "PROTOCOL-next-kgw-qwen-100" in PAPER
+    assert "PROTOCOL-next-kgw-qwen-100-windows" in PAPER
+    assert "e270546" in PAPER
     assert "PROTOCOL-next-longctx-distil" in PAPER
     assert "bae6d81" in PAPER
     assert "PROTOCOL-next-longctx-distil-100" in PAPER
@@ -351,6 +353,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert r"\textbf{63/100}" in next_sec
     assert "4858" in next_sec
     assert "96740" in next_sec
+    assert "PROTOCOL-next-kgw-qwen-100-windows" in next_sec
+    assert "e270546" in next_sec
+    assert "before those LRs" in next_sec
     assert "PROTOCOL-isolated-rankpath-lm" in next_sec
     assert "d8e6f7f" in next_sec
     assert "32/48" in next_sec

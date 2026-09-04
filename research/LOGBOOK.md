@@ -3011,4 +3011,24 @@ JSON: `experiments/2026-09-04-pair-qwen-100x4-kgw/`,
 `experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/`,
 `experiments/2026-09-04-atoms-qwen-100x4-kgw/`.
 
+## 2026-09-04 Qwen Kirchenbauer 100-family windows freeze
+
+[PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
+named `e270546` before those LRs. Same Qwen2-1.5B Kirchenbauer 100-family
+twins, leave-one-family-out interpolate/hard last-4 on windows
+`0:4,4:16,16:32,32:64,64:128`. Full-file interpolate **96/100** stays
+in `experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/`. Do not
+overwrite it. Do not look at window LRs until the analysis command has
+been run once, as written. Probe must pass `--model
+Qwen/Qwen2-1.5B-Instruct`. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods interpolate,hard --context-len 4 --skip-hashpool \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-04-probe-qwen-100x4-kgw-windows
+```
+
 ---

@@ -605,7 +605,9 @@ open. Qwen2-1.5B Kirchenbauer 100-family is
 z>3 is **90/100**; unmarked **0/100**. H-kgw-q100-ctrl **fails**.
 Interpolate **96/100** (isolated **620/800**); hard **63/100**; occupancy
 **4858** seen vs **96740** unseen. Do not sell **96/100** or **620/800**.
-Isolated-file remains open.
+Isolated-file remains open. Qwen Kirchenbauer 100-family windows are
+[PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
+(freeze SHA `e270546`) and are named before those LRs. Isolated-file remains open.
 Distil / gpt2-medium unmarked-LM opening rankpath 12-LOO on the original
 GPT-2 twins is
 [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md)

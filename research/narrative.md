@@ -313,6 +313,9 @@ Qwen2-1.5B Kirchenbauer 100-family is
 (freeze SHA `ed9fb20`) and is named before generation. Opened: official
 z>3 **90/100**; interpolate **96/100** (isolated **620/800**); hard
 **63/100**. Do not sell **96/100** or **620/800**.
+Qwen Kirchenbauer 100-family windows are
+[PROTOCOL-next-kgw-qwen-100-windows.md](PROTOCOL-next-kgw-qwen-100-windows.md)
+(freeze SHA `e270546`) and are named before those LRs.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
