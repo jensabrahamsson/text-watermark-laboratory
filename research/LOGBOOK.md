@@ -2667,7 +2667,7 @@ JSON: `experiments/2026-09-04-pair-qwen-12x4-aaronson/`,
 ## 2026-09-04 DistilGPT2 ngram_len=13 100-family freeze
 
 [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
-frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
+committed at SHA `d891622`. Frozen before generation. Same public keys and `ngram_len=13` ($\Hw=12$)
 as [PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md),
 generator `distilgpt2`, 100 one-liners, seed **20260903**, Hub SHA
 `2290a62682d06624634c1f46a6ad5be0f47f38aa`. Hypotheses H-long-d100-ctrl,
