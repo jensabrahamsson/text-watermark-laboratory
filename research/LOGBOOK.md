@@ -3099,6 +3099,15 @@ on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with
 `--model distilgpt2`. Do not leftover-slice. Do not invent those scores.
 GPT-2-small on the same twins stays **8/12**, isolated **20/48 vs 32/48**.
 Nothing replaces **25/48**. Isolated-file detection is still not
-finished. Do not write `thesis/`.
+finished. Do not write `thesis/`. Freeze SHA `b3fd331`.
+
+## 2026-09-04 Distil LM on gpt2-medium 12 opened
+
+H-rpd2m **fails** as a raw count. Distil LM opening rankpath on
+gpt2-medium 12×4 is ranking **11/12**, isolated **30/48 vs 31/48** (AUC
+**0.703**; nested **23/48 vs 41/48**). `used_keys=false`. Do not sell
+**30/48** or **11/12**. Prompt ranking is a different grain. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
 
 ---

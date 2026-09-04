@@ -58,7 +58,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-isolated-rankpath-lm.md](PROTOCOL-isolated-rankpath-lm.md) | Distil-LM isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**; not **25/48** |
 | [PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md) | gpt2-medium native opening rankpath **6/12**, isolated **22/48 vs 30/48**; not **25/48** |
 | [PROTOCOL-isolated-rankpath-g2m.md](PROTOCOL-isolated-rankpath-g2m.md) | GPT-2-small LM on gpt2-medium 12: **8/12**, isolated **20/48 vs 32/48**; not **25/48** |
-| [PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md) | Distil LM on gpt2-medium 12; named before those LRs; not **25/48** |
+| [PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md) | Distil LM on gpt2-medium 12: **11/12**, isolated **30/48 vs 31/48**; not **25/48** |
 | [key-free-twins.md](key-free-twins.md) | Key-free watermark indication from matched generations; recounted last-4 **9/12**; isolated **25/48** |
 | [key-free-probe.md](key-free-probe.md) | Transfer scorers, hash pooling, unmarked-LM choice geometry, argmax snap |
 | [key-free-learn.md](key-free-learn.md) | Tiny hashed logistic / token MLP / char CNN; they do not beat poshits |

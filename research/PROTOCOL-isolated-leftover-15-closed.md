@@ -182,11 +182,9 @@ gpt2-medium native opening rankpath on gpt2-medium 12×4 twins is opened
 ([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)):
 ranking **6/12**, isolated **22/48 vs 30/48**. GPT-2-small LM opening rankpath on those gpt2-medium twins is opened
 ([PROTOCOL-isolated-rankpath-g2m.md](PROTOCOL-isolated-rankpath-g2m.md)):
-ranking **8/12**, isolated **20/48 vs 32/48**. The remaining honesty item
-that is not leftover targeting is Distil LM opening rankpath on those
-gpt2-medium twins
-([PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md)),
-named before those LRs. Isolated-file remains open. Do not
+ranking **8/12**, isolated **20/48 vs 32/48**. Distil LM opening rankpath on those gpt2-medium twins is opened
+([PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md)):
+ranking **11/12**, isolated **30/48 vs 31/48**. Isolated-file remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.

@@ -364,6 +364,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-isolated-rankpath-m12" in next_sec
     assert "PROTOCOL-isolated-rankpath-g2m" in next_sec
     assert "PROTOCOL-isolated-rankpath-d2m" in next_sec
+    assert "b3fd331" in next_sec
+    assert "30/48" in next_sec
     assert "336a1fd" in next_sec
     assert "20/48" in next_sec
     assert "22/48" in next_sec
@@ -900,6 +902,8 @@ def test_readme_matches_revised_title() -> None:
     assert "2577771" in README
     assert "PROTOCOL-isolated-rankpath-g2m" in README
     assert "336a1fd" in README
+    assert "PROTOCOL-isolated-rankpath-d2m" in README
+    assert "b3fd331" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "27 A4" in README

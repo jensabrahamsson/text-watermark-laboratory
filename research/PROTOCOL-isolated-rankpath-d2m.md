@@ -79,5 +79,15 @@ python -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-12x
 
 ## Results
 
-*(empty until the SHA is named in LOGBOOK.md and the probe has been
-run once, as written)*
+H-rpd2m **fails** as a raw count. Distil unmarked-LM opening rankpath on
+gpt2-medium 12×4 ranks **11/12**; isolated **30/48 vs 31/48** (AUC
+**0.703**; nested-by-stem Youden **23/48 vs 41/48**). `used_keys=false`.
+`model_name` is `distilgpt2`. Clopper–Pearson 95% on **30/48** includes
+½. GPT-2-small on the same twins stays **8/12**, isolated
+**20/48 vs 32/48**. Do not sell **30/48** or **11/12**. JSON:
+[experiments/2026-09-04-probe-medium-12x4-rankpath-distil-lm/](../experiments/2026-09-04-probe-medium-12x4-rankpath-distil-lm/).
+
+H-rpd2m-iso **holds**. Cross-size opening rankpath is not a universal
+isolated-file detector. Prompt ranking **11/12** is a different grain
+from isolated **30/48**. Do not leftover-slice. Do not merge PR **#9**.
+Isolated-file remains open. Do not write `thesis/`.
