@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (26 A4 pages, git `1fd84c0`). Dated copy in
+  (26 A4 pages, git `4de53b5`). Dated copy in
   [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
@@ -101,7 +101,10 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    **47/96**; **6/12** and **76/100** are group rankings on $\Hw=12$
    twins. Body-window remasure (SHA `8283d1f`): interpolate $[64{:}128)$
    **50/100** versus public $\Hw=4$ **93/100**; opening **86/100**.
-   That is not **25/48**. Qwen2-1.5B Aaronson on the 100 one-liners
+   That is not **25/48**. Qwen2-1.5B $\Hw=12$ on the 100 one-liners
+   (SHA `636765c`): interpolate **76/100** (isolated **474/800**);
+   hard **74/100**; official **91/100**. That is not **25/48**.
+   Qwen2-1.5B Aaronson on the 100 one-liners
    (SHA `a761a7d`): interpolate **100/100** (isolated **616/800**);
    hard **97/100**; official $z>3$ **99/100**. That is not **25/48**.
 
