@@ -136,6 +136,13 @@ def test_protocol_longctx_qwen_100_official_and_keyfree_from_dumps() -> None:
     w0 = next(w for w in occ["windows"] if w["start"] == 0 and w["end"] == 4)
     assert f"**{occ['n_seen']}** seen vs **{occ['n_unseen']}** unseen" in ledger
     assert f"**{w0['n_seen']}** vs **{w0['n_unseen']}**" in ledger
+    research = (ROOT / "research" / "README.md").read_text()
+    row = next(
+        ln
+        for ln in research.splitlines()
+        if "PROTOCOL-next-longctx-qwen-100.md" in ln
+    )
+    assert f"**{occ['n_seen']}** vs **{occ['n_unseen']}**" in row
     assert (
         f"**{interp['n_marked_lr_positive']}/400 vs {interp['n_unmarked_lr_nonpositive']}/400**"
         in ledger

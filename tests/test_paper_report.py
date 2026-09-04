@@ -615,6 +615,30 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
         row["unmarked_gen"]["mean"] > 0.55 for row in distil_hw12_pair["rows"]
     )
     assert f"${n_unmarked}/100$ above $0.55$" in next_sec
+    qwen_hw12_pair = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-100x4-ngram13"
+            / "results.json"
+        ).read_text()
+    )
+    qwen_aar_pair = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-100x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    n_qhw = sum(
+        row["unmarked_gen"]["mean"] > 0.55 for row in qwen_hw12_pair["rows"]
+    )
+    n_qaar = sum(
+        row["unmarked_gen"]["z_score"] > 3.0 for row in qwen_aar_pair["rows"]
+    )
+    assert f"${n_qhw}/100$ above $0.55$" in next_sec
+    assert f"${n_qaar}/100$ above $3.0$" in next_sec
     for rel in (
         "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json",
         "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json",
