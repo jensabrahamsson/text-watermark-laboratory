@@ -596,7 +596,7 @@ Qwen2-1.5B $\Hw=12$
 **91/100**. Do not sell **76/100** or **474/800**. Isolated-file remains
 open. Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
-and is named before generation. Isolated-file remains open.
+(freeze SHA `ed9fb20`) and is named before generation. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

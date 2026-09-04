@@ -2900,7 +2900,7 @@ JSON: `experiments/2026-09-04-pair-qwen-100x4-ngram13/`,
 ## 2026-09-04 Qwen2-1.5B Kirchenbauer 100-family freeze
 
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
-committed before generation. Same Hugging Face Kirchenbauer defaults as
+named `ed9fb20` before generation. Same Hugging Face Kirchenbauer defaults as
 [PROTOCOL-next-kgw-qwen.md](PROTOCOL-next-kgw-qwen.md), generator
 `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260904**,
 `--mixin kgw`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.

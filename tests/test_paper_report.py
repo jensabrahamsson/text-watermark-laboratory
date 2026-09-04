@@ -342,6 +342,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "474/800" in next_sec
     assert "has not been generated" not in next_sec
     assert "PROTOCOL-next-kgw-qwen-100" in next_sec
+    assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec

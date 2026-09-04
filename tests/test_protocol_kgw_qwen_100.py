@@ -39,6 +39,10 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert "PROTOCOL-next-kgw-qwen-100" in log
     assert "--mixin kgw" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
+    assert "`ed9fb20`" in log
+    ledger = (ROOT / "research" / "results-ledger.md").read_text()
+    assert "PROTOCOL-next-kgw-qwen-100" in ledger
+    assert "`ed9fb20`" in ledger
 
 
 def test_protocol_kgw_qwen_100_cli_flag_exists() -> None:

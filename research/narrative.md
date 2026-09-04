@@ -293,7 +293,7 @@ Qwen2-1.5B Aaronson 100-family is
 **616/800**); hard **97/100**. Do not sell **100/100** or **616/800**.
 Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
-and is named before generation.
+(freeze SHA `ed9fb20`) and is named before generation.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
