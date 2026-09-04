@@ -556,7 +556,8 @@ still transfer onto those Distil files as a body leak (tail
 hits transfer is opening **44/48**. GPT-2 100 → GPT-2 12 last-1 hard
 is the same isolated body transfer (tail **40/48** equals full-file;
 opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
-**36/48**.
+**36/48**. Last-4 hits 100 → 12 is opening **24/48** (tail AUC
+**0.582**, isolated chance).
 
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
@@ -566,6 +567,7 @@ opening **24/48**). Last-1 hits 100 → 12 ranks **12/12** with isolated
 tail **40/48**, Distil last-1 hits tail **32/48**, Distil 100 hashpool
 last-1 tail **182/400**, hits last-1 transfer **48/48** / **44/48**,
 Aaronson last-1 100→12 **40/48** / hits **36/48** / last-4 **32/48**,
+last-4 hits 100→12 **24/48**,
 Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
 rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
@@ -656,12 +658,17 @@ GPT-2 12 last-1 and last-4, and on 100 → Distil last-1, is **48/48**
 12 is a **weaker body** leak: tail 64:128 **10/12**, **32/48**, AUC
 **0.877**, unmarked **48/48** (equals full-file **32/48**); opening
 **24/48**. Last-1 `hits` 100 → GPT-2 12 ranks **12/12** with isolated
-**36/48**; tail **40/48**. Distil last-4 transfer
+**36/48**; tail **40/48**. Last-4 `hits` 100 → GPT-2 12 is **opening
+overlap**, not that body transfer: **8/12**, isolated **24/48**, AUC
+**0.708**, unmarked $\le 0$ **45/48**, **2** ranking wins with no
+isolated TP (night-bus, garden); 0:4 is the same **24/48**; tail
+64:128 **6/12**, **12/48**, AUC **0.582**. Isolated **24/48** is
+chance at $\tau=0$. Distil last-4 transfer
 ranks **12/12** with **8** ranking wins with no isolated TP. Same
 pattern as Kirchenbauer GPT-2 ↔ Distil: last-1 is the isolated
 transfer. Same-stem n=12 last-1 is thinner (**24/48**). Do not sell
 Aaronson transfer **40/48**, last-4 in-family **32/48**, hits transfer
-**36/48**, or Distil last-4 **16/48**.
+**36/48**, last-4 hits transfer **24/48**, or Distil last-4 **16/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -915,6 +922,12 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods hashpool --context-len 1 --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashpool-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-hits-k4-to-gpt212
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
