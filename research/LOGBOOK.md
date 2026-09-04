@@ -3371,4 +3371,16 @@ isolated **26/48 vs 21/48**. The unwindowed fit-prefix-16 file score
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-04 GPT-2 rankpath mid-file [16:32) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-mid.md](PROTOCOL-isolated-rankpath-mid.md)
+named before rankpath `[16:32)` LRs. Existing `rankpath` on
+`experiments/2026-08-17-pair-12x4/` with `--windows 16:32 --fit-prefix 32
+--pos-bucket 1`. Do not leftover-slice. Do not invent those scores.
+Opening `[0:4)` stays **11/12**, isolated **41/48 vs 35/48**. Bucketed
+`[4:16)` stays **7/12**, isolated **20/48 vs 22/48**. Nothing replaces
+**25/48**. Isolated-file detection is still not finished. Do not write
+`thesis/`.
+
 ---

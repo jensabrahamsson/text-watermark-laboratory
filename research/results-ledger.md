@@ -674,6 +674,9 @@ gpt2-medium LM rankpath on Distil generated tokens `[4:16)` is
 [PROTOCOL-isolated-rankpath-m2dbody.md](PROTOCOL-isolated-rankpath-m2dbody.md)
 (`a550cb6`): ranking **9/12**, isolated **32/48 vs 25/48**. H-rpm2dbody
 **fails** as a raw count. Do not sell **32/48**. Isolated-file remains open.
+GPT-2 rankpath on generated tokens `[16:32)` is
+[PROTOCOL-isolated-rankpath-mid.md](PROTOCOL-isolated-rankpath-mid.md)
+and is named before those LRs. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice

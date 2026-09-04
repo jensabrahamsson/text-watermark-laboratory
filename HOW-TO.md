@@ -285,7 +285,9 @@ tokens `[4:16)` is named in
 named in
 [research/PROTOCOL-isolated-rankpath-m2dbody.md](research/PROTOCOL-isolated-rankpath-m2dbody.md)
 (`a550cb6`). Ranking **9/12**, isolated **32/48 vs 25/48**. Do not sell
-**32/48**. Do not leftover-slice. Do not merge PR **#9**.
+**32/48**. GPT-2 rankpath on generated tokens `[16:32)` is named in
+[research/PROTOCOL-isolated-rankpath-mid.md](research/PROTOCOL-isolated-rankpath-mid.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 That lock is not **25/48**.
 
 ```bash

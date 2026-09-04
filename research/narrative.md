@@ -196,6 +196,8 @@ gpt2-medium LM rankpath on Distil generated tokens `[4:16)` is ranking
 **9/12**, isolated **32/48 vs 25/48**
 ([PROTOCOL-isolated-rankpath-m2dbody.md](PROTOCOL-isolated-rankpath-m2dbody.md)).
 H-rpm2dbody **fails** as a raw count. Do not sell **32/48**.
+GPT-2 rankpath on generated tokens `[16:32)` is named before those LRs
+([PROTOCOL-isolated-rankpath-mid.md](PROTOCOL-isolated-rankpath-mid.md)).
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed
