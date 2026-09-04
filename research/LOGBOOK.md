@@ -2742,7 +2742,7 @@ JSON: `experiments/2026-09-04-pair-distil-100x4-aaronson/`,
 ## 2026-09-04 Qwen2-1.5B Aaronson 100-family freeze
 
 [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
-frozen before generation. Same laboratory Aaronson–Kirchner
+committed at SHA `a761a7d`. Frozen before generation. Same laboratory Aaronson–Kirchner
 exponential-minimum as [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md),
 generator `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260905**,
 `--mixin aaronson`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.

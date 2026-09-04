@@ -208,6 +208,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "bf05759" in PAPER
     assert "PROTOCOL-next-aaronson-qwen" in PAPER
     assert "1171d5c" in PAPER
+    assert "PROTOCOL-next-aaronson-qwen-100" in PAPER
+    assert "a761a7d" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -271,6 +273,10 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "1171d5c" in next_sec
     assert "60/96" in next_sec
     assert "pair-qwen-12x4-aaronson" in next_sec
+    assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
+    assert "a761a7d" in next_sec
+    assert "has not been generated" in next_sec
+    assert "pair-qwen-100x4-aaronson" in next_sec
     assert "12ea3ef1c34f037b" in PAPER
     assert "ac41821f88adba14" in PAPER
     assert "419a2088b2ba8e6e" in PAPER
@@ -301,6 +307,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-distil-100x4-ngram13" not in abs_
     assert "601/800" not in abs_
     assert "pair-distil-100x4-aaronson" not in abs_
+    assert "pair-qwen-100x4-aaronson" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
