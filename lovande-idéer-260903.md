@@ -66,6 +66,23 @@ Distil 100 tail ranks **98/100** while isolated t=0 is only **194/400**
 the Distil Kirchenbauer freeze. Ranking geography still matches GPT-2
 Kirchenbauer. Do not sell Distil tail **194/400**.
 
+Confirmatory n=100 last-4 `rankpath` (`--rankpath-pos-bucket 0`,
+`--skip-nested`, windows 0:4 and 64:128; Distil uses `--model gpt2`,
+same BPE) stays far below interpolate:
+
+| Corpus | full file | 0:4 | 64:128 |
+|---|---|---|---|
+| GPT-2 KGW 100 rankpath | 79/100, **248/400**, 0.679, unmarked **253/400**, **20** ranking-losses-with-TP | 58/100, **206/400**, 0.526, perm $p\approx 0.07$, isolated chance (binom $p\approx 0.29$) | 71/100, **222/400**, 0.607, unmarked **230/400** |
+| Distil KGW 100 rankpath | 82/100, **199/400**, 0.681, isolated chance (binom $p\approx 0.56$), **5** ranking-only | 77/100, **243/400**, 0.609 | 62/100, **128/400**, 0.601, isolated chance (binom $p=1$) |
+
+GPT-2 interpolate last-4 tail remains **100/100**, **364/400**,
+**0.953**. Rankpath tail **71/100** / **222/400** / **0.607** is not
+that body reader. Distil interpolate last-4 tail was **98/100**,
+**194/400**; Distil rankpath isolated **199/400** is chance at
+$\tau=0$ while ranking still **82/100**. Count tables, not rankpath,
+remain the Kirchenbauer body reader at confirmatory n. Do not sell
+**248/400**, **199/400**, or ranking **82/100**.
+
 Kirchenbauer is **back-loaded**. SynthID is **front-loaded**. Original-12
 SynthID interpolate 64:128 **3/12** is not “the tail is chance at
 every n”: 100-family interpolate 64:128 still ranks **93/100**. Do not
@@ -90,8 +107,11 @@ detection. Occupancy-free KGW openings are **not** the leak. Rankpath
 on Kirchenbauer 12 is below interpolate; do not sell **31/48**. Distil
 100-family Kirchenbauer interpolate **100/100** /
 isolated **683/800** (opened on `main`) is the same construction at
-confirmatory scale, still not **25/48**. Do not sell confirmatory tail
-**100/100** or SynthID tail **93/100** as an isolated-file detector.
+confirmatory scale, still not **25/48**. Confirmatory n=100 rankpath
+is not the interpolate body reader; do not sell **248/400**, Distil
+isolated **199/400**, or ranking **82/100**. Do not sell confirmatory
+tail **100/100** or SynthID tail **93/100** as an isolated-file
+detector.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -108,13 +128,31 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-rankpath-k4-windows-ends
 ```
 
 **Why it is a backlog item.** If the next honesty pass needs a
 reader that is not front-loaded, match the mixin: Kirchenbauer count
-tables rank 64:128 at both 12 and 100 families. Do not spend another
-leftover-targeting round trying to recover SynthID’s original-12
-interpolate tail with last-4 tables.
+tables rank 64:128 at both 12 and 100 families. Confirmatory n=100
+rankpath last-4 does not become that body reader (GPT-2 tail **71/100**
+/ **222/400** versus interpolate **100/100** / **364/400**; Distil
+isolated **199/400** is chance). Do not spend another leftover-targeting
+round trying to recover SynthID’s original-12 interpolate tail with
+last-4 tables.
 
 ---
 
@@ -814,7 +852,8 @@ GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Di
 **40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil 100 last-1 hits → Distil 12
 **36/48** / GPT-2 100 **356/400**, Distil 100 last-1 hashpool → GPT-2 12
 **24/48**, Distil KGW rankpath
-**20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
+**20/48**, Distil KGW 100 rankpath **199/400**, GPT-2 KGW 100 rankpath
+**248/400**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, Aaronson interpolate last-4 opening
 **380/400** / tail **208/400**, last-4 hard opening **388/400**, occupancy-free last-1
@@ -2006,7 +2045,12 @@ last-2 is **9/12**, **20/48**, not better than last-4 interpolate
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
 **35/48**, **0.716**. KGW `rankpath` tail **11/12** is below
 interpolate **12/12**, AUC **0.904**. DistilGPT2 KGW last-4 rankpath is
-chance (**4/12**, **20/48**, AUC **0.397**). Last-1 Distil KGW rankpath
+chance (**4/12**, **20/48**, AUC **0.397**). At n=100 Distil KGW
+rankpath still ranks **82/100** while isolated **199/400** is chance
+(file-level binom $p\approx 0.56$); tail isolated **128/400** is
+chance (binom $p=1$). GPT-2 KGW 100 rankpath is **79/100**,
+**248/400**, 0.679; tail **71/100**, **222/400**, 0.607, far below
+interpolate tail **100/100**, **364/400**. Last-1 Distil KGW rankpath
 is **8/12**, **27/48**, AUC **0.602**. Qwen2-1.5B KGW last-4
 rankpath is also chance (**8/12**, **26/48**, AUC **0.540**; windows
 0:4 **3/12** / 64:128 **3/12**). Last-1 Qwen KGW rankpath is
@@ -2045,6 +2089,8 @@ A freeze of **width and mixin geography** that already moved a grain:
 
 1. Kirchenbauer green-list leak is a **body** leak under last-4
    interpolate (100-family tail **100/100**, opening **88/100**).
+   Confirmatory n=100 rankpath is not that body reader (GPT-2 tail
+   **71/100** / **222/400**; Distil isolated **199/400** is chance).
 2. Matching `context_len` to last-1 hash width recovers isolated
    `hard` / `hits` / `hashpool` sign on Kirchenbauer (100-family hard
    **389/400** vs last-4 **209/400**; hits **395/400** vs **254/400**;
