@@ -367,7 +367,7 @@ GPT-2 last-2 interpolate 16:32 **98/100** equals last-4 interpolate **97/100** a
 | Corpus | last-1 hits | last-1 hashpool | last-1 hashtok | last-2 hashtok |
 |---|---|---|---|---|
 | GPT-2 4:16 | **96/100**, 0.853, **314/400** | **98/100**, 0.852, **318/400** | **98/100**, 0.840, **314/400** | 92/100, 0.744, **277/400** |
-| Distil 4:16 | **97/100**, 0.812, **316/400** | **99/100**, 0.806, **300/400** | **98/100**, 0.798, **295/400** | — |
+| Distil 4:16 | **97/100**, 0.812, **316/400** | **99/100**, 0.806, **300/400** | **98/100**, 0.798, **295/400** | 92/100, 0.753, **247/400** |
 
 Last-1 hashtok isolated **314/400** equals last-1 hits on GPT-2. Distil ranking **98/100** sits with last-1 hits **97/100**; isolated **295/400** sits with last-1 hashpool **300/400**, below last-1 hits **316/400**. Last-2 hashtok ranking **92/100** sits with last-2 hits **96/100** / isolated **290/400**, below last-1. Later windows last-1 hashtok stay with last-1 hits (back-loaded body), not opening-only (`used_keys=false`, `--skip-nested`; isolated from `holdout.md`):
 
@@ -378,7 +378,7 @@ Last-1 hashtok isolated **314/400** equals last-1 hits on GPT-2. Distil ranking 
 | Distil 16:32 | **100/100**, 0.825, **321/400** | **98/100**, 0.821, **296/400** |
 | Distil 32:64 | **99/100**, 0.854, **328/400** | **99/100**, 0.842, **300/400** |
 
-GPT-2 last-1 hashtok 16:32 **99/100** equals last-1 hits. Distil ranking **98/100** sits with last-1 hits **100/100**; isolated **296/400** sits below last-1 hits **321/400**, same hashpool-vs-hits split as 4:16. Occupancy-free last-1 hashing is a body reader when not using `--fit-prefix`. The empty last-1 hashtok in this file is `--fit-prefix 1` (opening occupancy-free unigrams), not this mid-file reader. Do not switch hashtok to last-2 thinking last-1 is empty. GPT-2 4:16 last-1 hashtok has **2** ranking losses with isolated TP; Distil has **1** ranking-only and **2** losses. Do not leftover-target those zeros. Do not sell last-1 hashtok 4:16 **98/100** / **314/400** / Distil **295/400**, 16:32 **99/100** / Distil **98/100**, or last-2 **92/100**.
+GPT-2 last-1 hashtok 16:32 **99/100** equals last-1 hits. Distil ranking **98/100** sits with last-1 hits **100/100**; isolated **296/400** sits below last-1 hits **321/400**, same hashpool-vs-hits split as 4:16. Distil last-2 hashtok 4:16 ranking **92/100** sits with last-2 hits **93/100**; isolated **247/400** (**6** ranking-only, **7** ranking losses with isolated TP) sits with last-2 hashpool **252/400**, below last-1 hashtok **295/400**. Occupancy-free last-1 hashing is a body reader when not using `--fit-prefix`. Existing `hashtok2` (min_count=2; not a new method; do not pass `--skip-hashpool`) sits with last-1 hashtok on GPT-2 KGW 4:16 (**96/100**, 0.837, **312/400** vs **98/100**, **314/400**); 16:32 **98/100**, **333/400** equals last-1 hashtok isolated. Occupancy-free last-1 body is not a singleton core. In-domain hashtok2 on the original 12 was a sign reshuffle; this 100-family last-1 mid is not that. The empty last-1 hashtok in this file is `--fit-prefix 1` (opening occupancy-free unigrams), not this mid-file reader. Do not switch hashtok to last-2 thinking last-1 is empty. GPT-2 4:16 last-1 hashtok has **2** ranking losses with isolated TP; Distil has **1** ranking-only and **2** losses. Do not leftover-target those zeros. Do not sell last-1 hashtok 4:16 **98/100** / **314/400** / Distil **295/400**, 16:32 **99/100** / Distil **98/100**, last-2 Distil **247/400**, or hashtok2 **96/100** / **312/400**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -680,6 +680,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hashtok --context-len 2 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashtok-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hashtok --context-len 2 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashtok-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashtok2 --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashtok2-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
@@ -1531,7 +1541,7 @@ Without `--fit-prefix` (same protocol as last-1 hits mid; do not pass
 | Distil 4:16 | **97/100**, 0.934, **376/400** | **97/100**, 0.929, **364/400** | **97/100**, 0.933, **360/400** | — |
 | Qwen 4:16 | **97/100**, 0.970, **356/400** | **98/100**, 0.972, **312/400** | 94/100, 0.949, **304/400** | — |
 
-Last-1 hashtok isolated **364/400** equals last-1 hashpool on GPT-2 (**9** ranking-only, unmarked $\le 0$ **398/400**), below last-1 hits **380/400**. Distil last-1 hashtok ranking **97/100** matches last-1 hits; isolated **360/400** (**10** ranking-only) sits with last-1 hashpool **364/400**. Qwen ranking **94/100** sits with last-1 hits **97/100**; isolated **304/400** (**18** ranking-only) sits with last-1 hashpool **312/400**, below last-1 hits **356/400**. Later windows stay that split: GPT-2 16:32 last-1 hashtok **99/100**, **356/400**, **10** ranking-only versus last-1 hits **99/100**, **372/400**; Distil 16:32 **97/100**, **356/400**, **11** ranking-only; Qwen 16:32 **99/100**, **308/400**, **22** ranking-only. Hits remains the tighter isolated reader. Last-2 hashtok isolated **344/400** (**13** ranking-only) is weaker. Do not treat `--fit-prefix 1` emptiness as evidence that occupancy-free hashing cannot read last-1. Do not switch hashtok to last-2. Do not leftover-target those ranking-only zeros. Do not sell last-1 hashtok 4:16 **100/100** / **364/400** / Distil **360/400** / Qwen **94/100** / **304/400** or 16:32 **356/400** / Qwen **308/400**. Qwen last-1 hashtok full-file ranking **100/100** / AUC **1.000** is occupancy-free hashing, not the opened interpolate last-4 freeze. Do not sell AUC **1.000**. Last-4 `hashtok` (no
+Last-1 hashtok isolated **364/400** equals last-1 hashpool on GPT-2 (**9** ranking-only, unmarked $\le 0$ **398/400**), below last-1 hits **380/400**. Distil last-1 hashtok ranking **97/100** matches last-1 hits; isolated **360/400** (**10** ranking-only) sits with last-1 hashpool **364/400**. Qwen ranking **94/100** sits with last-1 hits **97/100**; isolated **304/400** (**18** ranking-only) sits with last-1 hashpool **312/400**, below last-1 hits **356/400**. Later windows stay that split: GPT-2 16:32 last-1 hashtok **99/100**, **356/400**, **10** ranking-only versus last-1 hits **99/100**, **372/400**; Distil 16:32 **97/100**, **356/400**, **11** ranking-only; Qwen 16:32 **99/100**, **308/400**, **22** ranking-only. Hits remains the tighter isolated reader. Existing `hashtok2` last-1 (min_count=2; do not pass `--skip-hashpool`) on GPT-2 Aaronson 4:16 is **100/100**, 0.995, **372/400**, **7** ranking-only — slightly tighter isolated than last-1 hashtok **364/400**, nearer last-1 hits **380/400**. Occupancy-free last-1 body is not a singleton core. Last-2 hashtok isolated **344/400** (**13** ranking-only) is weaker. Do not treat `--fit-prefix 1` emptiness as evidence that occupancy-free hashing cannot read last-1. Do not switch hashtok to last-2. Do not leftover-target those ranking-only zeros. Do not sell last-1 hashtok 4:16 **100/100** / **364/400** / Distil **360/400** / Qwen **94/100** / **304/400** or 16:32 **356/400** / Qwen **308/400** or hashtok2 **372/400**. Qwen last-1 hashtok full-file ranking **100/100** / AUC **1.000** is occupancy-free hashing, not the opened interpolate last-4 freeze. Do not sell AUC **1.000**. Last-4 `hashtok` (no
 `--skip-hashpool`; `--fit-prefix 4`) is **100/100**, **384/400**, AUC
 **0.982**, unmarked $\le 0$ **363/400** (precision **0.912**); 0:4 is
 the same **384/400**; tail **0/100**, **0/400**. Opening overlap with
@@ -2470,6 +2480,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson
   --methods hashtok --context-len 2 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hashtok2 --context-len 1 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok2-k1-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
   --model gpt2 --methods hashpool --context-len 2 --skip-nested \
@@ -4496,7 +4511,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **252/400** vs hits **303/400**). Occupancy-free `hashtok` last-1
    without `--fit-prefix` sits with last-1 hits on GPT-2 KGW 4:16
    (**98/100**, **314/400**); Distil **98/100**, **295/400**. Later windows
-   stay with last-1 hits (GPT-2 16:32 **99/100**). Last-2 hashtok **92/100** sits below that.
+   stay with last-1 hits (GPT-2 16:32 **99/100**). Last-2 hashtok **92/100** sits below that
+   (Distil isolated **247/400** like last-2 hashpool). `hashtok2` last-1 sits with last-1 hashtok
+   (GPT-2 KGW 4:16 **96/100**, **312/400**), not a singleton core.
    The empty last-1 hashtok is `--fit-prefix 1`. Last-2 `interpolate` sits with
    last-4 interpolate (GPT-2 4:16 **97/100**, **290/400** vs last-4
    **95/100**, **289/400**; 16:32 **98/100** vs **97/100**), not with
@@ -4549,7 +4566,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    Occupancy-free `hashtok` last-1 without `--fit-prefix` sits with
    last-1 hashpool on GPT-2 Aaronson 4:16 (**100/100**, **364/400**,
    **9** ranking-only); Distil **97/100**, **360/400**; Qwen **94/100**,
-   **304/400**. `--fit-prefix 1` last-1 hashtok stays empty.
+   **304/400**. `--fit-prefix 1` last-1 hashtok stays empty. `hashtok2` last-1 on GPT-2
+   Aaronson 4:16 is **372/400**, nearer last-1 hits than last-1 hashtok **364/400**.
    Do not switch hashtok to last-2. GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
    **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
