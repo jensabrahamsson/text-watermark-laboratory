@@ -2821,4 +2821,31 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-qwen-100x4-ngram13
 ```
 
+## 2026-09-04 Hw=12 vs Hw=4 body-window freeze
+
+Draft GitHub PRs **#5**, **#6**, and **#7** (not merged) named a hole:
+full-file $\Hw=12$ interpolate **76/100** may be the opening, not a
+weaker body reader. [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
+committed before those window LRs. Existing twins only
+(`experiments/2026-09-03-pair-100x4-ngram13/`,
+`experiments/2026-09-01-pair-100x4/`). Existing methods
+`interpolate,hard,hits`. Do not overwrite the full-file $\Hw=12$ dump
+or the public H2 absolute windows. Do not look at window LRs until
+the two probe commands have been run once, as written. Do not start
+those probes while Qwen Aaronson 100 `pair` holds the CPU. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods interpolate,hard,hits --context-len 4 --skip-hashpool \
+  --windows 0:4,4:16,16:32,32:64,64:128 \
+  --out-dir experiments/2026-09-04-probe-100x4-ngram13-windows
+
+python -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods interpolate --context-len 4 --skip-hashpool \
+  --windows 64:128 \
+  --out-dir experiments/2026-09-04-probe-100x4-public-w64-128
+```
+
 ---
