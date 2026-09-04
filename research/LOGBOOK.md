@@ -3090,4 +3090,15 @@ is ranking **8/12**, isolated **20/48 vs 32/48** (AUC **0.619**; nested
 on GPT-2 twins stays **41/48**. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-04 Distil LM on gpt2-medium 12 freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md)
+named before Distil-on-medium opening rankpath LRs. Existing `rankpath`
+on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with
+`--model distilgpt2`. Do not leftover-slice. Do not invent those scores.
+GPT-2-small on the same twins stays **8/12**, isolated **20/48 vs 32/48**.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
+
 ---
