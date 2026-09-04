@@ -436,8 +436,16 @@ reader. Aaronson rankpath
 tables trained on the original 12 (`--overlap keep`, same stems,
 different mixin) do **not** classify public SynthID 12 (isolated
 **0/48**, AUC **0.541**, seven ranking wins with no isolated TP) or
-Kirchenbauer 12 (**0/48**, AUC **0.568**). Mixin-specific. GPT-2 n=12
-only; Distil 100 rankpath is below.
+Kirchenbauer 12 (**0/48**, AUC **0.568**). Mixin-specific. GPT-2
+Aaronson 100 rankpath last-4 (`--skip-nested`, `--rankpath-pos-bucket
+0`) is **100/100**, isolated **396/400**, AUC **1.000**, unmarked
+$\le 0$ **398/400**, one ranking-only. Absolute windows: 0:4
+**96/100**, **360/400**, **0.953**, unmarked **371/400**, **6**
+ranking-only; 64:128 **100/100**, **392/400**, **1.000**, unmarked
+**399/400**, **2** ranking-only. Full-file **396/400** sits with the
+tail. GPT-2 12 rankpath tail **44/48** **does** survive confirmatory n
+as an isolated body leak. Distil 100 rankpath below does **not**. Do
+not sell **396/400** or tail **392/400**.
 
 DistilGPT2 Aaronson 12×4 is the opened freeze
 [research/PROTOCOL-next-aaronson-distil.md](research/PROTOCOL-next-aaronson-distil.md)
@@ -574,7 +582,9 @@ rankpath split. Isolated t=0 is **opening-heavy**: full-file
 **not** survive confirmatory n. Last-1 hard full-file **372/400**
 matches this rankpath isolated count; last-1 hard tail was only
 **240/400**. Rankpath tail isolated **280/400** is above last-1 hard
-tail, still below GPT-2 Aaronson last-1 tail **380/400**. Do not sell
+tail, still below GPT-2 Aaronson last-1 tail **380/400** and far below
+GPT-2 Aaronson 100 rankpath tail **392/400**. Distil 12 rankpath body
+isolated does not become GPT-2 100 rankpath body isolated. Do not sell
 rankpath **372/400**, opening **344/400**, tail ranking **97/100**, or
 Distil 12 rankpath **44/48** as n=100 isolated.
 
@@ -798,6 +808,7 @@ hard **372/400** / hits **380/400** / interpolate last-4 tail
 **32/48**, Distil last-1 hits **32/48**, Distil last-1 postokhits
 **0/48**, Aaronson rankpath
 **44/48**, Aaronson rankuni **44/48**, Distil Aaronson rankpath **44/48**,
+GPT-2 Aaronson 100 rankpath **396/400** / tail **392/400**,
 GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Distil 100
 **244/400** / hits ranking **97/100**, Distil 100 Aaronson last-1 → Distil 12
 **40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil 100 last-1 hits → Distil 12
@@ -1252,6 +1263,11 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods rankpath --context-len 4 --skip-hashpool --rankpath \
+  --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-rankpath-k4-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hashtok --context-len 1 --fit-prefix 1 --skip-nested \
@@ -2059,7 +2075,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-1 hard is the same isolated **40/48** (tail equals full-file;
    last-1 hits transfer isolated **36/48**). Distil 100 rankpath last-4
    still ranks the tail (**97/100**) while isolated **372/400** sits
-   with opening **344/400**, not Distil 12 rankpath tail **44/48**.
+   with opening **344/400**, not Distil 12 rankpath tail **44/48**. GPT-2
+   Aaronson 100 rankpath last-4 isolated **396/400** sits with the tail
+   **392/400**.
    Distil 100 KGW → GPT-2 100
    last-1 is a body leak (**338/400**, tail **327/400** vs last-4
    **53/400**); GPT-2 100 KGW → Distil 100 last-1 is **247/400** (Distil
