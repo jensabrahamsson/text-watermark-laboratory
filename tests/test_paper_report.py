@@ -588,6 +588,57 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
     assert "before generation" in next_sec
 
 
+def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
+    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+
+    def ba(path: Path) -> tuple[int, int, int]:
+        interp = json.loads((path / "interpolate" / "holdout.json").read_text())
+        hard = json.loads((path / "hard" / "holdout.json").read_text())
+        assert interp["used_keys"] is False
+        wins = interp["n_prompts_marked_above"]
+        hard_wins = hard["n_prompts_marked_above"]
+        balanced = (
+            interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+        )
+        return wins, hard_wins, balanced
+
+    distil_hw12 = ba(
+        ROOT / "experiments" / "2026-09-04-probe-distil-12x4-ngram13-hard-last4"
+    )
+    qwen_hw12 = ba(
+        ROOT / "experiments" / "2026-09-04-probe-qwen-12x4-ngram13-hard-last4"
+    )
+    distil_aar = ba(
+        ROOT / "experiments" / "2026-09-04-probe-distil-12x4-aaronson-hard-last4"
+    )
+    qwen_aar = ba(
+        ROOT / "experiments" / "2026-09-04-probe-qwen-12x4-aaronson-hard-last4"
+    )
+    assert f"{distil_hw12[0]}/12" in next_sec
+    assert f"{distil_hw12[2]}/96" in next_sec
+    assert f"{distil_hw12[1]}/12" in next_sec
+    assert f"{qwen_hw12[0]}/12" in next_sec
+    assert f"{qwen_hw12[2]}/96" in next_sec
+    assert f"{distil_aar[0]}/12" in next_sec
+    assert f"{distil_aar[2]}/96" in next_sec or f"{distil_aar[2]}/48" in next_sec
+    marked = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-probe-distil-12x4-aaronson-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )["n_marked_lr_positive"]
+    assert f"{marked}/48" in next_sec
+    assert f"{qwen_aar[0]}/12" in next_sec
+    assert f"{qwen_aar[2]}/96" in next_sec
+    assert "ed9fb20" in next_sec
+    assert "before generation" in next_sec
+
+
 def test_maskabs_table_is_dump_backed() -> None:
     tex = Path(ROOT / "paper" / "main.tex").read_text()
     assert r"\label{tab:maskabs}" in tex
