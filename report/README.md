@@ -1,12 +1,10 @@
 # Dated report snapshots
 
-PDF snapshots of `paper/main.tex`, named
+Two PDFs of `paper/main.tex`:
 
-```text
-Abrahamsson-YYYY-MM-DD-paired-reference-key-free-indication-<gitsha>.pdf
-```
+- **Current:** `Abrahamsson-2026-09-04-paired-reference-key-free-indication-4c31077.pdf`
+  (28 A4; dated 4 September 2026).
+- **Previous dated compact:** `Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf`
 
-The SHA is the GitHub `main` revision the PDF was compiled from.
-Current file: `Abrahamsson-2026-09-04-paired-reference-key-free-indication-ce5f168.pdf`
-(28 A4 pages; dated 4 September 2026; title/author metadata set).
-Compile with `tectonic` or `pdflatex` from `paper/`. Earlier snapshots stay.
+Do not add a new SHA snapshot for every compile. Compile with `tectonic`
+or `pdflatex` from `paper/`.
