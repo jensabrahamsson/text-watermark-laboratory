@@ -344,7 +344,21 @@ ranking wins with no isolated TP. Full-file interpolate last-1
 **296/400** sits with the tail. Interpolate last-1 isolated is
 opening-heavy; tail ranking is ranking-without-isolated-TP. Hard
 last-1 is the body isolated reader. Do not sell interpolate last-1
-opening **380/400** or tail **284/400**. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
+opening **380/400** or tail **284/400**. Freeze interpolate last-4
+windows (`--skip-nested`) match that opening-then-dilution: 0:4
+**100/100**, **380/400**, AUC **0.988**, unmarked $\le 0$ **392/400**,
+**5** ranking-only; 64:128 **99/100**, **208/400**, **0.980**, unmarked
+**400/400**, **47** ranking-only. Full-file interpolate last-4
+**208/400** equals the tail. Ranking **100/100** is ranking-without-TP
+(**48/100**), not isolated **208/400**. Last-4 hard windows: 0:4
+**100/100**, **388/400**, AUC **0.985**, unmarked only **323/400**
+(FPs); 64:128 **95/100**, **324/400**, **0.944**, unmarked **398/400**,
+**14** ranking-only. Full-file last-4 hard **344/400** sits with the
+tail. Last-1 hard does not add opening TPs (both widths **388/400** at
+0:4); it recovers tail isolated (**324/400** → **380/400**) and
+specificity (unmarked **323/400** → **399/400**). Do not sell
+interpolate last-4 opening **380/400**, last-4 hard opening **388/400**,
+or freeze ranking **100/100**. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
 unmarked $\le 0$ **48/48** (below hard last-1). Last-1 hashpool
 windows also rank both ends: 0:4 **12/12**, **40/48**, 0.950; 64:128
 **10/12**, **36/48**, 0.877. 100-family hashpool
@@ -587,9 +601,17 @@ Distil 100 → Distil 12 matches hits isolated **36/48**, tail
 GPT-2 12 ranks **12/12** with isolated only **24/48** (file-level
 binom $p\approx 0.56$), **6** ranking-only; tail isolated **20/48**.
 Hard last-1 remains the isolated transfer onto GPT-2 12 (**40/48**).
-Do not sell Distil
+Distil 100 last-1 hashpool → GPT-2 100 is **99/100**, **316/400**, AUC
+**0.992**, unmarked **400/400**, **20** ranking-only; opening 0:4
+**100/100**, **388/400** with unmarked only **357/400** (FPs); tail
+**98/100**, **304/400**. Below hard last-1 transfer **348/400** and
+hits **356/400**. GPT-2 100 last-1 hashpool → Distil 100 is
+**97/100**, **236/400**, AUC **0.964**, unmarked **398/400**, **38**
+ranking-only; tail **94/100**, **232/400** (equals full-file). That
+matches last-1 hits transfer ranking **97/100** / isolated
+**240/400**. Do not sell Distil
 100 → Distil 12 **40/48**, hits **36/48**, last-4 hits **48/48**,
-hashpool ranking **12/12**, Distil 100 → GPT-2 100 **348/400** / hits **356/400**, or
+hashpool ranking **12/12**, Distil 100 → GPT-2 100 **348/400** / hits **356/400** / hashpool **316/400**, GPT-2 100 → Distil 100 hashpool **236/400**, or
 **98/100**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
@@ -745,7 +767,8 @@ GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Di
 **24/48**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
-**380/400** / tail **284/400**, occupancy-free last-1
+**380/400** / tail **284/400**, Aaronson interpolate last-4 opening
+**380/400** / tail **208/400**, last-4 hard opening **388/400**, occupancy-free last-1
 **33/48**, occupancy-free hashtok last-4 **13/48**, Qwen Aaronson
 hashtok last-4 **44/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
@@ -1068,6 +1091,16 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k1-windows-ends
 
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hard-k4-windows-ends
+
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
   --model gpt2 --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
@@ -1184,6 +1217,18 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods hashpool --context-len 1 --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hashpool-k1-to-gpt212
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hashpool-k1-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-aaronson100-hashpool-k1-to-distil100
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
@@ -1814,7 +1859,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
    windows on `hard`; interpolate last-1 isolated at n=100 is
    opening-heavy (**380/400**) plus tail ranking-without-TP
-   (**284/400**). Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift. DistilGPT2 Aaronson
+   (**284/400**). Freeze interpolate last-4 is the same split
+   (opening **380/400**, full-file **208/400** equals the tail). Last-4
+   hard opening is already **388/400** with FPs; last-1 recovers tail
+   isolated (**324/400** → **380/400**) and specificity. Kirchenbauer last-1 `hard` / `hits` / `hashpool` is a body lift. DistilGPT2 Aaronson
    last-1 still lifts `hard` only at n=12 (**16/48**); at n=100 last-1
    hard is **372/400** versus last-4 **308/400** because last-4 dilutes
    an already-saturated opening, not because Distil grows a GPT-2
