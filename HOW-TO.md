@@ -264,7 +264,9 @@ on gpt2-medium 12×4 is named in
 **24/48**. gpt2-medium-LM rankpath on generated tokens `[4:16)` is named in
 [research/PROTOCOL-isolated-rankpath-mbody.md](research/PROTOCOL-isolated-rankpath-mbody.md)
 (`3ea80e4`). Ranking **9/12**, isolated **27/48 vs 28/48**. Do not sell
-**27/48**. Do not leftover-slice. Do not merge PR **#9**.
+**27/48**. Distil native rankpath on generated tokens `[4:16)` is named in
+[research/PROTOCOL-isolated-rankpath-d12body.md](research/PROTOCOL-isolated-rankpath-d12body.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

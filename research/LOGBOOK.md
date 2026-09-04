@@ -3222,4 +3222,16 @@ is ranking **9/12**, isolated **27/48 vs 28/48** (AUC **0.580**; nested
 **25/48**. Do not sell **27/48**. Nothing replaces **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
 
+## 2026-09-04 Distil native rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-d12body.md](PROTOCOL-isolated-rankpath-d12body.md)
+named before Distil native rankpath `[4:16)` LRs. Existing `rankpath` on
+`experiments/2026-08-31-pair-distilgpt2-12x4/` with `--model distilgpt2
+--windows 4:16 --fit-prefix 16 --pos-bucket 1`. Do not leftover-slice.
+Do not invent those scores. Distil native opening stays **8/12**, isolated
+**28/48 vs 32/48**. Distil-LM `[4:16)` on GPT-2 twins stays **6/12**,
+isolated **24/48 vs 23/48**. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
 ---
