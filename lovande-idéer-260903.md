@@ -1881,7 +1881,8 @@ SynthID last-1 hits n=100 **99/100** / isolated **358/400** / 4:16
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
 switch Kirchenbauer hard to last-2 (12×4 collapse; 100×4 is strictly
-below last-1). Kirchenbauer last-1 tables trained on 100 GPT-2
+below last-1; mid 4:16 last-2 hard is **55/100** vs last-2 hits
+**96/100**). Kirchenbauer last-1 tables trained on 100 GPT-2
 families do **not** classify public SynthID original-12 (isolated
 **6/48**, AUC 0.542, three ranking wins with no isolated TP) or
 Grok-register SynthID 12 (**6/12**, **8/48**, AUC 0.523, two ranking
