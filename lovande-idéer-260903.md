@@ -106,9 +106,14 @@ $p\approx 0.21$; n=100 **31/100**, AUC **0.447**, perm $p=1$ (mean
 marked more negative). The same reader on GPT-2 $\Hw=12$ is chance
 ranking (n=100 AUC **0.507**). Interpolate last-4 remains **100/100**,
 **0.953** on the GPT-2 KGW tail and still ranks Distil KGW. Count
-tables, not snaprate, remain the body reader. Do not sell snapleave
+tables, not snaprate, remain the body reader. Qwen2-1.5B Kirchenbauer
+12×4 snapleave ranks **10/12**, AUC **0.686**, perm $p\approx 0.0005$,
+marked>0 **47/48** with unmarked $\le 0$ **4/48**; snapupset
+**11/12**, **0.696**. That is n=12 same-tokenizer corroboration of the
+GPT-2 ranking look, not Distil n=100. Isolated $\tau=0$ still fails.
+Do not sell snapleave
 ranking **88/100**, marked>0 **386/400**, nested **271/400**, 12-file
-**10/12**, or Distil **9/12**. `--snaprate` does not emit `--windows`
+**10/12**, Qwen **10/12**, or Distil **9/12**. `--snaprate` does not emit `--windows`
 slices (it scores the generated path only).
 
 Same last-4 interpolate tables transfer that body leak across
@@ -284,6 +289,15 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --model gpt2 --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-snaprate
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
@@ -2886,7 +2900,11 @@ rankpath is also chance (**8/12**, **26/48**, AUC **0.540**; windows
 **10/12**, **29/48**, AUC **0.668**, unmarked $\le 0$ only **28/48**
 — below Qwen hits last-1 **41/48**. Count
 tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
-**0/12**. Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
+**0/12**. Confirmatory n=100 is anti-correlated: snapleave **0/100**,
+isolated **0/400**, AUC **0.000**, mean marked $-0.34$ vs unmarked
+$+0.10$ (marked text stays at the unmarked argmax more often). Do not
+invert that sign into a detector. Do not sell **0/100** or inverted
+AUC **1.000**. Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
 12×4 snapleave **7/12**, marked>0 **48/48** with unmarked $\le 0$
 **0/48**, AUC 0.523, perm $p\approx 0.33$; snapupset **6/12**. At n=100
 snapleave **51/100**, marked>0 **383/400** with unmarked $\le 0$ only
