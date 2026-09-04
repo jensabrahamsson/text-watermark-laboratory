@@ -2722,9 +2722,52 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-distil-100x4-aaronson
 ```
 
+## 2026-09-04 DistilGPT2 Aaronson 100-family opened
 
+[PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
+named `bbef06e`. Pair seed **20260905**, `--mixin aaronson`,
+`--model distilgpt2`. Official first-draw z>3 **71/100**
+(H-aar-d100-ctrl fails as a raw 100/100; 29 Distil degenerate loops at
+$z=-5.52$). Interpolate last-4 **96/100** (AUC **0.902**, isolated
+**252/400 vs 349/400**, BA **601/800**; 36/96 ranking wins have 0
+isolated TPs). Hard **91/100** (AUC **0.899**, BA **654/800**).
+Occupancy **28824** seen vs **61305** unseen. `used_keys=false`. Do not
+sell **96/100** or **601/800** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
 
+JSON: `experiments/2026-09-04-pair-distil-100x4-aaronson/`,
+`experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-100x4-aaronson/`.
 
+## 2026-09-04 Qwen2-1.5B Aaronson 100-family freeze
 
+[PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
+committed at SHA `a761a7d`. Frozen before generation. Same laboratory Aaronson–Kirchner
+exponential-minimum as [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md),
+generator `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260905**,
+`--mixin aaronson`, Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
+Hypotheses H-aar-q100-ctrl, H-aar-q100-group, H-aar-q100-iso, and
+H-aar-q100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Probe and `atoms` must pass
+`--model Qwen/Qwen2-1.5B-Instruct`. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
 
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model Qwen/Qwen2-1.5B-Instruct --n-samples 4 --max-new-tokens 128 \
+  --seed 20260905 --mixin aaronson \
+  --hub-revision ba1cf1846d7df0a0591d6c00649f57e798519da8 \
+  --out-dir experiments/2026-09-04-pair-qwen-100x4-aaronson
+```
 
+## 2026-09-04 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-09-04` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-04-resample-work`.
+
+---

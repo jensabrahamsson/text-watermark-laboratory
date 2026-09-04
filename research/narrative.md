@@ -273,7 +273,10 @@ or **0/48**. Qwen2-1.5B Aaronson 12-LOO is
 sell **12/12** or **60/96**. DistilGPT2 $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
 (freeze SHA `d891622`). Opened: interpolate **88/100** (isolated
-**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**.
+**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**. DistilGPT2 Aaronson 100-family is
+[PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
+(freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
+**601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
@@ -292,7 +295,7 @@ occupancy **4557** seen vs **96991** unseen. Do not sell **12/12**,
   **11/20**, covered **16/28**, leftover official **20/20**, leftover
   interpolate **13/20**, union **30/48**, leftover **10/18**, leftover
   official **18/18**, leftover-18 rankpath **12/18**, leftover-18
-  interpolate **12/18**, Distil $\Hw=12$ **9/12** / **49/96**, Qwen $\Hw=12$ **4/12** / **41/96**, Distil Aaronson **7/12** / **0/48**, Qwen Aaronson **12/12** / **60/96**, Distil $\Hw=12$ 100-family **88/100** / **557/800**, Distil occupancy-free **22/48**, leftover Distil
+  interpolate **12/18**, Distil $\Hw=12$ **9/12** / **49/96**, Qwen $\Hw=12$ **4/12** / **41/96**, Distil Aaronson **7/12** / **0/48**, Qwen Aaronson **12/12** / **60/96**, Distil $\Hw=12$ 100-family **88/100** / **557/800**, Distil Aaronson 100-family **96/100** / **601/800**, Distil occupancy-free **22/48**, leftover Distil
   **3/18**, Distil→Distil **16/48**, Qwen→Qwen **31/48**, union **33/48**, leftover **9/15**, leftover official **15/15**, gpt2-medium leftover **0/15**, gpt2-medium occupancy-free **16/48**, gpt2-medium→gpt2-medium **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil **3/48**, absolute H2 **99/100** / **87/100**, absolute OOD 32:64 **10/12**, grok12 **39/48**, nested **23/48** / **26/48** /
   **27/48** / **35/48**, or rankpath **41/48** as replacing **25/48**.
 - Using pre-fix **10/12** / **29/48** as the main result.

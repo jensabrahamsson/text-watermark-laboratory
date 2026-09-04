@@ -208,6 +208,8 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "bf05759" in PAPER
     assert "PROTOCOL-next-aaronson-qwen" in PAPER
     assert "1171d5c" in PAPER
+    assert "PROTOCOL-next-aaronson-qwen-100" in PAPER
+    assert "a761a7d" in PAPER
     assert "--mixin kgw" in PAPER
     assert "20260904" in PAPER
     assert "8371406" in PAPER
@@ -262,11 +264,19 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-distil-12x4-aaronson" in next_sec
     assert "PROTOCOL-next-aaronson-distil-100" in next_sec
     assert "bf05759" in next_sec
-    assert "has not been generated" in next_sec
+    assert "601/800" in next_sec
+    assert "pair-distil-100x4-aaronson" in next_sec
+    assert "a043578f9795a7be" in PAPER
+    assert "89d3b8c7f8d5d0e0" in PAPER
+    assert "06b4d85a772626d4" in PAPER
     assert "PROTOCOL-next-aaronson-qwen" in next_sec
     assert "1171d5c" in next_sec
     assert "60/96" in next_sec
     assert "pair-qwen-12x4-aaronson" in next_sec
+    assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
+    assert "a761a7d" in next_sec
+    assert "has not been generated" in next_sec
+    assert "pair-qwen-100x4-aaronson" in next_sec
     assert "12ea3ef1c34f037b" in PAPER
     assert "ac41821f88adba14" in PAPER
     assert "419a2088b2ba8e6e" in PAPER
@@ -295,6 +305,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-12x4-aaronson" not in abs_
     assert "557/800" not in abs_
     assert "pair-distil-100x4-ngram13" not in abs_
+    assert "601/800" not in abs_
+    assert "pair-distil-100x4-aaronson" not in abs_
+    assert "pair-qwen-100x4-aaronson" not in abs_
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "747/800" not in abs_
     assert "4557" not in abs_
@@ -354,7 +367,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "25 A4" in README
-    assert "ceb0555" in README
+    assert "6434c5f" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
@@ -737,6 +750,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-distil-100x4-ngram13/results.json": "b46a5d5debed1485",
         "experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/interpolate/holdout.json": "22d8c29006252a26",
         "experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json": "331dbab436097872",
+        "experiments/2026-09-04-pair-distil-100x4-aaronson/results.json": "a043578f9795a7be",
+        "experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/interpolate/holdout.json": "89d3b8c7f8d5d0e0",
+        "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json": "06b4d85a772626d4",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():
