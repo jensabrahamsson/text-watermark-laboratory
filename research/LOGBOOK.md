@@ -2826,7 +2826,7 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
 Draft GitHub PRs **#5**, **#6**, and **#7** (not merged) named a hole:
 full-file $\Hw=12$ interpolate **76/100** may be the opening, not a
 weaker body reader. [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
-committed before those window LRs. Existing twins only
+committed at SHA `8283d1f`. Frozen before those window LRs. Existing twins only
 (`experiments/2026-09-03-pair-100x4-ngram13/`,
 `experiments/2026-09-01-pair-100x4/`). Existing methods
 `interpolate,hard,hits`. Do not overwrite the full-file $\Hw=12$ dump

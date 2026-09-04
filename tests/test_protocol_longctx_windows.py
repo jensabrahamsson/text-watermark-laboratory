@@ -34,6 +34,7 @@ def test_protocol_longctx_windows_locks_config_before_lrs() -> None:
     assert (PAIR4 / "results.json").is_file()
     log = LOG.read_text()
     assert "PROTOCOL-next-longctx-windows" in log
+    assert "`8283d1f`" in log
 
 
 def test_protocol_longctx_windows_cli_flag_exists() -> None:
