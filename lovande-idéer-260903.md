@@ -1047,6 +1047,7 @@ stays better at last-4 on 36×4 ranking. No new `--methods` name:
 | GPT-2 ngram-13 12×4 | 6/12, 22/48, 0.544 | 8/12, 21/48, 0.481 |
 | GPT-2 ngram-13 100×4 | 66/100, 215/400, 0.579 | 63/100, 248/400, 0.592 |
 | DistilGPT2 ngram-13 12×4 | 6/12, 16/48, 0.485 | 6/12, 25/48, 0.540 |
+| DistilGPT2 ngram-13 100×4 | 89/100, 354/400, 0.829 | 88/100, 313/400, 0.799 |
 | Qwen2-1.5B ngram-13 12×4 | 4/12, 16/48, 0.415 | 5/12, 19/48, 0.445 |
 
 Matching `context_len` to $\Hw=12$ does **not** repeat the Kirchenbauer
@@ -1085,7 +1086,21 @@ the locked public GPT-2 last-4 **25/48**. Ranking stays chance
 (**6/12**); freeze interpolate last-4 on these twins is **9/12**,
 **21/48**, 0.563. Last-12 matches $\Hw=12$ and does not rescue
 (ranking **8/12**, isolated **17/48**). Do not sell Distil last-2
-**25/48**. Qwen2-1.5B ngram-13 12×4 hard width grid (`--model
+**25/48**. DistilGPT2 ngram-13 100×4 (opened freeze
+[research/PROTOCOL-next-longctx-distil-100.md](research/PROTOCOL-next-longctx-distil-100.md);
+last-4 dump `experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/`)
+interpolate last-4 is **88/100**, isolated **325/400**, AUC **0.785**
+(**557/800**). Hard last-4 is **89/100**, **354/400**, **0.829**.
+Post-open last-2 (`--skip-nested`) is **88/100**, **313/400**,
+**0.799**, unmarked $\le 0$ **246/400** — last-2 does **not** beat
+last-4 ranking or isolated. Absolute windows: 0:4 **92/100**,
+**348/400**, AUC **0.876**; 64:128 **70/100**, **222/400**,
+**0.580**. Opening mass, same geography as public $\Hw=4$ last-2 at
+n=100, not a Kirchenbauer-style body. Do not sell Distil $\Hw=12$
+last-4 **89/100**, interpolate **88/100**, last-2 **88/100**, isolated
+**313/400**, or opening **348/400**.
+
+Qwen2-1.5B ngram-13 12×4 hard width grid (`--model
 Qwen/Qwen2-1.5B-Instruct`; k=4 is the freeze dump in
 [research/PROTOCOL-next-longctx-qwen.md](research/PROTOCOL-next-longctx-qwen.md)):
 
@@ -1296,7 +1311,9 @@ does not replace last-2 (100-family isolated **226/400** vs last-2
 companion. Public last-2 tables trained on 100 GPT-2 families do not
 classify Kirchenbauer original-12 (isolated **24/48**, AUC 0.554). Do
 not sell ngram-13 last-12 **71/100**, Distil ngram-13 last-2 **25/48**,
-Distil last-12 **8/12**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
+Distil last-12 **8/12**, Distil $\Hw=12$ 100 last-2 **88/100** /
+**313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
+**88/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -1331,6 +1348,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
   --model gpt2 --methods hard --context-len 2 --skip-hashpool \
   --out-dir /tmp/kgw-lab/probe-distil-12x4-ngram13-k2
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ngram13 \
+  --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-k2
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
   --model gpt2 --methods hard --context-len 12 --skip-hashpool \
@@ -1417,7 +1439,9 @@ on public 12 is **23/48**, same as last-4 `postokhits`, below
 **24/48**. Matching last-12 / last-6 / last-13 to $\Hw=12$ leaves
 ngram-13 isolated at **21–24/48**. DistilGPT2 $\Hw=12$ last-2 ranking is
 chance (**6/12**); isolated **25/48** is not the locked public last-4
-headline. Distil last-12 is **8/12**, **17/48**. Distil interpolate
+headline. Distil $\Hw=12$ 100 last-2 is **88/100**, **313/400**,
+below last-4 **89/100**, **354/400**; opening **92/100**, tail
+**70/100**. Distil last-12 is **8/12**, **17/48**. Distil interpolate
 last-2 is **9/12**, **20/48**, not better than last-4 interpolate
 **9/12**, **21/48**. Qwen $\Hw=12$ last-2 ranking is **5/12**. Hashpool last-2 on public 12 is
 **10/12**, **31/48**, AUC **0.629**, below last-4 hashpool **11/12**,
@@ -1477,8 +1501,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    fixing leftover and without touching interpolate. At n=100 that
    lift is opening mass kept in the file mean, not a body leak. The
    jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
-   $\Hw=12$ last-2 ranking **6/12**, and Qwen2-1.5B $\Hw=12$ last-2
-   ranking **5/12**.
+   $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
+   **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
+   **5/12**.
 
 Keep leftover-20 as the honesty bound on any SynthID width change.
 Do not write `thesis/` from this file.
