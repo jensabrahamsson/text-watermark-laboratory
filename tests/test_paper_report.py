@@ -333,6 +333,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-12x4-aaronson" in next_sec
     assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
     assert "a761a7d" in next_sec
+    assert "616/800" in next_sec
     assert "has not been generated" in next_sec
     assert "pair-qwen-100x4-aaronson" in next_sec
     assert "PROTOCOL-next-longctx-qwen-100" in next_sec
@@ -436,7 +437,7 @@ def test_readme_matches_revised_title() -> None:
     assert "8f09aa6" in README
     assert "1582a09" in README
     assert "26 A4" in README
-    assert "4b43105" in README
+    assert "1fd84c0" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README

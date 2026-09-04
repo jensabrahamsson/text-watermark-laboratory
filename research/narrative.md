@@ -286,6 +286,10 @@ or **93/100**. DistilGPT2 Aaronson 100-family is
 [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
 (freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
 **601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
+Qwen2-1.5B Aaronson 100-family is
+[PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
+(freeze SHA `a761a7d`). Opened: interpolate **100/100** (isolated
+**616/800**); hard **97/100**. Do not sell **100/100** or **616/800**.
 Isolated-file detection is still not
 finished. Sol's different-mixin two-grain lock is
 [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (Hugging Face Kirchenbauer
