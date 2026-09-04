@@ -144,7 +144,8 @@ GPT-2 prompt-context LDA opening **69/100**, SynthID prompt-context
 full-file **78/100**, or Distil $\Hw=12$ pivot opening **85/100**.
 Do not sell Distil `frac_in_topk` **80/100** or GPT-2 body `mean_gap`
 **83/100**. Do not sell GPT-2 KGW 32:64 pivot-lda **85/100** or
-SynthID 16:32 **72/100**. `--snaprate` does not
+SynthID 16:32 **72/100**. Do not sell interpolate 4:16 **95/100** or
+16:32 **97/100**. `--snaprate` does not
 emit `--windows` slices (it scores the generated path only). Slicing
 those generated-only choice matrices on the same `rotate_snaprate`
 scorer (token 0 skipped; 0:4 is generated tokens 1–4) is confirmatory
@@ -224,6 +225,19 @@ is already weak at 4:16 (**63/100**); 16:32 **72/100**, **0.585** is
 not interpolate 16:32 **87/100** and 32:64 is chance. Isolated
 $\tau=0$ still fails. Do not sell 32:64 **85/100** or SynthID 16:32
 **72/100**.
+Existing last-4 interpolate on those same mid slices still **dominates**
+LDA (`--skip-nested`, `used_keys=false`):
+
+| Corpus | 4:16 | 16:32 | 32:64 |
+|---|---|---|---|
+| GPT-2 KGW interpolate | **95/100**, 0.771, 289/400 | **97/100**, 0.817, 304/400 | **99/100**, 0.897, 342/400 |
+| Distil KGW interpolate | **88/100**, 0.728, 303/400 | **92/100**, 0.753, 300/400 | **98/100**, 0.818, 320/400 |
+
+GPT-2 KGW interpolate is already **95/100** at 4:16 where LDA is
+**67/100** and snaprate opening died. Distil interpolate 16:32
+**92/100** where snaprate was anti **29/100**. Count tables remain the
+Kirchenbauer body reader. Do not sell interpolate 4:16 **95/100** or
+16:32 **97/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -421,7 +435,8 @@ tail **83/100**, or SynthID opening pivot-lda-entropy **97/100**.
 Do not sell prompt-context Distil tail **82/100**, GPT-2 LDA opening
 **69/100**, SynthID prompt-context **78/100**, or Distil $\Hw=12$
 pivot opening **85/100**. Do not sell Distil `frac_in_topk` **80/100**
-or GPT-2 body `mean_gap` **83/100**.
+or GPT-2 body `mean_gap` **83/100**. Do not sell interpolate 4:16
+**95/100** or 16:32 **97/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -438,6 +453,16 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-interp-mid
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-interp-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
@@ -3331,7 +3356,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    that KGW body. GPT-2 KGW LDA is monotone back-loaded (0:4 chance
    **52/100** → 32:64 **85/100** → tail **88/100**). Public SynthID LDA
    is already weak at 4:16. Do not sell 32:64 **85/100** or SynthID
-   16:32 **72/100**. GPT-2 KGW body’s best single LDA feature is soft
+   16:32 **72/100**. Count-table interpolate still dominates those mid
+   slices (GPT-2 4:16 **95/100**, 16:32 **97/100**). GPT-2 KGW body’s best single LDA feature is soft
    `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
    `mean_gap` alone is **67/100**; dropping it from the six falls to
    **75/100** with **18** ranking-only. Do not sell
