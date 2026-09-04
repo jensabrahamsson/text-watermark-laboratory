@@ -165,6 +165,60 @@ def test_claude_resample_20260903_is_dump_backed_and_not_in_abstract() -> None:
     assert k4["n_prompt_wins_without_isolated_tp"] == 3
 
 
+def test_claude_resample_20260904_is_dump_backed_and_not_in_abstract() -> None:
+    import json
+
+    abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "19/40" not in abs_
+    assert "20/40" not in abs_
+    assert "36/40" not in abs_
+    assert "37/40" not in abs_
+    catalog = PAPER.split(r"\section{Additional transfer catalog}")[1]
+    assert "claude-sample-2026-09-04" in catalog
+    assert r"\textbf{36/40}" in catalog
+    assert r"\textbf{19/40}" in catalog
+    assert r"\textbf{20/40}" in catalog
+    assert "watermark-window order" in catalog
+    limits = PAPER.split(r"\section{Limitations}")[1].split(
+        r"\section{A Locked Next Experiment}"
+    )[0]
+    assert "2026-09-04" in limits
+    assert r"\textbf{37/40}" in limits
+    assert r"\textbf{19/40}" in limits
+    report = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-resample-work"
+            / "report.json"
+        ).read_text()
+    )
+    assert report["n_collected"] == 40
+    by = {c["name"]: c for c in report["contrasts"]}
+    assert by["premark-vs-new"]["last4_wins"] == 37
+    assert by["premark-vs-new"]["last1_wins"] == 36
+    assert by["previous-vs-new"]["last4_wins"] == 19
+    assert by["previous-vs-new"]["last1_wins"] == 20
+    assert by["premark-vs-new"]["used_keys"] is False
+    k4 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-resample-work"
+            / "blind-premark-vs-new-k4"
+            / "results.json"
+        ).read_text()
+    )
+    assert k4["used_keys"] is False
+    assert k4["n_marked_wins"] == 37
+    assert k4["n_marked_lr_positive"] == 32
+    assert k4["n_prompt_wins_without_isolated_tp"] == 5
+    log = (ROOT / "research" / "LOGBOOK.md").read_text()
+    assert "experiments/claude-sample-2026-09-04" in log
+    assert "**40** long texts" in log
+    assert "37/40" in log
+
+
 def test_isolated_primary_is_confusion_matrix_not_sensitivity_alone() -> None:
     assert "TP 25, FN 23, TN 22, FP 26" in PAPER
     assert "Balanced accuracy" in PAPER
@@ -753,6 +807,9 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-distil-100x4-aaronson/results.json": "a043578f9795a7be",
         "experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/interpolate/holdout.json": "89d3b8c7f8d5d0e0",
         "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json": "06b4d85a772626d4",
+        "experiments/2026-09-04-resample-work/report.json": "c54c5beb6da07adb",
+        "experiments/2026-09-04-resample-work/blind-premark-vs-new-k4/results.json": "4a8f0fba8cbda791",
+        "experiments/2026-09-04-resample-work/blind-previous-vs-new-k4/results.json": "b31a564d60ade346",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     for rel, prefix in mapping.items():
