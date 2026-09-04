@@ -2706,6 +2706,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
   --windows 4:16,16:32 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hits-k1-mid
 
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hashtok --context-len 1 --skip-nested \
+  --windows 4:16,16:32 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hashtok-k1-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-hits-k1-mid
+
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hashtok --context-len 2 --skip-nested \
   --windows 4:16,16:32,32:64 \
@@ -3945,10 +3955,17 @@ last-1 hashtok **73/400**). Qwen last-1 hashtok 4:16 is **74/100**,
 0.647, **303/400** (**22** ranking losses with isolated TP, unmarked
 $\le 0$ only **182/400**), sitting with last-1 hits **76/100**, 0.653,
 **282/400**. Occupancy-free last-1 hashing follows Distil/Qwen last-1
-hits weakness, not the GPT-2 last-1 **95/100** geography. Do not
-leftover-target those ranking losses. Do not sell Distil last-1 hashtok
+hits weakness, not the GPT-2 last-1 **95/100** geography. gpt2-medium
+last-1 hashtok 4:16 is **97/100**, 0.805, **323/400** (**2** ranking
+losses with isolated TP), sitting with last-1 hits **97/100**, 0.814,
+**320/400** and with GPT-2 last-1 hashtok **95/100**, not Distil
+**76/100**. 16:32 drops (**79/100**, **262/400**) like GPT-2 last-1
+**76/100**. Last-1 occupancy-free hashing on public SynthID is a
+GPT-2-family near-front, not Distil/Qwen. Do not leftover-target those
+ranking losses. Do not sell Distil last-1 hashtok
 **76/100** / **113/400**, Distil last-1 hits **72/100**, Qwen last-1
-hashtok **74/100** / **303/400**, or Qwen last-1 hits **76/100**. Do not
+hashtok **74/100** / **303/400**, Qwen last-1 hits **76/100**, or
+medium last-1 hashtok **97/100** / **323/400**. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
 public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
@@ -4738,7 +4755,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    16:32 drops). Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
    with last-1 hits **72/100**, **136/400**, not GPT-2 **95/100**. Qwen
    last-1 hashtok 4:16 **74/100**, **303/400** sits with last-1 hits
-   **76/100**. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   **76/100**. gpt2-medium last-1 hashtok 4:16 **97/100**, **323/400**
+   sits with last-1 hits **97/100** and with GPT-2, not Distil. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
