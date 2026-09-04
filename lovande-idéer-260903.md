@@ -189,7 +189,15 @@ versus **399/400**). Qwen last-4 hits is chance; last-1 recovers
 ranking, and isolated **41/48** beats Qwen last-1 hard **37/48**.
 Public SynthID hits last-1 is chance (**4/12**,
 **24/48**, AUC **0.445**). The width match is mixin-specific, not
-“shorten `hits` everywhere.” Do not sell **46/48** or **395/400**.
+“shorten `hits` everywhere.” Aaronson last-4 hits is already
+**12/12**, **44/48**, AUC **0.920**, unmarked $\le 0$ **39/48** (one
+ranking win with no isolated TP); last-1 hits is **40/48**, **0.988**,
+unmarked **48/48**. At n=100 last-4 hits is **100/100**, **388/400**,
+**0.990**, unmarked **362/400**; last-1 hits is **384/400**, **0.995**,
+unmarked **400/400**. Hits last-4 already matches Aaronson rankpath
+**44/48** and beats hard last-4 **24/48**. On Aaronson the last-1
+width jump is a `hard` / `hashpool` story, not `hits`. Do not sell
+**46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -347,7 +355,8 @@ the count-table story. Rankpath tail 64:128 matches the full-file
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, KGW hits last-1
-**46/48** / **395/400**, Qwen hits last-1 **41/48**, Aaronson last-1
+**46/48** / **395/400**, Qwen hits last-1 **41/48**, Aaronson hits
+last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
 Aaronson last-1 **16/48** / last-2 **24/48**, Aaronson rankpath
@@ -453,6 +462,10 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
   --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 \
   --skip-hashpool --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hits-k1
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
+  --methods hits --context-len 4 --skip-hashpool \
+  --out-dir /tmp/kgw-lab/probe-12x4-aaronson-hits-k4
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
