@@ -739,6 +739,18 @@ def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
     assert f"${n_q12}/12$ above $0.55$" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
+    qwen_aar12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-04-pair-qwen-12x4-aaronson"
+            / "results.json"
+        ).read_text()
+    )
+    n_qaar12 = sum(
+        row["unmarked_gen"]["z_score"] > 3.0 for row in qwen_aar12["rows"]
+    )
+    assert f"${n_qaar12}/12$ above $3.0$" in next_sec
     distil_aar12 = json.loads(
         (
             ROOT
