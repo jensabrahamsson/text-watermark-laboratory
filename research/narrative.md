@@ -257,27 +257,34 @@ occupancy is **160** seen versus public $\Hw=4$ **269** seen
 DistilGPT2 $\Hw=12$ 12-LOO is
 [PROTOCOL-next-longctx-distil.md](PROTOCOL-next-longctx-distil.md)
 (freeze SHA `bae6d81`). Opened: interpolate **9/12** (isolated
-**49/96**); hard **6/12**; occupancy **175** seen. Do not sell
+**49/96**); hard **6/12**; occupancy **175** seen vs **11994** unseen
+(opening **111** vs **177**). Do not sell
 **9/12** or **49/96**. Qwen2-1.5B $\Hw=12$ 12-LOO is
 [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md)
 (freeze SHA `d7303a2`). Opened: interpolate **4/12** (isolated
 **41/96**); hard **4/12**; official first-draw **11/12** (library
-$0.515$). Do not sell **4/12** or **41/96**. DistilGPT2 Aaronson 12-LOO is
+$0.515$); occupancy **65** seen vs **12127** unseen (opening **41** vs
+**247**). Do not sell **4/12** or **41/96**. DistilGPT2 Aaronson 12-LOO is
 [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
 (freeze SHA `9bdf12a`). Opened: interpolate **7/12** (isolated
-**0/48 vs 48/48**); hard **7/12** (**56/96**). Do not sell **7/12**
+**0/48 vs 48/48**); hard **7/12** (**56/96**); occupancy **196** seen
+vs **11996** unseen (opening **133** vs **155**); unmarked first-draw
+z>3 **1/12**. Do not sell **7/12**
 or **0/48**. Qwen2-1.5B Aaronson 12-LOO is
 [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md)
 (freeze SHA `1171d5c`). Opened: interpolate **12/12** (isolated
-**12/48 vs 48/48**, **60/96**); hard **12/12** (**72/96**). Do not
+**12/48 vs 48/48**, **60/96**); hard **12/12** (**72/96**); occupancy
+**457** seen vs **11735** unseen (opening **127** vs **161**). Do not
 sell **12/12** or **60/96**. DistilGPT2 $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
 (freeze SHA `d891622`). Opened: interpolate **88/100** (isolated
-**557/800**); hard **89/100**. Do not sell **88/100** or **557/800**.
+**557/800**); hard **89/100**; occupancy **11182** seen vs **85493**
+unseen (opening **2036** vs **364**). Do not sell **88/100** or **557/800**.
 Qwen2-1.5B $\Hw=12$ 100-family is
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
 (freeze SHA `636765c`). Opened: interpolate **76/100** (isolated
-**474/800**); hard **74/100**. Do not sell **76/100** or **474/800**.
+**474/800**); hard **74/100**; occupancy **3535** seen vs **98064**
+unseen (opening **1092** vs **1308**). Do not sell **76/100** or **474/800**.
 Whether $\Hw=12$ interpolate **76/100** is a weaker body reader or an
 opening residual is
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
@@ -286,11 +293,14 @@ versus public **93/100**; opening **86/100**. Do not sell **50/100**
 or **93/100**. DistilGPT2 Aaronson 100-family is
 [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
 (freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
-**601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
+**601/800**); hard **91/100**; occupancy **28824** seen vs **61305**
+unseen (opening **2048** vs **352**); unmarked first-draw z>3 **3/100**.
+Do not sell **96/100** or **601/800**.
 Qwen2-1.5B Aaronson 100-family is
 [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
 (freeze SHA `a761a7d`). Opened: interpolate **100/100** (isolated
-**616/800**); hard **97/100**. Do not sell **100/100** or **616/800**.
+**616/800**); hard **97/100**; occupancy **8750** seen vs **92842**
+unseen (opening **1470** vs **930**). Do not sell **100/100** or **616/800**.
 Qwen2-1.5B Kirchenbauer 100-family is
 [PROTOCOL-next-kgw-qwen-100.md](PROTOCOL-next-kgw-qwen-100.md)
 (freeze SHA `ed9fb20`) and is named before generation.
