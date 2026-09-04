@@ -3281,6 +3281,19 @@ named before GPT-2-on-Distil rankpath `[4:16)` LRs. Existing `rankpath` on
 Do not invent those scores. GPT-2-on-Distil opening stays **6/12**,
 isolated **24/48 vs 27/48**. Distil native `[4:16)` stays **9/12**,
 isolated **25/48 vs 30/48**. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`. Freeze SHA
+`08b89ee`.
+
+## 2026-09-04 GPT-2-on-Distil rankpath body [4:16) opened
+
+H-rpg2dbody **fails** as a raw count. GPT-2-on-Distil rankpath on
+`[4:16)` is ranking **4/12**, isolated **26/48 vs 21/48** (AUC **0.495**;
+nested **22/48 vs 17/48** at a negative threshold). `used_keys=false`.
+GPT-2-on-Distil opening stays **6/12**, isolated **24/48 vs 27/48**.
+Distil native `[4:16)` stays **9/12**, isolated **25/48 vs 30/48**. The
+unwindowed fit-prefix-16 file score **28/48** is not the frozen slice.
+File AUC is chance. Ranking **4/12** is below chance. Do not sell
+**26/48** or **28/48**. Nothing replaces **25/48**. Isolated-file
 detection is still not finished. Do not write `thesis/`.
 
 ---

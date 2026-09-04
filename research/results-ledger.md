@@ -660,7 +660,8 @@ gpt2-medium native rankpath on generated tokens `[4:16)` is
 **holds**. Do not sell **20/48**. Isolated-file remains open.
 GPT-2-small LM rankpath on Distil generated tokens `[4:16)` is
 [PROTOCOL-isolated-rankpath-g2dbody.md](PROTOCOL-isolated-rankpath-g2dbody.md)
-and is named before those LRs. Isolated-file remains open.
+(`08b89ee`): ranking **4/12**, isolated **26/48 vs 21/48**. H-rpg2dbody
+**fails** as a raw count. Do not sell **26/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
