@@ -143,6 +143,9 @@ def test_protocol_longctx_qwen_100_official_and_keyfree_from_dumps() -> None:
         if "PROTOCOL-next-longctx-qwen-100.md" in ln
     )
     assert f"**{occ['n_seen']}** vs **{occ['n_unseen']}**" in row
+    n_unmarked = sum(row["unmarked_gen"]["mean"] > 0.55 for row in pair["rows"])
+    pair_readme = (PAIR / "README.md").read_text()
+    assert f"Unmarked first-draw is **{n_unmarked}/100**" in pair_readme
     assert (
         f"**{interp['n_marked_lr_positive']}/400 vs {interp['n_unmarked_lr_nonpositive']}/400**"
         in ledger
