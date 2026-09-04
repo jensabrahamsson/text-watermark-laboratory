@@ -2801,7 +2801,7 @@ Isolated-file detection is still not finished. Do not write `thesis/`.
 ## 2026-09-04 Qwen2-1.5B ngram_len=13 100-family freeze
 
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
-committed before generation. Same public keys and `ngram_len=13`
+committed at SHA `636765c`. Frozen before generation. Same public keys and `ngram_len=13`
 ($\Hw=12$) as [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md),
 generator `Qwen/Qwen2-1.5B-Instruct`, 100 one-liners, seed **20260903**,
 Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`.
