@@ -1459,7 +1459,9 @@ counts. Aaronson interpolate last-1 at n=100 ranks both windows but
 isolated **296/400** is opening-heavy (**380/400**) plus tail
 ranking-without-TP (**284/400**); hard last-1 remains the body
 isolated reader. Existing `rankpath` on Aaronson 12 is **44/48** at last-4
-already, not a width match. DistilGPT2 Aaronson 12 last-1 still lifts
+already, not a width match. GPT-2 100 rankpath last-4 isolated
+**396/400** sits with the tail **392/400**; Distil 100 rankpath
+isolated **372/400** sits with the opening. DistilGPT2 Aaronson 12 last-1 still lifts
 `hard` vs last-4 (**16/48** vs **8/48**). Last-4 `hits` **44/48** is
 opening overlap (Distil tail **0/48**; GPT-2 last-4 hits tail isolated
 **0/48**); last-1 hits recovers that body (GPT-2 tail **11/12**,
