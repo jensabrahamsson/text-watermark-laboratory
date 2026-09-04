@@ -54,28 +54,28 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-atoms-100x4-public-loo/` | 100-LOO interpolate occupancy, public Hw=4 | **10158** seen vs **91353** unseen; every window above Hw=12 |
 | `2026-09-04-pair-distil-12x4-ngram13/` | DistilGPT2, public keys, `ngram_len=13`, original 12 | official first-draw **12/12** above 0.55 |
 | `2026-09-04-probe-distil-12x4-ngram13-hard-last4/` | Distil Hw=12 12-LOO hard/interpolate | interpolate **9/12** / **49/96**; hard **6/12** |
-| `2026-09-04-atoms-distil-12x4-ngram13/` | Distil Hw=12 interpolate occupancy | **175** seen vs **11994** unseen |
+| `2026-09-04-atoms-distil-12x4-ngram13/` | Distil Hw=12 interpolate occupancy | **175** seen vs **11994** unseen (opening **111** vs **177**) |
 | `2026-09-04-pair-distil-100x4-ngram13/` | DistilGPT2, public keys, `ngram_len=13`, 100 one-liners | official first-draw **98/100** above 0.55 |
 | `2026-09-04-probe-distil-100x4-ngram13-hard-last4/` | Distil Hw=12 100-LOO hard/interpolate | interpolate **88/100** / **557/800**; hard **89/100** |
-| `2026-09-04-atoms-distil-100x4-ngram13/` | Distil Hw=12 100-family occupancy | **11182** seen vs **85493** unseen |
+| `2026-09-04-atoms-distil-100x4-ngram13/` | Distil Hw=12 100-family occupancy | **11182** seen vs **85493** unseen (opening **2036** vs **364**) |
 | `2026-09-04-pair-qwen-12x4-ngram13/` | Qwen2-1.5B, public keys, `ngram_len=13`, original 12 | official first-draw **11/12** above 0.55 |
 | `2026-09-04-probe-qwen-12x4-ngram13-hard-last4/` | Qwen Hw=12 12-LOO hard/interpolate | interpolate **4/12** / **41/96**; hard **4/12** |
-| `2026-09-04-atoms-qwen-12x4-ngram13/` | Qwen Hw=12 interpolate occupancy | **65** seen vs **12127** unseen |
+| `2026-09-04-atoms-qwen-12x4-ngram13/` | Qwen Hw=12 interpolate occupancy | **65** seen vs **12127** unseen (opening **41** vs **247**) |
 | `2026-09-04-pair-qwen-100x4-ngram13/` | Qwen2-1.5B, public keys, `ngram_len=13`, 100 one-liners | official first-draw **91/100** above 0.55 |
 | `2026-09-04-probe-qwen-100x4-ngram13-hard-last4/` | Qwen Hw=12 100-LOO hard/interpolate | interpolate **76/100** / **474/800**; hard **74/100** |
-| `2026-09-04-atoms-qwen-100x4-ngram13/` | Qwen Hw=12 100-family occupancy | **3535** seen vs **98064** unseen |
+| `2026-09-04-atoms-qwen-100x4-ngram13/` | Qwen Hw=12 100-family occupancy | **3535** seen vs **98064** unseen (opening **1092** vs **1308**) |
 | `2026-09-04-pair-distil-12x4-aaronson/` | DistilGPT2 Aaronson, original 12 | official first-draw z>3 **12/12** |
 | `2026-09-04-probe-distil-12x4-aaronson-hard-last4/` | Distil Aaronson 12-LOO hard/interpolate | interpolate **7/12** / **0/48**; hard **7/12** / **56/96** |
-| `2026-09-04-atoms-distil-12x4-aaronson/` | Distil Aaronson interpolate occupancy | **196** seen vs **11996** unseen |
+| `2026-09-04-atoms-distil-12x4-aaronson/` | Distil Aaronson interpolate occupancy | **196** seen vs **11996** unseen (opening **133** vs **155**) |
 | `2026-09-04-pair-distil-100x4-aaronson/` | DistilGPT2 Aaronson, 100 one-liners | official first-draw z>3 **71/100** |
 | `2026-09-04-probe-distil-100x4-aaronson-hard-last4/` | Distil Aaronson 100-LOO hard/interpolate | interpolate **96/100** / **601/800**; hard **91/100** |
-| `2026-09-04-atoms-distil-100x4-aaronson/` | Distil Aaronson 100-family occupancy | **28824** seen vs **61305** unseen |
+| `2026-09-04-atoms-distil-100x4-aaronson/` | Distil Aaronson 100-family occupancy | **28824** seen vs **61305** unseen (opening **2048** vs **352**) |
 | `2026-09-04-pair-qwen-12x4-aaronson/` | Qwen2-1.5B Aaronson, original 12 | official first-draw z>3 **12/12** |
 | `2026-09-04-probe-qwen-12x4-aaronson-hard-last4/` | Qwen Aaronson 12-LOO hard/interpolate | interpolate **12/12** / **60/96**; hard **12/12** / **72/96** |
-| `2026-09-04-atoms-qwen-12x4-aaronson/` | Qwen Aaronson interpolate occupancy | **457** seen vs **11735** unseen |
+| `2026-09-04-atoms-qwen-12x4-aaronson/` | Qwen Aaronson interpolate occupancy | **457** seen vs **11735** unseen (opening **127** vs **161**) |
 | `2026-09-04-pair-qwen-100x4-aaronson/` | Qwen2-1.5B Aaronson, 100 one-liners | official first-draw z>3 **99/100** |
 | `2026-09-04-probe-qwen-100x4-aaronson-hard-last4/` | Qwen Aaronson 100-LOO hard/interpolate | interpolate **100/100** / **616/800**; hard **97/100** |
-| `2026-09-04-atoms-qwen-100x4-aaronson/` | Qwen Aaronson 100-family occupancy | **8750** seen vs **92842** unseen |
+| `2026-09-04-atoms-qwen-100x4-aaronson/` | Qwen Aaronson 100-family occupancy | **8750** seen vs **92842** unseen (opening **1470** vs **930**) |
 | `2026-08-15-gpt2-sonnet5/` | Known public mark before/after Sonnet edits | marked 0.617/0.638; proofread 0.605/0.625; rewrite 0.502/0.502 |
 | `2026-08-15-known-mark-v2/` | Key-free rewrite surrogate, then official measurement | ~0.62 → ~0.50 |
 | `claude-premark-2026-08/` | Control corpus collected before announced marking condition | 40 A/B texts plus auxiliary files |
