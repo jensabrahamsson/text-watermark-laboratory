@@ -3271,4 +3271,16 @@ score **21/48** is not the frozen slice. File AUC is chance. Do not sell
 **20/48**. Nothing replaces **25/48**. Isolated-file detection is still
 not finished. Do not write `thesis/`.
 
+## 2026-09-04 GPT-2-on-Distil rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-g2dbody.md](PROTOCOL-isolated-rankpath-g2dbody.md)
+named before GPT-2-on-Distil rankpath `[4:16)` LRs. Existing `rankpath` on
+`experiments/2026-08-31-pair-distilgpt2-12x4/` with `--model gpt2
+--windows 4:16 --fit-prefix 16 --pos-bucket 1`. Do not leftover-slice.
+Do not invent those scores. GPT-2-on-Distil opening stays **6/12**,
+isolated **24/48 vs 27/48**. Distil native `[4:16)` stays **9/12**,
+isolated **25/48 vs 30/48**. Nothing replaces **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
 ---

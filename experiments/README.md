@@ -115,6 +115,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-04-probe-12x4-rankpath-medium-w4-16/` | gpt2-medium-LM rankpath `[4:16)` on original 12 | ranking **9/12**, isolated **27/48 vs 28/48**; not **25/48** |
 | `2026-09-04-probe-distil-12x4-rankpath-w4-16/` | Distil native rankpath `[4:16)` on Distil 12 | ranking **9/12**, isolated **25/48 vs 30/48**; not **25/48** |
 | `2026-09-04-probe-medium-12x4-rankpath-w4-16/` | gpt2-medium native rankpath `[4:16)` on medium 12 | ranking **6/12**, isolated **20/48 vs 30/48**; not **25/48** |
+| `2026-09-04-probe-distil-12x4-rankpath-gpt2-w4-16/` | GPT-2-small LM rankpath `[4:16)` on Distil 12 | named before those LRs; not **25/48** |
 | `2026-09-01-probe-36x4-recount-hits/` | Rechecked 36×4 hits | still **36/36**, AUC **0.930** |
 | `2026-08-31-probe-12x4/` | Key-free scorer comparison on the same 12×4 twins | `hits` **11/12** AUC **0.737**; hashpool **11/12** isolated **35/48** |
 | `2026-08-31-probe-36/` | Same scorers on 36 GPT-2 topics × 1 | hashpool **31/36** AUC **0.877**; hard last-4 **20/36** |
