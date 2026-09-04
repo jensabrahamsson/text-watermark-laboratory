@@ -257,6 +257,13 @@ The Kirchenbauer mid-file leak is last-4 **interpolate**, not shared
 interpolate **88/100**. Do not leftover-target GPT-2 ranking-only
 zeros. Isolated $\tau=0$ still fails. Do not sell hits 32:64
 **80/100** or Distil hits 4:16 **66/100**.
+Existing `hashpool` last-4 on the same GPT-2 mid slices sits
+**between** hits and interpolate (`used_keys=false`): 4:16
+**72/100**, AUC **0.611**, isolated **257/400**; 16:32 **85/100**,
+**0.690**, **259/400**; 32:64 **87/100**, **0.734**, **259/400**.
+Hashing recovers some of the mid leak that shared 4-grams miss and
+is still below interpolate **95/100** / **97/100** / **99/100**. Do
+not sell hashpool 4:16 **72/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -459,7 +466,7 @@ pivot opening **85/100**. Do not sell Distil `frac_in_topk` **80/100**
 or GPT-2 body `mean_gap` **83/100**. Do not sell interpolate 4:16
 **95/100** or 16:32 **97/100**. Do not sell GPT-2 KGW hits 4:16
 **45/100** or 32:64 **80/100**. Do not sell Distil hits 4:16
-**66/100**.
+**66/100**. Do not sell GPT-2 hashpool 4:16 **72/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -496,6 +503,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kg
   --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hits-mid
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashpool --context-len 4 --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
