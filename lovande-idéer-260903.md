@@ -3987,7 +3987,13 @@ isolated remainder is near-front, not leftover, and does not replace
 confirmatory last-4 geography the same way original-12 last-2 mask
 **10/12** overstates **83/100**. Do not leftover-slice. Do not sell
 **83/100**, **305/400**, **36/100**, **181/400**, **78/100**, or
-**294/400**. Mid slices on the
+**294/400**. gpt2-medium 100 (`--model gpt2`, same BPE) repeats the
+split: last-2 4:128 **75/100**, 0.622, **288/400**; last-4 4:128
+**52/100**, 0.512, **194/400**, perm $p\approx 0.35$ (chance). Last-2
+8:128 **64/100**, **265/400**; last-4 8:128 **54/100**, **198/400**,
+chance. Do not sell medium **75/100** or **288/400**. Distil last-2
+4:16 was already chance (**58/100**); that generator does not get this
+near-front remainder. Mid slices on the
 same 100 (`used_keys=false`, `--skip-nested`; isolated from
 `holdout.md`) confirm that last-2 is **not** a Kirchenbauer body
 reader:
@@ -4397,6 +4403,8 @@ Last-1 `hashtok2` likewise sits with last-1 hashtok (GPT-2 **97/100**,
 or **33/48**. Do not sell n=100 mask 4:128 last-2 **83/100** /
 **305/400**, last-4 **36/100** / **181/400**, or 8:128 **78/100** /
 **294/400**. Do not leftover-slice those mask windows. Do not sell
+medium mask 4:128 **75/100** / **288/400** or last-4 **52/100** /
+**194/400**. Do not sell
 transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell grok mask
@@ -4453,6 +4461,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 4 --skip-hashpool --skip-nested \
   --windows 2:128,4:128,8:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k4-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-k2-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-100x4 \
+  --model gpt2 --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-medium-100x4-synthid-k4-mask-tails
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
   --methods hard --context-len 2 --skip-hashpool \
@@ -5125,7 +5143,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    **83/100**, **305/400** (McNemar **157/33** vs last-4), sitting with mid
    4:16 last-2 **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
-   (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
+   (**38/100**). gpt2-medium repeats that mask split (last-2 4:128
+   **75/100**, **288/400**; last-4 **52/100**, **194/400**, chance). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
    drops at 16:32 like last-1 (**82/100**); Distil last-2 hits 4:16 is
    weak (**75/100**). gpt2-medium last-2 hits 4:16 sits with GPT-2
    (**96/100**); Qwen last-2 hits 4:16 is **79/100**. Last-2 `hashpool`
