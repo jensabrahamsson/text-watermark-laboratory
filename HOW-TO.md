@@ -277,7 +277,10 @@ on gpt2-medium 12×4 is named in
 named in
 [research/PROTOCOL-isolated-rankpath-d2mbody.md](research/PROTOCOL-isolated-rankpath-d2mbody.md)
 (`1b4c541`). Ranking **11/12**, isolated **25/48 vs 33/48**. Equality with
-**25/48** is not a win. Do not leftover-slice. Do not merge PR **#9**.
+**25/48** is not a win. GPT-2-small LM rankpath on gpt2-medium generated
+tokens `[4:16)` is named in
+[research/PROTOCOL-isolated-rankpath-g2mbody.md](research/PROTOCOL-isolated-rankpath-g2mbody.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

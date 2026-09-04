@@ -52,7 +52,8 @@ def test_protocol_rankpath_g2m_locks_config_before_lrs() -> None:
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
-        if "PROTOCOL-isolated-rankpath-g2m" in ln
+        if "PROTOCOL-isolated-rankpath-g2m.md" in ln
+        and "g2mbody" not in ln
     ]
     assert len(research_rows) == 1
     agents_rows = [
