@@ -3153,4 +3153,15 @@ Distil 12×4 is ranking **9/12**, isolated **30/48 vs 33/48** (AUC
 replaces **25/48**. Isolated-file detection is still not finished.
 Do not write `thesis/`.
 
+## 2026-09-04 opening rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-body.md](PROTOCOL-isolated-rankpath-body.md)
+named before rankpath `[4:16)` LRs. Existing `rankpath` on
+`experiments/2026-08-17-pair-12x4/` with `--windows 4:16 --fit-prefix 16
+--pos-bucket 1`. Do not leftover-slice. Do not invent those scores.
+Opening `[0:4)` stays **11/12**, isolated **41/48 vs 35/48**. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
 ---
