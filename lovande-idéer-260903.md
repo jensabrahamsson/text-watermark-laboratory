@@ -3938,8 +3938,13 @@ leftover-slice these windows.
 | full file | **10/12**, 0.702, **34/48** vs 28/48 | **9/12**, 0.590, **25/48** vs 22/48 |
 
 Ranking-without-isolated-TP is **0/10** on every last-2 mask tail.
-Isolated falls **34→32**. Last-4 tails stay **9/12**. Do not sell
-mask **10/12** or **32/48**. This is not **25/48**.
+Isolated falls **34→32**. Last-4 tails stay **9/12**. Paired marked-file
+signs, last-2 vs last-4 on absolute 4:128 (exact McNemar; McNemar,
+1947; not a freeze): **11** gains / **8** losses / 21 both / 8 neither.
+One-sided $p\approx 0.32$. Ranking **10/12** vs **9/12** is what
+survived the mask; isolated **32/48** vs **29/48** is not a
+$\tau=0$ beat. Do not sell mask **10/12** or **32/48**. This is not
+**25/48**.
 
 100-family hard windows (`--skip-nested` on the window slice; full-file
 last-2 matches the LOO dump **94/100 / 340/400**):
@@ -5099,7 +5104,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. Original-12 last-2
    ranking **10/12** survives masking the first 8 tokens (**8:128**
-   **10/12**, **32/48**); that does not replace **25/48**. At n=100 that
+   **10/12**, **32/48**); 4:128 isolated **32/48** vs last-4 **29/48**
+   is McNemar $p\approx 0.32$, not a $\tau=0$ beat, and does not
+   replace **25/48**. At n=100 that
    lift is opening mass kept in the file mean, not a body leak: mask
    4:128 last-2 is **83/100**, **305/400**, sitting with mid
    4:16 last-2 **85/100** while 16:32 / 32:64 are weak
