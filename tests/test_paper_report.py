@@ -21,6 +21,8 @@ def test_plain_english_ingress_precedes_the_abstract() -> None:
     assert "secret key" in lead
     assert "prompt groups" in lead
     assert "no keys" in lead
+    assert "paired oracle" in lead
+    assert "polynomial-time distinguisher" in lead
     assert "abstract below" in lead
     assert "76/100" not in lead
     assert "160" not in lead
@@ -932,8 +934,8 @@ def test_readme_matches_revised_title() -> None:
     assert "3ea80e4" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
-    assert "27 A4" in README
-    assert "42d264d" in README
+    assert "28 A4" in README
+    assert "91f1d3c" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
