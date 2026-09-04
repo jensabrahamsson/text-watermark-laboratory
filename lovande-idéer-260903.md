@@ -581,9 +581,15 @@ Last-4 hits Distil 100 → Distil 12 is opening overlap:
 AUC **0.625**. Distil 100 last-1 hits → GPT-2 100 is **99/100**,
 **356/400**, AUC **0.991**, unmarked **400/400**; opening 0:4 is
 **100/100**, **400/400** with unmarked only **341/400** (FPs); tail
-**99/100**, **320/400**, unmarked **400/400**. Do not sell Distil
+**99/100**, **320/400**, unmarked **400/400**. Last-1 `hashpool`
+Distil 100 → Distil 12 matches hits isolated **36/48**, tail
+**11/12**, **36/48** (equals full-file). Distil 100 last-1 hashpool →
+GPT-2 12 ranks **12/12** with isolated only **24/48** (file-level
+binom $p\approx 0.56$), **6** ranking-only; tail isolated **20/48**.
+Hard last-1 remains the isolated transfer onto GPT-2 12 (**40/48**).
+Do not sell Distil
 100 → Distil 12 **40/48**, hits **36/48**, last-4 hits **48/48**,
-Distil 100 → GPT-2 100 **348/400** / hits **356/400**, or
+hashpool ranking **12/12**, Distil 100 → GPT-2 100 **348/400** / hits **356/400**, or
 **98/100**.
 
 The same knob on **SynthID** full-file last-1 **collapses**: hard
@@ -735,7 +741,8 @@ hard **372/400** / hits **380/400** / interpolate last-4 tail
 GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Distil 100
 **244/400** / hits ranking **97/100**, Distil 100 Aaronson last-1 → Distil 12
 **40/48** / GPT-2 12 **40/48** / GPT-2 100 **348/400**, Distil 100 last-1 hits → Distil 12
-**36/48** / GPT-2 100 **356/400**, Distil KGW rankpath
+**36/48** / GPT-2 100 **356/400**, Distil 100 last-1 hashpool → GPT-2 12
+**24/48**, Distil KGW rankpath
 **20/48**, Qwen KGW rankpath **26/48**, Aaronson unigram **24/48**,
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, occupancy-free last-1
@@ -1165,6 +1172,18 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hits-k1-to-gpt2100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-12x4-aaronson \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hashpool-k1-to-distil12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-12x4-aaronson \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil-aaronson100-hashpool-k1-to-gpt212
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashtok --context-len 4 \
