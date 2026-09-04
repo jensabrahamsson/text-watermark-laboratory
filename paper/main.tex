@@ -1419,54 +1419,60 @@ same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
 (freeze SHA \texttt{bae6d81};
 \path{experiments/2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
 interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
-\textbf{6/12}. That is not \textbf{25/48}. DistilGPT2 $\Hw=12$ on the
+\textbf{6/12}. Occupancy is 175 seen versus 11994 unseen.
+That is not \textbf{25/48}. DistilGPT2 $\Hw=12$ on the
 100 one-liners is frozen in
 \path{research/PROTOCOL-next-longctx-distil-100.md}
 (freeze SHA \texttt{d891622};
 \path{experiments/2026-09-04-pair-distil-100x4-ngram13}). Distil
 $\Hw=12$ interpolate last-4 is \textbf{88/100} (isolated
 \textbf{557/800}); hard is \textbf{89/100}. Official first-draw
-mean$>0.55$ is 98/100. That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the
+mean$>0.55$ is 98/100. Occupancy is 11182 seen versus 85493 unseen.
+That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the
 same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-qwen.md}
 (freeze SHA \texttt{d7303a2};
 \path{experiments/2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
 interpolate last-4 is \textbf{4/12} (isolated \textbf{41/96}); hard is
 \textbf{4/12}. Official first-draw mean$>0.55$ is 11/12 (library
-$0.515$). That is not \textbf{25/48}. DistilGPT2 Aaronson on the
+$0.515$). Occupancy is 65 seen versus 12127 unseen.
+That is not \textbf{25/48}. DistilGPT2 Aaronson on the
 same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-distil.md}
 (freeze SHA \texttt{9bdf12a};
 \path{experiments/2026-09-04-pair-distil-12x4-aaronson}). Distil
 Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
 marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
-(isolated \textbf{56/96}). That is not \textbf{25/48}. DistilGPT2
+(isolated \textbf{56/96}). Occupancy is 196 seen versus 11996 unseen.
+That is not \textbf{25/48}. DistilGPT2
 Aaronson on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-aaronson-distil-100.md}
 (freeze SHA \texttt{bf05759};
 \path{experiments/2026-09-04-pair-distil-100x4-aaronson}). Distil
 Aaronson interpolate last-4 is \textbf{96/100} (isolated
 \textbf{601/800}); hard is \textbf{91/100}. Official first-draw $z>3$
-is 71/100. That is not \textbf{25/48}. Qwen2-1.5B
+is 71/100. Occupancy is 28824 seen versus 61305 unseen.
+That is not \textbf{25/48}. Qwen2-1.5B
 Aaronson on the same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen.md}
 (freeze SHA \texttt{1171d5c};
 \path{experiments/2026-09-04-pair-qwen-12x4-aaronson}). Qwen Aaronson
 interpolate last-4 is \textbf{12/12} (isolated \textbf{12/48} marked
 true positives, BA \textbf{60/96}); hard is \textbf{12/12}
-(isolated \textbf{72/96}). That is not \textbf{25/48}. Qwen2-1.5B
+(isolated \textbf{72/96}). Occupancy is 457 seen versus 11735 unseen.
+That is not \textbf{25/48}. Qwen2-1.5B
 Aaronson on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen-100.md}
 (freeze SHA \texttt{a761a7d};
 \path{experiments/2026-09-04-pair-qwen-100x4-aaronson}). Qwen Aaronson
 interpolate last-4 is \textbf{100/100} (isolated \textbf{616/800});
 hard is \textbf{97/100}. Official first-draw $z>3$ is 99/100.
-That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
+Occupancy is 8750 seen versus 92842 unseen. That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
 \path{research/PROTOCOL-next-longctx-qwen-100.md}
 (freeze SHA \texttt{636765c};
 \path{experiments/2026-09-04-pair-qwen-100x4-ngram13}). Qwen $\Hw=12$
 interpolate last-4 is \textbf{76/100} (isolated \textbf{474/800});
 hard is \textbf{74/100}. Official first-draw mean$>0.55$ is 91/100.
-That is not \textbf{25/48}. Whether $\Hw=12$ interpolate \textbf{76/100} is a
+Occupancy is 3535 seen versus 98064 unseen. That is not \textbf{25/48}. Whether $\Hw=12$ interpolate \textbf{76/100} is a
 weaker body reader or an opening residual is named in
 \path{research/PROTOCOL-next-longctx-windows.md}
 (freeze SHA \texttt{8283d1f}).
@@ -1926,7 +1932,7 @@ Distil $\Hw=12$ interpolate:
 (\texttt{e8ac790aebdb8919}; $9/12$, $49/96$).
 Distil $\Hw=12$ occupancy:
 \path{experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json}
-(\texttt{e0ccc7de1f47a79c}; 175 seen).
+(\texttt{e0ccc7de1f47a79c}; 175 seen versus 11994 unseen).
 Distil $\Hw=12$ 100-family freeze: \texttt{d891622}.
 Distil $\Hw=12$ 100 pair:
 \path{experiments/2026-09-04-pair-distil-100x4-ngram13/results.json}
@@ -1936,7 +1942,7 @@ Distil $\Hw=12$ 100 interpolate:
 (\texttt{22d8c29006252a26}; $88/100$, $557/800$).
 Distil $\Hw=12$ 100 occupancy:
 \path{experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json}
-(\texttt{331dbab436097872}; 11182 seen).
+(\texttt{331dbab436097872}; 11182 seen versus 85493 unseen).
 Qwen2-1.5B $\Hw=12$ freeze: \texttt{d7303a2}.
 Qwen $\Hw=12$ pair:
 \path{experiments/2026-09-04-pair-qwen-12x4-ngram13/results.json}
@@ -1946,7 +1952,7 @@ Qwen $\Hw=12$ interpolate:
 (\texttt{617663de48b81879}; $4/12$, $41/96$).
 Qwen $\Hw=12$ occupancy:
 \path{experiments/2026-09-04-atoms-qwen-12x4-ngram13/atoms.json}
-(\texttt{d7867f4c81b21ca2}; 65 seen).
+(\texttt{d7867f4c81b21ca2}; 65 seen versus 12127 unseen).
 Distil Aaronson freeze: \texttt{9bdf12a}.
 Distil Aaronson pair:
 \path{experiments/2026-09-04-pair-distil-12x4-aaronson/results.json}
@@ -1956,7 +1962,7 @@ Distil Aaronson interpolate:
 (\texttt{c36caf9745da2ce3}; $7/12$, $0/48$ marked TP).
 Distil Aaronson occupancy:
 \path{experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json}
-(\texttt{cc5ad2fcf035fdca}; 196 seen).
+(\texttt{cc5ad2fcf035fdca}; 196 seen versus 11996 unseen).
 Distil Aaronson 100-family freeze: \texttt{bf05759}.
 Distil Aaronson 100 pair:
 \path{experiments/2026-09-04-pair-distil-100x4-aaronson/results.json}
@@ -1966,7 +1972,7 @@ Distil Aaronson 100 interpolate:
 (\texttt{89d3b8c7f8d5d0e0}; $96/100$, $601/800$).
 Distil Aaronson 100 occupancy:
 \path{experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json}
-(\texttt{06b4d85a772626d4}; 28824 seen).
+(\texttt{06b4d85a772626d4}; 28824 seen versus 61305 unseen).
 Qwen Aaronson freeze: \texttt{1171d5c}.
 Qwen Aaronson pair:
 \path{experiments/2026-09-04-pair-qwen-12x4-aaronson/results.json}
@@ -1976,7 +1982,7 @@ Qwen Aaronson interpolate:
 (\texttt{ac41821f88adba14}; $12/12$, $12/48$ marked TP).
 Qwen Aaronson occupancy:
 \path{experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json}
-(\texttt{419a2088b2ba8e6e}; 457 seen).
+(\texttt{419a2088b2ba8e6e}; 457 seen versus 11735 unseen).
 Qwen2-1.5B $\Hw=12$ 100-family freeze: \texttt{636765c}.
 Qwen $\Hw=12$ 100 pair:
 \path{experiments/2026-09-04-pair-qwen-100x4-ngram13/results.json}
@@ -1986,7 +1992,7 @@ Qwen $\Hw=12$ 100 interpolate:
 (\texttt{d051137c566c5629}; $76/100$, $474/800$).
 Qwen $\Hw=12$ 100 occupancy:
 \path{experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json}
-(\texttt{1d0ae9837b3cd4e0}; 3535 seen).
+(\texttt{1d0ae9837b3cd4e0}; 3535 seen versus 98064 unseen).
 Qwen Aaronson 100-family freeze: \texttt{a761a7d}.
 Qwen Aaronson 100 pair:
 \path{experiments/2026-09-04-pair-qwen-100x4-aaronson/results.json}
@@ -1996,7 +2002,7 @@ Qwen Aaronson 100 interpolate:
 (\texttt{9bb1cf87dc11328e}; $100/100$, $616/800$).
 Qwen Aaronson 100 occupancy:
 \path{experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json}
-(\texttt{d3932e3b1346789b}; 8750 seen).
+(\texttt{d3932e3b1346789b}; 8750 seen versus 92842 unseen).
 Qwen Kirchenbauer 100-family freeze: \texttt{ed9fb20}.
 Named before generation. Pair out-dir:
 \path{experiments/2026-09-04-pair-qwen-100x4-kgw}.

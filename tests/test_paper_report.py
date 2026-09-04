@@ -387,6 +387,10 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "608/800" not in abs_
     assert "3535" not in abs_
     assert "8750" not in abs_
+    assert "98064" not in abs_
+    assert "92842" not in abs_
+    assert "85493" not in abs_
+    assert "61305" not in abs_
     assert "ca4c793eaaf77c18" not in abs_
     assert "25167" not in abs_
     assert "49/96" not in abs_
@@ -594,6 +598,15 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
     assert f"{distil_hw12[1]}/800" in next_sec
     assert f"{distil_aar[0]}/100" in next_sec
     assert f"{distil_aar[1]}/800" in next_sec
+    for rel in (
+        "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json",
+    ):
+        occ = json.loads((ROOT / rel).read_text())
+        assert occ["used_keys"] is False
+        assert f"{occ['n_seen']} seen versus {occ['n_unseen']} unseen" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
@@ -646,6 +659,15 @@ def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
     assert f"{marked}/48" in next_sec
     assert f"{qwen_aar[0]}/12" in next_sec
     assert f"{qwen_aar[2]}/96" in next_sec
+    for rel in (
+        "experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-ngram13/atoms.json",
+        "experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json",
+        "experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json",
+    ):
+        occ = json.loads((ROOT / rel).read_text())
+        assert occ["used_keys"] is False
+        assert f"{occ['n_seen']} seen versus {occ['n_unseen']} unseen" in next_sec
     assert "ed9fb20" in next_sec
     assert "before generation" in next_sec
 
@@ -1135,8 +1157,8 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     )
     assert occ_qhw["used_keys"] is False
     assert occ_qaar["used_keys"] is False
-    assert f"{occ_qhw['n_seen']} seen" in tex
-    assert f"{occ_qaar['n_seen']} seen" in tex
+    assert f"{occ_qhw['n_seen']} seen versus {occ_qhw['n_unseen']} unseen" in tex
+    assert f"{occ_qaar['n_seen']} seen versus {occ_qaar['n_unseen']} unseen" in tex
     appendix = tex.split(r"\appendix")[1]
     assert "Do not invent interpolate counts" in appendix
     assert r"\textbf{25/48}" in appendix
