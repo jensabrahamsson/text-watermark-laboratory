@@ -1116,7 +1116,13 @@ last-4 **89/100**, interpolate **88/100**, last-2 **88/100**, isolated
 $\le 0$ **185/400** — below last-4 ranking **89/100**, isolated
 **354/400**. Windows: 0:4 **92/100**, **348/400**, **0.880**; 64:128
 **71/100**, **282/400**, **0.628**. Last-12 does not rescue. Do not
-sell last-12 **87/100** or **350/400**.
+sell last-12 **87/100** or **350/400**. Interpolate last-4 windows
+(`--skip-nested`): 0:4 **90/100**, **346/400**, AUC **0.894**; 64:128
+**60/100**, **219/400**, **0.565**. Front-loaded, opposite of
+Kirchenbauer interpolate last-4. Tail AUC is chance. Lengthening the
+hash history to $\Hw=12$ does not make a Kirchenbauer-style body leak
+on Distil. Do not sell interpolate opening **90/100** or tail
+**60/100**.
 
 Qwen2-1.5B ngram-13 12×4 hard width grid (`--model
 Qwen/Qwen2-1.5B-Instruct`; k=4 is the freeze dump in
@@ -1331,7 +1337,8 @@ classify Kirchenbauer original-12 (isolated **24/48**, AUC 0.554). Do
 not sell ngram-13 last-12 **71/100**, Distil ngram-13 last-2 **25/48**,
 GPT-2 $\Hw=12$ last-2 opening **87/100**, last-12 opening **82/100**, Distil last-12 **8/12**, Distil $\Hw=12$ 100 last-2 **88/100** /
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
-**88/100**, Distil last-12 n=100 **87/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
+**88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
+opening **90/100** / tail **60/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -1386,6 +1393,11 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ng
   --model gpt2 --methods hard --context-len 12 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-k12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ngram13 \
+  --model gpt2 --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-interp-k4-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
   --model gpt2 --methods hard --context-len 12 --skip-hashpool \
