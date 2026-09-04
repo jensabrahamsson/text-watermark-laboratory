@@ -4024,9 +4024,11 @@ SynthID GPT-2 100 (`used_keys=false`, `--skip-nested`; isolated from
 **95/100**, **327/400**); last-2 4:16 **98/100**, 0.860, **345/400**
 (last-2 hits **100/100**, **350/400**). Last-1 16:32 **76/100** and
 last-2 16:32 **84/100** drop like last-1 / last-2 hits; last-4 hits
-keeps **97/100**. Do not shorten SynthID `hits`. Do not leftover-target
+keeps **97/100**. Last-2 hashtok 32:64 **82/100**, 0.683, **242/400**
+continues that drop (last-1 hashtok 32:64 **83/100**, **234/400**),
+opposite of Kirchenbauer last-2 hashtok 32:64 **98/100**. Do not shorten SynthID `hits`. Do not leftover-target
 last-1 16:32 **19** ranking losses with isolated TP. Do not sell
-last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400**. Distil
+last-1 hashtok 4:16 **95/100** / last-2 **98/100** / **345/400** / last-2 32:64 **82/100**. Distil
 last-1 hashtok 4:16 is **76/100**, 0.637, **113/400** (**12**
 ranking-only, **10** ranking losses with isolated TP), sitting with
 last-1 hits **72/100**, 0.617, **136/400**, not GPT-2 last-1 hashtok
@@ -4975,7 +4977,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    gpt2-medium **95/100** sits with GPT-2. Interpolate stays last-4.
    Occupancy-free `hashtok` without `--fit-prefix` follows last-1 /
    last-2 hits geography on GPT-2 (last-1 4:16 **95/100**; last-2 **98/100**;
-   16:32 drops). Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
+   16:32 drops; last-2 hashtok 32:64 **82/100**, opposite of KGW last-2
+   hashtok 32:64 **98/100**). Distil last-1 hashtok 4:16 **76/100**, **113/400** sits
    with last-1 hits **72/100**, **136/400**, not GPT-2 **95/100**. Qwen
    last-1 hashtok 4:16 **74/100**, **303/400** sits with last-1 hits
    **76/100**. gpt2-medium last-1 hashtok 4:16 **97/100**, **323/400**
