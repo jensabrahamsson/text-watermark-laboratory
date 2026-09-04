@@ -177,7 +177,7 @@ Independent work already asked whether a third party can detect a
 sampling watermark without the vendor's keys (\Cref{sec:related}).
 \citet{gloaguen2025blackbox} test a generator property with black-box
 queries. \citet{wang2026ttp} verify finished strings from paired
-watermarked/unwatermarked references---the closest published analog.
+watermarked and unwatermarked references, the closest published analog.
 The increment here is a lightweight count-table likelihood-ratio reader
 together with a two-grain measurement on DeepMind's public mixin: group
 ranking can succeed while a prespecified isolated threshold fails.
@@ -501,19 +501,21 @@ Seed allocation for family offset $r$, $M=4$, base seed $s$:
 marked draw $j\in\{0,1,2,3\}$ uses $s + (2M+2)r + 2j$; unmarked draw
 $j$ uses one more. Marked and unmarked never share a seed.
 
+{\sloppy
 Default Hub identifiers: \texttt{gpt2}, \texttt{distilgpt2},
 \texttt{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not recorded when
 the twins were generated. That does not affect the published scores:
 key-free tables and official \texttt{detector\_mean} read the committed
 strings, not a Hub snapshot. It would matter for bitwise re-generation
 of new twins. The laboratory machine's current \texttt{gpt2} cache is
-\path{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
+\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
 Qwen snapshots were not retained. Future \texttt{pair} runs should pass
 a Hub \texttt{revision} (\texttt{pair --hub-revision}).
 \texttt{transformers==4.57.6}. SynthID-Text is
 the public reference package installed with
 \texttt{pip install -e \ldots --no-deps}. Exact frozen dumps and
 commands are in \Cref{app:artifacts}.
+\par}
 
 Corpora used in the headline tables:
 
@@ -728,7 +730,7 @@ Before generating the 100 new GPT-2 families, three readers were named
 
 \begin{itemize}[leftmargin=*]
 \item \textbf{Lock A.} Interpolate last-4
-(\texttt{--methods interpolate --context-len 4}).
+(\texttt{--methods interpolate}, \texttt{--context-len 4}).
 \item \textbf{Lock B.} Opening poshits
 (\texttt{--methods poshits --fit-prefix 4 --pos-bucket 1}).
 \item \textbf{Lock C.} Opening rankpath
@@ -1262,12 +1264,12 @@ survived. Pre-fix JSON is historical.
 
 On a 4-token new-topic gate, poshits isolated $\tau=0$ is 39/48 vs.\
 41/48. Occupancy-free \texttt{postokhits} is 16/48, with decided
-precision 1.000 when $n_{\mathrm{used}}>0$. Isolated observed-token
-recall on named opening readers equals train opening-atom overlap. That
-identity does not create a denser isolated-file detector. Comparing
-marked recall alone with 25/48 is not a sufficient evaluation rule: a
-low-recall, high-specificity abstaining reader is a different operating
-point.
+precision~$1.000$ when $n_{\mathrm{used}}>0$. Isolated observed-token
+recall on named opening readers equals train opening-atom overlap.
+That identity does not create a denser isolated-file detector.
+Comparing marked recall alone with 25/48 is not a sufficient evaluation
+rule. A low-recall, high-specificity abstaining reader is a different
+operating point.
 
 \subsection{H2 windows}
 
@@ -1529,8 +1531,9 @@ Same freeze, same Hub SHA, seed 20260904, named \texttt{8f09aa6} before
 generation. Official matching $z$-scores are above $3.0$ on
 \textbf{100/100} first marked files (min $6.61$). Leave-one-family-out
 interpolate last-4 ranks \textbf{100/100} (AUC $0.982$; $\tau=0$ is
-376 TP, 24 FN, 371 TN, 29 FP; balanced accuracy $747/800$; mean
-$D_p=0.745$, every family $D_p>0$). Hard last-4 is \textbf{62/100}
+376 TP, 24 FN, 371 TN, 29 FP; balanced accuracy $747/800$;
+mean $D_p=0.745$, every family $D_p>0$). Hard last-4 is
+\textbf{62/100}
 (AUC $0.573$; balanced accuracy $440/800$). Exact last-4 occupancy is
 4557 seen versus 96991 unseen (opening $[0{:}4)$ is 1044 versus 1356),
 below public $\Hw=4$ 100-family occupancy 10158 seen and below
