@@ -203,6 +203,15 @@ def test_protocol_kgw_distil_100_official_and_keyfree_from_dumps() -> None:
     assert f"**{hard['n_prompts_marked_above']}/100**" in row
     assert f"**{ba}/800**" in row
     assert f"**{occ['n_seen']}**" in row
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-probe-distil-100x4-kgw-hard-last4" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/100**" in exp_rows[0]
+    assert f"**{ba}/800**" in exp_rows[0]
+    assert f"**{hard['n_prompts_marked_above']}/100**" in exp_rows[0]
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 16170
     assert occ["n_unseen"] == 71541

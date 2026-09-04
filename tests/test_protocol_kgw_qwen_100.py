@@ -63,6 +63,28 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     assert "**25/48**" in row
     assert "100/100" not in row
     assert "/800" not in row
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert "PROTOCOL-next-kgw-qwen-100" in howto
+    assert "`ed9fb20`" in howto
+    assert "Do not invent those scores" in howto
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-04-pair-qwen-100x4-kgw" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert "`ed9fb20`" in exp_rows[0]
+    assert "named before generation" in exp_rows[0]
+    assert "100/100" not in exp_rows[0]
+    research_rows = [
+        ln
+        for ln in (ROOT / "research" / "README.md").read_text().splitlines()
+        if "PROTOCOL-next-kgw-qwen-100" in ln
+    ]
+    assert len(research_rows) == 1
+    assert "`ed9fb20`" in research_rows[0]
+    assert "named before generation" in research_rows[0]
+    assert "100/100" not in research_rows[0]
 
 
 def test_protocol_kgw_qwen_100_cli_flag_exists() -> None:
