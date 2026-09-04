@@ -137,8 +137,11 @@ on every local generator we tried:
 Interpolate last-1 on GPT-2 KGW 12 is already the last-4 interpolate
 reader: full-file **44/48** (last-4 interpolate **44/48**); opening
 0:4 **7/12**, **27/48**, 0.597; tail 64:128 **12/12**, **42/48**,
-0.907. The last-1 jump is `hard` / `hits` / `hashpool`, not
-interpolate.
+0.907. Distil interpolate last-1 windows match last-4 interpolate:
+0:4 **9/12**, **29/48**, 0.681; 64:128 **12/12**, **36/48**, 0.839.
+Qwen interpolate last-1: 0:4 **7/12**, **28/48**, 0.529 (chance);
+64:128 **12/12**, **34/48**, 0.832. The last-1 jump is `hard` / `hits`
+/ `hashpool`, not interpolate.
 
 GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
 isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
