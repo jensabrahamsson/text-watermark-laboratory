@@ -1225,9 +1225,10 @@ anti-correlated (**31/100**, **12/400**, 0.397, perm $p=1$). Qwen 12
 Aaronson rankpath ranks **10/12** with isolated **0/48**, AUC 0.622;
 GPT-2 n=100 rankpath was already chance **55/100**. Ranking-without-TP
 onto $\Hw=12$ is a count-table LR mean shift (`hard` / `hits` /
-interpolate / `hashpool`), not rankpath and not hashed logistic. Do
+interpolate / `hashpool`; weaker UTF-8 `surface` **83/100**), not
+rankpath and not hashed logistic / tokmlp / charcnn. Do
 not sell hashpool ranking **99/100**, Distil **71/100**, Qwen
-**12/12**, or Qwen rankpath **10/12**. Last-1 Aaronson hashpool
+**12/12**, Qwen rankpath **10/12**, or surface **83/100**. Last-1 Aaronson hashpool
 does **not** classify public SynthID: GPT-2 100 → original-12 is
 chance (**6/12**, **0/48**, AUC 0.528, perm $p\approx 0.30$); Distil
 100 → Distil SynthID 12 ranks **10/12** with isolated **0/48**, AUC
@@ -1247,8 +1248,14 @@ Kirchenbauer surface is weak (**56/100**, **92/400**, 0.550, perm
 $p\approx 0.005$). Tiny UTF-8 CNN (`learn --archs charcnn`) is
 anti-correlated (**33/100**, **17/400**, 0.407, perm $p=1$): it does
 not become surface's ranking-without-TP look. Do not sell surface
-ranking **83/100**. Do not leftover-target KGW surface tail isolated
-**190/400**. The last-1 lift is
+ranking **83/100**. Distil 100 Aaronson surface → Distil $\Hw=12$ does
+**not** replicate that look (**55/100**, **9/400**, 0.581, perm $p=1$;
+mean marked more negative than unmarked). Token count tables still
+rank on Distil (hashpool **71/100**; interpolate **88/100**). GPT-2
+Aaronson surface → public SynthID 12 is chance (**5/12**, **0/48**,
+0.466); Distil surface → Distil SynthID 12 ranks **9/12** with
+isolated **0/48**, AUC 0.591, perm $p\approx 0.08$. Do not leftover-target KGW surface tail isolated
+**190/400** or Distil surface opening **235/400**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1758,6 +1765,24 @@ python -m text_watermark_tools learn experiments/2026-09-04-pair-100x4-aaronson 
   --test-dir experiments/2026-09-03-pair-100x4-ngram13 --overlap keep \
   --archs charcnn --context-len 1 --pos-bucket 1 --skip-nested \
   --out-dir /tmp/kgw-lab/learn-gpt2100-aaronson-charcnn-k1-full-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-distil-100x4-ngram13 --overlap keep --model gpt2 \
+  --methods surface --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-surface-to-distil-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --test-dir experiments/2026-08-17-pair-12x4 \
+  --methods surface --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-gpt2100-aaronson-surface-to-synthid12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aaronson \
+  --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
+  --methods surface --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-surface-to-synthid-distil12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2916,7 +2941,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    **12/12**, Distil interpolate **88/100**, Distil hashpool
    **71/100**, Distil hashpool→SynthID ranking **10/12** with isolated
    **0/48**, hashlog **56/400**, tokmlp **122/400**, surface ranking
-   **83/100**, charcnn **17/400**, or AUC **0.890**.
+   **83/100**, charcnn **17/400**, Distil surface **55/100**, or AUC
+   **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
