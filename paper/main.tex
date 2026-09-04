@@ -1388,11 +1388,13 @@ same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
 \path{experiments/2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
 interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
 \textbf{6/12}. That is not \textbf{25/48}. DistilGPT2 $\Hw=12$ on the
-100 one-liners is named in
+100 one-liners is frozen in
 \path{research/PROTOCOL-next-longctx-distil-100.md}
 (freeze SHA \texttt{d891622};
-\path{experiments/2026-09-04-pair-distil-100x4-ngram13}) and has not
-been generated. Qwen2-1.5B $\Hw=12$ on the
+\path{experiments/2026-09-04-pair-distil-100x4-ngram13}). Distil
+$\Hw=12$ interpolate last-4 is \textbf{88/100} (isolated
+\textbf{557/800}); hard is \textbf{89/100}. Official first-draw
+mean$>0.55$ is 98/100. That is not \textbf{25/48}. Qwen2-1.5B $\Hw=12$ on the
 same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-qwen.md}
 (freeze SHA \texttt{d7303a2};
 \path{experiments/2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
@@ -1405,7 +1407,12 @@ same 12 strings is frozen in
 \path{experiments/2026-09-04-pair-distil-12x4-aaronson}). Distil
 Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
 marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
-(isolated \textbf{56/96}). That is not \textbf{25/48}. Qwen2-1.5B
+(isolated \textbf{56/96}). That is not \textbf{25/48}. DistilGPT2
+Aaronson on the 100 one-liners is named in
+\path{research/PROTOCOL-next-aaronson-distil-100.md}
+(freeze SHA \texttt{bf05759};
+\path{experiments/2026-09-04-pair-distil-100x4-aaronson}) and has not
+been generated. Qwen2-1.5B
 Aaronson on the same 12 strings is frozen in
 \path{research/PROTOCOL-next-aaronson-qwen.md}
 (freeze SHA \texttt{1171d5c};
@@ -1854,6 +1861,16 @@ Distil $\Hw=12$ interpolate:
 Distil $\Hw=12$ occupancy:
 \path{experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json}
 (\texttt{e0ccc7de1f47a79c}; 175 seen).
+Distil $\Hw=12$ 100-family freeze: \texttt{d891622}.
+Distil $\Hw=12$ 100 pair:
+\path{experiments/2026-09-04-pair-distil-100x4-ngram13/results.json}
+(\texttt{b46a5d5debed1485}).
+Distil $\Hw=12$ 100 interpolate:
+\path{experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/interpolate/holdout.json}
+(\texttt{22d8c29006252a26}; $88/100$, $557/800$).
+Distil $\Hw=12$ 100 occupancy:
+\path{experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json}
+(\texttt{331dbab436097872}; 11182 seen).
 Qwen2-1.5B $\Hw=12$ freeze: \texttt{d7303a2}.
 Qwen $\Hw=12$ pair:
 \path{experiments/2026-09-04-pair-qwen-12x4-ngram13/results.json}

@@ -2684,6 +2684,44 @@ python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
   --out-dir experiments/2026-09-04-pair-distil-100x4-ngram13
 ```
 
+## 2026-09-04 DistilGPT2 ngram_len=13 100-family opened
+
+[PROTOCOL-next-longctx-distil-100.md](PROTOCOL-next-longctx-distil-100.md)
+named `0598357`. Pair seed **20260903**, `ngram_len=13`,
+`--model distilgpt2`. Official first-draw mean>0.55 **98/100**
+(H-long-d100-ctrl fails as a raw 100/100; stems 020 and 047 have
+`n_unmasked_ngrams=1`). Interpolate last-4 **88/100** (AUC **0.785**,
+isolated **325/400 vs 232/400**, BA **557/800**). Hard **89/100**
+(AUC **0.829**, BA **544/800**). Occupancy **11182** seen vs **85493**
+unseen. `used_keys=false`. Do not sell **88/100** or **557/800** as
+replacing **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-distil-100x4-ngram13/`,
+`experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-100x4-ngram13/`.
+
+## 2026-09-04 DistilGPT2 Aaronson 100-family freeze
+
+[PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
+committed at SHA `bf05759`. Frozen before generation. Same laboratory Aaronson–Kirchner
+exponential-minimum as [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md),
+generator `distilgpt2`, 100 one-liners, seed **20260905**,
+`--mixin aaronson`, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+Hypotheses H-aar-d100-ctrl, H-aar-d100-group, H-aar-d100-iso, and
+H-aar-d100-occ are stated before generation. Do not look at key-free
+LRs until `pair` has written official first-draw z-scores and the probe
+command has been run once, as written. Do not add a scorer. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-09-01-prompts-100 \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260905 \
+  --mixin aaronson --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-100x4-aaronson
+```
+
 
 
 
