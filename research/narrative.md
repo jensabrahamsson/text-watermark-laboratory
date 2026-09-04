@@ -152,9 +152,10 @@ Distil LM on those gpt2-medium twins is ranking **11/12**, isolated
 **30/48 vs 31/48**
 ([PROTOCOL-isolated-rankpath-d2m.md](PROTOCOL-isolated-rankpath-d2m.md)).
 H-rpd2m **fails** as a raw count. Do not sell **30/48**.
-GPT-2-small LM on Distil 12×4 is named before those LRs
+GPT-2-small LM on Distil 12×4 is ranking **6/12**, isolated
+**24/48 vs 27/48**
 ([PROTOCOL-isolated-rankpath-g2d.md](PROTOCOL-isolated-rankpath-g2d.md)).
-Do not invent those scores.
+H-rpg2d **holds**. Do not sell **24/48**.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed

@@ -21,6 +21,10 @@ def test_protocol_rankpath_g2d_locks_config_before_lrs() -> None:
     assert "25/48" in text
     assert "H-rpg2d" in text
     assert "H-rpg2d-iso" in text
+    assert "H-rpg2d **holds**" in text
+    assert "H-rpg2d-iso **holds**" in text
+    assert "Do not sell **24/48**" in text
+    assert "*(empty until the SHA is named in LOGBOOK.md" not in text
     assert "--model gpt2" in text
     assert "--methods rankpath --fit-prefix 4 --pos-bucket 1" in text
     assert "2026-08-31-pair-distilgpt2-12x4" in text
@@ -55,6 +59,7 @@ def test_protocol_rankpath_g2d_locks_config_before_lrs() -> None:
     ]
     assert len(agents) == 1
     assert "**25/48**" in agents[0]
+    assert "**24/48 vs 27/48**" in agents[0]
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
 
@@ -91,19 +96,23 @@ def test_protocol_rankpath_g2d_distil_native_control_stays() -> None:
     assert holdout["n_unmarked_lr_nonpositive"] == 32
 
 
-@pytest.mark.skipif(
-    not (PROBE / "rankpath" / "holdout.json").is_file(),
-    reason="GPT-2-on-Distil rankpath not run",
-)
 def test_protocol_rankpath_g2d_from_dumps() -> None:
     interp = json.loads((PROBE / "rankpath" / "holdout.json").read_text())
     assert interp["used_keys"] is False
+    assert interp["used_hash_iv"] is False
+    assert interp["used_g_values"] is False
     assert interp["model_name"] == "gpt2"
+    assert interp["n_prompts_marked_above"] == 6
+    assert interp["n_marked_lr_positive"] == 24
+    assert interp["n_unmarked_lr_nonpositive"] == 27
     text = PROTOCOL.read_text()
-    if "H-rpg2d **holds**" not in text and "H-rpg2d **fails**" not in text:
-        pytest.skip("not folded yet")
+    assert "H-rpg2d **holds**" in text
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
     assert f"**{marked}/48 vs {unmarked}/48**" in text
+    readme = (PROBE / "README.md").read_text()
+    assert f"**{marked}/48 vs {unmarked}/48**" in readme
+    lo, hi = clopper_pearson(marked, 48)
+    assert lo <= 0.5 <= hi
     lo25, hi25 = clopper_pearson(25, 48)
     assert lo25 <= 0.5 <= hi25

@@ -3119,5 +3119,15 @@ on `experiments/2026-08-31-pair-distilgpt2-12x4/` with `--model gpt2`.
 Do not leftover-slice. Do not invent those scores. Distil native stays
 **8/12**, isolated **28/48 vs 32/48**. Nothing replaces **25/48**.
 Isolated-file detection is still not finished. Do not write `thesis/`.
+Freeze SHA `d62c732`.
+
+## 2026-09-04 GPT-2-small LM on Distil 12 opened
+
+H-rpg2d **holds**. GPT-2-small LM opening rankpath on Distil 12×4 is
+ranking **6/12**, isolated **24/48 vs 27/48** (AUC **0.532**; nested
+**16/48 vs 34/48**). `used_keys=false`. Do not sell **24/48**. Distil
+native stays **8/12**, isolated **28/48 vs 32/48**. File AUC is chance.
+Nothing replaces **25/48**. Isolated-file detection is still not
+finished. Do not write `thesis/`.
 
 ---
