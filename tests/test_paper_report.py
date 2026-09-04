@@ -340,7 +340,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-100x4-ngram13" in next_sec
     assert "PROTOCOL-next-longctx-windows" in next_sec
     assert "8283d1f" in next_sec
-    assert "has not been dumped" in next_sec
+    assert "50/100" in next_sec
+    assert "93/100" in next_sec
+    assert "has not been dumped" not in next_sec
     assert "12ea3ef1c34f037b" in PAPER
     assert "ac41821f88adba14" in PAPER
     assert "419a2088b2ba8e6e" in PAPER
@@ -423,6 +425,9 @@ def test_readme_matches_revised_title() -> None:
     assert "25/51" in README
     assert "b70986d" in README
     assert "ngram_len=13" in README
+    assert "8283d1f" in README
+    assert "50/100" in README
+    assert "93/100" in README
     assert "PROTOCOL-next-kgw" in README
     assert "--mixin kgw" in README
     assert "12/12" in README
