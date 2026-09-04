@@ -209,7 +209,9 @@ sell those 12-file counts. Last-4 interpolate KGW tables do **not**
 classify public SynthID (**0/48** / **2/48** / **8/144**) or grok12
 (**5/48** / **7/48**); same-stem GPT-2 12 KGW → SynthID 12 is
 **6/48**; Distil KGW → Distil SynthID is **1/48** / **3/48**; Qwen KGW
-12 → Qwen SynthID 12 is **15/48**; $\Hw=12$ original-12 is **1/48**. Do not sell
+12 → Qwen SynthID 12 is **15/48**; $\Hw=12$ original-12 is **1/48**;
+n=100 $\Hw=12$ is **51/400** / Distil **24/400**. Do not leftover-target
+Distil $\Hw=12$ opening **280/400**. Do not sell
 Distil/Qwen interpolate isolated tails **35/48** / **34/48** or GPT-2
 tail **40/48**. Do
 not sell confirmatory tail **100/100** or SynthID tail **93/100** as
@@ -2529,7 +2531,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **34/48**), not the opening. Those tables do not classify
    public SynthID (**0/48** / **8/144**) or grok12 (**5/48**) or Distil
    public SynthID (**1/48** / same-stem **3/48**) or Qwen public SynthID
-   (**15/48**, ranking **1/12**) or $\Hw=12$ original-12 (**1/48**). Do not
+   (**15/48**, ranking **1/12**) or $\Hw=12$ original-12 (**1/48**) or
+   n=100 $\Hw=12$ (**51/400** / Distil **24/400**). Do not leftover-target
+   Distil $\Hw=12$ opening **280/400**. Do not
    sell **331/400**, **385/400**, **46/48**, **43/48**, **42/48**,
    **40/48**, **35/48**, or **34/48**.
 2. Matching `context_len` to last-1 hash width recovers isolated
