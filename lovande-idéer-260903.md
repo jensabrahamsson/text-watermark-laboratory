@@ -90,6 +90,27 @@ $\tau=0$ while ranking still **82/100**. Count tables, not rankpath,
 remain the Kirchenbauer body reader at confirmatory n. Do not sell
 **248/400**, **199/400**, or ranking **82/100**.
 
+Table-free `--snaprate` (`snapleave` / `snapupset`; unmarked-LM argmax
+geometry, no twin tables) **ranks** GPT-2 Kirchenbauer but does not
+sign isolated files at $\tau=0$. 12×4 snapleave is **10/12**, AUC
+**0.726**, perm $p\approx 0.0035$, marked>0 **46/48** with unmarked
+$\le 0$ only **1/48**; snapupset **9/12**, **0.723**. Confirmatory
+n=100 snapleave is **88/100**, AUC **0.755**, perm $p\approx 0.0005$,
+marked>0 **386/400** with unmarked $\le 0$ **15/400**; snapupset
+**89/100**, **0.755**, unmarked $\le 0$ **24/400**. Nested Youden
+n=100 is **271/400** vs **302/400** (snapleave) and **290/400** vs
+**281/400** (snapupset). Both classes leave the unmarked argmax;
+$\tau=0$ is not a detector. DistilGPT2 Kirchenbauer snaprate does
+**not** replicate: 12×4 snapleave **9/12**, AUC 0.658, perm
+$p\approx 0.21$; n=100 **31/100**, AUC **0.447**, perm $p=1$ (mean
+marked more negative). The same reader on GPT-2 $\Hw=12$ is chance
+ranking (n=100 AUC **0.507**). Interpolate last-4 remains **100/100**,
+**0.953** on the GPT-2 KGW tail and still ranks Distil KGW. Count
+tables, not snaprate, remain the body reader. Do not sell snapleave
+ranking **88/100**, marked>0 **386/400**, nested **271/400**, 12-file
+**10/12**, or Distil **9/12**. `--snaprate` does not emit `--windows`
+slices (it scores the generated path only).
+
 Same last-4 interpolate tables transfer that body leak across
 same-BPE generators (`--overlap keep`, `--skip-nested`, `--model gpt2`):
 
@@ -247,6 +268,22 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kg
   --model gpt2 --methods rankpath --context-len 4 --skip-hashpool --rankpath \
   --rankpath-pos-bucket 0 --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-rankpath-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-12x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw \
+  --model gpt2 --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-12x4-kgw-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-snaprate
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-09-03-pair-100x4-kgw --overlap keep --model gpt2 \
