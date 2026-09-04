@@ -1122,7 +1122,12 @@ sell last-12 **87/100** or **350/400**. Interpolate last-4 windows
 Kirchenbauer interpolate last-4. Tail AUC is chance. Lengthening the
 hash history to $\Hw=12$ does not make a Kirchenbauer-style body leak
 on Distil. Do not sell interpolate opening **90/100** or tail
-**60/100**.
+**60/100**. GPT-2 ngram-13 100 interpolate last-4 windows
+(`--skip-nested`): 0:4 **86/100**, **327/400**, AUC **0.823**; 64:128
+**50/100**, **184/400**, **0.501**. Tail ranking is chance. Full-file
+interpolate **76/100** is opening mass. Lengthening $\Hw$ to 12 kills
+the public $\Hw=4$ interpolate tail (**93/100**). Do not sell
+interpolate **76/100**, opening **86/100**, or tail **50/100**.
 
 Qwen2-1.5B ngram-13 12×4 hard width grid (`--model
 Qwen/Qwen2-1.5B-Instruct`; k=4 is the freeze dump in
@@ -1338,7 +1343,8 @@ not sell ngram-13 last-12 **71/100**, Distil ngram-13 last-2 **25/48**,
 GPT-2 $\Hw=12$ last-2 opening **87/100**, last-12 opening **82/100**, Distil last-12 **8/12**, Distil $\Hw=12$ 100 last-2 **88/100** /
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
-opening **90/100** / tail **60/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
+opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
+opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, or hashpool last-2 **31/48**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
@@ -1398,6 +1404,11 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ng
   --model gpt2 --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-interp-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-ngram13-interp-k4-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-ngram13 \
   --model gpt2 --methods hard --context-len 12 --skip-hashpool \
