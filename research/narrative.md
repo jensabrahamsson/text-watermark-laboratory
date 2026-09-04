@@ -280,7 +280,9 @@ Qwen2-1.5B $\Hw=12$ 100-family is
 Whether $\Hw=12$ interpolate **76/100** is a weaker body reader or an
 opening residual is
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
-(freeze SHA `8283d1f`) and has not been dumped. DistilGPT2 Aaronson 100-family is
+(freeze SHA `8283d1f`). Opened: interpolate $[64{:}128)$ **50/100**
+versus public **93/100**; opening **86/100**. Do not sell **50/100**
+or **93/100**. DistilGPT2 Aaronson 100-family is
 [PROTOCOL-next-aaronson-distil-100.md](PROTOCOL-next-aaronson-distil-100.md)
 (freeze SHA `bf05759`). Opened: interpolate **96/100** (isolated
 **601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.

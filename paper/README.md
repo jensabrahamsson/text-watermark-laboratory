@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (26 A4 pages, git `bce3cd2`). Dated copy in
+  (26 A4 pages, git `4b43105`). Dated copy in
   [`../report/`](../report/).
 
 Numbers are taken from this repository (`research/`, `experiments/`).
@@ -99,7 +99,9 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    100-family occupancy is **5878** versus **10158** (opening 1287 versus 1633)
    (leave-one-family-out atoms; not a detector). Isolated original-12 remains
    **47/96**; **6/12** and **76/100** are group rankings on $\Hw=12$
-   twins.
+   twins. Body-window remasure (SHA `8283d1f`): interpolate $[64{:}128)$
+   **50/100** versus public $\Hw=4$ **93/100**; opening **86/100**.
+   That is not **25/48**.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A

@@ -135,3 +135,34 @@ start these probes while a Qwen `pair` still holds the CPU.
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Opened two-grain counts (after SHA `8283d1f`)
+
+JSON:
+`experiments/2026-09-04-probe-100x4-ngram13-windows/`,
+`experiments/2026-09-04-probe-100x4-public-w64-128/`.
+`used_keys=false`. `used_hash_iv=false`. `used_g_values=false`.
+`context_len=4`. Methods on $\Hw=12$ are `interpolate,hard,hits`.
+Public tail is interpolate only. Pair dirs match the freeze.
+
+H-long-win-ctrl **holds**. Full-file interpolate on the $\Hw=12$
+window run remains **76/100**. Public lock A full-file interpolate
+remains **99/100**.
+
+H-long-win-body **holds** as the informative drop. Interpolate last-4
+on $[64{:}128)$ is **50/100**, AUC **0.501**, isolated **184/400**
+versus unmarked $\le 0$ **212/400** under $\Hw=12$, and **93/100**,
+AUC **0.726**, isolated **259/400** versus unmarked $\le 0$
+**258/400** under public $\Hw=4$. Full-file **76/100** is not a
+weaker copy of lock A **99/100** on the body.
+
+H-long-win-open **holds**. Window $[0{:}4)$ interpolate is **86/100**,
+AUC **0.823**, isolated **327/400**. That is the occupancy already in
+the atoms dump, not a new detector.
+
+H-long-win-hits **holds**. Hits full-file **91/100** sits with
+$[0{:}4)$ **95/100**, not with $[64{:}128)$ **53/100**.
+
+Do not sell **50/100**, **93/100**, **86/100**, or **91/100** as
+replacing **25/48**. Isolated-file detection on the public SynthID
+original-12 remains **25/48** / **47/96**. Do not write `thesis/`.

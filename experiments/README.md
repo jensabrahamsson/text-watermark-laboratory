@@ -44,6 +44,8 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-atoms-12x4-public-loo/` | 12-LOO interpolate occupancy, public Hw=4 | **269** seen vs **11912** unseen; every window above Hw=12 |
 | `2026-09-03-pair-100x4-ngram13/` | Same mixin, 100 one-liners | official **400/400** marked above 0.55 |
 | `2026-09-03-probe-100x4-ngram13-hard-last4/` | 100-LOO hard/interpolate | interpolate **76/100** (below lock A **99/100**); isolated **489/800** |
+| `2026-09-04-probe-100x4-ngram13-windows/` | Hw=12 interpolate/hard/hits windows | interpolate 0:4 **86/100**; 64:128 **50/100**, AUC **0.501** |
+| `2026-09-04-probe-100x4-public-w64-128/` | Public Hw=4 interpolate 64:128 | **93/100**, AUC **0.726**; full-file still **99/100** |
 | `2026-09-03-atoms-100x4-ngram13/` | 100-LOO interpolate occupancy, Hw=12 | **5878** seen vs **95624** unseen; LRs match interpolate holdout |
 | `2026-09-03-atoms-100x4-public-loo/` | 100-LOO interpolate occupancy, public Hw=4 | **10158** seen vs **91353** unseen; every window above Hw=12 |
 | `2026-09-04-pair-distil-12x4-ngram13/` | DistilGPT2, public keys, `ngram_len=13`, original 12 | official first-draw **12/12** above 0.55 |

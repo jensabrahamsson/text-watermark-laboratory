@@ -68,6 +68,9 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "636765c" in text
     assert "PROTOCOL-next-longctx-windows" in text
     assert "8283d1f" in text
+    assert "**50/100**" in text
+    assert "**93/100**" in text
+    assert "**86/100**" in text
     assert "PROTOCOL-next-aaronson-distil-100" in text
     assert "**601/800**" in text
     assert "**160**" in text

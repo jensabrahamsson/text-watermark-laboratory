@@ -590,8 +590,13 @@ Isolated-file remains open. Qwen2-1.5B Aaronson 100-family is
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
 (freeze SHA `636765c`) and has not been generated.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
-(freeze SHA `8283d1f`) names the $\Hw=12$ vs $\Hw=4$ $[64{:}128)$
-remasure and has not been dumped. Do not sell a named-not-generated freeze as replacing **25/48**.
+(freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
+**50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
+**93/100** (AUC **0.726**); $\Hw=12$ opening $[0{:}4)$ **86/100**.
+Hits full-file **91/100** sits with the opening, not the tail.
+JSON: `experiments/2026-09-04-probe-100x4-ngram13-windows/`,
+`experiments/2026-09-04-probe-100x4-public-w64-128/`.
+Do not sell **50/100** or **93/100** as replacing **25/48**.
 Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:

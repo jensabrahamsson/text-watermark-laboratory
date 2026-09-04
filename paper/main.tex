@@ -1435,8 +1435,14 @@ been generated. Qwen2-1.5B $\Hw=12$ on the 100 one-liners is named in
 been generated. Whether $\Hw=12$ interpolate \textbf{76/100} is a
 weaker body reader or an opening residual is named in
 \path{research/PROTOCOL-next-longctx-windows.md}
-(freeze SHA \texttt{8283d1f})
-and has not been dumped.
+(freeze SHA \texttt{8283d1f}).
+Opened: interpolate $[64{:}128)$ \textbf{50/100} (AUC \textbf{0.501})
+versus public $\Hw=4$ \textbf{93/100} (AUC \textbf{0.726});
+opening $[0{:}4)$ \textbf{86/100}.
+JSON:
+\path{experiments/2026-09-04-probe-100x4-ngram13-windows},
+\path{experiments/2026-09-04-probe-100x4-public-w64-128}.
+That is not \textbf{25/48}.
 
 \begin{table}[ht]
 \centering
