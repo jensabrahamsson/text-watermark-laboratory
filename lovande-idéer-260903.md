@@ -218,8 +218,13 @@ missed; it is not “shorten hits and lose the opening copies.”
 Confirmatory 100-family last-1 hits windows (`--skip-nested`):
 0:4 **100/100**, **392/400**, AUC **0.992**, unmarked $\le 0$
 **373/400**; 64:128 **100/100**, **372/400**, **0.989**, unmarked
-**400/400**. Body at confirmatory n. Do not sell **392/400** or
-**372/400**. Occupancy-free `postokhits` last-4 is **12/12**, **40/48**,
+**400/400**. Body at confirmatory n. Last-4 hits at the same n is
+still opening-heavy: 0:4 **100/100**, **392/400**, **0.991**; 64:128
+**90/100**, **260/400**, **0.837**, unmarked $\le 0$ **360/400**,
+**25** ranking wins with no isolated TP. n=12 last-4 hits tail
+**0/48** was the extreme; n=100 last-4 hits has some tail, and last-1
+hits is the body match. Do not sell **392/400**, **372/400**, or
+last-4 hits tail **260/400**. Occupancy-free `postokhits` last-4 is **12/12**, **40/48**,
 AUC **0.892** on GPT-2 Aaronson and **10/12**, **40/48** on Distil;
 last-1 `postokhits` is empty on both (**0/48**, all zeros). Do not sell
 **46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
@@ -463,8 +468,12 @@ hard is **12/12**, **36/48**, AUC **0.946**, unmarked **48/48** — above
 last-4 **24/48**, below last-1 **44/48**. Occupancy-free `postokhits`
 last-4 is **8/12**, **32/48** (opening; tail **0/48**, 16 marked zeros),
 matching last-4 hits; last-1 `postokhits` is empty (**0/48**, all
-zeros), same as GPT-2 and Distil Aaronson. Do not
-sell **44/48**, **48/48**, last-2 **36/48**, or rankpath **16/48**. Last-1
+zeros), same as GPT-2 and Distil Aaronson. Interpolate last-1 isolated
+is **24/48** (last-4 interpolate **12/48**); tail ranks **12/12** with
+isolated only **20/48**. Last-1 hits **48/48** remains the isolated
+reader. Do not
+sell **44/48**, **48/48**, last-2 **36/48**, interpolate last-1
+**24/48**, or rankpath **16/48**. Last-1
 on those twins is a post-open width match, not the freeze.
 
 **Hypothesis.** When the watermark hash is last-1, last-4 count
@@ -509,7 +518,7 @@ rankpath **16/48**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Aaronson last-1 hits n=100
-tail **372/400**, Distil
+tail **372/400**, last-4 hits n=100 tail **260/400**, Distil
 Aaronson last-1 **16/48** / last-2 **24/48**, Distil hits last-4
 **44/48**, Distil postokhits last-4 **40/48**, Distil hashpool last-4
 **32/48**, Distil last-1 hits **32/48**, Distil last-1 postokhits
@@ -779,6 +788,11 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson 
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hits-k4-windows-ends
 ```
 
 **Why it is a backlog item.** Published Kirchenbauer hard last-4
