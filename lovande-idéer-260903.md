@@ -244,14 +244,19 @@ same GPT-2 KGW mid slices is **not** that body reader
 
 | Window | interpolate | hits |
 |---|---|---|
-| 4:16 | **95/100**, 0.771, 289/400 | **45/100**, 0.506 (chance), isolated **26/400**, **22** ranking-only |
-| 16:32 | **97/100**, 0.817, 304/400 | 68/100, 0.550, isolated **58/400**, **30** ranking-only |
-| 32:64 | **99/100**, 0.897, 342/400 | 80/100, 0.619, isolated **109/400**, **20** ranking-only |
+| GPT-2 4:16 | **95/100**, 0.771, 289/400 | **45/100**, 0.506 (chance), isolated **26/400**, **22** ranking-only |
+| GPT-2 16:32 | **97/100**, 0.817, 304/400 | 68/100, 0.550, isolated **58/400**, **30** ranking-only |
+| GPT-2 32:64 | **99/100**, 0.897, 342/400 | 80/100, 0.619, isolated **109/400**, **20** ranking-only |
+| Distil 4:16 | **88/100**, 0.728, 303/400 | 66/100, 0.593, isolated **182/400** |
+| Distil 16:32 | **92/100**, 0.753, 300/400 | 71/100, 0.599, isolated **167/400** |
+| Distil 32:64 | **98/100**, 0.818, 320/400 | 79/100, 0.621, isolated **196/400** |
 
 The Kirchenbauer mid-file leak is last-4 **interpolate**, not shared
-4-gram `hits`. Hits 4:16 is chance where interpolate is already
-**95/100**. Do not leftover-target those ranking-only zeros. Isolated
-$\tau=0$ still fails. Do not sell hits 32:64 **80/100**.
+4-gram `hits`. GPT-2 hits 4:16 is chance where interpolate is already
+**95/100**. Distil hits 4:16 still ranks **66/100** and stays below
+interpolate **88/100**. Do not leftover-target GPT-2 ranking-only
+zeros. Isolated $\tau=0$ still fails. Do not sell hits 32:64
+**80/100** or Distil hits 4:16 **66/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -453,7 +458,8 @@ Do not sell prompt-context Distil tail **82/100**, GPT-2 LDA opening
 pivot opening **85/100**. Do not sell Distil `frac_in_topk` **80/100**
 or GPT-2 body `mean_gap` **83/100**. Do not sell interpolate 4:16
 **95/100** or 16:32 **97/100**. Do not sell GPT-2 KGW hits 4:16
-**45/100** or 32:64 **80/100**.
+**45/100** or 32:64 **80/100**. Do not sell Distil hits 4:16
+**66/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
@@ -485,6 +491,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hits --context-len 4 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-mid
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods hits --context-len 4 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hits-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
   --methods rankpath --context-len 4 --skip-hashpool --rankpath \
@@ -3381,7 +3392,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    16:32 **72/100**. Count-table interpolate still dominates those mid
    slices (GPT-2 4:16 **95/100**, 16:32 **97/100**). Shared-4-gram
    `hits` on those GPT-2 mid slices is not that reader (4:16 chance
-   **45/100**). GPT-2 KGW body’s best single LDA feature is soft
+   **45/100**). Distil hits 4:16 still ranks **66/100** below
+   interpolate **88/100**. GPT-2 KGW body’s best single LDA feature is soft
    `mean_gap` (**83/100**); dropping it still ranks **87/100**. Distil
    `mean_gap` alone is **67/100**; dropping it from the six falls to
    **75/100** with **18** ranking-only. Do not sell
