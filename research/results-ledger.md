@@ -585,7 +585,10 @@ DistilGPT2 Aaronson 100-family is
 **601/800**); hard **91/100**. Do not sell **96/100** or **601/800**.
 Isolated-file remains open. Qwen2-1.5B Aaronson 100-family is
 [PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
-(freeze SHA `a761a7d`) and has not been generated. Qwen2-1.5B $\Hw=12$
+(freeze SHA `a761a7d`). Opened: interpolate **100/100** (isolated
+**616/800**); hard **97/100**. Official first-draw $z>3$ **99/100**.
+Do not sell **100/100** or **616/800**. Isolated-file remains open.
+Qwen2-1.5B $\Hw=12$
 100-family is
 [PROTOCOL-next-longctx-qwen-100.md](PROTOCOL-next-longctx-qwen-100.md)
 (freeze SHA `636765c`) and has not been generated.

@@ -2863,4 +2863,21 @@ grains; git now has the freeze dumps. Do not sell **50/100** or
 **93/100** as replacing **25/48**. Isolated-file detection is still
 not finished. Do not write `thesis/`.
 
+## 2026-09-04 Qwen2-1.5B Aaronson 100-family opened
+
+[PROTOCOL-next-aaronson-qwen-100.md](PROTOCOL-next-aaronson-qwen-100.md)
+named `de035df`. Pair seed **20260905**, `--mixin aaronson`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw z>3 **99/100**
+(H-aar-q100-ctrl fails as a raw 100/100; stem 025 $z=1.95$).
+Interpolate last-4 **100/100** (AUC **0.999**, isolated
+**216/400 vs 400/400**, BA **616/800**; 46/100 ranking wins have 0
+isolated TPs). Hard **97/100** (AUC **0.949**, BA **665/800**).
+Occupancy **8750** seen vs **92842** unseen. `used_keys=false`. Do not
+sell **100/100** or **616/800** as replacing **25/48**. Isolated-file
+detection is still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-100x4-aaronson/`,
+`experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-100x4-aaronson/`.
+
 ---

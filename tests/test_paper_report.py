@@ -333,6 +333,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "pair-qwen-12x4-aaronson" in next_sec
     assert "PROTOCOL-next-aaronson-qwen-100" in next_sec
     assert "a761a7d" in next_sec
+    assert "616/800" in next_sec
     assert "has not been generated" in next_sec
     assert "pair-qwen-100x4-aaronson" in next_sec
     assert "PROTOCOL-next-longctx-qwen-100" in next_sec

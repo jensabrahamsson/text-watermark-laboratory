@@ -1,11 +1,17 @@
 """Aaronson–Kirchner on Qwen2-1.5B 100-family, locked before generation."""
 
+import json
 from pathlib import Path
+
+from text_watermark_tools.stats import clopper_pearson
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "research" / "PROTOCOL-next-aaronson-qwen-100.md"
 PROMPTS = ROOT / "experiments" / "2026-09-01-prompts-100"
 LOG = ROOT / "research" / "LOGBOOK.md"
+PAIR = ROOT / "experiments" / "2026-09-04-pair-qwen-100x4-aaronson"
+PROBE = ROOT / "experiments" / "2026-09-04-probe-qwen-100x4-aaronson-hard-last4"
+ATOMS = ROOT / "experiments" / "2026-09-04-atoms-qwen-100x4-aaronson"
 
 
 def test_protocol_aaronson_qwen_100_locks_config_before_generation() -> None:
@@ -32,7 +38,13 @@ def test_protocol_aaronson_qwen_100_locks_config_before_generation() -> None:
     assert "no chat template" in text
     assert "GPT-2 tokenizer" in text
     assert "--model Qwen/Qwen2-1.5B-Instruct" in text
-    assert "H-aar-q100-ctrl **holds**" not in text
+    assert "H-aar-q100-ctrl **fails**" in text
+    assert "H-aar-q100-group **holds**" in text
+    assert "H-aar-q100-iso **holds**" in text
+    assert "H-aar-q100-occ **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **100/100**" in collapsed
+    assert text.count("## Results") == 1
     assert PROMPTS.is_dir()
     assert len(list(PROMPTS.glob("*.txt"))) == 100
     log = LOG.read_text()
@@ -40,10 +52,11 @@ def test_protocol_aaronson_qwen_100_locks_config_before_generation() -> None:
     assert "--mixin aaronson" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
     assert "`a761a7d`" in log
+    assert "**100/100**" in log
     ledger = (ROOT / "research" / "results-ledger.md").read_text()
     assert "PROTOCOL-next-aaronson-qwen-100" in ledger
     assert "`a761a7d`" in ledger
-    assert "has not been generated" in ledger
+    assert "**616/800**" in ledger
 
 
 def test_protocol_aaronson_qwen_100_cli_flag_exists() -> None:
@@ -91,3 +104,35 @@ def test_protocol_aaronson_qwen_100_cli_flag_exists() -> None:
     )
     assert probe.model == "Qwen/Qwen2-1.5B-Instruct"
     assert probe.skip_hashpool is True
+
+
+def test_protocol_aaronson_qwen_100_official_and_keyfree_from_dumps() -> None:
+    pair = json.loads((PAIR / "results.json").read_text())
+    assert pair["mixin"] == "aaronson"
+    assert pair["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert pair["seed"] == 20260905
+    assert pair["hub_revision"] == "ba1cf1846d7df0a0591d6c00649f57e798519da8"
+    assert pair["aaronson"]["hashing_key"] == 314159265
+    assert pair["aaronson"]["context_width"] == 1
+    assert len(pair["rows"]) == 100
+    n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    assert n_first == 99
+    assert all(row["unmarked_gen"]["z_score"] <= 3.0 for row in pair["rows"])
+    interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
+    hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
+    assert interp["used_keys"] is False
+    assert interp["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
+    assert interp["n_prompts_marked_above"] == 100
+    assert hard["n_prompts_marked_above"] == 97
+    assert interp["n_marked_lr_positive"] == 216
+    assert interp["n_unmarked_lr_nonpositive"] == 400
+    assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 616
+    occ = json.loads((ATOMS / "atoms.json").read_text())
+    assert occ["used_keys"] is False
+    assert occ["n_seen"] == 8750
+    assert occ["n_unseen"] == 92842
+    assert occ["n_marked_lr_positive"] == 216
+    lo, hi = clopper_pearson(25, 48)
+    assert lo <= 0.5 <= hi
+    lo_iso, hi_iso = clopper_pearson(216, 400)
+    assert lo_iso <= 0.5 <= hi_iso

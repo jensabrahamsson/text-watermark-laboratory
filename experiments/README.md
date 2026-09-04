@@ -66,6 +66,9 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-04-pair-qwen-12x4-aaronson/` | Qwen2-1.5B Aaronson, original 12 | official first-draw z>3 **12/12** |
 | `2026-09-04-probe-qwen-12x4-aaronson-hard-last4/` | Qwen Aaronson 12-LOO hard/interpolate | interpolate **12/12** / **60/96**; hard **12/12** / **72/96** |
 | `2026-09-04-atoms-qwen-12x4-aaronson/` | Qwen Aaronson interpolate occupancy | **457** seen vs **11735** unseen |
+| `2026-09-04-pair-qwen-100x4-aaronson/` | Qwen2-1.5B Aaronson, 100 one-liners | official first-draw z>3 **99/100** |
+| `2026-09-04-probe-qwen-100x4-aaronson-hard-last4/` | Qwen Aaronson 100-LOO hard/interpolate | interpolate **100/100** / **616/800**; hard **97/100** |
+| `2026-09-04-atoms-qwen-100x4-aaronson/` | Qwen Aaronson 100-family occupancy | **8750** seen vs **92842** unseen |
 | `2026-08-15-gpt2-sonnet5/` | Known public mark before/after Sonnet edits | marked 0.617/0.638; proofread 0.605/0.625; rewrite 0.502/0.502 |
 | `2026-08-15-known-mark-v2/` | Key-free rewrite surrogate, then official measurement | ~0.62 → ~0.50 |
 | `claude-premark-2026-08/` | Control corpus collected before announced marking condition | 40 A/B texts plus auxiliary files |

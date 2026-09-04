@@ -132,3 +132,57 @@ python -m text_watermark_tools atoms --leave-one-out \
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `a761a7d`. Named `de035df`. Pair seed **20260905**.
+`--mixin aaronson`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Hub SHA `ba1cf1846d7df0a0591d6c00649f57e798519da8`. Host crash at 37/100;
+resume used the same flags.
+
+Pair dump: [experiments/2026-09-04-pair-qwen-100x4-aaronson/](../experiments/2026-09-04-pair-qwen-100x4-aaronson/).
+Probe dump: [experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/](../experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/).
+
+H-aar-q100-ctrl **fails** as the preregistered 100/100 first-draw.
+Official matching z-score is above $3.0$ on **99/100** first marked
+files (min $1.95$ on stem 025, a short Chinese multiple-choice loop,
+$n=129$). Unmarked first-draw is **0/100** above $3.0$ (max $2.08$).
+Mixin is on for the other 99 stems. Do not sell **99/100**.
+
+| Reader | Prompt wins | File AUC | Isolated t=0 | Unmarked ≤0 | TP FN TN FP | Balanced accuracy |
+|---|---|---|---|---|---|---|
+| interpolate last-4 | **100/100** | 0.999 | 216/400 | 400/400 | 216 184 400 0 | **616/800** |
+| hard last-4 | **97/100** | 0.949 | 268/400 | 397/400 | 268 132 397 3 | **665/800** |
+
+GPT-2 Aaronson interpolate on these prompt *strings* (different twins)
+was **100/100** (isolated **608/800**). Distil interpolate was
+**96/100**. Qwen interpolate is **100/100**, and **46/100** ranking
+wins have 0 isolated TPs (unmarked more negative). Mean $D_p=2.588$
+(interpolate) / $0.664$ (hard). Isolated interpolate **216/400**
+Clopper–Pearson includes ½.
+
+Clopper–Pearson 95% (not a second freeze): interpolate **100/100** is
+**[0.964, 1.000]** and does not include ½; BA **616/800** is
+**[0.739, 0.799]**. Isolated **25/48** still includes ½.
+
+H-aar-q100-group **holds** as an informative comparison with GPT-2
+Aaronson **100/100** and Distil **96/100**. It does not replace
+**25/48**.
+
+H-aar-q100-iso **holds**. Isolated interpolate **616/800** is a
+different generator from the original-12 SynthID **47/96**. Isolated
+marked $t=0$ **216/400** includes ½. Do not sell **100/100**,
+**97/100**, **616/800**, or **665/800** as replacing **25/48**.
+
+H-aar-q100-occ **holds**. Leave-one-family-out interpolate atoms
+(`used_keys=false`). File LRs match interpolate **216/400**. Exact
+next-token overlap is **8750** seen versus **92842** unseen (opening
+$[0{:}4)$ is 1470 versus 930, including `'At'→' last'` n=124).
+Occupancy is not a detector. Do not sell **8750** or `'At'→' last'`
+as replacing **25/48**.
+
+JSON: [experiments/2026-09-04-atoms-qwen-100x4-aaronson/](../experiments/2026-09-04-atoms-qwen-100x4-aaronson/).
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.
+
