@@ -3192,7 +3192,11 @@ last-4 ranking or isolated. Absolute windows: 0:4 **92/100**,
 **0.580**. Opening mass, same geography as public $\Hw=4$ last-2 at
 n=100, not a Kirchenbauer-style body. Do not sell Distil $\Hw=12$
 last-4 **89/100**, interpolate **88/100**, last-2 **88/100**, isolated
-**313/400**, or opening **348/400**. Matching last-12 to $\Hw=12$
+**313/400**, or opening **348/400**. Mid 4:16 last-2 on Distil $\Hw=12$
+still ranks (**86/100**, AUC **0.804**, isolated **306/400**) while
+GPT-2 $\Hw=12$ 4:16 was chance **48/100**. Distil 16:32 is weak
+(**60/100**, 0.559). Near-front, not Kirchenbauer 32:64. Distil 100
+newline-loop files are not a reason to sell **86/100**. Matching last-12 to $\Hw=12$
 (`--skip-nested`) is **87/100**, **350/400**, AUC **0.828**, unmarked
 $\le 0$ **185/400** — below last-4 ranking **89/100**, isolated
 **354/400**. Windows: 0:4 **92/100**, **348/400**, **0.880**; 64:128
@@ -3453,7 +3457,7 @@ does not replace last-2 (100-family isolated **226/400** vs last-2
 companion. Public last-2 tables trained on 100 GPT-2 families do not
 classify Kirchenbauer original-12 (isolated **24/48**, AUC 0.554). Do
 not sell ngram-13 last-12 **71/100**, Distil ngram-13 last-2 **25/48**,
-GPT-2 $\Hw=12$ last-2 opening **87/100**, last-2 4:16 **48/100**, last-12 opening **82/100**, Distil last-12 **8/12**, Distil $\Hw=12$ 100 last-2 **88/100** /
+GPT-2 $\Hw=12$ last-2 opening **87/100**, last-2 4:16 **48/100**, Distil $\Hw=12$ last-2 4:16 **86/100**, last-12 opening **82/100**, Distil last-12 **8/12**, Distil $\Hw=12$ 100 last-2 **88/100** /
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
 opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
@@ -3516,6 +3520,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-ngram13-hard-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-ngram13 \
+  --model gpt2 --methods hard --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-ngram13-hard-k2-mid
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
   --methods hard,interpolate --context-len 2 --skip-hashpool \
@@ -3973,8 +3982,8 @@ A freeze of **width and mixin geography** that already moved a grain:
    (**38/100**). Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
-   0:4 **87/100** does not survive into 4:16. The
-   jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
+   0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
+   still ranks **86/100**. The jump does not repeat at $\Hw=12$, including last-12, DistilGPT2
    $\Hw=12$ last-2 ranking **6/12** (n=12) and **88/100** below last-4
    **89/100** (n=100), and Qwen2-1.5B $\Hw=12$ last-2 ranking
    **5/12**. Distil $\Hw=12$ interpolate last-4 is front-loaded
