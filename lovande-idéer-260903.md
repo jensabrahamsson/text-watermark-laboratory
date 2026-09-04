@@ -134,6 +134,12 @@ on every local generator we tried:
 | GPT-2 KGW 100×4 | 62/100, 209/400, 0.573 | **100/100, 389/400, 0.990** | 100/100, 383/400, 0.981 |
 | DistilGPT2 KGW 100×4 | 82/100, 180/400, 0.666 | **99/100, 350/400, 0.876** | 100/100, 349/400, 0.915 |
 
+Interpolate last-1 on GPT-2 KGW 12 is already the last-4 interpolate
+reader: full-file **44/48** (last-4 interpolate **44/48**); opening
+0:4 **7/12**, **27/48**, 0.597; tail 64:128 **12/12**, **42/48**,
+0.907. The last-1 jump is `hard` / `hits` / `hashpool`, not
+interpolate.
+
 GPT-2 KGW last-1 tail 64:128 is **12/12** hard, AUC **0.887**,
 isolated **43/48**. Opening 0:4 last-1 hard is only **6/12**. The
 last-1 lift is a **body** lift, same spatial pattern as idea 1.
@@ -218,7 +224,11 @@ tail 64:128 **100/100**, **379/400**, **0.986**. Body at confirmatory
 n. Do not sell **379/400**. Distil 100 hits last-1 also ranks the tail
 above the opening (**98/100**, AUC **0.924** vs **93/100**, **0.718**);
 isolated tail **214/400** is below full-file **355/400**. Distil 100
-has newline-loop files; do not sell **355/400**.
+has newline-loop files; do not sell **355/400**. Qwen2-1.5B KGW hits
+last-1 windows: opening 0:4 **8/12**, **33/48**, AUC **0.581**,
+unmarked $\le 0$ only **18/48**; tail 64:128 **12/12**, **38/48**,
+**0.893**, unmarked **41/48**. Ranking/AUC is body like GPT-2 and
+Distil. Opening isolated **33/48** has FPs; do not sell it.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -239,7 +249,16 @@ than `hard` at every generator. Distil 100 last-4 hashpool ranks
 **95/100** with isolated only **149/400** and **34** ranking wins that
 have no isolated TP. GPT-2 KGW hashpool last-1 windows:
 0:4 **9/12**, **27/48**, 0.570; 64:128 **12/12**, **46/48**, 0.946.
-Same body geography as hard last-1. Occupancy-free `postokhits` last-1
+Same body geography as hard last-1. Distil 12 hashpool last-1
+windows: 0:4 **10/12**, **27/48**, 0.685; 64:128 **12/12**, **36/48**,
+0.882. Qwen hashpool last-1 windows: 0:4 **7/12**, **29/48**, 0.563
+(file AUC chance-like, perm $p=0.184$); 64:128 **12/12**, **37/48**,
+0.885. Full-file Qwen hashpool last-1 has one ranking win with no
+isolated TP (library). Confirmatory 100-family hashpool last-1
+windows (`--skip-nested`): 0:4 **95/100**, **263/400**, AUC **0.762**;
+64:128 **100/100**, **377/400**, **0.985**. Body at confirmatory n,
+same as hard last-1 and hits last-1. Do not sell **377/400**.
+Occupancy-free `postokhits` last-1
 on GPT-2 KGW 12 is **9/12**, **33/48**, AUC 0.600, unmarked $\le 0$
 only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
 lifts isolated with FPs; it is not the green-list reader. Public
@@ -430,7 +449,8 @@ hits transfer is opening **44/48**.
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, KGW hits last-1
-**46/48** / **395/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48**, Aaronson hits
+**46/48** / **395/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48** / tail
+**38/48**, hashpool last-1 n=100 tail **377/400**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
@@ -567,6 +587,31 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
   --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 \
   --skip-hashpool --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hits-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 \
+  --skip-hashpool --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hits-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
+  --model Qwen/Qwen2-1.5B-Instruct --methods hashpool --context-len 1 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-12x4-kgw-hashpool-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw \
+  --model gpt2 --methods hits --context-len 1 --skip-hashpool \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-12x4-kgw-hits-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw \
+  --model gpt2 --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-12x4-kgw-hashpool-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hashpool --context-len 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hashpool-k1-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-12x4-aaronson \
   --methods hits --context-len 4 --skip-hashpool \
