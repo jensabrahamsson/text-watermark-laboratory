@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from text_watermark_tools.generate import is_gpt2_name
 from text_watermark_tools.stats import clopper_pearson
 
@@ -38,6 +36,10 @@ def test_protocol_rankpath_mbody_locks_config_before_lrs() -> None:
     assert "25/48" in text
     assert "H-rpmbody" in text
     assert "H-rpmbody-iso" in text
+    assert "H-rpmbody **fails**" in text
+    assert "H-rpmbody-iso **holds**" in text
+    assert "Do not sell **27/48**" in text
+    assert "*(empty until the SHA is named in LOGBOOK.md" not in text
     assert "--model gpt2-medium" in text
     assert "--windows 4:16" in text
     assert "--fit-prefix 16 --pos-bucket 1" in text
@@ -75,6 +77,7 @@ def test_protocol_rankpath_mbody_locks_config_before_lrs() -> None:
     ]
     assert len(agents) == 1
     assert "**25/48**" in agents[0]
+    assert "**27/48 vs 28/48**" in agents[0]
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
 
@@ -134,21 +137,23 @@ def test_protocol_rankpath_mbody_distil_body_control_stays() -> None:
     assert holdout["n_unmarked_lr_nonpositive"] == 23
 
 
-@pytest.mark.skipif(
-    not (PROBE / "rankpath" / "holdout.json").is_file(),
-    reason="gpt2-medium-LM rankpath [4:16) not run",
-)
 def test_protocol_rankpath_mbody_from_dumps() -> None:
     interp = json.loads((PROBE / "rankpath" / "holdout.json").read_text())
     assert interp["used_keys"] is False
     assert interp["used_hash_iv"] is False
     assert interp["used_g_values"] is False
     assert interp["model_name"] == "gpt2-medium"
+    assert interp["n_prompts_marked_above"] == 9
+    assert interp["n_marked_lr_positive"] == 27
+    assert interp["n_unmarked_lr_nonpositive"] == 28
     text = PROTOCOL.read_text()
+    assert "H-rpmbody **fails**" in text
     marked = interp["n_marked_lr_positive"]
     unmarked = interp["n_unmarked_lr_nonpositive"]
     assert f"**{marked}/48 vs {unmarked}/48**" in text
     readme = (PROBE.parent / "README.md").read_text()
     assert f"**{marked}/48 vs {unmarked}/48**" in readme
+    lo, hi = clopper_pearson(marked, 48)
+    assert lo <= 0.5 <= hi
     lo25, hi25 = clopper_pearson(25, 48)
     assert lo25 <= 0.5 <= hi25

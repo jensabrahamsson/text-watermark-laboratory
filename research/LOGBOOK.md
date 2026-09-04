@@ -3208,6 +3208,18 @@ invent those scores. gpt2-medium-LM opening stays **10/12**, isolated
 **31/48 vs 32/48**. Distil-LM `[4:16)` stays **6/12**, isolated
 **24/48 vs 23/48**. GPT-2 `[4:16)` stays **7/12**, isolated
 **20/48 vs 22/48**. Nothing replaces **25/48**. Isolated-file detection
-is still not finished. Do not write `thesis/`.
+is still not finished. Do not write `thesis/`. Freeze SHA `3ea80e4`.
+
+## 2026-09-04 gpt2-medium-LM rankpath body [4:16) opened
+
+H-rpmbody **fails** as a raw count. gpt2-medium-LM rankpath on `[4:16)`
+is ranking **9/12**, isolated **27/48 vs 28/48** (AUC **0.580**; nested
+**18/48 vs 31/48**). `used_keys=false`. Opening stays **10/12**, isolated
+**31/48 vs 32/48**. Distil-LM `[4:16)` stays **6/12**, isolated
+**24/48 vs 23/48**. GPT-2 `[4:16)` stays **7/12**, isolated
+**20/48 vs 22/48**. The unwindowed fit-prefix-16 file score **25/48 vs
+31/48** is not the frozen slice and is not the locked headline
+**25/48**. Do not sell **27/48**. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
 
 ---

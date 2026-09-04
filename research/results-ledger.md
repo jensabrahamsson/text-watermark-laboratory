@@ -647,7 +647,8 @@ Distil-LM rankpath on generated tokens `[4:16)` is
 **holds**. Do not sell **24/48**. Isolated-file remains open.
 gpt2-medium-LM rankpath on generated tokens `[4:16)` is
 [PROTOCOL-isolated-rankpath-mbody.md](PROTOCOL-isolated-rankpath-mbody.md)
-and is named before those LRs. Isolated-file remains open.
+(`3ea80e4`): ranking **9/12**, isolated **27/48 vs 28/48**. H-rpmbody
+**fails** as a raw count. Do not sell **27/48**. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
