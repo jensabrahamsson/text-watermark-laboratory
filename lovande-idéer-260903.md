@@ -302,7 +302,10 @@ only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
 lifts isolated with FPs; it is not the green-list reader. Occupancy-free
 `hashtok` last-4 on the same twins is **9/12**, **13/48**, AUC 0.592;
 last-1 is empty (**0/48**, all zeros). Distil KGW last-1 `hashtok` is
-also empty. Hits last-1 **46/48** is not
+also empty. Distil KGW last-4 `hashtok` is opening **7/12**,
+**14/48**, AUC **0.605**, unmarked $\le 0$ only **40/48**; tail
+**0/12**, **0/48**. Occupancy-free hashing is not the Kirchenbauer
+last-1 body reader. Hits last-1 **46/48** is not
 occupancy-free hashing (`--skip-hashpool` silently drops `hashtok`).
 Public
 SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
@@ -517,7 +520,14 @@ Last-1 hashpool **12/12**, **44/48**, **1.000**, unmarked **48/48**;
 tail **12/12**, **44/48**. Last-4 `rankpath` (`--rankpath-pos-bucket 0`)
 is **10/12**, isolated **16/48**, AUC **0.780**, six ranking wins with
 no isolated TP; tail ranks **12/12** with isolated only **20/48**.
-Count last-1, not rankpath, is the Qwen Aaronson body reader. Last-2
+Count last-1, not rankpath, is the Qwen Aaronson body reader. Last-1
+`rankpath` lifts isolated versus last-4 (**12/12**, **28/48**, AUC
+**0.899**, unmarked $\le 0$ **44/48**, **5** ranking wins with no
+isolated TP) but stays below last-1 hard **44/48** and last-1 hits
+**48/48**. Windows: 0:4 **9/12**, **28/48**, **0.686**; 64:128
+**11/12**, **28/48**, **0.849**. Last-1 width does not turn Qwen
+rankpath into the GPT-2 Aaronson last-4 rankpath body reader
+(**44/48**). Do not sell rankpath last-1 **28/48**. Last-2
 hard is **12/12**, **36/48**, AUC **0.946**, unmarked **48/48** — above
 last-4 **24/48**, below last-1 **44/48**. Occupancy-free `postokhits`
 last-4 is **8/12**, **32/48** (opening; tail **0/48**, 16 marked zeros),
@@ -535,7 +545,8 @@ is **24/48** (last-4 interpolate **12/48**); tail ranks **12/12** with
 isolated only **20/48**. Last-1 hits **48/48** remains the isolated
 reader. Do not
 sell **44/48**, **48/48**, last-2 **36/48**, interpolate last-1
-**24/48**, hashtok last-4 **44/48**, or rankpath **16/48**. Last-1
+**24/48**, hashtok last-4 **44/48**, or rankpath **16/48** / last-1
+rankpath **28/48**. Last-1
 on those twins is a post-open width match, not the freeze.
 
 **Hypothesis.** When the watermark hash is last-1, last-4 count
@@ -585,7 +596,8 @@ Aaronson hashpool last-1 n=100 opening **388/400** / tail **360/400**,
 KGW interpolate last-1 n=100 opening **83/100** / tail **367/400**,
 Distil interpolate last-1 n=100 tail **194/400**,
 Qwen Aaronson last-1 hard **44/48** / hits **48/48**, Qwen Aaronson
-rankpath **16/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
+rankpath **16/48** / last-1 rankpath **28/48**, Distil KGW hashtok last-4
+**14/48**, Qwen Aaronson hashtok last-4 **44/48**, Distil
 Aaronson hashtok last-4 **44/48**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
@@ -924,6 +936,17 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-12x4-aar
   --model gpt2 --methods hashtok --context-len 1 --fit-prefix 1 \
   --skip-nested --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-aaronson-hashtok-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-12x4-kgw \
+  --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 \
+  --skip-nested --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-distil-12x4-kgw-hashtok-k4
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --model Qwen/Qwen2-1.5B-Instruct --methods rankpath --context-len 1 \
+  --skip-hashpool --rankpath --rankpath-pos-bucket 0 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-qwen-aaronson-rankpath-k1
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --test-dir experiments/2026-09-04-pair-12x4-aaronson \
@@ -1399,11 +1422,14 @@ tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
 and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
 `hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
-last-4 is **13/48**. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
+last-4 is **13/48**. Distil KGW last-4 `hashtok` is opening **7/12**,
+**14/48**, AUC **0.605** (tail **0/48**); last-1 is empty. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
 are empty too; Aaronson last-4 `hashtok` is opening **40/48**. Qwen
 Aaronson last-4 `hashtok` is opening **11/12**, **44/48**, AUC
 **0.966** (tail **0/48**), above `postokhits` last-4 **32/48**, still
-not last-1 hits **48/48**. Distil Aaronson last-4 `hashtok` is opening
+not last-1 hits **48/48**. Qwen Aaronson last-1 `rankpath` is
+**12/12**, **28/48**, AUC **0.899** — above last-4 rankpath
+**16/48**, below last-1 hits **48/48**. Distil Aaronson last-4 `hashtok` is opening
 **10/12**, **44/48**, AUC **0.944**, unmarked $\le 0$ only **40/48**
 (8 FPs); tail **0/48**. Last-1 `hashtok` is empty on Distil and Qwen
 Aaronson too (**0/48**). None of those is a backlog item.
