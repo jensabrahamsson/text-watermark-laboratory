@@ -17,7 +17,7 @@ Citations in these notes are author–year ([CITING.md](CITING.md)). Do not inve
 | [PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) | Frozen Qwen2-1.5B Hw=12 12-LOO; interpolate **4/12**, isolated **41/96**; official first-draw **11/12**; not **25/48** |
 | [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md) | Frozen Aaronson–Kirchner exponential-minimum; 12-LOO interpolate **11/12** isolated **56/96**; 100-family interpolate **100/100** isolated **608/800**; not **25/48** |
 | [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md) | Frozen DistilGPT2 Aaronson 12-LOO; interpolate **7/12**, isolated **0/48 vs 48/48**; not **25/48** |
-| [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md) | Frozen Qwen2-1.5B Aaronson 12-LOO; flags locked before generation; not **25/48** |
+| [PROTOCOL-next-aaronson-qwen.md](PROTOCOL-next-aaronson-qwen.md) | Frozen Qwen2-1.5B Aaronson 12-LOO; named, not generated |
 | [PROTOCOL-isolated.md](PROTOCOL-isolated.md) | Frozen out-of-family isolated-file transfer of those same readers |
 | [PROTOCOL-isolated-register.md](PROTOCOL-isolated-register.md) | Grok-length train → original 12; lock A nested **16/48 vs 41/48** |
 | [PROTOCOL-isolated-xreg.md](PROTOCOL-isolated-xreg.md) | Reverse: 100 one-liners → Grok-register 12; lock A nested **22/48 vs 41/48** |

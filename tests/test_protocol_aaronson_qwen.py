@@ -36,6 +36,7 @@ def test_protocol_aaronson_qwen_locks_config_before_generation() -> None:
     assert "PROTOCOL-next-aaronson-qwen" in log
     assert "--mixin aaronson" in log
     assert "--model Qwen/Qwen2-1.5B-Instruct" in log
+    assert "`1171d5c`" in log
 
 
 def test_protocol_aaronson_qwen_cli_flag_exists() -> None:
