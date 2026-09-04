@@ -3071,4 +3071,15 @@ nested **19/48 vs 31/48**). `used_keys=false`. Do not sell **22/48**.
 Nothing replaces **25/48**. Isolated-file detection is still not
 finished. Do not write `thesis/`.
 
+## 2026-09-04 GPT-2-small LM on gpt2-medium 12 freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-g2m.md](PROTOCOL-isolated-rankpath-g2m.md)
+named before GPT-2-small-on-medium opening rankpath LRs. Existing
+`rankpath` on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with
+`--model gpt2`. Do not leftover-slice. Do not invent those scores.
+Medium native stays **6/12**, isolated **22/48 vs 30/48**. Nothing
+replaces **25/48**. Isolated-file detection is still not finished.
+Do not write `thesis/`.
+
 ---

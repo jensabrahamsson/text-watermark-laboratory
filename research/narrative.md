@@ -144,6 +144,9 @@ gpt2-medium native opening rankpath on gpt2-medium 12×4 is ranking
 **6/12**, isolated **22/48 vs 30/48**
 ([PROTOCOL-isolated-rankpath-m12.md](PROTOCOL-isolated-rankpath-m12.md)).
 H-rpm12 **holds**. Do not sell **22/48**.
+GPT-2-small LM on those gpt2-medium twins is named before those LRs
+([PROTOCOL-isolated-rankpath-g2m.md](PROTOCOL-isolated-rankpath-g2m.md)).
+Do not invent those scores.
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed

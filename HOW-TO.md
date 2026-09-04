@@ -243,7 +243,9 @@ Do not sell **32/48** or **31/48**. gpt2-medium native opening rankpath
 on gpt2-medium 12×4 is named in
 [research/PROTOCOL-isolated-rankpath-m12.md](research/PROTOCOL-isolated-rankpath-m12.md)
 (`2577771`). Ranking **6/12**, isolated **22/48 vs 30/48**. Do not sell
-**22/48**. Do not leftover-slice. Do not merge PR **#9**.
+**22/48**. GPT-2-small LM on gpt2-medium 12×4 is named in
+[research/PROTOCOL-isolated-rankpath-g2m.md](research/PROTOCOL-isolated-rankpath-g2m.md)
+before those LRs. Do not leftover-slice. Do not merge PR **#9**.
 Do not invent those scores.
 That lock is not **25/48**.
 

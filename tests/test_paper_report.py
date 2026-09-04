@@ -362,6 +362,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "PROTOCOL-isolated-rankpath-lm" in next_sec
     assert "d8e6f7f" in next_sec
     assert "PROTOCOL-isolated-rankpath-m12" in next_sec
+    assert "PROTOCOL-isolated-rankpath-g2m" in next_sec
     assert "22/48" in next_sec
     assert "2577771" in next_sec
     assert "32/48" in next_sec

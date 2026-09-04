@@ -48,6 +48,7 @@ def test_narrative_rejects_failure_title_and_keeps_headlines() -> None:
     assert "PROTOCOL-isolated-mask-absolute" in text
     assert "PROTOCOL-isolated-rankpath-lm" in text
     assert "PROTOCOL-isolated-rankpath-m12" in text
+    assert "PROTOCOL-isolated-rankpath-g2m" in text
     assert "PROTOCOL-next-longctx" in text
     assert "PROTOCOL-next-kgw" in text
     assert "--mixin kgw" in text
