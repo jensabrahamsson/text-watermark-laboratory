@@ -3232,6 +3232,19 @@ named before Distil native rankpath `[4:16)` LRs. Existing `rankpath` on
 Do not invent those scores. Distil native opening stays **8/12**, isolated
 **28/48 vs 32/48**. Distil-LM `[4:16)` on GPT-2 twins stays **6/12**,
 isolated **24/48 vs 23/48**. Nothing replaces **25/48**. Isolated-file
-detection is still not finished. Do not write `thesis/`.
+detection is still not finished. Do not write `thesis/`. Freeze SHA
+`468a66b`.
+
+## 2026-09-04 Distil native rankpath body [4:16) opened
+
+H-rpd12body **holds**. Distil native rankpath on `[4:16)` is ranking
+**9/12**, isolated **25/48 vs 30/48** (AUC **0.630**; nested **33/48 vs
+21/48** at a negative threshold). `used_keys=false`. Distil native
+opening stays **8/12**, isolated **28/48 vs 32/48**. Distil-LM `[4:16)`
+on GPT-2 twins stays **6/12**, isolated **24/48 vs 23/48**. The
+unwindowed fit-prefix-16 file score **26/48** is not the frozen slice.
+Equality with **25/48** is not a win. Do not sell **25/48** or nested
+**33/48**. Nothing replaces **25/48**. Isolated-file detection is still
+not finished. Do not write `thesis/`.
 
 ---

@@ -200,9 +200,9 @@ ranking **6/12**, isolated **24/48 vs 23/48**. gpt2-medium-LM rankpath on
 generated tokens `[4:16)` is opened
 ([PROTOCOL-isolated-rankpath-mbody.md](PROTOCOL-isolated-rankpath-mbody.md)):
 ranking **9/12**, isolated **27/48 vs 28/48**. Distil native rankpath on
-generated tokens `[4:16)` is named
-([PROTOCOL-isolated-rankpath-d12body.md](PROTOCOL-isolated-rankpath-d12body.md))
-before those LRs. Isolated-file remains open. Do not
+generated tokens `[4:16)` is opened
+([PROTOCOL-isolated-rankpath-d12body.md](PROTOCOL-isolated-rankpath-d12body.md)):
+ranking **9/12**, isolated **25/48 vs 30/48**. Isolated-file remains open. Do not
 sell **0/15**, gpt2-medium **16/48**, gpt2-medium→gpt2-medium
 **10/48**, Distil→gpt2-medium **20/48**, gpt2-medium→Distil
 **3/48**, or H2 **99/100** / **87/100**. Do not write `thesis/`.
