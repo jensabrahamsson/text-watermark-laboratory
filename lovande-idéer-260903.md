@@ -1193,9 +1193,12 @@ Do not leftover-target Aaronson last-4 hits opening
 transfer (`used_keys=false`) mix seen and unseen (21415 vs 32087);
 full-file marked $\mathrm{lr}>0$ stays **0**; window means sit with the
 scores (0:4 marked $\Delta$ $-2.92$ vs unmarked $-6.75$; tail $-3.58$
-vs $-7.65$). Top marked $\Delta>0$ atoms are dialogue punctuation
-(n=8 `," he said.`). Do not leftover-target those. Do not sell ranking
-**98/100**, **100/100**, unigram **73/100**, or AUC **0.890**. The last-1 lift is
+vs $-7.65$). Top GPT-2 marked $\Delta>0$ atoms are dialogue punctuation
+(n=8 `," he said.`). Do not leftover-target those. Same-stem Qwen 12
+Aaronson → Qwen $\Hw=12$ last-1 `hard` ranks **12/12** with isolated
+**1/48**, AUC **0.849**; interpolate last-4 ranks **12/12** with
+**0/48**, **0.914**. Do not sell those 12-file ranking counts. Do not sell ranking
+**98/100**, **100/100**, unigram **73/100**, Qwen **12/12**, or AUC **0.890**. The last-1 lift is
 mixin-specific.
 
 Same mixin, shared GPT-2 BPE, last-1 hard **does** transfer across
@@ -1591,6 +1594,20 @@ python -m text_watermark_tools atoms \
   --test-dir experiments/2026-09-03-pair-100x4-ngram13 \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/atoms-aaronson100-interp-k4-to-ngram13-100
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-qwen-12x4-ngram13 --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods hard --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-aaronson-last1-to-qwen-ngram13-12
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-12x4-aaronson \
+  --test-dir experiments/2026-09-04-pair-qwen-12x4-ngram13 --overlap keep \
+  --model Qwen/Qwen2-1.5B-Instruct \
+  --methods interpolate --context-len 4 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/xfer-qwen12-aaronson-interp-k4-to-qwen-ngram13-12
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
@@ -2053,7 +2070,12 @@ last-1 hard. Last-4 `rankpath` on the same arrow is chance
 (**55/100**, isolated **0/400**, AUC **0.532**, perm $p\approx 0.14$);
 Kirchenbauer rankpath is also chance (**54/100**, **153/400**, 0.516).
 The ranking-without-isolated-TP look is a count-table mean shift, not
-unmarked-LM rankpath. The freeze in
+unmarked-LM rankpath. Same-stem Qwen 12 Aaronson → Qwen $\Hw=12$
+repeats the ranking look at n=12 (last-1 `hard` **12/12**, isolated
+**1/48**, AUC **0.849**, **11** ranking-only; interpolate last-4
+**12/12**, **0/48**, **0.914**). Do not sell those 12-file ranking
+counts; GPT-2 n=100 already killed isolated $\tau=0$. Opening last-1
+**24/48** is not a detector. Do not leftover-target it. The freeze in
 [research/PROTOCOL-next-kgw.md](research/PROTOCOL-next-kgw.md) should
 keep last-4 as the preregistered grain and treat last-1 as the
 width-matched companion. Unigram is a weaker bag-of-tokens companion.
@@ -2727,7 +2749,7 @@ A freeze of **width and mixin geography** that already moved a grain:
    with isolated **1/400**; interpolate last-4 **100/100**,
    **0/400**; unigram **73/100**, **0/400**; rankpath **55/100**,
    **0/400**). Do not sell Aaronson
-   ranking **98/100**, unigram **73/100**, or AUC **0.890**.
+   ranking **98/100**, unigram **73/100**, Qwen **12/12**, or AUC **0.890**.
 3. On public SynthID $\Hw=4$, the existing `hard` reader is stronger at
    last-2 than at last-4 for **full-file** isolated sign, without
    fixing leftover and without touching interpolate. At n=100 that
