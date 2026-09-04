@@ -940,7 +940,7 @@ def test_readme_matches_revised_title() -> None:
     assert "1582a09" in README
     assert "28 A4" in README
     assert "ce5f168" in README
-    assert "7eea455" in README
+    assert "aea3d76" in README
     assert "tectonic" in README.lower() or "pdflatex" in README.lower()
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in README
     assert "lowest three bits" in README
