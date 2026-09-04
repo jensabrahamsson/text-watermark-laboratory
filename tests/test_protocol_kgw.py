@@ -207,6 +207,19 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert "Do not sell **12/12**" in collapsed
     assert "Not opened. Do not fill this section" not in text
     occ = json.loads((ATOMS / "atoms.json").read_text())
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/12**" in howto
+    assert f"**{ba}/96**" in howto
+    assert f"**{occ['n_seen']}**" in howto
+    n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    pair_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if ln.startswith("| `2026-09-03-pair-12x4-kgw/`")
+    ]
+    assert len(pair_rows) == 1
+    assert pair["hub_revision"][:8] in pair_rows[0] or "Hub SHA" in pair_rows[0]
+    assert n_first == 12
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 114
     assert occ["n_unseen"] == 12071
@@ -280,6 +293,21 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
         f"**{interp['n_marked_lr_positive'] + interp['n_unmarked_lr_nonpositive']}/800**"
         in research_rows[0]
     )
+    howto = (ROOT / "HOW-TO.md").read_text()
+    assert f"**{interp['n_prompts_marked_above']}/100**" in howto
+    assert (
+        f"**{interp['n_marked_lr_positive'] + interp['n_unmarked_lr_nonpositive']}/800**"
+        in howto
+    )
+    assert f"**{occ['n_seen']}**" in howto
+    n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    pair_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if ln.startswith("| `2026-09-03-pair-100x4-kgw/`")
+    ]
+    assert len(pair_rows) == 1
+    assert f"**{n_first}/100**" in pair_rows[0]
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991

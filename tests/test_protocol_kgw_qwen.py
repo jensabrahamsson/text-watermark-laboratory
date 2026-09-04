@@ -75,6 +75,14 @@ def test_protocol_kgw_qwen_official_and_keyfree_from_dumps() -> None:
     assert len(pair["rows"]) == 12
     assert all(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
     assert all(row["unmarked_gen"]["z_score"] <= 3.0 for row in pair["rows"])
+    n_first = sum(row["marked"]["z_score"] > 3.0 for row in pair["rows"])
+    pair_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if ln.startswith("| `2026-09-03-pair-qwen-12x4-kgw/`")
+    ]
+    assert len(pair_rows) == 1
+    assert f"**{n_first}/12**" in pair_rows[0]
     interp = json.loads((PROBE / "interpolate" / "holdout.json").read_text())
     hard = json.loads((PROBE / "hard" / "holdout.json").read_text())
     assert interp["used_keys"] is False

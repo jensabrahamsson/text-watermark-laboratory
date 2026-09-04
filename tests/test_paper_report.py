@@ -1,6 +1,7 @@
 """Lock the technical-report claims that Sol's 260903 review required."""
 
 from pathlib import Path
+import json
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -412,6 +413,114 @@ def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
     assert "76/100" not in table
     assert "/800" not in table
     assert "H-kgw-q100-ctrl **holds**" not in table
+
+
+def test_paper_opened_kgw_counts_match_dumps() -> None:
+    next_sec = PAPER.split(r"\section{A Locked Next Experiment}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+    gpt2_12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-12x4-kgw-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    gpt2_100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-100x4-kgw-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    distil_12_hard = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-distil-12x4-kgw-hard-last4"
+            / "hard"
+            / "holdout.json"
+        ).read_text()
+    )
+    distil_100 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-distil-100x4-kgw-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    distil_100_hard = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-distil-100x4-kgw-hard-last4"
+            / "hard"
+            / "holdout.json"
+        ).read_text()
+    )
+    qwen_12 = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-qwen-12x4-kgw-hard-last4"
+            / "interpolate"
+            / "holdout.json"
+        ).read_text()
+    )
+    qwen_12_hard = json.loads(
+        (
+            ROOT
+            / "experiments"
+            / "2026-09-03-probe-qwen-12x4-kgw-hard-last4"
+            / "hard"
+            / "holdout.json"
+        ).read_text()
+    )
+    occ12 = json.loads(
+        (ROOT / "experiments" / "2026-09-03-atoms-12x4-kgw" / "atoms.json").read_text()
+    )
+    occ100 = json.loads(
+        (ROOT / "experiments" / "2026-09-03-atoms-100x4-kgw" / "atoms.json").read_text()
+    )
+    occ_d12 = json.loads(
+        (
+            ROOT / "experiments" / "2026-09-03-atoms-distil-12x4-kgw" / "atoms.json"
+        ).read_text()
+    )
+    occ_d100 = json.loads(
+        (
+            ROOT / "experiments" / "2026-09-03-atoms-distil-100x4-kgw" / "atoms.json"
+        ).read_text()
+    )
+    assert gpt2_12["used_keys"] is False
+    assert gpt2_100["used_keys"] is False
+    ba12 = gpt2_12["n_marked_lr_positive"] + gpt2_12["n_unmarked_lr_nonpositive"]
+    ba100 = gpt2_100["n_marked_lr_positive"] + gpt2_100["n_unmarked_lr_nonpositive"]
+    ba_q = qwen_12["n_marked_lr_positive"] + qwen_12["n_unmarked_lr_nonpositive"]
+    ba_d100 = distil_100["n_marked_lr_positive"] + distil_100["n_unmarked_lr_nonpositive"]
+    assert f"{gpt2_12['n_prompts_marked_above']}/12" in next_sec
+    assert f"{ba12}/96" in next_sec
+    assert f"{gpt2_100['n_prompts_marked_above']}/100" in next_sec
+    assert f"{ba100}/800" in next_sec
+    assert str(occ12["n_seen"]) in next_sec
+    assert str(occ100["n_seen"]) in next_sec
+    assert f"{distil_12_hard['n_prompts_marked_above']}/12" in next_sec
+    assert str(occ_d12["n_seen"]) in next_sec
+    assert f"{distil_100['n_prompts_marked_above']}/100" in next_sec
+    assert f"{ba_d100}/800" in next_sec
+    assert f"{distil_100_hard['n_prompts_marked_above']}/100" in next_sec
+    assert str(occ_d100["n_seen"]) in next_sec
+    assert f"{ba_q}/96" in next_sec
+    assert f"{qwen_12_hard['n_prompts_marked_above']}/12" in next_sec
+    assert "ed9fb20" in next_sec
+    assert "pair-qwen-100x4-kgw" in next_sec
+    assert "before generation" in next_sec
 
 
 def test_maskabs_table_is_dump_backed() -> None:
