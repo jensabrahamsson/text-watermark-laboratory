@@ -561,7 +561,16 @@ interpolate **76/100** (below lock A **99/100**); isolated
 (freeze SHA `bae6d81`). Opened: official first-draw **12/12**;
 interpolate **9/12** (isolated **21/48 vs 28/48**, **49/96**); hard
 **6/12** (**42/96**); occupancy **175** seen vs **11994** unseen. Do not
-sell **9/12** or **49/96**. Isolated-file remains open. Sol's different-mixin two-grain
+sell **9/12** or **49/96**. Isolated-file remains open. Qwen2-1.5B $\Hw=12$ 12-LOO is
+[PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md)
+(freeze SHA `d7303a2`). Opened: official first-draw **11/12** (library
+$0.515$); interpolate **4/12** (isolated **14/48 vs 27/48**, **41/96**);
+hard **4/12** (**47/96**); occupancy **65** seen vs **12127** unseen. Do
+not sell **4/12** or **41/96**. Isolated-file remains open. DistilGPT2 Aaronson
+12-LOO is [PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
+(freeze SHA `9bdf12a`). Opened: official z>3 **12/12**; interpolate
+**7/12** (isolated **0/48 vs 48/48**); hard **7/12** (**56/96**);
+occupancy **196** seen. Do not sell **7/12** or **0/48**. Isolated-file remains open. Sol's different-mixin two-grain
 lock is [PROTOCOL-next-kgw.md](PROTOCOL-next-kgw.md) (`--mixin kgw`,
 Hugging Face Kirchenbauer defaults, seed **20260904**). Opened:
 interpolate **12/12** (isolated **85/96**); hard **12/12**
@@ -583,6 +592,35 @@ Above GPT-2 $\Hw=12$ interpolate **6/12** on these prompt strings
 JSON: `experiments/2026-09-04-pair-distil-12x4-ngram13/`,
 `experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/`,
 `experiments/2026-09-04-atoms-distil-12x4-ngram13/`.
+
+## Qwen2-1.5B longer-context two-grain (`ngram_len=13`)
+
+Protocol SHA `d7303a2`; named `21a3e1b`. Official first-draw matching
+`ngram_len=13` **11/12** above 0.55 (library $0.515$). Key-free
+interpolate last-4 **4/12**, isolated **14/48 vs 27/48** (**41/96**),
+AUC **0.400**. Hard **4/12**, isolated **47/96**. Occupancy **65** seen
+vs **12127** unseen. Below Distil $\Hw=12$ interpolate **9/12** and
+GPT-2 $\Hw=12$ **6/12** on these prompt strings (different twins).
+Clopper–Pearson on **4/12** includes ½. Do not sell **4/12** or
+**41/96**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-12x4-ngram13/`.
+
+## DistilGPT2 Aaronson–Kirchner 12-LOO
+
+Protocol SHA `9bdf12a`; named `40a6300`. Official first-draw z>3
+**12/12**. Interpolate last-4 **7/12**, isolated **0/48 vs 48/48**
+(**48/96**), AUC **0.618**; all 7 ranking wins have 0 isolated TPs.
+Hard **7/12**, isolated **8/48 vs 48/48** (**56/96**). Occupancy
+**196** seen vs **11996** unseen. Below GPT-2 Aaronson interpolate
+**11/12**. Clopper–Pearson on **7/12** includes ½. Do not sell **7/12**
+or **0/48**. Does not replace **25/48**.
+
+JSON: `experiments/2026-09-04-pair-distil-12x4-aaronson/`,
+`experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-12x4-aaronson/`.
 
 JSON: `experiments/2026-09-01-isolated-xgen-leftover-18/`.
 

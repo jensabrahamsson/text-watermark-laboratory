@@ -1,0 +1,312 @@
+{
+  "max_new_tokens": 128,
+  "seed": 20260905,
+  "instance": "aaronson-kirchner-expmin",
+  "model_name": "distilgpt2",
+  "ngram_len": 5,
+  "hub_revision": "2290a62682d06624634c1f46a6ad5be0f47f38aa",
+  "mixin": "aaronson",
+  "kgw": null,
+  "aaronson": {
+    "hashing_key": 314159265,
+    "context_width": 1,
+    "temperature": 1.0,
+    "top_k": 40,
+    "z_threshold": 3.0,
+    "prf": "blake2b-64",
+    "rule": "argmax r**(1/p) after temperature/top-k"
+  },
+  "also_control_keys": false,
+  "control_only": false,
+  "note": "Marked and unmarked-gen are newly sampled tokens from the prompt. The prompt string itself is not stamped. *-control-gen.txt (if present) used control-shuffled-30 at sampling; not a *-marked.txt so blind ignore it. hub_revision is the Hugging Face snapshot if --hub-revision was set; null means the unpinned default. mixin=kgw uses Hugging Face Kirchenbauer watermarking; official scores are WatermarkDetector z-scores, not SynthID detector_mean. mixin=aaronson uses laboratory exponential-minimum sampling; official scores are the matching mean-r z-test, not detector_mean.",
+  "rows": [
+    {
+      "stem": "01-harbour",
+      "prompt": {
+        "mean": 0.49841056591068233,
+        "weighted_mean": 0.49841056591068233,
+        "n_tokens": 277,
+        "n_unmasked_ngrams": 277,
+        "z_score": -0.09163745744794315
+      },
+      "unmarked_gen": {
+        "mean": 0.48547551479214013,
+        "weighted_mean": 0.48547551479214013,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": -0.56924124057374
+      },
+      "marked": {
+        "mean": 0.9216340416431218,
+        "weighted_mean": 0.9216340416431218,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 16.524612163408676
+      }
+    },
+    {
+      "stem": "02-night-bus",
+      "prompt": {
+        "mean": 0.481484581757019,
+        "weighted_mean": 0.481484581757019,
+        "n_tokens": 249,
+        "n_unmasked_ngrams": 249,
+        "z_score": -1.0121009285565288
+      },
+      "unmarked_gen": {
+        "mean": 0.5772885732181412,
+        "weighted_mean": 0.5772885732181412,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 3.0290810773149364
+      },
+      "marked": {
+        "mean": 0.9458687570140977,
+        "weighted_mean": 0.9458687570140977,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 17.474415150936277
+      }
+    },
+    {
+      "stem": "03-library",
+      "prompt": {
+        "mean": 0.5242730085372568,
+        "weighted_mean": 0.5242730085372568,
+        "n_tokens": 253,
+        "n_unmasked_ngrams": 253,
+        "z_score": 1.3374405677686811
+      },
+      "unmarked_gen": {
+        "mean": 0.5052733611976169,
+        "weighted_mean": 0.5052733611976169,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 0.20667270661685458
+      },
+      "marked": {
+        "mean": 0.8663359998860036,
+        "weighted_mean": 0.8663359998860036,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 14.357380386127765
+      }
+    },
+    {
+      "stem": "04-market",
+      "prompt": {
+        "mean": 0.49312517298893116,
+        "weighted_mean": 0.49312517298893116,
+        "n_tokens": 49,
+        "n_unmasked_ngrams": 49,
+        "z_score": -0.16670569546985362
+      },
+      "unmarked_gen": {
+        "mean": 0.514996098254828,
+        "weighted_mean": 0.514996098254828,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 0.5877246217115165
+      },
+      "marked": {
+        "mean": 0.770836165608226,
+        "weighted_mean": 0.770836165608226,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 10.61456655411321
+      }
+    },
+    {
+      "stem": "05-kitchen",
+      "prompt": {
+        "mean": 0.4595927344266483,
+        "weighted_mean": 0.4595927344266483,
+        "n_tokens": 54,
+        "n_unmasked_ngrams": 54,
+        "z_score": -1.0286010538604184
+      },
+      "unmarked_gen": {
+        "mean": 0.46323676236672445,
+        "weighted_mean": 0.46323676236672445,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": -1.4408187759073436
+      },
+      "marked": {
+        "mean": 0.8422312625630459,
+        "weighted_mean": 0.8422312625630459,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 13.412671476926683
+      }
+    },
+    {
+      "stem": "06-station",
+      "prompt": {
+        "mean": 0.5083454231506362,
+        "weighted_mean": 0.5083454231506362,
+        "n_tokens": 48,
+        "n_unmasked_ngrams": 48,
+        "z_score": 0.20029015561526986
+      },
+      "unmarked_gen": {
+        "mean": 0.4889796970910332,
+        "weighted_mean": 0.4889796970910332,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": -0.43190590300604365
+      },
+      "marked": {
+        "mean": 0.8795063635308531,
+        "weighted_mean": 0.8795063635308531,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 14.873551116636298
+      }
+    },
+    {
+      "stem": "07-rain",
+      "prompt": {
+        "mean": 0.46104731239427565,
+        "weighted_mean": 0.46104731239427565,
+        "n_tokens": 47,
+        "n_unmasked_ngrams": 47,
+        "z_score": -0.9250750756797858
+      },
+      "unmarked_gen": {
+        "mean": 0.5292544167030316,
+        "weighted_mean": 0.5292544167030316,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 1.146534298322894
+      },
+      "marked": {
+        "mean": 0.8079513807725811,
+        "weighted_mean": 0.8079513807725811,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 12.069179975653668
+      }
+    },
+    {
+      "stem": "08-letter",
+      "prompt": {
+        "mean": 0.4758264112899436,
+        "weighted_mean": 0.4758264112899436,
+        "n_tokens": 48,
+        "n_unmasked_ngrams": 48,
+        "z_score": -0.5801661290413542
+      },
+      "unmarked_gen": {
+        "mean": 0.5171278596338552,
+        "weighted_mean": 0.5171278596338552,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 0.6712722638233342
+      },
+      "marked": {
+        "mean": 0.8464244512317909,
+        "weighted_mean": 0.8464244512317909,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 13.57701023906501
+      }
+    },
+    {
+      "stem": "09-workshop",
+      "prompt": {
+        "mean": 0.46605373305183206,
+        "weighted_mean": 0.46605373305183206,
+        "n_tokens": 43,
+        "n_unmasked_ngrams": 43,
+        "z_score": -0.7711109547228595
+      },
+      "unmarked_gen": {
+        "mean": 0.5227765143586859,
+        "weighted_mean": 0.5227765143586859,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 0.8926534127672776
+      },
+      "marked": {
+        "mean": 0.8418782908998497,
+        "weighted_mean": 0.8418782908998497,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 13.398837869430805
+      }
+    },
+    {
+      "stem": "10-office",
+      "prompt": {
+        "mean": 0.45594043890458336,
+        "weighted_mean": 0.45594043890458336,
+        "n_tokens": 42,
+        "n_unmasked_ngrams": 42,
+        "z_score": -0.9891346933841008
+      },
+      "unmarked_gen": {
+        "mean": 0.5276600615389014,
+        "weighted_mean": 0.5276600615389014,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 1.084048592388649
+      },
+      "marked": {
+        "mean": 0.7678452691934791,
+        "weighted_mean": 0.7678452691934791,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 10.497347832678818
+      }
+    },
+    {
+      "stem": "11-garden",
+      "prompt": {
+        "mean": 0.469482373440456,
+        "weighted_mean": 0.469482373440456,
+        "n_tokens": 49,
+        "n_unmasked_ngrams": 49,
+        "z_score": -0.7400131161856102
+      },
+      "unmarked_gen": {
+        "mean": 0.5027747242362626,
+        "weighted_mean": 0.5027747242362626,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 0.1087465368924329
+      },
+      "marked": {
+        "mean": 0.8145397101495649,
+        "weighted_mean": 0.8145397101495649,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 12.327388699349651
+      }
+    },
+    {
+      "stem": "12-ferry-queue",
+      "prompt": {
+        "mean": 0.4932380740627672,
+        "weighted_mean": 0.4932380740627672,
+        "n_tokens": 54,
+        "n_unmasked_ngrams": 54,
+        "z_score": -0.17213053262754635
+      },
+      "unmarked_gen": {
+        "mean": 0.49039128001639254,
+        "weighted_mean": 0.49039128001639254,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": -0.37658337665795555
+      },
+      "marked": {
+        "mean": 0.9426400075989423,
+        "weighted_mean": 0.9426400075989423,
+        "n_tokens": 128,
+        "n_unmasked_ngrams": 128,
+        "z_score": 17.347874533745234
+      }
+    }
+  ]
+}

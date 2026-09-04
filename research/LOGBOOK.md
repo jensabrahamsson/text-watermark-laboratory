@@ -2557,6 +2557,73 @@ python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
   --out-dir experiments/2026-09-04-pair-qwen-12x4-ngram13
 ```
 
+## 2026-09-04 Qwen2-1.5B ngram_len=13 opened
+
+[PROTOCOL-next-longctx-qwen.md](PROTOCOL-next-longctx-qwen.md) named
+`21a3e1b`. Pair seed **20260903**, `ngram_len=13`,
+`--model Qwen/Qwen2-1.5B-Instruct`. Official first-draw mean>0.55
+**11/12** (library $0.515$; H-long-q-ctrl fails as a raw 12/12). Mixin
+is on for the other eleven stems (`n_unmasked_ngrams=116`). Interpolate
+last-4 **4/12** (AUC **0.400**, isolated **14/48 vs 27/48**, BA
+**41/96**). Hard **4/12** (AUC **0.415**, BA **47/96**). Occupancy
+**65** seen vs **12127** unseen. `used_keys=false`. Do not sell
+**4/12** or **41/96** as replacing **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-qwen-12x4-ngram13/`,
+`experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/`,
+`experiments/2026-09-04-atoms-qwen-12x4-ngram13/`.
+
+## 2026-09-04 resample
+
+**Collection.** `experiments/claude-sample-2026-09-04` — **0** long texts.
+Separate Chrome profile (`--via cdp --no-cdp`) hit Cloudflare
+verification and never logged in. Did not attach to the already-open
+claude.ai tab (that collector navigates the first tab to `/new`). Did
+not quit the live Chrome session to start CDP on :9222. Last successful
+sample remains `experiments/claude-sample-2026-09-03` (**40** texts).
+`assumed_watermark: rumored`. Not a Claude detector. Not a watermark
+claim.
+
+Do not train a Claude detector on the pre-mark pile alone.
+
+## 2026-09-04 DistilGPT2 Aaronson freeze
+
+[PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
+committed at SHA `9bdf12a`. Frozen before generation. Same laboratory Aaronson–Kirchner
+exponential-minimum as [PROTOCOL-next-aaronson.md](PROTOCOL-next-aaronson.md),
+generator `distilgpt2`, original 12 prompt strings, seed **20260905**,
+`--mixin aaronson`, Hub SHA `2290a62682d06624634c1f46a6ad5be0f47f38aa`.
+Hypotheses H-aar-d-ctrl, H-aar-d-group, H-aar-d-iso, and H-aar-d-occ
+are stated before generation. Do not look at key-free LRs until `pair`
+has written official first-draw z-scores and the probe command has been
+run once, as written. Do not add a scorer. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
+```bash
+python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \
+  --model distilgpt2 --n-samples 4 --max-new-tokens 128 --seed 20260905 \
+  --mixin aaronson --hub-revision 2290a62682d06624634c1f46a6ad5be0f47f38aa \
+  --out-dir experiments/2026-09-04-pair-distil-12x4-aaronson
+```
+
+## 2026-09-04 DistilGPT2 Aaronson opened
+
+[PROTOCOL-next-aaronson-distil.md](PROTOCOL-next-aaronson-distil.md)
+named `40a6300`. Pair seed **20260905**, `--mixin aaronson`,
+`--model distilgpt2`. Official first-draw z>3 **12/12** (H-aar-d-ctrl
+holds; unmarked **1/12** above 3, night-bus $3.029$). Interpolate
+last-4 **7/12** (AUC **0.618**, isolated **0/48 vs 48/48**, BA
+**48/96**; all 7 ranking wins have 0 isolated TPs). Hard **7/12**
+(AUC **0.637**, isolated **8/48 vs 48/48**, BA **56/96**). Occupancy
+**196** seen vs **11996** unseen. `used_keys=false`. Do not sell
+**7/12** or **0/48** as replacing **25/48**. Isolated-file detection is
+still not finished. Do not write `thesis/`.
+
+JSON: `experiments/2026-09-04-pair-distil-12x4-aaronson/`,
+`experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/`,
+`experiments/2026-09-04-atoms-distil-12x4-aaronson/`.
+
 
 
 
