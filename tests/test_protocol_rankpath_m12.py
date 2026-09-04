@@ -75,7 +75,8 @@ def test_protocol_rankpath_m12_locks_config_before_lrs() -> None:
     research_rows = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
-        if "PROTOCOL-isolated-rankpath-m12" in ln
+        if "PROTOCOL-isolated-rankpath-m12.md" in ln
+        and "m12body" not in ln
     ]
     assert len(research_rows) == 1
     assert "**22/48 vs 30/48**" in research_rows[0]
