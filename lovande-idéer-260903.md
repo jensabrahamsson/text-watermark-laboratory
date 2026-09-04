@@ -4159,7 +4159,7 @@ GPT-2 $\Hw=12$ last-2 opening **87/100**, last-2 4:16 **48/100**, Distil $\Hw=12
 **313/400**, Distil $\Hw=12$ last-4 **89/100** / interpolate
 **88/100**, Distil last-12 n=100 **87/100**, Distil interpolate last-4
 opening **90/100** / tail **60/100**, GPT-2 $\Hw=12$ interpolate last-4
-opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, Qwen $\Hw=12$ 100 last-2 **76/100** / **270/400**, Qwen interpolate last-4 **76/100**, Distil last-1 hashtok 4:16 **76/100** / **113/400**, Qwen last-1 hashtok 4:16 **74/100** / **303/400**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
+opening **86/100** / tail **50/100**, Qwen ngram-13 last-2 **5/12**, Qwen $\Hw=12$ 100 last-2 **76/100** / **270/400**, Qwen interpolate last-4 **76/100**, Distil last-1 hashtok 4:16 **76/100** / **113/400**, Qwen last-1 hashtok 4:16 **74/100** / **303/400**, medium last-1 hashtok 4:16 **97/100** / **323/400**, hashpool last-2 **31/48**, GPT-2 $\Hw=12$ hashtok last-4 **313/400**, Distil $\Hw=12$ hashtok last-4 **369/400**, Distil $\Hw=12$ snapleave **73/100**, or public SynthID snapleave **52/100**.
 
 ```bash
 python -m text_watermark_tools probe experiments/2026-08-17-pair-12x4 \
