@@ -3963,24 +3963,31 @@ the file mean**, not a Kirchenbauer-style tail (idea 1 interpolate
 **32/36**, **128/144**, AUC **0.869**; 64:128 **19/36**, AUC **0.543**.
 Last-4 interpolate tail 64:128 is still **3/12** on the original 12
 and **93/100** at n=100. Do not sell **389/400**. Confirmatory n=100
-last-2 on the same mask tails (`--skip-nested`; isolated from
-`holdout.md`; ranking-without-isolated-TP **0** on every slice):
+on the same mask tails (`--skip-nested`; isolated from `holdout.md`;
+ranking-without-isolated-TP **0** on every last-2 slice):
 
-| Window | last-2 hard |
-|---|---|
-| full file | **94/100**, 0.781, **340/400** |
-| 2:128 | **90/100**, 0.749, **331/400** |
-| 4:128 | **83/100**, 0.692, **305/400** |
-| 8:128 | **78/100**, 0.649, **294/400** |
-| 4:16 (near-front) | **85/100**, 0.729, **314/400** |
-| 64:128 | 58/100, 0.554, 237/400 |
+| Window | last-2 hard | last-4 hard |
+|---|---|---|
+| full file | **94/100**, 0.781, **340/400** | **67/100**, 0.607, **254/400** |
+| 2:128 | **90/100**, 0.749, **331/400** | 59/100, 0.551, 233/400 |
+| 4:128 | **83/100**, 0.692, **305/400** | **36/100**, 0.459, **181/400** chance (perm $p\approx 0.999$) |
+| 8:128 | **78/100**, 0.649, **294/400** | **37/100**, 0.451, **175/400** chance |
+| 4:16 (near-front) | **85/100**, 0.729, **314/400** | 38/100 chance, 0.458, 186/400 |
+| 64:128 | 58/100, 0.554, 237/400 | 47/100, 0.483, 189/400 |
 
-Masking 0:4 drops n=100 ranking **94→83** and isolated **340→305**;
-8:128 is **78/100**, **294/400**. That remainder sits with near-front
-4:16 **85/100**, not Kirchenbauer interpolate tail **100/100**.
-Original-12 mask **10/12** overstates confirmatory geography the same
-way tail **10/12** does. Do not sell **83/100**, **305/400**,
-**78/100**, or **294/400**. Mid slices on the
+Last-4 hard at n=100 is **opening-only**: masking 0:4 kills ranking
+(**67→36**) and isolated (**254→181**, file-level binom $p\approx 0.97$).
+Last-2 4:128 still ranks **83/100** / **305/400** because 4:16 still
+ranks **85/100**, not because a Kirchenbauer-style tail appears.
+Paired marked-file signs, last-2 vs last-4 on n=100 4:128 (exact
+McNemar; McNemar, 1947; not a freeze): **157** gains / **33** losses /
+148 both / 62 neither. One-sided $p\approx 7.6\times 10^{-21}$. That
+isolated remainder is near-front, not leftover, and does not replace
+**25/48**. Original-12 last-4 absolute 4:128 **9/12** overstates
+confirmatory last-4 geography the same way original-12 last-2 mask
+**10/12** overstates **83/100**. Do not leftover-slice. Do not sell
+**83/100**, **305/400**, **36/100**, **181/400**, **78/100**, or
+**294/400**. Mid slices on the
 same 100 (`used_keys=false`, `--skip-nested`; isolated from
 `holdout.md`) confirm that last-2 is **not** a Kirchenbauer body
 reader:
@@ -4387,9 +4394,10 @@ Last-1 `hashtok2` likewise sits with last-1 hashtok (GPT-2 **97/100**,
 
 **Non-claim.** Do not rewrite the locked headline to **34/48** or
 **10/12**. Do not sell original-12 mask last-2 **10/12**, **32/48**,
-or **33/48**. Do not sell n=100 mask 4:128 **83/100** / **305/400** or
-8:128 **78/100** / **294/400**. Do not leftover-slice those mask
-windows. Do not sell transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
+or **33/48**. Do not sell n=100 mask 4:128 last-2 **83/100** /
+**305/400**, last-4 **36/100** / **181/400**, or 8:128 **78/100** /
+**294/400**. Do not leftover-slice those mask windows. Do not sell
+transfer **29/48**, 24-stem **31/48**, or nested **23/48**. Do not
 sell leftover **12/20**, leftover tail **13/20**, leftover occupancy-free
 **8/20**, or leftover 100→12 last-2 **11/20**. Do not sell grok mask
 **29/48**, **33/48**, **82/144**, or grok36 mask **24/36**. Do not sell
@@ -4440,6 +4448,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
   --windows 2:128,4:128,8:128 \
   --out-dir /tmp/kgw-lab/probe-100x4-synthid-k2-mask-tails
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods hard --context-len 4 --skip-hashpool --skip-nested \
+  --windows 2:128,4:128,8:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-k4-mask-tails
 
 python3 -m text_watermark_tools probe experiments/2026-09-01-pair-grok12x4 \
   --methods hard --context-len 2 --skip-hashpool \
@@ -4664,11 +4677,12 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-gpt2-medium-10
 **Why it is a backlog item.** Isolated **25/48** is the honest last-4
 headline. Last-2 is the one existing-scorer width that moved isolated
 sign on 12, 36, and 100 **public** GPT-2 families in the same
-direction. At n=100 that lift is opening mass kept in the file mean
-(**334/340** of last-2 TPs are 0:4 TPs), not a body window: original-12
-tail **10/12** and mask **8:128** **10/12** / **32/48** overstate
-geography (n=100 mask 4:128 **83/100**, **305/400** sits with 4:16
-**85/100**; 8:128 **78/100**, **294/400**). It is not a universal
+direction. At n=100 last-4 hard is opening-only (mask 4:128 **36/100**,
+**181/400**, chance). Last-2’s remainder after dropping 0:4 is
+near-front 4:16 (**83/100**, **305/400**), not a Kirchenbauer body:
+original-12 tail **10/12** and mask **8:128** **10/12** / **32/48**
+overstate geography, and original-12 last-4 mask **9/12** overstates
+**36/100**. It is not a universal
 shorter-context recipe: longer hash history kills the ranking jump
 (matching last-12 to $\Hw=12$ does not recover it; DistilGPT2 $\Hw=12$
 last-2 ranking is **6/12**); Distil/Qwen/medium public-$\Hw$ 12 do not
@@ -5106,9 +5120,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    ranking **10/12** survives masking the first 8 tokens (**8:128**
    **10/12**, **32/48**); 4:128 isolated **32/48** vs last-4 **29/48**
    is McNemar $p\approx 0.32$, not a $\tau=0$ beat, and does not
-   replace **25/48**. At n=100 that
-   lift is opening mass kept in the file mean, not a body leak: mask
-   4:128 last-2 is **83/100**, **305/400**, sitting with mid
+   replace **25/48**. At n=100 last-4 hard is opening-only (mask 4:128
+   **36/100**, **181/400**, chance). Last-2 mask 4:128 still ranks
+   **83/100**, **305/400** (McNemar **157/33** vs last-4), sitting with mid
    4:16 last-2 **85/100** while 16:32 / 32:64 are weak
    (**65/100** / **66/100**) and last-4 hard mid is chance
    (**38/100**). Last-2 `hits` 4:16 ranks **100/100** / **350/400** then
