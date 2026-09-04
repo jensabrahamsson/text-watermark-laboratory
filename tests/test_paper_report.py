@@ -524,6 +524,26 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
     assert f"{ba_q}/96" in next_sec
     assert f"{qwen_12_hard['n_prompts_marked_above']}/12" in next_sec
     assert str(occ_q12["n_seen"]) in next_sec
+    assert str(occ12["n_unseen"]) in next_sec
+    assert str(occ100["n_unseen"]) in next_sec
+    assert str(occ_d12["n_unseen"]) in next_sec
+    assert str(occ_d100["n_unseen"]) in next_sec
+    assert str(occ_q12["n_unseen"]) in next_sec
+    ba_d12_hard = (
+        distil_12_hard["n_marked_lr_positive"]
+        + distil_12_hard["n_unmarked_lr_nonpositive"]
+    )
+    ba_q_hard = (
+        qwen_12_hard["n_marked_lr_positive"]
+        + qwen_12_hard["n_unmarked_lr_nonpositive"]
+    )
+    ba_d100_hard = (
+        distil_100_hard["n_marked_lr_positive"]
+        + distil_100_hard["n_unmarked_lr_nonpositive"]
+    )
+    assert f"{ba_d12_hard}/96" in next_sec
+    assert f"{ba_q_hard}/96" in next_sec
+    assert f"{ba_d100_hard}/800" in next_sec
     assert "ed9fb20" in next_sec
     assert "pair-qwen-100x4-kgw" in next_sec
     assert "before generation" in next_sec
