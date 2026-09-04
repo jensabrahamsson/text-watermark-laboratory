@@ -229,7 +229,10 @@ still opening-heavy: 0:4 **100/100**, **392/400**, **0.991**; 64:128
 hits is the body match. Do not sell **392/400**, **372/400**, or
 last-4 hits tail **260/400**. Occupancy-free `postokhits` last-4 is **12/12**, **40/48**,
 AUC **0.892** on GPT-2 Aaronson and **10/12**, **40/48** on Distil;
-last-1 `postokhits` is empty on both (**0/48**, all zeros). Do not sell
+last-1 `postokhits` is empty on both (**0/48**, all zeros). Occupancy-free
+`hashtok` last-4 on GPT-2 Aaronson is **12/12**, **40/48**, AUC
+**0.890** (matches `postokhits` last-4); last-1 `hashtok` is empty
+(**0/48**). Do not sell
 **46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
 GPT-2 KGW hits last-1 absolute windows: opening 0:4 **8/12**,
 **24/48**, AUC **0.558**; tail 64:128 **12/12**, **45/48**, **0.932**.
@@ -285,7 +288,8 @@ on GPT-2 KGW 12 is **9/12**, **33/48**, AUC 0.600, unmarked $\le 0$
 only **25/48** (last-4 `postokhits` was **11/48**): last-1 occupancy-free
 lifts isolated with FPs; it is not the green-list reader. Occupancy-free
 `hashtok` last-4 on the same twins is **9/12**, **13/48**, AUC 0.592;
-last-1 is empty (**0/48**, all zeros). Hits last-1 **46/48** is not
+last-1 is empty (**0/48**, all zeros). Distil KGW last-1 `hashtok` is
+also empty. Hits last-1 **46/48** is not
 occupancy-free hashing (`--skip-hashpool` silently drops `hashtok`).
 Public
 SynthID hashpool last-1 is chance (**5/12**, **24/48**, AUC 0.472). Do
@@ -1248,7 +1252,8 @@ tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
 and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
 `hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
-last-4 is **13/48**. None of those is a backlog item.
+last-4 is **13/48**. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
+are empty too; Aaronson last-4 `hashtok` is opening **40/48**. None of those is a backlog item.
 
 ---
 
