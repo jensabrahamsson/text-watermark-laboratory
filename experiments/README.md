@@ -43,8 +43,7 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-04-pair-qwen-100x4-kgw/` | Qwen2-1.5B Kirchenbauer, 100 one-liners | freeze SHA `ed9fb20`; named before generation; official z>3 **90/100**; unmarked **0/100** |
 | `2026-09-04-probe-qwen-100x4-kgw-hard-last4/` | Qwen Kirchenbauer 100-LOO hard/interpolate | interpolate **96/100** / **620/800**; hard **63/100** |
 | `2026-09-04-atoms-qwen-100x4-kgw/` | Qwen Kirchenbauer 100-family occupancy | **4858** seen vs **96740** unseen |
-| `2026-09-04-probe-qwen-100x4-kgw-hard-last4/` | Qwen Kirchenbauer 100-LOO hard/interpolate | interpolate **96/100** / **620/800**; hard **63/100** |
-| `2026-09-04-atoms-qwen-100x4-kgw/` | Qwen Kirchenbauer 100-family occupancy | **4858** seen vs **96740** unseen |
+| `2026-09-04-probe-qwen-100x4-kgw-windows/` | Qwen Kirchenbauer 100-LOO interpolate windows | 0:4 **84/100**; 64:128 **97/100**; full-file **96/100** |
 | `2026-09-03-probe-12x4-headline-windows-absolute/` | Absolute-history 12-LOO mask-*k* | prefixes equal reindexed; hard tails **9/12**; interpolate 8:128 rose 3→4 |
 | `2026-09-03-pair-12x4-ngram13/` | Public keys, `ngram_len=13`, original 12 | official **48/48** marked above 0.55 |
 | `2026-09-03-probe-12x4-ngram13-hard-last4/` | 12-LOO hard/interpolate on those twins | interpolate and hard **6/12**; isolated hard **52/96** |

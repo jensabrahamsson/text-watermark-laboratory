@@ -109,3 +109,43 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-kgw 
 4. If a command fails, fix the harness and re-run the **same** flags.
 
 Human merge of PR #4 is out of scope for this file.
+
+## Results
+
+Protocol SHA `e270546`. Named `ed134ee`. Pair seed **20260904**.
+`mixin=kgw`. `model=Qwen/Qwen2-1.5B-Instruct`. `used_keys=false`.
+Do not overwrite
+[experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/](../experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/).
+
+JSON: [experiments/2026-09-04-probe-qwen-100x4-kgw-windows/](../experiments/2026-09-04-probe-qwen-100x4-kgw-windows/).
+
+H-kgw-q100-win-ctrl **holds**. Full-file interpolate on the window run
+is **96/100** (AUC **0.870**), the same sign count as the frozen
+full-file dump. Hard remains **63/100**.
+
+| Window | Interpolate wins | File AUC | Isolated t=0 | Hard wins |
+|---|---|---|---|---|
+| $[0{:}4)$ | **84/100** | 0.679 | 279/400 vs 237/400 (**516/800**) | **74/100** |
+| $[4{:}16)$ | **79/100** | 0.665 | — | **49/100** |
+| $[16{:}32)$ | **88/100** | 0.749 | — | **50/100** |
+| $[32{:}64)$ | **92/100** | 0.752 | — | **69/100** |
+| $[64{:}128)$ | **97/100** | 0.785 | 314/400 vs 252/400 (**566/800**) | **58/100** |
+
+H-kgw-q100-win-open **holds**. Opening interpolate **84/100** sits
+below full-file **96/100**. Clopper–Pearson 95% **[0.753, 0.906]**
+excludes ½. It does not replace **25/48**.
+
+H-kgw-q100-win-body **holds**. Tail interpolate **97/100** is not
+chance (AUC **0.785**; Clopper–Pearson **[0.915, 0.994]**). Versus
+$\Hw=12$ interpolate $[64{:}128)$ **50/100** (AUC **0.501**) on GPT-2,
+Qwen Kirchenbauer full-file **96/100** is a body reader, not an opening
+residual. Hard tail **58/100** is weaker. Do not sell **97/100** or
+**84/100**.
+
+H-kgw-q100-win-iso **holds**. Isolated interpolate opening **516/800**
+and tail **566/800** are a different generator and mixin from the
+original-12 SynthID **47/96**. Do not sell **97/100**, **84/100**,
+**516/800**, or **566/800** as replacing **25/48**.
+
+Isolated-file detection on the public SynthID original-12 remains
+**25/48** / **47/96**. Do not write `thesis/`.

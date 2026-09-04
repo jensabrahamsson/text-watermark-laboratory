@@ -33,12 +33,20 @@ def test_protocol_kgw_qwen_100_windows_locks_config_before_lrs() -> None:
     assert "detector_mean" in text
     assert "thesis/" in text
     assert "PROTOCOL-next-kgw-qwen-100.md" in text
-    assert "H-kgw-q100-win-ctrl **holds**" not in text
+    assert "H-kgw-q100-win-ctrl **holds**" in text
+    assert "H-kgw-q100-win-open **holds**" in text
+    assert "H-kgw-q100-win-body **holds**" in text
+    assert "H-kgw-q100-win-iso **holds**" in text
+    collapsed = " ".join(text.split())
+    assert "Do not sell **97/100**" in collapsed
+    assert text.count("## Results") == 1
     assert PAIR.is_dir()
     assert (PAIR / "results.json").is_file()
     assert (FULL / "interpolate" / "holdout.json").is_file()
     log = LOG.read_text()
     assert "PROTOCOL-next-kgw-qwen-100-windows" in log
+    assert "`e270546`" in log
+    assert "**97/100**" in log
 
 
 def test_protocol_kgw_qwen_100_windows_cli_flag_exists() -> None:
@@ -72,12 +80,29 @@ def test_protocol_kgw_qwen_100_windows_cli_flag_exists() -> None:
 )
 def test_protocol_kgw_qwen_100_windows_from_dumps() -> None:
     text = PROTOCOL.read_text()
-    if "H-kgw-q100-win-ctrl **holds**" not in text:
-        pytest.skip("window counts not folded yet")
     data = json.loads((WINDOWS / "results.json").read_text())
     assert data["used_keys"] is False
     assert data["model_name"] == "Qwen/Qwen2-1.5B-Instruct"
     full = json.loads((FULL / "interpolate" / "holdout.json").read_text())
+    assert full["n_prompts_marked_above"] == 96
+    interp_full = next(m for m in data["methods"] if m["name"] == "interpolate")
+    assert interp_full["n_prompt_wins"] == 96
+    open_ = next(
+        r
+        for r in data["window_scores"]
+        if r["name"] == "interpolate" and r["start"] == 0 and r["end"] == 4
+    )
+    tail = next(
+        r
+        for r in data["window_scores"]
+        if r["name"] == "interpolate" and r["start"] == 64 and r["end"] == 128
+    )
+    assert open_["n_prompt_wins"] == 84
+    assert tail["n_prompt_wins"] == 97
+    assert f"**{open_['n_prompt_wins']}/100**" in text
+    assert f"**{tail['n_prompt_wins']}/100**" in text
+    assert f"**{full['n_prompts_marked_above']}/100**" in text
     lo, hi = clopper_pearson(25, 48)
     assert lo <= 0.5 <= hi
-    assert f"**{full['n_prompts_marked_above']}/100**" in text
+    ba_lo, ba_hi = clopper_pearson(50, 100)
+    assert ba_lo <= 0.5 <= ba_hi

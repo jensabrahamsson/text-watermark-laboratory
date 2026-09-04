@@ -242,6 +242,7 @@ python -m text_watermark_tools resample --skip-collect --new-dir experiments/cla
 | DistilGPT2 Kirchenbauer 100-family | interpolate **100/100** (isolated **683/800**); hard **82/100**; occupancy **16170** vs **71541**; not **25/48** |
 | Qwen2-1.5B Kirchenbauer original-12 | interpolate **12/12** (isolated **68/96**); hard **8/12**; occupancy **84** vs **12108**; not **25/48** |
 | Qwen2-1.5B Kirchenbauer 100-family | official z>3 **90/100**; interpolate **96/100** (isolated **620/800**); hard **63/100**; occupancy **4858** vs **96740**; freeze SHA `ed9fb20` named before generation; not **25/48** |
+| Qwen2-1.5B Kirchenbauer 100-family windows | interpolate $[64{:}128)$ **97/100** vs opening **84/100**; full-file **96/100**; not **25/48** |
 | Distil / gpt2-medium unmarked-LM opening rankpath | Distil-LM isolated **32/48 vs 31/48**; medium-LM **31/48 vs 32/48**; freeze SHA `d8e6f7f`; not **25/48** |
 | gpt2-medium native opening rankpath | ranking **6/12**, isolated **22/48 vs 30/48**; freeze SHA `2577771`; not **25/48** |
 

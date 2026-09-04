@@ -64,7 +64,7 @@ def test_protocol_kgw_qwen_100_locks_config_before_generation() -> None:
     agents_rows = [
         ln
         for ln in (ROOT / "AGENTS.md").read_text().splitlines()
-        if ln.startswith("| Qwen2-1.5B Kirchenbauer 100-family")
+        if ln.startswith("| Qwen2-1.5B Kirchenbauer 100-family |")
     ]
     assert len(agents_rows) == 1
     row = agents_rows[0]
