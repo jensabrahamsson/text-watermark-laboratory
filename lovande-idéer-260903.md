@@ -981,12 +981,24 @@ Public SynthID hits last-1 is chance at n=12 (**4/12**,
 only **274/400**; mid 4:16 **95/100**, **327/400**, unmarked
 **207/400**. Last-4 hits on the same 100 is the stronger full-file
 overlap reader (**100/100**, **396/400**, 0.993, unmarked
-**288/400**); mid 4:16 **93/100**, isolated **208/400**, **5**
-ranking-only. Last-1 4:16 ranking sits slightly above last-4 hits
-there (**95/100** vs **93/100**) with worse specificity. Geography
-stays opening-heavy, not Kirchenbauer body. Do not shorten SynthID
-`hits` to last-1. Do not leftover-target those ranking-only zeros.
-Do not sell **99/100**, **396/400**, or last-1 4:16 **95/100**.
+**288/400**). Absolute mid windows (`--skip-nested`; isolated from
+`holdout.md`):
+
+| Window | last-4 hits | last-1 hits |
+|---|---|---|
+| 4:16 | 93/100, 0.752, **208/400** | **95/100**, 0.819, **327/400** |
+| 16:32 | **97/100**, 0.743, **211/400** | 82/100, 0.672, **259/400** |
+| 32:64 | **93/100**, 0.776, **249/400** | 80/100, 0.655, **232/400** |
+
+Last-1 4:16 ranking sits slightly above last-4 hits (**95/100** vs
+**93/100**) with worse specificity (unmarked $\le 0$ **207/400** vs
+**367/400**). Later windows reverse: last-4 hits keeps ranking
+(**97/100** / **93/100**) while last-1 drops to **82/100** / **80/100**.
+Last-1 16:32 has **14** ranking losses with isolated TP; 32:64 has
+**19**. Geography stays opening-heavy, not Kirchenbauer body. Do not
+shorten SynthID `hits` to last-1. Do not leftover-target those zeros.
+Do not sell **99/100**, **396/400**, last-1 4:16 **95/100** /
+**327/400**, or last-4 16:32 **97/100**.
 The Kirchenbauer width match is mixin-specific, not
 “shorten `hits` everywhere.” Aaronson last-4 hits is already
 **12/12**, **44/48**, AUC **0.920**, unmarked $\le 0$ **39/48** (one
@@ -1842,8 +1854,9 @@ hashtok last-4 **384/400**, Qwen Aaronson
 hashtok last-4 **44/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not sell public
-SynthID last-1 hits n=100 **99/100** / 4:16 **95/100** / isolated
-**358/400**, or last-4 hits **396/400**. Do not sell Qwen last-1 hits
+SynthID last-1 hits n=100 **99/100** / isolated **358/400** / 4:16
+**95/100** / **327/400**, last-1 16:32 **82/100**, or last-4 hits
+**396/400** / 16:32 **97/100**. Do not sell Qwen last-1 hits
 4:16 **6/12**. Do not add a method name. Do not
 retune Kirchenbauer or Aaronson `context_width` after peeking. Do not run last-1,
 unigram, or hashpool last-1 as the headline SynthID reader. Do not
@@ -4041,7 +4054,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    hashpool **394/400** vs **304/400**) and `hard` on Aaronson–Kirchner
    (**388/400** vs last-4 **344/400**). Public SynthID hits last-1 is
    chance at n=12; at n=100 it ranks **99/100** but last-4 hits is the
-   stronger full-file reader (**100/100**, **396/400**, 0.993). Do not
+   stronger full-file reader (**100/100**, **396/400**, 0.993). Mid
+   last-1 4:16 **95/100** sits slightly above last-4 **93/100** with
+   worse specificity; 16:32 last-4 keeps **97/100** while last-1 drops
+   to **82/100**. Do not
    shorten SynthID `hits`. Kirchenbauer interpolate last-1
    at 100 families matches last-4 interpolate geography (opening
    **83/100**, tail **100/100**). Aaronson last-1 ranks both
