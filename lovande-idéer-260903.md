@@ -210,7 +210,10 @@ last-1 `postokhits` is empty on both (**0/48**, all zeros). Do not sell
 **46/48**, **395/400**, Qwen **41/48**, or Aaronson hits **44/48**.
 GPT-2 KGW hits last-1 absolute windows: opening 0:4 **8/12**,
 **24/48**, AUC **0.558**; tail 64:128 **12/12**, **45/48**, **0.932**.
-Same body geography as hard last-1.
+Same body geography as hard last-1. 100-family hits last-1 windows
+(`--skip-nested`): opening 0:4 **94/100**, **258/400**, AUC **0.753**;
+tail 64:128 **100/100**, **379/400**, **0.986**. Body at confirmatory
+n. Do not sell **379/400**.
 
 Existing `hashpool` (random-hash context pool; not a new method name)
 at `--context-len 1` is the same width match on a different count spec:
@@ -422,7 +425,7 @@ hits transfer is opening **44/48**.
 **Non-claim.** Do not sell **43/48**, **46/48**, **37/48**,
 **48/48**, **47/48**, **389/400**, **350/400**, **329/400**,
 **394/400**, **304/400**, **325/400**, **149/400**, KGW hits last-1
-**46/48** / **395/400**, Qwen hits last-1 **41/48**, Aaronson hits
+**46/48** / **395/400**, KGW hits last-1 tail **379/400**, Qwen hits last-1 **41/48**, Aaronson hits
 last-4 **44/48** / n=100 **388/400**, Aaronson last-1
 **40/48**, **388/400**, **99/100**, Aaronson last-2 n=100 **388/400** /
 unmarked **301/400**, Aaronson hashpool last-1 n=100 **372/400**, Distil
@@ -550,6 +553,11 @@ python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-kgw \
 python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
   --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-k1
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods hits --context-len 1 --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-hits-k1-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-03-pair-qwen-12x4-kgw \
   --model Qwen/Qwen2-1.5B-Instruct --methods hits --context-len 1 \
