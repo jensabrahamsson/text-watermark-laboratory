@@ -25,7 +25,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (28 A4 pages, git `4c31077`). Compact SHA `ce5f168`. Open SHA `aea3d76`.
+  (28 A4 pages, git `a50bc3f`). Prior compile `4c31077`. Compact SHA `ce5f168`. Open SHA `aea3d76`.
   Ingress SHA `7eea455`. Dated copies in
   [`../report/`](../report/).
 
