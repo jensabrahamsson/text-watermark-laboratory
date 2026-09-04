@@ -358,7 +358,13 @@ tail. Last-1 hard does not add opening TPs (both widths **388/400** at
 0:4); it recovers tail isolated (**324/400** → **380/400**) and
 specificity (unmarked **323/400** → **399/400**). Do not sell
 interpolate last-4 opening **380/400**, last-4 hard opening **388/400**,
-or freeze ranking **100/100**. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
+or freeze ranking **100/100**. Occupancy-free `hashtok` last-1 on GPT-2
+Aaronson 100 is empty (**0/400**, all zeros). Last-4 `hashtok` (no
+`--skip-hashpool`; `--fit-prefix 4`) is **100/100**, **384/400**, AUC
+**0.982**, unmarked $\le 0$ **363/400** (precision **0.912**); 0:4 is
+the same **384/400**; tail **0/100**, **0/400**. Opening overlap with
+FPs, not last-1 hard **388/400**. Hits last-1 isolated **384/400** is
+not this occupancy-free reader. Hashpool last-1 on Aaronson 12 is **11/12**, **36/48**, 0.901,
 unmarked $\le 0$ **48/48** (below hard last-1). Last-1 hashpool
 windows also rank both ends: 0:4 **12/12**, **40/48**, 0.950; 64:128
 **10/12**, **36/48**, 0.877. 100-family hashpool
@@ -769,7 +775,8 @@ GPT-2 100 Aaronson last-1 → Distil **40/48**, GPT-2 100 Aaronson last-1 → Di
 **308/400**, Aaronson interpolate last-1 **296/400** / opening
 **380/400** / tail **284/400**, Aaronson interpolate last-4 opening
 **380/400** / tail **208/400**, last-4 hard opening **388/400**, occupancy-free last-1
-**33/48**, occupancy-free hashtok last-4 **13/48**, Qwen Aaronson
+**33/48**, occupancy-free hashtok last-4 **13/48**, GPT-2 Aaronson 100
+hashtok last-4 **384/400**, Qwen Aaronson
 hashtok last-4 **44/48**, Qwen hashpool **39/48**, Distil hashpool **43/48**, Distil
 hashpool transfer **44/48** / **40/48**, Distil last-4 hashpool
 **95/100**, or **100/100** as replacing **25/48**. Do not add a method name. Do not
@@ -1145,6 +1152,16 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --model gpt2 --methods hashtok --context-len 4 --fit-prefix 4 --skip-nested \
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-aaronson-hashtok-k4-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hashtok --context-len 1 --fit-prefix 1 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok-k1-windows-ends
+
+python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods hashtok --context-len 4 --fit-prefix 4 --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hashtok-k4-windows-ends
 
 python -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --test-dir experiments/2026-09-04-pair-distil-100x4-aaronson --overlap keep \
@@ -1829,7 +1846,10 @@ last-4 is **13/48**. Distil KGW last-4 `hashtok` is opening **7/12**,
 **14/48**, AUC **0.605** (tail **0/48**); last-1 is empty. Qwen KGW
 last-4 `hashtok` is anti-correlated **2/12**, **14/48**, AUC **0.432**
 (tail **0/48**); last-1 is empty. Distil KGW and GPT-2 Aaronson last-1 `hashtok`
-are empty too; Aaronson last-4 `hashtok` is opening **40/48**. Qwen
+are empty too; Aaronson last-4 `hashtok` is opening **40/48**. GPT-2
+Aaronson 100 last-4 `hashtok` is **100/100**, **384/400**, AUC
+**0.982** (0:4 equals full-file; tail **0/100**); last-1 is empty.
+Qwen
 Aaronson last-4 `hashtok` is opening **11/12**, **44/48**, AUC
 **0.966** (tail **0/48**), above `postokhits` last-4 **32/48**, still
 not last-1 hits **48/48**. Qwen Aaronson last-1 `rankpath` is
