@@ -215,7 +215,11 @@ Do not sell an Aaronson count as replacing **25/48**.
 Original-12 interpolate last-4 is **12/12** (isolated **85/96**);
 occupancy **114** seen. 100-family interpolate is **100/100** (isolated
 **747/800**); occupancy **4557** seen. Do not sell **12/12**,
-**100/100**, **85/96**, or **747/800** as replacing **25/48**.
+**100/100**, **85/96**, or **747/800** as replacing **25/48**. Qwen2-1.5B Kirchenbauer on the 100
+one-liners is named in
+[research/PROTOCOL-next-kgw-qwen-100.md](research/PROTOCOL-next-kgw-qwen-100.md)
+(SHA `ed9fb20`) before generation. Do not invent those scores. That lock
+is not **25/48**.
 
 ```bash
 python -m text_watermark_tools pair experiments/2026-08-17-grok-prompts \

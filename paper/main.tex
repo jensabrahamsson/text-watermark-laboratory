@@ -1379,7 +1379,35 @@ DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
 (isolated \textbf{683/800}); hard is \textbf{82/100}. That is not
 \textbf{25/48}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is named
 in \path{research/PROTOCOL-next-kgw-qwen-100.md} (freeze SHA
-\texttt{ed9fb20}) before generation.
+\texttt{ed9fb20};
+\path{experiments/2026-09-04-pair-qwen-100x4-kgw}) before generation
+(\Cref{tab:kgwq100}). Isolated-file detection remains unfinished.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Preregistered Qwen2-1.5B Kirchenbauer 100-family measurement,
+locked before generation (protocol SHA \texttt{ed9fb20}). Observed
+key-free counts follow only after \texttt{results.json} and the frozen
+probe. That lock is not \textbf{25/48}.}
+\label{tab:kgwq100}
+\begin{tabular}{ll}
+\toprule
+Locked before generation & Value \\
+\midrule
+Mixin & Hugging Face \texttt{WatermarkLogitsProcessor} (\texttt{mixin=kgw}) \\
+Generator & \texttt{Qwen/Qwen2-1.5B-Instruct} \\
+Hub revision & \texttt{ba1cf1846d7df0a0591d6c00649f57e798519da8} \\
+\texttt{greenlist\_ratio} / \texttt{bias} / \texttt{hashing\_key} & $0.25$ / $2.0$ / $15485863$ \\
+\texttt{seeding\_scheme} / \texttt{context\_width} & \texttt{lefthash} / $1$ \\
+Prompt frame & 100 one-liners, $T=128$, seed 20260904, four draws \\
+Official control & matching \texttt{WatermarkDetector} $z>3$ \\
+Reader & hard and interpolate last-4; \texttt{used\_keys=false} \\
+Fold topology & leave-one-family-out \\
+Primary isolated metric & $\tau=0$ matrix; not \textbf{25/48} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 \texttt{747f3cd}, seed 20260905) ranks interpolate last-4

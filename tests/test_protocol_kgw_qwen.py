@@ -86,6 +86,43 @@ def test_protocol_kgw_qwen_official_and_keyfree_from_dumps() -> None:
     assert interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"] == 68
     assert abs(interp["binary"]["auc"] - 0.814) < 0.001
     occ = json.loads((ATOMS / "atoms.json").read_text())
+    agents_rows = [
+        ln
+        for ln in (ROOT / "AGENTS.md").read_text().splitlines()
+        if ln.startswith("| Qwen2-1.5B Kirchenbauer original-12")
+    ]
+    assert len(agents_rows) == 1
+    row = agents_rows[0]
+    ba = interp["n_marked_lr_positive"] + interp["n_unmarked_lr_nonpositive"]
+    assert f"**{interp['n_prompts_marked_above']}/12**" in row
+    assert f"**{hard['n_prompts_marked_above']}/12**" in row
+    assert f"**{ba}/96**" in row
+    assert f"**{occ['n_seen']}**" in row
+    exp_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-probe-qwen-12x4-kgw-hard-last4" in ln
+    ]
+    assert len(exp_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
+    assert f"**{ba}/96**" in exp_rows[0]
+    assert f"**{hard['n_prompts_marked_above']}/12**" in exp_rows[0]
+    atom_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-atoms-qwen-12x4-kgw" in ln
+    ]
+    assert len(atom_rows) == 1
+    assert f"**{occ['n_seen']}**" in atom_rows[0]
+    assert f"**{occ['n_unseen']}**" in atom_rows[0]
+    research_rows = [
+        ln
+        for ln in (ROOT / "research" / "README.md").read_text().splitlines()
+        if ln.startswith("| [PROTOCOL-next-kgw-qwen.md]")
+    ]
+    assert len(research_rows) == 1
+    assert f"**{ba}/96**" in research_rows[0]
+    assert f"**{hard['n_prompts_marked_above']}/12**" in research_rows[0]
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 84
     assert occ["n_unseen"] == 12108

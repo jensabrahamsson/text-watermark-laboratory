@@ -34,9 +34,13 @@ That progression produced the repository's key result: a **key-free indicator fo
 | `2026-09-03-pair-distil-12x4-kgw/` | DistilGPT2 Kirchenbauer, original 12 | official z>3 **12/12** |
 | `2026-09-03-probe-distil-12x4-kgw-hard-last4/` | 12-LOO on those twins | interpolate **12/12** / **85/96**; hard **11/12** |
 | `2026-09-03-atoms-distil-12x4-kgw/` | Distil Kirchenbauer occupancy | **130** seen vs **11972** unseen |
+| `2026-09-03-pair-distil-100x4-kgw/` | DistilGPT2 Kirchenbauer, 100 one-liners | official first-draw z>3 **100/100** |
+| `2026-09-03-probe-distil-100x4-kgw-hard-last4/` | Distil 100-LOO hard/interpolate | interpolate **100/100** / **683/800**; hard **82/100** |
+| `2026-09-03-atoms-distil-100x4-kgw/` | Distil Kirchenbauer 100-family occupancy | **16170** seen vs **71541** unseen |
 | `2026-09-03-pair-qwen-12x4-kgw/` | Qwen2-1.5B Kirchenbauer, original 12 | official z>3 **12/12** |
 | `2026-09-03-probe-qwen-12x4-kgw-hard-last4/` | 12-LOO on those twins | interpolate **12/12** / **68/96**; hard **8/12** |
 | `2026-09-03-atoms-qwen-12x4-kgw/` | Qwen Kirchenbauer occupancy | **84** seen vs **12108** unseen |
+| `2026-09-04-pair-qwen-100x4-kgw/` | Qwen2-1.5B Kirchenbauer, 100 one-liners | freeze SHA `ed9fb20`; named before generation |
 | `2026-09-03-probe-12x4-headline-windows-absolute/` | Absolute-history 12-LOO mask-*k* | prefixes equal reindexed; hard tails **9/12**; interpolate 8:128 rose 3→4 |
 | `2026-09-03-pair-12x4-ngram13/` | Public keys, `ngram_len=13`, original 12 | official **48/48** marked above 0.55 |
 | `2026-09-03-probe-12x4-ngram13-hard-last4/` | 12-LOO hard/interpolate on those twins | interpolate and hard **6/12**; isolated hard **52/96** |
