@@ -49,7 +49,8 @@ def test_protocol_rankpath_g2d_locks_config_before_lrs() -> None:
     research = [
         ln
         for ln in (ROOT / "research" / "README.md").read_text().splitlines()
-        if "PROTOCOL-isolated-rankpath-g2d" in ln
+        if "PROTOCOL-isolated-rankpath-g2d.md" in ln
+        and "g2dbody" not in ln
     ]
     assert len(research) == 1
     agents = [
