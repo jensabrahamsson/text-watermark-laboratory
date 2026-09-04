@@ -176,6 +176,8 @@ Distil native rankpath on generated tokens `[4:16)` is ranking **9/12**,
 isolated **25/48 vs 30/48**
 ([PROTOCOL-isolated-rankpath-d12body.md](PROTOCOL-isolated-rankpath-d12body.md)).
 H-rpd12body **holds**. Equality with **25/48** is not a win. Do not sell **25/48**.
+gpt2-medium native rankpath on generated tokens `[4:16)` is named before those LRs
+([PROTOCOL-isolated-rankpath-m12body.md](PROTOCOL-isolated-rankpath-m12body.md)).
 
 Leftover occupancy-free zeros on the original 12 are **20** files.
 In-domain hard last-4 on that slice is **10/20 vs 11/20**. Mixed

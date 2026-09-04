@@ -147,6 +147,8 @@ tokens `[4:16)` is ranking **9/12**, isolated **27/48 vs 28/48**
 **27/48**. Distil native rankpath on generated tokens `[4:16)` is ranking
 **9/12**, isolated **25/48 vs 30/48** (`PROTOCOL-isolated-rankpath-d12body.md`,
 SHA `468a66b`). Equality with **25/48** is not a win. Do not sell
-**25/48**. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
+**25/48**. gpt2-medium native rankpath on generated tokens `[4:16)` is named in
+`research/PROTOCOL-isolated-rankpath-m12body.md` before those LRs.
+Do not invent those scores. That lock is not **25/48**. GitHub tree pin: `1582a09` (100-family start `8f09aa6`).
 A 2026-09-03 Claude resample vs pre-mark last-4 is **35/40** (not a
 vendor detector; not **25/48**).

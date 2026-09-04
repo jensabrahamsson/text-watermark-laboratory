@@ -3247,4 +3247,16 @@ Equality with **25/48** is not a win. Do not sell **25/48** or nested
 **33/48**. Nothing replaces **25/48**. Isolated-file detection is still
 not finished. Do not write `thesis/`.
 
+## 2026-09-04 gpt2-medium native rankpath body [4:16) freeze
+
+This freeze names
+[PROTOCOL-isolated-rankpath-m12body.md](PROTOCOL-isolated-rankpath-m12body.md)
+named before gpt2-medium native rankpath `[4:16)` LRs. Existing `rankpath`
+on `experiments/2026-09-01-pair-gpt2-medium-12x4/` with `--model
+gpt2-medium --windows 4:16 --fit-prefix 16 --pos-bucket 1`. Do not
+leftover-slice. Do not invent those scores. gpt2-medium native opening
+stays **6/12**, isolated **22/48 vs 30/48**. Distil native `[4:16)` stays
+**9/12**, isolated **25/48 vs 30/48**. Nothing replaces **25/48**.
+Isolated-file detection is still not finished. Do not write `thesis/`.
+
 ---
