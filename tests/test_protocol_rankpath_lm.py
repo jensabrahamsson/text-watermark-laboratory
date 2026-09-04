@@ -155,6 +155,17 @@ def test_protocol_rankpath_lm_same_lm_control_stays() -> None:
     assert holdout["n_marked_lr_positive"] == 41
     assert holdout["n_unmarked_lr_nonpositive"] == 35
     assert holdout["n_prompts_marked_above"] == 11
+    results = json.loads((CONTROL / "results.json").read_text())
+    assert results["used_keys"] is False
+    rank = next(m for m in results["methods"] if m["name"] == "rankpath")
+    nested = rank["nested_stem"]["nested-youden-by-stem"]
+    note = (ROOT / "research" / "key-free-rankpath.md").read_text()
+    assert (
+        f"**{nested['n_marked_above']}/48 vs {nested['n_unmarked_at_most']}/48**"
+        in note
+    )
+    assert nested["n_marked_above"] == 37
+    assert nested["n_unmarked_at_most"] == 41
 
 
 @pytest.mark.skipif(

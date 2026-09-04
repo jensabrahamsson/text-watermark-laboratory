@@ -59,7 +59,7 @@ JSON). That
 is stronger than opening LDA (**27/48**) and stronger than the published
 full-file pivot (**17/48**). It is **not** the 25/48 last-4 hard-holdout
 headline (different protocol, 128-token files). Nested-by-stem Youden is
-**37/48 vs 39/48**. Isolated `--fit-prefix 5` (four symbols, last row =
+**37/48 vs 41/48**. Isolated `--fit-prefix 5` (four symbols, last row =
 the first official 5-gram) is **11/12**, **30/48 vs 36/48** and still
 misses letter d2. Keep prefix-4. See
 [key-free-cascade.md](key-free-cascade.md). DistilGPT2 and gpt2-medium
