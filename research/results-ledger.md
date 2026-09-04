@@ -641,6 +641,9 @@ Opening rankpath on generated tokens `[4:16)` is
 [PROTOCOL-isolated-rankpath-body.md](PROTOCOL-isolated-rankpath-body.md)
 (`dbc61c5`): ranking **7/12**, isolated **20/48 vs 22/48**. H-rpbody
 **holds**. Do not sell **20/48**. Isolated-file remains open.
+Distil-LM rankpath on generated tokens `[4:16)` is
+[PROTOCOL-isolated-rankpath-dbody.md](PROTOCOL-isolated-rankpath-dbody.md)
+and is named before those LRs. Isolated-file remains open.
 [PROTOCOL-next-longctx-windows.md](PROTOCOL-next-longctx-windows.md)
 (freeze SHA `8283d1f`). Opened: $\Hw=12$ interpolate $[64{:}128)$
 **50/100** (AUC **0.501**); public $\Hw=4$ on the same slice
