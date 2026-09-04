@@ -344,7 +344,16 @@ isolated TP; Distil has **5** ranking-only and **7** losses. Later
 windows still rank (GPT-2 16:32 **98/100**, isolated **315/400**;
 Distil **96/100**, **255/400**). Do not leftover-target those zeros.
 Do not sell last-2 hashpool 4:16 **94/100** / **294/400** / Distil
-**93/100** / **252/400**.
+**93/100** / **252/400**. Last-2 `interpolate` on those same slices
+sits with last-4 interpolate, **not** with the hits last-2 jump
+(`used_keys=false`, `--skip-nested`; isolated from `holdout.md`):
+
+| Corpus | last-4 interpolate | last-2 interpolate | last-1 interpolate |
+|---|---|---|---|
+| GPT-2 4:16 | **95/100**, 0.771, **289/400** | **97/100**, 0.784, **290/400** | 92/100, 0.777, **296/400** |
+| Distil 4:16 | **88/100**, 0.728, **303/400** | 89/100, 0.734, **302/400** | **91/100**, 0.741, **306/400** |
+
+Hits last-4 4:16 was chance **45/100** then last-2 **96/100**. Interpolate last-4 was already **95/100**; last-2 isolated **290/400** equals last-4 **289/400**. Distil last-2 interpolate **89/100** / **302/400** equals last-4 **88/100** / **303/400**. The width match is `hits` / `hashpool` / `hard`, not interpolate. GPT-2 last-2 interpolate has **1** ranking-only and **3** ranking losses with isolated TP; Distil has **11** losses. Do not leftover-target those zeros. Do not switch interpolate to last-2. Do not sell last-2 interpolate 4:16 **97/100** / Distil **89/100**.
 `--prompt-context` pivot-lda (token 0 from the prompt; same cached
 prompt-context mats as snaprate) does **not** undo that Distil body
 ranking:
@@ -626,6 +635,16 @@ python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-k
   --model gpt2 --methods hashpool --context-len 2 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
+  --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-kgw-interp-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
+  --model gpt2 --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-distil-100x4-kgw-interp-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-kgw \
   --methods unigram --skip-hashpool --skip-nested \
@@ -1159,7 +1178,14 @@ Qwen 16:32 last-2 hashpool still ranks **96/100** with isolated
 **216/400** (file-level binom $p\approx 0.06$, chance) and **42**
 ranking-only: that ranking is not $\tau=0$. Do not leftover-target
 those zeros. Do not sell last-2 hashpool 4:16 **99/100** / **96/100**
-/ **348/400** / **236/400** or 16:32 **96/100**. Do not sell last-1 4:16
+/ **348/400** / **236/400** or 16:32 **96/100**. Last-2 `interpolate`
+on GPT-2 Aaronson 4:16 ranks **98/100**, AUC **0.977**, isolated
+**280/400**, unmarked $\le 0$ **400/400**, **28** ranking-only: between
+last-1 interpolate isolated **312/400** (**21** ranking-only) and
+last-4 interpolate **248/400** (**36** ranking-only). Last-2 hits
+isolated is **388/400**. Interpolate is not the isolated last-2
+Aaronson reader. Do not leftover-target those ranking-only zeros. Do
+not sell last-2 interpolate **98/100** / **280/400**. Do not sell last-1 4:16
 **100/100** / **97/100** / **380/400** / Qwen **356/400**, last-4 mid
 **78/100** / **80/100**, Qwen last-4 mid **25/100**, or Qwen last-1
 full-file **100/100** / AUC **1.000**. That last-1 hits ranking is not
@@ -2361,6 +2387,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-04-pair-qwen-100x4-aar
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-aaronson-hashpool-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
+  --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-aaronson-interp-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hard --context-len 1 --skip-hashpool --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-100x4-aaronson-hard-k1-mid
@@ -2519,6 +2550,11 @@ python3 -m text_watermark_tools probe experiments/2026-09-01-pair-qwen-100x4 \
   --model Qwen/Qwen2-1.5B-Instruct --methods hashpool --context-len 2 --skip-nested \
   --windows 4:16,16:32,32:64 \
   --out-dir /tmp/kgw-lab/probe-qwen-100x4-synthid-hashpool-k2-mid
+
+python3 -m text_watermark_tools probe experiments/2026-09-01-pair-100x4 \
+  --methods interpolate --context-len 2 --skip-hashpool --skip-nested \
+  --windows 4:16,16:32,32:64 \
+  --out-dir /tmp/kgw-lab/probe-100x4-synthid-interp-k2-mid
 
 python3 -m text_watermark_tools probe experiments/2026-09-04-pair-100x4-aaronson \
   --methods hard --context-len 2 --skip-hashpool --skip-nested \
@@ -3654,7 +3690,13 @@ ranking losses with isolated TP and unmarked $\le 0$ only
 near-front geography. Do not leftover-target those zeros. Do not sell
 last-2 hashpool 4:16 **100/100** / **346/400**, medium **98/100**,
 Distil **79/100** / **131/400**, or Qwen **78/100** / **294/400**. Do
-not shorten SynthID `hits`. Do not
+not shorten SynthID `hits`. Last-2 `interpolate` 4:16 on the same GPT-2
+100 is **93/100**, AUC **0.804**, isolated **321/400** (last-4 hits
+ranking **93/100**, isolated **208/400**; last-2 hits **100/100**,
+**350/400**; last-2 hard **85/100**, **314/400**). Interpolate last-2
+is not the last-2 hits near-front. Interpolate stays last-4. Do not
+leftover-target the **7** ranking losses with isolated TP. Do not sell
+last-2 interpolate 4:16 **93/100** / **321/400**. Do not
 sell last-2 4:16 **85/100** / **314/400**. Do not leftover-target
 ranking losses with isolated TP (last-2 4:16 has **14**). DistilGPT2
 public 100 (`--model gpt2`, same BPE) does **not** repeat that 4:16
@@ -4283,7 +4325,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    sits between last-4 **66/100** and last-1 **97/100**. Last-2
    `hashpool` ranks with last-2 hits, not last-2 hard (GPT-2 4:16
    **94/100**, **294/400**; Distil ranking **93/100**, isolated
-   **252/400** vs hits **303/400**). Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
+   **252/400** vs hits **303/400**). Last-2 `interpolate` sits with
+   last-4 interpolate (GPT-2 4:16 **97/100**, **290/400** vs last-4
+   **95/100**, **289/400**), not with the hits last-4→last-2 jump.
+   Distil last-4 hits 4:16 **66/100** recovers to last-1 hits
    **97/100** / hashpool **99/100** (last-1 interpolate 4:16 **91/100**
    sits slightly above last-4 interpolate **88/100**). Unigram on those
    mid slices still ranks (GPT-2 4:16 **82/100**, Distil **87/100**) but
@@ -4322,7 +4367,10 @@ A freeze of **width and mixin geography** that already moved a grain:
    last-2 hard (Qwen 4:16 **96/100** vs hard **64/100**; GPT-2
    **99/100**; Distil **95/100**). Isolated is weaker than hits (Qwen
    **236/400** vs **276/400**, **37** ranking-only; GPT-2 **348/400**
-   vs **388/400**). GPT-2 Aaronson last-2 hits 4:16 isolated
+   vs **388/400**). Last-2 `interpolate` GPT-2 Aaronson 4:16 **98/100**,
+   isolated **280/400**, **28** ranking-only, is not last-2 hits
+   **388/400**. Kirchenbauer last-2 interpolate sits with last-4
+   interpolate, not the hits width jump. GPT-2 Aaronson last-2 hits 4:16 isolated
    **388/400** collapses unmarked $\le 0$ (**309/400** vs last-1
    **389/400**). Last-1 hashpool ranks those mid slices with hits but isolated is
    weaker (Qwen 4:16 **312/400** vs hits **356/400**; GPT-2 **364/400**
@@ -4398,7 +4446,9 @@ A freeze of **width and mixin geography** that already moved a grain:
    **346/400**; medium **98/100**, **338/400**), not last-2 hard
    (**85/100** / **82/100**). Distil last-2 hashpool 4:16 **79/100** has
    chance isolated (**131/400**); Qwen ranking **78/100** sits with
-   Distil, isolated **294/400**. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
+   Distil, isolated **294/400**. Last-2 `interpolate` GPT-2 4:16
+   **93/100**, **321/400** sits below last-2 hits **100/100**; interpolate
+   stays last-4. Distil last-2 4:16 is chance (**58/100**). Qwen last-2
    4:16 is **56/100**; gpt2-medium last-2 4:16 sits with GPT-2
    (**82/100**). $\Hw=12$ last-2 4:16 is chance (**48/100**); opening
    0:4 **87/100** does not survive into 4:16. Distil $\Hw=12$ last-2 4:16
