@@ -179,6 +179,22 @@ def test_protocol_kgw_official_control_and_keyfree_from_dumps() -> None:
     assert len(exp_rows) == 1
     assert f"**{interp['n_prompts_marked_above']}/12**" in exp_rows[0]
     assert f"**{ba}/96**" in exp_rows[0]
+    atom_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-atoms-12x4-kgw" in ln
+    ]
+    assert len(atom_rows) == 1
+    assert f"**{occ['n_seen']}**" in atom_rows[0]
+    assert f"**{occ['n_unseen']}**" in atom_rows[0]
+    research_rows = [
+        ln
+        for ln in (ROOT / "research" / "README.md").read_text().splitlines()
+        if ln.startswith("| [PROTOCOL-next-kgw.md]")
+    ]
+    assert len(research_rows) == 1
+    assert f"**{interp['n_prompts_marked_above']}/12**" in research_rows[0]
+    assert f"**{ba}/96**" in research_rows[0]
     assert "H-kgw-ctrl **holds**" in text
     assert "H-kgw-group **holds**" in text
     assert "H-kgw-hard **holds**" in text
@@ -246,6 +262,24 @@ def test_protocol_kgw_100_family_from_dumps() -> None:
         in exp_rows[0]
     )
     assert f"**{hard['n_prompts_marked_above']}/100**" in exp_rows[0]
+    atom_rows = [
+        ln
+        for ln in (ROOT / "experiments" / "README.md").read_text().splitlines()
+        if "2026-09-03-atoms-100x4-kgw" in ln
+    ]
+    assert len(atom_rows) == 1
+    assert f"**{occ['n_seen']}**" in atom_rows[0]
+    assert f"**{occ['n_unseen']}**" in atom_rows[0]
+    research_rows = [
+        ln
+        for ln in (ROOT / "research" / "README.md").read_text().splitlines()
+        if ln.startswith("| [PROTOCOL-next-kgw.md]")
+    ]
+    assert len(research_rows) == 1
+    assert (
+        f"**{interp['n_marked_lr_positive'] + interp['n_unmarked_lr_nonpositive']}/800**"
+        in research_rows[0]
+    )
     assert occ["used_keys"] is False
     assert occ["n_seen"] == 4557
     assert occ["n_unseen"] == 96991
