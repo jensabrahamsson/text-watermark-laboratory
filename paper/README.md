@@ -101,7 +101,9 @@ anyway. Overleaf: upload `main.tex` and `references.bib`.
    **47/96**; **6/12** and **76/100** are group rankings on $\Hw=12$
    twins. Body-window remasure (SHA `8283d1f`): interpolate $[64{:}128)$
    **50/100** versus public $\Hw=4$ **93/100**; opening **86/100**.
-   That is not **25/48**.
+   That is not **25/48**. Qwen2-1.5B Aaronson on the 100 one-liners
+   (SHA `a761a7d`): interpolate **100/100** (isolated **616/800**);
+   hard **97/100**; official $z>3$ **99/100**. That is not **25/48**.
 
 Pre-fix **10/12** / **29/48** stay historical. Isolated-file research is
 not finished. Nested Youden is post hoc, not nested CV. Lock A
