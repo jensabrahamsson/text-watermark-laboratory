@@ -1784,6 +1784,16 @@ python -m text_watermark_tools probe experiments/2026-09-04-pair-distil-100x4-aa
   --windows 0:4,64:128 \
   --out-dir /tmp/kgw-lab/xfer-distil100-aaronson-surface-to-synthid-distil12
 
+python -m text_watermark_tools probe experiments/2026-09-03-pair-12x4-ngram13 \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-12x4-ngram13-snaprate
+
+python -m text_watermark_tools probe experiments/2026-09-03-pair-100x4-ngram13 \
+  --methods snapleave,snapupset --snaprate --skip-hashpool --skip-nested \
+  --windows 0:4,64:128 \
+  --out-dir /tmp/kgw-lab/probe-100x4-ngram13-snaprate
+
 python -m text_watermark_tools probe experiments/2026-09-03-pair-distil-100x4-kgw \
   --test-dir experiments/2026-08-31-pair-distilgpt2-12x4 --model gpt2 \
   --methods hits --context-len 1 --skip-hashpool --skip-nested \
@@ -2839,7 +2849,15 @@ rankpath is also chance (**8/12**, **26/48**, AUC **0.540**; windows
 **10/12**, **29/48**, AUC **0.668**, unmarked $\le 0$ only **28/48**
 — below Qwen hits last-1 **41/48**. Count
 tables remain the Kirchenbauer body reader. Aaronson `snapleave` is
-**0/12**. Occupancy-free `postokhits` last-1 is empty on GPT-2, Distil,
+**0/12**. Table-free `--snaprate` on GPT-2 $\Hw=12$ is chance ranking:
+12×4 snapleave **7/12**, marked>0 **48/48** with unmarked $\le 0$
+**0/48**, AUC 0.523, perm $p\approx 0.33$; snapupset **6/12**. At n=100
+snapleave **51/100**, marked>0 **383/400** with unmarked $\le 0$ only
+**11/400**, AUC **0.507**, perm $p\approx 0.34$; snapupset **48/100**,
+**375/400**. Both classes leave the unmarked argmax; nested Youden is
+chance (**224/400** vs **189/400**). Matching $\Hw=12$ does not make
+snaprate a tournament detector. Do not sell **383/400** or **48/48**.
+Occupancy-free `postokhits` last-1 is empty on GPT-2, Distil,
 and Qwen Aaronson (**0/48**, all zeros); last-4 Qwen Aaronson
 `postokhits` is opening **32/48** (tail **0/48**). Occupancy-free
 `hashtok` last-1 on GPT-2 Kirchenbauer 12 is also empty (**0/48**);
