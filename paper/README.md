@@ -24,7 +24,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`main.tex`](main.tex): article (abstract through bibliography).
 - [`artifacts.json`](artifacts.json): dump paths and SHA-256 prefixes.
 - [`references.bib`](references.bib): BibTeX (author–year keys).
-- [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
+- [`Makefile`](Makefile): Tectonic (`--keep-logs` writes `main.log`) and optional `pdflatex`.
 - [`compile.log`](compile.log): last successful local `tectonic` build
   (26 A4 pages, git `8ea1d0c`). Prior compile `9d6677c`. Older compile `a50bc3f`. Compile `4c31077`. Compact SHA `ce5f168`. Open SHA `aea3d76`.
   Ingress SHA `7eea455`. Current PDF is
@@ -40,8 +40,8 @@ If a figure is not in those dumps, it is not in the paper.
 Tectonic is the publication engine:
 
 ```bash
-make          # tectonic -X compile main.tex
-make qa       # fail on undefined refs/citations and Overfull \hbox
+make          # tectonic -X compile --keep-logs main.tex (stdout: compile.log)
+make qa       # fail on undefined refs/citations and Overfull \hbox in main.log
 make publish  # qa, then overwrite ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf
 ```
 

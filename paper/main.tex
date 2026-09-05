@@ -20,8 +20,8 @@
 \usepackage{ragged2e}
 \usepackage{seqsplit}
 \usepackage{caption}
+% SHA hex may wrap anywhere. Filenames wrap only at '-' and '/'.
 \newcommand{\ttsha}[1]{\texttt{\seqsplit{#1}}}
-\newcommand{\ttfile}[1]{\texttt{\seqsplit{#1}}}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{microtype}
@@ -34,6 +34,25 @@
 % Break \path/\url only at path punctuation, not inside identifiers
 % (xurl's default letter breaks produced pai / r-distil).
 \def\UrlBreaks{\do\/\do\_\do.}
+% Filenames wrap only after '-' and '/'; never seqsplit mid-word.
+% Typewriter fonts set \hyphenchar=-1, so an explicit '-' is not a break.
+\makeatletter
+\newcommand{\ttfile}[1]{\bgroup\ttfamily\ttfile@scan#1\relax\egroup}
+\def\ttfile@scan#1{%
+  \ifx#1\relax
+  \else
+    \ifx#1-%
+      -\penalty0 %
+    \else
+      \ifx#1/%
+        /\penalty0 %
+      \else
+        #1%
+      \fi
+    \fi
+    \expandafter\ttfile@scan
+  \fi}
+\makeatother
 \usepackage{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
 \Crefname{algorithm}{Algorithm}{Algorithms}
@@ -1152,11 +1171,11 @@ means negative.
   \node[anchor=south,font=\tiny] at (0.5,1.35) {088};
   \foreach \x/\lab in {0/-0.3,3/0,6/0.3,9/0.6,12/0.9,15/1.2}
     \node at (\x,-1.6) {\lab};
-  \node[anchor=west] at (4,20) {99 wins; one miss in $[-0.3,-0.2)$.};
 \end{tikzpicture}
 \caption{Lock~A prompt-level paired differences $D_p$ on 100 GPT-2
-families (leave-one-family-out interpolate). Bins of width $0.1$. The
-mass sits well to the right of zero.}
+families (leave-one-family-out interpolate). Bins of width $0.1$.
+Ninety-nine families win; one miss lies in $[-0.3,-0.2)$. The mass sits
+well to the right of zero.}
 \label{fig:locka}
 \end{figure}
 
@@ -1379,14 +1398,13 @@ research is not finished.
 \section{Preregistered Boundary Tests}
 \label{sec:next}
 
-The preregistered longer-history replication is freeze SHA \texttt{b70986d}
-(\ttfile{PROTOCOL-next-longctx.md}), named in the laboratory
-logbook before generation (\Cref{tab:nextlock}). The same commit also
-names the absolute-history mask remasure
-(\ttfile{PROTOCOL-isolated-mask-absolute.md}); they share a freeze
-SHA, not a dump. It lengthens the public
-mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
-checkout.
+The preregistered longer-history replication is freeze SHA
+\texttt{b70986d}, named in the laboratory logbook before generation
+(\Cref{tab:nextlock}). The longer-history note is
+\ttfile{PROTOCOL-next-longctx.md}. The mask remasure note is
+\ttfile{PROTOCOL-isolated-mask-absolute.md}. They share a freeze SHA,
+not a dump. It lengthens the public mixin hash history to $\Hw=12$
+without editing the \texttt{synthid-text} checkout.
 
 A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
 (\ttfile{PROTOCOL-next-kgw.md}; Hugging Face
@@ -1394,13 +1412,13 @@ A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
 \texttt{mixin=kgw}), named before generation. Scoring those twins
 with SynthID \texttt{detector\_mean} would be a harness bug.
 
-DistilGPT2 with the same Kirchenbauer defaults is frozen in
-\ttfile{PROTOCOL-next-kgw-distil.md} (freeze SHA
-\texttt{1540d3c}). Distil interpolate last-4 is \textbf{12/12}
-(isolated \textbf{85/96}); hard is \textbf{11/12}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
-in \ttfile{PROTOCOL-next-kgw-qwen.md} (freeze SHA
-\texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
-(isolated \textbf{68/96}); hard is \textbf{8/12}.
+DistilGPT2 with the same Kirchenbauer defaults is freeze SHA
+\texttt{1540d3c}. Distil interpolate last-4 is \textbf{12/12}
+(isolated \textbf{85/96}); hard is \textbf{11/12}. The protocol note is
+\ttfile{PROTOCOL-next-kgw-distil.md}. Qwen2-1.5B Kirchenbauer on the
+same 12 strings is freeze SHA \texttt{45a75c9}. Qwen interpolate last-4
+is \textbf{12/12} (isolated \textbf{68/96}); hard is \textbf{8/12}.
+The protocol note is \ttfile{PROTOCOL-next-kgw-qwen.md}.
 
 DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
 \ttfile{PROTOCOL-next-kgw-distil.md} (freeze SHA
@@ -1487,24 +1505,24 @@ GPT-2 mid $[16{:}32)$ & \texttt{14afbd5} & 23/48 vs 26/48 & 7/12 \\
 \end{tabular}
 \end{table}
 
-{\RaggedRight\footnotesize
-Protocol notes:
-\ttfile{PROTOCOL-isolated-rankpath-lm.md},
-\ttfile{PROTOCOL-isolated-rankpath-m12.md},
-\ttfile{PROTOCOL-isolated-rankpath-g2m.md},
-\ttfile{PROTOCOL-isolated-rankpath-d2m.md},
-\ttfile{PROTOCOL-isolated-rankpath-g2d.md},
-\ttfile{PROTOCOL-isolated-rankpath-m2d.md},
-\ttfile{PROTOCOL-isolated-rankpath-body.md},
-\ttfile{PROTOCOL-isolated-rankpath-dbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-mbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-d12body.md},
-\ttfile{PROTOCOL-isolated-rankpath-m12body.md},
-\ttfile{PROTOCOL-isolated-rankpath-g2dbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-d2mbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-g2mbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-m2dbody.md},
-\ttfile{PROTOCOL-isolated-rankpath-mid.md}.
+{\raggedright\footnotesize
+Protocol notes:\\
+\ttfile{PROTOCOL-isolated-rankpath-lm.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-m12.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-g2m.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-d2m.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-g2d.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-m2d.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-body.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-dbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-mbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-d12body.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-m12body.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-g2dbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-d2mbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-g2mbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-m2dbody.md},\\
+\ttfile{PROTOCOL-isolated-rankpath-mid.md}.\\
 Window dumps: \ttfile{2026-09-04-probe-*-w4-16/window-4-16/}.
 \par}
 
@@ -1882,11 +1900,11 @@ Start named \texttt{8f09aa6}. Tree pin
 \texttt{text-watermark-laboratory/tree/1582a09}.
 \par}
 
-\paragraph{Chronology (confirmatory 100).}
-{\RaggedRight
-Protocol freeze \texttt{7001489}; prompts \ttfile{2026-09-01-prompts-100}
-(\texttt{294dba5});
-pair \texttt{bf98c92}; analysis \texttt{bbc802e};
+\paragraph{Chronology (confirmatory 100).}\mbox{}\\
+{\raggedright
+Freeze \texttt{7001489}.
+Prompts \ttfile{2026-09-01-prompts-100} (\texttt{294dba5}).
+Pair \texttt{bf98c92}; analysis \texttt{bbc802e}.
 $\Hw=12$ start \texttt{facc538}; occupancy command \texttt{df5487d}.
 \par}
 
@@ -1945,7 +1963,7 @@ original-12 $\Hw=12$ occupancy & 160 seen vs 269 & \texttt{4d29c92147e6da9d} \\
 100-family $\Hw=12$ occupancy & 5878 seen vs 10158 & \texttt{ee0fcb86e6aceafc} \\
 original-12 Kirchenbauer interpolate & $12/12$; $85/96$ & \texttt{67b8ed6bb2b96bcd} \\
 100-family Kirchenbauer interpolate & $100/100$; $747/800$ & \texttt{dce85a6796def442} \\
-Qwen Kirchenbauer 100 interpolate & $96/100$; $620/800$ & \texttt{ed9fb20} \\
+Qwen Kirchenbauer 100 interpolate & $96/100$; $620/800$ & \texttt{6800990e7dbb2096} \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -1,6 +1,7 @@
 """Lock the technical-report claims that Sol's 260903 review required."""
 
 from pathlib import Path
+import hashlib
 import json
 import re
 
@@ -1363,8 +1364,6 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
 
 
 def test_appendix_sha_prefixes_match_committed_dumps() -> None:
-    import hashlib
-
     mapping = {
         "experiments/2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json": "e4f758305b631761",
         "experiments/2026-09-01-probe-100x4-hard-last4/interpolate/holdout.json": "de0f0c5738729e87",
@@ -1416,6 +1415,7 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-pair-qwen-100x4-aaronson/results.json": "4fb67051fb89839b",
         "experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/interpolate/holdout.json": "9bb1cf87dc11328e",
         "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json": "d3932e3b1346789b",
+        "experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/interpolate/holdout.json": "6800990e7dbb2096",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
     art_text = (ROOT / "paper" / "artifacts.json").read_text()
@@ -1497,6 +1497,10 @@ def test_sol_publication_hygiene() -> None:
     assert "TECTONIC" in makefile
     assert "Overfull" in makefile
     assert "publish:" in makefile
+    assert "--keep-logs" in makefile
+    assert "compile.log" in makefile
+    assert "main.log" in makefile
+    assert "test -s tectonic.log" not in makefile
     abs_ = tex.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
     assert "20/20" not in abs_
     assert (ROOT / "paper" / "artifacts.json").is_file()
@@ -1506,3 +1510,55 @@ def test_sol_publication_hygiene() -> None:
     }
     pdfs = {p.name for p in (ROOT / "report").glob("Abrahamsson-*.pdf")}
     assert pdfs == keep
+
+
+def test_sol_skeptic_260905_layout_fixes() -> None:
+    tex = (ROOT / "paper" / "main.tex").read_text()
+    makefile = (ROOT / "paper" / "Makefile").read_text()
+    art_text = (ROOT / "paper" / "artifacts.json").read_text()
+    art = json.loads(art_text)
+
+    assert "--keep-logs" in makefile
+    assert "test -s tectonic.log" not in makefile
+    assert r"s/[ \t]+$$//" in makefile
+    qa = makefile.split("qa:", 1)[1].split("publish:", 1)[0]
+    assert "main.log" in qa
+    assert "compile.log" in qa
+    assert "Overfull" in qa
+
+    table = tex.split(r"\label{tab:artifacts}")[1].split(r"\end{tabular}")[0]
+    shas = re.findall(r"\\texttt\{([0-9a-f]+)\}", table)
+    assert shas
+    for sha in shas:
+        assert len(sha) == 16, sha
+    rel = (
+        "experiments/2026-09-04-probe-qwen-100x4-kgw-hard-last4/"
+        "interpolate/holdout.json"
+    )
+    prefix = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()[:16]
+    assert prefix == "6800990e7dbb2096"
+    assert prefix in table
+    assert prefix in art_text
+    by_path = {row["path"]: row for row in art["artifacts"]}
+    assert by_path[rel]["sha256_16"] == prefix
+    assert by_path[rel]["sha256"].startswith(prefix)
+    assert "ed9fb20" not in table
+
+    fig = tex.split(r"\label{fig:locka}")[0]
+    fig = fig[fig.rfind(r"\begin{figure}") :]
+    tikz = fig.split(r"\begin{tikzpicture}")[1].split(r"\end{tikzpicture}")[0]
+    caption = fig.split(r"\caption{")[1]
+    assert "99 wins" not in tikz
+    assert "one miss" not in tikz
+    assert "one miss" in caption
+    assert "Ninety-nine families win" in caption
+
+    assert r"\newcommand{\ttfile}[1]{\texttt{\seqsplit{#1}}}" not in tex
+    assert r"\DeclareUrlCommand{\ttfile}" not in tex
+    assert r"\ttfile@scan" in tex
+    scan = tex.split(r"\def\ttfile@scan")[1].split(r"\makeatother")[0]
+    assert r"\ifx#1-" in scan
+    assert r"\ifx#1/" in scan
+    assert r"\penalty0" in scan
+    assert "seqsplit" not in scan
+    assert r"\newcommand{\ttsha}[1]{\texttt{\seqsplit{#1}}}" in tex

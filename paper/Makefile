@@ -9,8 +9,11 @@ REPORT = ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.p
 
 all: tectonic
 
+# --keep-logs writes main.log (engine Overfull / undefined-ref lines).
+# compile.log is Tectonic stdout/stderr. -X compile does not write tectonic.log.
 tectonic: main.tex references.bib
-	$(TECTONIC) -X compile main.tex
+	$(TECTONIC) -X compile --keep-logs main.tex > compile.log 2>&1 || (cat compile.log; exit 1)
+	@perl -i -pe 's/[ \t]+$$//' compile.log
 
 pdflatex: main.tex references.bib
 	$(PDFLATEX) main.tex
@@ -20,15 +23,15 @@ pdflatex: main.tex references.bib
 
 # Fail on undefined references/citations and Overfull \hbox.
 qa: tectonic
-	@test -s tectonic.log || test -s main.log
-	@log=$$(ls -t tectonic.log main.log 2>/dev/null | head -1); \
-	if grep -E 'undefined (references|citations)|There were undefined references|Citation .* undefined' "$$log"; then \
-		echo "QA fail: undefined references/citations in $$log"; exit 1; \
+	@test -s compile.log
+	@test -s main.log
+	@if grep -E 'undefined (references|citations)|There were undefined references|Citation .* undefined' main.log compile.log; then \
+		echo "QA fail: undefined references/citations in main.log"; exit 1; \
 	fi; \
-	if grep -F 'Overfull \hbox' "$$log"; then \
-		echo "QA fail: Overfull \\hbox in $$log"; exit 1; \
+	if grep -F 'Overfull \hbox' main.log compile.log; then \
+		echo "QA fail: Overfull \\hbox in main.log"; exit 1; \
 	fi; \
-	echo "QA ok: $$log"
+	echo "QA ok: main.log compile.log"
 
 publish: qa
 	cp -f main.pdf $(REPORT)
