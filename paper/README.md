@@ -26,7 +26,7 @@ strings. The laboratory's current \texttt{gpt2} cache is
 - [`references.bib`](references.bib): BibTeX (author–year keys).
 - [`Makefile`](Makefile): `pdflatex` / `latexmk` build.
 - [`compile.log`](compile.log): last successful local `tectonic` build
-  (28 A4 pages, git `8ea1d0c`). Prior compile `9d6677c`. Older compile `a50bc3f`. Compile `4c31077`. Compact SHA `ce5f168`. Open SHA `aea3d76`.
+  (26 A4 pages, git `8ea1d0c`). Prior compile `9d6677c`. Older compile `a50bc3f`. Compile `4c31077`. Compact SHA `ce5f168`. Open SHA `aea3d76`.
   Ingress SHA `7eea455`. Current PDF is
   [`../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf`](../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf)
   (overwrite in place; do not add a SHA snapshot per compile). Previous compact:
@@ -37,21 +37,23 @@ If a figure is not in those dumps, it is not in the paper.
 
 ## How to compile
 
-```bash
-make
-```
-
-or
+Tectonic is the publication engine:
 
 ```bash
-pdflatex main.tex
-bibtex main
-pdflatex main.tex
-pdflatex main.tex
+make          # tectonic -X compile main.tex
+make qa       # fail on undefined refs/citations and Overfull \hbox
+make publish  # qa, then overwrite ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf
 ```
 
-If `pdflatex` is missing, `make` fails; leave the TeX sources in git
-anyway. Overleaf: upload `main.tex` and `references.bib`.
+pdfLaTeX/BibTeX when those binaries exist:
+
+```bash
+make pdflatex
+```
+
+Do not add a SHA snapshot per compile. Keep the compact
+`…-ce5f168.pdf`. Overleaf: upload `main.tex`, `references.bib`, and
+`artifacts.json`.
 
 ## Claims the manuscript actually makes
 

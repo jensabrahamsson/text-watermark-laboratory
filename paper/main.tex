@@ -15,7 +15,13 @@
 \usepackage{array}
 \usepackage{graphicx}
 \usepackage{flafter}
+\usepackage{placeins}
+\usepackage{algorithm}
+\usepackage{ragged2e}
+\usepackage{seqsplit}
 \usepackage{caption}
+\newcommand{\ttsha}[1]{\texttt{\seqsplit{#1}}}
+\newcommand{\ttfile}[1]{\texttt{\seqsplit{#1}}}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{microtype}
@@ -30,6 +36,8 @@
 \def\UrlBreaks{\do\/\do\_\do.}
 \usepackage{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
+\Crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{algorithm}{algorithm}{algorithms}
 \captionsetup{font=small,labelfont=bf,skip=6pt,justification=raggedright}
 
 \usetikzlibrary{calc,positioning}
@@ -88,17 +96,13 @@
 \maketitle
 
 \noindent\textit{In plain English.}
-A watermark is meant to be checked with a secret key. This report asks
-whether, given matched marked and unmarked samples but no keys, an
-auditor can still tell that Google DeepMind's public SynthID-Text demo
-is on. At the level of prompt groups, yes. On one 128-token file at a
-pre-set threshold, no. That is key-free under a strong paired oracle,
-not a polynomial-time distinguisher, and not a detector validated for
-an unfamiliar web document. \Cref{fig:twograin} is the two-grain picture;
-\Cref{fig:hw12} and \Cref{tab:occ} are the preregistered $\Hw=12$
-attenuation, not a second headline. The public \texttt{get\_gvals}
-docstring does not match the code (\Cref{sec:intro}). The counts are in
-the abstract below.
+A watermark is meant to be checked with a secret key. Given matched
+marked and unmarked samples but no keys, an auditor can still tell that
+Google DeepMind's public SynthID-Text demo is on at the level of prompt
+groups, and cannot do so reliably on one 128-token file at a prespecified
+threshold. That is key-free indication under a strong paired oracle, not
+a polynomial-time distinguisher and not a detector validated for
+unfamiliar web documents.
 
 % =========================================================================
 \begin{abstract}
@@ -117,14 +121,11 @@ These group successes are not standalone file detection. On the original
 negatives, 22 true negatives, and 26 false positives: sensitivity
 \textbf{25/48}, specificity \textbf{22/48}, and
 \textbf{47/96} correct decisions ($48.96\%$ balanced accuracy).
-Threshold-free file AUC is $0.590$. On 20 occupancy-unseen marked files
-the official keyed mean still exceeds the laboratory threshold $0.55$
-(\textbf{20/20} positive-control sensitivity; unmarked files in that
-slice are not a matched negative class). The method is key-free,
-not reference-free: it requires a strong paired oracle on one
-short-context public instance. It does not recover keys, has not been
-validated or calibrated for unfamiliar web documents, and does not
-refute \citet{christ2024undetectable} or \citet{zhang2024sand}.
+Threshold-free file AUC is $0.590$. The method is key-free, not
+reference-free: it requires a strong paired oracle on one short-context
+public instance. It does not recover keys, has not been validated or
+calibrated for unfamiliar web documents, and does not refute
+\citet{christ2024undetectable} or \citet{zhang2024sand}.
 \end{abstract}
 
 \noindent\textbf{Keywords:}
@@ -154,10 +155,9 @@ the public DeepMind checkout, not a laboratory rewrite.
 \paragraph{Isolated-headline scope.}
 The locked isolated headline is the original-12 hard last-4 matrix:
 sensitivity \textbf{25/48}, specificity \textbf{22/48}, accuracy
-\textbf{47/96}, file AUC $0.590$. Later isolated counts---other
+\textbf{47/96}, file AUC $0.590$. Later isolated counts (other
 generators, mixins, windows, nested thresholds, or occupancy-free
-readouts---do not replace that headline. That is not \textbf{25/48}
-as a refrain: the rule is this paragraph and table footnotes.
+readouts) are boundary or mechanistic tests of that same grain.
 
 If a third party cannot or will not use the vendor's keys, verification
 is an open practical question
@@ -523,14 +523,14 @@ Seed allocation for family offset $r$, $M=4$, base seed $s$:
 marked draw $j\in\{0,1,2,3\}$ uses $s + (2M+2)r + 2j$; unmarked draw
 $j$ uses one more. Marked and unmarked never share a seed.
 
-{\sloppy
+{\RaggedRight
 Default Hub identifiers: \texttt{gpt2}, \texttt{distilgpt2},
-\texttt{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not recorded when
+\ttfile{Qwen/Qwen2-1.5B-Instruct}. Hub revisions were not recorded when
 the twins were generated. That does not affect the published scores:
 key-free tables and official \texttt{detector\_mean} read the committed
 strings, not a Hub snapshot. It would matter for bitwise re-generation
 of new twins. The laboratory machine's current \texttt{gpt2} cache is
-\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
+\ttsha{607a30d783dfa663caf39e06633721c8d4cfcd7e}. DistilGPT-2 and
 Qwen snapshots were not retained. Future \texttt{pair} runs should pass
 a Hub \texttt{revision} (\texttt{pair \ddash hub-revision}).
 \texttt{transformers==4.57.6}. SynthID-Text is
@@ -696,11 +696,13 @@ held-out files of $p$ are scored. That is the evaluation topology of
 \textbf{88/100}, and Qwen \textbf{95/100}. Pseudocode is
 \Cref{alg:loo}.
 
-\begin{figure}[t]
-\centering
+\begin{algorithm}[t]
+\caption{Leave-one-family-out ranking and isolated scores.
+Tables for family $p$ never contain $p$'s own files. Consecutive LOFO
+models share $N-2$ of $N-1$ training families, so the $N$ wins are
+dependent.}
+\label{alg:loo}
 \small
-\begin{minipage}{0.92\textwidth}
-\textbf{Algorithm 1} (leave-one-family-out ranking and isolated scores).\\
 \textbf{Input:} families $p=1,\ldots,N$, $M$ marked and $M$ unmarked
 files each; reader $R$.\\
 \textbf{for} $p=1$ to $N$ \textbf{do}\\
@@ -711,12 +713,7 @@ $j=1,\ldots,M$.\\
 \quad Isolated label $\hat y(x)=\mathbf{1}\{\LLR(x)>0\}$ (hard
 headline).\\
 \textbf{end for}
-\end{minipage}
-\caption{Tables for family $p$ never contain $p$'s own files. They do
-contain every other family. Consecutive LOFO models share $N-2$ of
-$N-1$ training families, so the $N$ wins are dependent.}
-\label{alg:loo}
-\end{figure}
+\end{algorithm}
 
 This is a frozen \emph{algorithm and evaluation protocol}, not a frozen fitted detector.
 Lock~A \textbf{99/100} is leave-one-family-out on the 100 new families after the reader definition was locked.
@@ -756,10 +753,8 @@ this threshold.}
 \subsection{Confirmatory locks}
 \label{sec:hypotheses}
 
-{\sloppy
 Before generating the 100 new GPT-2 families, three readers were named
-(protocol SHA \texttt{7001489}; prompts committed in \texttt{294dba5}):
-\par}
+(protocol \texttt{7001489}; prompts \texttt{294dba5}):
 
 \begin{itemize}[leftmargin=*]
 \item \textbf{Lock A.} Interpolate last-4
@@ -892,6 +887,7 @@ compatible with a weak single-file test. Population ranking of matched
 twins is outside their single-challenge games as stated. Neither
 sentence is a theorem about tournament sampling in their sense.
 
+\FloatBarrier
 % =========================================================================
 \section{Results}
 \label{sec:results}
@@ -904,7 +900,7 @@ still contribute five isolated true positives.
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[x=0.92cm,y=7.4cm,font=\scriptsize]
+\begin{tikzpicture}[x=0.92cm,y=7.4cm,font=\footnotesize]
   % axes
   \draw[gray!70,thin] (0,0) -- (12.4,0);
   \node[gray!70,anchor=east] at (-0.12,0) {$\tau=0$};
@@ -1145,7 +1141,7 @@ means negative.
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\scriptsize]
+\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\footnotesize]
   \draw[->] (0,0) -- (16.2,0) node[right] {$D_p$};
   \draw[->] (0,0) -- (0,22) node[above] {families};
   \foreach \i/\c in {0/1,1/0,2/0,3/0,4/3,5/12,6/16,7/17,8/19,9/12,10/9,11/6,12/2,13/2,14/1} {
@@ -1307,16 +1303,12 @@ survived. Pre-fix JSON is historical.
 
 \subsection{Laplace occupancy versus observed tokens}
 
-{\sloppy
-On a 4-token new-topic gate, poshits isolated $\tau=0$ is 39/48 vs.\
-41/48. Occupancy-free \texttt{postokhits} is 16/48, with decided
-precision~$1.000$ when $n_{\mathrm{used}}>0$. Isolated observed-token
-recall on named opening readers equals train opening-atom overlap.
-That identity does not create a denser isolated-file detector.
-Comparing marked recall alone with 25/48 is not a sufficient evaluation
-rule. A low-recall, high-specificity abstaining reader is a different
-operating point.
-\par}
+On a 4-token new-topic gate, poshits isolated $\tau=0$ is 39/48 versus
+41/48. Occupancy-free \texttt{postokhits} is 16/48 (precision $1.000$
+when $n>0$). Isolated observed-token recall on named opening readers
+equals train opening-atom overlap. That identity does not create a
+denser isolated-file detector. Comparing marked recall alone with 25/48
+is not a sufficient evaluation rule.
 
 \subsection{H2 windows}
 
@@ -1344,6 +1336,7 @@ marked original-12 files, official mean moves $0.6216\to 0.4994$. The
 procedure is not a fluent rewrite, not self-consistent regeneration,
 and not a practical removal attack.
 
+\FloatBarrier
 % =========================================================================
 \section{Limitations}
 \label{sec:limits}
@@ -1382,39 +1375,40 @@ Multi-key replication of the public mixin is not started. Isolated-file
 research is not finished.
 
 % =========================================================================
-\section{Preregistered extensions}
+\FloatBarrier
+\section{Preregistered Boundary Tests}
 \label{sec:next}
 
 The preregistered longer-history replication is freeze SHA \texttt{b70986d}
-(\path{research/PROTOCOL-next-longctx.md}), named in the laboratory
+(\ttfile{PROTOCOL-next-longctx.md}), named in the laboratory
 logbook before generation (\Cref{tab:nextlock}). The same commit also
 names the absolute-history mask remasure
-(\path{research/PROTOCOL-isolated-mask-absolute.md}); they share a freeze
+(\ttfile{PROTOCOL-isolated-mask-absolute.md}); they share a freeze
 SHA, not a dump. It lengthens the public
 mixin hash history to $\Hw=12$ without editing the \texttt{synthid-text}
 checkout.
 
 A Kirchenbauer green-list mixin is freeze SHA \texttt{8371406}
-(\path{research/PROTOCOL-next-kgw.md}; Hugging Face
-\texttt{WatermarkLogitsProcessor} defaults, seed 20260904,
+(\ttfile{PROTOCOL-next-kgw.md}; Hugging Face
+\ttfile{WatermarkLogitsProcessor} defaults, seed 20260904,
 \texttt{mixin=kgw}), named before generation. Scoring those twins
 with SynthID \texttt{detector\_mean} would be a harness bug.
 
 DistilGPT2 with the same Kirchenbauer defaults is frozen in
-\path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
+\ttfile{PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{1540d3c}). Distil interpolate last-4 is \textbf{12/12}
 (isolated \textbf{85/96}); hard is \textbf{11/12}. Qwen2-1.5B Kirchenbauer on the same 12 strings is frozen
-in \path{research/PROTOCOL-next-kgw-qwen.md} (freeze SHA
+in \ttfile{PROTOCOL-next-kgw-qwen.md} (freeze SHA
 \texttt{45a75c9}). Qwen interpolate last-4 is \textbf{12/12}
 (isolated \textbf{68/96}); hard is \textbf{8/12}.
 
 DistilGPT2 Kirchenbauer on the 100 one-liners is frozen in
-\path{research/PROTOCOL-next-kgw-distil.md} (freeze SHA
+\ttfile{PROTOCOL-next-kgw-distil.md} (freeze SHA
 \texttt{4fad227}). Distil interpolate last-4 is \textbf{100/100}
 (isolated \textbf{683/800}); hard is \textbf{82/100}. Qwen2-1.5B Kirchenbauer on the 100 one-liners is freeze SHA
 \texttt{ed9fb20}
-(\path{research/PROTOCOL-next-kgw-qwen-100.md};
-\path{experiments/2026-09-04-pair-qwen-100x4-kgw}).
+(\ttfile{PROTOCOL-next-kgw-qwen-100.md};
+\ttfile{2026-09-04-pair-qwen-100x4-kgw}).
 Observed counts are in \Cref{tab:kgwq100} and the paragraph below.
 Isolated-file detection remains unfinished.
 
@@ -1429,8 +1423,8 @@ Observed key-free counts are dump-backed. That lock is not \textbf{25/48}.}
 \toprule
 Item & Value \\
 \midrule
-Mixin & Hugging Face \texttt{WatermarkLogitsProcessor} (\texttt{mixin=kgw}) \\
-Generator & \texttt{Qwen/Qwen2-1.5B-Instruct} \\
+Mixin & Hugging Face \ttfile{WatermarkLogitsProcessor} (\texttt{mixin=kgw}) \\
+Generator & \ttfile{Qwen/Qwen2-1.5B-Instruct} \\
 Hub revision & \texttt{ba1cf1846d7df0a0591d6c00649f57e798519da8} \\
 \texttt{greenlist\_ratio} / \texttt{bias} / \texttt{hashing\_key} & $0.25$ / $2.0$ / $15485863$ \\
 \texttt{seeding\_scheme} / \texttt{context\_width} & \texttt{lefthash} / $1$ \\
@@ -1449,19 +1443,16 @@ hard is \textbf{63/100}. Occupancy is \textbf{4858} seen versus
 \textbf{96740} unseen. That lock is not \textbf{25/48}.
 Whether interpolate \textbf{96/100} is a body reader or an opening
 residual is freeze SHA \texttt{e270546}
-(\path{research/PROTOCOL-next-kgw-qwen-100-windows.md}).
+(\ttfile{PROTOCOL-next-kgw-qwen-100-windows.md}).
 Interpolate $[0{:}4)$ is \textbf{84/100}; $[64{:}128)$ is
 \textbf{97/100} (AUC \textbf{0.785}). That is not compatible with chance, and not
 $\Hw=12$ \textbf{50/100}. JSON:
-\path{experiments/2026-09-04-probe-qwen-100x4-kgw-windows}.
+\ttfile{2026-09-04-probe-qwen-100x4-kgw-windows}.
 
-Isolated rankpath geography does not replace the locked hard matrix.
 Opening rankpath on the original 12 is \textbf{11/12}, isolated
 \textbf{41/48 vs 35/48}; the same reader on $[4{:}16)$ is \textbf{7/12},
-isolated \textbf{20/48 vs 22/48} (AUC $0.430$). H-rplm-d fails as a raw
-count on Distil-LM openings (\textbf{32/48 vs 31/48}). Equality of any
-later isolated count with \textbf{25/48} is not a win.
-Isolated-file detection remains unfinished.
+isolated \textbf{20/48 vs 22/48} (AUC $0.430$). The GPT-2-family rankpath
+matrix is \Cref{tab:rankpath}. Isolated-file detection remains unfinished.
 
 \begin{table}[ht]
 \centering
@@ -1496,109 +1487,109 @@ GPT-2 mid $[16{:}32)$ & \texttt{14afbd5} & 23/48 vs 26/48 & 7/12 \\
 \end{tabular}
 \end{table}
 
+{\RaggedRight\footnotesize
 Protocol notes:
-\texttt{PROTOCOL-isolated-rankpath-lm.md},
-\texttt{PROTOCOL-isolated-rankpath-m12.md},
-\texttt{PROTOCOL-isolated-rankpath-g2m.md},
-\texttt{PROTOCOL-isolated-rankpath-d2m.md},
-\texttt{PROTOCOL-isolated-rankpath-g2d.md},
-\texttt{PROTOCOL-isolated-rankpath-m2d.md},
-\texttt{PROTOCOL-isolated-rankpath-body.md},
-\texttt{PROTOCOL-isolated-rankpath-dbody.md},
-\texttt{PROTOCOL-isolated-rankpath-mbody.md},
-\texttt{PROTOCOL-isolated-rankpath-d12body.md},
-\texttt{PROTOCOL-isolated-rankpath-m12body.md},
-\texttt{PROTOCOL-isolated-rankpath-g2dbody.md},
-\texttt{PROTOCOL-isolated-rankpath-d2mbody.md},
-\texttt{PROTOCOL-isolated-rankpath-g2mbody.md},
-\texttt{PROTOCOL-isolated-rankpath-m2dbody.md},
-\texttt{PROTOCOL-isolated-rankpath-mid.md}.
-Window dumps live under \texttt{experiments/2026-09-04-probe-*-w4-16/}.
-The frozen slice is always \texttt{window-4-16/}, not the unwindowed
-fit-prefix-16 file score (isolated-headline scope).
+\ttfile{PROTOCOL-isolated-rankpath-lm.md},
+\ttfile{PROTOCOL-isolated-rankpath-m12.md},
+\ttfile{PROTOCOL-isolated-rankpath-g2m.md},
+\ttfile{PROTOCOL-isolated-rankpath-d2m.md},
+\ttfile{PROTOCOL-isolated-rankpath-g2d.md},
+\ttfile{PROTOCOL-isolated-rankpath-m2d.md},
+\ttfile{PROTOCOL-isolated-rankpath-body.md},
+\ttfile{PROTOCOL-isolated-rankpath-dbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-mbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-d12body.md},
+\ttfile{PROTOCOL-isolated-rankpath-m12body.md},
+\ttfile{PROTOCOL-isolated-rankpath-g2dbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-d2mbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-g2mbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-m2dbody.md},
+\ttfile{PROTOCOL-isolated-rankpath-mid.md}.
+Window dumps: \ttfile{2026-09-04-probe-*-w4-16/window-4-16/}.
+\par}
 
 An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
 \texttt{747f3cd}, seed 20260905) ranks interpolate last-4
 \textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the
 100 one-liners interpolate last-4 is \textbf{100/100} (isolated
 \textbf{608/800}). The protocol note is
-\path{research/PROTOCOL-next-aaronson.md}. DistilGPT2 $\Hw=12$ on the
-same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-distil.md}
+\ttfile{PROTOCOL-next-aaronson.md}. DistilGPT2 $\Hw=12$ on the
+same 12 strings is frozen in \ttfile{PROTOCOL-next-longctx-distil.md}
 (freeze SHA \texttt{bae6d81};
-\path{experiments/2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
+\ttfile{2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
 interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
 \textbf{6/12}. Official first-draw mean$>0.55$ is 12/12.
 Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 175 seen versus 11994 unseen
 (opening $[0{:}4)$ is 111 versus 177). DistilGPT2 $\Hw=12$ on the
 100 one-liners is frozen in
-\path{research/PROTOCOL-next-longctx-distil-100.md}
+\ttfile{PROTOCOL-next-longctx-distil-100.md}
 (freeze SHA \texttt{d891622};
-\path{experiments/2026-09-04-pair-distil-100x4-ngram13}). Distil
+\ttfile{2026-09-04-pair-distil-100x4-ngram13}). Distil
 $\Hw=12$ interpolate last-4 is \textbf{88/100} (isolated
 \textbf{557/800}); hard is \textbf{89/100}. Official first-draw
 mean$>0.55$ is 98/100. Unmarked first-draw is $0/100$ above $0.55$.
 Occupancy is 11182 seen versus 85493 unseen
 (opening $[0{:}4)$ is 2036 versus 364). Qwen2-1.5B $\Hw=12$ on the
-same 12 strings is frozen in \path{research/PROTOCOL-next-longctx-qwen.md}
+same 12 strings is frozen in \ttfile{PROTOCOL-next-longctx-qwen.md}
 (freeze SHA \texttt{d7303a2};
-\path{experiments/2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
+\ttfile{2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
 interpolate last-4 is \textbf{4/12} (isolated \textbf{41/96}); hard is
 \textbf{4/12}. Official first-draw mean$>0.55$ is 11/12 (library
 $0.515$). Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 65 seen versus 12127 unseen
 (opening $[0{:}4)$ is 41 versus 247). DistilGPT2 Aaronson on the
 same 12 strings is frozen in
-\path{research/PROTOCOL-next-aaronson-distil.md}
+\ttfile{PROTOCOL-next-aaronson-distil.md}
 (freeze SHA \texttt{9bdf12a};
-\path{experiments/2026-09-04-pair-distil-12x4-aaronson}). Distil
+\ttfile{2026-09-04-pair-distil-12x4-aaronson}). Distil
 Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
 marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
 (isolated \textbf{56/96}). Occupancy is 196 seen versus 11996 unseen
 (opening $[0{:}4)$ is 133 versus 155).
 Unmarked first-draw is $1/12$ above $3.0$. DistilGPT2
 Aaronson on the 100 one-liners is frozen in
-\path{research/PROTOCOL-next-aaronson-distil-100.md}
+\ttfile{PROTOCOL-next-aaronson-distil-100.md}
 (freeze SHA \texttt{bf05759};
-\path{experiments/2026-09-04-pair-distil-100x4-aaronson}). Distil
+\ttfile{2026-09-04-pair-distil-100x4-aaronson}). Distil
 Aaronson interpolate last-4 is \textbf{96/100} (isolated
 \textbf{601/800}); hard is \textbf{91/100}. Official first-draw $z>3$
 is 71/100. Unmarked first-draw is $3/100$ above $3.0$.
 Occupancy is 28824 seen versus 61305 unseen
 (opening $[0{:}4)$ is 2048 versus 352). Qwen2-1.5B
 Aaronson on the same 12 strings is frozen in
-\path{research/PROTOCOL-next-aaronson-qwen.md}
+\ttfile{PROTOCOL-next-aaronson-qwen.md}
 (freeze SHA \texttt{1171d5c};
-\path{experiments/2026-09-04-pair-qwen-12x4-aaronson}). Qwen Aaronson
+\ttfile{2026-09-04-pair-qwen-12x4-aaronson}). Qwen Aaronson
 interpolate last-4 is \textbf{12/12} (isolated \textbf{12/48} marked
 true positives, BA \textbf{60/96}); hard is \textbf{12/12}
 (isolated \textbf{72/96}). Unmarked first-draw is $0/12$ above $3.0$.
 Occupancy is 457 seen versus 11735 unseen
 (opening $[0{:}4)$ is 127 versus 161). Qwen2-1.5B
 Aaronson on the 100 one-liners is frozen in
-\path{research/PROTOCOL-next-aaronson-qwen-100.md}
+\ttfile{PROTOCOL-next-aaronson-qwen-100.md}
 (freeze SHA \texttt{a761a7d};
-\path{experiments/2026-09-04-pair-qwen-100x4-aaronson}). Qwen Aaronson
+\ttfile{2026-09-04-pair-qwen-100x4-aaronson}). Qwen Aaronson
 interpolate last-4 is \textbf{100/100} (isolated \textbf{616/800});
 hard is \textbf{97/100}. Official first-draw $z>3$ is 99/100.
 Unmarked first-draw is $0/100$ above $3.0$.
 Occupancy is 8750 seen versus 92842 unseen
 (opening $[0{:}4)$ is 1470 versus 930). Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
-\path{research/PROTOCOL-next-longctx-qwen-100.md}
+\ttfile{PROTOCOL-next-longctx-qwen-100.md}
 (freeze SHA \texttt{636765c};
-\path{experiments/2026-09-04-pair-qwen-100x4-ngram13}). Qwen $\Hw=12$
+\ttfile{2026-09-04-pair-qwen-100x4-ngram13}). Qwen $\Hw=12$
 interpolate last-4 is \textbf{76/100} (isolated \textbf{474/800});
 hard is \textbf{74/100}. Official first-draw mean$>0.55$ is 91/100.
 Unmarked first-draw is $0/100$ above $0.55$.
 Occupancy is 3535 seen versus 98064 unseen
 (opening $[0{:}4)$ is 1092 versus 1308). Whether $\Hw=12$ interpolate \textbf{76/100} is a
 weaker body reader or an opening residual is named in
-\path{research/PROTOCOL-next-longctx-windows.md}
+\ttfile{PROTOCOL-next-longctx-windows.md}
 (freeze SHA \texttt{8283d1f}).
 Opened: interpolate $[64{:}128)$ \textbf{50/100} (AUC \textbf{0.501})
 versus public $\Hw=4$ \textbf{93/100} (AUC \textbf{0.726});
 opening $[0{:}4)$ \textbf{86/100}.
 JSON:
-\path{experiments/2026-09-04-probe-100x4-ngram13-windows},
-\path{experiments/2026-09-04-probe-100x4-public-w64-128}.
+\ttfile{2026-09-04-probe-100x4-ngram13-windows},
+\ttfile{2026-09-04-probe-100x4-public-w64-128}.
 
 \begin{table}[ht]
 \centering
@@ -1693,7 +1684,7 @@ Original 12, $[0{:}4)$ & 71 & 84 & 217 & 204 \\
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\scriptsize]
+\begin{tikzpicture}[x=0.85cm,y=0.22cm,font=\footnotesize]
   \draw[->] (0,0) -- (12.2,0) node[right] {$D_p$};
   \draw[->] (0,0) -- (0,22) node[above] {families};
   \foreach \i/\c in {0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1} {
@@ -1703,11 +1694,11 @@ Original 12, $[0{:}4)$ & 71 & 84 & 217 & 204 \\
   \node[red!70!black,anchor=south] at (4,21.2) {0};
   \foreach \x/\lab in {0/-0.4,2/-0.2,4/0,6/0.2,8/0.4,10/0.6}
     \node at (\x,-1.6) {\lab};
-  \node[anchor=west] at (4.3,20) {76 wins; mass nearer zero than lock~A.};
 \end{tikzpicture}
 \caption{$\Hw=12$ interpolate prompt-level paired differences $D_p$ on
 the same 100 prompt strings (new twins; leave-one-family-out). Bins of
-width $0.1$. Compare \Cref{fig:locka}.}
+width $0.1$. Seventy-six families win; the mass sits nearer zero than
+lock~A (\Cref{fig:locka}).}
 \label{fig:hw12}
 \end{figure}
 
@@ -1715,7 +1706,7 @@ width $0.1$. Compare \Cref{fig:locka}.}
 The different-mixin arm uses Hugging Face Kirchenbauer defaults
 (\texttt{lefthash}, $\mathrm{context\_width}=1$, $\gamma=0.25$,
 $\delta=2.0$; freeze SHA \texttt{8371406}; seed 20260904; Hub SHA
-\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}). Official matching
+\ttsha{607a30d783dfa663caf39e06633721c8d4cfcd7e}). Official matching
 $z$-scores are above $3.0$ on all 48 marked files (first draw already
 12/12). Unmarked first-draw is $0/12$ above $3.0$. Leave-one-family-out
 interpolate last-4 ranks \textbf{12/12} (AUC $0.947$; $\tau=0$ is 44 TP,
@@ -1729,22 +1720,20 @@ carries the mass. $\mathrm{context\_width}=1$ is shorter than public
 $\Hw=4$, not a longer-history result. Isolated \textbf{85/96} is a
 different construction from the original-12 SynthID \textbf{47/96}.
 
-\paragraph{One hundred families, Kirchenbauer green-list.}
-{\sloppy
-Same freeze, same Hub SHA, seed 20260904, named \texttt{8f09aa6} before
-generation. Official matching $z$-scores are above $3.0$ on
-\textbf{100/100} first marked files (min $6.61$). Leave-one-family-out
-interpolate last-4 ranks \textbf{100/100} (AUC $0.982$; $\tau=0$ is
-376 TP, 24 FN, 371 TN, 29 FP; balanced accuracy $747/800$;
-mean $D_p=0.745$, every family $D_p>0$). Hard last-4 is
-\textbf{62/100}
-(AUC $0.573$; balanced accuracy $440/800$). Exact last-4 occupancy is
-4557 seen versus 96991 unseen (opening $[0{:}4)$ is 1044 versus 1356),
-below public $\Hw=4$ 100-family occupancy 10158 seen and below
-$\Hw=12$ 5878 seen. Interpolate \textbf{100/100} is therefore not an
-exact 4-gram copy detector. It is a different construction from lock~A
-\textbf{99/100} and from the original-12 SynthID \textbf{47/96}.
-\par}
+\paragraph{100 families, Kirchenbauer.}
+Same freeze, same Hub SHA, seed 20260904, named \texttt{8f09aa6}
+before generation. Official matching $z$-scores are above $3.0$ on
+\textbf{100/100} first marked files (min $6.61$).
+LOFO interpolate last-4 ranks \textbf{100/100} (AUC $0.982$).
+Isolated $\tau=0$ is 376 TP, 24 FN, 371 TN, 29 FP (balanced accuracy
+$747/800$; mean $D_p=0.745$). Hard last-4 is \textbf{62/100}
+(AUC $0.573$; balanced accuracy $440/800$).
+Exact last-4 occupancy is 4557 seen versus 96991 unseen.
+Opening $[0{:}4)$ is 1044 versus 1356, below public $\Hw=4$
+(10158 seen) and below $\Hw=12$ (5878 seen). Interpolate
+\textbf{100/100} is not an exact 4-gram copy detector.
+It is a different construction from lock~A \textbf{99/100}
+and from original-12 isolated \textbf{47/96}.
 
 \paragraph{Original 12, DistilGPT2 Kirchenbauer.}
 Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
@@ -1757,7 +1746,7 @@ revision was unpinned at generation; published scores read committed
 strings.
 
 \paragraph{Original 12, Qwen2-1.5B Kirchenbauer.}
-Same mixin defaults, generator \path{Qwen/Qwen2-1.5B-Instruct}, freeze
+Same mixin defaults, generator \ttfile{Qwen2-1.5B-Instruct}, freeze
 SHA \texttt{45a75c9}, seed 20260904, Qwen tokenizer on probe and atoms.
 Official matching $z$-scores are above $3.0$ on all 12 first marked
 files. Interpolate last-4 ranks \textbf{12/12} (AUC $0.814$; 35 TP,
@@ -1768,11 +1757,11 @@ ranking holds; isolated balanced accuracy is below Distil and GPT-2
 Kirchenbauer \textbf{85/96}.
 
 \paragraph{One hundred families, DistilGPT2 Kirchenbauer.}
-\begin{sloppypar}
+{\RaggedRight
 Same mixin defaults, generator \texttt{distilgpt2}, freeze SHA
 \texttt{4fad227}, seed 20260904. Dump
-\path{experiments/2026-09-03-pair-distil-100x4-kgw}.
-Hub revision \path{2290a62682d06624634c1f46a6ad5be0f47f38aa}.
+\ttfile{2026-09-03-pair-distil-100x4-kgw}.
+Hub revision \ttsha{2290a62682d06624634c1f46a6ad5be0f47f38aa}.
 Official matching
 $z$-scores are above $3.0$ on \textbf{100/100} first marked files
 (min $6.81$). Unmarked first-draw is $16/100$ above $3.0$ (newline
@@ -1785,12 +1774,12 @@ opening atom is a newline loop. First-draw newline-only files are
 $40/100$ marked and $12/100$ unmarked. Group ranking matches GPT-2
 Kirchenbauer \textbf{100/100} on these strings; isolated balanced
 accuracy is below GPT-2 Kirchenbauer \textbf{747/800}.
-\end{sloppypar}
+\par}
 
 \paragraph{Original 12, Aaronson--Kirchner exponential-minimum.}
 Laboratory sampler, freeze SHA \texttt{747f3cd}, seed 20260905, Hub SHA
-\path{607a30d783dfa663caf39e06633721c8d4cfcd7e}, dump
-\path{experiments/2026-09-04-pair-12x4-aaronson}. Official matching
+\ttsha{607a30d783dfa663caf39e06633721c8d4cfcd7e}, dump
+\ttfile{2026-09-04-pair-12x4-aaronson}. Official matching
 $z$-scores are above $3.0$ on all 12 first marked files (min $10.84$).
 Unmarked first-draw is $0/12$ above $3.0$. Interpolate last-4 ranks
 \textbf{11/12} (AUC $0.955$; 8 TP, 40 FN, 48 TN, 0 FP; balanced
@@ -1801,7 +1790,7 @@ true positive.
 
 \paragraph{One hundred families, Aaronson--Kirchner exponential-minimum.}
 Same freeze SHA \texttt{747f3cd}, seed 20260905, dump
-\path{experiments/2026-09-04-pair-100x4-aaronson}. Official matching
+\ttfile{2026-09-04-pair-100x4-aaronson}. Official matching
 $z$-scores are above $3.0$ on \textbf{100/100} first marked files
 (min $7.91$). Unmarked first-draw is $0/100$ above $3.0$. Interpolate
 last-4 ranks \textbf{100/100} (AUC $0.986$; 208 TP, 192 FN, 400 TN,
@@ -1828,6 +1817,7 @@ occupancy than public $\Hw=4$ or $\Hw=12$. That matches a one-token
 green-list plus Witten--Bell backoff, not a universal detector.
 Neither count is a theorem about production Gemini.
 
+\FloatBarrier
 % =========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
@@ -1863,15 +1853,14 @@ $\tau=0$ on those 12 is $52/96$. The original-12 hard matrix remains
 green-list mixin with one-token seeding, interpolate last-4 ranks
 \textbf{12/12} (isolated \textbf{85/96}) on the original 12 strings and
 \textbf{100/100} (isolated $747/800$) on 100 one-liners; that is a
-different construction, not a replacement of \textbf{25/48}.
+different construction (isolated-headline scope).
 
-Code and frozen JSON:
-\url{https://github.com/jensabrahamsson/text-watermark-laboratory}
-(pinned revision in \Cref{app:artifacts}).
+Code and frozen JSON are in \Cref{app:artifacts}.
 
+\FloatBarrier
 % =========================================================================
 \appendix
-\section{Artifact identifiers and commands}
+\section{Headline artifacts and commands}
 \label{app:artifacts}
 
 Full dump paths and SHA-256 prefixes (first 16 hex digits) are listed in
@@ -1879,30 +1868,33 @@ Full dump paths and SHA-256 prefixes (first 16 hex digits) are listed in
 prefixes; do not hyphenate them as English.
 
 \paragraph{Software.}
+{\RaggedRight
 Python $\ge 3.10$; \texttt{transformers==4.57.6}; CPU JAX for official
-\texttt{detector\_mean}; SynthID-Text public checkout installed with
-\texttt{pip install -e . \ddash no-deps} in the public \texttt{synthid-text}
-checkout. Hugging Face ids:
-\texttt{gpt2}, \texttt{distilgpt2}, \texttt{Qwen/Qwen2-1.5B-Instruct}.
-Hub commit SHAs were not recorded at generation time. Published scores
-use the committed strings (\Cref{sec:generation}); they do not re-download
-Hub weights. Current laboratory \texttt{gpt2} cache:
-\texttt{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
-GitHub tree for this manuscript:
-\url{https://github.com/jensabrahamsson/text-watermark-laboratory/tree/1582a09}
-(100-family Kirchenbauer dumps). Start named \texttt{8f09aa6}.
+\texttt{detector\_mean}. Install SynthID-Text with
+\texttt{pip install -e . \ddash no-deps}. Generators:
+\texttt{gpt2}, \texttt{distilgpt2}, \ttfile{Qwen2-1.5B-Instruct}.
+Hub revisions were unpinned at generation; published scores read
+committed strings. Current \texttt{gpt2} cache:
+\ttsha{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
+Repository:
+\url{https://github.com/jensabrahamsson/text-watermark-laboratory}.
+Start named \texttt{8f09aa6}. Tree pin
+\texttt{text-watermark-laboratory/tree/1582a09}.
+\par}
 
 \paragraph{Chronology (confirmatory 100).}
-Protocol freeze SHA \texttt{7001489}. Prompts
-\path{experiments/2026-09-01-prompts-100/} committed in
-\texttt{294dba5} before \texttt{pair}. Pair SHA \texttt{bf98c92}.
-Analysis-code SHA \texttt{bbc802e} (truncated-context recount). Flags
-were not changed after the first run.
+{\RaggedRight
+Protocol freeze \texttt{7001489}; prompts \ttfile{2026-09-01-prompts-100}
+(\texttt{294dba5});
+pair \texttt{bf98c92}; analysis \texttt{bbc802e};
+$\Hw=12$ start \texttt{facc538}; occupancy command \texttt{df5487d}.
+\par}
 
 \paragraph{Headline commands.}
-Variables: \texttt{PAIR12}=\texttt{experiments/2026-08-17-pair-12x4},
-\texttt{PAIR36}=\texttt{experiments/2026-08-17-pair-36},
-\texttt{PAIRDIR} is a new pair out-dir.
+Variables: \texttt{PAIR12}=\ttfile{experiments/2026-08-17-pair-12x4},
+\texttt{PAIR36}=\ttfile{experiments/2026-08-17-pair-36},
+\texttt{PAIRDIR} is a new pair out-dir; \texttt{PIN} is the
+\texttt{gpt2} Hub revision \ttsha{607a30d783dfa663caf39e06633721c8d4cfcd7e}.
 {\raggedright\scriptsize
 \texttt{python -m text\_watermark\_tools probe PAIR12 \ddash methods hard \ddash context-len 4}\\
 \texttt{python -m text\_watermark\_tools probe PAIR36 \ddash methods hits}\\
@@ -1912,226 +1904,54 @@ Variables: \texttt{PAIR12}=\texttt{experiments/2026-08-17-pair-12x4},
 \texttt{\hspace{1em}\ddash methods interpolate \ddash context-len 4}\\
 \texttt{python -m text\_watermark\_tools atoms \ddash leave-one-out}\\
 \texttt{\hspace{1em}\ddash test-dir experiments/2026-09-03-pair-12x4-ngram13}\\
-\texttt{python -m text\_watermark\_tools pair PAIRDIR \ddash hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{python -m text\_watermark\_tools pair PAIRDIR \ddash hub-revision PIN}\\
 \texttt{python -m text\_watermark\_tools pair experiments/2026-08-17-grok-prompts}\\
 \texttt{\hspace{1em}\ddash n-samples 4 \ddash max-new-tokens 128 \ddash seed 20260904 \ddash mixin kgw}\\
-\texttt{\hspace{1em}\ddash hub-revision 607a30d783dfa663caf39e06633721c8d4cfcd7e}\\
+\texttt{\hspace{1em}\ddash hub-revision PIN}\\
 \texttt{\hspace{1em}\ddash out-dir experiments/2026-09-03-pair-12x4-kgw}\\
 \par}
 
 Distil/Qwen Phase~B replace the model flag and run locks B and C only
-(\texttt{\ddash methods poshits \ddash fit-prefix 4 \ddash pos-bucket 1};
-\texttt{\ddash rankpath \ddash fit-prefix 4 \ddash pos-bucket 1}).
+(\texttt{\ddash methods poshits} with \texttt{\ddash fit-prefix 4};
+\texttt{\ddash rankpath} with the same prefix).
 
-\paragraph{Frozen result files.}
-{\sloppy
-SHA-256 prefixes (first 16 hex digits) identify the JSON dumps.
-Full paths are in \path{paper/artifacts.json}.
-Original-12 hard: \path{experiments/2026-09-01-probe-12x4-recount-hard-last4/hard/holdout.json}
-(\texttt{e4f758305b631761}; $9/12$, $25/48$ vs $22/48$, AUC $0.590$).
-Lock~A interpolate: \path{experiments/2026-09-01-probe-100x4-hard-last4/interpolate/holdout.json}
-(\texttt{de0f0c5738729e87}).
-GPT-2 lock~B poshits: \path{experiments/2026-09-01-probe-100x4-opening-poshits/poshits/holdout.json}
-(\texttt{aca0f852266c6b41}).
-Distil lock~B: \path{experiments/2026-09-01-probe-distil-100x4-opening-poshits/poshits/holdout.json}
-(\texttt{37834c2f0e45856c}).
-Qwen lock~B: \path{experiments/2026-09-01-probe-qwen-100x4-opening-poshits/poshits/holdout.json}
-(\texttt{5b7e3c00264561f8}).
-Stem honesty: \path{experiments/2026-09-01-ranking-isolated-honesty/}.
-Absolute-history 12-LOO mask-$m$:
-\path{experiments/2026-09-03-probe-12x4-headline-windows-absolute/results.json}
-(\texttt{58094d769726dc18}; prefixes equal reindexed; hard tails $9/12$).
-Longer-context protocol freeze: \texttt{b70986d}
-(\path{research/PROTOCOL-next-longctx.md}).
-Original-12 $\Hw=12$ pair:
-\path{experiments/2026-09-03-pair-12x4-ngram13/results.json}
-(\texttt{61153a82dab1eaea}).
-Original-12 $\Hw=12$ probe:
-\path{experiments/2026-09-03-probe-12x4-ngram13-hard-last4/hard/holdout.json}
-(\texttt{fcff60687ac27348}; interpolate and hard $6/12$).
-Longer-history 100-family start (logbook, before generation):
-\texttt{facc538}.
-Longer-history 100-family pair:
-\path{experiments/2026-09-03-pair-100x4-ngram13/results.json}
-(\texttt{761b5d2ea676fa5d}).
-Longer-history 100-family probe:
-\path{experiments/2026-09-03-probe-100x4-ngram13-hard-last4/interpolate/holdout.json}
-(\texttt{e17cda239aa36e43}; interpolate $76/100$).
-Occupancy command freeze: \texttt{df5487d}.
-Original-12 $\Hw=12$ occupancy:
-\path{experiments/2026-09-03-atoms-12x4-ngram13/atoms.json}
-(\texttt{4d29c92147e6da9d}; 160 seen versus public 269).
-Original-12 public occupancy:
-\path{experiments/2026-09-03-atoms-12x4-public-loo/atoms.json}
-(\texttt{1247287a6369e93d}).
-100-family $\Hw=12$ occupancy:
-\path{experiments/2026-09-03-atoms-100x4-ngram13/atoms.json}
-(\texttt{ee0fcb86e6aceafc}; 5878 seen versus public 10158).
-100-family public occupancy:
-\path{experiments/2026-09-03-atoms-100x4-public-loo/atoms.json}
-(\texttt{6d6d516ec296aae1}).
-Kirchenbauer mixin freeze: \path{research/PROTOCOL-next-kgw.md}
-(\texttt{8371406}). Original-12 pair:
-\path{experiments/2026-09-03-pair-12x4-kgw/results.json}
-(\texttt{c4360e0c259b1f77}). Original-12 probe:
-\path{experiments/2026-09-03-probe-12x4-kgw-hard-last4/interpolate/holdout.json}
-(\texttt{67b8ed6bb2b96bcd}; interpolate $12/12$, $85/96$).
-Original-12 occupancy:
-\path{experiments/2026-09-03-atoms-12x4-kgw/atoms.json}
-(\texttt{cbde7405e481bfad}; 114 seen).
-100-family Kirchenbauer start: \texttt{8f09aa6}.
-100-family pair:
-\path{experiments/2026-09-03-pair-100x4-kgw/results.json}
-(\texttt{d96793694eaa2ab1}).
-100-family probe:
-\path{experiments/2026-09-03-probe-100x4-kgw-hard-last4/interpolate/holdout.json}
-(\texttt{dce85a6796def442}; interpolate $100/100$, $747/800$).
-100-family occupancy:
-\path{experiments/2026-09-03-atoms-100x4-kgw/atoms.json}
-(\texttt{e59753393fdc1d3e}; 4557 seen).
-Distil Kirchenbauer freeze: \texttt{1540d3c}.
-Distil pair:
-\path{experiments/2026-09-03-pair-distil-12x4-kgw/results.json}
-(\texttt{f17ba689c14ecf21}).
-Distil interpolate:
-\path{experiments/2026-09-03-probe-distil-12x4-kgw-hard-last4/interpolate/holdout.json}
-(\texttt{845af54db1aeb37f}; $12/12$, $85/96$).
-Distil occupancy:
-\path{experiments/2026-09-03-atoms-distil-12x4-kgw/atoms.json}
-(\texttt{52c8fe2505a567c0}; 130 seen).
-Qwen Kirchenbauer freeze: \texttt{45a75c9}.
-Qwen pair:
-\path{experiments/2026-09-03-pair-qwen-12x4-kgw/results.json}
-(\texttt{1e7e7a85888e2746}).
-Qwen interpolate:
-\path{experiments/2026-09-03-probe-qwen-12x4-kgw-hard-last4/interpolate/holdout.json}
-(\texttt{68b96241a91e8a9c}; $12/12$, $68/96$).
-Qwen occupancy:
-\path{experiments/2026-09-03-atoms-qwen-12x4-kgw/atoms.json}
-(\texttt{df93d69c13d85869}; 84 seen).
-Aaronson freeze: \texttt{747f3cd}.
-Aaronson pair:
-\path{experiments/2026-09-04-pair-12x4-aaronson/results.json}
-(\texttt{f1a8616c9b5ec347}).
-Aaronson interpolate:
-\path{experiments/2026-09-04-probe-12x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{9077e6d67f7c1900}; $11/12$, $56/96$).
-Aaronson occupancy:
-\path{experiments/2026-09-04-atoms-12x4-aaronson/atoms.json}
-(\texttt{c1f16afa2ba1c418}; 573 seen).
-Aaronson 100 pair:
-\path{experiments/2026-09-04-pair-100x4-aaronson/results.json}
-(\texttt{71ecbdbcf12095ed}).
-Aaronson 100 interpolate:
-\path{experiments/2026-09-04-probe-100x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{0689c1d63140de33}; $100/100$, $608/800$).
-Aaronson 100 occupancy:
-\path{experiments/2026-09-04-atoms-100x4-aaronson/atoms.json}
-(\texttt{31668c74ecd8834e}; 25167 seen).
-Distil 100-family Kirchenbauer freeze: \texttt{4fad227}.
-Distil 100 pair:
-\path{experiments/2026-09-03-pair-distil-100x4-kgw/results.json}
-(\texttt{3d59709dc295ed17}).
-Distil 100 interpolate:
-\path{experiments/2026-09-03-probe-distil-100x4-kgw-hard-last4/interpolate/holdout.json}
-(\texttt{cd10c0b6b355e51b}; $100/100$, $683/800$).
-Distil 100 occupancy:
-\path{experiments/2026-09-03-atoms-distil-100x4-kgw/atoms.json}
-(\texttt{d48748a701d201eb}; 16170 seen).
-DistilGPT2 $\Hw=12$ freeze: \texttt{bae6d81}.
-Distil $\Hw=12$ pair:
-\path{experiments/2026-09-04-pair-distil-12x4-ngram13/results.json}
-(\texttt{8dc1d84856d1df5d}).
-Distil $\Hw=12$ interpolate:
-\path{experiments/2026-09-04-probe-distil-12x4-ngram13-hard-last4/interpolate/holdout.json}
-(\texttt{e8ac790aebdb8919}; $9/12$, $49/96$).
-Distil $\Hw=12$ occupancy:
-\path{experiments/2026-09-04-atoms-distil-12x4-ngram13/atoms.json}
-(\texttt{e0ccc7de1f47a79c}; 175 seen versus 11994 unseen).
-Distil $\Hw=12$ 100-family freeze: \texttt{d891622}.
-Distil $\Hw=12$ 100 pair:
-\path{experiments/2026-09-04-pair-distil-100x4-ngram13/results.json}
-(\texttt{b46a5d5debed1485}).
-Distil $\Hw=12$ 100 interpolate:
-\path{experiments/2026-09-04-probe-distil-100x4-ngram13-hard-last4/interpolate/holdout.json}
-(\texttt{22d8c29006252a26}; $88/100$, $557/800$).
-Distil $\Hw=12$ 100 occupancy:
-\path{experiments/2026-09-04-atoms-distil-100x4-ngram13/atoms.json}
-(\texttt{331dbab436097872}; 11182 seen versus 85493 unseen).
-Qwen2-1.5B $\Hw=12$ freeze: \texttt{d7303a2}.
-Qwen $\Hw=12$ pair:
-\path{experiments/2026-09-04-pair-qwen-12x4-ngram13/results.json}
-(\texttt{905c76810744421d}).
-Qwen $\Hw=12$ interpolate:
-\path{experiments/2026-09-04-probe-qwen-12x4-ngram13-hard-last4/interpolate/holdout.json}
-(\texttt{617663de48b81879}; $4/12$, $41/96$).
-Qwen $\Hw=12$ occupancy:
-\path{experiments/2026-09-04-atoms-qwen-12x4-ngram13/atoms.json}
-(\texttt{d7867f4c81b21ca2}; 65 seen versus 12127 unseen).
-Distil Aaronson freeze: \texttt{9bdf12a}.
-Distil Aaronson pair:
-\path{experiments/2026-09-04-pair-distil-12x4-aaronson/results.json}
-(\texttt{ab8f1a9f340960c5}).
-Distil Aaronson interpolate:
-\path{experiments/2026-09-04-probe-distil-12x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{c36caf9745da2ce3}; $7/12$, $0/48$ marked TP).
-Distil Aaronson occupancy:
-\path{experiments/2026-09-04-atoms-distil-12x4-aaronson/atoms.json}
-(\texttt{cc5ad2fcf035fdca}; 196 seen versus 11996 unseen).
-Distil Aaronson 100-family freeze: \texttt{bf05759}.
-Distil Aaronson 100 pair:
-\path{experiments/2026-09-04-pair-distil-100x4-aaronson/results.json}
-(\texttt{a043578f9795a7be}).
-Distil Aaronson 100 interpolate:
-\path{experiments/2026-09-04-probe-distil-100x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{89d3b8c7f8d5d0e0}; $96/100$, $601/800$).
-Distil Aaronson 100 occupancy:
-\path{experiments/2026-09-04-atoms-distil-100x4-aaronson/atoms.json}
-(\texttt{06b4d85a772626d4}; 28824 seen versus 61305 unseen).
-Qwen Aaronson freeze: \texttt{1171d5c}.
-Qwen Aaronson pair:
-\path{experiments/2026-09-04-pair-qwen-12x4-aaronson/results.json}
-(\texttt{12ea3ef1c34f037b}).
-Qwen Aaronson interpolate:
-\path{experiments/2026-09-04-probe-qwen-12x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{ac41821f88adba14}; $12/12$, $12/48$ marked TP).
-Qwen Aaronson occupancy:
-\path{experiments/2026-09-04-atoms-qwen-12x4-aaronson/atoms.json}
-(\texttt{419a2088b2ba8e6e}; 457 seen versus 11735 unseen).
-Qwen2-1.5B $\Hw=12$ 100-family freeze: \texttt{636765c}.
-Qwen $\Hw=12$ 100 pair:
-\path{experiments/2026-09-04-pair-qwen-100x4-ngram13/results.json}
-(\texttt{ca4c793eaaf77c18}).
-Qwen $\Hw=12$ 100 interpolate:
-\path{experiments/2026-09-04-probe-qwen-100x4-ngram13-hard-last4/interpolate/holdout.json}
-(\texttt{d051137c566c5629}; $76/100$, $474/800$).
-Qwen $\Hw=12$ 100 occupancy:
-\path{experiments/2026-09-04-atoms-qwen-100x4-ngram13/atoms.json}
-(\texttt{1d0ae9837b3cd4e0}; 3535 seen versus 98064 unseen).
-Qwen Aaronson 100-family freeze: \texttt{a761a7d}.
-Qwen Aaronson 100 pair:
-\path{experiments/2026-09-04-pair-qwen-100x4-aaronson/results.json}
-(\texttt{4fb67051fb89839b}).
-Qwen Aaronson 100 interpolate:
-\path{experiments/2026-09-04-probe-qwen-100x4-aaronson-hard-last4/interpolate/holdout.json}
-(\texttt{9bb1cf87dc11328e}; $100/100$, $616/800$).
-Qwen Aaronson 100 occupancy:
-\path{experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json}
-(\texttt{d3932e3b1346789b}; 8750 seen versus 92842 unseen).
-Qwen Kirchenbauer 100-family freeze: \texttt{ed9fb20}.
-Pair out-dir:
-\path{experiments/2026-09-04-pair-qwen-100x4-kgw}.
-Official first-draw $z>3$ \textbf{90/100}; interpolate \textbf{96/100}
-(isolated \textbf{620/800}). That lock is not \textbf{25/48}.
-Distil / gpt2-medium unmarked-LM opening rankpath freeze:
-\texttt{d8e6f7f}. Distil-LM isolated $32/48$ vs $31/48$ (ranking $10/12$).
-gpt2-medium-LM isolated $31/48$ vs $32/48$. Those isolated counts are
-not \textbf{25/48}. Twins:
-\path{experiments/2026-08-17-pair-12x4}.
-Out-dirs:
-\path{experiments/2026-09-04-probe-12x4-rankpath-distil-lm},
-\path{experiments/2026-09-04-probe-12x4-rankpath-medium-lm}.
-\par}
+\paragraph{Headline dumps.}
+Full paths and SHA-256 digests are the machine-readable registry
+\path{paper/artifacts.json}. Table~\ref{tab:artifacts} lists only
+headline locks.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Headline dump registry. SHA-16 is the first 16 hex digits of
+SHA-256. Isolated counts are boundary tests except the original-12 hard
+row.}
+\label{tab:artifacts}
+\begin{tabular}{@{}p{4.4cm}p{4.6cm}l@{}}
+\toprule
+Experiment / freeze & Headline metric & SHA-16 \\
+\midrule
+original-12 hard last-4 & $9/12$; $25/48$ vs $22/48$; AUC $0.590$ & \texttt{e4f758305b631761} \\
+GPT-2 100$\times$4 lock~A interpolate & $99/100$ & \texttt{de0f0c5738729e87} \\
+GPT-2 100$\times$4 lock~B poshits & opening poshits & \texttt{aca0f852266c6b41} \\
+Distil 100$\times$4 lock~B & opening poshits & \texttt{37834c2f0e45856c} \\
+Qwen 100$\times$4 lock~B & opening poshits & \texttt{5b7e3c00264561f8} \\
+headline-windows-absolute & hard tails $9/12$ & \texttt{58094d769726dc18} \\
+original-12 $\Hw=12$ pair & official $12/12$ & \texttt{61153a82dab1eaea} \\
+original-12 $\Hw=12$ interpolate & $6/12$ & \texttt{fcff60687ac27348} \\
+100-family $\Hw=12$ pair & official $100/100$ & \texttt{761b5d2ea676fa5d} \\
+100-family $\Hw=12$ interpolate & $76/100$ & \texttt{e17cda239aa36e43} \\
+original-12 $\Hw=12$ occupancy & 160 seen vs 269 & \texttt{4d29c92147e6da9d} \\
+100-family $\Hw=12$ occupancy & 5878 seen vs 10158 & \texttt{ee0fcb86e6aceafc} \\
+original-12 Kirchenbauer interpolate & $12/12$; $85/96$ & \texttt{67b8ed6bb2b96bcd} \\
+100-family Kirchenbauer interpolate & $100/100$; $747/800$ & \texttt{dce85a6796def442} \\
+Qwen Kirchenbauer 100 interpolate & $96/100$; $620/800$ & \texttt{ed9fb20} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Opening rankpath dumps (freeze \texttt{d8e6f7f}):
+\texttt{rankpath-distil-lm}, \texttt{rankpath-medium-lm}.
 
 \paragraph{Internal labels, on first use in the repository.}
 \emph{Grok-length}: original 12 scene prompts, comparable length to a
@@ -2211,7 +2031,7 @@ control still ranks $12/12$ (AUC $0.906$). The reader is
 instance-specific without recovering keys.
 
 % =========================================================================
-{\raggedright\sloppy\interlinepenalty=10000
+{\RaggedRight\interlinepenalty=10000
 \bibliographystyle{plainnat}
 \bibliography{references}
 }

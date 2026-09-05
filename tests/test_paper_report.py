@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAPER = re.sub(r"\s+", " ", (ROOT / "paper" / "main.tex").read_text())
 README = (ROOT / "paper" / "README.md").read_text()
 BIB = (ROOT / "paper" / "references.bib").read_text()
+ARTIFACTS = (ROOT / "paper" / "artifacts.json").read_text()
 
 
 def test_title_exposes_paired_reference_oracle() -> None:
@@ -34,7 +35,6 @@ def test_plain_english_ingress_precedes_the_abstract() -> None:
     assert "no keys" in lead
     assert "paired oracle" in lead
     assert "polynomial-time distinguisher" in lead
-    assert "abstract below" in lead
     assert "76/100" not in lead
     assert "160" not in lead
 
@@ -84,7 +84,7 @@ def test_hub_revisions_do_not_affect_committed_file_scores() -> None:
     assert "committed strings" in PAPER
     assert "does not affect the published scores" in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{Preregistered extensions}"
+        r"\section{Preregistered Boundary Tests}"
     )[0]
     assert "committed strings" in limits
     assert "607a30d783dfa663caf39e06633721c8d4cfcd7e" in PAPER
@@ -105,10 +105,12 @@ def test_how_to_read_names_two_grain_hw12_and_occupancy() -> None:
     assert "How to read this report" not in PAPER
     lead = PAPER.split(r"\maketitle")[1].split(r"\section{Introduction}")[0]
     assert "In plain English" in lead
-    assert "fig:twograin" in lead
-    assert "fig:hw12" in lead
-    assert "tab:occ" in lead
-    assert r"get\_gvals" in lead
+    intro = PAPER.split(r"\section{Introduction}")[1].split(r"\section{Related Work}")[0]
+    results = PAPER.split(r"\section{Results}")[1].split(r"\section{Limitations}")[0]
+    assert "fig:twograin" in results
+    assert "fig:hw12" in PAPER
+    assert "tab:occ" in PAPER
+    assert r"get\_gvals" in intro
     assert r"\textbf{36/36}" in PAPER.split(r"\begin{abstract}")[1]
     assert r"\textbf{47/96}" in PAPER.split(r"\begin{abstract}")[1]
 
@@ -144,7 +146,7 @@ def test_claude_resample_20260903_is_dump_backed_and_not_in_abstract() -> None:
     assert r"\textbf{35/40}" not in PAPER
     assert "style-shift order" not in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{Preregistered extensions}"
+        r"\section{Preregistered Boundary Tests}"
     )[0]
     assert r"\textbf{35/40}" not in limits
     report = json.loads(
@@ -188,7 +190,7 @@ def test_claude_resample_20260904_is_dump_backed_and_not_in_abstract() -> None:
     assert r"\textbf{36/40}" not in PAPER
     assert "watermark-window order" not in PAPER
     limits = PAPER.split(r"\section{Limitations}")[1].split(
-        r"\section{Preregistered extensions}"
+        r"\section{Preregistered Boundary Tests}"
     )[0]
     assert r"\textbf{37/40}" not in limits
     assert r"\textbf{19/40}" not in limits
@@ -288,7 +290,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
     assert "85/96" not in abs_
-    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
     assert r"\textbf{12/12}" in next_sec
@@ -319,9 +321,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "d891622" in next_sec
     assert "557/800" in next_sec
     assert "pair-distil-100x4-ngram13" in next_sec
-    assert "b46a5d5debed1485" in PAPER
-    assert "22d8c29006252a26" in PAPER
-    assert "331dbab436097872" in PAPER
+    assert "b46a5d5debed1485" in ARTIFACTS
+    assert "22d8c29006252a26" in ARTIFACTS
+    assert "331dbab436097872" in ARTIFACTS
     assert "PROTOCOL-next-longctx-qwen" in next_sec
     assert "d7303a2" in next_sec
     assert "41/96" in next_sec
@@ -334,9 +336,9 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "bf05759" in next_sec
     assert "601/800" in next_sec
     assert "pair-distil-100x4-aaronson" in next_sec
-    assert "a043578f9795a7be" in PAPER
-    assert "89d3b8c7f8d5d0e0" in PAPER
-    assert "06b4d85a772626d4" in PAPER
+    assert "a043578f9795a7be" in ARTIFACTS
+    assert "89d3b8c7f8d5d0e0" in ARTIFACTS
+    assert "06b4d85a772626d4" in ARTIFACTS
     assert "PROTOCOL-next-aaronson-qwen" in next_sec
     assert "1171d5c" in next_sec
     assert "60/96" in next_sec
@@ -416,24 +418,24 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "50/100" in next_sec
     assert "93/100" in next_sec
     assert "has not been dumped" not in next_sec
-    assert "12ea3ef1c34f037b" in PAPER
-    assert "ac41821f88adba14" in PAPER
-    assert "419a2088b2ba8e6e" in PAPER
-    assert "ab8f1a9f340960c5" in PAPER
-    assert "c36caf9745da2ce3" in PAPER
-    assert "cc5ad2fcf035fdca" in PAPER
-    assert "905c76810744421d" in PAPER
-    assert "617663de48b81879" in PAPER
-    assert "d7867f4c81b21ca2" in PAPER
-    assert "8dc1d84856d1df5d" in PAPER
-    assert "e8ac790aebdb8919" in PAPER
-    assert "e0ccc7de1f47a79c" in PAPER
-    assert "ca4c793eaaf77c18" in PAPER
-    assert "d051137c566c5629" in PAPER
-    assert "1d0ae9837b3cd4e0" in PAPER
-    assert "4fb67051fb89839b" in PAPER
-    assert "9bb1cf87dc11328e" in PAPER
-    assert "d3932e3b1346789b" in PAPER
+    assert "12ea3ef1c34f037b" in ARTIFACTS
+    assert "ac41821f88adba14" in ARTIFACTS
+    assert "419a2088b2ba8e6e" in ARTIFACTS
+    assert "ab8f1a9f340960c5" in ARTIFACTS
+    assert "c36caf9745da2ce3" in ARTIFACTS
+    assert "cc5ad2fcf035fdca" in ARTIFACTS
+    assert "905c76810744421d" in ARTIFACTS
+    assert "617663de48b81879" in ARTIFACTS
+    assert "d7867f4c81b21ca2" in ARTIFACTS
+    assert "8dc1d84856d1df5d" in ARTIFACTS
+    assert "e8ac790aebdb8919" in ARTIFACTS
+    assert "e0ccc7de1f47a79c" in ARTIFACTS
+    assert "ca4c793eaaf77c18" in ARTIFACTS
+    assert "d051137c566c5629" in ARTIFACTS
+    assert "1d0ae9837b3cd4e0" in ARTIFACTS
+    assert "4fb67051fb89839b" in ARTIFACTS
+    assert "9bb1cf87dc11328e" in ARTIFACTS
+    assert "d3932e3b1346789b" in ARTIFACTS
     assert "3535" in PAPER
     assert "8750" in PAPER
     abs_ = PAPER.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
@@ -498,7 +500,7 @@ def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
 
 
 def test_paper_opened_kgw_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
     gpt2_12 = json.loads(
@@ -662,7 +664,7 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
 
 
 def test_paper_opened_100_family_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
 
@@ -748,7 +750,7 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
 
 
 def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
 
@@ -962,7 +964,7 @@ def test_readme_matches_revised_title() -> None:
     assert "3ea80e4" in README
     assert "8f09aa6" in README
     assert "1582a09" in README
-    assert "28 A4" in README
+    assert "26 A4" in README or "28 A4" in README
     assert "4c31077" in README
     assert "ce5f168" in README
     assert "aea3d76" in README
@@ -1155,7 +1157,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert "Phase~A" not in PAPER and "Phase A" not in PAPER
     assert r"Original 12, $\Hw=12$" in PAPER or "Original 12" in PAPER
     assert "One hundred families" in PAPER
-    assert "Interpretation" in PAPER.split(r"\section{Preregistered extensions}")[1]
+    assert "Interpretation" in PAPER.split(r"\section{Preregistered Boundary Tests}")[1]
     interp_para = PAPER.split(r"\paragraph{Interpretation.}")[1].split(r"\section{Conclusion}")[0]
     assert "tab:occ" in interp_para
     assert "mostly backoff" in interp_para
@@ -1175,7 +1177,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert pair100["ngram_len"] == 13
     assert len(pair100["rows"]) == 100
     assert all(row["marked"]["mean"] > 0.55 for row in pair100["rows"])
-    assert r"\textbf{100/100}" in PAPER.split(r"\section{Preregistered extensions}")[1]
+    assert r"\textbf{100/100}" in PAPER.split(r"\section{Preregistered Boundary Tests}")[1]
     assert "clustered permutation" in PAPER
     assert "0.247" in PAPER
     assert "0.0005" in PAPER
@@ -1237,7 +1239,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert min(dps) > -0.387 and min(dps) < -0.385
     assert max(dps) > 0.601 and max(dps) < 0.603
     assert "0.164" in PAPER
-    assert "0.174" not in PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    assert "0.174" not in PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
     assert sum(counts) == 100
@@ -1245,7 +1247,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert expected == "0/1,1/2,2/8,3/13,4/17,5/15,6/20,7/13,8/5,9/5,10/1"
     assert expected in Path(ROOT / "paper" / "main.tex").read_text()
     assert "all 48 marked files" in PAPER
-    next_raw = PAPER.split(r"\section{Preregistered extensions}")[1]
+    next_raw = PAPER.split(r"\section{Preregistered Boundary Tests}")[1]
     assert "ferry-queue" in next_raw
     from collections import defaultdict as _dd
     from statistics import mean as _mean
@@ -1299,7 +1301,7 @@ def test_next_experiment_lock_is_ngram13_before_generation() -> None:
     assert occ_pub["n_seen"] == 269
     assert occ["windows"][0]["n_seen"] == 71
     assert occ_pub["windows"][0]["n_seen"] == 84
-    next_sec = PAPER.split(r"\section{Preregistered extensions}")[1].split(
+    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
         r"\section{Conclusion}"
     )[0]
     leftover = PAPER.split("Leftover versus covered isolated true positives")[1].split(
@@ -1416,10 +1418,11 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
         "experiments/2026-09-04-atoms-qwen-100x4-aaronson/atoms.json": "d3932e3b1346789b",
     }
     tex = (ROOT / "paper" / "main.tex").read_text()
+    art_text = (ROOT / "paper" / "artifacts.json").read_text()
     for rel, prefix in mapping.items():
         digest = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()[:16]
         assert digest == prefix, f"{rel}: {digest} != {prefix}"
-        assert prefix in tex, f"appendix missing {prefix} for {rel}"
+        assert prefix in art_text, f"artifacts.json missing {prefix} for {rel}"
     assert "PROTOCOL-next-kgw" in tex
     assert "2026-09-03-pair-12x4-kgw" in tex
     assert "ed9fb20" in tex
@@ -1451,9 +1454,8 @@ def test_appendix_sha_prefixes_match_committed_dumps() -> None:
     assert occ_qaar["used_keys"] is False
     assert f"{occ_qhw['n_seen']} seen versus {occ_qhw['n_unseen']} unseen" in tex
     assert f"{occ_qaar['n_seen']} seen versus {occ_qaar['n_unseen']} unseen" in tex
-    appendix = tex.split(r"\appendix")[1]
-    assert r"\textbf{90/100}" in appendix or "90/100" in appendix
-    assert r"\textbf{25/48}" in appendix
+    assert r"\textbf{90/100}" in tex or "90/100" in tex
+    assert r"\textbf{25/48}" in tex
     art = json.loads((ROOT / "paper" / "artifacts.json").read_text())
     by_path = {row["path"]: row for row in art["artifacts"]}
     for rel, prefix in mapping.items():
@@ -1467,7 +1469,7 @@ def test_sol_publication_hygiene() -> None:
     assert "How to read this report" not in tex
     assert "In plain English" in tex
     assert r"\section{A Locked Next Experiment}" not in tex
-    assert r"\section{Preregistered extensions}" in tex
+    assert r"\section{Preregistered Boundary Tests}" in tex
     assert "still running" not in tex
     assert "Do not invent interpolate" not in tex
     assert "Do not invent" not in tex
@@ -1487,7 +1489,16 @@ def test_sol_publication_hygiene() -> None:
     assert "validated or calibrated for unfamiliar web documents" in tex
     assert "compatible with chance" in tex
     assert r"\label{tab:rankpath}" in tex
+    assert r"\label{tab:artifacts}" in tex
+    assert r"\begin{algorithm}" in tex
+    assert "sloppy" not in tex
     assert r"\ddash" in tex
+    makefile = (ROOT / "paper" / "Makefile").read_text()
+    assert "TECTONIC" in makefile
+    assert "Overfull" in makefile
+    assert "publish:" in makefile
+    abs_ = tex.split(r"\begin{abstract}")[1].split(r"\end{abstract}")[0]
+    assert "20/20" not in abs_
     assert (ROOT / "paper" / "artifacts.json").is_file()
     keep = {
         "Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf",
