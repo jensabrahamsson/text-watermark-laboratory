@@ -265,11 +265,9 @@ fixed public instance, without training a proxy model.
 \begin{table}[t]
 \centering
 \small
-\caption{Task-level comparison. TTP-Detect costs are from
-\citet{wang2026ttp} (their \S5.1 and Table~2), not remeasured here.
-Count-table size is from the committed 100-family interpolate dump.
-There is no shared-benchmark TPR. Simpler is not automatically a
-better detector.}
+\caption{Task-level comparison. TTP-Detect costs are quoted from
+\citet{wang2026ttp} (\S5.1 and Table~2), not remeasured. There is no
+shared-benchmark TPR.}
 \label{tab:compare}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.20\textwidth} >{\raggedright\arraybackslash}p{0.36\textwidth} >{\raggedright\arraybackslash}p{0.36\textwidth}}
 \toprule
@@ -750,7 +748,7 @@ Youden counts stay out of detector-performance comparisons.
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[font=\scriptsize, node distance=0.55cm]
+\begin{tikzpicture}[font=\footnotesize, node distance=0.55cm]
   \node[draw, align=center, inner sep=4pt] (fit)
     {Fit tables for family $q$\\on all families except $q$\\(includes $p$)};
   \node[draw, align=center, inner sep=4pt, right=1.15cm of fit] (score)
@@ -919,7 +917,7 @@ still contribute five isolated true positives.
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[x=0.92cm,y=7.4cm,font=\footnotesize]
+\begin{tikzpicture}[x=0.92cm,y=7.4cm,font=\small]
   % axes
   \draw[gray!70,thin] (0,0) -- (12.4,0);
   \node[gray!70,anchor=east] at (-0.12,0) {$\tau=0$};
@@ -930,7 +928,7 @@ still contribute five isolated true positives.
     \node[anchor=east] at (-0.12,\y) {\lab};
   }
   \foreach \x/\lab in {0.5/harb.,1.5/night,2.5/libr.,3.5/mark.,4.5/kitc.,5.5/stat.,6.5/rain,7.5/lett.,8.5/work.,9.5/off.,10.5/gard.,11.5/ferry} {
-    \node[anchor=east,rotate=50] at (\x,-0.165) {\lab};
+    \node[anchor=east,rotate=45,font=\small] at (\x,-0.165) {\lab};
   }
   % ranking-loss stems that still hold isolated TPs
   \fill[red!12] (5.02,-0.15) rectangle (5.98,0.275);
@@ -1021,17 +1019,9 @@ Isolated $\tau=0$ is the full confusion matrix, not sensitivity alone.
 \begin{table}[t]
 \centering
 \footnotesize
-\caption{Two-grain results. Status marks exploratory versus prospective
-locks versus keyed controls. Descriptive Clopper--Pearson 95\% intervals
-invert the binomial \citep{clopper1934binomial} and ignore shared
-tables. Isolated TP/TN is marked $\LLR>0$ / unmarked $\LLR\le 0$ at
-$\tau=0$. Precision is $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$.
-Balanced accuracy is $\tfrac12(\mathrm{sens}+\mathrm{spec})$; on this
-$48{+}48$ set it equals accuracy $47/96$. The interval $[0.386,0.594]$
-is binomial for 47 of 96 correct decisions, not a general BA interval.
-File AUC permutation is a 2000-shuffle of file labels
-\citep{ernst2004permutation}; it ignores prompt clustering and pairing
-and is not inferential support for $\tau=0$.}
+\caption{Two-grain results. Group-ranking rows use prompt-family means;
+isolated rows use one 128-token file at $\tau=0$. Balanced accuracy on
+this $48{+}48$ set equals ordinary accuracy $47/96$.}
 \label{tab:headline}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm} l c c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.6cm}@{}}
 \toprule
@@ -1168,7 +1158,7 @@ means negative.
   }
   \draw[red!70!black,thick] (3,0) -- (3,21);
   \node[red!70!black,anchor=south] at (3,21.2) {0};
-  \node[anchor=south,font=\tiny] at (0.5,1.35) {088};
+  \node[anchor=south,font=\scriptsize] at (0.5,1.35) {088};
   \foreach \x/\lab in {0/-0.3,3/0,6/0.3,9/0.6,12/0.9,15/1.2}
     \node at (\x,-1.6) {\lab};
 \end{tikzpicture}
@@ -1213,14 +1203,9 @@ control from key-free four-draw ranking.
 \begin{table}[t]
 \centering
 \small
-\caption{Two different endpoints. Keyed column: first-draw official
-\texttt{detector\_mean}, marked mean $>$ unmarked mean (one file each).
-Lock B/C: four-draw empirical-$\LLR$ ranking. Distil keyed 70/100 is a
-paired first-draw keyed-control win rate (marked mean $>$ unmarked mean),
-not a standalone official detector pass rate.
-Historical JSON printed Distil 89/100 and
-69/100 under a non-strict comparison; locked counts treat a tie as not
-a win.}
+\caption{Keyed first-draw control versus key-free four-draw ranking on
+the same 100 prompts. Distil 70/100 is a paired mean comparison, not a
+standalone official pass rate. Ties are not wins.}
 \label{tab:cross}
 \begin{tabular}{l c c c}
 \toprule
@@ -1235,7 +1220,9 @@ Qwen2-1.5B-Instruct & 100/100 & \textbf{95/100} & 84/100 \\
 
 Distil keyed means: marked $\approx 0.559$, unmarked $\approx 0.496$;
 minimum marked $\approx 0.433$. First-draw Distil \textbf{70/100} is
-marked mean $>$ unmarked mean (six exact ties, not awarded). On this
+marked mean $>$ unmarked mean (six exact ties, not awarded).
+Historical JSON printed Distil 89/100 and 69/100 under a non-strict
+comparison; locked counts treat a tie as not a win. On this
 sample the same 70 families are the ones with marked mean $>0.55$; that
 coincidence is not a reason to equate the two rules. Qwen keyed means:
 marked $\approx 0.580$, unmarked $\approx 0.500$. Five Qwen marked files
@@ -1277,12 +1264,9 @@ set with the headline 25 isolated true positives gives \Cref{tab:split}.
 \begin{table}[t]
 \centering
 \small
-\caption{Headline isolated $\tau=0$ split by mixed occupancy-free
-opening coverage. Leftover last-4 is compatible with chance.
-Official keyed leftover \textbf{20/20} is positive-control sensitivity
-on marked files at the laboratory threshold $0.55$, not a two-class
-detection claim (no unmarked leftover column). Ranking-loss TPs
-(station, office, ferry-queue) are all leftover.}
+\caption{Isolated $\tau=0$ split by mixed occupancy-free opening
+coverage. Keyed leftover \textbf{20/20} is marked-only sensitivity at
+$0.55$, not a two-class claim.}
 \label{tab:split}
 \begin{tabular}{l c c c c}
 \toprule
@@ -1443,7 +1427,7 @@ Item & Value \\
 \midrule
 Mixin & Hugging Face \ttfile{WatermarkLogitsProcessor} (\texttt{mixin=kgw}) \\
 Generator & \ttfile{Qwen/Qwen2-1.5B-Instruct} \\
-Hub revision & \texttt{ba1cf1846d7df0a0591d6c00649f57e798519da8} \\
+Hub revision & \ttsha{ba1cf1846d7df0a0591d6c00649f57e798519da8} \\
 \texttt{greenlist\_ratio} / \texttt{bias} / \texttt{hashing\_key} & $0.25$ / $2.0$ / $15485863$ \\
 \texttt{seeding\_scheme} / \texttt{context\_width} & \texttt{lefthash} / $1$ \\
 Prompt frame & 100 one-liners, $T=128$, seed 20260904, four draws \\
@@ -1505,101 +1489,139 @@ GPT-2 mid $[16{:}32)$ & \texttt{14afbd5} & 23/48 vs 26/48 & 7/12 \\
 \end{tabular}
 \end{table}
 
-{\raggedright\footnotesize
-Protocol notes:\\
-\ttfile{PROTOCOL-isolated-rankpath-lm.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-m12.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-g2m.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-d2m.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-g2d.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-m2d.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-body.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-dbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-mbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-d12body.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-m12body.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-g2dbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-d2mbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-g2mbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-m2dbody.md},\\
-\ttfile{PROTOCOL-isolated-rankpath-mid.md}.\\
-Window dumps: \ttfile{2026-09-04-probe-*-w4-16/window-4-16/}.
-\par}
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Protocol notes for \Cref{tab:rankpath}. Files live under
+\texttt{research/}. Window dumps:
+\ttfile{2026-09-04-probe-*-w4-16/window-4-16/}.}
+\label{tab:rankpathnotes}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\ttfile{PROTOCOL-isolated-rankpath-lm.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-m12.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-g2m.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-d2m.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-g2d.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-m2d.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-body.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-dbody.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-mbody.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-d12body.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-m12body.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-g2dbody.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-d2mbody.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-g2mbody.md} \\
+\ttfile{PROTOCOL-isolated-rankpath-m2dbody.md} &
+  \ttfile{PROTOCOL-isolated-rankpath-mid.md} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-An Aaronson--Kirchner exponential-minimum mixin (freeze SHA
-\texttt{747f3cd}, seed 20260905) ranks interpolate last-4
+Cross-generator $\Hw=12$ and Aaronson counts on the same prompt frames
+are in \Cref{tab:xgen}. Isolated $\tau=0$ on those twins is not the
+original-12 hard headline. GPT-2 Aaronson detail follows
+\Cref{tab:nextlock}. An Aaronson--Kirchner exponential-minimum mixin
+(freeze SHA \texttt{747f3cd}, seed 20260905;
+\ttfile{PROTOCOL-next-aaronson.md}) ranks interpolate last-4
 \textbf{11/12} (isolated \textbf{56/96}); hard is \textbf{12/12}. On the
 100 one-liners interpolate last-4 is \textbf{100/100} (isolated
-\textbf{608/800}). The protocol note is
-\ttfile{PROTOCOL-next-aaronson.md}. DistilGPT2 $\Hw=12$ on the
-same 12 strings is frozen in \ttfile{PROTOCOL-next-longctx-distil.md}
-(freeze SHA \texttt{bae6d81};
-\ttfile{2026-09-04-pair-distil-12x4-ngram13}). Distil $\Hw=12$
-interpolate last-4 is \textbf{9/12} (isolated \textbf{49/96}); hard is
-\textbf{6/12}. Official first-draw mean$>0.55$ is 12/12.
-Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 175 seen versus 11994 unseen
-(opening $[0{:}4)$ is 111 versus 177). DistilGPT2 $\Hw=12$ on the
-100 one-liners is frozen in
-\ttfile{PROTOCOL-next-longctx-distil-100.md}
-(freeze SHA \texttt{d891622};
-\ttfile{2026-09-04-pair-distil-100x4-ngram13}). Distil
-$\Hw=12$ interpolate last-4 is \textbf{88/100} (isolated
-\textbf{557/800}); hard is \textbf{89/100}. Official first-draw
-mean$>0.55$ is 98/100. Unmarked first-draw is $0/100$ above $0.55$.
-Occupancy is 11182 seen versus 85493 unseen
-(opening $[0{:}4)$ is 2036 versus 364). Qwen2-1.5B $\Hw=12$ on the
-same 12 strings is frozen in \ttfile{PROTOCOL-next-longctx-qwen.md}
-(freeze SHA \texttt{d7303a2};
-\ttfile{2026-09-04-pair-qwen-12x4-ngram13}). Qwen $\Hw=12$
-interpolate last-4 is \textbf{4/12} (isolated \textbf{41/96}); hard is
-\textbf{4/12}. Official first-draw mean$>0.55$ is 11/12 (library
-$0.515$). Unmarked first-draw is $0/12$ above $0.55$. Occupancy is 65 seen versus 12127 unseen
-(opening $[0{:}4)$ is 41 versus 247). DistilGPT2 Aaronson on the
-same 12 strings is frozen in
-\ttfile{PROTOCOL-next-aaronson-distil.md}
-(freeze SHA \texttt{9bdf12a};
-\ttfile{2026-09-04-pair-distil-12x4-aaronson}). Distil
-Aaronson interpolate last-4 is \textbf{7/12} (isolated \textbf{0/48}
-marked true positives, BA \textbf{48/96}); hard is \textbf{7/12}
-(isolated \textbf{56/96}). Occupancy is 196 seen versus 11996 unseen
-(opening $[0{:}4)$ is 133 versus 155).
-Unmarked first-draw is $1/12$ above $3.0$. DistilGPT2
-Aaronson on the 100 one-liners is frozen in
-\ttfile{PROTOCOL-next-aaronson-distil-100.md}
-(freeze SHA \texttt{bf05759};
-\ttfile{2026-09-04-pair-distil-100x4-aaronson}). Distil
-Aaronson interpolate last-4 is \textbf{96/100} (isolated
-\textbf{601/800}); hard is \textbf{91/100}. Official first-draw $z>3$
-is 71/100. Unmarked first-draw is $3/100$ above $3.0$.
-Occupancy is 28824 seen versus 61305 unseen
-(opening $[0{:}4)$ is 2048 versus 352). Qwen2-1.5B
-Aaronson on the same 12 strings is frozen in
-\ttfile{PROTOCOL-next-aaronson-qwen.md}
-(freeze SHA \texttt{1171d5c};
-\ttfile{2026-09-04-pair-qwen-12x4-aaronson}). Qwen Aaronson
-interpolate last-4 is \textbf{12/12} (isolated \textbf{12/48} marked
-true positives, BA \textbf{60/96}); hard is \textbf{12/12}
-(isolated \textbf{72/96}). Unmarked first-draw is $0/12$ above $3.0$.
-Occupancy is 457 seen versus 11735 unseen
-(opening $[0{:}4)$ is 127 versus 161). Qwen2-1.5B
-Aaronson on the 100 one-liners is frozen in
-\ttfile{PROTOCOL-next-aaronson-qwen-100.md}
-(freeze SHA \texttt{a761a7d};
-\ttfile{2026-09-04-pair-qwen-100x4-aaronson}). Qwen Aaronson
-interpolate last-4 is \textbf{100/100} (isolated \textbf{616/800});
-hard is \textbf{97/100}. Official first-draw $z>3$ is 99/100.
-Unmarked first-draw is $0/100$ above $3.0$.
-Occupancy is 8750 seen versus 92842 unseen
-(opening $[0{:}4)$ is 1470 versus 930). Qwen2-1.5B $\Hw=12$ on the 100 one-liners is frozen in
-\ttfile{PROTOCOL-next-longctx-qwen-100.md}
-(freeze SHA \texttt{636765c};
-\ttfile{2026-09-04-pair-qwen-100x4-ngram13}). Qwen $\Hw=12$
-interpolate last-4 is \textbf{76/100} (isolated \textbf{474/800});
-hard is \textbf{74/100}. Official first-draw mean$>0.55$ is 91/100.
-Unmarked first-draw is $0/100$ above $0.55$.
-Occupancy is 3535 seen versus 98064 unseen
-(opening $[0{:}4)$ is 1092 versus 1308). Whether $\Hw=12$ interpolate \textbf{76/100} is a
-weaker body reader or an opening residual is named in
+\textbf{608/800}).
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{DistilGPT2 and Qwen2-1.5B boundary tests, leave-one-family-out.
+Interpolate last-4 unless noted. Isolated columns are $\tau=0$ balanced
+counts on that corpus, not \textbf{25/48}.}
+\label{tab:xgen}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Lock & Interp. & Isolated & Hard & Freeze \\
+\midrule
+Distil $\Hw=12$, original 12
+  & \textbf{9/12} & \textbf{49/96} & \textbf{6/12} & \texttt{bae6d81} \\
+Distil $\Hw=12$, 100
+  & \textbf{88/100} & \textbf{557/800} & \textbf{89/100} & \texttt{d891622} \\
+Qwen $\Hw=12$, original 12
+  & \textbf{4/12} & \textbf{41/96} & \textbf{4/12} & \texttt{d7303a2} \\
+Qwen $\Hw=12$, 100
+  & \textbf{76/100} & \textbf{474/800} & \textbf{74/100} & \texttt{636765c} \\
+Distil Aaronson, original 12
+  & \textbf{7/12} & \textbf{0/48}; BA \textbf{48/96} & \textbf{7/12}
+    (\textbf{56/96}) & \texttt{9bdf12a} \\
+Distil Aaronson, 100
+  & \textbf{96/100} & \textbf{601/800} & \textbf{91/100} & \texttt{bf05759} \\
+Qwen Aaronson, original 12
+  & \textbf{12/12} & \textbf{12/48}; BA \textbf{60/96} & \textbf{12/12}
+    (\textbf{72/96}) & \texttt{1171d5c} \\
+Qwen Aaronson, 100
+  & \textbf{100/100} & \textbf{616/800} & \textbf{97/100} & \texttt{a761a7d} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+{\RaggedRight\footnotesize
+Protocols, pair dumps, occupancy, and official first-draw controls for
+\Cref{tab:xgen}:
+\begin{itemize}[nosep,leftmargin=1.2em]
+\item Distil $\Hw=12$ original 12:
+  \ttfile{PROTOCOL-next-longctx-distil.md}.
+  Pair dump \ttfile{2026-09-04-pair-distil-12x4-ngram13}.
+  Occupancy is 175 seen versus 11994 unseen
+  (opening $[0{:}4)$ is 111 versus 177).
+  Official first-draw mean$>0.55$ is 12/12.
+  Unmarked first-draw is $0/12$ above $0.55$.
+\item Distil $\Hw=12$ 100:
+  \ttfile{PROTOCOL-next-longctx-distil-100.md}.
+  Pair dump \ttfile{2026-09-04-pair-distil-100x4-ngram13}.
+  Occupancy is 11182 seen versus 85493 unseen
+  (opening $[0{:}4)$ is 2036 versus 364).
+  Official first-draw mean$>0.55$ is 98/100.
+  Unmarked first-draw is $0/100$ above $0.55$.
+\item Qwen $\Hw=12$ original 12:
+  \ttfile{PROTOCOL-next-longctx-qwen.md}.
+  Pair dump \ttfile{2026-09-04-pair-qwen-12x4-ngram13}.
+  Occupancy is 65 seen versus 12127 unseen
+  (opening $[0{:}4)$ is 41 versus 247).
+  Official first-draw mean$>0.55$ is 11/12 (library $0.515$).
+  Unmarked first-draw is $0/12$ above $0.55$.
+\item Qwen $\Hw=12$ 100:
+  \ttfile{PROTOCOL-next-longctx-qwen-100.md}.
+  Pair dump \ttfile{2026-09-04-pair-qwen-100x4-ngram13}.
+  Occupancy is 3535 seen versus 98064 unseen
+  (opening $[0{:}4)$ is 1092 versus 1308).
+  Official first-draw mean$>0.55$ is 91/100.
+  Unmarked first-draw is $0/100$ above $0.55$.
+\item Distil Aaronson original 12:
+  \ttfile{PROTOCOL-next-aaronson-distil.md}.
+  Pair dump \ttfile{2026-09-04-pair-distil-12x4-aaronson}.
+  Occupancy is 196 seen versus 11996 unseen
+  (opening $[0{:}4)$ is 133 versus 155).
+  Unmarked first-draw is $1/12$ above $3.0$.
+\item Distil Aaronson 100:
+  \ttfile{PROTOCOL-next-aaronson-distil-100.md}.
+  Pair dump \ttfile{2026-09-04-pair-distil-100x4-aaronson}.
+  Occupancy is 28824 seen versus 61305 unseen
+  (opening $[0{:}4)$ is 2048 versus 352).
+  Official first-draw $z>3$ is 71/100.
+  Unmarked first-draw is $3/100$ above $3.0$.
+\item Qwen Aaronson original 12:
+  \ttfile{PROTOCOL-next-aaronson-qwen.md}.
+  Pair dump \ttfile{2026-09-04-pair-qwen-12x4-aaronson}.
+  Occupancy is 457 seen versus 11735 unseen
+  (opening $[0{:}4)$ is 127 versus 161).
+  Unmarked first-draw is $0/12$ above $3.0$.
+\item Qwen Aaronson 100:
+  \ttfile{PROTOCOL-next-aaronson-qwen-100.md}.
+  Pair dump \ttfile{2026-09-04-pair-qwen-100x4-aaronson}.
+  Occupancy is 8750 seen versus 92842 unseen
+  (opening $[0{:}4)$ is 1470 versus 930).
+  Official first-draw $z>3$ is 99/100.
+  Unmarked first-draw is $0/100$ above $3.0$.
+\end{itemize}
+Whether $\Hw=12$ interpolate \textbf{76/100} is a weaker body reader or
+an opening residual is named in
 \ttfile{PROTOCOL-next-longctx-windows.md}
 (freeze SHA \texttt{8283d1f}).
 Opened: interpolate $[64{:}128)$ \textbf{50/100} (AUC \textbf{0.501})
@@ -1608,6 +1630,7 @@ opening $[0{:}4)$ \textbf{86/100}.
 JSON:
 \ttfile{2026-09-04-probe-100x4-ngram13-windows},
 \ttfile{2026-09-04-probe-100x4-public-w64-128}.
+\par}
 
 \begin{table}[ht]
 \centering
@@ -1679,14 +1702,8 @@ lock~A (\Cref{fig:locka}, mean $0.520$).
 \centering
 \small
 \caption{Leave-one-family-out interpolate occupancy: exact next-token
-events versus Witten--Bell backoff. File LRs match the interpolate
-holdouts. Occupancy is a mechanistic intermediate, not an isolated-file
-detector. Opening rows sum to $96\times 3$ and $800\times 3$ (token 0
-skipped). Full-file seen$+$unseen is a few events short of $N\times 127$
-(6 on original-12 $\Hw=12$; 11 on public original-12; 98 and 89 on the
-100-family frame): the atoms decoder counts interpolate traces and
-omits a position when context selection returns none. We report observed
-traces, not a padded 127-slot grid.}
+events versus Witten--Bell backoff. Occupancy is a mechanistic
+intermediate, not an isolated-file detector.}
 \label{tab:occ}
 \begin{tabular}{lrrrr}
 \toprule
@@ -1699,6 +1716,12 @@ Original 12, $[0{:}4)$ & 71 & 84 & 217 & 204 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Opening rows sum to $96\times 3$ and $800\times 3$ (token 0 skipped).
+Full-file seen$+$unseen is a few events short of $N\times 127$: the
+atoms decoder counts interpolate traces and omits a position when
+context selection returns none. File LRs match the interpolate
+holdouts. We report observed traces, not a padded 127-slot grid.
 
 \begin{figure}[ht]
 \centering
@@ -1929,9 +1952,11 @@ Variables: \texttt{PAIR12}=\ttfile{experiments/2026-08-17-pair-12x4},
 \texttt{\hspace{1em}\ddash out-dir experiments/2026-09-03-pair-12x4-kgw}\\
 \par}
 
-Distil/Qwen Phase~B replace the model flag and run locks B and C only
-(\texttt{\ddash methods poshits} with \texttt{\ddash fit-prefix 4};
-\texttt{\ddash rankpath} with the same prefix).
+\medskip
+\noindent Distil/Qwen Phase~B replace the model flag and run locks B
+and C only (\texttt{\ddash methods poshits} with
+\texttt{\ddash fit-prefix 4}; \texttt{\ddash rankpath} with the same
+prefix).
 
 \paragraph{Headline dumps.}
 Full paths and SHA-256 digests are the machine-readable registry
