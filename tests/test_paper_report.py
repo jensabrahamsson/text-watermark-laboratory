@@ -12,6 +12,16 @@ BIB = (ROOT / "paper" / "references.bib").read_text()
 ARTIFACTS = (ROOT / "paper" / "artifacts.json").read_text()
 
 
+def _section_9() -> str:
+    return PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
+        r"\section{Conclusion}"
+    )[0]
+
+
+def _appendix() -> str:
+    return PAPER.split(r"\appendix")[1]
+
+
 def test_title_exposes_paired_reference_oracle() -> None:
     assert "Paired-Reference, Key-Free Indication" in PAPER
     assert "Public SynthID-Text Instance" in PAPER
@@ -291,9 +301,7 @@ def test_witten_bell_and_rankpath_are_specified() -> None:
     assert "kgw" not in abs_
     assert "Kirchenbauer" not in abs_
     assert "85/96" not in abs_
-    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
-        r"\section{Conclusion}"
-    )[0]
+    next_sec = _section_9() + _appendix()
     assert r"\textbf{12/12}" in next_sec
     assert "85/96" in next_sec
     assert "114 seen" in next_sec or "114 seen versus" in next_sec
@@ -501,9 +509,7 @@ def test_kgw_qwen_100_freeze_table_has_no_invented_scores() -> None:
 
 
 def test_paper_opened_kgw_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
-        r"\section{Conclusion}"
-    )[0]
+    next_sec = _section_9() + _appendix()
     gpt2_12 = json.loads(
         (
             ROOT
@@ -665,9 +671,7 @@ def test_paper_opened_kgw_counts_match_dumps() -> None:
 
 
 def test_paper_opened_100_family_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
-        r"\section{Conclusion}"
-    )[0]
+    next_sec = _section_9() + _appendix()
 
     def ba(path: Path) -> tuple[int, int]:
         interp = json.loads((path / "interpolate" / "holdout.json").read_text())
@@ -751,9 +755,7 @@ def test_paper_opened_100_family_counts_match_dumps() -> None:
 
 
 def test_paper_opened_12loo_mixin_counts_match_dumps() -> None:
-    next_sec = PAPER.split(r"\section{Preregistered Boundary Tests}")[1].split(
-        r"\section{Conclusion}"
-    )[0]
+    next_sec = _section_9() + _appendix()
 
     def ba(path: Path) -> tuple[int, int, int]:
         interp = json.loads((path / "interpolate" / "holdout.json").read_text())
@@ -1562,3 +1564,72 @@ def test_sol_skeptic_260905_layout_fixes() -> None:
     assert r"\penalty0" in scan
     assert "seqsplit" not in scan
     assert r"\newcommand{\ttsha}[1]{\texttt{\seqsplit{#1}}}" in tex
+
+
+def test_section_9_is_synthesis_not_catalog() -> None:
+    sec = _section_9()
+    app = _appendix()
+    assert r"\label{tab:nextlock}" in sec
+    assert r"\label{tab:occ}" in sec
+    assert r"\label{fig:hw12}" in sec
+    assert "b70986d" in sec
+    assert r"\textbf{76/100}" in sec
+    assert r"\textbf{99/100}" in sec
+    assert r"\textbf{6/12}" in sec
+    assert r"\label{tab:rankpath}" not in sec
+    assert r"\label{tab:xgen}" not in sec
+    assert r"\label{tab:kgwq100}" not in sec
+    assert "175 seen versus" not in sec
+    assert r"\label{tab:rankpath}" in app
+    assert r"\label{tab:xgen}" in app
+    assert r"\label{tab:kgwq100}" in app
+    assert "175 seen versus" in app
+    assert r"\label{app:xcon}" in app
+    assert r"\Cref{app:xcon}" in sec
+
+
+def test_fig_twograin_readable_stems_and_hatch() -> None:
+    tex = (ROOT / "paper" / "main.tex").read_text()
+    fig = tex.split(r"\label{fig:twograin}")[0]
+    fig = fig[fig.rfind(r"\begin{figure}") :]
+    tikz = fig.split(r"\begin{tikzpicture}")[1].split(r"\end{tikzpicture}")[0]
+    caption = fig.split(r"\caption{")[1]
+    assert "rotate=45" not in tikz
+    assert "harb." not in tikz
+    assert "libr." not in tikz
+    assert "yellow!25" not in tikz
+    assert "red!12" not in tikz
+    assert "pattern=north east lines" in tikz
+    assert "pattern=dots" in tikz
+    assert r"line width=1.15pt" in tikz
+    assert "harbour" in tikz
+    assert "ferry-queue" in tikz
+    low = caption.lower()
+    assert "garden" in low
+    assert "station" in low
+    assert "office" in low
+    assert "ferry-queue" in low
+
+
+def test_frozen_release_path_without_doi() -> None:
+    tex = (ROOT / "paper" / "main.tex").read_text()
+    makefile = (ROOT / "paper" / "Makefile").read_text()
+    gitsha = (ROOT / "paper" / "gitsha.tex").read_text()
+    assert r"\input{gitsha}" in tex
+    assert r"\reportgitsha" in tex
+    assert r"\reportversion" in tex
+    assert "2026-09-05" in tex or "2026-09-05" in gitsha
+    assert "paper/release.json" in tex
+    assert "No DOI is minted" in tex
+    assert "write_release.py" in makefile
+    assert "gh-release" in makefile
+    assert "gh release create" in makefile
+    assert "gh release create" in README
+    assert "report-2026-09-05" in README
+    assert "Zenodo" not in tex
+    assert "10.5281" not in tex
+    gitsha_cmd = re.search(r"([0-9a-f]{40})", gitsha)
+    assert gitsha_cmd, gitsha
+    write_src = (ROOT / "paper" / "write_release.py").read_text()
+    assert "pdf_sha256" in write_src
+    assert "document_version" in write_src

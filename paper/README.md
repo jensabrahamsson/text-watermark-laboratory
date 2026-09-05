@@ -43,7 +43,20 @@ Tectonic is the publication engine:
 make          # tectonic -X compile --keep-logs main.tex (stdout: compile.log)
 make qa       # fail on undefined refs/citations and Overfull \hbox in main.log
 make publish  # qa, then overwrite ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf
+make gh-release  # publish, then gh release create report-2026-09-05 with that PDF
 ```
+
+Frozen release (no DOI): `make publish` writes `release.json` with the
+source git SHA and SHA-256 of the dated PDF. Cut a GitHub release with:
+
+```bash
+gh release create report-2026-09-05 \
+  --title "Paired-reference key-free indication (2026-09-05)" \
+  --notes-file release.json \
+  ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.pdf
+```
+
+Do not mint a Zenodo DOI. Keep the compact `…-ce5f168.pdf`.
 
 pdfLaTeX/BibTeX when those binaries exist:
 

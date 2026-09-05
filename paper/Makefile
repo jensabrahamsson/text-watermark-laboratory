@@ -9,9 +9,16 @@ REPORT = ../report/Abrahamsson-2026-09-04-paired-reference-key-free-indication.p
 
 all: tectonic
 
+GITSHA := $(shell git -C .. rev-parse HEAD)
+
+.PHONY: gitsha
+gitsha:
+	@printf '%s\n' '\newcommand{\reportversion}{2026-09-05}' > gitsha.tex
+	@printf '%s\n' '\newcommand{\reportgitsha}{$(GITSHA)}' >> gitsha.tex
+
 # --keep-logs writes main.log (engine Overfull / undefined-ref lines).
 # compile.log is Tectonic stdout/stderr. -X compile does not write tectonic.log.
-tectonic: main.tex references.bib
+tectonic: gitsha main.tex references.bib
 	$(TECTONIC) -X compile --keep-logs main.tex > compile.log 2>&1 || (cat compile.log; exit 1)
 	@perl -i -pe 's/[ \t]+$$//' compile.log
 
@@ -35,7 +42,15 @@ qa: tectonic
 
 publish: qa
 	cp -f main.pdf $(REPORT)
-	@echo "wrote $(REPORT)"
+	python3 write_release.py
+	@echo "wrote $(REPORT) and release.json"
+
+gh-release: publish
+	@echo "Creating GitHub release report-2026-09-05 (no DOI)."
+	gh release create report-2026-09-05 \
+		--title "Paired-reference key-free indication (2026-09-05)" \
+		--notes-file release.json \
+		$(REPORT)
 
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
@@ -43,4 +58,4 @@ clean:
 distclean: clean
 	rm -f main.pdf
 
-.PHONY: all tectonic pdflatex qa publish clean distclean
+.PHONY: all tectonic pdflatex qa publish gh-release gitsha clean distclean
