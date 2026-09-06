@@ -3395,3 +3395,12 @@ File AUC is chance. Do not sell **23/48** or **28/48**. Nothing replaces
 `thesis/`.
 
 ---
+## 2026-09-06 resample
+
+**Collection.** `/Users/jens/kod/text-watermark-tools/experiments/claude-sample-2026-09-06` — **0** long texts.
+`assumed_watermark: rumored`. `used_keys=false`. GPT-2 tokenizer.
+Not a Claude detector. Not a watermark claim.
+
+Do not train a Claude detector on the pre-mark pile alone. Work dir: `/Users/jens/kod/text-watermark-tools/experiments/2026-09-06-resample-work`.
+
+---
